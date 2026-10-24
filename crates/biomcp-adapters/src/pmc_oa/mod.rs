@@ -30,9 +30,9 @@ pub struct Document {
     /// License owned by the JSON metadata record.
     pub license: License,
     /// Highest numeric processing version, not publication chronology.
-    pub version: u32,
+    pub version: Option<u32>,
     /// Author manuscript flag from metadata.
-    pub manuscript: bool,
+    pub manuscript: Option<bool>,
     /// Parsed source body.
     pub body: jats::Body,
     /// JATS supplements confirmed against the record media list.
@@ -97,12 +97,12 @@ pub fn read(
     Ok(Some(Document {
         supplements,
         license: license(&record.license_code),
-        version,
-        manuscript: record.is_manuscript,
+        version: Some(version),
+        manuscript: Some(record.is_manuscript),
         body,
     }))
 }
-fn license(value: &str) -> License {
+pub(crate) fn license(value: &str) -> License {
     match value.to_ascii_uppercase().replace('-', " ").as_str() {
         "CC BY" => License::CcBy,
         "CC BY NC" => License::CcByNc,

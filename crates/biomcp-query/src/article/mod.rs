@@ -6,6 +6,7 @@ mod next;
 mod order;
 mod page;
 mod protein_change;
+mod preprint;
 mod sections;
 pub mod semantic_scholar;
 mod sources;

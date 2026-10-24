@@ -30,9 +30,9 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::ArticleSupplement(_) => "biodata.article-supplement/1",
-        Request::ArticleText(_) => "biodata.article-text/1",
+        Request::ArticleText(_) => "biodata.article-text/2",
         Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
-        Request::GetArticle(_) => "biodata.article-get/1",
+        Request::GetArticle(_) => "biodata.article-get/2",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
         Request::SearchGene(_) => "biodata.gene-search/1",
@@ -42,9 +42,9 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
-    ("get", "article", "biodata.article-get/1"),
+    ("get", "article", "biodata.article-get/2"),
     ("article", "supplement", "biodata.article-supplement/1"),
-    ("article", "text", "biodata.article-text/1"),
+    ("article", "text", "biodata.article-text/2"),
     ("article", "citations", "biodata.article-edges/1"),
     ("article", "references", "biodata.article-edges/1"),
 ];

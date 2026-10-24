@@ -1,0 +1,33 @@
+{
+  "feature": "article-preprints",
+  "live_check": "public",
+  "story": "Preprint sections without a PMID make no requests to PubMed annotation or citation sources",
+  "replay": "article/preprint/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1295425",
+        "all"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "PPR1295425",
+        "all"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/annotations/state": "not_applicable",
+        "/result/items/0/sections/citations/state": "not_applicable",
+        "/result/items/0/sections/supplements/state": "not_applicable",
+        "/sources/*/source": [
+          "europepmc"
+        ]
+      },
+      "max_bytes": 5123
+    }
+  ],
+  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists."
+}

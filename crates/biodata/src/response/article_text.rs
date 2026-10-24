@@ -66,9 +66,13 @@ pub struct FullText {
     /// Selected bucket license.
     pub license: License,
     /// Highest numeric processing version.
-    pub processing_version: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub processing_version: Option<u32>,
     /// Whether this selected version is an author manuscript.
-    pub manuscript: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "bool"))]
+    pub manuscript: Option<bool>,
     /// Bounded body parts in reading order.
     pub parts: Box<[TextPart]>,
     /// Source figure captions in document order.
@@ -108,9 +112,13 @@ pub struct TextContent {
     /// Bucket license.
     pub license: License,
     /// Selected processing version.
-    pub processing_version: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub processing_version: Option<u32>,
     /// Author manuscript flag.
-    pub manuscript: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "bool"))]
+    pub manuscript: Option<bool>,
     /// Scope of returned source text.
     pub scope: Text,
     /// Part number for a direct part selection.
@@ -127,6 +135,6 @@ pub struct TextContent {
     pub hits: Option<Box<[TextHit]>>,
 }
 impl super::ResponseBody for ArticleTextResult {
-    const SCHEMA: &'static str = "biomcp.article_text/1";
+    const SCHEMA: &'static str = "biomcp.article_text/2";
     type Query = ArticleText;
 }

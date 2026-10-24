@@ -4,7 +4,7 @@ use biodata::{
     ArticleInput, ArticleText, ArticleTextResult, PageInfo, Pmcid, QueryBody, Reason, Request,
     Section, Source, Status, StepKind, Text, TextContent, TextHit,
 };
-use biomcp_adapters::{jats, pmc_oa, pubmed};
+use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 /// Read a bounded part or find page through the same transport and command budget.
 pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
@@ -32,9 +32,14 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
+            let default_source = if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+                Source::EuropePmc
+            } else {
+                Source::PmcOa
+            };
             let (source, reason) = match error {
                 RequestError::Source(e) => (e.source, e.reason),
-                _ => (Source::PmcOa, Reason::Unavailable),
+                _ => (default_source, Reason::Unavailable),
             };
             body.content = Section::unavailable(source, reason);
         }
@@ -84,7 +89,7 @@ pub(super) fn resolve<'a>(
                 })?;
             Ok(header.pmcid)
         }
-        ArticleInput::Doi(_) => Ok(None),
+        ArticleInput::Doi(_) | ArticleInput::EuropePmc(_) => Ok(None),
     }
 }
 fn execute<'a>(
@@ -94,6 +99,9 @@ fn execute<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    if let ArticleInput::EuropePmc(id) = query.input() {
+        return preprint(cx, query, selection, id, deadline, out);
+    }
     let Some(id) = resolve(cx, query.input(), deadline, out)? else {
         return Ok(());
     };
@@ -113,7 +121,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
-            let Some(content) = select(query, selection, id, &document, out) else {
+            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out) else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
@@ -132,7 +140,7 @@ fn execute<'a>(
 fn select(
     query: &ArticleText,
     selection: &super::protein_change::Selection,
-    id: Pmcid,
+    input: ArticleInput,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<TextContent> {
@@ -141,7 +149,12 @@ fn select(
         license: document.license,
         processing_version: document.version,
         manuscript: document.manuscript,
-        scope: Text::new("PMC body sections and tables").ok()?,
+        scope: Text::new(if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+            "Europe PMC body sections and tables"
+        } else {
+            "PMC body sections and tables"
+        })
+        .ok()?,
         part: None,
         markdown: None,
         heading_path: None,
@@ -165,7 +178,7 @@ fn select(
         )
         .ok();
         if part.continuation {
-            super::sections::fulltext::next(id, number.checked_add(1)?, &mut out.next);
+            super::sections::fulltext::next_input(input, number.checked_add(1)?, &mut out.next);
         }
     } else {
         content.hits = Some(find(query, selection, document, out)?);
@@ -270,4 +283,40 @@ fn matches(document: &pmc_oa::Document, matching: &[bool]) -> Vec<Hit> {
         }
     }
     hits
+}
+
+fn preprint<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleText,
+    selection: &super::protein_change::Selection,
+    id: &biodata::EuropePmcId,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let leg = cx.fetch.leg(&europepmc::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let result = europepmc::read(&leg, id);
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    let source = status::source(
+        Source::EuropePmc,
+        leg.finish(),
+        result.as_ref().err().copied(),
+    );
+    if source.state == biodata::SourceState::Stale {
+        out.status = Status::Partial;
+    }
+    out.sources.push(source);
+    let document = result?;
+    let Some(content) = select(query, selection, query.input().clone(), &document, out) else {
+        out.body = QueryBody::TextPositionError;
+        return Ok(());
+    };
+    out.body = QueryBody::ArticleText(ArticleTextResult {
+        pmcid: None,
+        content: Section::Data {
+            source: Source::EuropePmc,
+            data: content,
+        },
+    });
+    Ok(())
 }

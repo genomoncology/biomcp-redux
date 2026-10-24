@@ -1,0 +1,31 @@
+{
+  "europepmc_id": "PPR1064174",
+  "doi": "10.21203/rs.3.rs-7293078/v1",
+  "title": "Beyond Tumors: Reduced Survival Linked to Pathogenic PIK3CA and TP53 Post-Zygotic Variants in the Uninvolved Breast Tissue of Recurrent Cancer Patients",
+  "journal": "Research Square",
+  "date": "2025-08-06",
+  "types": [
+    "preprint"
+  ],
+  "corrections": [],
+  "authors": {
+    "items": [
+      "Andreou M",
+      "Chojnowska K",
+      "Filipowicz N",
+      "Horbacz M",
+      "Madanecki P",
+      "Duzowska K",
+      "Ławrynowicz U",
+      "Davies H",
+      "Bruhn-Olszewska B",
+      "Koszyński M"
+    ],
+    "total": 33
+  },
+  "abstract_parts": [
+    {
+      "text": "Abstract\n\n  Background Histologically normal mammary tissue from breast cancer patients can harbor significant genetic alterations that could precede visible tumor development and influence disease progression. Methods Whole-exome sequencing was performed on 408 samples from 77 breast cancer patients with poor prognosis, 49 patients recruited without prognosis-based selection, and 15 individuals undergoing non-cancer-related mammoplasty. Paired primary tumor and histologically normal mammary gland tissues were analyzed. Variant classification adhered to strict filtering criteria, incorporating allele frequency thresholds, multiple annotation databases, and in silico prediction tools. Duplex sequencing was employed to detect and confirm pathogenic *PIK3CA* and *TP53* variants in normal mammary tissue samples from 11 breast cancer patients with unfavorable prognosis. Statistical analyses included hypergeometric testing, Kaplan–Meier survival analysis, and Cox proportional hazards modeling. Results Post-zygotic pathogenic variants in cancer-associated genes were significantly more prevalent in normal mammary tissue of poor-prognosis patients (29%) than in unselected patients (12.5%) (p = 0.0008578). Disease recurrence, significantly reduced survival rates, with poor-prognosis patients experiencing higher mortality within 24 months (p = 0.0088), were further worsened by the presence of pathogenic post-zygotic variants. Truncating variants were exclusive to poor-prognosis cases. Frequently altered genes included *AKT1, PIK3CA, PTEN, TBX3*, and *TP53*, with *TP53* variants detected only in patients with adverse outcomes. Duplex sequencing confirmed the presence of low-frequency variants (as low as 1.34%) in regions of histologically normal breast tissue from patients with a poor prognosis. Notably, nearly one-quarter of all identified cases (24%, 12/49) harbored pathogenic variants in normal tissue that were not present in the corresponding primary tumor, indicating independent clonal evolution. Conlcusions Post-zygotic pathogenic variants in normal mammary tissue are associated with increased recurrence risk and reduced survival in breast cancer patients. These findings highlight the potential of integrating genetic screening of non-tumorous breast tissue into risk assessment strategies to better inform patient monitoring and management."
+    }
+  ]
+}

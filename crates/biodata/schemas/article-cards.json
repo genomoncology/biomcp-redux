@@ -128,6 +128,11 @@
           "required": [
             "doi"
           ]
+        },
+        {
+          "required": [
+            "europepmc_id"
+          ]
         }
       ],
       "description": "Article facts with at least one checked identity.",
@@ -164,6 +169,10 @@
         "doi": {
           "$ref": "#/$defs/Doi",
           "description": "DOI assigned to this article."
+        },
+        "europepmc_id": {
+          "$ref": "#/$defs/EuropePmcId",
+          "description": "Europe PMC identity when this card comes from its core record."
         },
         "journal": {
           "anyOf": [
@@ -299,7 +308,7 @@
       "type": "object"
     },
     "ArticleInput": {
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
     "ArticleMatch": {
@@ -321,13 +330,15 @@
       "enum": [
         "pmid",
         "pmcid",
-        "doi"
+        "doi",
+        "europepmc_id"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " PubMed identifier.",
         " PMC identifier.",
-        " Digital object identifier."
+        " Digital object identifier.",
+        " Europe PMC preprint identifier."
       ]
     },
     "ArticleResolution": {
@@ -615,6 +626,10 @@
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+      "type": "string"
+    },
     "FigureCaption": {
       "additionalProperties": false,
       "description": "Figure text in document order.",
@@ -694,8 +709,6 @@
       },
       "required": [
         "license",
-        "processing_version",
-        "manuscript",
         "parts",
         "figures"
       ],
@@ -1783,7 +1796,7 @@
       ]
     }
   },
-  "$id": "biomcp.article_cards/1",
+  "$id": "biomcp.article_cards/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1829,7 +1842,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_cards/1",
+      "const": "biomcp.article_cards/2",
       "type": "string"
     },
     "sources": {

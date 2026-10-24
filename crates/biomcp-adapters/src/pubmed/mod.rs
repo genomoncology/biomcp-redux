@@ -2,6 +2,7 @@
 mod efetch;
 mod map;
 pub use efetch::{fetch_articles, resolve_ids};
+pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{ArticleHeader, ArticleSort, Pmid, Source, SourceNotice, Text};
