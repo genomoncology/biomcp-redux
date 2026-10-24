@@ -52,28 +52,20 @@ impl XmlReply for Body {
         let pmcid = own_id(metadata)?;
         let body = root.child("body")?.ok_or(BadReply)?;
         let (parts, rows) = render::body(body)?;
-        let figures = blocks::descendants(body.0, "fig")?
-            .into_iter()
-            .filter_map(|fig| match fig.child("caption") {
-                Ok(Some(caption)) => Some(Ok((fig, caption))),
-                Ok(None) => None,
-                Err(error) => Some(Err(error)),
-            })
-            .filter_map(|pair| match pair.and_then(|(fig, caption)| {
-                Ok((fig, caption, caption.text()?))
-            }) {
-                Ok((_, _, text)) if text.trim().is_empty() => None,
-                other => Some(other),
-            })
-            .map(|fig| {
-                let (fig, caption, _) = fig?;
-                Ok(FigureCaption {
-                    label: Text::new(&fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()))
-                        .map_err(|_| BadReply)?,
-                    caption: markdown(caption.0)?,
-                })
-            })
-            .collect::<Result<Vec<_>, BadReply>>()?;
+        let mut figures = Vec::new();
+        for fig in blocks::descendants(body.0, "fig")? {
+            let Some(caption) = fig.child("caption")? else {
+                continue;
+            };
+            if caption.text()?.trim().is_empty() {
+                continue;
+            }
+            figures.push(FigureCaption {
+                label: Text::new(&fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()))
+                    .map_err(|_| BadReply)?,
+                caption: markdown(caption.0)?,
+            });
+        }
         Ok(Self {
             pmcid,
             parts,
