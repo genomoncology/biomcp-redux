@@ -12,7 +12,7 @@
       "exit": 1,
       "expect": {
         "/status": "absent",
-        "/data/items/0/answer/status": "not_found"
+        "/data/items/0/answer/resolution": "not_found"
       }
     }
   ]

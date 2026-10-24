@@ -12,18 +12,34 @@ pub enum ArticleInput {
 impl std::str::FromStr for ArticleInput {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Error> {
-        if s.starts_with("PMC") { s.parse().map(Self::Pmcid) }
-        else if s.starts_with("10.") { s.parse().map(Self::Doi) }
-        else if let Some(doi) = s.strip_prefix("https://doi.org/").or_else(||s.strip_prefix("http://doi.org/")) { doi.parse().map(Self::Doi) }
-        else { s.parse().map(Self::Pmid) }
+        if s.starts_with("PMC") {
+            s.parse().map(Self::Pmcid)
+        } else if s.starts_with("10.") {
+            s.parse().map(Self::Doi)
+        } else if let Some(doi) = s
+            .strip_prefix("https://doi.org/")
+            .or_else(|| s.strip_prefix("http://doi.org/"))
+        {
+            doi.parse().map(Self::Doi)
+        } else {
+            s.parse().map(Self::Pmid)
+        }
     }
 }
 impl std::fmt::Display for ArticleInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self { Self::Pmid(id)=>id.fmt(f), Self::Pmcid(id)=>id.fmt(f), Self::Doi(id)=>id.fmt(f) }
+        match self {
+            Self::Pmid(id) => id.fmt(f),
+            Self::Pmcid(id) => id.fmt(f),
+            Self::Doi(id) => id.fmt(f),
+        }
     }
 }
-text_value!(ArticleInput, "ArticleInput", r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$");
+text_value!(
+    ArticleInput,
+    "ArticleInput",
+    r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
+);
 crate::source::canonical_enum! {
     /// Identifier used to resolve this article.
     ArticleMatchKind, SourceUnknown {
@@ -38,6 +54,10 @@ crate::source::canonical_enum! {
 impl ArticleInput {
     /// Checked namespace of the original selector.
     pub fn kind(&self) -> ArticleMatchKind {
-        match self { Self::Pmid(_)=>ArticleMatchKind::Pmid, Self::Pmcid(_)=>ArticleMatchKind::Pmcid, Self::Doi(_)=>ArticleMatchKind::Doi }
+        match self {
+            Self::Pmid(_) => ArticleMatchKind::Pmid,
+            Self::Pmcid(_) => ArticleMatchKind::Pmcid,
+            Self::Doi(_) => ArticleMatchKind::Doi,
+        }
     }
 }

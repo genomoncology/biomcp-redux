@@ -33,10 +33,21 @@ pub struct Article<A = Box<[Text]>> {
 impl Article {
     /// Disclose the first ten authors and retain the whole count.
     pub fn card(self) -> Article<Capped<Text>> {
-        Article { pmid:self.pmid, doi:self.doi, pmcid:self.pmcid, title:self.title,
-            journal:self.journal, date:self.date, types:self.types, corrections:self.corrections,
-            authors:Capped { total:self.authors.len() as u64,
-                items:self.authors.into_iter().take(10).collect() }, abstract_parts:self.abstract_parts }
+        Article {
+            pmid: self.pmid,
+            doi: self.doi,
+            pmcid: self.pmcid,
+            title: self.title,
+            journal: self.journal,
+            date: self.date,
+            types: self.types,
+            corrections: self.corrections,
+            authors: Capped {
+                total: self.authors.len() as u64,
+                items: self.authors.into_iter().take(10).collect(),
+            },
+            abstract_parts: self.abstract_parts,
+        }
     }
 }
 /// One source-labelled abstract paragraph.

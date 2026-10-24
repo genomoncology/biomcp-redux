@@ -2,8 +2,8 @@ use crate::{Article, ArticleGet, ArticleInput, ArticleMatchKind, Capped, ItemSta
 use serde::{Deserialize, Serialize};
 /// Result of resolving an article selector.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag="status", rename_all="snake_case", deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[serde(tag = "resolution", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum ArticleResolution {
     /// A record whose own identity agrees with the input.
     Resolved {
@@ -12,7 +12,7 @@ pub enum ArticleResolution {
         /// Identity evidence.
         r#match: ArticleMatch,
         /// Original fetch time in Unix seconds.
-        fetched: i64,
+        fetched: u64,
     },
     /// The source confirmed no matching record.
     NotFound,
@@ -20,7 +20,7 @@ pub enum ArticleResolution {
 /// Identity evidence for an article card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleMatch {
     /// Namespace used to resolve the card.
     pub kind: ArticleMatchKind,
@@ -28,25 +28,25 @@ pub struct ArticleMatch {
 /// Answer to one input; shared DOIs may expand to several consecutive items.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleCardItem {
     /// Original selector.
     pub input: ArticleInput,
     /// This card's outcome.
     pub status: ItemStatus,
     /// Absent only when a provider failed.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub answer: Option<ArticleResolution>,
 }
 /// Cards in caller order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleCards {
     /// Per-input answers.
     pub items: Box<[ArticleCardItem]>,
 }
 impl super::ResponseBody for ArticleCards {
-    const SCHEMA: &'static str="biomcp.article_cards/1";
-    type Query=ArticleGet;
+    const SCHEMA: &'static str = "biomcp.article_cards/1";
+    type Query = ArticleGet;
 }

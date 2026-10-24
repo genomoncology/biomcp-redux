@@ -27,7 +27,8 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::json()).map(|(reply, _)| reply)
+        self.parameters(ep, params, Decoder::json())
+            .map(|(reply, _)| reply)
     }
 
     /// Send checked XML from a GET or form POST.
@@ -36,12 +37,15 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Decoder::xml()).map(|(reply, _)| reply)
+        self.parameters(ep, params, Decoder::xml())
+            .map(|(reply, _)| reply)
     }
 
     /// Read XML and its own original fetch time without borrowing another reply's metadata.
     pub fn xml_received<T: XmlReply>(
-        &self, ep: &Endpoint, params: &[(&str, Arg<'_>)]
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.parameters(ep, params, Decoder::xml())
     }
@@ -113,7 +117,8 @@ impl Leg<'_> {
             ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
             codec,
-        ).map(|(reply, _)| reply)
+        )
+        .map(|(reply, _)| reply)
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
@@ -146,12 +151,19 @@ impl Leg<'_> {
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
         let keyed = self.keyed();
-        let (reply, fetched) = self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
-            self.attempts(&prepared, keyed, &codec)
-        })?;
-        let metadata = crate::ReplyMetadata { identity: prepared.identity, fetched };
-        self.report.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
-            .replies.push(metadata);
+        let (reply, fetched) =
+            self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
+                self.attempts(&prepared, keyed, &codec)
+            })?;
+        let metadata = crate::ReplyMetadata {
+            identity: prepared.identity,
+            fetched,
+        };
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .replies
+            .push(metadata);
         Ok((reply, metadata))
     }
 
