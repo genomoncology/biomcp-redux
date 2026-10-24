@@ -49,7 +49,7 @@ impl Reply for Raw {
             return Err(BadReply);
         }
         if let Some(xml) = &self.result.abstract_text {
-            jats::markdown(&fragment(xml))?;
+            jats::markdown(&fragment(xml)?)?;
         }
         Ok(())
     }
@@ -87,7 +87,7 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
         .abstract_text
         .as_ref()
         .filter(|s| !s.trim().is_empty())
-        .map(|xml| jats::markdown(&fragment(xml)).map(|text| AbstractPart { label: None, text }))
+        .map(|xml| fragment(xml).and_then(|xml| jats::markdown(&xml)).map(|text| AbstractPart { label: None, text }))
         .transpose()
         .map_err(bad)?
         .into_iter()
@@ -138,20 +138,36 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
 // Europe PMC abstractText is an HTML fragment. A comparison such as p<0.001 is
 // text, not a tag; escape that literal before the checked XML boundary. Broken
 // tags still fail that boundary, and no markup or decoded text is discarded.
-fn fragment(html: &str) -> String {
+fn fragment(mut html: &str) -> Result<String, BadReply> {
     let mut xml = String::from("<abstract>");
-    let mut chars = html.chars().peekable();
-    while let Some(ch) = chars.next() {
-        if ch == '<'
-            && !chars
-                .peek()
-                .is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, '/' | '!' | '?'))
-        {
+    while let Some(start) = html.find('<') {
+        xml.push_str(&html[..start]);
+        html = &html[start..];
+        if !html.as_bytes().get(1).is_some_and(|c| {
+            c.is_ascii_alphabetic() || matches!(c, b'/' | b'!' | b'?')
+        }) {
             xml.push_str("&lt;");
-        } else {
-            xml.push(ch);
+            html = &html[1..];
+            continue;
         }
+        // Consume a whole markup event, so comparisons in CDATA stay literal
+        // and malformed attributes cannot be repaired into accepted markup.
+        let mut reader = quick_xml::Reader::from_str(html);
+        match reader.read_event().map_err(|_| BadReply)? {
+            quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
+                for attribute in tag.attributes() {
+                    if attribute.map_err(|_| BadReply)?.value.contains(b"<") {
+                        return Err(BadReply);
+                    }
+                }
+            }
+            _ => {}
+        }
+        let end = reader.buffer_position() as usize;
+        xml.push_str(&html[..end]);
+        html = &html[end..];
     }
+    xml.push_str(html);
     xml.push_str("</abstract>");
-    xml
+    Ok(xml)
 }
