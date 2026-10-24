@@ -162,7 +162,7 @@ The historical baseline has 112 leaf commands and 375 command-specific option sl
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search variant` | Not yet decided | — | — | `--gene`, `--hgvsp`, `--significance`, `--max-frequency`, `--min-cadd`, `--consequence`, `--review-status`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--condition`, `--impact`, `--lof`, `--has`, `--missing`, `--therapy`, `--limit`, `--offset` | Accepted declared search; each advanced filter remains undecided until a known-positive capture proves it. |
+| `search variant` | Not yet decided | `--review-status`, `--condition`, `--has` | — | `--gene`, `--hgvsp`, `--significance`, `--missing`, `--max-frequency`, `--min-cadd`, `--consequence`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--impact`, `--lof`, `--therapy`, `--limit`, `--offset` | Literal ClinVar filters intersect declared protein or region selectors. The presence filter offers only the proven `clinvar` field selector. Other advanced mappings remain undecided without their own known-positive proof. |
 | `get variant` | Not yet decided | — | — | `--assembly` | Accepted published-grammar identity, CAR default and explicit chromosome build; implementation proof remains. |
 | `variant structure` | Not yet decided | — | — | — | Accepted deferral and retirement message to gene protein; implementation proof remains. |
 | `variant oncokb` | Not yet decided | — | — | — | Accepted keyed section; no executed-tier proof. |
@@ -171,6 +171,24 @@ The historical baseline has 112 leaf commands and 375 command-specific option sl
 <!-- /parity-accounting -->
 
 The 28 option slots above account for the six variant-owned leaves. Trial and GWAS slices own `variant trials` and `search gwas`, including their three and five option slots. The generated ledger supplies counts; do not copy a new total into ROADMAP by hand. `variant articles` remains the article accounting owner's responsibility. Unclosed cross-slice decisions stay undecided, even when migration behavior is proposed.
+
+### Named search filter contract
+
+Named filters use MyVariant's [documented field, presence and Boolean query syntax](https://docs.myvariant.info/en/latest/doc/variant_query_service.html). Literal ClinVar phrases are escaped as values. BioMCP does not map clinical aliases, combine classifications, infer review stars or diagnose a condition. The two RCV filters match source fields independently; their conjunction does not assert that all values occur on one RCV submission. Native source candidate order, duplicates, total and result window remain authoritative.
+
+| Option | Source clause | Meaning and boundary |
+| --- | --- | --- |
+| `--review-status TEXT` | `clinvar.rcv.review_status:"TEXT"` | Literal source phrase, without star conversion. |
+| `--condition TEXT` | `clinvar.rcv.conditions.name:"TEXT"` | Literal source condition name, without local terminology expansion. |
+| `--has clinvar` | `_exists_:clinvar.variant_id` | Source annotation identity exists. No other component selector is offered without proof. |
+
+Each filter requires an existing declared gene/protein or region selector. Named filters cannot accompany raw `--query`, which remains unchanged source text. A region requires its build. MyVariant forbids interval expressions inside parentheses; BioMCP therefore joins declared selectors and filter clauses with `AND` without inventing a raw query parser. Unsupported component selectors and raw-query/filter combinations are refused before source access.
+
+Named filter replies label the independent ClinVar terms from the shared component registry. The same registry controls disabled components before requests, cache and replay. Raw queries remain opaque and cannot enforce a component restriction. With an effective component restriction, they return typed usage guidance instead of sending or rewriting the query. With the default source policy, raw query bytes remain unchanged. Explicitly disabling MyVariant keeps the existing source skip behavior.
+
+The declared gene/protein selector searches dbNSFP fields and carries its own selector terms label. It obeys the dbNSFP component switch even without a named filter. It never switches to another gene or protein field when the caller disables that component. Region selectors remain available independently.
+
+The missing-component mapping remains undecided because its direct source query returned a valid zero, which cannot prove the field mapping. The significance mapping remains undecided: the direct source query for `Pathogenic` also matched a returned record whose captured labels did not contain that literal value. No local post-filter or changed query was used to hide this source matching behavior. The remaining frequency, population, CADD, REVEL, GERP, consequence, impact, loss-of-function and historical tumor-site mappings have no accepted positive filter capture in this implementation. Their legacy field names are not offered speculatively. The therapy mapping also lacks a proved current MyVariant CIViC field. CGI stays deferred. These limitations are proof gaps; Ian's open-by-default source ruling permits restricted components when labeled and enabled, so terms alone do not establish that a filter is implemented.
 
 ## 7. Proposed harvested cases
 

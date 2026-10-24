@@ -45,4 +45,6 @@ pub use trial_document::TrialDocumentGet;
 mod protein_change;
 pub use protein_change::ProteinChange;
 mod variant_search;
-pub use variant_search::{MyVariantQuery, VariantRegion, VariantSearch, VariantSearchSource};
+pub use variant_search::{
+    MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
+};

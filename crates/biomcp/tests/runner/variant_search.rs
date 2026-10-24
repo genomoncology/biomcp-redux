@@ -163,8 +163,34 @@ fn raw_and_region() -> Result<(), String> {
             "raw syntax, duplicate source candidates or regional build lost: {raw} {region}"
         ));
     }
-    if stub.finish()?.len() != 2 {
+    restricted_regions(&env)?;
+    if stub.finish()?.len() != 3 {
         return Err("selector made unexpected source calls".into());
+    }
+    Ok(())
+}
+fn restricted_regions(env: &Environment) -> Result<(), String> {
+    for group in ["restricted", "noncommercial"] {
+        let allowed = command(
+            &env,
+            &[
+                "search",
+                "variant",
+                "--region",
+                "chr7:140753336-140753336",
+                "--build",
+                "GRCh38",
+                "--disable-sources",
+                group,
+            ],
+        )?;
+        if allowed.pointer("/status") != Some(&json!("complete"))
+            || allowed.pointer("/page/returned") != Some(&json!(2))
+        {
+            return Err(format!(
+                "unrelated component restriction blocked region selector: {allowed}"
+            ));
+        }
     }
     Ok(())
 }
@@ -362,6 +388,7 @@ fn terms_budget() -> Result<(), String> {
     ] {
         let mut value = super::run_case(&root.join(format!("search-{name}.yaml")), &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        let selector_bytes = subtract_selector(&mut value, !matches!(name, "region" | "raw"))?;
         let items = value
             .pointer_mut("/result/items")
             .and_then(Value::as_array_mut)
@@ -379,7 +406,7 @@ fn terms_budget() -> Result<(), String> {
             }
         }
         let payload = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
-        if labeled == 0 || full - payload != labeled * 205 || payload > cap {
+        if labeled == 0 || full - payload != labeled * 205 + selector_bytes || payload > cap {
             return Err(format!(
                 "{name}: full={full}, metadata={}, payload={payload}, comparable cap={cap}",
                 full - payload
@@ -387,4 +414,14 @@ fn terms_budget() -> Result<(), String> {
         }
     }
     Ok(())
+}
+fn subtract_selector(value: &mut Value, selected: bool) -> Result<usize, String> {
+    let expected = serde_json::to_value(biomcp_adapters::myvariant::components::label(
+        biomcp_adapters::myvariant::components::DBNSFP.terms,
+    ).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    let terms = value.pointer_mut("/result").and_then(Value::as_object_mut)
+        .ok_or("missing source result")?.remove("selector_terms");
+    if !selected && terms.is_none() { return Ok(0); }
+    if terms.as_ref() != Some(&expected) { return Err("selector terms changed during subtraction".into()); }
+    Ok(serde_json::to_vec(&json!({"selector_terms": expected})).map_err(|e| e.to_string())?.len() - 1)
 }

@@ -73,7 +73,12 @@
                   }
                 ]
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {
@@ -84,6 +89,42 @@
           }
         },
         "/sources/0/source": "myvariant"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "L858R",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "L858R",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled",
+        "/result/selector_terms": {
+          "equals": {
+            "usage": "noncommercial",
+            "name": "dbNSFP academic branch and individual component terms",
+            "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+          }
+        },
+        "/result/items": []
       }
     },
     {
@@ -134,7 +175,12 @@
                   }
                 ]
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {
