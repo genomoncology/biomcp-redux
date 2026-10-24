@@ -70,9 +70,9 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let items=create(cx,query,deadline,out)?;
+            let items = create(cx, query, deadline, out)?;
             store.set_deadline(*deadline);
-            store.publish(&key,&items,&out.sources,&out.problems)?
+            store.publish(&key, &items, &out.sources, &out.problems)?
         }
     };
     out.sources = pool.sources.clone();
@@ -87,61 +87,61 @@ fn execute<'a>(
     result
 }
 
-fn create<'a>(cx:&Ctx<'a>,query:&ArticleRecommend,deadline:&mut Deadline<'a>,out:&mut Outcome)->Result<Vec<biodata::ArticleItem>,RequestError> {
-            let leg = cx
-                .fetch
-                .leg(&semantic_scholar::RECOMMEND_SPEC, *deadline)
-                .fresh(cx.fresh);
-            let started = leg.remaining();
-            let reply = semantic_scholar::recommendations(
-                &leg,
-                query.seeds(),
-                query.negative(),
-                query.limit(),
-            );
-            *deadline = super::consume(*deadline, started, leg.remaining());
-            out.sources.push(status::source(
-                Source::SemanticScholar,
-                leg.finish(),
-                reply.as_ref().err().copied(),
-            ));
-            let reply = reply?;
-            let dois: Vec<_> = reply
-                .recommended_papers
-                .iter()
-                .map(|p| p.external_ids.as_ref().and_then(|ids| ids.doi.clone()))
-                .collect();
-            let mut items: Vec<_> = reply
-                .recommended_papers
-                .into_iter()
-                .map(semantic_scholar::Paper::item)
-                .collect();
-            if items.len() > query.limit() as usize {
-                return Err(biomcp_fetch::SourceError {
-                    source: Source::SemanticScholar,
-                    reason: biodata::Reason::BadReply,
-                    status: Some(200),
-                    retry_after: None,
-                }
-                .into());
-            }
-            if items
-                .iter()
-                .zip(&dois)
-                .any(|(item, doi)| item.pmid.is_none() && doi.is_some())
-            {
-                let joined =
-                    super::semantic_scholar::resolve_dois_with(cx, &mut items, deadline, &dois);
-                out.sources.push(joined.source);
-                status::append(&mut out.problems, joined.problems);
-                if let Some(error) = joined.error.and_then(status::local) {
-                    return Err(error);
-                }
-            }
-            for item in &mut items {
-                if item.pmid.is_some() && item.header.as_ref().is_some_and(|h| h.types_unknown) {
-                    item.header = None
-                }
-            }
-            Ok(items)
+fn create<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleRecommend,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<Vec<biodata::ArticleItem>, RequestError> {
+    let leg = cx
+        .fetch
+        .leg(&semantic_scholar::RECOMMEND_SPEC, *deadline)
+        .fresh(cx.fresh);
+    let started = leg.remaining();
+    let reply =
+        semantic_scholar::recommendations(&leg, query.seeds(), query.negative(), query.limit());
+    *deadline = super::consume(*deadline, started, leg.remaining());
+    out.sources.push(status::source(
+        Source::SemanticScholar,
+        leg.finish(),
+        reply.as_ref().err().copied(),
+    ));
+    let reply = reply?;
+    let dois: Vec<_> = reply
+        .recommended_papers
+        .iter()
+        .map(|p| p.external_ids.as_ref().and_then(|ids| ids.doi.clone()))
+        .collect();
+    let mut items: Vec<_> = reply
+        .recommended_papers
+        .into_iter()
+        .map(semantic_scholar::Paper::item)
+        .collect();
+    if items.len() > query.limit() as usize {
+        return Err(biomcp_fetch::SourceError {
+            source: Source::SemanticScholar,
+            reason: biodata::Reason::BadReply,
+            status: Some(200),
+            retry_after: None,
+        }
+        .into());
+    }
+    if items
+        .iter()
+        .zip(&dois)
+        .any(|(item, doi)| item.pmid.is_none() && doi.is_some())
+    {
+        let joined = super::semantic_scholar::resolve_dois_with(cx, &mut items, deadline, &dois);
+        out.sources.push(joined.source);
+        status::append(&mut out.problems, joined.problems);
+        if let Some(error) = joined.error.and_then(status::local) {
+            return Err(error);
+        }
+    }
+    for item in &mut items {
+        if item.pmid.is_some() && item.header.as_ref().is_some_and(|h| h.types_unknown) {
+            item.header = None
+        }
+    }
+    Ok(items)
 }

@@ -10,7 +10,7 @@ pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut buffer = String::new();
     let mut bytes = 0;
     let mut offset = 0;
-    for (chars,ch) in text.chars().enumerate() {
+    for (chars, ch) in text.chars().enumerate() {
         let cost = biomcp_adapters::jats::escaped_bytes(&ch.to_string());
         if bytes + cost > 3500 {
             out.push((offset, std::mem::take(&mut buffer)));

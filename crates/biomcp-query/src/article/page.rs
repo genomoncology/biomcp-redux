@@ -229,35 +229,31 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         && let Some(item) = items
             .iter()
             .find(|item| item.contexts.as_ref().is_some_and(|c| c.total > 1))
-        {
-            let input =
-                item.pmid
-                    .map(biodata::ArticleInput::Pmid)
-                    .or_else(|| match item.key.as_ref() {
-                        Some(biodata::ArticleKey::Doi(id)) => {
-                            Some(biodata::ArticleInput::Doi(id.clone()))
-                        }
-                        Some(biodata::ArticleKey::Pmc(id)) => {
-                            Some(biodata::ArticleInput::Pmcid(*id))
-                        }
-                        _ => None,
-                    });
-            if let Some(input) = input {
-                let (citing, cited) = if references {
-                    (parent.input().clone(), input)
-                } else {
-                    (input, parent.input().clone())
-                };
-                out.next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::ArticleEvidence(biodata::ArticleEvidence::new(
-                            citing, cited,
-                        )),
-                        fresh: false,
-                    },
-                ));
-            }
+    {
+        let input =
+            item.pmid
+                .map(biodata::ArticleInput::Pmid)
+                .or_else(|| match item.key.as_ref() {
+                    Some(biodata::ArticleKey::Doi(id)) => {
+                        Some(biodata::ArticleInput::Doi(id.clone()))
+                    }
+                    Some(biodata::ArticleKey::Pmc(id)) => Some(biodata::ArticleInput::Pmcid(*id)),
+                    _ => None,
+                });
+        if let Some(input) = input {
+            let (citing, cited) = if references {
+                (parent.input().clone(), input)
+            } else {
+                (input, parent.input().clone())
+            };
+            out.next.push((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::ArticleEvidence(biodata::ArticleEvidence::new(citing, cited)),
+                    fresh: false,
+                },
+            ));
+        }
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid

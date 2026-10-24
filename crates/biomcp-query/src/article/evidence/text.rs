@@ -55,60 +55,61 @@ pub(super) fn read<'a>(
             Section::unavailable(Source::PmcOa, super::graph::reason(error))
         }
         Ok(None) => Section::unavailable(Source::PmcOa, biodata::Reason::NotOpen),
-        Ok(Some(document)) => {
-            paragraphs(&document,&target)?
-        }
+        Ok(Some(document)) => paragraphs(&document, &target)?,
     });
     Ok(())
 }
 
-fn paragraphs(document:&pmc_oa::Document,target:&super::graph::Target)->Result<Section<CitationParagraphs>,RequestError> {
-            let refs: Vec<_> = document
-                .body
-                .references
-                .iter()
-                .filter(|r| {
-                    target.pmid.is_some() && r.pmid == target.pmid
-                        || r.doi
-                            .as_ref()
-                            .zip(target.doi.as_ref())
-                            .is_some_and(|(a, b)| a == b)
-                })
-                .map(|r| &r.id)
-                .collect();
-            let mut paragraphs = Vec::new();
-            for (index, row) in document
-                .body
-                .rows
-                .iter()
-                .enumerate()
-                .filter(|(_, r)| r.paragraph && r.references.iter().any(|id| refs.contains(&id)))
-            {
-                let Some(part) = document
-                    .body
-                    .parts
-                    .iter()
-                    .find(|p| p.rows.iter().any(|r| r.source_row == index))
-                else {
-                    continue;
-                };
-                for (offset, text) in super::page::split(&row.markdown) {
-                    paragraphs.push(EvidenceParagraph {
-                        position: u32::try_from(index + 1).map_err(|_| super::bad())?,
-                        part: part.meta.number,
-                        character_offset: offset,
-                        markdown: biodata::Markdown::new(&text).map_err(|_| super::bad())?,
-                    });
-                }
-            }
-            Ok(Section::Data {
-                source: Source::PmcOa,
-                data: CitationParagraphs {
-                    license: document.license,
-                    paragraphs: Capped {
-                        total: paragraphs.len() as u64,
-                        items: paragraphs.into(),
-                    },
-                },
-            })
+fn paragraphs(
+    document: &pmc_oa::Document,
+    target: &super::graph::Target,
+) -> Result<Section<CitationParagraphs>, RequestError> {
+    let refs: Vec<_> = document
+        .body
+        .references
+        .iter()
+        .filter(|r| {
+            target.pmid.is_some() && r.pmid == target.pmid
+                || r.doi
+                    .as_ref()
+                    .zip(target.doi.as_ref())
+                    .is_some_and(|(a, b)| a == b)
+        })
+        .map(|r| &r.id)
+        .collect();
+    let mut paragraphs = Vec::new();
+    for (index, row) in document
+        .body
+        .rows
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| r.paragraph && r.references.iter().any(|id| refs.contains(&id)))
+    {
+        let Some(part) = document
+            .body
+            .parts
+            .iter()
+            .find(|p| p.rows.iter().any(|r| r.source_row == index))
+        else {
+            continue;
+        };
+        for (offset, text) in super::page::split(&row.markdown) {
+            paragraphs.push(EvidenceParagraph {
+                position: u32::try_from(index + 1).map_err(|_| super::bad())?,
+                part: part.meta.number,
+                character_offset: offset,
+                markdown: biodata::Markdown::new(&text).map_err(|_| super::bad())?,
+            });
+        }
+    }
+    Ok(Section::Data {
+        source: Source::PmcOa,
+        data: CitationParagraphs {
+            license: document.license,
+            paragraphs: Capped {
+                total: paragraphs.len() as u64,
+                items: paragraphs.into(),
+            },
+        },
+    })
 }
