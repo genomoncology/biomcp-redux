@@ -1,4 +1,8 @@
 //! Opt-in bounded wire summaries without response values or request URLs.
+#![expect(
+    clippy::disallowed_types,
+    reason = "Serialize bounded summaries across source workers"
+)]
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs::File, io::Write, path::Path, sync::Mutex};
 /// Maximum attempts retained per command.
@@ -59,10 +63,10 @@ impl Shape {
                     }
                     let path = format!("{path}/{}", key.replace('~', "~0").replace('/', "~1"));
                     self.fields.insert(path.clone(), true);
-                    if key.to_ascii_lowercase().contains("count") {
-                        if let Some(n) = value.as_u64().or_else(|| value.as_str()?.parse().ok()) {
-                            self.positive.insert(path.clone(), n > 0);
-                        }
+                    if key.to_ascii_lowercase().contains("count")
+                        && let Some(n) = value.as_u64().or_else(|| value.as_str()?.parse().ok())
+                    {
+                        self.positive.insert(path.clone(), n > 0);
                     }
                     self.json(value, &path, depth + 1);
                 }
@@ -94,10 +98,6 @@ pub struct Observation {
     pub shape: Shape,
 }
 /// Explicitly created command-owned sink.
-#[expect(
-    clippy::disallowed_types,
-    reason = "Serialize bounded summaries across source workers"
-)]
 #[derive(Debug)]
 pub struct Observations(Mutex<(File, usize, usize)>);
 impl Observations {

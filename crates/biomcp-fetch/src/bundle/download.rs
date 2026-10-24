@@ -184,15 +184,7 @@ impl Leg<'_> {
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
-                    if status != 200 && status != 206 {
-                        self.observe(
-                            &prepared.identity,
-                            Some(status),
-                            &[],
-                            b.format.media(),
-                            t.started.elapsed(),
-                        );
-                    }
+                    self.observe_bundle_status(&prepared, status, b.format, t.started.elapsed());
                     if status == 412 && t.part.bytes > 0 {
                         reset(t.file, t.part)?;
                         headers.clear();
@@ -253,6 +245,23 @@ impl Leg<'_> {
             }
         }
         Err(self.failure(Reason::Syncing, None).into())
+    }
+    fn observe_bundle_status(
+        &self,
+        prepared: &Prepared,
+        status: u16,
+        format: super::RowFormat,
+        elapsed: Duration,
+    ) {
+        if status != 200 && status != 206 {
+            self.observe(
+                &prepared.identity,
+                Some(status),
+                &[],
+                format.media(),
+                elapsed,
+            );
+        }
     }
     fn revalidated<R: Row>(
         &self,
