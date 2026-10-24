@@ -40,10 +40,11 @@ fn gwas_zero() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests[0].1.starts_with(
-            "GET /gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3 HTTP/1.1",
-        )
+    let [(_, request)] = requests.as_slice() else {
+        return Err(format!("expected one catalog request: {requests:?}"));
+    };
+    if !request
+        .starts_with("GET /gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3 HTTP/1.1")
     {
         return Err(format!("expected exact rsID v2 request only: {requests:?}"));
     }
@@ -109,10 +110,14 @@ fn population() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
-    if requests.len() != 2
-        || !requests[1].1.starts_with("POST /api HTTP/1.1")
-        || !requests[1].1.contains("gnomad_r4")
-        || !requests[1].1.contains("7-140753336-A-T")
+    let [_, (_, request)] = requests.as_slice() else {
+        return Err(format!(
+            "expected one CAR and one gnomAD request across warm pages: {requests:?}"
+        ));
+    };
+    if !request.starts_with("POST /api HTTP/1.1")
+        || !request.contains("gnomad_r4")
+        || !request.contains("7-140753336-A-T")
         || requests.iter().any(|(_, r)| r.contains("myvariant"))
     {
         return Err(format!(
@@ -176,7 +181,9 @@ fn mismatched_body(request: &str) -> Result<String, String> {
     let mut body: Value =
         serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
     if !request.starts_with("GET /allele/") {
-        body["data"]["variant"]["variant_id"] = json!("7-140753336-A-C");
+        *body
+            .pointer_mut("/data/variant/variant_id")
+            .ok_or("missing synthetic variant ID")? = json!("7-140753336-A-C");
     }
     Ok(body.to_string())
 }
@@ -202,8 +209,13 @@ fn indel_body(request: &str) -> Result<String, String> {
     // Synthetic response-only insertion control; it makes no claim about this real CAid.
     let mut body: Value =
         serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
-    body["genomicAlleles"][0]["hgvs"] = json!(["NC_000007.14:g.140753336_140753337insT"]);
-    body["genomicAlleles"][0]["coordinates"] =
+    *body
+        .pointer_mut("/genomicAlleles/0/hgvs")
+        .ok_or("missing synthetic source HGVS")? =
+        json!(["NC_000007.14:g.140753336_140753337insT"]);
+    *body
+        .pointer_mut("/genomicAlleles/0/coordinates")
+        .ok_or("missing synthetic source coordinates")? =
         json!([{"start":140753336,"end":140753336,"referenceAllele":"","allele":"T"}]);
     Ok(body.to_string())
 }
@@ -246,7 +258,11 @@ fn gwas_walk() -> Result<(), String> {
             {
                 return Err(format!("source association effect/trait changed: {row}"));
             }
-            ids.push(row["id"].clone());
+            ids.push(
+                row.get("id")
+                    .cloned()
+                    .ok_or("source association ID absent")?,
+            );
         }
         if page == 0 {
             args = serde_json::from_value(

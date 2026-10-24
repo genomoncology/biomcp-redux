@@ -41,26 +41,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
-    let query = match request {
-        Request::VariantAssertions(query) => serde_json::to_value(query)?,
-        Request::VariantPopulation(query) => serde_json::to_value(query)?,
-        Request::GetVariant(query) => serde_json::to_value(query)?,
-        Request::TrialDocument(query) => serde_json::to_value(query)?,
-        Request::GetTrial(query) => serde_json::to_value(query)?,
-        Request::SearchTrial(query) => serde_json::to_value(query)?,
-        Request::ArticlePdf(query) => serde_json::to_value(query)?,
-        Request::ArticleEvidence(query) => serde_json::to_value(query)?,
-        Request::ArticleRecommend(query) => serde_json::to_value(query)?,
-        Request::ArticleSupplement(query) => serde_json::to_value(query)?,
-        Request::ArticleText(query) => serde_json::to_value(query)?,
-        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
-            serde_json::to_value(query)?
-        }
-        Request::GetArticle(query) => serde_json::to_value(query)?,
-        Request::SearchArticle(query) => serde_json::to_value(query)?,
-        Request::GetGene(query) => serde_json::to_value(query)?,
-        Request::SearchGene(query) => serde_json::to_value(query)?,
-    };
+    let query = request_query(request)?;
     let mut args = vec![
         match request {
             Request::VariantAssertions(_) => "variant",
@@ -208,4 +189,27 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     }
     positional.extend(trailing);
     positional
+}
+
+fn request_query(request: &Request) -> Result<Value, serde_json::Error> {
+    Ok(match request {
+        Request::VariantAssertions(query) => serde_json::to_value(query)?,
+        Request::VariantPopulation(query) => serde_json::to_value(query)?,
+        Request::GetVariant(query) => serde_json::to_value(query)?,
+        Request::TrialDocument(query) => serde_json::to_value(query)?,
+        Request::GetTrial(query) => serde_json::to_value(query)?,
+        Request::SearchTrial(query) => serde_json::to_value(query)?,
+        Request::ArticlePdf(query) => serde_json::to_value(query)?,
+        Request::ArticleEvidence(query) => serde_json::to_value(query)?,
+        Request::ArticleRecommend(query) => serde_json::to_value(query)?,
+        Request::ArticleSupplement(query) => serde_json::to_value(query)?,
+        Request::ArticleText(query) => serde_json::to_value(query)?,
+        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
+            serde_json::to_value(query)?
+        }
+        Request::GetArticle(query) => serde_json::to_value(query)?,
+        Request::SearchArticle(query) => serde_json::to_value(query)?,
+        Request::GetGene(query) => serde_json::to_value(query)?,
+        Request::SearchGene(query) => serde_json::to_value(query)?,
+    })
 }
