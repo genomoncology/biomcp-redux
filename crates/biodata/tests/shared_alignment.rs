@@ -108,3 +108,12 @@ fn shared_refusals_use_the_settled_codes() {
         "sequence.base.rna"
     );
 }
+
+#[test]
+fn mane_statuses_keep_the_source_pair_and_round_trip() {
+    for status in ["select", "plus_clinical"] {
+        let value = serde_json::json!({"status":status,"refseq":"NM_004333.4","ensembl":"ENST00000288602.11"});
+        let pair: biodata::Mane = serde_json::from_value(value.clone()).expect("stated pair");
+        assert_eq!(serde_json::to_value(pair).expect("serialize"), value);
+    }
+}

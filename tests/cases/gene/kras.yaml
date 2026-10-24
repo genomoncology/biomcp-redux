@@ -40,7 +40,8 @@
         },
         "/next/*/kind": {
           "includes": "key"
-        }
+        },
+        "/result/items/0/answer/gene/mane/0/status": "select"
       },
       "max_bytes": 2400,
       "mcp": [

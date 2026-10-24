@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.ca-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^CA[0-9]{6,}$",
+  "title": "CaId",
+  "type": "string"
+}

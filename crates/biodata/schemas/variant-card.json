@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Accession": {
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$",
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
     "Allele": {
@@ -36,6 +36,10 @@
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
       ]
+    },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
     },
     "Expression": {
       "additionalProperties": false,
@@ -94,8 +98,55 @@
         " Source-preserved cytogenetic notation."
       ]
     },
-    "GeneSymbol": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+    "GeneRef": {
+      "additionalProperties": false,
+      "description": "A source-stated gene reference; its label never implies an identifier.",
+      "properties": {
+        "ensembl_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hgnc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/Text"
+        },
+        "ncbi_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "PageInfo": {
@@ -620,7 +671,7 @@
         "genes": {
           "description": "Genes stated by the sources.",
           "items": {
-            "$ref": "#/$defs/GeneSymbol"
+            "$ref": "#/$defs/GeneRef"
           },
           "type": "array"
         },
@@ -761,11 +812,11 @@
       "type": "object"
     },
     "VariantId": {
-      "pattern": "^(((rs|clinvar:|clinvar\\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\\.[1-9][0-9]*)?|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "VariantInput": {
-      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
+      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },
     "VariantResolution": {
@@ -789,7 +840,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant_card/1",
+  "$id": "biomcp.variant_card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -835,7 +886,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_card/1",
+      "const": "biomcp.variant_card/2",
       "type": "string"
     },
     "sources": {

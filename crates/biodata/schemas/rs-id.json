@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.rs-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^rs[1-9][0-9]*$",
+  "title": "RsId",
+  "type": "string"
+}

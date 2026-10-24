@@ -137,7 +137,7 @@
       ]
     },
     "GeneSymbol": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
     "HgncId": {
@@ -609,7 +609,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene_page/1",
+  "$id": "biomcp.gene_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -655,7 +655,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene_page/1",
+      "const": "biomcp.gene_page/2",
       "type": "string"
     },
     "sources": {

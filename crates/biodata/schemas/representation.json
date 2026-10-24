@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Accession": {
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$",
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
     "Allele": {
@@ -202,7 +202,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.representation/1",
+  "$id": "biodata.representation/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One source's own expression, assembly and optional source-stated interbase allele.",
