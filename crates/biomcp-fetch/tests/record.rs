@@ -1,7 +1,6 @@
 //! Recordings preserve the public checked transport contract without live providers.
 #![expect(
     clippy::unwrap_used,
-    clippy::panic,
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped callers exercise public transport modes"
 )]
@@ -191,22 +190,38 @@ fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let original = spec(&server);
-    capture(
-        &server,
-        original,
-        dir.path(),
-        &[(200, "", r#"{"answer":true}"#)],
-    );
-    change(dir.path(), |v| {
-        let first = v["exchanges"][0].clone();
-        v["exchanges"] = (0..8)
-            .map(|i| {
-                let mut entry = first.clone();
-                entry["delay_ms"] = 0.into();
-                entry["body"] = serde_json::json!({"kind":"json","value":{"value":i}});
-                entry
+    let recording = fetch(Mode::Record {
+        dir: dir.path().to_owned(),
+    });
+    thread::scope(|scope| {
+        let workers: Vec<_> = (0..8)
+            .map(|_| {
+                scope.spawn(|| {
+                    recording
+                        .leg(original, recording.deadline(Duration::from_secs(10)))
+                        .json::<Number>(&original.get("/answer"), &[])
+                        .unwrap()
+                        .value
+                })
             })
             .collect();
+        for value in 0..8 {
+            server
+                .next()
+                .respond(200, "", &format!("{{\"value\":{value}}}"));
+        }
+        let mut numbers: Vec<_> = workers
+            .into_iter()
+            .map(|worker| worker.join().unwrap())
+            .collect();
+        numbers.sort();
+        assert_eq!(numbers, (0..8).collect::<Vec<_>>());
+    });
+    drop(recording);
+    change(dir.path(), |v| {
+        for exchange in v["exchanges"].as_array_mut().unwrap() {
+            exchange["delay_ms"] = 0.into();
+        }
     });
     let quota = Box::leak(Box::new(Quota::new(
         SourceKey::declare("virtual-shared"),

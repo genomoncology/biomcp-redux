@@ -180,12 +180,51 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
         get(&missing).unwrap_err(),
         RequestError::Recording(RecordError::Missing)
     );
-    // Replay does not even open an invalid ordinary SQLite file.
-    let bad = dir.path().join("bad.sqlite");
-    std::fs::write(&bad, b"keep").unwrap();
-    let replay = Fetch::open(config(&bad, Mode::Replay { dir: recording })).unwrap();
-    assert!(get(&replay).is_err());
-    assert!(get(&replay).unwrap().answer);
-    assert_eq!(std::fs::read(bad).unwrap(), b"keep");
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn replay_does_not_open_an_invalid_ordinary_cache() {
+    let dir = tempfile::tempdir().unwrap();
+    let cache = dir.path().join("invalid.sqlite");
+    std::fs::write(&cache, b"keep").unwrap();
+    let recording = dir.path().join("recording");
+    let server = Server::new();
+    let spec = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("invalid-ordinary"),
+            Rate::per_second(1000),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    );
+    let ep = spec.get("/answer").fresh(Freshness::Hours(1));
+    let capture = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: recording.clone(),
+        },
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            capture
+                .leg(spec, capture.deadline(Duration::from_secs(10)))
+                .json::<Answer>(&ep, &[])
+        });
+        server.next().ok();
+        worker.join().unwrap().unwrap();
+    });
+    drop(capture);
+    let replay = Fetch::open(config(&cache, Mode::Replay { dir: recording })).unwrap();
+    assert!(
+        replay
+            .leg(spec, replay.deadline(Duration::from_secs(10)))
+            .json::<Answer>(&ep, &[])
+            .unwrap()
+            .answer
+    );
+    assert_eq!(std::fs::read(cache).unwrap(), b"keep");
     assert!(server.requests.try_recv().is_err());
 }

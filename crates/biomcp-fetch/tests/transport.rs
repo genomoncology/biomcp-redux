@@ -323,7 +323,7 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
 fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
     // A per-thread timer lets the reply check finish only once its leg expires.
     thread_local! {
-        static CHECK_DEADLINE: std::cell::Cell<Option<biomcp_fetch::Deadline>> = const {
+        static CHECK_DEADLINE: std::cell::Cell<Option<std::time::Instant>> = const {
             std::cell::Cell::new(None)
         };
     }
@@ -333,8 +333,10 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
         fn check(&self) -> Result<(), BadReply> {
             CHECK_DEADLINE.with(|timer| {
                 let deadline = timer.get().unwrap();
-                while !deadline.expired() {
-                    thread::park_timeout(deadline.remaining());
+                while deadline > std::time::Instant::now() {
+                    thread::park_timeout(
+                        deadline.saturating_duration_since(std::time::Instant::now()),
+                    );
                 }
             });
             Ok(())
@@ -345,7 +347,7 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
     let spec = stub.spec(KeyUse::None, Duration::from_secs(30));
     let fetch = fetch();
     let deadline = fetch.deadline(Duration::from_secs(1));
-    CHECK_DEADLINE.with(|timer| timer.set(Some(deadline)));
+    CHECK_DEADLINE.with(|timer| timer.set(Some(std::time::Instant::now() + deadline.remaining())));
     let error = fetch
         .leg(spec, deadline)
         .json::<CheckedAnswer>(&spec.get("/answer"), &[])

@@ -109,7 +109,9 @@ impl<T: Default + Send + 'static> Server<T> {
         }
     }
     pub(super) fn next(&self) -> Request<T> {
-        self.requests.recv_timeout(Duration::from_secs(10)).unwrap()
+        let request = self.requests.recv_timeout(Duration::from_secs(10)).unwrap();
+        assert!(request.text.starts_with("GET "));
+        request
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
