@@ -12,6 +12,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
         ),
+        Trial::test("variant/population-unknown-group-remains-native", || {
+            unknown_group().map_err(Into::into)
+        }),
         Trial::test("variant/population-source-chromosome-disagreement", || {
             chromosome_mismatch().map_err(Into::into)
         }),
@@ -348,5 +351,46 @@ fn chromosome_body(request: &str) -> Result<String, String> {
     *body
         .pointer_mut("/genomicAlleles/0/chromosome")
         .ok_or("missing synthetic chromosome")? = json!("8");
+    Ok(body.to_string())
+}
+
+fn unknown_group() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["reg.genome.network", "gnomad.broadinstitute.org"],
+        |_| "application/json",
+        unknown_group_body,
+    )?;
+    let env = environment(&stub)?;
+    let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+    let row = value
+        .pointer("/result/groups/0")
+        .ok_or("missing native row")?;
+    if row.get("group_id") != Some(&json!("unknown_XX"))
+        || row.get("ancestry_group").is_some()
+        || row.get("sex").is_some()
+        || row.get("ac") != Some(&json!(1))
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter()
+                    .any(|p| p.get("field") == Some(&json!("population_group")))
+            })
+        || stub.finish()?.len() != 2
+    {
+        return Err(format!(
+            "unknown group was dropped or assigned invented strata: {value}"
+        ));
+    }
+    Ok(())
+}
+fn unknown_group_body(request: &str) -> Result<String, String> {
+    let mut body: Value =
+        serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+    if !request.starts_with("GET /allele/") {
+        *body
+            .pointer_mut("/data/variant/exome/populations/0/id")
+            .ok_or("missing synthetic group")? = json!("unknown_XX");
+    }
     Ok(body.to_string())
 }
