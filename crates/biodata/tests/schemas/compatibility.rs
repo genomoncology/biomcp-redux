@@ -358,7 +358,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
         let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
         if flags.is_empty()
             || flags.iter().any(|(name, value)| {
-                name.is_empty()
+                !name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
                     || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'-')
                     || value.as_str().is_none_or(str::is_empty)
             })
