@@ -75,7 +75,7 @@ pub(super) fn check(root: &Path) -> Check {
                 return fail(&relative, "file line limit exceeded");
             }
             let tokens = tokens(&text);
-            source_terms(&relative, &tokens)?;
+            source_terms(root, &relative, &tokens)?;
             attributes(&relative, &tokens)?;
             references(root, &relative, &text, &tokens, &sqlite, &mut keys)?;
         }
@@ -255,7 +255,7 @@ pub(super) fn tokens(text: &str) -> Vec<String> {
     result
 }
 
-fn source_terms(path: &str, tokens: &[String]) -> Check {
+fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
     if !path.starts_with("crates/biomcp-adapters/src/") {
         return Ok(());
     }
@@ -264,14 +264,24 @@ fn source_terms(path: &str, tokens: &[String]) -> Check {
             continue;
         }
         let rest = tokens.get(i + 2..).unwrap_or_default();
-        if !rest
+        let mut depth = 1;
+        let end = rest
             .iter()
-            .take_while(|s| s.as_str() != "source")
-            .any(|s| s == "terms")
-        {
+            .position(|s| {
+                if s == "{" {
+                    depth += 1;
+                } else if s == "}" {
+                    depth -= 1;
+                }
+                depth == 0
+            })
+            .unwrap_or(rest.len());
+        let declaration = rest.get(..end).unwrap_or_default();
+        let Some(pos) = declaration.iter().position(|s| s == "terms") else {
             return fail(path, "source declaration requires publisher terms");
-        }
-        let terms: Vec<_> = rest.iter().take_while(|s| s.as_str() != "source").collect();
+        };
+        let terms = declaration.get(pos + 1..).unwrap_or_default();
+        let terms: Vec<_> = terms.iter().take_while(|s| s.as_str() != "}").collect();
         for name in ["name", "url", "usage"] {
             let Some(pos) = terms.iter().position(|s| s.as_str() == name) else {
                 return fail(path, "source declaration requires publisher terms");
@@ -279,6 +289,16 @@ fn source_terms(path: &str, tokens: &[String]) -> Check {
             if name != "usage" && terms.get(pos + 2).is_none_or(|s| s.as_str() == "\"\"") {
                 return fail(path, "source declaration requires publisher terms");
             }
+        }
+        let module = path
+            .strip_prefix("crates/biomcp-adapters/src/")
+            .unwrap_or("")
+            .split('/')
+            .next()
+            .unwrap_or("");
+        let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
+        if !registry.contains(&format!("&crate::{module}::SPEC")) {
+            return fail(path, "implemented source must appear in source registry");
         }
     }
     Ok(())

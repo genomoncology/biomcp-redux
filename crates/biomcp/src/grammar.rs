@@ -262,7 +262,7 @@ impl Globals {
         self.check()
     }
     fn check(&self) -> Result<(), ()> {
-        biomcp_adapters::registry::disabled(&self.disable_sources)?;
+        biomcp_adapters::registry::disabled(&self.disable_sources).map_err(|_| ())?;
         if usize::from(self.replay.is_some())
             + usize::from(self.record.is_some())
             + usize::from(self.offline)

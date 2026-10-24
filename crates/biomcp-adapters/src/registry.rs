@@ -20,7 +20,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::icite::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
-pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
+pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
         let group = match name.as_str() {
@@ -39,7 +39,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
             let source = SOURCES
                 .iter()
                 .find(|s| s.source.to_string() == *name)
-                .ok_or(())?;
+                .ok_or(biodata::Error::SourceUnknown)?;
             disabled.insert(source.source);
         }
     }

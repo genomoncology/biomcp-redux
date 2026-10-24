@@ -128,7 +128,7 @@ fn fetch_using(
             .and_then(|f| f.disable_sources.clone())
             .unwrap_or_default(),
     );
-    let disabled_sources = biomcp_adapters::registry::disabled(&disabled)?;
+    let disabled_sources = biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())?;
     Fetch::open(FetchConfig {
         disabled_sources,
         cache_owners: vec![biomcp_query::store::OWNER],
