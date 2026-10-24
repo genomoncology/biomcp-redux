@@ -18,15 +18,15 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("missing query schema"))?,
         )?;
-        let properties = schema["properties"]
+        let properties = field(&schema, "properties")
             .as_object()
             .ok_or_else(|| io::Error::other("missing properties"))?;
         let arguments = properties
             .iter()
             .map(|(name, node)| argument(name, node, &schema))
             .collect();
-        let section = resolve(&schema["properties"]["section"]["items"], &schema);
-        let sections = section["enum"]
+        let section = resolve(field(field(field(&schema, "properties"), "section"), "items"), &schema);
+        let sections = field(section, "enum")
             .as_array()
             .into_iter()
             .flatten()
@@ -34,7 +34,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .filter_map(|(i, v)| {
                 Some(HelpWord {
                     word: v.as_str()?.into(),
-                    description: section["x-enum-descriptions"][i].as_str()?.trim().into(),
+                    description: field(section, "x-enum-descriptions").get(i).unwrap_or(&Value::Null).as_str()?.trim().into(),
                 })
             })
             .collect::<Vec<_>>();
@@ -79,7 +79,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     Ok(commands)
 }
 fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
-    let position = node["x-positional"].as_u64();
+    let position = field(node, "x-positional").as_u64();
     let resolved = resolve(node, root);
     HelpArgument {
         name: if position.is_some() {
@@ -89,13 +89,13 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
         },
         description: text(node, "description"),
         value_type: text(resolved, "type"),
-        required: root["required"]
+        required: field(root, "required")
             .as_array()
             .is_some_and(|v| v.iter().any(|v| v == name)),
         position,
-        minimum: node["minimum"].as_u64().or(node["minItems"].as_u64()),
-        maximum: node["maximum"].as_u64().or(node["maxItems"].as_u64()),
-        choices: resolved["enum"]
+        minimum: field(node, "minimum").as_u64().or(field(node, "minItems").as_u64()),
+        maximum: field(node, "maximum").as_u64().or(field(node, "maxItems").as_u64()),
+        choices: field(resolved, "enum")
             .as_array()
             .into_iter()
             .flatten()
@@ -104,7 +104,7 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
     }
 }
 fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    node["$ref"]
+    field(node, "$ref")
         .as_str()
         .and_then(|s| root.pointer(s.trim_start_matches('#')))
         .unwrap_or(node)
@@ -141,3 +141,5 @@ pub(crate) fn tree() -> String {
     ));
     lines.join("\n")
 }
+
+fn field<'a>(node: &'a Value, key: &str) -> &'a Value { node.get(key).unwrap_or(&Value::Null) }
