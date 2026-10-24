@@ -1,8 +1,6 @@
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source,
-};
+use biodata::{ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn read<'a>(
@@ -13,16 +11,18 @@ pub(super) fn read<'a>(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     // The text source remains independent even if the graph leg failed.
-    let Some((id, pmid)) = (match super::locator::resolve(cx, query.citing(), snapshot, deadline, out) {
-        Ok(id) => id,
-        Err(error) => {
-            snapshot.fulltext = Some(Section::unavailable(
-                Source::PmcOa,
-                super::graph::reason(error),
-            ));
-            return Ok(());
-        }
-    }) else {
+    let Some((id, pmid)) =
+        (match super::locator::resolve(cx, query.citing(), snapshot, deadline, out) {
+            Ok(id) => id,
+            Err(error) => {
+                snapshot.fulltext = Some(Section::unavailable(
+                    Source::PmcOa,
+                    super::graph::reason(error),
+                ));
+                return Ok(());
+            }
+        })
+    else {
         snapshot.fulltext = Some(Section::NotApplicable);
         return Ok(());
     };
