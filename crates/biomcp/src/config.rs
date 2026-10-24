@@ -154,7 +154,10 @@ fn disabled_sources(
     file: Option<&ConfigFile>,
 ) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
     let mut disabled = globals.disable_sources.clone();
-    disabled.extend(file.and_then(|f| f.disable_sources.clone()).unwrap_or_default());
+    disabled.extend(
+        file.and_then(|f| f.disable_sources.clone())
+            .unwrap_or_default(),
+    );
     biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())
 }
 
