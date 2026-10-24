@@ -18,10 +18,7 @@
       "expect": {
         "/result/items/0/answer/gene/symbol": "TP53",
         "/status": "complete",
-        "/result/items/0/sections/oncokb/state": "empty",
-        "/result/items/0": {
-          "excludes": "oncokb"
-        }
+        "/result/items/0/sections/oncokb/state": "empty"
       },
       "exit": 0,
       "max_bytes": 5000

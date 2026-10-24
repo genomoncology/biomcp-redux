@@ -1,19 +1,19 @@
 {
   "feature": "gene-sections",
   "story": "A missing user key skips OncoKB without changing gene status",
-  "replay": "gene/constraint",
+  "replay": "gene/oncokb-synthetic/no-key",
   "steps": [
     {
       "run": [
         "get",
         "gene",
-        "TP53",
+        "NOTCH1",
         "oncokb"
       ],
       "mcp": [
         "get",
         "gene",
-        "TP53",
+        "NOTCH1",
         "oncokb"
       ],
       "expect": {
@@ -31,7 +31,25 @@
           "includes": "key"
         }
       },
-      "max_bytes": 3000
+      "max_bytes": 3000,
+      "exit": 0
+    },
+    {
+      "run": [
+        "help",
+        "key",
+        "oncokb"
+      ],
+      "mcp": [
+        "help",
+        "key",
+        "oncokb"
+      ],
+      "expect": {
+        "/result/config": "keys.oncokb_api_key",
+        "/result/environment": "ONCOKB_API_KEY"
+      },
+      "max_bytes": 300
     }
   ]
 }

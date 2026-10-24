@@ -12,6 +12,7 @@ impl Reply for Genes {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Gene {
+    #[serde(deserialize_with = "entrez")]
     pub entrez_gene_id: EntrezGeneId,
     hugo_symbol: biodata::GeneSymbol,
     gene_type: OncokbGeneType,
@@ -64,4 +65,9 @@ impl Reply for Info {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
     }
+}
+
+fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<EntrezGeneId, D::Error> {
+    let value = u32::deserialize(d)?;
+    EntrezGeneId::new(value).map_err(serde::de::Error::custom)
 }

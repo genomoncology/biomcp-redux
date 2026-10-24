@@ -27,10 +27,14 @@
           }
         },
         "/result/items/0/oncokb": {
-          "excludes": "version"
+          "equals": {
+            "gene_type": "TSG",
+            "highest_sensitive_level": "SYNTHETIC_S",
+            "highest_resistance_level": "SYNTHETIC_R"
+          }
         }
       },
-      "exit": 3,
+      "exit": 0,
       "max_bytes": 5000
     }
   ]

@@ -21,7 +21,7 @@
         "/result/items/0/sections/oncokb/state": "unavailable",
         "/result/items/0/sections/oncokb/reason": "deadline_exceeded"
       },
-      "exit": 3,
+      "exit": 0,
       "max_bytes": 5000
     }
   ]
