@@ -112,12 +112,14 @@ pub(super) fn summary(
             .exome
             .as_ref()
             .map(|s| observation(&raw.variant_id, subject, None, s.ac, s.an, &s.filters))
-            .transpose()?,
+            .transpose()?
+            .map(Box::new),
         genome: raw
             .genome
             .as_ref()
             .map(|s| observation(&raw.variant_id, subject, None, s.ac, s.an, &s.filters))
-            .transpose()?,
+            .transpose()?
+            .map(Box::new),
     })
 }
 pub(super) fn observation(
