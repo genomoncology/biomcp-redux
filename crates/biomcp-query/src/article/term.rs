@@ -1,5 +1,7 @@
 use crate::{Action, Ctx, Outcome, gene, status};
-use biodata::{ArticleSearch, ArticleType, GeneInput, GeneResolution, Request, Source, Status, StepKind};
+use biodata::{
+    ArticleSearch, ArticleType, GeneInput, GeneResolution, Request, Source, Status, StepKind,
+};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn resolve<'a>(
@@ -44,11 +46,14 @@ pub(super) fn resolve<'a>(
             } else {
                 names.join("")
             };
-            Ok(Some(filters(query, if words.is_empty() {
-                group
-            } else {
-                format!("{group} AND {words}")
-            })))
+            Ok(Some(filters(
+                query,
+                if words.is_empty() {
+                    group
+                } else {
+                    format!("{group} AND {words}")
+                },
+            )))
         }
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
@@ -83,18 +88,25 @@ fn filters(query: &ArticleSearch, words: String) -> String {
         let date = |value: Option<biodata::PartialDate>, default: &str| {
             value.map_or_else(|| default.to_owned(), |v| v.to_string().replace('-', "/"))
         };
-        parts.push(format!("{}:{}[dp]", date(since, "1800"), date(until, "3000")));
+        parts.push(format!(
+            "{}:{}[dp]",
+            date(since, "1800"),
+            date(until, "3000")
+        ));
     }
     if let Some(kind) = query.kind() {
-        parts.push(match kind {
-            ArticleType::Trial => "\"clinical trial\"[pt]",
-            ArticleType::Randomized => "\"randomized controlled trial\"[pt]",
-            ArticleType::Review => "review[pt]",
-            ArticleType::SystematicReview => "\"systematic review\"[pt]",
-            ArticleType::MetaAnalysis => "\"meta-analysis\"[pt]",
-            ArticleType::Guideline => "(guideline[pt] OR \"practice guideline\"[pt])",
-            ArticleType::CaseReport => "\"case reports\"[pt]",
-        }.to_owned());
+        parts.push(
+            match kind {
+                ArticleType::Trial => "\"clinical trial\"[pt]",
+                ArticleType::Randomized => "\"randomized controlled trial\"[pt]",
+                ArticleType::Review => "review[pt]",
+                ArticleType::SystematicReview => "\"systematic review\"[pt]",
+                ArticleType::MetaAnalysis => "\"meta-analysis\"[pt]",
+                ArticleType::Guideline => "(guideline[pt] OR \"practice guideline\"[pt])",
+                ArticleType::CaseReport => "\"case reports\"[pt]",
+            }
+            .to_owned(),
+        );
     }
     parts.join(" AND ")
 }

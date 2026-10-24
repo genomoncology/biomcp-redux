@@ -25,6 +25,7 @@ pub enum ArticleSort {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["trial", "randomized", "review", "systematic_review", "meta_analysis", "guideline", "case_report"])))]
 pub enum ArticleType {
     /// Clinical trials, including narrower phases.
     Trial,
@@ -99,23 +100,44 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     drug: Option<Text>,
     /// Author words sent to PubMed's author field.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     author: Option<Text>,
     /// Journal words sent to PubMed's journal field.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     journal: Option<Text>,
     /// Inclusive lower publication-date bound at the stated precision.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     since: Option<PartialDate>,
     /// Inclusive upper publication-date bound at the stated precision.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     until: Option<PartialDate>,
     /// Publication-type filter.
-    #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "type",
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "ArticleType"))]
     kind: Option<ArticleType>,
     /// Maximum page length.
@@ -148,16 +170,25 @@ impl TryFrom<Fields> for ArticleSearch {
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
             || v.source.len() != 1
-            || [&v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal]
-                .iter()
-                .all(|v| v.is_none())
+            || [
+                &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
+            ]
+            .iter()
+            .all(|v| v.is_none())
                 && v.gene.is_none()
                 && v.since.is_none()
                 && v.until.is_none()
                 && v.kind.is_none()
             || v.since.zip(v.until).is_some_and(|(since, until)| {
-                (since.year(), since.month().unwrap_or(1), since.day().unwrap_or(1))
-                    > (until.year(), until.month().unwrap_or(12), until.day().unwrap_or(31))
+                (
+                    since.year(),
+                    since.month().unwrap_or(1),
+                    since.day().unwrap_or(1),
+                ) > (
+                    until.year(),
+                    until.month().unwrap_or(12),
+                    until.day().unwrap_or(31),
+                )
             })
         {
             return Err(QueryInvalid);
@@ -167,15 +198,25 @@ impl TryFrom<Fields> for ArticleSearch {
 }
 impl ArticleSearch {
     /// Native provider order requested by the caller.
-    pub fn sort(&self) -> ArticleSort { self.0.sort }
+    pub fn sort(&self) -> ArticleSort {
+        self.0.sort
+    }
     /// Author filter.
-    pub fn author(&self) -> Option<&Text> { self.0.author.as_ref() }
+    pub fn author(&self) -> Option<&Text> {
+        self.0.author.as_ref()
+    }
     /// Journal filter.
-    pub fn journal(&self) -> Option<&Text> { self.0.journal.as_ref() }
+    pub fn journal(&self) -> Option<&Text> {
+        self.0.journal.as_ref()
+    }
     /// Inclusive date bounds, preserving precision.
-    pub fn dates(&self) -> (Option<PartialDate>, Option<PartialDate>) { (self.0.since, self.0.until) }
+    pub fn dates(&self) -> (Option<PartialDate>, Option<PartialDate>) {
+        (self.0.since, self.0.until)
+    }
     /// Requested publication type.
-    pub fn kind(&self) -> Option<ArticleType> { self.0.kind }
+    pub fn kind(&self) -> Option<ArticleType> {
+        self.0.kind
+    }
 
     /// Free text followed by variant, drug and disease selectors in the approved term order.
     pub fn words(&self) -> String {
