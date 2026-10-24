@@ -34,6 +34,9 @@
           "-"
         ],
         "/sources/0/source": "hgnc",
+        "/sources/*/use": ["open", "open", "restricted"],
+        "/sources/*/terms": {"count": 3},
+        "/sources/*/terms_url": {"count": 3},
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
