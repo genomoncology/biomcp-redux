@@ -97,6 +97,12 @@ impl Gene {
             .as_ref()
             .map(|mane| mane.ensembl_id.as_str())
             .or(self.canonical_transcript_id.as_deref())?;
+        if !text.starts_with("ENST") {
+            return None;
+        }
+        if text.contains('.') {
+            text.parse::<biodata::Accession>().ok()?;
+        }
         text.split('.').next()?.parse().ok()
     }
 }
