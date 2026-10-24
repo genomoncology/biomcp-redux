@@ -176,8 +176,8 @@ impl fmt::Display for VariantId {
         }
     }
 }
-text_value!(
-    VariantId,
-    "VariantId",
-    r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
-);
+#[cfg(feature = "schema")]
+impl VariantId {
+    pub(crate) const PATTERN: &'static str = r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$";
+}
+text_value!(VariantId, "VariantId", Self::PATTERN);

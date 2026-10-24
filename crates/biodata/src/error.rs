@@ -106,8 +106,6 @@ pub enum Error {
     SummarySourceUnknown,
     /// The HgncStatusUnknown boundary rejected a value.
     HgncStatusUnknown,
-    /// The ManeVersionRequired boundary rejected a value.
-    ManeVersionRequired,
     /// The LocusTypeUnknown boundary rejected a value.
     LocusTypeUnknown,
     /// The BuildUnknown boundary rejected a value.
@@ -190,7 +188,6 @@ impl Error {
             Self::MatchKindUnknown => "gene.match_kind.unknown",
             Self::SummarySourceUnknown => "gene.summary_source.unknown",
             Self::HgncStatusUnknown => "gene.hgnc_status.unknown",
-            Self::ManeVersionRequired => "gene.mane.version_required",
 
             Self::NcbiGeneIdInvalid => "id.ncbi_gene.invalid",
             Self::GeneSymbolInvalid => "gene.symbol.invalid",

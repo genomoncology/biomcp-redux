@@ -16,6 +16,7 @@ struct Fields {
     ncbi_gene_id: Option<NcbiGeneId>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ensembl_gene_id: Option<EnsemblGeneId>,
+    #[serde(deserialize_with = "label")]
     label: Text,
 }
 impl GeneRef {
@@ -58,4 +59,9 @@ impl TryFrom<Fields> for GeneRef {
         }
         Ok(Self(value))
     }
+}
+
+fn label<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Text, D::Error> {
+    Text::new(&String::deserialize(d)?)
+        .map_err(|_| serde::de::Error::custom(Error::GeneRefLabelEmpty))
 }

@@ -41,7 +41,7 @@ impl Mane {
                 ..
             }
         ) {
-            return Err(Error::ManeVersionRequired);
+            return Err(Error::AccessionInvalid);
         }
         Ok(Self {
             status,

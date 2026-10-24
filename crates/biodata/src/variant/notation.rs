@@ -66,11 +66,11 @@ impl fmt::Display for HgvsText {
         f.write_str(self.as_str())
     }
 }
-text_value!(
-    HgvsText,
-    "HgvsText",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\))?:[gcnrpmo]\.[\x20-\x7e]+$"
-);
+#[cfg(feature = "schema")]
+impl HgvsText {
+    pub(crate) const PATTERN: &'static str = r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\))?:[gcnrpmo]\.[\x20-\x7e]+$";
+}
+text_value!(HgvsText, "HgvsText", Self::PATTERN);
 crate::source::canonical_enum! {
     /// Published syntax label for a source-preserved expression.
     ExpressionSyntax, ExpressionSyntaxUnknown {
