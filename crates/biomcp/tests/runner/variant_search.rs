@@ -385,10 +385,6 @@ fn terms_budget() -> Result<(), String> {
                 full - payload
             ));
         }
-        println!(
-            "{name}: full={full}, exact required metadata={}, payload={payload}, unchanged comparable cap={cap}",
-            full - payload
-        );
     }
     Ok(())
 }
