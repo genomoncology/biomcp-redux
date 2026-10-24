@@ -114,6 +114,40 @@ fn exact() -> Result<(), String> {
             "CIViC request did not use checked allele membership: {body}"
         ));
     }
+    for (_, request) in &requests {
+        check_profile_filter(request)?;
+    }
+    Ok(())
+}
+fn check_profile_filter(request: &str) -> Result<(), String> {
+    let (_, body) = request.split_once("\r\n\r\n").ok_or("missing POST body")?;
+    let body: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    let query = body
+        .get("query")
+        .and_then(Value::as_str)
+        .ok_or("missing query")?;
+    let selected = body
+        .pointer("/variables/evidence_after")
+        .and_then(Value::as_str)
+        .is_some()
+        || body
+            .pointer("/variables/assertion_after")
+            .and_then(Value::as_str)
+            .is_some();
+    if selected {
+        if body.pointer("/variables/ids") != Some(&json!([120]))
+            || !query.contains("$ids:[Int!]")
+            || !query.contains("ids:$ids")
+        {
+            return Err(format!(
+                "selected molecular profile filter was dropped: {body}"
+            ));
+        }
+    } else if body.pointer("/variables/ids").is_some() || query.contains("$ids") {
+        return Err(format!(
+            "absent molecular profile selection became an ids filter: {body}"
+        ));
+    }
     Ok(())
 }
 fn check_claims(value: &Value) -> Result<(), String> {
@@ -138,7 +172,7 @@ fn check_claims(value: &Value) -> Result<(), String> {
             "/statements/2/statement/strength/coding/code",
             json!("level_a"),
         ),
-        ("/evidence_page/next/civic_profile", json!(12)),
+        ("/evidence_page/next/civic_profile", json!(120)),
         ("/evidence_page/next/civic_kind", json!("evidence")),
         ("/assertion_page/next/civic_kind", json!("assertions")),
     ] {
@@ -187,7 +221,7 @@ fn walk_streams(environment: &Environment, value: &Value) -> Result<(), String> 
 fn civic_body(request: &str) -> Result<String, String> {
     let evidence = json!({"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-e1"}});
     let assertions = json!({"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-a1"}});
-    let mut reply = json!({"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":12,"name":"BRAF V600E","link":"/molecular-profiles/12","isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643","hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":evidence,"assertions":assertions}],"pageInfo":{"hasNextPage":false,"endCursor":null}}} });
+    let mut reply = json!({"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":120,"name":"BRAF V600E","link":"/molecular-profiles/120","isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643","hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":evidence,"assertions":assertions}],"pageInfo":{"hasNextPage":false,"endCursor":null}}} });
     let evidence_base = "/data/molecularProfiles/nodes/0/evidenceItems";
     let mut second = reply
         .pointer(&format!("{evidence_base}/nodes/0"))
@@ -419,7 +453,7 @@ fn stalled_cursor() -> Result<(), String> {
                 "CA123643",
                 "civic",
                 "--civic-profile",
-                "12",
+                "120",
                 "--civic-kind",
                 "evidence",
                 "--civic-cursor",
