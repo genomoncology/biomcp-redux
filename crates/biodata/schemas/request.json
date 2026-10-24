@@ -184,9 +184,11 @@
         "eligibility",
         "outcomes",
         "arms",
-        "all",
-        "diseases",
-        "summary"
+        "locations",
+        "contacts",
+        "references",
+        "documents",
+        "all"
       ],
       "type": "string"
     },
@@ -196,14 +198,6 @@
         "ALL",
         "FEMALE",
         "MALE"
-      ],
-      "type": "string"
-    },
-    "TrialSource": {
-      "description": "Independent trial providers; results are never folded or used as fallbacks.",
-      "enum": [
-        "ctgov",
-        "nci"
       ],
       "type": "string"
     },
@@ -233,6 +227,42 @@
   "oneOf": [
     {
       "additionalProperties": false,
+      "description": "Save an exact registry document to an explicit destination.",
+      "properties": {
+        "command": {
+          "const": "trial_document",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "x-positional": 1
+        },
+        "input": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity.",
+          "x-positional": 0
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-owned file or existing folder."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "file",
+        "save"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
       "description": "Retrieve exact trial cards and source protocol sections.",
       "properties": {
         "command": {
@@ -251,7 +281,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -259,7 +289,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -275,10 +305,6 @@
           },
           "type": "array",
           "x-trailing-section": true
-        },
-        "source": {
-          "$ref": "#/$defs/TrialSource",
-          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
         }
       },
       "required": [
@@ -303,7 +329,7 @@
         },
         "condition": {
           "$ref": "#/$defs/Text",
-          "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
+          "description": "Condition-only source text."
         },
         "count_only": {
           "default": false,
@@ -339,17 +365,13 @@
           "$ref": "#/$defs/Text",
           "description": "Literal source intervention text."
         },
-        "keyword": {
-          "$ref": "#/$defs/Text",
-          "description": "NCI free text; explicit keyword mode never substitutes for a disease identity."
-        },
         "lat": {
           "$ref": "#/$defs/Text",
           "description": "Radius center latitude in degrees."
         },
         "limit": {
           "default": 10,
-          "description": "Headers per page; NCI applies its own lower publisher limit.",
+          "description": "Headers per page; default ten, maximum one hundred.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,
@@ -375,10 +397,6 @@
         "sex": {
           "$ref": "#/$defs/TrialSex",
           "description": "Registry sex facet."
-        },
-        "source": {
-          "$ref": "#/$defs/TrialSource",
-          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
         },
         "sponsor": {
           "$ref": "#/$defs/Text",

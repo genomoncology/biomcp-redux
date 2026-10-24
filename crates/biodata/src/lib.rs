@@ -104,7 +104,8 @@ pub use trial_detail::{
 
 pub use query::{TrialGet, TrialSection};
 pub use response::{
-    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+    TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
+    TrialRecords, TrialSections,
 };
 
 pub use trial_detail::{TrialDate, TrialDateKind};
@@ -119,3 +120,13 @@ pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
+mod trial_sites;
+pub use trial_sites::{
+    TrialContact, TrialContactRole, TrialCoordinates, TrialLocation, TrialOfficial,
+    TrialOfficialRole, TrialSiteStatus,
+};
+
+mod trial_publications;
+pub use query::TrialDocumentGet;
+pub use response::{TrialDocumentResult, TrialDocumentSaved};
+pub use trial_publications::{TrialDocument, TrialReference};

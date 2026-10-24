@@ -69,7 +69,8 @@ pub use trial::{TrialPage, TrialParameter};
 
 mod trial_get;
 pub use trial_get::{
-    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+    TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
+    TrialRecords, TrialSections,
 };
 
 mod nci_trial;
@@ -82,3 +83,5 @@ pub use nci_detail::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
+mod trial_document;
+pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};

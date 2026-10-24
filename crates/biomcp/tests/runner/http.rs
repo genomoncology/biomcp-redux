@@ -111,6 +111,13 @@ impl Server {
             args.extend(environment.globals(Some(&path), false));
         }
         let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            // Installed services must also start without a console window.
+            const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+            command.creation_flags(CREATE_NO_WINDOW);
+        }
         if let Some((name, key)) = key {
             command.env(name, key);
         }

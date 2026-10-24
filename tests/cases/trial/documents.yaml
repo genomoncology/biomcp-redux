@@ -1,0 +1,33 @@
+{
+  "live_check": "local-only retained source capture delivered over local TLS",
+  "feature": "trial-publications",
+  "story": "CodeBreaK documents retain exact registry metadata and fixed CDN links without downloading",
+  "replay": "trial/get/NCT04303780",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04303780",
+        "documents"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT04303780",
+        "documents"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/documents/data/total": 2,
+        "/result/items/0/sections/documents/data/items/1/filename": "SAP_001.pdf",
+        "/result/items/0/sections/documents/data/items/1/kind": "SAP",
+        "/result/items/0/sections/documents/data/items/1/date": "2022-07-21",
+        "/result/items/0/sections/documents/data/items/1/size": 557905,
+        "/result/items/0/sections/documents/data/items/1/license": "other",
+        "/result/items/0/sections/documents/data/items/1/url": "https://cdn.clinicaltrials.gov/large-docs/80/NCT04303780/SAP_001.pdf"
+      },
+      "max_bytes": 2568
+    }
+  ]
+}

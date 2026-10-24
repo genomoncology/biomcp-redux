@@ -33,6 +33,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::TrialDocument(_) => "biodata.trial-document/1",
         Request::GetTrial(_) => "biodata.trial-get/1",
         Request::SearchTrial(_) => "biodata.trial-search/1",
         Request::ArticlePdf(_) => "biodata.article-pdf/1",
@@ -61,6 +62,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("article", "recommendations", "biodata.article-recommend/1"),
     ("search", "trial", "biodata.trial-search/1"),
     ("get", "trial", "biodata.trial-get/1"),
+    ("trial", "document", "biodata.trial-document/1"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
@@ -104,7 +106,14 @@ pub(crate) fn global_arguments() -> Command {
 }
 fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
-    for verb in ["get", "search", "article"] {
+    for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
+        if QUERIES
+            .iter()
+            .take(index)
+            .any(|(prior, _, _)| *prior == verb)
+        {
+            continue;
+        }
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
@@ -453,6 +462,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             .map_err(|_| ()),
         ("search", "trial") => serde_json::from_value::<biodata::TrialSearch>(value)
             .map(Request::SearchTrial)
+            .map_err(|_| ()),
+        ("trial", "document") => serde_json::from_value::<biodata::TrialDocumentGet>(value)
+            .map(Request::TrialDocument)
             .map_err(|_| ()),
         ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
             .map(Request::ArticlePdf)

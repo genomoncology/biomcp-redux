@@ -29,3 +29,6 @@ pub use trial::{PhaseFilter, SponsorType, TrialFilter, TrialSearch, TrialSource}
 
 mod trial_get;
 pub use trial_get::{TrialGet, TrialSection};
+
+mod trial_document;
+pub use trial_document::TrialDocumentGet;

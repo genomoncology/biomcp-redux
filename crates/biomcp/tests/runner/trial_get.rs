@@ -40,7 +40,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-fn original(id: &str) -> Result<Value, Box<dyn std::error::Error>> {
+pub(super) fn original(id: &str) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = super::launch::fixtures()
         .join("replies/trial/get")
         .join(id)
@@ -53,7 +53,7 @@ fn original(id: &str) -> Result<Value, Box<dyn std::error::Error>> {
     }
     Err("detail recording missing".into())
 }
-fn command(
+pub(super) fn command(
     env: &Environment,
     args: &[String],
     globals: &[String],

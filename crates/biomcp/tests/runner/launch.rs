@@ -70,6 +70,11 @@ impl Environment {
                     .map(|(key, path)| (key, self.root.path().join(path))),
             )
             .current_dir(self.root.path());
+        // Winsock needs the operating system directory in an isolated child.
+        #[cfg(windows)]
+        if let Some(root) = std::env::var_os("SystemRoot") {
+            command.env("SystemRoot", root);
+        }
         if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
             // Nested runner proofs must retain the selection, never falling
             // back to Cargo's binary merely because a helper cleared its env.

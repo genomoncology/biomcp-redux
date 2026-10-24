@@ -79,6 +79,8 @@ pub enum QueryBody {
     /// Fixed NCI disease identity guidance.
     NciDiseaseError,
 
+    /// Source trial document receipt.
+    TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.
     TrialCards(crate::TrialCards),
     /// Native registry search page.
