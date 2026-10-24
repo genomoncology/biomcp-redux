@@ -761,7 +761,7 @@
       "type": "string"
     },
     "VariantInput": {
-      "pattern": "^(rs[1-9][0-9]*|CA[1-9][0-9]*|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
     },
     "VariantResolution": {
