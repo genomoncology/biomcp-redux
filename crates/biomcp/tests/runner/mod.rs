@@ -8,6 +8,7 @@ mod litvar_tables;
 pub(crate) mod live;
 mod live_proof;
 mod markdown;
+mod markdown_shapes;
 mod markdown_sources;
 mod mcp;
 mod named_search;
@@ -249,6 +250,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
+    trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
