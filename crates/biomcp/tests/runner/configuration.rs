@@ -36,6 +36,9 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article/concurrent-process-pool-publication", || {
+            article_processes().map_err(Into::into)
+        }),
         Trial::test("article/persistent-replay-command-epochs", || {
             article_replay_epoch().map_err(Into::into)
         }),
@@ -391,4 +394,70 @@ fn article_replay_epoch() -> Check {
         .map_err(|e| e.to_string())?;
     }
     mcp::article_sequence(&env, &env.globals(Some(&root), false))
+}
+
+fn article_processes() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("case");
+    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/article/search/synthetic-small");
+    let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
+    let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
+    let expected = initial
+        .pointer("/result/items")
+        .ok_or("initial items missing")?
+        .clone();
+    let old = initial
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("pool missing")?;
+    let mut args = cached(&base, &case, None);
+    args.push("--fresh".into());
+    let spawn = || {
+        env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())
+    };
+    let one = spawn()?;
+    let two = spawn()?;
+    for _ in 0..3 {
+        let read = invoke(&env, cached(&base, &case, None), 0)?;
+        if read.pointer("/result/items") != Some(&expected)
+            || read.pointer("/page/total") != Some(&json!(2))
+        {
+            return Err("reader saw a partial pool publication".into());
+        }
+    }
+    let mut pools = std::collections::BTreeSet::new();
+    for child in [one, two] {
+        let output = child.wait_with_output().map_err(|e| e.to_string())?;
+        if !output.status.success() || !output.stderr.is_empty() {
+            return Err(format!(
+                "concurrent article child failed: {}",
+                String::from_utf8_lossy(&output.stdout)
+            ));
+        }
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/result/items") != Some(&expected) {
+            return Err("concurrent pool lost identities or headers".into());
+        }
+        let pool = value
+            .pointer("/page/pool/id")
+            .and_then(Value::as_str)
+            .ok_or("pool missing")?;
+        if pool == old || !pools.insert(pool.to_owned()) {
+            return Err("concurrent fresh pools collided".into());
+        }
+    }
+    for pool in pools.into_iter().chain(std::iter::once(old.to_owned())) {
+        let mut args = base.to_vec();
+        args.extend(["--pool", &pool]);
+        if invoke(&env, cached(&args, &case, None), 0)?.pointer("/result/items") != Some(&expected)
+        {
+            return Err("published snapshot changed".into());
+        }
+    }
+    Ok(())
 }

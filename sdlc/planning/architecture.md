@@ -1327,72 +1327,17 @@ pub(crate) fn search_status(sources: &[SourceOutcome]) -> Status;            // 
 
 The cache is one SQLite file, as `decisions/2026-10-23-the-cache-is-a-local-sqlite-database.md` says. Its folder is `$XDG_CACHE_HOME/biomcp`, then `~/.cache/biomcp`, and on Windows `%LOCALAPPDATA%\biomcp\cache`. The transport owns the reply and bundle tables. The store module of `biomcp-query` owns the pool tables. Both open the file in WAL mode with a busy timeout.
 
-The file name carries both owners' schema versions, such as `cache-f1-s1.sqlite`. Each owner exports its version as a constant, and the binary builds the name from them. A BioMCP release that changes either schema opens a new file and never touches the old one, so two releases can run side by side. The query store obtains the active file through a Fetch capability that retains the replay owner; it never reconstructs a path. Each command owns its connection, while MCP shares Fetch. Each owner also checks its row in `meta` on open and refuses a mismatch with `fetch.cache_version` or `store.version`. Nothing ever drops a table. `biomcp store clean` deletes cache files from other versions.
+The filename carries both exported schema versions as `cache-<transport version>-<query version>.sqlite`. A schema change selects a new file. The query store opens the active file through `Fetch::cache_access`, which retains the transport connection and any replay directory owner. Query code never reconstructs a path. Each command owns a query connection; MCP shares Fetch.
 
-```sql
--- owner: biomcp-fetch
-CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
+The binary supplies the query module's exported `SchemaOwner` to transport and replay-cache construction. Both owners' metadata is checked before journal or table mutation. Query operations use `CacheAccess::admit` to share the transport's existing SQL admission guard. Each command keeps its own connection, and the guard covers SQL only. No network operation or nested admission runs inside a store operation. Store errors remain typed local failures.
 
-CREATE TABLE IF NOT EXISTS reply (
-  key          BLOB PRIMARY KEY,        -- SHA-256 of method, URL without credential, body
-  source       TEXT NOT NULL,
-  url          TEXT NOT NULL,           -- without credential
-  status       INTEGER NOT NULL,        -- 2xx or 404 only
-  content_type TEXT,
-  body         BLOB NOT NULL,
-  fetched_at   INTEGER NOT NULL,        -- Unix seconds
-  fresh_until  INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);
+The authoritative tables live in [`biomcp-fetch/src/cache.rs`](../../crates/biomcp-fetch/src/cache.rs), [`biomcp-fetch/src/bundle/store.rs`](../../crates/biomcp-fetch/src/bundle/store.rs) and [`biomcp-query/src/store/schema.sql`](../../crates/biomcp-query/src/store/schema.sql). The first article consumer stores the pool, ordered checked PMIDs, original source outcomes and current pointer in one transaction. Pool IDs come from SQLite random bytes, so concurrent builds do not collide when wall timestamps match. The request key hashes the response schema and checked selectors without page size, offset or pool.
 
-CREATE TABLE IF NOT EXISTS bundle (
-  name TEXT PRIMARY KEY, source TEXT NOT NULL, etag TEXT, modified TEXT, bytes INTEGER NOT NULL,
-  rows INTEGER NOT NULL, fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS bundle_sync (name TEXT PRIMARY KEY, holder TEXT NOT NULL, started_at INTEGER NOT NULL, part_bytes INTEGER NOT NULL);
-CREATE TABLE IF NOT EXISTS bundle_row (bundle TEXT NOT NULL, n INTEGER NOT NULL, row TEXT NOT NULL, PRIMARY KEY (bundle, n));
-CREATE TABLE IF NOT EXISTS bundle_key (bundle TEXT NOT NULL, kind TEXT NOT NULL, key TEXT NOT NULL, n INTEGER NOT NULL);
-CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key (bundle, kind, key);
-CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5 (bundle UNINDEXED, n UNINDEXED, words);
+Each pool item distinguishes unattempted metadata, checked missing metadata and an accepted header. Hydration joins by checked PMID, preserves order and fixed lifetime, and never replaces an accepted header during a concurrent write. A stale fallback's source outcome stays with its item, so a warm page keeps its partial status and offers a replacement search. A summary hole keeps its PMID and offers a fresh read of the same pool. Pool creation and expiry use wall time.
 
--- owner: biomcp-query, store module
-CREATE TABLE IF NOT EXISTS pool (
-  id          BLOB PRIMARY KEY,         -- SHA-256 of request key and build time
-  request_key BLOB NOT NULL,
-  schema      TEXT NOT NULL,
-  request     TEXT NOT NULL,            -- the normalized request as JSON
-  sources     TEXT NOT NULL,            -- each source's outcome as JSON
-  size        INTEGER NOT NULL,
-  total       INTEGER,
-  created_at  INTEGER NOT NULL,
-  expires_at  INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS pool_current (request_key BLOB PRIMARY KEY, pool BLOB NOT NULL REFERENCES pool (id));
-CREATE TABLE IF NOT EXISTS pool_item (
-  pool     BLOB NOT NULL REFERENCES pool (id) ON DELETE CASCADE,
-  rank     INTEGER NOT NULL,
-  kind     TEXT NOT NULL,
-  id       TEXT NOT NULL,
-  header   TEXT NOT NULL,               -- the item's header and found_by as JSON
-  features TEXT NOT NULL,
-  PRIMARY KEY (pool, rank)
-);
-```
+The private store opens with `Store::open(CacheAccess, Deadline)` and exposes `find`, `publish`, `page` and `hydrate` to article queries. Public `store::VERSION` and `store::OWNER` let the binary select and validate the active file. Store statistics and cleanup wait for their own consumer.
 
-```rust
-pub struct Store { /* rusqlite::Connection */ }
-impl Store {
-    pub const VERSION: u32 = 1;
-    pub fn open(path: &Path) -> Result<Self, StoreError>;
-    pub fn stats(&self) -> Result<StoreStats, StoreError>;
-    pub fn clean(&self, now: Timestamp) -> Result<Cleaned, StoreError>;
-    pub(crate) fn current_pool(&self, request_key: &RequestKey, now: Timestamp) -> Result<Option<Pool>, StoreError>;
-    pub(crate) fn pool(&self, id: &PoolId, now: Timestamp) -> Result<Option<Pool>, StoreError>;
-    pub(crate) fn put_pool(&self, pool: &Pool) -> Result<(), StoreError>;     // also sets pool_current
-}
-```
-
-The store needs no `Mutex`, because each call owns its `Store`. The transport's cache uses one `Mutex<Connection>`, because legs write from many threads.
+For sequential article stages, `Fetch::command_deadline` retains one fixed replay origin. The command debits each completed leg's virtual spend before starting another and caps real SQLite admission with its original wall budget. `CommandDeadline::finish` advances shared replay time to the completed absolute endpoint once, including early failures. Concurrent completions take the maximum endpoint, never the sum. Existing independent-leg consumers keep `Fetch::deadline`.
 
 ### 7.2 Freshness
 

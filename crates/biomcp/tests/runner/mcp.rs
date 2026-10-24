@@ -127,7 +127,7 @@ pub(super) fn article_sequence(
             }
         }
     });
-    let result = (|| {
+    let result: Result<(), String> = (|| {
         let mut pools = std::collections::BTreeSet::new();
         for batch in (1..=24)
             .map(|id| vec![id])
