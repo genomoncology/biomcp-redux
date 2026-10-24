@@ -156,4 +156,7 @@ pub use variant::{
     ClingenLowPenetrance2024Code,
 };
 
-pub use variant::{PredictorScore, VariantComponent, VariantPredictors, VariantConservation, VariantCosmic, CosmicRecord};
+pub use variant::{
+    CosmicRecord, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
+    VariantPredictors,
+};
