@@ -91,7 +91,12 @@ pub fn download(
     let local_end = std::time::Instant::now() + leg.remaining();
     let parsed = std::cell::RefCell::new(None);
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
-        let sheets = crate::sheet::read(bytes, file.file.kind, leg.remaining().min(local_end.saturating_duration_since(std::time::Instant::now())))?;
+        let sheets = crate::sheet::read(
+            bytes,
+            file.file.kind,
+            leg.remaining()
+                .min(local_end.saturating_duration_since(std::time::Instant::now())),
+        )?;
         *parsed.borrow_mut() = Some(sheets);
         Ok(())
     })?;
