@@ -25,6 +25,8 @@ pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
 
 mod variant;
+mod variant_normalize;
+pub use variant_normalize::{VariantNormalize, NormalizationSource};
 pub use variant::{VariantGet, VariantResolver};
 
 mod variant_input;

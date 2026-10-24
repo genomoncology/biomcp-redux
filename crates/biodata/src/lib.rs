@@ -90,7 +90,8 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver};
+pub use query::{VariantGet, VariantResolver, VariantNormalize, NormalizationSource};
+pub use response::{VariantNormalization, NormalizationResult, NormalizationField, NormalizationMessage};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution};
 

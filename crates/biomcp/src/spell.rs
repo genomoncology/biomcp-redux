@@ -42,6 +42,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::VariantNormalize(query) => serde_json::to_value(query)?,
         Request::GetVariant(query) => serde_json::to_value(query)?,
         Request::TrialDocument(query) => serde_json::to_value(query)?,
         Request::GetTrial(query) => serde_json::to_value(query)?,
@@ -61,6 +62,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
+            Request::VariantNormalize(_) => "variant",
             Request::TrialDocument(_) => "trial",
             Request::ArticlePdf(_)
             | Request::ArticleEvidence(_)
@@ -78,7 +80,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             }
         }
         .into(),
-        if matches!(request, Request::TrialDocument(_)) {
+        if matches!(request, Request::VariantNormalize(_)) {
+            "normalize"
+        } else if matches!(request, Request::TrialDocument(_)) {
             "document"
         } else if matches!(request, Request::SearchTrial(_)) {
             "trial"

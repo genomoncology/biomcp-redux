@@ -33,6 +33,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::VariantNormalize(_) => "biodata.variant-normalize/1",
         Request::GetVariant(_) => "biodata.variant-get/1",
         Request::TrialDocument(_) => "biodata.trial-document/1",
         Request::GetTrial(_) => "biodata.trial-get/1",
@@ -65,6 +66,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
     ("get", "variant", "biodata.variant-get/1"),
+    ("variant", "normalize", "biodata.variant-normalize/1"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
@@ -459,6 +461,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("variant", "normalize") => serde_json::from_value::<biodata::VariantNormalize>(value).map(Request::VariantNormalize).map_err(|_| ()),
         ("get", "variant") => serde_json::from_value::<biodata::VariantGet>(value)
             .map(Request::GetVariant)
             .map_err(|_| ()),

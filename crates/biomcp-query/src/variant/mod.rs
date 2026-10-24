@@ -1,3 +1,4 @@
+pub mod normalize;
 //! Published-identifier resolution with source-owned allele identity checks.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{

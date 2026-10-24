@@ -30,11 +30,13 @@ pub enum Resolution {
 }
 /// Resolve unchanged HGVS through the declared GET endpoint.
 pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
-    let reply = leg.json::<raw::Allele>(
+    map::allele(hgvs_reply(leg, input)?).map_err(|_| bad())
+}
+fn hgvs_reply(leg: &Leg<'_>, input: &str) -> Result<raw::Allele, RequestError> {
+    leg.json::<raw::Allele>(
         &ALLELE,
         &[("hgvs", Arg::Text(input)), ("fields", Arg::Text(FIELDS))],
-    )?;
-    map::allele(reply).map_err(|_| bad())
+    )
 }
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
@@ -66,4 +68,37 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+/// Preserve the registry's own mapped forms and validation rejection.
+pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<biodata::NormalizationResult, RequestError> {
+    let mut result = biodata::NormalizationResult::unavailable(Source::AlleleRegistry);
+    let raw = hgvs_reply(leg, input)?;
+    if let Some(code) = raw.error_type {
+        result.outcome = biodata::VariantResolution::Rejected;
+        result.messages = vec![biodata::NormalizationMessage { category: "errorType".into(), code: Some(code.to_string()), text: raw.error_description.unwrap_or_default() }].into();
+    } else {
+        result.outcome = biodata::VariantResolution::Resolved;
+        let mut mappings = Vec::new();
+        for row in raw.genomic.into_iter().flatten() {
+            for value in row.hgvs {
+                mappings.push(biodata::NormalizationField {
+                    field: row.assembly.as_ref().map_or_else(|| "genomicAlleles.hgvs".into(), |b| format!("genomicAlleles.{}.hgvs", b.as_str())),
+                    value: value.to_string(),
+                });
+            }
+        }
+        for row in raw.transcripts.into_iter().flatten() {
+            if let Some(mane) = row.mane {
+                for forms in [mane.nucleotide, mane.protein].into_iter().flatten() {
+                    for hgvs in [forms.ensembl, forms.refseq].into_iter().flatten() {
+                        mappings.push(biodata::NormalizationField { field: "transcriptAlleles.MANE.hgvs".into(), value: hgvs.hgvs.to_string() });
+                    }
+                }
+            }
+        }
+        result.total_mappings = mappings.len() as u32;
+        result.mappings = mappings.into();
+    }
+    Ok(result)
 }

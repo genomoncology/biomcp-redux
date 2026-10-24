@@ -5,6 +5,7 @@ use biomcp_fetch::{
     Arg, BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
 use serde::Deserialize;
+mod normalization;
 use std::{collections::BTreeMap, time::Duration};
 /// Service terms are independent of the implementation's software license.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -31,18 +32,19 @@ pub struct Resolution {
 #[derive(Deserialize)]
 struct Response {
     flag: Text,
-    #[serde(rename = "metadata")]
-    _metadata: Metadata,
+    metadata: BTreeMap<String, String>,
     #[serde(flatten, deserialize_with = "ordered_variants")]
     variants: Vec<(String, RawVariant)>,
 }
 #[derive(Deserialize)]
-struct Metadata {
-    #[serde(rename = "variantvalidator_version")]
-    _version: Text,
-}
-#[derive(Deserialize)]
 struct RawVariant {
+    #[serde(default)]
+    validation_warnings: Vec<String>,
+    hgvs_lrg_transcript_variant: Option<String>,
+    hgvs_lrg_variant: Option<String>,
+    hgvs_refseqgene_variant: Option<String>,
+    hgvs_predicted_protein_consequence: Option<BTreeMap<String, String>>,
+    alt_genomic_loci: Option<Vec<BTreeMap<String, Locus>>>,
     submitted_variant: Text,
     hgvs_transcript_variant: String,
     primary_assembly_loci: Option<BTreeMap<String, Locus>>,
@@ -62,7 +64,8 @@ impl Reply for Response {
         }
     }
     fn check(&self) -> Result<(), BadReply> {
-        if self.variants.is_empty() || self.variants.len() > 1000 {
+        if self.variants.is_empty() || self.variants.len() > 1000
+            || !self.metadata.contains_key("variantvalidator_version") {
             return Err(BadReply);
         }
         if self.flag.as_str() == "warning"
@@ -79,7 +82,7 @@ impl Reply for Response {
     }
 }
 /// Preserve caller assembly, unchanged input and every service-returned identity.
-pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, RequestError> {
+fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestError> {
     let build = build.to_string();
     let endpoint = VALIDATE.clone().with_segments(&[
         PathSegment::new(&build)?,
@@ -101,6 +104,11 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             }
         },
     )?;
+    Ok(raw)
+}
+/// Preserve caller assembly, unchanged input and every service-returned identity.
+pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, RequestError> {
+    let raw = fetch(leg, input, build)?;
     if raw.flag.as_str() == "warning" {
         return Ok(Resolution {
             rejected: true,
@@ -180,3 +188,6 @@ fn ordered_variants<'de, D: serde::Deserializer<'de>>(
     }
     de.deserialize_map(Ordered)
 }
+
+/// Native service descriptions, warnings and version metadata.
+pub use normalization::normalize;
