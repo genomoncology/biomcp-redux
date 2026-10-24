@@ -21,6 +21,11 @@ enum Failure {
 }
 
 impl Leg<'_> {
+    /// Read opaque bytes from an endpoint declaring its own bounded binary policy.
+    pub fn bytes(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<Vec<u8>, RequestError> {
+        let limit = ep.byte_limit.filter(|v| *v > 0 && *v < u64::MAX).ok_or(InputError::BodyLimit)?;
+        self.parameters(ep, params, Decoder::bytes(limit)).map(|(v, _)| v.0)
+    }
     /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
     pub fn json<T: Reply>(
         &self,
@@ -290,7 +295,7 @@ impl Leg<'_> {
                 &prepared.identity,
                 &prepared.url,
                 prepared.post.as_ref(),
-                self.fetch.config.max_body,
+                codec.limit.unwrap_or(self.fetch.config.max_body),
             )
             .map_err(local)?
         {
@@ -329,13 +334,13 @@ impl Leg<'_> {
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
         let fetched = crate::cache::now();
         let recording = matches!(self.fetch.config.mode, crate::Mode::Record { .. });
-        let body = self.read_body(&mut response, status, recording)?;
+        let body = self.read_body(&mut response, status, recording, codec.limit.unwrap_or(self.fetch.config.max_body))?;
         if recording {
             let exchange = Exchange {
                 fetched,
                 status,
                 content_type: content_type.clone(),
-                body: Body::capture(body.clone()).map_err(local)?,
+                body: if codec.binary() { Body::Bytes(body.clone()) } else { Body::capture(body.clone()).map_err(local)? },
                 delay_ms: crate::record::millis(started.elapsed()).map_err(local)?,
                 retry_after_ms: retry_after
                     .map(crate::record::millis)
@@ -367,13 +372,14 @@ impl Leg<'_> {
         response: &mut ureq::http::Response<ureq::Body>,
         status: u16,
         recording: bool,
+        limit: u64,
     ) -> Result<Vec<u8>, Failure> {
         let mut body = Vec::new();
         if recording || (200..300).contains(&status) {
             response
                 .body_mut()
                 .as_reader()
-                .take(self.fetch.config.max_body + 1)
+                .take(limit + 1)
                 .read_to_end(&mut body)
                 .map_err(|error| {
                     Failure::Local(
@@ -390,7 +396,7 @@ impl Leg<'_> {
                         .into(),
                     )
                 })?;
-            if body.len() as u64 > self.fetch.config.max_body {
+            if body.len() as u64 > limit {
                 return Err(Failure::Local(
                     self.failure(Reason::BadReply, Some(status)).into(),
                 ));

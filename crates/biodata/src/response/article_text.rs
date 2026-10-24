@@ -102,6 +102,9 @@ pub struct ArticleTextResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextContent {
+    /// Literal protein change spellings searched by an explicit variant selector.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forms: Option<[String; 4]>,
     /// Bucket license.
     pub license: License,
     /// Selected processing version.

@@ -14,6 +14,8 @@ use std::{
     time::Duration,
 };
 
+#[path = "record_sidecar.rs"]
+mod sidecar;
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
 const MAX_BUNDLE_FILE_BYTES: u64 = crate::MAX_BUNDLE_BYTES * 6 + 64 * 1024;
 const MAX_METADATA_BYTES: usize = 8192;
@@ -184,6 +186,9 @@ pub(crate) struct Exchange {
 pub(crate) enum Body {
     Json(Box<serde_json::value::RawValue>),
     Text(String),
+    Sidecar(String),
+    #[serde(skip)]
+    Bytes(Vec<u8>),
 }
 impl Body {
     pub(crate) fn capture(bytes: Vec<u8>) -> Result<Self, RecordError> {
@@ -213,6 +218,8 @@ impl Body {
         match self {
             Self::Json(value) => value.get().as_bytes(),
             Self::Text(text) => text.as_bytes(),
+            Self::Bytes(bytes) => bytes,
+            Self::Sidecar(_) => &[],
         }
     }
 }
@@ -348,6 +355,10 @@ impl Recordings {
             .exchanges
             .get(cursor.next)
             .ok_or(RecordError::Exhausted)?;
+        let mut value = value.clone();
+        if let Body::Sidecar(name) = &value.body {
+            value.body = Body::Bytes(sidecar::read(&path(dir, source, key), name, max_body)?);
+        }
         cursor.next += 1;
         if value.body.bytes().len() as u64 > max_body {
             return Err(RecordError::Limit);
@@ -400,6 +411,11 @@ impl Recordings {
             });
         if recording.exchanges.len() >= MAX_EXCHANGES {
             return Err(RecordError::Limit);
+        }
+        let mut exchange = exchange;
+        if let Body::Bytes(bytes) = &exchange.body {
+            let name = sidecar::publish(&path(&capture.dir, source, key), recording.exchanges.len(), bytes)?;
+            exchange.body = Body::Sidecar(name);
         }
         recording.exchanges.push(exchange);
         let result = publish(&path(&capture.dir, source, key), recording, limit);

@@ -27,6 +27,7 @@ impl SourceSpec {
             idempotent: true,
             identity_encoding: false,
             octet_stream: false,
+            byte_limit: None,
         }
     }
     /// Declare a form POST endpoint. Retries require explicit idempotence.
@@ -62,6 +63,7 @@ pub struct Endpoint {
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
     pub(crate) octet_stream: bool,
+    pub(crate) byte_limit: Option<u64>,
 }
 
 /// Whether a source requires a credential before sending.
@@ -157,6 +159,11 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Declare a bounded opaque binary reply independently of JSON/XML limits.
+    pub const fn bytes(mut self, max_bytes: u64) -> Self {
+        self.byte_limit = Some(max_bytes);
+        self
+    }
     /// Accept the reviewed bucket media type while retaining JSON/XML decoding and body limits.
     pub const fn octet_stream(mut self) -> Self {
         self.octet_stream = true;

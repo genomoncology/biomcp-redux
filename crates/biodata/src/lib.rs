@@ -6,7 +6,7 @@ pub use article::{
     CorrectionRelation,
 };
 pub use article::{ArticleHeader, PublicationType};
-pub use id::{Doi, Pmcid, Pmid};
+pub use id::{Doi, Pmcid, Pmid, ProteinChange};
 pub use query::ArticleText;
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};

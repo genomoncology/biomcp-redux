@@ -134,6 +134,7 @@ fn select(
     out: &mut Outcome,
 ) -> Option<TextContent> {
     let mut content = TextContent {
+        forms: query.forms(),
         license: document.license,
         processing_version: document.version,
         manuscript: document.manuscript,
@@ -174,12 +175,12 @@ fn find(
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<Box<[TextHit]>> {
-    let needle = query.find()?.as_str().to_lowercase();
+    let needles: Vec<_> = query.needles().into_iter().map(|v| v.to_lowercase()).collect();
     let matching: Vec<_> = document
         .body
         .rows
         .iter()
-        .map(|r| r.plain.to_lowercase().contains(&needle))
+        .map(|r| needles.iter().any(|needle| r.plain.to_lowercase().contains(needle)))
         .collect();
     let hits = matches(document, &matching);
     let offset = usize::try_from(query.offset()).ok()?;

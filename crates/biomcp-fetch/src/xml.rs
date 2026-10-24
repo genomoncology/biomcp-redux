@@ -9,18 +9,21 @@ const NESTING: usize = 64;
 pub(crate) enum Codec {
     Json,
     Xml,
+    Bytes,
 }
 impl Codec {
     pub(crate) fn name(self) -> &'static str {
         match self {
             Self::Json => "application/json",
             Self::Xml => "application/xml",
+            Self::Bytes => "application/octet-stream",
         }
     }
     pub(crate) fn accepts(self, media: &str) -> bool {
         let mut parts = media.split(';');
         let name = parts.next().unwrap_or("").trim().to_ascii_lowercase();
         match self {
+            Self::Bytes => true,
             Self::Json => {
                 name == self.name() || name.starts_with("application/") && name.ends_with("+json")
             }
@@ -53,6 +56,7 @@ pub trait XmlReply: Reply {
 
 pub(crate) struct Decoder<T> {
     codec: Codec,
+    pub(crate) limit: Option<u64>,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
 }
@@ -61,6 +65,7 @@ impl<T: Reply> Decoder<T> {
         Self {
             codec: Codec::Json,
             octet_stream: false,
+            limit: None,
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
@@ -71,6 +76,7 @@ impl<T: Reply> Decoder<T> {
         Self {
             codec: Codec::Xml,
             octet_stream: false,
+            limit: None,
             parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
@@ -79,6 +85,7 @@ impl<T: Reply> Decoder<T> {
             },
         }
     }
+    pub(crate) fn binary(&self) -> bool { matches!(self.codec, Codec::Bytes) }
     pub(crate) fn octet_stream(mut self, accepted: bool) -> Self {
         self.octet_stream = accepted;
         self
@@ -240,3 +247,14 @@ impl MixedText {
 #[cfg(test)]
 #[path = "xml_tests.rs"]
 mod tests;
+
+#[derive(serde::Deserialize)]
+pub(crate) struct Bytes(pub(crate) Vec<u8>);
+impl Reply for Bytes {
+    fn check(&self) -> Result<(), crate::BadReply> { Ok(()) }
+}
+impl Decoder<Bytes> {
+    pub(crate) fn bytes(limit: u64) -> Self {
+        Self { codec: Codec::Bytes, octet_stream: false, limit: Some(limit), parse: |body| Some(Bytes(body.to_vec())) }
+    }
+}
