@@ -1,5 +1,7 @@
 //! Checked command inputs shared by every interface.
 mod article;
+mod article_get;
+pub use article_get::ArticleGet;
 pub use article::{ArticleSearch, ArticleSort, ArticleSource};
 mod gene;
 mod request;

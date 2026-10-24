@@ -130,6 +130,13 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.page = result.page;
                     encode(envelope, status)
                 }
+                (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
+                    let mut envelope = Envelope::new(result.status, query, Some(body));
+                    envelope.sources = result.sources;
+                    envelope.problems = result.problems;
+                    envelope.next = steps;
+                    encode(envelope, status)
+                }
                 (Request::GetGene(query), QueryBody::GeneCards(body)) => {
                     let mut envelope = Envelope::new(result.status, query, Some(body));
                     envelope.sources = result.sources;

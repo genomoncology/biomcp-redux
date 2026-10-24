@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// PubMed article cards.
+    ArticleCards(crate::ArticleCards),
     /// Invalid snapshot selector; the interface spells its typed restart.
     PoolError {
         /// Whether selectors differ from an existing snapshot.

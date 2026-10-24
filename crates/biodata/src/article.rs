@@ -1,3 +1,7 @@
+mod card;
+mod input;
+pub use card::{Article, AbstractPart, Correction, CorrectionKind, CorrectionRelation};
+pub use input::{ArticleInput, ArticleMatchKind};
 use crate::{Doi, PartialDate, Pmcid, Pmid, Text};
 use serde::{Deserialize, Serialize};
 crate::source::canonical_enum! {

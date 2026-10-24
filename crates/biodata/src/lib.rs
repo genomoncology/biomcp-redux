@@ -1,6 +1,9 @@
 #![doc = include_str!("../README.md")]
 
 mod article;
+pub use article::{Article, AbstractPart, Correction, CorrectionKind, CorrectionRelation, ArticleInput, ArticleMatchKind};
+pub use query::ArticleGet;
+pub use response::{ArticleCards, ArticleCardItem, ArticleMatch, ArticleResolution};
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource};

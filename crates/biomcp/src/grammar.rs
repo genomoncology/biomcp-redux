@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleSearch, GeneGet, GeneSearch, Request};
+use biodata::{ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -21,12 +21,14 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("get", "article", "biodata.article-get/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -132,7 +134,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if entity == "article" {
+        let id = if entity == "article" && verb == "get" {
+            "biodata.article-get/1"
+        } else if entity == "article" {
             "biodata.article-search/1"
         } else if verb == "get" {
             "biodata.gene-get/1"
@@ -142,7 +146,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         let value = arguments(matches, &schema)?;
-        let request = if entity == "article" {
+        let request = if entity == "article" && verb == "get" {
+            Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
+        } else if entity == "article" {
             Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
         } else if verb == "get" {
             Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)

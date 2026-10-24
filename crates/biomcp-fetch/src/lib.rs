@@ -262,6 +262,8 @@ impl Default for Mode {
 /// The retained stale state of a completed source leg.
 #[derive(Debug, Default)]
 pub struct LegReport {
+    /// Successful replies with their canonical identity and original fetch time.
+    pub replies: Vec<ReplyMetadata>,
     /// Whether any request served a checked stale reply.
     pub stale: bool,
     /// Original typed provider failures that caused stale replies to be served.
@@ -290,4 +292,13 @@ impl Leg<'_> {
                 .unwrap_or_else(std::sync::PoisonError::into_inner),
         )
     }
+}
+
+/// Provenance of one checked response, independent of other replies in its leg.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ReplyMetadata {
+    /// Credential-free request identity.
+    pub identity: [u8; 32],
+    /// Original fetch time in Unix seconds; zero for legacy recordings without a timestamp.
+    pub fetched: i64,
 }

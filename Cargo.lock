@@ -149,6 +149,7 @@ name = "biomcp-adapters"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "quick-xml",
  "biomcp-fetch",
  "serde",
  "serde_json",

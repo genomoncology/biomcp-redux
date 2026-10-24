@@ -41,17 +41,18 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::GetArticle(query) => serde_json::to_value(query)?,
         Request::SearchArticle(query) => serde_json::to_value(query)?,
         Request::GetGene(query) => serde_json::to_value(query)?,
         Request::SearchGene(query) => serde_json::to_value(query)?,
     };
     let mut args = vec![
         match request {
-            Request::GetGene(_) => "get",
+            Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::SearchArticle(_)) {
+        if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
             "article"
         } else {
             "gene"

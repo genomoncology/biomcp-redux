@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod term;
+pub mod get;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
@@ -188,6 +189,12 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
                 fresh: false,
             },
         ));
+    }
+    if let QueryBody::ArticlePage(page) = &out.body
+        && let Some(first) = page.items.first()
+        && let Ok(query) = biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(first.pmid)].into())
+    {
+        out.next.push((StepKind::Disambiguate, Action::Run { request: Request::GetArticle(query), fresh:false }));
     }
     if partial {
         retry(

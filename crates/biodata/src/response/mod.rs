@@ -1,4 +1,6 @@
 mod article;
+mod article_cards;
+pub use article_cards::{ArticleCards, ArticleCardItem, ArticleMatch, ArticleResolution};
 pub use article::{ArticleItem, ArticleKey, ArticlePage};
 mod error;
 mod problem;
