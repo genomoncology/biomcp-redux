@@ -24,9 +24,9 @@ impl SourceKey {
         assert!(!name.is_empty(), "empty source key");
         let bytes = name.as_bytes();
         let mut i = 0;
-        while i < bytes.len() {
+        while let Some(byte) = bytes.get(i) {
             assert!(
-                bytes[i].is_ascii_lowercase() || bytes[i].is_ascii_digit() || bytes[i] == b'-',
+                byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-',
                 "invalid source key"
             );
             i += 1;
