@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/native-candidate-walk-is-warm", || candidate_walk().map_err(Into::into)),
         Trial::test("variant/car-projection-wire", || car().map_err(Into::into)),
         Trial::test("variant/myvariant-exact-build-wire", || myvariant().map_err(Into::into)),
     ]
@@ -42,4 +43,32 @@ fn car_body(_: &str) -> Result<String,String> {
 }
 fn myvariant_body(_: &str) -> Result<String,String> {
     Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
+}
+fn candidate_walk() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", candidates_body)?;
+    let environment = Environment::new().map_err(|e| e.to_string())?;
+    let ca = environment.root().join("synthetic-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    environment.config(&json!({"proxy":format!("http://{}", stub.address), "ca_bundle":ca})).map_err(|e| e.to_string())?;
+    let mut args = ["get","variant","rs113488022","--limit","1"].iter().map(|s| (*s).into()).collect::<Vec<_>>();
+    let mut ids = Vec::new();
+    for offset in 0..3 {
+        let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
+        if !output.status.success() { return Err("candidate page command failed".into()); }
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/page/offset") != Some(&json!(offset)) || value.pointer("/page/returned") != Some(&json!(1)) || value.pointer("/page/total") != Some(&json!(3)) { return Err(format!("candidate page lost its bounds: {value}")); }
+        ids.push(value.pointer("/result/candidates/0/record/id").cloned().ok_or("candidate ID absent")?);
+        let next = value["next"].as_array().ok_or("candidate selection absent")?;
+        if !next.iter().any(|n| n["kind"] == "disambiguate") { return Err("candidate selection action absent".into()); }
+        if offset < 2 {
+            let page = next.iter().find(|n| n["kind"] == "page").ok_or("next candidate page absent")?;
+            args = serde_json::from_value(page["args"].clone()).map_err(|e| e.to_string())?;
+        } else if next.iter().any(|n| n["kind"] == "page") { return Err("unexpected fourth page".into()); }
+    }
+    if ids != [json!("chr7:g.140453136A>G"),json!("chr7:g.140453136A>T"),json!("chr7:g.140453136A>C")] { return Err("candidate walk changed native order or dropped an allele".into()); }
+    if stub.finish()?.len() != 1 { return Err("warm candidate pages made another HTTP request".into()); }
+    Ok(())
+}
+fn candidates_body(_: &str) -> Result<String,String> {
+    Ok(json!({"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
 }

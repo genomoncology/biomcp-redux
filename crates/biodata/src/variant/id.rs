@@ -45,14 +45,13 @@ impl FromStr for VariantId {
                 };
             }
         }
-        if let Some(digest) = value.strip_prefix("ga4gh:VA.") {
-            if digest.len() == 32
+        if let Some(digest) = value.strip_prefix("ga4gh:VA.")
+            && digest.len() == 32
                 && digest
                     .bytes()
                     .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_'))
             {
                 return Ok(Self::Vrs(value.into()));
-            }
         }
         let (accession, version) = value
             .split_once('.')

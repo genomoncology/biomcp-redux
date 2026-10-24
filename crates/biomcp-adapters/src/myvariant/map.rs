@@ -37,11 +37,7 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
                 Err(_) => problems.push(problem(hit.id.clone(), "ids")),
             }
         }
-        if let Some(cv) = hit.clinvar {
-            if cv.variant_id > 0 {
-                ids.push(VariantId::ClinVarVariation(cv.variant_id));
-            }
-        }
+        if let Some(cv) = hit.clinvar && cv.variant_id > 0 { ids.push(VariantId::ClinVarVariation(cv.variant_id)); }
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
             let source_genes = match source_genes {

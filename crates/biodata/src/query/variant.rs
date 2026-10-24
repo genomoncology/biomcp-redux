@@ -23,14 +23,26 @@ struct Fields {
         skip_serializing_if = "Option::is_none"
     )]
     build: Option<Build>,
+    /// Candidate rows per page; more remain reachable through typed next commands.
+    #[serde(default = "default_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    limit: u32,
+    /// Candidate rows to skip in source order.
+    #[serde(default)]
+    offset: u32,
 }
+fn default_limit() -> u32 { 10 }
 fn resolver() -> VariantResolver {
     VariantResolver::Car
 }
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        Self::new(fields.input, fields.resolver, fields.build)
+        if !(1..=50).contains(&fields.limit) { return Err(super::gene::QueryInvalid); }
+        let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.limit = fields.limit;
+        query.0.offset = fields.offset;
+        Ok(query)
     }
 }
 impl VariantGet {
@@ -51,8 +63,16 @@ impl VariantGet {
             input,
             resolver,
             build,
+            limit: default_limit(),
+            offset: 0,
         }))
     }
+    /// Candidate rows per page.
+    pub fn limit(&self) -> u32 { self.0.limit }
+    /// Candidate page offset.
+    pub fn offset(&self) -> u32 { self.0.offset }
+    /// Keep all selectors while selecting another source-ordered page.
+    pub fn at_offset(&self, offset: u32) -> Self { let mut query = self.clone(); query.0.offset = offset; query }
     /// Unchanged checked identifier.
     pub fn input(&self) -> &VariantInput {
         &self.0.input
