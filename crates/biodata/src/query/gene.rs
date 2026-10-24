@@ -90,7 +90,11 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Cytoband"))]
     band: Option<Cytoband>,
     /// Optional HGNC locus group intersected with the selector.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "LocusGroup"))]
     locus_group: Option<LocusGroup>,
     /// Number of results per page.
@@ -107,7 +111,13 @@ fn default_limit() -> u32 {
 impl TryFrom<SearchFields> for GeneSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        Self::filtered(fields.query, fields.band, fields.locus_group, fields.limit, fields.offset)
+        Self::filtered(
+            fields.query,
+            fields.band,
+            fields.locus_group,
+            fields.limit,
+            fields.offset,
+        )
     }
 }
 impl GeneSearch {

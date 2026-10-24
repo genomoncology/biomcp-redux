@@ -40,6 +40,7 @@ singleton! {
 }
 
 singleton! {
+    /// Fixed input-free error and migration guidance.
     pub ErrorMessage { SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
         Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
@@ -85,8 +86,14 @@ impl ErrorEnvelope {
 impl ErrorEnvelope {
     /// Report fixed migration guidance without accepting caller input.
     pub fn retired(message: ErrorMessage) -> Self {
-        Self { schema: ErrorSchema::V1, status: ErrorStatus::Usage,
-            error: ErrorDetail { code: ErrorCode::Retired, message } }
+        Self {
+            schema: ErrorSchema::V1,
+            status: ErrorStatus::Usage,
+            error: ErrorDetail {
+                code: ErrorCode::Retired,
+                message,
+            },
+        }
     }
     /// Refuse invalid command arguments without echoing input.
     pub fn arguments() -> Self {

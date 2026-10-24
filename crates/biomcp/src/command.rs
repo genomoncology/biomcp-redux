@@ -30,7 +30,10 @@ fn dispatch_using(
         });
     }
     if let Some(message) = crate::retired::message(args) {
-        return encode(biodata::ErrorEnvelope::retired(message), crate::exit::Status::Usage);
+        return encode(
+            biodata::ErrorEnvelope::retired(message),
+            crate::exit::Status::Usage,
+        );
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
