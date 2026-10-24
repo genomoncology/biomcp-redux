@@ -101,7 +101,7 @@ pub fn resolve_dois<'a>(
                         && let Some(id) = header.pmid
                     {
                         item.pmid = Some(id);
-                        item.key = ArticleKey::Pubmed(id);
+                        item.key = Some(ArticleKey::Pubmed(id));
                         item.header = Some(header.clone());
                     }
                 }

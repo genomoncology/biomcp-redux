@@ -42,7 +42,7 @@ impl Store<'_> {
             {
                 let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,identity,item,header,checked,problems) VALUES (?1,?2,?3,?4,?5,?6,?7)").map_err(db)?;
                 for (rank,item) in items.iter().enumerate(){
-                    let identity=serde_json::to_string(&item.key).map_err(|_|CacheError::Database)?;
+                    let identity=match &item.key { Some(key)=>serde_json::to_string(key).map_err(|_|CacheError::Database)?, None=>format!("unidentified:{rank}") };
                     let mut identity_item=item.clone(); identity_item.header=None;
                     let payload=serde_json::to_string(&identity_item).map_err(|_|CacheError::Database)?;
                     let header=item.header.as_ref().map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
