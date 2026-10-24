@@ -396,3 +396,58 @@ fn identity_encoding_is_explicit_and_does_not_change_default_requests() {
         requests.last().unwrap().lines().next()
     );
 }
+
+#[test]
+fn outgoing_contact_and_optional_key_never_enter_persistent_identity() {
+    let stub = Stub::new(200, "application/json", r#"{"answer":"checked"}"#, None);
+    let spec = stub.spec(
+        KeyUse::Optional(credential(KeyPlace::Query("api_key"))),
+        Duration::from_secs(10),
+    );
+    let recording = tempfile::tempdir().unwrap();
+    let directory = recording.path().join("capture");
+    let mut secrets = biomcp_fetch::Secrets::default();
+    secrets.insert(SecretName::NcbiApiKey, Secret::new("placeholder-ncbi-key"));
+    let fetch = Fetch::open(FetchConfig {
+        secrets,
+        mode: biomcp_fetch::Mode::Record {
+            dir: directory.clone(),
+        },
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    let email = Secret::new("placeholder@example.invalid");
+    for endpoint in [spec.get("/search"), spec.post_form("/summary").idempotent()] {
+        let result = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .json::<Answer>(
+                &endpoint,
+                &[
+                    ("tool", Arg::Text("biomcp")),
+                    ("email", Arg::Contact(&email)),
+                ],
+            )
+            .unwrap();
+        assert_eq!(result.answer.as_deref(), Some("checked"));
+    }
+    let requests = stub.finish();
+    assert_eq!(requests.len(), 2);
+    for request in requests {
+        assert!(request.contains("email=placeholder%40example.invalid"));
+        assert!(request.contains("api_key=placeholder-ncbi-key"));
+    }
+    let files = std::fs::read_dir(directory.join("pubmed")).unwrap();
+    for file in files {
+        let bytes = std::fs::read(file.unwrap().path()).unwrap();
+        let text = String::from_utf8(bytes).unwrap();
+        for forbidden in [
+            "email",
+            "example.invalid",
+            "placeholder-ncbi-key",
+            "api_key",
+        ] {
+            assert!(!text.contains(forbidden), "{forbidden}");
+        }
+    }
+    assert!(!format!("{:?}", Arg::Contact(&email)).contains("placeholder"));
+}
