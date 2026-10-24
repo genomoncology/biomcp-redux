@@ -13,8 +13,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/license": "cc_by",
-        "/result/text": "Introduction text."
+        "/result/content/data/license": "cc_by",
+        "/result/content/data/text": "Introduction text."
       },
       "mcp": [
         "article",

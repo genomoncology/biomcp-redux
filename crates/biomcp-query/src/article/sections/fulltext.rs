@@ -13,7 +13,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut error = None;
-    let mut loaded = Vec::new();
+    let mut loaded: Vec<(Pmcid, Section<FullText>)> = Vec::new();
     for item in &mut cards.items {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
