@@ -196,12 +196,22 @@
               "minimum": 0,
               "type": "integer"
             },
+            "litsense": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
             "litvar": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
             },
             "pubmed": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pubtator": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
@@ -249,6 +259,17 @@
         "pmid": {
           "$ref": "#/$defs/Pmid",
           "description": "The selected PMID, retained when summary mapping fails."
+        },
+        "sentence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleSentence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First matching sentence in LitSense2 provider order."
         }
       },
       "type": "object"
@@ -342,6 +363,31 @@
           "type": "object"
         }
       ]
+    },
+    "ArticleSentence": {
+      "additionalProperties": false,
+      "description": "Source-provided sentence resemblance, without a claim of clinical relevance.",
+      "properties": {
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source section, when present."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Source sentence text."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
     },
     "Capped": {
       "additionalProperties": false,
@@ -646,6 +692,7 @@
         "pubmed",
         "europepmc",
         "litvar",
+        "litsense",
         "semantic-scholar",
         "pmc-oa",
         "icite",
@@ -666,6 +713,7 @@
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
+        " NCBI LitSense2.",
         " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",

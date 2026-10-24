@@ -16,7 +16,8 @@ pub(crate) struct Globals {
     pub(crate) format: Option<Format>,
     pub(crate) disable_sources: Vec<String>,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub(crate) enum Format {
     Json,
     Md,

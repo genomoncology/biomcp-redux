@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-from parity import LEDGER_END, LEDGER_START, table
+from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
 
 
 def check(root):
@@ -14,6 +14,12 @@ def check(root):
     actual = LEDGER_START + roadmap.split(LEDGER_START, 1)[1].split(LEDGER_END, 1)[0] + LEDGER_END
     if actual != table(root):
         raise ValueError("parity table differs: run python3 scripts/parity.py and replace its block")
+    note = (root / "sdlc/planning/upgrade.md").read_text()
+    if note.count(UPGRADE_START) != 1 or note.count(UPGRADE_END) != 1:
+        raise ValueError("upgrade commands differ: expected one generated block")
+    actual = UPGRADE_START + note.split(UPGRADE_START, 1)[1].split(UPGRADE_END, 1)[0] + UPGRADE_END
+    if actual != upgrade(root):
+        raise ValueError("upgrade commands differ: run python3 scripts/parity.py --upgrade and replace its block")
     cases = {path.relative_to(root).as_posix() for path in (root / "tests/cases").rglob("*.yaml")}
     if not cases:
         raise ValueError("no outside-in cases found")

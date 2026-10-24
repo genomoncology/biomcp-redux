@@ -1,6 +1,7 @@
 # 0049 — Add LitSense2 and PubTator3 as named search sources
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b6dfdf2175dfa4818b65eac6d024daa7f222cc32
 
 Milestone: 1
 

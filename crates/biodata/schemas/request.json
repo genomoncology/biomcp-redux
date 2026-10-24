@@ -39,7 +39,9 @@
         "pubmed",
         "europepmc",
         "litvar",
-        "semantic-scholar"
+        "semantic-scholar",
+        "litsense",
+        "pubtator"
       ],
       "type": "string"
     },
@@ -574,7 +576,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.\nlitsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.\npubtator: entity and relation search; needs the right entity ID, and uses full text where available.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },

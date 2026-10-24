@@ -13,4 +13,5 @@ The PM checks each count below on its date and records the result here. A count 
 - 2026-10-31: handoffs reopened at an external boundary since 2026-10-24. Baseline 2, target 0.
 - 2026-10-31: test failures from hand-built recording identity since architecture 5.5's recipe change (a73111a). Baseline 2, target 0.
 - One week after 0067 lands: schema generation failures from unsupported unit-enum forms or unsupported schema keywords since that landing. Baseline 4 failed jobs from 3 mistakes, target 0.
+- 2026-10-31: lander commits or gate submissions that followed a failed edit step since 2026-10-24 (the landing assignment now uses python3, checks the edit succeeded, and stages and commits in a separate call). Baseline 2 (j10138, j10198), target 0.
 - Proof: each line gains its measured count, the command or source that showed it, and keep or reopen.

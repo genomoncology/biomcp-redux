@@ -92,11 +92,7 @@ fn dispatch_using(
             &owned
         }
     };
-    let mut outcome = execute(fetch, action)?;
-    if parsed.globals.format == Some(crate::grammar::Format::Md) {
-        outcome.cli_bytes = crate::view::markdown(&outcome.value)?;
-    }
-    Ok(outcome)
+    execute(fetch, action)
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {

@@ -2,7 +2,6 @@
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::path::Path;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("article/fulltext/source-subsection-markdown", || {
@@ -21,9 +20,7 @@ fn run(replay: &str, args: &[&str], max_bytes: usize) -> Result<Value, String> {
 }
 fn output(replay: &str, args: &[&str], max_bytes: usize) -> Result<Vec<u8>, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
-    let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies")
-        .join(replay);
+    let replay = super::launch::fixtures().join("replies").join(replay);
     let mut command = environment.globals(Some(&replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
     let output = environment

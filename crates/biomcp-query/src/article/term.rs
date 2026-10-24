@@ -4,15 +4,24 @@ use biodata::{
 };
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
+pub(super) struct Resolved {
+    pub term: String,
+    pub symbol: Option<String>,
+    pub entrez: Option<biodata::EntrezGeneId>,
+}
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Option<(String, Option<String>)>, RequestError> {
+) -> Result<Option<Resolved>, RequestError> {
     let words = query.words();
     let Some(input) = query.gene() else {
-        return Ok(Some((filters(query, words), None)));
+        return Ok(Some(Resolved {
+            term: filters(query, words),
+            symbol: None,
+            entrez: None,
+        }));
     };
     let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -43,8 +52,8 @@ pub(super) fn resolve<'a>(
                 names.join("")
             };
             let symbol = gene.symbol.to_string();
-            Ok(Some((
-                filters(
+            Ok(Some(Resolved {
+                term: filters(
                     query,
                     if words.is_empty() {
                         group
@@ -52,8 +61,9 @@ pub(super) fn resolve<'a>(
                         format!("{group} AND {words}")
                     },
                 ),
-                Some(symbol),
-            )))
+                symbol: Some(symbol),
+                entrez: gene.entrez_id,
+            }))
         }
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {

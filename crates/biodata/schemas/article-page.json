@@ -136,12 +136,22 @@
               "minimum": 0,
               "type": "integer"
             },
+            "litsense": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
             "litvar": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
             },
             "pubmed": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pubtator": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
@@ -189,6 +199,17 @@
         "pmid": {
           "$ref": "#/$defs/Pmid",
           "description": "The selected PMID, retained when summary mapping fails."
+        },
+        "sentence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleSentence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First matching sentence in LitSense2 provider order."
         }
       },
       "type": "object"
@@ -415,7 +436,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.\nlitsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.\npubtator: entity and relation search; needs the right entity ID, and uses full text where available.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
@@ -443,6 +464,31 @@
       },
       "type": "object"
     },
+    "ArticleSentence": {
+      "additionalProperties": false,
+      "description": "Source-provided sentence resemblance, without a claim of clinical relevance.",
+      "properties": {
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source section, when present."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Source sentence text."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
     "ArticleSort": {
       "description": "Article ordering supported by this command.",
       "enum": [
@@ -458,7 +504,9 @@
         "pubmed",
         "europepmc",
         "litvar",
-        "semantic-scholar"
+        "semantic-scholar",
+        "litsense",
+        "pubtator"
       ],
       "type": "string"
     },
@@ -808,6 +856,7 @@
         "pubmed",
         "europepmc",
         "litvar",
+        "litsense",
         "semantic-scholar",
         "pmc-oa",
         "icite",
@@ -828,6 +877,7 @@
         " PubMed.",
         " Europe PMC.",
         " NCBI LitVar2.",
+        " NCBI LitSense2.",
         " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",

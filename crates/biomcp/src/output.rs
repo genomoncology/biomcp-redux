@@ -1,9 +1,36 @@
 //! The command output boundary.
 use std::io::{self, Write};
 
-pub(crate) fn command(outcome: &crate::command::Outcome) -> io::Result<()> {
+pub(crate) fn command(
+    outcome: &crate::command::Outcome,
+    args: &[std::ffi::OsString],
+) -> io::Result<()> {
+    let mut words = args.iter().take_while(|arg| *arg != "--");
+    let mut format = None;
+    while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
+        if word == "--format" {
+            format = words.next().and_then(|arg| arg.to_str());
+        } else if let Some(value) = word.strip_prefix("--format=") {
+            format = Some(value);
+        }
+    }
+    let format = format
+        .map(|value| {
+            if value == "md" {
+                crate::grammar::Format::Md
+            } else {
+                crate::grammar::Format::Json
+            }
+        })
+        .or_else(crate::config::format);
+    let bytes = match format {
+        Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
+            crate::view::markdown(&outcome.value)?
+        }
+        _ => outcome.cli_bytes.clone(),
+    };
     let mut stdout = io::stdout().lock();
-    stdout.write_all(&outcome.cli_bytes)?;
+    stdout.write_all(&bytes)?;
     stdout.flush()
 }
 

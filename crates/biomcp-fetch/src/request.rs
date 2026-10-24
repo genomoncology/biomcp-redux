@@ -264,7 +264,7 @@ impl Leg<'_> {
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let started = Instant::now();
             let exchange = self.exchange(prepared, codec);
-            self.observe_exchange(prepared, &exchange, started.elapsed());
+            self.observe_exchange::<T>(prepared, &exchange, started.elapsed());
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
@@ -309,24 +309,30 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn observe_exchange(
+    fn observe_exchange<T>(
         &self,
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
         elapsed: Duration,
     ) {
-        match exchange {
-            Ok(response) => self.observe(
-                &prepared.identity,
+        let (status, body, media) = match exchange {
+            Ok(response) => (
                 Some(response.status),
-                &response.body,
-                &response.content_type,
-                elapsed,
+                response.body.as_slice(),
+                response.content_type.as_str(),
             ),
-            Err(Failure::Local(RequestError::Source(error))) => {
-                self.observe(&prepared.identity, error.status, &[], "", elapsed)
-            }
-            Err(_) => self.observe(&prepared.identity, None, &[], "", elapsed),
+            Err(Failure::Local(RequestError::Source(error))) => (error.status, &[][..], ""),
+            Err(_) => (None, &[][..], ""),
+        };
+        if self.fetch.config.observations.is_some() {
+            self.observed(
+                &prepared.identity,
+                status,
+                body.len() as u64,
+                crate::Shape::inspect(body, media),
+                elapsed,
+                (std::any::type_name::<T>(), false),
+            );
         }
     }
 

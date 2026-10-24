@@ -7,10 +7,13 @@ mod held_proxy;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
+mod live_follow_proof;
 mod live_proof;
 mod markdown;
+mod markdown_shapes;
 mod markdown_sources;
 mod mcp;
+mod named_search;
 mod negative_cases;
 mod network_stub;
 mod pmc_tables;
@@ -234,8 +237,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
     trials.extend(live_proof::trials());
+    trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
+    trials.extend(named_search::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
@@ -249,6 +254,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
+    trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)

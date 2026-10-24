@@ -141,6 +141,7 @@ impl Paper {
             pmid,
             header,
             cited_by: None,
+            sentence: None,
             intents: None,
             influential: None,
             contexts: None,
