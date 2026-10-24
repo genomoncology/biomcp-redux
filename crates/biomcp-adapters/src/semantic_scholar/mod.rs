@@ -4,6 +4,11 @@ use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
 use std::time::Duration;
 /// Shared policy for search, paper records, graph edges and recommendations.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms {
+        name: "Semantic Scholar API License Agreement",
+        url: "https://api.semanticscholar.org/license/",
+        usage: biodata::Use::Noncommercial,
+    },
     source: Source::SemanticScholar,
     base: "https://api.semanticscholar.org/graph/v1",
     key: KeyUse::Optional(Credential {
