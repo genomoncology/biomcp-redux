@@ -87,6 +87,14 @@ impl<'a, T: Reply> Decoder<'a, T> {
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
+    pub(crate) fn checked_xml(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self
+    where
+        T: XmlReply,
+    {
+        let mut codec = Self::xml();
+        codec.check = Some(check);
+        codec
+    }
     pub(crate) fn xml() -> Self
     where
         T: XmlReply,

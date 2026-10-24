@@ -93,4 +93,7 @@ mod trial_document;
 pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
 
 mod variant_population;
-pub use variant_population::{VariantPopulation,VariantPopulationDetail,VariantGwas,GwasAssociation,GwasEffectAllele,PopulationGroup,PopulationSubset};
+pub use variant_population::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};

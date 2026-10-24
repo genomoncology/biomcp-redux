@@ -14,8 +14,9 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
-    CivicMembership, CivicProfile, HotspotAlternate, HotspotRecord, VariantCivic, VariantHotspots,
-    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
+    HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice, VariantCivic,
+    VariantHotspots,
 };
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
@@ -157,4 +158,9 @@ pub use variant::{
     ClingenLowPenetrance2024Code,
 };
 
-pub use response::{VariantPopulation,VariantPopulationDetail,VariantGwas,GwasAssociation,GwasEffectAllele,PopulationGroup,PopulationSubset};
+pub use response::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
+
+pub use variant::CivicEvidenceLevelCode;

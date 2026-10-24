@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub enum Coding {
+    /// CIViC evidence level.
+    #[serde(rename = "civic_evidence_level")]
+    CivicEvidenceLevel(CivicEvidenceLevelCode),
     /// acmg_amp_2015 vocabulary.
     #[serde(rename = "acmg_amp_2015")]
     AcmgAmp2015(AcmgAmp2015Code),
@@ -90,5 +93,21 @@ crate::macros::wire_enum! {
         LikelyBenign => "likely_benign",
         /// Published benign value.
         Benign => "benign",
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Source-defined CIViC evidence levels.
+    CivicEvidenceLevelCode {
+        /// A.
+        A => "a",
+        /// B.
+        B => "b",
+        /// C.
+        C => "c",
+        /// D.
+        D => "d",
+        /// E.
+        E => "e",
     }
 }

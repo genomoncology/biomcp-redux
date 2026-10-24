@@ -3,30 +3,30 @@ use serde::{Deserialize, Serialize};
 /// Bounded population summary with independent optional sequencing datasets.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPopulation {
     /// Source allele identifier.
-    pub variant:Text,
+    pub variant: Text,
     /// Source dataset selector.
-    pub dataset:Text,
+    pub dataset: Text,
     /// Source dataset assembly.
-    pub build:Build,
+    pub build: Build,
     /// Exome observation; omitted when the source dataset is null.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub exome:Option<PopulationFrequency>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exome: Option<PopulationFrequency>,
     /// Genome observation; omitted when the source dataset is null.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub genome:Option<PopulationFrequency>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub genome: Option<PopulationFrequency>,
 }
 /// One native ancestry row qualified by its sequencing subset.
-#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PopulationGroup {
     /// Sequencing subset; overlapping groups are never summed.
-    pub subset:PopulationSubset,
+    pub subset: PopulationSubset,
     /// Unchanged source counts and group identifier.
-    pub observation:PopulationFrequency,
+    pub observation: PopulationFrequency,
 }
 crate::macros::wire_enum! {
     /// Independent source sequencing subset.
@@ -38,67 +38,67 @@ crate::macros::wire_enum! {
     }
 }
 /// One bounded page of source ancestry rows in source order.
-#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPopulationDetail {
     /// Source allele identifier.
-    pub variant:Text,
+    pub variant: Text,
     /// Source dataset selector.
-    pub dataset:Text,
+    pub dataset: Text,
     /// Source assembly.
-    pub build:Build,
+    pub build: Build,
     /// Selected groups in source order, each qualified by its subset.
-    pub groups:Box<[PopulationGroup]>,
+    pub groups: Box<[PopulationGroup]>,
 }
 /// One page of exact rsID catalog associations.
-#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantGwas {
     /// Exact source rsID.
-    pub rs_id:VariantId,
+    pub rs_id: VariantId,
     /// Native source associations, without inferred clinical meaning.
-    pub associations:Box<[GwasAssociation]>,
+    pub associations: Box<[GwasAssociation]>,
 }
 /// Source association with unchanged trait and effect labels.
-#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasAssociation {
     /// Native association identity.
-    pub id:u64,
+    pub id: u64,
     /// Study accession.
-    pub study:Text,
+    pub study: Text,
     /// Source reported traits.
-    pub traits:Box<[Text]>,
+    pub traits: Box<[Text]>,
     /// Every source effect allele paired with its rsID.
-    pub alleles:Box<[GwasEffectAllele]>,
+    pub alleles: Box<[GwasEffectAllele]>,
     /// Reported p value.
-    pub p_value:FiniteNumber,
+    pub p_value: FiniteNumber,
     /// Source beta text, including units and direction.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub beta:Option<Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub beta: Option<Text>,
     /// Source odds ratio.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub odds_ratio:Option<FiniteNumber>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub odds_ratio: Option<FiniteNumber>,
     /// Source allele frequency text, without interpreting NR.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub risk_frequency:Option<Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub risk_frequency: Option<Text>,
     /// Source effect interval.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub interval:Option<Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interval: Option<Text>,
     /// Source publication identifier.
-    #[serde(default,skip_serializing_if="Option::is_none")]
-    pub publication:Option<Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub publication: Option<Text>,
 }
 /// Catalog effect allele paired with its exact rsID.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasEffectAllele {
     /// Source rsID.
-    pub rs_id:Text,
+    pub rs_id: Text,
     /// Source allele text.
-    pub allele:Text,
+    pub allele: Text,
 }
