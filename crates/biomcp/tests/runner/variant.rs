@@ -5,6 +5,9 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/disabled-clinvar-identity-never-queries", || {
+            disabled_clinvar_identity().map_err(Into::into)
+        }),
         Trial::test("variant/component-groups-guard-warm-data", || {
             component_groups().map_err(Into::into)
         }),
@@ -491,6 +494,19 @@ fn component_groups() -> Result<(), String> {
             }
             continue;
         }
+        if group == Some("restricted")
+            && value
+                .pointer("/result/candidates/0/identity/ids")
+                .and_then(Value::as_array)
+                .is_some_and(|ids| {
+                    ids.iter()
+                        .any(|id| id.as_str().is_some_and(|id| id.starts_with("clinvar:")))
+                })
+        {
+            return Err(format!(
+                "disabled ClinVar aliases leaked from an ignored projection: {value}"
+            ));
+        }
         let prefix = "/result/candidates/0/sections";
         for section in ["predict", "conservation", "cosmic"] {
             let off = group == Some("noncommercial") && section != "cosmic"
@@ -504,6 +520,7 @@ fn component_groups() -> Result<(), String> {
             }
         }
     }
+    configured_component_groups(&environment, &stub, &base)?;
     let requests = stub.finish()?;
     // A changed identity projection needs one new read; its ignored ClinVar response must not leak.
     if requests.len() != 6 {
@@ -511,6 +528,60 @@ fn component_groups() -> Result<(), String> {
             "warm policy caused extra component reads: {}",
             requests.len()
         ));
+    }
+    Ok(())
+}
+
+fn disabled_clinvar_identity() -> Result<(), String> {
+    let (value, requests) = call(
+        "myvariant.info",
+        component_body,
+        &[
+            "get",
+            "variant",
+            "clinvar:13961",
+            "--disable-sources",
+            "restricted",
+        ],
+    )?;
+    if !requests.is_empty()
+        || value.pointer("/result/resolution") != Some(&json!("unavailable"))
+        || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
+    {
+        return Err(format!(
+            "disabled ClinVar identity became a request or false absence: {value}"
+        ));
+    }
+    Ok(())
+}
+
+fn configured_component_groups(
+    environment: &Environment,
+    stub: &Stub,
+    base: &[&str],
+) -> Result<(), String> {
+    environment.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":environment.root().join("synthetic-ca.pem"),"disable_sources":["noncommercial"]})).map_err(|e|e.to_string())?;
+    for extra in [
+        Vec::<String>::new(),
+        vec!["--disable-sources".into(), "restricted".into()],
+    ] {
+        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
+        args.extend(extra.clone());
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/result/candidates/0/sections/predict/state") != Some(&json!("skipped"))
+            || value.pointer("/result/candidates/0/sections/conservation/state")
+                != Some(&json!("skipped"))
+            || value.pointer("/result/candidates/0/sections/cosmic/state")
+                != Some(&json!(if extra.is_empty() { "data" } else { "skipped" }))
+        {
+            return Err(format!(
+                "stored and command component policy did not combine: {value}"
+            ));
+        }
     }
     Ok(())
 }
