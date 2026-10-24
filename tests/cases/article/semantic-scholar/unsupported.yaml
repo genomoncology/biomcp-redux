@@ -1,0 +1,32 @@
+{
+  "feature": "article-search",
+  "story": "Semantic Scholar rejects unsupported filters before asking any source",
+  "replay": "article/fold/synthetic-fold",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1",
+        "--source",
+        "pubmed,semantic-scholar",
+        "--author",
+        "Carpten"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "AKT1",
+        "--source",
+        "pubmed,semantic-scholar",
+        "--author",
+        "Carpten"
+      ],
+      "exit": 2,
+      "max_bytes": 250,
+      "expect": {
+        "/error/code": "usage.unsupported_filter"
+      }
+    }
+  ]
+}
