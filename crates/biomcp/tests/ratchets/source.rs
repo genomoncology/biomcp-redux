@@ -1,13 +1,6 @@
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
-const INLINE_TESTS: &[&str] = &[
-    "crates/biomcp-query/src/article/rank.rs",
-    "crates/biomcp-fetch/src/retry.rs",
-    "crates/biomcp-fetch/src/retry_tests.rs",
-    "crates/biomcp-fetch/src/xml.rs",
-    "crates/biomcp-fetch/src/xml_tests.rs",
-];
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
@@ -55,6 +48,7 @@ const FILE_LIMIT: usize = 600;
 const ADAPTER_LIMIT: usize = 300;
 
 pub(super) fn check(root: &Path) -> Check {
+    super::placement::check(root)?;
     let sqlite = dependencies::sqlite_aliases(root)?;
     let mut keys = BTreeSet::new();
     let crates = root.join("crates");
@@ -119,9 +113,6 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             && (!EXCEPTIONS.iter().any(|(file, _)| *file == path) || !attribute.contains(&"reason"))
         {
             return fail(path, "lint exception requires listed location and reason");
-        }
-        if attribute.contains(&"test") && !INLINE_TESTS.contains(&path) {
-            return fail(path, "inline test outside listed locations");
         }
         if path.starts_with("crates/biomcp-adapters/")
             && path.ends_with("/raw.rs")
@@ -203,7 +194,7 @@ fn references(
 }
 
 // Only identifiers, literals, comments and punctuation are needed; no Rust AST.
-fn tokens(text: &str) -> Vec<String> {
+pub(super) fn tokens(text: &str) -> Vec<String> {
     let mut input = text.chars().peekable();
     let mut result = Vec::new();
     while let Some(ch) = input.next() {

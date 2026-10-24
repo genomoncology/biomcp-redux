@@ -169,3 +169,21 @@ fn case_parser_stays_outside_runtime_dependencies() -> Check {
         "forbidden dependencies dependency",
     )
 }
+
+#[test]
+fn rejects_unlisted_integration_test_folders() -> Check {
+    rejects(
+        "crates/biomcp-adapters/tests/unlisted/hidden.rs",
+        "#[test]\nfn hidden() {}",
+        "test outside listed locations",
+    )
+}
+
+#[test]
+fn rejects_conditional_integration_test_attributes() -> Check {
+    rejects(
+        "crates/biomcp-adapters/tests/unlisted/conditional.rs",
+        "#[cfg_attr(test, test)]\nfn hidden() {}",
+        "test outside listed locations",
+    )
+}
