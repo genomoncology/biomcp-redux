@@ -24,8 +24,7 @@ pub struct Annotation {
     /// Native statistical hotspot flag.
     pub hotspot: Option<bool>,
     /// Provider reports invalid inputs as a 200 with validation errors.
-    #[serde(default)]
-    pub errors: Vec<ValidationError>,
+    pub errors: Option<Vec<ValidationError>>,
     /// Provider alternate allele curation flag.
     pub allele_exist: Option<bool>,
     /// Native oncogenicity label.
@@ -43,14 +42,11 @@ pub struct Annotation {
     /// Native source text.
     pub prognostic_summary: Option<String>,
     /// Native source implications in source order.
-    #[serde(default)]
-    pub treatments: Vec<Treatment>,
+    pub treatments: Option<Vec<Treatment>>,
     /// Native diagnostic implications in source order.
-    #[serde(default)]
-    pub diagnostic_implications: Vec<Implication>,
+    pub diagnostic_implications: Option<Vec<Implication>>,
     /// Native prognostic implications in source order.
-    #[serde(default)]
-    pub prognostic_implications: Vec<Implication>,
+    pub prognostic_implications: Option<Vec<Implication>>,
     /// Source release.
     pub data_version: Option<String>,
     /// Source release date, without an invented conversion.
@@ -86,11 +82,9 @@ pub struct MutationEffect {
 #[derive(Debug, Deserialize)]
 pub struct Citations {
     /// Source PMID identities.
-    #[serde(default)]
-    pub pmids: Vec<String>,
+    pub pmids: Option<Vec<String>>,
     /// Native non-PubMed citations.
-    #[serde(default)]
-    pub abstracts: Vec<Abstract>,
+    pub abstracts: Option<Vec<Abstract>>,
 }
 /// Native drug identity.
 #[derive(Debug, Deserialize)]
@@ -118,27 +112,21 @@ pub struct Treatment {
     /// Source tumor context.
     pub level_associated_cancer_type: Option<TumorType>,
     /// Source drugs in native order.
-    #[serde(default)]
-    pub drugs: Vec<Drug>,
+    pub drugs: Option<Vec<Drug>>,
     /// Source alteration group, never replaced with a genomic subject.
-    #[serde(default)]
-    pub alterations: Vec<String>,
+    pub alterations: Option<Vec<String>>,
     /// Native citations.
-    #[serde(default)]
-    pub pmids: Vec<String>,
+    pub pmids: Option<Vec<String>>,
     /// Native source description.
     pub description: Option<String>,
     /// Native excluded tumor contexts.
-    #[serde(default)]
-    pub level_excluded_cancer_types: Vec<TumorType>,
+    pub level_excluded_cancer_types: Option<Vec<TumorType>>,
     /// Native approved indication labels.
-    #[serde(default)]
-    pub approved_indications: Vec<String>,
+    pub approved_indications: Option<Vec<String>>,
     /// Native FDA level label.
     pub fda_level: Option<String>,
     /// Native non-PubMed citations.
-    #[serde(default)]
-    pub abstracts: Vec<Abstract>,
+    pub abstracts: Option<Vec<Abstract>>,
 }
 /// Native diagnostic or prognostic implication.
 #[derive(Debug, Deserialize)]
@@ -149,20 +137,17 @@ pub struct Implication {
     /// Native source tumor concept.
     pub tumor_type: Option<TumorType>,
     /// Source alteration group.
-    #[serde(default)]
-    pub alterations: Vec<String>,
+    pub alterations: Option<Vec<String>>,
     /// Native citations.
-    #[serde(default)]
-    pub pmids: Vec<String>,
+    pub pmids: Option<Vec<String>>,
     /// Native source description.
     pub description: Option<String>,
     /// Native non-PubMed citations.
-    #[serde(default)]
-    pub abstracts: Vec<Abstract>,
+    pub abstracts: Option<Vec<Abstract>>,
 }
 impl Reply for Annotation {
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors.is_empty() {
+        if self.errors.as_ref().is_none_or(Vec::is_empty) {
             Ok(())
         } else {
             Err(BadReply)

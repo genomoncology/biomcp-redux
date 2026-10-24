@@ -43,7 +43,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             let citations = effect
                 .citations
                 .as_ref()
-                .map(|c| pmids(&c.pmids, &mut out.problems))
+                .map(|c| pmids(values(&c.pmids), &mut out.problems))
                 .unwrap_or_default();
             if let Ok(label) = Text::new(label) {
                 classification(
@@ -60,12 +60,15 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         if let Some(citations) = &effect.citations {
-            out.value
-                .extend(citations.abstracts.iter().map(|r| Record::Citation {
-                    field: "mutationEffect.citations".into(),
-                    text: r.abstract_content.as_deref().map(Into::into),
-                    link: r.link.clone(),
-                }));
+            out.value.extend(
+                values(&citations.abstracts)
+                    .iter()
+                    .map(|r| Record::Citation {
+                        field: "mutationEffect.citations".into(),
+                        text: r.abstract_content.as_deref().map(Into::into),
+                        link: r.link.clone(),
+                    }),
+            );
         }
         narrative(
             &mut out.value,
@@ -86,9 +89,11 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
     out
 }
 fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
-    for r in &row.treatments {
+    for r in values(&row.treatments) {
         let drugs = r
             .drugs
+            .as_deref()
+            .unwrap_or_default()
             .iter()
             .filter_map(|d| {
                 Text::new(&d.drug_name).ok().map(|label| Concept {
@@ -105,18 +110,17 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             level: level(&r.level, &mut out.problems),
             tumor_type: r.level_associated_cancer_type.as_ref().and_then(concept),
             drugs,
-            alterations: texts(&r.alterations),
+            alterations: texts(values(&r.alterations)),
             statement_unmapped: true,
             statement: None,
-            citations: pmids(&r.pmids, &mut out.problems).into(),
-            abstracts: abstracts(&r.abstracts),
+            citations: pmids(values(&r.pmids), &mut out.problems).into(),
+            abstracts: abstracts(values(&r.abstracts)),
             description: r.description.as_deref().map(Into::into),
-            excluded_tumor_types: r
-                .level_excluded_cancer_types
+            excluded_tumor_types: values(&r.level_excluded_cancer_types)
                 .iter()
                 .filter_map(concept)
                 .collect(),
-            approved_indications: texts(&r.approved_indications),
+            approved_indications: texts(values(&r.approved_indications)),
             fda_level: r
                 .fda_level
                 .as_deref()
@@ -128,8 +132,14 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
         });
     }
     for (field, rows) in [
-        ("diagnosticImplications", &row.diagnostic_implications),
-        ("prognosticImplications", &row.prognostic_implications),
+        (
+            "diagnosticImplications",
+            values(&row.diagnostic_implications),
+        ),
+        (
+            "prognosticImplications",
+            values(&row.prognostic_implications),
+        ),
     ] {
         for r in rows {
             out.value.push(Record::Implication {
@@ -137,11 +147,11 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 level: level(&r.level_of_evidence, &mut out.problems),
                 tumor_type: r.tumor_type.as_ref().and_then(concept),
                 drugs: Box::default(),
-                alterations: texts(&r.alterations),
+                alterations: texts(values(&r.alterations)),
                 statement_unmapped: true,
                 statement: None,
-                citations: pmids(&r.pmids, &mut out.problems).into(),
-                abstracts: abstracts(&r.abstracts),
+                citations: pmids(values(&r.pmids), &mut out.problems).into(),
+                abstracts: abstracts(values(&r.abstracts)),
                 description: r.description.as_deref().map(Into::into),
                 excluded_tumor_types: Box::default(),
                 approved_indications: Box::default(),
@@ -281,4 +291,8 @@ fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biodata::OncokbCitation]
             link: row.link.clone(),
         })
         .collect()
+}
+
+fn values<T>(rows: &Option<Vec<T>>) -> &[T] {
+    rows.as_deref().unwrap_or_default()
 }

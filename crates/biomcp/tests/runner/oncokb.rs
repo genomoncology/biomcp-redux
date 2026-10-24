@@ -14,6 +14,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/oncokb-server-key-reload", || {
             reload().map_err(Into::into)
         }),
+        Trial::test("variant/oncokb-reflected-key-never-leaves-wire", || {
+            echo().map_err(Into::into)
+        }),
     ]
 }
 fn args() -> Vec<String> {
@@ -390,4 +393,51 @@ fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
         return Err("annotation warm walk changed native order or lost records".into());
     }
     Ok(())
+}
+
+fn echo() -> Result<(), String> {
+    let stub = Stub::for_source("www.oncokb.org", "application/json", echo_reply)?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let ca = env.root().join("ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":KEY}})).map_err(|e|e.to_string())?;
+    let mut command = args();
+    let directory = env.root().join("echo");
+    command.extend(["--record".into(), directory.to_string_lossy().into()]);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let requests = stub.finish()?;
+    if requests.len() != 1 {
+        return Err("echo proof did not reach exactly one authenticated TLS request".into());
+    }
+    let leaked_output = [output.stdout.as_slice(), output.stderr.as_slice()]
+        .concat()
+        .windows(KEY.len())
+        .any(|b| b == KEY.as_bytes());
+    let mut leaked_recording = false;
+    if directory.join("oncokb").exists() {
+        for file in fs::read_dir(directory.join("oncokb")).map_err(|e| e.to_string())? {
+            let bytes =
+                fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
+            leaked_recording |= bytes.windows(KEY.len()).any(|b| b == KEY.as_bytes());
+        }
+    }
+    if leaked_output || leaked_recording {
+        return Err(format!(
+            "reflected synthetic credential leaked: output={leaked_output}, recording={leaked_recording}"
+        ));
+    }
+    if output.status.code() != Some(4) {
+        return Err("credential-bearing reply was not refused".into());
+    }
+    Ok(())
+}
+fn echo_reply(request: &str) -> Result<String, String> {
+    let mut body: Value = serde_json::from_str(&reply(request)?).map_err(|e| e.to_string())?;
+    body.as_object_mut()
+        .ok_or("synthetic annotation object")?
+        .insert("geneSummary".into(), json!(KEY));
+    Ok(body.to_string())
 }
