@@ -9,14 +9,18 @@ import tempfile
 
 def environment(root):
     # No host keys, proxies, configuration, warm caches, or build PATH.
+    root = Path(root).resolve()
+    temporary = root / "tmp"
+    temporary.mkdir(exist_ok=True)
     return {"HOME": str(root / "home"), "USERPROFILE": str(root / "home"),
             "XDG_CONFIG_HOME": str(root / "config"), "XDG_CACHE_HOME": str(root / "cache"),
-            "APPDATA": str(root / "config"), "LOCALAPPDATA": str(root / "cache")}
+            "APPDATA": str(root / "config"), "LOCALAPPDATA": str(root / "cache"),
+            "TMPDIR": str(temporary), "TMP": str(temporary), "TEMP": str(temporary)}
 
 
 def smoke(binary, runner, fixtures, version, server_args=("serve",)):
     with tempfile.TemporaryDirectory() as directory:
-        root = Path(directory)
+        root = Path(directory).resolve()
         env = environment(root)
         binary = Path(binary).resolve()
         runner = Path(runner).resolve()
@@ -36,6 +40,7 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
         subprocess.run([str(runner), "--cases", str(fixtures / "cases"), "--test-threads", "1"], env=env, cwd=root, check=True, timeout=120)
         # The existing process publication test uses the very same selector.
         subprocess.run([str(runner), "--installed-process-proof"], env=env, cwd=root, check=True, timeout=120)
+        subprocess.run([str(runner), "--installed-http-proof"], env=env, cwd=root, check=True, timeout=120)
         return tools
 
 def mcp_probe(command, env, root, version):

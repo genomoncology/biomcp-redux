@@ -6,6 +6,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+base64.workspace = true
+httparse.workspace = true
+ctrlc.workspace = true
 clap.workspace = true
 serde.workspace = true
 biomcp-fetch = { path = "../biomcp-fetch" }
@@ -34,3 +37,6 @@ workspace = true
 [[test]]
 name = "cases"
 harness = false
+
+[target.'cfg(unix)'.dev-dependencies]
+nix = { version = "=0.31.3", default-features = false, features = ["signal", "process"] }

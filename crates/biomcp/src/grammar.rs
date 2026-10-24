@@ -27,6 +27,7 @@ pub(crate) struct Parsed {
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
+    pub(crate) http: Option<(String, Vec<String>)>,
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
@@ -100,7 +101,7 @@ fn root() -> Result<Command, ()> {
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(help_command());
-    Ok(root.subcommand(Command::new("serve")))
+    Ok(root.subcommand(serve_command()))
 }
 fn help_command() -> Command {
     let mut help = Command::new("help")
@@ -130,32 +131,42 @@ fn help_command() -> Command {
     }
     help
 }
+fn serve_command() -> Command {
+    Command::new("serve")
+        .arg(
+            Arg::new("http")
+                .long("http")
+                .num_args(0..=1)
+                .default_missing_value("127.0.0.1:8080"),
+        )
+        .arg(
+            Arg::new("allow-host")
+                .long("allow-host")
+                .action(ArgAction::Append)
+                .requires("http"),
+        )
+}
+
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;
     let matches = root
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
-    let globals = Globals {
-        disable_sources: matches
-            .get_many::<String>("disable-sources")
-            .into_iter()
-            .flatten()
-            .cloned()
-            .collect(),
-        replay: matches.get_one::<PathBuf>("replay").cloned(),
-        observe: matches.get_one::<PathBuf>("observe").cloned(),
-        record: matches.get_one::<PathBuf>("record").cloned(),
-        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
-        offline: matches.get_flag("offline"),
-        fresh: matches.get_flag("fresh"),
-        format: matches
-            .get_one::<String>("format")
-            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
-    };
-    globals.check()?;
+    let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
+            http: matches.get_one::<String>("http").map(|address| {
+                (
+                    address.clone(),
+                    matches
+                        .get_many::<String>("allow-host")
+                        .into_iter()
+                        .flatten()
+                        .cloned()
+                        .collect(),
+                )
+            }),
             action: None,
             globals,
             help: None,
@@ -206,11 +217,34 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     };
     Ok(Parsed {
+        http: None,
         action: Some(action),
         globals,
         help,
     })
 }
+fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
+    let globals = Globals {
+        disable_sources: matches
+            .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
+        replay: matches.get_one::<PathBuf>("replay").cloned(),
+        observe: matches.get_one::<PathBuf>("observe").cloned(),
+        record: matches.get_one::<PathBuf>("record").cloned(),
+        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
+        offline: matches.get_flag("offline"),
+        fresh: matches.get_flag("fresh"),
+        format: matches
+            .get_one::<String>("format")
+            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
+    };
+    globals.check()?;
+    Ok(globals)
+}
+
 fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
     schema
         .get("properties")
