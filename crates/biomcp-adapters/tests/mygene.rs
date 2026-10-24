@@ -153,6 +153,24 @@ fn synthetic_bad_fields_drop_only_the_affected_annotation() {
 }
 
 #[test]
+fn synthetic_bad_position_keeps_valid_sibling_spans() {
+    let batches = run_synthetic(|body| {
+        body[1]["genomic_pos"] = json!([
+            {"chr":"7","start":10,"end":20,"strand":1},
+            42,
+            {"chr":"7","start":30,"end":40,"strand":-1}
+        ]);
+    });
+    let mapped = &batches[0].result.as_ref().unwrap()[0];
+    assert_eq!(mapped.value.spans.len(), 3);
+    assert_eq!(mapped.value.spans[0].span.start(), 9);
+    assert_eq!(mapped.value.spans[1].span.start(), 29);
+    assert_eq!(mapped.problems.len(), 1);
+    assert_eq!(mapped.problems[0].field.as_ref(), "genomic_pos");
+    assert!(batches[0].problems.is_empty());
+}
+
+#[test]
 fn synthetic_untrusted_identities_cannot_attach_extras_to_another_query() {
     let mutations: [fn(&mut Value); 5] = [
         |body| {
