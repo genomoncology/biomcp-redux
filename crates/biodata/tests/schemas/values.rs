@@ -1,5 +1,5 @@
 use super::generate;
-use biodata::{Problem, ProblemCode, Reason, Source, Text};
+use biodata::{HgncId, PartialDate, Position1, Span0, Problem, ProblemCode, Reason, Source, Text};
 use schemars::JsonSchema;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
@@ -97,4 +97,42 @@ fn record_schema_matches_serialization_and_rejects_unknown_fields() {
     assert!(text.is_valid(&serde_json::to_value(Text::new("summary").unwrap()).unwrap()));
     assert!(!text.is_valid(&json!("")));
     assert!(!text.is_valid(&json!(42)));
+}
+
+#[test]
+fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
+    let id = validator::<HgncId>();
+    for text in ["HGNC:1", "HGNC:4294967295"] { assert!(id.is_valid(&json!(text))); }
+    for value in [json!("HGNC:0"), json!("hgnc:1"), json!("HGNC:01"), json!("HGNC:1x"), json!(1)] {
+        assert!(!id.is_valid(&value));
+    }
+    let date = validator::<PartialDate>();
+    for text in ["0001", "2024-02", "2024-02-29"] {
+        let value: PartialDate = text.parse().unwrap();
+        assert!(date.is_valid(&serde_json::to_value(value).unwrap()));
+    }
+    for value in [json!("2024-2"), json!("2024-02-1"),json!("2024-01-01x"),json!(2024)] {
+        assert!(!date.is_valid(&value));
+    }
+    let position = validator::<Position1>();
+    for number in [1,u32::MAX] {
+        assert!(position.is_valid(&serde_json::to_value(Position1::new(number).unwrap()).unwrap()));
+    }
+    for value in [json!(0),json!(-1),json!(4294967296_u64),json!(1.5),json!("1")] {
+        assert!(!position.is_valid(&value));
+    }
+    let span = validator::<Span0>();
+    assert!(span.is_valid(&serde_json::to_value(Span0::new(0,u32::MAX).unwrap()).unwrap()));
+    for value in [json!({"start":0}),json!({"end":1}),json!({"start":0,"end":1,"extra":true}),json!({"start":-1,"end":1}),json!({"start":0,"end":4294967296_u64})] {
+        assert!(!span.is_valid(&value));
+    }
+    // These constraints require runtime checks beyond JSON Schema's vocabulary.
+    for value in [json!("HGNC:4294967296")] {
+        assert!(id.is_valid(&value));
+        assert!(serde_json::from_value::<HgncId>(value).is_err());
+    }
+    assert!(date.is_valid(&json!("2023-02-29")));
+    assert!(serde_json::from_value::<PartialDate>(json!("2023-02-29")).is_err());
+    assert!(span.is_valid(&json!({"start":2,"end":1})));
+    assert!(serde_json::from_value::<Span0>(json!({"start":2,"end":1})).is_err());
 }

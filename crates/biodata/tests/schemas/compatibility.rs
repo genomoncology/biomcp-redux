@@ -9,6 +9,9 @@ struct Shape {
     values: Option<BTreeSet<String>>,
     required: BTreeSet<String>,
     minimum_length: u64,
+    pattern: Option<String>,
+    minimum: Option<u64>,
+    maximum: Option<u64>,
     closed: bool,
 }
 
@@ -27,7 +30,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
         let new = new_shapes
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
-        if old.types != new.types
+        if old.pattern != new.pattern
+            || new.minimum.is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
+            || new.maximum.is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
+            || old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
             || (!old.closed && new.closed)
@@ -80,6 +86,10 @@ fn visit(
             "additionalProperties",
             "anyOf",
             "minLength",
+            "pattern",
+            "minimum",
+            "maximum",
+            "format",
         ]
         .contains(&key.as_str())
         {
@@ -144,11 +154,23 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null"].contains(&kind) {
+            if !["string", "object", "null", "integer"].contains(&kind) {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
         }
+    }
+    if let Some(pattern) = node.get("pattern") {
+        shape.pattern = Some(pattern.as_str().ok_or("invalid pattern")?.into());
+    }
+    if let Some(minimum) = node.get("minimum") {
+        shape.minimum = Some(minimum.as_u64().ok_or("unsupported minimum")?);
+    }
+    if let Some(maximum) = node.get("maximum") {
+        shape.maximum = Some(maximum.as_u64().ok_or("unsupported maximum")?);
+    }
+    if node.get("format").is_some_and(|format| format != "uint32") {
+        return Err("unsupported format".into());
     }
     if let Some(values) = node.get("enum") {
         shape.values = Some(

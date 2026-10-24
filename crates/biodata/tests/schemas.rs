@@ -7,7 +7,7 @@ mod compatibility_cases;
 #[path = "schemas/values.rs"]
 mod values;
 
-use biodata::{Problem, ProblemCode, Reason, Source, Text};
+use biodata::{HgncId, PartialDate, Position1, Span0, Problem, ProblemCode, Reason, Source, Text};
 use schemars::{JsonSchema, generate::SchemaSettings};
 use serde_json::Value;
 use std::{fs, path::Path};
@@ -31,8 +31,12 @@ fn generate<T: JsonSchema>() -> Value {
     .expect("schema serializes")
 }
 
-fn registry() -> [Contract; 5] {
+fn registry() -> [Contract; 9] {
     [
+        Contract { name: "hgnc-id", major: 1, generate: generate::<HgncId> },
+        Contract { name: "partial-date", major: 1, generate: generate::<PartialDate> },
+        Contract { name: "position1", major: 1, generate: generate::<Position1> },
+        Contract { name: "span0", major: 1, generate: generate::<Span0> },
         Contract {
             name: "text",
             major: 1,

@@ -18,3 +18,7 @@ let problem = Problem {
 assert_eq!(problem.record.as_ref().map(Text::as_str), Some("record-123"));
 # Ok::<(), biodata::Error>(())
 ```
+
+`HgncId` checks positive namespace-local numbers and parses canonical HGNC text. `PartialDate` preserves year, month or day precision and checks the Gregorian calendar. Both serialize as strings through `Display` and deserialize through `FromStr`. `Position1` serializes as a positive integer. `Span0` serializes as a closed object with `start` and `end`; its constructor checks half-open bounds and permits an empty span.
+
+The optional `schema` feature describes canonical serialized values. Constructors and JSON deserialization also check calendar validity, identifier numeric overflow and the relationship between span bounds. Those checks exceed the generated schemas. Schema drift and compatibility tests keep the checked-in contracts aligned with the public values.
