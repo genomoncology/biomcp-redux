@@ -94,8 +94,7 @@ impl RawDate {
 #[serde(rename_all = "camelCase")]
 struct Design {
     study_type: StudyType,
-    #[serde(default)]
-    phases: Box<[TrialPhase]>,
+    phases: Option<Box<[TrialPhase]>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -104,8 +103,7 @@ struct Description {
 }
 #[derive(Deserialize)]
 struct Conditions {
-    #[serde(default)]
-    conditions: Box<[Box<str>]>,
+    conditions: Option<Box<[Box<str>]>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -128,12 +126,9 @@ struct Eligibility {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Outcomes {
-    #[serde(default)]
-    primary_outcomes: Vec<Outcome>,
-    #[serde(default)]
-    secondary_outcomes: Vec<Outcome>,
-    #[serde(default)]
-    other_outcomes: Vec<Outcome>,
+    primary_outcomes: Option<Vec<Outcome>>,
+    secondary_outcomes: Option<Vec<Outcome>>,
+    other_outcomes: Option<Vec<Outcome>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -145,32 +140,27 @@ struct Outcome {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Arms {
-    #[serde(default)]
-    arm_groups: Box<[Arm]>,
-    #[serde(default)]
-    interventions: Box<[Intervention]>,
+    arm_groups: Option<Box<[Arm]>>,
+    interventions: Option<Box<[Intervention]>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Arm {
     label: Box<str>,
     #[serde(rename = "type")]
-    kind: Option<Box<str>>,
+    kind: Option<biodata::TrialArmKind>,
     description: Option<Markdown>,
-    #[serde(default)]
-    intervention_names: Box<[Box<str>]>,
+    intervention_names: Option<Box<[Box<str>]>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Intervention {
     name: Box<str>,
     #[serde(rename = "type")]
-    kind: Option<Box<str>>,
+    kind: Option<biodata::TrialInterventionKind>,
     description: Option<Markdown>,
-    #[serde(default)]
-    arm_group_labels: Box<[Box<str>]>,
-    #[serde(default)]
-    other_names: Box<[Box<str>]>,
+    arm_group_labels: Option<Box<[Box<str>]>>,
+    other_names: Option<Box<[Box<str>]>>,
 }
 impl Protocol {
     fn detail(self) -> Detail {
@@ -184,13 +174,11 @@ impl Protocol {
             .into(),
             title: self.identification_module.brief_title,
             status: self.status_module.overall_status,
-            phases: self.design_module.phases,
+            phases: self.design_module.phases.unwrap_or_default(),
             study_type: self.design_module.study_type,
-            conditions: self
-                .conditions_module
-                .map_or_else(Box::default, |v| v.conditions),
+            conditions: self.conditions_module.and_then(|v|v.conditions).unwrap_or_default(),
             interventions: arms.as_ref().map_or_else(Box::default, |v| {
-                v.interventions.iter().map(|v| v.name.clone()).collect()
+                v.interventions.as_deref().unwrap_or(&[]).iter().map(|v| v.name.clone()).collect()
             }),
             sponsor: self
                 .sponsor_collaborators_module
@@ -207,34 +195,7 @@ impl Protocol {
             updated: self.status_module.last_update_post_date_struct.mapped(),
             brief_summary: self.description_module.and_then(|d| d.brief_summary),
         };
-        let (arm_rows, interventions) = arms.map_or_else(
-            || (Box::default(), Box::default()),
-            |v| {
-                (
-                    v.arm_groups
-                        .into_vec()
-                        .into_iter()
-                        .map(|v| TrialArm {
-                            label: v.label,
-                            kind: v.kind,
-                            description: v.description,
-                            intervention_names: v.intervention_names,
-                        })
-                        .collect(),
-                    v.interventions
-                        .into_vec()
-                        .into_iter()
-                        .map(|v| TrialIntervention {
-                            name: v.name,
-                            kind: v.kind,
-                            description: v.description,
-                            arm_group_labels: v.arm_group_labels,
-                            other_names: v.other_names,
-                        })
-                        .collect(),
-                )
-            },
-        );
+        let (arm_rows, interventions) = arms.map_or_else(||(Box::default(),Box::default()), Arms::rows);
         Detail {
             card,
             eligibility: self.eligibility_module.map(|v| TrialEligibility {
@@ -255,9 +216,9 @@ impl Protocol {
 impl Outcomes {
     fn rows(self) -> Box<[TrialOutcome]> {
         [
-            (TrialOutcomeKind::Primary, self.primary_outcomes),
-            (TrialOutcomeKind::Secondary, self.secondary_outcomes),
-            (TrialOutcomeKind::Other, self.other_outcomes),
+            (TrialOutcomeKind::Primary, self.primary_outcomes.unwrap_or_default()),
+            (TrialOutcomeKind::Secondary, self.secondary_outcomes.unwrap_or_default()),
+            (TrialOutcomeKind::Other, self.other_outcomes.unwrap_or_default()),
         ]
         .into_iter()
         .flat_map(|(kind, rows)| {
@@ -273,4 +234,17 @@ impl Outcomes {
 }
 fn age(value: Option<Box<str>>) -> TrialAgeBound {
     value.map_or(TrialAgeBound::NoLimit, |raw| TrialAgeBound::Source { raw })
+}
+
+impl Arms {
+    fn rows(self)->(Box<[TrialArm]>,Box<[TrialIntervention]>) {
+        (self.arm_groups.unwrap_or_default().into_vec().into_iter().map(|v|TrialArm{
+            label:v.label,kind:v.kind,description:v.description,
+            intervention_names:v.intervention_names.unwrap_or_default(),
+        }).collect(),
+        self.interventions.unwrap_or_default().into_vec().into_iter().map(|v|TrialIntervention{
+            name:v.name,kind:v.kind,description:v.description,
+            arm_group_labels:v.arm_group_labels.unwrap_or_default(),other_names:v.other_names.unwrap_or_default(),
+        }).collect())
+    }
 }

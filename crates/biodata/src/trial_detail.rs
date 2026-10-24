@@ -97,7 +97,7 @@ pub struct TrialArm {
     /// Exact arm label.
     pub label: Box<str>,
     /// Native arm type.
-    pub kind: Option<Box<str>>,
+    pub kind: Option<TrialArmKind>,
     /// Original arm description.
     pub description: Option<Markdown>,
     /// Source intervention names, including their native prefixes.
@@ -111,7 +111,7 @@ pub struct TrialIntervention {
     /// Exact source name.
     pub name: Box<str>,
     /// Native intervention type.
-    pub kind: Option<Box<str>>,
+    pub kind: Option<TrialInterventionKind>,
     /// Original description.
     pub description: Option<Markdown>,
     /// Source arm relationships.
@@ -138,4 +138,50 @@ pub struct TrialDate {
     pub date: PartialDate,
     /// Source qualifier, absent only if the registry omitted it.
     pub kind: Option<TrialDateKind>,
+}
+crate::macros::wire_enum! {
+    /// Native registry arm group type from the publisher enum metadata.
+    #[non_exhaustive]
+    TrialArmKind {
+        /// EXPERIMENTAL source value.
+        Experimental => "EXPERIMENTAL",
+        /// ACTIVE_COMPARATOR source value.
+        ActiveComparator => "ACTIVE_COMPARATOR",
+        /// PLACEBO_COMPARATOR source value.
+        PlaceboComparator => "PLACEBO_COMPARATOR",
+        /// SHAM_COMPARATOR source value.
+        ShamComparator => "SHAM_COMPARATOR",
+        /// NO_INTERVENTION source value.
+        NoIntervention => "NO_INTERVENTION",
+        /// OTHER source value.
+        Other => "OTHER",
+    }
+}
+crate::macros::wire_enum! {
+    /// Native registry intervention type from the publisher enum metadata.
+    #[non_exhaustive]
+    TrialInterventionKind {
+        /// BEHAVIORAL source value.
+        Behavioral => "BEHAVIORAL",
+        /// BIOLOGICAL source value.
+        Biological => "BIOLOGICAL",
+        /// COMBINATION_PRODUCT source value.
+        CombinationProduct => "COMBINATION_PRODUCT",
+        /// DEVICE source value.
+        Device => "DEVICE",
+        /// DIAGNOSTIC_TEST source value.
+        DiagnosticTest => "DIAGNOSTIC_TEST",
+        /// DIETARY_SUPPLEMENT source value.
+        DietarySupplement => "DIETARY_SUPPLEMENT",
+        /// DRUG source value.
+        Drug => "DRUG",
+        /// GENETIC source value.
+        Genetic => "GENETIC",
+        /// PROCEDURE source value.
+        Procedure => "PROCEDURE",
+        /// RADIATION source value.
+        Radiation => "RADIATION",
+        /// OTHER source value.
+        Other => "OTHER",
+    }
 }

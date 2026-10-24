@@ -108,3 +108,5 @@ pub use response::{
 };
 
 pub use trial_detail::{TrialDate, TrialDateKind};
+
+pub use trial_detail::{TrialArmKind, TrialInterventionKind};
