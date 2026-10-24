@@ -1,0 +1,39 @@
+{
+  "live_check": "synthetic response case",
+  "feature": "article-search",
+  "story": "Native source access parameters use the recorded request identity with an explicitly synthetic empty response",
+  "replay": "article/filters/synthetic-europepmc",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/term": "AKT1 E17K AND OPEN_ACCESS:y NOT SRC:PPR NOT PUB_TYPE:\"retracted publication\"",
+        "/sources/0/count": 0,
+        "/result/items": {
+          "count": 0
+        }
+      },
+      "max_bytes": 1400
+    }
+  ]
+}

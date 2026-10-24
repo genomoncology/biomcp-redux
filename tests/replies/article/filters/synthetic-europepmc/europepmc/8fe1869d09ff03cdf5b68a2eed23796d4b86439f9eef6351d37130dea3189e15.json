@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=AKT1%20E17K%20AND%20OPEN_ACCESS%3Ay%20NOT%20SRC%3APPR%20NOT%20PUB_TYPE%3A%22retracted%20publication%22&format=json&resultType=lite&pageSize=100",
+  "exchanges": [
+    {
+      "fetched": 1792858320,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 1368,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "hitCount": 0,
+          "resultList": {
+            "result": []
+          }
+        }
+      }
+    }
+  ]
+}
