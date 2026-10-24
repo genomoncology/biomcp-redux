@@ -10,7 +10,7 @@ use std::{collections::BTreeMap, time::Duration};
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
-        url: "https://gnomad.broadinstitute.org/terms",
+        url: "https://gnomad.broadinstitute.org/policies",
         usage: biodata::Use::Open,
     },
     source: Source::Gnomad,

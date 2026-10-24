@@ -12,7 +12,7 @@ pub const BATCH_LIMIT: usize = 200;
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NIH public-domain data",
-        url: "https://icite.od.nih.gov/",
+        url: "https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview",
         usage: biodata::Use::Open,
     },
     source: Source::Icite,

@@ -3,6 +3,7 @@ use biodata::{Health, Reason, SourceHealth, SourceState, Text};
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
 use std::time::Duration;
+const PROBE_BUDGET: Duration = Duration::from_secs(3);
 /// Probe every implemented source with one shared command deadline and short source caps.
 pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
     let deadline = fetch.deadline(budget);
@@ -23,9 +24,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                     let (state, reason, latency_ms) = if let Some(reason) = skip {
                         (SourceState::Skipped, Some(reason), None)
                     } else {
-                        let leg = fetch
-                            .leg(spec, deadline.child(Duration::from_secs(3)))
-                            .fresh(true);
+                        let leg = fetch.leg(spec, deadline.child(PROBE_BUDGET)).fresh(true);
                         let start = leg.remaining();
                         let result = registry::probe(spec, &leg);
                         let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;

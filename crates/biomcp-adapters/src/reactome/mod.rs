@@ -7,9 +7,9 @@ use std::time::Duration;
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
-        name: "CC BY 4.0; CC0 annotation exports",
+        name: "CC0 1.0 database data",
         url: "https://reactome.org/license",
-        usage: biodata::Use::Attribution,
+        usage: biodata::Use::Open,
     },
     source: Source::Reactome,
     base: "https://reactome.org/ContentService",
