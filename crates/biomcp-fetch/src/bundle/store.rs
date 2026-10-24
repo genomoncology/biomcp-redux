@@ -57,8 +57,8 @@ impl Cache {
                 [name],
                 |r| {
                     Ok(Meta {
-                        bytes: r.get(0)?,
-                        rows: r.get(1)?,
+                        bytes: u64::from(r.get::<_, u32>(0)?),
+                        rows: u64::from(r.get::<_, u32>(1)?),
                         fresh_until: r.get(2)?,
                         etag: r.get(3)?,
                         modified: r.get(4)?,
@@ -136,7 +136,7 @@ impl Cache {
     ) -> Result<Option<Part>, CacheError> {
         self.sql(d,|c|{
             let tx=c.unchecked_transaction().map_err(db_error)?;
-            let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:r.get(4)?,etag:r.get(5)?,total:r.get(6)?}))).optional().map_err(db_error)?;
+            let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:u64::from(r.get::<_,u32>(4)?),etag:r.get(5)?,total:r.get::<_,Option<u32>>(6)?.map(u64::from)}))).optional().map_err(db_error)?;
             if old.as_ref().is_some_and(|(h,until,_,_)|h.is_some()&&*until>now()){return Err(CacheError::Busy);}
             let part=old.and_then(|(_,_,u,p)|(u==url).then_some(p));
             tx.execute("INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,etag=NULL,total=NULL",params![name,holder,lease,url,path]).map_err(db_error)?;
@@ -150,7 +150,7 @@ impl Cache {
         p: &Part,
         d: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        self.sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes,p.etag,p.total]).map(|n|n==1).map_err(db_error))
+        self.sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
     }
     pub(super) fn publish<R: Row>(
         &self,
@@ -166,12 +166,12 @@ impl Cache {
             if let Some(rows)=rows {
                 for table in ["bundle_row","bundle_key","bundle_words"]{tx.execute(&format!("DELETE FROM {table} WHERE bundle=?1"),[b.name]).map_err(db_error)?;}
                 for (n,row) in rows.iter().enumerate(){
-                    tx.execute("INSERT INTO bundle_row VALUES(?1,?2,?3)",params![b.name,n as u64,row.row]).map_err(db_error)?;
-                    for (key,value) in &row.keys.exact {tx.execute("INSERT INTO bundle_key VALUES(?1,?2,?3,?4)",params![b.name,kind(*key),value.to_ascii_lowercase(),n as u64]).map_err(db_error)?;}
-                    tx.execute("INSERT INTO bundle_words(bundle,n,words) VALUES(?1,?2,?3)",params![b.name,n as u64,row.keys.words.join(" ")]).map_err(db_error)?;
+                    tx.execute("INSERT INTO bundle_row VALUES(?1,?2,?3)",params![b.name,n as i64,row.row]).map_err(db_error)?;
+                    for (key,value) in &row.keys.exact {tx.execute("INSERT INTO bundle_key VALUES(?1,?2,?3,?4)",params![b.name,kind(*key),value.to_ascii_lowercase(),n as i64]).map_err(db_error)?;}
+                    tx.execute("INSERT INTO bundle_words(bundle,n,words) VALUES(?1,?2,?3)",params![b.name,n as i64,row.keys.words.join(" ")]).map_err(db_error)?;
                 }
             }
-            tx.execute("INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET bytes=excluded.bytes,rows=excluded.rows,fresh_until=excluded.fresh_until,etag=excluded.etag,modified=excluded.modified",params![b.name,m.bytes,m.rows,m.fresh_until,m.etag,m.modified]).map_err(db_error)?;
+            tx.execute("INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET bytes=excluded.bytes,rows=excluded.rows,fresh_until=excluded.fresh_until,etag=excluded.etag,modified=excluded.modified",params![b.name,m.bytes as i64,m.rows as i64,m.fresh_until,m.etag,m.modified]).map_err(db_error)?;
             if let Some(h)=holder{tx.execute("DELETE FROM bundle_sync WHERE name=?1 AND holder=?2",params![b.name,h]).map_err(db_error)?;}
             tx.commit().map_err(db_error)?; Ok(true)
         })
