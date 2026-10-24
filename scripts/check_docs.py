@@ -30,10 +30,11 @@ def check(root):
         if not patterns or match[3] != ", ".join(f"`{pattern}`" for pattern in patterns):
             raise ValueError(f"invalid case references for {match[1]}")
         for pattern in patterns:
-            if not pattern.startswith("tests/cases/") or ".." in Path(pattern).parts:
+            native = pattern.startswith("crates/biomcp/tests/runner/") and pattern.endswith(".rs")
+            if not (pattern.startswith("tests/cases/") or native) or ".." in Path(pattern).parts:
                 raise ValueError(f"case reference escapes tests/cases: {pattern}")
             found = {path.relative_to(root).as_posix() for path in root.glob(pattern) if path.is_file()}
-            if not found or not found <= cases:
+            if not found or (not native and not found <= cases):
                 raise ValueError(f"feature {match[1]} pattern matches no cases or non-case files: {pattern}")
             mapped.update(found)
     if cases - mapped:

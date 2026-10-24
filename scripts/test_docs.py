@@ -22,7 +22,7 @@ def main():
             target = root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
-        for name in ("sdlc/planning/slices", "tests/cases"):
+        for name in ("sdlc/planning/slices", "tests/cases", "crates/biomcp/tests/runner"):
             shutil.copytree(ROOT / name, root / name)
         result = check(root)
         assert result.returncode == 0, result.stderr
