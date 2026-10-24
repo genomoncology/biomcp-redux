@@ -49,7 +49,7 @@ pub fn search_ids(
         ("tool", Arg::Text("biomcp")),
     ];
     if sort == ArticleSort::Rank {
-        params.push(("sort", Arg::Text("relevance")));
+        params.insert(2, ("sort", Arg::Text("relevance")));
     }
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
