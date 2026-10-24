@@ -23,6 +23,8 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
+            VariantSection::Population,
+            VariantSection::Gwas,
             VariantSection::Civic,
             VariantSection::Hotspots,
             VariantSection::Oncokb,
@@ -34,6 +36,8 @@ pub(super) fn apply(
             }
             let candidates = std::slice::from_ref(&*candidate);
             match section {
+                VariantSection::Population => sections.population = Some(retain(permitted(cx, section, || super::population::section(cx, query, candidates, deadline)), &mut sources, &mut problems, &mut local)),
+                VariantSection::Gwas => sections.gwas = Some(retain(permitted(cx, section, || super::gwas::section(cx, query, candidates, deadline)), &mut sources, &mut problems, &mut local)),
                 VariantSection::Civic => {
                     sections.civic = Some(retain(
                         permitted(cx, section, || {
@@ -75,6 +79,8 @@ pub(super) fn apply(
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
+        VariantSection::Population => Some(Source::Gnomad),
+        VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
         VariantSection::Oncokb => Some(Source::Oncokb),
         VariantSection::Hotspots => Some(Source::CancerHotspots),

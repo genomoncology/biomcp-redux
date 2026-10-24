@@ -1,0 +1,47 @@
+{
+  "feature": "variant-population",
+  "live_check": "synthetic response-only failure over actual recorded request identity",
+  "story": "gnomad malformed remains unavailable and never becomes a zero or a cached success",
+  "replay": "variant-population/gnomad-malformed",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
+      "mcp": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "bad_reply"
+      },
+      "max_bytes": 427,
+      "max_tokens": 107
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/result/population/reason": "offline"
+      },
+      "max_bytes": 423,
+      "max_tokens": 106
+    }
+  ]
+}

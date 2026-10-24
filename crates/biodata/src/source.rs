@@ -61,6 +61,8 @@ canonical_enum! {
         UniProt => "uniprot",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// GWAS Catalog v2.
+        Gwas => "gwas",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.

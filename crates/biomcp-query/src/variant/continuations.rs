@@ -6,6 +6,11 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         let Some(sections) = candidate.sections.as_deref() else {
             continue;
         };
+        if let Some(gwas) = data(&sections.gwas) {
+            if let Some(query) = &gwas.continuation {
+                push(next, StepKind::Page, Request::GetVariant(query.clone()));
+            }
+        }
         for query in [
             data(&sections.civic).and_then(|d| d.next.as_ref()),
             data(&sections.hotspots).and_then(|d| d.next.as_ref()),

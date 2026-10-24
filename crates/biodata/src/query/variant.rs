@@ -242,6 +242,10 @@ impl VariantResolver {
 crate::source::canonical_enum! {
     /// Named variant source sections, without automatic expansion of identity cards.
     VariantSection, SourceUnknown {
+        /// gnomAD population observations.
+        Population => "population",
+        /// GWAS Catalog associations.
+        Gwas => "gwas",
         /// CIViC molecular-profile evidence.
         Civic => "civic",
         /// Keyed OncoKB annotation with explicit tumor context and build.

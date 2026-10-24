@@ -46,3 +46,6 @@ mod protein_change;
 pub use protein_change::ProteinChange;
 mod variant_search;
 pub use variant_search::{MyVariantQuery, VariantRegion, VariantSearch, VariantSearchSource};
+
+mod variant_population;
+pub use variant_population::VariantPopulationQuery;

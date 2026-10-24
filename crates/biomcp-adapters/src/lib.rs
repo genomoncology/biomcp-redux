@@ -55,3 +55,6 @@ pub mod variantvalidator;
 pub mod cbioportal;
 
 pub mod hotspots;
+
+/// GWAS Catalog v2 exact rsID associations.
+pub mod gwas;

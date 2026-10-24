@@ -102,7 +102,7 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
 pub(crate) fn command_words(request: &Request) -> Vec<String> {
     vec![
         match request {
-            Request::VariantRecurrence(_) | Request::VariantNormalize(_) => "variant",
+            Request::VariantPopulation(_) | Request::VariantRecurrence(_) | Request::VariantNormalize(_) => "variant",
             Request::TrialDocument(_) => "trial",
             Request::ArticlePdf(_)
             | Request::ArticleEvidence(_)
@@ -121,7 +121,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::VariantRecurrence(_)) {
+        if matches!(request, Request::VariantPopulation(_)) { "population" } else if matches!(request, Request::VariantRecurrence(_)) {
             "recurrence"
         } else if matches!(request, Request::VariantNormalize(_)) {
             "normalize"
