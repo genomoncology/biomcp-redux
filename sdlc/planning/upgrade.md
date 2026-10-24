@@ -27,12 +27,12 @@ The generated table below lists decided leaf commands and their dropped options 
 | `gene trials` | Ported or renamed | — | [The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page.](slices/gene.md) |
 | `gene articles` | Ported or renamed | — | [Section 1 maps this capability to search article --gene; article search preserves paging.](slices/gene.md) |
 | `gene pathways` | Ported or renamed | — | [Section 1 maps the command to the pathways section and moves old paging to the pathway slice.](slices/gene.md) |
-| `search trial` | Ported or renamed | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
-| `get trial` | Ported or renamed | — | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
-| `batch trial` | Ported or renamed | `--mode`, `--pdf` | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
-| `variant trials` | Ported or renamed | — | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
-| `disease trials` | Ported or renamed | — | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
-| `drug trials` | Ported or renamed | `--no-alias-expand` | [[The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](../../decisions/2026-10-24-trial-slice-rulings.md)](slices/trial.md) |
+| `search trial` | Ported or renamed | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `get trial` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `batch trial` | Ported or renamed | `--mode`, `--pdf` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `variant trials` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `disease trials` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `drug trials` | Ported or renamed | `--no-alias-expand` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
 <!-- /upgrade-commands -->
 
 ## Configuration and keys

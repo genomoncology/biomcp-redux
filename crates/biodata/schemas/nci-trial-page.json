@@ -598,7 +598,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Record count per source collection page; eligibility pages follow the text budget.",
+          "description": "Whole-record count per source collection page; text fragments follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -606,7 +606,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for eligibility or whole-record offset for a source collection.",
+          "description": "Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

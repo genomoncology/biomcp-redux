@@ -18,11 +18,11 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Record count per source collection page; eligibility pages follow the text budget.
+    /// Whole-record count per source collection page; text fragments follow the text budget.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Character offset for eligibility or whole-record offset for a source collection.
+    /// Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
     #[serde(default)]
     offset: u32,
     /// Checked stored source record, supplied by a continuation.
