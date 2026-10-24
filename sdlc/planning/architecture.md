@@ -152,7 +152,7 @@ crates/
     src/lib.rs  ctx.rs  run.rs  fan_out.rs  status.rs  error.rs
     src/<entity>/search.rs  get.rs  next.rs
     src/gene/resolve.rs
-    src/article/pool.rs  rank.rs
+    src/article/pool.rs  order.rs
     src/store/mod.rs  schema.sql  pool.rs
   biomcp/
     clippy.toml
@@ -1246,7 +1246,7 @@ pub(crate) struct Features { pub in_title: bool, pub in_abstract: bool, pub cura
 pub(crate) fn rank(items: &mut [PoolItem], q: &RankQuery);   // stable lexicographic sort, then best native rank, then ID
 ```
 
-Articles have no ranker. Their order is the closed enum `Order`: `rank` keeps each source's own order and, with several sources, takes them in turns in the order the agent listed them, skipping a paper already shown; `date` takes each named source's own newest-first order the same way; `citations` sorts the whole pool by iCite's count of citing PubMed papers, ties in `rank` order, items with no count last. `Features` shrinks to the iCite count, filled only for `citations`. BioMCP never blends sources into one score, as `planning/slices/article.md` records. Gene search ranks by match kind, then locus group, as `planning/slices/gene.md` says. The ranker's tie-break table is one of the listed unit test exceptions.
+Articles have no ranker. Their order is the closed enum `Order`: `rank` keeps each source's own order and, with several sources, takes them in turns in the order the agent listed them, skipping a paper already shown; `date` takes each named source's own newest-first order the same way; `citations` sorts the whole pool by iCite's count of citing PubMed papers, ties in `rank` order, items with no count last. `Features` shrinks to the iCite count, filled only for `citations`. BioMCP never blends sources into one score, as `planning/slices/article.md` records. Gene search ranks by match kind, then locus group, as `planning/slices/gene.md` says.
 
 ### 6.7 Pools and paging
 
@@ -1768,7 +1768,6 @@ The ratchet test holds the list. Each entry names a file and its reason.
 
 - `crates/biodata/tests/`: identifier, date and notation tables through the public API, the schema drift, compatibility and subset test, and the JSON round trip. These are outside-in for the library.
 - `crates/biomcp-fetch/tests/`: the transport contract through the crate's public API against a local stub server with no network: source-key rate limits, deadlines, retries, keyed-source skips, reply checks, the cache and record, replay and offline. These are outside-in for the library, so the transport lands before any command. When a runner case later proves the same behavior through the binary, the duplicate library test is removed.
-- `crates/biomcp-query/src/article/rank.rs`: the ranker's tie-break table, because a ranking rule is easier to state as rows than as recorded pools.
 - `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
 - `crates/biomcp-fetch/src/xml_tests.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
 
