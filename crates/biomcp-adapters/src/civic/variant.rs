@@ -17,6 +17,7 @@ struct Query<'a> {
 struct Variables<'a> {
     allele: &'a str,
     after: Option<&'a Text>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ids: Option<[u64; 1]>,
     evidence_after: Option<&'a Text>,
     assertion_after: Option<&'a Text>,
@@ -84,9 +85,14 @@ fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) 
         Some(CivicClaimKind::Assertions) => (0, limit),
         None => (limit.min(2), 1),
     };
+    let (ids_variable, ids_argument) = if query.civic_profile().is_some() {
+        (",$ids:[Int!]", ",ids:$ids")
+    } else {
+        ("", "")
+    };
     Query {
         query: format!(
-            "query($allele:String!,$after:String,$ids:[Int!],$evidence_after:String,$assertion_after:String){{molecularProfiles(alleleRegistryId:$allele,ids:$ids,first:1,after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id name link isComplex variants{{id name link feature{{name}} ... on GeneVariant{{alleleRegistryId hgvsDescriptions}}}} evidenceItems(first:{evidence},after:$evidence_after,includeRejected:false){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection significance disease{{name doid}} therapies{{name}} source{{citationId sourceType}}}}}} assertions(first:{assertions},after:$assertion_after,includeRejected:false){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status assertionType assertionDirection significance ampLevel disease{{name doid}} therapies{{name}} variantOrigin}}}}}}}}}}"
+            "query($allele:String!,$after:String{ids_variable},$evidence_after:String,$assertion_after:String){{molecularProfiles(alleleRegistryId:$allele{ids_argument},first:1,after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id name link isComplex variants{{id name link feature{{name}} ... on GeneVariant{{alleleRegistryId hgvsDescriptions}}}} evidenceItems(first:{evidence},after:$evidence_after,includeRejected:false){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection significance disease{{name doid}} therapies{{name}} source{{citationId sourceType}}}}}} assertions(first:{assertions},after:$assertion_after,includeRejected:false){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id status assertionType assertionDirection significance ampLevel disease{{name doid}} therapies{{name}} variantOrigin}}}}}}}}}}"
         ),
         variables: Variables {
             allele,
