@@ -71,8 +71,8 @@ fn registration() -> Check {
     let stored: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     if stored.pointer("/keys/semantic_scholar_api_key") != Some(&json!(FIRST))
-        || stored["disable_sources"] != json!(["reactome"])
-        || stored["ncbi_email"] != "synthetic@example.invalid"
+        || stored.get("disable_sources") != Some(&json!(["reactome"]))
+        || stored.get("ncbi_email") != Some(&json!("synthetic@example.invalid"))
     {
         return Err("set lost configuration".into());
     }

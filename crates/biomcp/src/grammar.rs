@@ -189,21 +189,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             help: None,
         });
     }
-    let help = if verb == "help" {
-        match matches.subcommand() {
-            Some(("key", _)) => None,
-            Some(("network", matches)) => Some(vec![
-                "network".into(),
-                matches.get_one::<String>("setting").ok_or(())?.clone(),
-            ]),
-            Some((verb, matches)) => {
-                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
-            }
-            None => Some(Vec::new()),
-        }
-    } else {
-        None
-    };
+    let help = help_path(verb, matches)?;
     let action = if verb == "health" {
         Action::Health
     } else if verb == "help" {
@@ -245,6 +231,23 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         action: Some(action),
         globals,
         help,
+    })
+}
+fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
+    Ok(if verb == "help" {
+        match matches.subcommand() {
+            Some(("key", _)) => None,
+            Some(("network", matches)) => Some(vec![
+                "network".into(),
+                matches.get_one::<String>("setting").ok_or(())?.clone(),
+            ]),
+            Some((verb, matches)) => {
+                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
+            }
+            None => Some(Vec::new()),
+        }
+    } else {
+        None
     })
 }
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {

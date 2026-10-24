@@ -20,8 +20,8 @@ struct ConfigFile {
 struct Http {
     allowed_hosts: Vec<String>,
 }
-pub(crate) fn http_hosts() -> Result<Vec<String>, ()> {
-    Ok(read_file(None)?
+pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ()> {
+    Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.http)
         .map(|http| http.allowed_hosts)
         .unwrap_or_default())

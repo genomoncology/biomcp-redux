@@ -192,6 +192,9 @@ pub(super) fn check(http: bool, fallback: bool) -> Check {
         return Err("MCP accepted key management".into());
     }
     client.finish()?;
+    check_wire(stub,expected)
+}
+fn check_wire(stub: Stub, expected: Vec<Option<&str>>) -> Check {
     let requests = stub.finish()?;
     if requests.len() != expected.len() {
         return Err("reload changed request count".into());

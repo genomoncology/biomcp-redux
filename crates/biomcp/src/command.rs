@@ -67,17 +67,7 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
-    if let Action::Run {
-        request: Request::SearchArticle(query),
-        ..
-    } = &action
-        && let Some((source, option)) = biomcp_query::article::unsupported(query)
-    {
-        return encode(
-            biodata::ErrorEnvelope::unsupported_filter(source, option),
-            crate::exit::Status::Usage,
-        );
-    }
+    if let Some(outcome) = unsupported(&action) { return outcome; }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => {
@@ -106,6 +96,13 @@ fn dispatch_using(
         }
     };
     execute(fetch, action, &parsed.globals)
+}
+fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if let Action::Run { request: Request::SearchArticle(query), .. } = action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query) {
+        return Some(encode(biodata::ErrorEnvelope::unsupported_filter(source,option),crate::exit::Status::Usage));
+    }
+    None
 }
 fn execute(
     fetch: &biomcp_fetch::Fetch,
@@ -245,10 +242,13 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
         biodata::ErrorEnvelope::schema_usage()
     };
     if root == Some("key") {
-        error.next = biomcp_fetch::SecretName::ALL.iter().map(|name| biodata::Step {
-            kind: biodata::StepKind::Configure,
-            args: vec!["help".into(),"key".into(),name.source().into()].into(),
-        }).collect();
+        error.next = biomcp_fetch::SecretName::ALL
+            .iter()
+            .map(|name| biodata::Step {
+                kind: biodata::StepKind::Configure,
+                args: vec!["help".into(), "key".into(), name.source().into()].into(),
+            })
+            .collect();
     }
     encode(error, crate::exit::Status::Usage)
 }

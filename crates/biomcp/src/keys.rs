@@ -90,7 +90,8 @@ fn run_inner(
     let parent = path.parent().ok_or(Failure::Local)?;
     let mut directory = std::fs::DirBuilder::new();
     directory.recursive(true);
-    #[cfg(unix)] {
+    #[cfg(unix)]
+    {
         use std::os::unix::fs::DirBuilderExt;
         directory.mode(0o700);
     }
