@@ -156,14 +156,6 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
     has: Option<VariantSearchField>,
-    /// Require the selected component's identifier field to be missing; this states source coverage, not clinical absence.
-    #[serde(
-        default,
-        deserialize_with = "present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
-    missing: Option<VariantSearchField>,
     /// Native candidates per page, default 10, maximum 50; all candidates remain candidates.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -195,7 +187,6 @@ impl TryFrom<Fields> for VariantSearch {
             || !(1..=50).contains(&f.limit)
             || f.offset >= Self::MAX_RESULTS
             || (raw && f.filtered())
-            || (f.has.is_some() && f.has == f.missing)
             || [&f.review_status, &f.condition]
                 .into_iter()
                 .flatten()
@@ -209,6 +200,10 @@ impl TryFrom<Fields> for VariantSearch {
 impl VariantSearch {
     /// Maximum native result window this command retrieves; larger totals are disclosed.
     pub const MAX_RESULTS: u32 = 10_000;
+    /// Whether this search requires the independently controlled ClinVar component.
+    pub fn uses_clinvar_filters(&self) -> bool {
+        self.0.filtered()
+    }
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
@@ -253,7 +248,6 @@ impl Fields {
         self.review_status.is_some()
             || self.condition.is_some()
             || self.has.is_some()
-            || self.missing.is_some()
     }
     fn append_filters(&self, term: &mut String) {
         for (field, value) in [
@@ -267,10 +261,8 @@ impl Fields {
                 ));
             }
         }
-        for (operator, field) in [("_exists_", self.has), ("_missing_", self.missing)] {
-            if let Some(VariantSearchField::Clinvar) = field {
-                term.push_str(&format!(" AND {operator}:clinvar.variant_id"));
-            }
+        if let Some(VariantSearchField::Clinvar) = self.has {
+            term.push_str(" AND _exists_:clinvar.variant_id");
         }
     }
 }
