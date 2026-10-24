@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Synthetic Europe PMC 500 retains every public PubMed floor identity",
   "replay": "article/fold/synthetic-epmc-500",

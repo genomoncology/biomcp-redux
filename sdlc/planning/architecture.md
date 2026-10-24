@@ -114,7 +114,7 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
    - Each crate's direct dependencies are a subset of its allowed list, which the test holds as one table that mirrors section 2.1.
    - `rusqlite` appears in `biomcp-query` only under `src/store/`.
-   - No product file exceeds 600 lines. No file in an adapter folder exceeds 300.
+   - No product or test file exceeds 600 lines. No file in an adapter folder exceeds 300.
    - `#[test]` appears in product crates only in the listed exception files.
    - `#[serde(default)]` never appears in an adapter's `raw.rs` (section 5.1).
    - `#[expect(` appears only in the listed files.
@@ -1715,7 +1715,7 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the report merges them.
+`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. Permitted library tests run in a separate profile collection and have a separate report. Their profiles never count toward the floor. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
 
 The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
 
@@ -1742,7 +1742,12 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/freshness.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/storage.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -1751,6 +1756,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |

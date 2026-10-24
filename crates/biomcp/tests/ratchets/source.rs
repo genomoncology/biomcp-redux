@@ -4,6 +4,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/observe.rs",
+        "Serialize bounded opt-in attempt summaries across transport workers",
+    ),
+    (
         "crates/biomcp-query/src/store/mod.rs",
         "Own SQLite connections and wall-clock pool timestamps",
     ),
@@ -56,7 +60,17 @@ pub(super) fn check(root: &Path) -> Check {
         return Ok(());
     }
     for entry in fs::read_dir(crates)? {
-        for path in rust_files(&entry?.path().join("src"))? {
+        let crate_root = entry?.path();
+        for path in rust_files(&crate_root.join("tests"))? {
+            let text = fs::read_to_string(&path)?;
+            if text.lines().count() > FILE_LIMIT {
+                return fail(
+                    &path.strip_prefix(root)?.to_string_lossy(),
+                    "file line limit exceeded",
+                );
+            }
+        }
+        for path in rust_files(&crate_root.join("src"))? {
             let relative = path
                 .strip_prefix(root)?
                 .to_string_lossy()

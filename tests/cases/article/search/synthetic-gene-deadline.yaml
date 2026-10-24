@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Gene resolution and PubMed consume one command deadline.",
   "replay": "article/search/synthetic-gene-deadline",

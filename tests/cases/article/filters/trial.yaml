@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Native trial tags retain phase-specific clinical trial types.",
   "replay": "article/filters/trial",

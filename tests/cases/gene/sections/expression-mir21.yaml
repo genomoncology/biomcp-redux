@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "HPA owns MIR21 absence as an empty section",
   "replay": "gene/expression",

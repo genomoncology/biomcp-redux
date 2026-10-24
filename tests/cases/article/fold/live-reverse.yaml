@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "The caller can put Europe PMC first while retaining each source native rank",
   "replay": "article/fold/live",

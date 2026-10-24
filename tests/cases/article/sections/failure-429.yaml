@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-annotations",
   "story": "An annotation 429 failure preserves the article card and the later offline result.",
   "replay": "article/annotations/synthetic-429",
