@@ -1,6 +1,7 @@
 # 0121 — Record the article token table's missing questions and tick the budget
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b5a590cebd844257fcd490e972cf946b566e9b52
 
 Milestone: 1
 
