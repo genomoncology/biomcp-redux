@@ -74,9 +74,21 @@ pub(super) fn apply(
                 }
                 S::Population => sections.population = Some(pending(Source::Gnomad, &mut sources)),
                 S::Gwas => sections.gwas = Some(pending(Source::Gwas, &mut sources)),
-                S::Civic => sections.civic = Some(pending(Source::Civic, &mut sources)),
+                S::Civic => {
+                    sections.civic = Some(retain(
+                        super::civic::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 S::Hotspots => {
-                    sections.hotspots = Some(pending(Source::CancerHotspots, &mut sources))
+                    sections.hotspots = Some(retain(
+                        super::hotspots::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
                 }
                 S::Predict => sections.predict = Some(pending(Source::MyVariant, &mut sources)),
                 S::Conservation => {

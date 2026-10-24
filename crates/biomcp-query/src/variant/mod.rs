@@ -1,5 +1,7 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
+mod civic;
+mod hotspots;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
