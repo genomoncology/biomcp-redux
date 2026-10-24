@@ -1,6 +1,7 @@
 # 0100 — Supply the Windows download proof's required shell tools
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 08ee616a70f843dc3424ab21a8ce20dd64cb5d38
 
 Milestone: 1
 
