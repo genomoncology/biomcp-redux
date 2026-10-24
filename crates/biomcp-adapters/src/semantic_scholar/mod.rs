@@ -15,4 +15,4 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 mod search;
-pub use search::{Paper, Search, search};
+pub use search::{Author, ExternalIds, Paper, Search, search};

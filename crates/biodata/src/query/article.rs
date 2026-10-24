@@ -293,6 +293,7 @@ impl ArticleSearch {
 /// Source capability selectors checked before any lookup or transport request.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["TEXT", "--gene", "--variant", "--disease", "--drug", "--author", "--journal", "--since", "--until", "--type", "--sort date"])))]
 pub enum ArticleFilter {
     /// Free text.
     #[serde(rename = "TEXT")]

@@ -22,7 +22,7 @@ pub(super) fn search<'a>(
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
     let epmc_term = term(query);
     let start = *deadline;
-    let results = fan_out::run(
+    let mut results = fan_out::run(
         query
             .sources()
             .iter()
@@ -38,6 +38,30 @@ pub(super) fn search<'a>(
     );
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
+    for result in &mut results {
+        if result.source == ArticleSource::SemanticScholar
+            && result.items.iter().any(|item| item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some()))
+        {
+            match super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline) {
+                Ok(source) => {
+                    if !results_have_pubmed(query) { out.sources.push(source); }
+                }
+                Err(error) => {
+                    if status::local(error).is_some() { return Err(error); }
+                    if let RequestError::Source(error) = error {
+                        out.sources.push(SourceOutcome {
+                            source: Source::PubMed, state: SourceState::Failed, reason: Some(error.reason),
+                            term: None, count: None, fetched: None, notices: Vec::new(),
+                        });
+                    }
+                }
+            }
+        }
+        if result.outcome.reason == Some(biodata::Reason::RateLimited)
+            && result.source == ArticleSource::SemanticScholar {
+            out.next.push((biodata::StepKind::Key, crate::Action::KeyHelp(Source::SemanticScholar)));
+        }
+    }
     let failed_pubmed = results
         .iter()
         .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some());
@@ -168,4 +192,8 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
     parts.join(" AND ")
+}
+
+fn results_have_pubmed(query: &ArticleSearch) -> bool {
+    query.sources().contains(&ArticleSource::Pubmed)
 }
