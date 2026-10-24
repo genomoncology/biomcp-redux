@@ -1,4 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub(crate) mod assertions;
+mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
@@ -48,6 +50,11 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
+    let (section_sources, section_problems, section_error) =
+        sections::apply(cx, query, &mut candidates, deadline);
+    sources.extend(section_sources);
+    problems.extend(section_problems);
+    local = local.or(section_error);
     let next = next(query, resolution, &candidates, page.as_ref());
     let overall = if matches!(
         resolution,
