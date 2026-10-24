@@ -13,6 +13,7 @@ pub(crate) struct StoredItem {
     pub checked: bool,
     pub header: Option<ArticleHeader>,
     pub problems: Vec<Problem>,
+    pub outcome: Option<SourceOutcome>,
 }
 impl Store<'_> {
     pub(crate) fn find(&self, key: &[u8], id: Option<&str>) -> Result<Option<Pool>, CacheError> {
@@ -53,26 +54,40 @@ impl Store<'_> {
         limit: u32,
     ) -> Result<Vec<StoredItem>, CacheError> {
         self.read(|connection| {
-            let mut statement=connection.prepare("SELECT pmid,checked,header,problems FROM pool_item WHERE pool=?1 ORDER BY rank LIMIT ?2 OFFSET ?3").map_err(db)?;
-            let rows=statement.query_map(params![pool,limit,offset],|r|Ok((r.get::<_,String>(0)?,r.get::<_,bool>(1)?,r.get::<_,Option<String>>(2)?,r.get::<_,String>(3)?))).map_err(db)?;
-            rows.map(|row|{let (id,checked,header,problems)=row.map_err(db)?;Ok(StoredItem{id:id.parse().map_err(|_|CacheError::Database)?,checked,header:header.map(|h|serde_json::from_str(&h).map_err(|_|CacheError::Database)).transpose()?,problems:serde_json::from_str(&problems).map_err(|_|CacheError::Database)?})}).collect()
+            let mut statement=connection.prepare("SELECT pmid,checked,header,problems,outcome FROM pool_item WHERE pool=?1 ORDER BY rank LIMIT ?2 OFFSET ?3").map_err(db)?;
+            let rows=statement.query_map(params![pool,limit,offset],|r| {
+                Ok((r.get::<_,String>(0)?,r.get::<_,bool>(1)?,r.get::<_,Option<String>>(2)?,r.get::<_,String>(3)?,r.get::<_,Option<String>>(4)?))
+            }).map_err(db)?;
+            rows.map(|row| {
+                let (id,checked,header,problems,outcome)=row.map_err(db)?;
+                Ok(StoredItem {
+                    id:id.parse().map_err(|_|CacheError::Database)?,
+                    checked,
+                    header:header.map(|h|serde_json::from_str(&h).map_err(|_|CacheError::Database)).transpose()?,
+                    problems:serde_json::from_str(&problems).map_err(|_|CacheError::Database)?,
+                    outcome:outcome.map(|v|serde_json::from_str(&v).map_err(|_|CacheError::Database)).transpose()?,
+                })
+            }).collect()
         })
     }
+
     pub(crate) fn hydrate(
         &mut self,
         pool: &str,
         ids: &[Pmid],
         headers: &[ArticleHeader],
         problems: &[Problem],
+        outcome: Option<&SourceOutcome>,
     ) -> Result<(), CacheError> {
         self.write(|tx| {
+            let outcome=outcome.map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
             for id in ids {
                 let header=headers.iter().find(|h|h.pmid==*id).map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
                 let name=id.to_string();
                 let problems:Vec<_>=problems.iter().filter(|p|p.record.as_ref().is_some_and(|r|r.as_str()==name)).collect();
                 let problems=serde_json::to_string(&problems).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.
-                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4 WHERE pool=?1 AND pmid=?2 AND header IS NULL",params![pool,name,header,problems]).map_err(db)?;
+                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND pmid=?2 AND header IS NULL",params![pool,name,header,problems,outcome]).map_err(db)?;
             }
             Ok(())
         })

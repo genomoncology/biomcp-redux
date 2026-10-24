@@ -148,25 +148,7 @@ pub(super) fn article_sequence(
                 let line = receiver
                     .recv_timeout(Duration::from_secs(30))
                     .map_err(|_| "MCP reply watchdog")??;
-                let reply: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
-                let id = reply
-                    .get("id")
-                    .and_then(Value::as_u64)
-                    .ok_or("correlation missing")?;
-                if !batch.contains(&id)
-                    || !ids.insert(id)
-                    || reply.pointer("/result/isError") != Some(&json!(false))
-                    || reply.pointer("/result/structuredContent/status") != Some(&json!("complete"))
-                {
-                    return Err(format!("persistent article replay failed: {reply}"));
-                }
-                let pool = reply
-                    .pointer("/result/structuredContent/page/pool/id")
-                    .and_then(Value::as_str)
-                    .ok_or("pool missing")?;
-                if !pools.insert(pool.to_owned()) {
-                    return Err("fresh command reused pool".into());
-                }
+                check_article_reply(&line, &batch, &mut ids, &mut pools)?;
             }
         }
         Ok(())
@@ -181,6 +163,34 @@ pub(super) fn article_sequence(
     let (status, _, stderr) = finish?;
     if !status.success() || !stderr.is_empty() {
         return Err("persistent article server failed".into());
+    }
+    Ok(())
+}
+
+fn check_article_reply(
+    line: &str,
+    batch: &[u64],
+    ids: &mut std::collections::BTreeSet<u64>,
+    pools: &mut std::collections::BTreeSet<String>,
+) -> Result<(), String> {
+    let reply: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
+    let id = reply
+        .get("id")
+        .and_then(Value::as_u64)
+        .ok_or("correlation missing")?;
+    if !batch.contains(&id)
+        || !ids.insert(id)
+        || reply.pointer("/result/isError") != Some(&json!(false))
+        || reply.pointer("/result/structuredContent/status") != Some(&json!("complete"))
+    {
+        return Err(format!("persistent article replay failed: {reply}"));
+    }
+    let pool = reply
+        .pointer("/result/structuredContent/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("pool missing")?;
+    if !pools.insert(pool.to_owned()) {
+        return Err("fresh command reused pool".into());
     }
     Ok(())
 }

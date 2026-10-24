@@ -108,7 +108,9 @@ fn read_page<'a>(
         store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
-                store.hydrate(id, &missing, &mapped.value, &mapped.problems)?;
+                let source = status::source(Source::PubMed, leg.finish(), None);
+                let stale = (source.state == biodata::SourceState::Stale).then_some(&source);
+                store.hydrate(id, &missing, &mapped.value, &mapped.problems, stale)?;
                 rows = store.page(id, query.offset(), query.limit())?;
             }
             Err(error) => {
@@ -131,7 +133,17 @@ fn read_page<'a>(
     Ok(())
 }
 fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
-    let partial = rows.iter().any(|r| r.header.is_none());
+    for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {
+        if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
+            original.state = source.state;
+            original.reason = source.reason;
+        }
+    }
+    let stale = out
+        .sources
+        .iter()
+        .any(|s| s.state == biodata::SourceState::Stale);
+    let partial = stale || rows.iter().any(|r| r.header.is_none());
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }
@@ -177,7 +189,15 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
         ));
     }
     if partial {
-        retry(query, Some(pool.info.id.clone()), out);
+        retry(
+            query,
+            if stale {
+                None
+            } else {
+                Some(pool.info.id.clone())
+            },
+            out,
+        );
     }
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {

@@ -25,20 +25,20 @@
   },
   "sur1": {
     "pages": 1,
-    "first_bytes": 540,
-    "largest_bytes": 540,
-    "measured_plus_15_percent": 621
+    "first_bytes": 549,
+    "largest_bytes": 549,
+    "measured_plus_15_percent": 632
   },
   "akt1-gene": {
     "pages": 1,
-    "first_bytes": 4291,
-    "largest_bytes": 4291,
-    "measured_plus_15_percent": 4935
+    "first_bytes": 4349,
+    "largest_bytes": 4349,
+    "measured_plus_15_percent": 5002
   },
   "kras": {
     "pages": 1,
-    "first_bytes": 4165,
-    "largest_bytes": 4165,
-    "measured_plus_15_percent": 4790
+    "first_bytes": 4247,
+    "largest_bytes": 4247,
+    "measured_plus_15_percent": 4885
   }
 }

@@ -300,3 +300,63 @@ fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
         assert_eq!(ids.len(), 2);
     }
 }
+
+#[test]
+fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("case");
+    let cache = ReplayCache::create_case(&path).unwrap();
+    let replay = fetch("synthetic-small", cache);
+    let (first, _) = page(run(&replay, query(None, 0), false));
+    let id = first.pool.unwrap().id;
+    let connection = replay.cache_access().unwrap().connect().unwrap();
+    connection
+        .execute_batch("UPDATE pool_item SET checked=0,header=NULL; UPDATE reply SET fresh_until=0")
+        .unwrap();
+    drop(connection);
+    drop(replay);
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    drop(listener);
+    let live = Fetch::open(FetchConfig {
+        cache: Some(path.join("replay.sqlite")),
+        proxy: Some(biomcp_fetch::Secret::new(format!("http://{address}"))),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .unwrap();
+    let first = run(&live, query(Some(id.as_str()), 0), false);
+    assert_eq!(first.local, None);
+    assert_eq!(first.status, Status::Partial);
+    assert_eq!(first.sources[0].state, biodata::SourceState::Stale);
+    let biomcp_query::Action::Run {
+        request: Request::SearchArticle(retry),
+        fresh: true,
+    } = first
+        .next
+        .iter()
+        .find(|(kind, _)| *kind == biodata::StepKind::Fresh)
+        .unwrap()
+        .1
+        .clone()
+    else {
+        panic!("fresh replacement")
+    };
+    assert!(retry.pool().is_none());
+    drop(live);
+    let offline = Fetch::open(FetchConfig {
+        cache: Some(path.join("replay.sqlite")),
+        mode: Mode::Offline,
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .unwrap();
+    let repeated = run(&offline, query(Some(id.as_str()), 0), false);
+    assert_eq!(repeated.local, None);
+    assert_eq!(repeated.status, Status::Partial);
+    assert_eq!(repeated.sources, first.sources);
+    let QueryBody::ArticlePage(body) = repeated.body else {
+        panic!("article page")
+    };
+    assert!(body.items.iter().all(|i| i.header.is_some()));
+}
