@@ -1,8 +1,15 @@
 //! Provider declarations and shared FIFO admission.
-#![expect(clippy::disallowed_types, reason = "Transport quota state and FIFO waits are shared only within one Fetch")]
+#![expect(
+    clippy::disallowed_types,
+    reason = "Transport quota state and FIFO waits are shared only within one Fetch"
+)]
 
 use crate::Deadline;
-use std::{collections::{BTreeMap, VecDeque}, sync::{Arc, Condvar, Mutex}, time::{Duration, Instant}};
+use std::{
+    collections::{BTreeMap, VecDeque},
+    sync::{Arc, Condvar, Mutex},
+    time::{Duration, Instant},
+};
 
 /// A provider's declared limit identity, independent of URLs and source names.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -18,7 +25,10 @@ impl SourceKey {
         let bytes = name.as_bytes();
         let mut i = 0;
         while i < bytes.len() {
-            assert!(bytes[i].is_ascii_lowercase() || bytes[i].is_ascii_digit() || bytes[i] == b'-', "invalid source key");
+            assert!(
+                bytes[i].is_ascii_lowercase() || bytes[i].is_ascii_digit() || bytes[i] == b'-',
+                "invalid source key"
+            );
             i += 1;
         }
         Self(name)
@@ -27,14 +37,19 @@ impl SourceKey {
 
 /// A validated token rate with an explicit burst allowance.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Rate { per_second: u16, burst: u16 }
+pub struct Rate {
+    per_second: u16,
+    burst: u16,
+}
 
 impl Rate {
     /// Declare a rate with no burst beyond the next single request.
     ///
     /// # Panics
     /// A zero rate fails during construction, including constant evaluation.
-    pub const fn per_second(per_second: u16) -> Self { Self::new(per_second, 1) }
+    pub const fn per_second(per_second: u16) -> Self {
+        Self::new(per_second, 1)
+    }
 
     /// Declare a rate and burst allowance.
     ///
@@ -66,7 +81,12 @@ impl Quota {
     /// A zero in-flight limit fails during construction, including constant evaluation.
     pub const fn new(key: SourceKey, rate: Rate, keyed_rate: Option<Rate>, in_flight: u8) -> Self {
         assert!(in_flight > 0, "zero in-flight limit");
-        Self { key, rate, keyed_rate, in_flight }
+        Self {
+            key,
+            rate,
+            keyed_rate,
+            in_flight,
+        }
     }
 }
 
@@ -74,9 +94,19 @@ impl Quota {
 pub(crate) struct Limiters(Mutex<BTreeMap<SourceKey, Arc<Limiter>>>);
 
 impl Limiters {
-    pub(crate) fn acquire(&self, quota: &'static Quota, keyed: bool, deadline: Deadline) -> Option<Permit> {
-        let limiter = self.0.lock().unwrap_or_else(|e| e.into_inner())
-            .entry(quota.key).or_insert_with(|| Arc::new(Limiter::new(quota))).clone();
+    pub(crate) fn acquire(
+        &self,
+        quota: &'static Quota,
+        keyed: bool,
+        deadline: Deadline,
+    ) -> Option<Permit> {
+        let limiter = self
+            .0
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .entry(quota.key)
+            .or_insert_with(|| Arc::new(Limiter::new(quota)))
+            .clone();
         limiter.acquire(keyed, deadline)
     }
 }
@@ -97,11 +127,19 @@ struct State {
 
 impl Limiter {
     fn new(quota: &'static Quota) -> Self {
-        Self { quota, state: Mutex::new(State::default()), wake: Condvar::new() }
+        Self {
+            quota,
+            state: Mutex::new(State::default()),
+            wake: Condvar::new(),
+        }
     }
 
     fn acquire(self: Arc<Self>, keyed: bool, deadline: Deadline) -> Option<Permit> {
-        let rate = if keyed { self.quota.keyed_rate.unwrap_or(self.quota.rate) } else { self.quota.rate };
+        let rate = if keyed {
+            self.quota.keyed_rate.unwrap_or(self.quota.rate)
+        } else {
+            self.quota.rate
+        };
         let interval = rate.interval();
         let burst = interval * u32::from(rate.burst - 1);
         let ticket = Arc::new(());
@@ -114,7 +152,10 @@ impl Limiter {
                 return None;
             }
             let now = Instant::now();
-            let delay = state.next.map(|next| next.saturating_duration_since(now).saturating_sub(burst)).unwrap_or_default();
+            let delay = state
+                .next
+                .map(|next| next.saturating_duration_since(now).saturating_sub(burst))
+                .unwrap_or_default();
             let head = state.queue.front().is_some_and(|v| Arc::ptr_eq(v, &ticket));
             if head && state.in_flight < self.quota.in_flight && delay.is_zero() {
                 state.queue.pop_front();
@@ -124,9 +165,17 @@ impl Limiter {
                 drop(state);
                 return Some(Permit(self));
             }
-            let wait = if head && state.in_flight < self.quota.in_flight { deadline.remaining().min(delay) } else { deadline.remaining() };
+            let wait = if head && state.in_flight < self.quota.in_flight {
+                deadline.remaining().min(delay)
+            } else {
+                deadline.remaining()
+            };
             // Condvar releases the mutex while this caller waits for its rate slot or predecessor.
-            state = self.wake.wait_timeout(state, wait).unwrap_or_else(|e| e.into_inner()).0;
+            state = self
+                .wake
+                .wait_timeout(state, wait)
+                .unwrap_or_else(|e| e.into_inner())
+                .0;
         }
     }
 }

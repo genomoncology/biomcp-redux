@@ -3,8 +3,8 @@
 mod deadline;
 mod declaration;
 mod error;
-mod request;
 mod quota;
+mod request;
 mod retry;
 mod secret;
 
@@ -83,7 +83,11 @@ impl Fetch {
             )
             .build()
             .new_agent();
-        Ok(Self { agent, config, limiters: quota::Limiters::default() })
+        Ok(Self {
+            agent,
+            config,
+            limiters: quota::Limiters::default(),
+        })
     }
 
     /// Start an absolute monotonic deadline.

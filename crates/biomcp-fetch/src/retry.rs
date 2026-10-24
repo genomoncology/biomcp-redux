@@ -11,7 +11,7 @@ pub(crate) fn retry_status(status: u16) -> bool {
 
 pub(crate) fn retry_error(error: &ureq::Error) -> bool {
     matches!(error, ureq::Error::Timeout(ureq::Timeout::Connect))
-        || matches!(error, ureq::Error::Io(e) if matches!(e.kind(), std::io::ErrorKind::ConnectionReset | std::io::ErrorKind::TimedOut))
+        || matches!(error, ureq::Error::Io(e) if matches!(e.kind(), std::io::ErrorKind::ConnectionReset))
 }
 
 /// One parser owns both accepted Retry-After forms. Past dates request no wait.
@@ -20,20 +20,30 @@ pub(crate) fn retry_after(value: &str, now: SystemTime) -> Option<Duration> {
     if !value.is_empty() && value.bytes().all(|v| v.is_ascii_digit()) {
         return value.parse::<u64>().ok().map(Duration::from_secs);
     }
-    httpdate::parse_http_date(value).ok().map(|date| date.duration_since(now).unwrap_or_default())
+    httpdate::parse_http_date(value)
+        .ok()
+        .map(|date| date.duration_since(now).unwrap_or_default())
 }
 
 pub(crate) fn backoff(identity: &[u8; 32], attempt: u32) -> Duration {
-    let seed = identity.iter().fold(0u64, |sum, byte| sum.wrapping_mul(257).wrapping_add(u64::from(*byte)));
+    let seed = identity.iter().fold(0u64, |sum, byte| {
+        sum.wrapping_mul(257).wrapping_add(u64::from(*byte))
+    });
     BASE_BACKOFF * (1 << attempt) + Duration::from_millis(seed % 100)
 }
 
 pub(crate) fn wait(delay: Duration, deadline: Deadline) -> bool {
-    let Some(end) = Instant::now().checked_add(delay) else { return false; };
+    let Some(end) = Instant::now().checked_add(delay) else {
+        return false;
+    };
     loop {
-        if deadline.expired() { return false; }
+        if deadline.expired() {
+            return false;
+        }
         let remaining = end.saturating_duration_since(Instant::now());
-        if remaining.is_zero() { return true; }
+        if remaining.is_zero() {
+            return true;
+        }
         std::thread::park_timeout(remaining.min(deadline.remaining()));
     }
 }
@@ -42,7 +52,10 @@ pub(crate) fn wait(delay: Duration, deadline: Deadline) -> bool {
 // omitted before hashing; header credentials never enter this representation.
 pub(crate) fn identity(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> [u8; 32] {
     let credential = match key {
-        KeyUse::Optional(c) | KeyUse::Required(c) => match c.place { KeyPlace::Query(name) => Some(name), _ => None },
+        KeyUse::Optional(c) | KeyUse::Required(c) => match c.place {
+            KeyPlace::Query(name) => Some(name),
+            _ => None,
+        },
         KeyUse::None => None,
     };
     let mut canonical = url.to_owned();
@@ -66,8 +79,12 @@ fn encode(out: &mut String, value: &str) {
         } else {
             out.push('%');
             // The nibbles are always inside the hexadecimal alphabet.
-            out.push(char::from(*HEX.get(usize::from(byte >> 4)).unwrap_or(&b'0')));
-            out.push(char::from(*HEX.get(usize::from(byte & 15)).unwrap_or(&b'0')));
+            out.push(char::from(
+                *HEX.get(usize::from(byte >> 4)).unwrap_or(&b'0'),
+            ));
+            out.push(char::from(
+                *HEX.get(usize::from(byte & 15)).unwrap_or(&b'0'),
+            ));
         }
     }
 }

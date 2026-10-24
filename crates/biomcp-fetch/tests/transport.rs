@@ -92,7 +92,12 @@ impl Stub {
             base: self.base,
             key,
             deadline,
-            quota: Box::leak(Box::new(biomcp_fetch::Quota::new(biomcp_fetch::SourceKey::declare("transport"), biomcp_fetch::Rate::per_second(1000), None, 8))),
+            quota: Box::leak(Box::new(biomcp_fetch::Quota::new(
+                biomcp_fetch::SourceKey::declare("transport"),
+                biomcp_fetch::Rate::per_second(1000),
+                None,
+                8,
+            ))),
         }))
     }
     fn finish(mut self) -> Vec<String> {

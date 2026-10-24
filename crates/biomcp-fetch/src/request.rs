@@ -46,15 +46,26 @@ impl Leg<'_> {
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         let identity = crate::retry::identity(&url, params, self.spec.key);
         let keyed = match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => self.fetch.config.secrets.get(c.secret).is_some(),
+            KeyUse::Optional(c) | KeyUse::Required(c) => {
+                self.fetch.config.secrets.get(c.secret).is_some()
+            }
             KeyUse::None => false,
         };
         self.attempts(&url, params, &identity, keyed)
     }
 
-    fn attempts<T: Reply>(&self, url: &str, params: &[(&str, Arg<'_>)], identity: &[u8; 32], keyed: bool) -> Result<T, SourceError> {
+    fn attempts<T: Reply>(
+        &self,
+        url: &str,
+        params: &[(&str, Arg<'_>)],
+        identity: &[u8; 32],
+        keyed: bool,
+    ) -> Result<T, SourceError> {
         for attempt in 0..crate::retry::ATTEMPTS {
-            let permit = self.fetch.limiters.acquire(self.spec.quota, keyed, self.deadline)
+            let permit = self
+                .fetch
+                .limiters
+                .acquire(self.spec.quota, keyed, self.deadline)
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let (mut error, retryable, delay) = match self.call(url, params) {
                 Ok(mut response) => {
@@ -62,31 +73,47 @@ impl Leg<'_> {
                     if (200..300).contains(&status) {
                         return self.decode(&mut response, status);
                     }
-                    let delay = response.headers().get("retry-after").and_then(|v| v.to_str().ok())
+                    let delay = response
+                        .headers()
+                        .get("retry-after")
+                        .and_then(|v| v.to_str().ok())
                         .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
-                    (self.failure(match status {
-                        404 => Reason::NotFound,
-                        429 => Reason::RateLimited,
-                        500..=599 => Reason::Unavailable,
-                        _ => Reason::Rejected,
-                    }, Some(status)), crate::retry::retry_status(status), delay)
+                    (
+                        self.failure(
+                            match status {
+                                404 => Reason::NotFound,
+                                429 => Reason::RateLimited,
+                                500..=599 => Reason::Unavailable,
+                                _ => Reason::Rejected,
+                            },
+                            Some(status),
+                        ),
+                        crate::retry::retry_status(status),
+                        delay,
+                    )
                 }
                 Err(error) => {
                     let retryable = crate::retry::retry_error(&error);
                     let reason = if matches!(error, ureq::Error::Timeout(_)) && !retryable {
                         Reason::DeadlineExceeded
-                    } else { Reason::Unavailable };
+                    } else {
+                        Reason::Unavailable
+                    };
                     (self.failure(reason, None), retryable, None)
                 }
             };
             drop(permit);
-            if self.deadline.expired() { return Err(self.failure(Reason::DeadlineExceeded, error.status)); }
+            if self.deadline.expired() {
+                return Err(self.failure(Reason::DeadlineExceeded, error.status));
+            }
             error.retry_after = delay;
             if retryable && delay.is_some_and(|wait| wait >= self.deadline.remaining()) {
                 error.reason = Reason::RateLimited;
                 return Err(error);
             }
-            if !retryable || attempt + 1 == crate::retry::ATTEMPTS { return Err(error); }
+            if !retryable || attempt + 1 == crate::retry::ATTEMPTS {
+                return Err(error);
+            }
             let wait = delay.unwrap_or_else(|| crate::retry::backoff(identity, attempt));
             if !crate::retry::wait(wait, self.deadline) {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status));
@@ -96,19 +123,36 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None))
     }
 
-    fn call(&self, url: &str, params: &[(&str, Arg<'_>)]) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        let mut request = self.fetch.agent.get(url).header("Accept", "application/json");
-        for (name, value) in params { request = request.query(name, value.value()); }
+    fn call(
+        &self,
+        url: &str,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        let mut request = self
+            .fetch
+            .agent
+            .get(url)
+            .header("Accept", "application/json");
+        for (name, value) in params {
+            request = request.query(name, value.value());
+        }
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
-            && let Some(secret) = self.fetch.config.secrets.get(c.secret) {
+            && let Some(secret) = self.fetch.config.secrets.get(c.secret)
+        {
             request = match c.place {
                 KeyPlace::Query(name) => request.query(name, secret),
                 KeyPlace::Header(name) => request.header(name, secret),
             };
         }
         let remaining = self.deadline.remaining();
-        if remaining.is_zero() { return Err(ureq::Error::Timeout(ureq::Timeout::Global)); }
-        request.config().timeout_global(Some(remaining)).build().call()
+        if remaining.is_zero() {
+            return Err(ureq::Error::Timeout(ureq::Timeout::Global));
+        }
+        request
+            .config()
+            .timeout_global(Some(remaining))
+            .build()
+            .call()
     }
 
     fn decode<T: Reply>(
