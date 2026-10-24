@@ -46,3 +46,5 @@ trial-get: Retrieve exact registry cards and recover intact eligibility, outcome
 trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci_walk.rs`.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path. Cases: `tests/cases/trial/references.yaml`, `tests/cases/trial/documents.yaml`, `crates/biomcp/tests/runner/trial_documents.rs`.
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
+
+variant-population: A caller reads source-given population counts and current catalog associations, keeps missing datasets distinct from zero, and pages ancestry without inferred frequencies or clinical meaning. Cases: `tests/cases/variant/population/*.yaml`, `crates/biomcp/tests/runner/variant_population.rs`.
