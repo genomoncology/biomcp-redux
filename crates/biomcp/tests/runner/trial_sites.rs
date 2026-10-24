@@ -51,7 +51,7 @@ fn walk(id: &str, section: &str, raw: &Value, count: usize) -> Check {
     let mut max_bytes = 0;
     for page in 0..40 {
         let out = command(&env, &args, &globals, 0)?;
-        max_bytes = max_bytes.max(serde_json::to_vec(&out)?.len());
+        max_bytes = max_bytes.max(super::source_terms::size(&out, "")?);
         if page == 0 {
             if super::mcp::call_with_globals(&env, &args, false, &globals)? != out {
                 return Err("site CLI/MCP parity differs".into());

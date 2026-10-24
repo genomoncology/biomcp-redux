@@ -15,7 +15,7 @@ pub struct KeyHelp {
     pub environment: crate::Text,
 }
 impl super::ResponseBody for KeyHelp {
-    const SCHEMA: &'static str = "biomcp.key/1";
+    const SCHEMA: &'static str = "biomcp.key/2";
     type Query = ();
 }
 
@@ -53,6 +53,6 @@ pub struct RegisteredKeys {
     pub entries: Vec<RegisteredKey>,
 }
 impl super::ResponseBody for RegisteredKeys {
-    const SCHEMA: &'static str = "biomcp.registered-keys/1";
+    const SCHEMA: &'static str = "biomcp.registered-keys/2";
     type Query = ();
 }

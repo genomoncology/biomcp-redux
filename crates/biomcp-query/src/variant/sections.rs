@@ -131,15 +131,11 @@ fn permitted<T>(
             } else {
                 Section::unavailable(source, Reason::Disabled)
             },
-            vec![SourceOutcome {
+            vec![biomcp_adapters::registry::outcome(
                 source,
-                state: SourceState::Skipped,
-                reason: Some(Reason::Disabled),
-                term: None,
-                count: None,
-                fetched: None,
-                notices: Vec::new(),
-            }],
+                SourceState::Skipped,
+                Some(Reason::Disabled),
+            )],
             Vec::new(),
             None,
         );

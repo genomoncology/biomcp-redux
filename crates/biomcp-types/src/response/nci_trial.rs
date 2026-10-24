@@ -58,7 +58,7 @@ pub struct NciTrialPage {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialPage {
-    const SCHEMA: &'static str = "biomcp.nci_trial_page/1";
+    const SCHEMA: &'static str = "biomcp.nci_trial_page/2";
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.
@@ -72,7 +72,7 @@ pub struct NciTrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialCards {
-    const SCHEMA: &'static str = "biomcp.nci_trial_cards/1";
+    const SCHEMA: &'static str = "biomcp.nci_trial_cards/2";
     type Query = TrialGet;
 }
 /// An exact NCI card and its source state.

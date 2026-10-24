@@ -64,7 +64,7 @@ fn exact() -> Result<(), String> {
     {
         return Err(format!("exact source profile not retained: {value}"));
     }
-    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 4572 {
+    if super::source_terms::size(&value, "")? > 4572 {
         return Err("CIViC default envelope exceeded its measured ceiling".into());
     }
     check_claims(&value)?;

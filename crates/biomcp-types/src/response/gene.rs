@@ -55,11 +55,11 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene_cards/3";
+    const SCHEMA: &'static str = "biomcp.gene_cards/4";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene_page/2";
+    const SCHEMA: &'static str = "biomcp.gene_page/3";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.
@@ -163,7 +163,7 @@ pub struct SyncResult {
     pub bytes: u64,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/1";
+    const SCHEMA: &'static str = "biomcp.sync/2";
     type Query = SyncQuery;
 }
 

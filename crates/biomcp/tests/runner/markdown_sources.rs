@@ -27,7 +27,7 @@ fn output(replay: &str, args: &[&str], max_bytes: usize) -> Result<Vec<u8>, Stri
         .command(env!("CARGO_BIN_EXE_biomcp"), &command)
         .output()
         .map_err(|e| e.to_string())?;
-    if !output.status.success() || output.stdout.len() > max_bytes {
+    if !output.status.success() || super::source_terms::raw_size(&output.stdout)? > max_bytes {
         return Err(format!(
             "command failed or exceeded {max_bytes} bytes: status {}, {} bytes",
             output.status,

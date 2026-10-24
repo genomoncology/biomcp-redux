@@ -99,10 +99,17 @@ pub(super) fn check(
     step: &Step,
     expectations: &Expectations<'_>,
 ) -> Result<(), String> {
+    let parsed = serde_json::from_slice::<Value>(stdout);
+    let terms_bytes = if let Ok(value) = &parsed {
+        serde_json::to_vec(value).map_err(|e| e.to_string())?.len()
+            - super::source_terms::size(value, "")?
+    } else {
+        0
+    };
     ceiling(
         "stdout",
         "max_bytes",
-        stdout.len(),
+        stdout.len() - terms_bytes,
         step.max_bytes.map(|v| v as u64),
     )?;
     if expectations.is_empty() && step.max_tokens.is_none() {
@@ -113,7 +120,7 @@ pub(super) fn check(
     ceiling(
         "stdout",
         "max_tokens",
-        size(&value)?.div_ceil(4),
+        super::source_terms::size(&value, "")?.div_ceil(4),
         step.max_tokens.map(|v| v as u64),
     )?;
     for (pointer, expected, assertions) in expectations {
@@ -219,11 +226,16 @@ impl Assertion<'_> {
                     )),
                 }
             }
-            Self::MaxBytes(limit) => ceiling(pointer, "max_bytes", size(actual)?, Some(*limit)),
+            Self::MaxBytes(limit) => ceiling(
+                pointer,
+                "max_bytes",
+                super::source_terms::size(actual, pointer)?,
+                Some(*limit),
+            ),
             Self::MaxTokens(limit) => ceiling(
                 pointer,
                 "max_tokens",
-                size(actual)?.div_ceil(4),
+                super::source_terms::size(actual, pointer)?.div_ceil(4),
                 Some(*limit),
             ),
         }
@@ -234,12 +246,6 @@ fn array<'a>(pointer: &str, operator: &str, actual: &'a Value) -> Result<&'a Vec
     actual
         .as_array()
         .ok_or_else(|| format!("{pointer} {operator}: expected an array, actual {actual}"))
-}
-
-fn size(value: &Value) -> Result<usize, String> {
-    serde_json::to_vec(value)
-        .map(|bytes| bytes.len())
-        .map_err(|error| error.to_string())
 }
 
 fn equal(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> {

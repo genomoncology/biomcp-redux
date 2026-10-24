@@ -83,7 +83,7 @@ pub struct ArticleEvidenceResult {
     pub fulltext: Option<Section<CitationParagraphs>>,
 }
 impl super::super::ResponseBody for ArticleEvidenceResult {
-    const SCHEMA: &'static str = "biomcp.article_evidence/1";
+    const SCHEMA: &'static str = "biomcp.article_evidence/2";
     type Query = crate::ArticleEvidence;
 }
 /// Source-native recommendation page.
@@ -100,6 +100,6 @@ pub struct ArticleRecommendations {
     pub notice: Option<EvidenceNotice>,
 }
 impl super::super::ResponseBody for ArticleRecommendations {
-    const SCHEMA: &'static str = "biomcp.article_recommendations/1";
+    const SCHEMA: &'static str = "biomcp.article_recommendations/2";
     type Query = crate::ArticleRecommend;
 }

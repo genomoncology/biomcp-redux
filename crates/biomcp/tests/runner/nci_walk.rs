@@ -72,11 +72,7 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
                 return Err("NCI text skipped or repeated characters".into());
             }
             text.push_str(data["text"].as_str().ok_or("summary fragment missing")?);
-            if serde_json::to_vec(&output)
-                .map_err(|e| e.to_string())?
-                .len()
-                > 16000
-            {
+            if super::source_terms::size(&output, "")? > 16000 {
                 return Err("summary exceeded bounded card plus character page".into());
             }
         } else {

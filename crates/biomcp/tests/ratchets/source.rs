@@ -4,6 +4,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-adapters/src/registry.rs",
+        "Require every source outcome to use its unique publisher declaration",
+    ),
+    (
         "crates/biomcp-types/src/source.rs",
         "Convert closed nonempty source spellings into neutral provenance text",
     ),
@@ -102,6 +106,12 @@ pub(super) fn check(root: &Path) -> Check {
             }
             let tokens = tokens(&text);
             source_terms(root, &relative, &tokens)?;
+            if relative != "crates/biomcp-types/src/response/source.rs"
+                && relative != "crates/biomcp-adapters/src/registry.rs"
+                && tokens.windows(3).any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
+            {
+                return fail(&relative, "source outcomes require registry terms");
+            }
             attributes(&relative, &tokens)?;
             references(root, &relative, &text, &tokens, &sqlite, &mut keys)?;
         }

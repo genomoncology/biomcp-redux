@@ -4,7 +4,7 @@ use biodata::{Gene, HgncId};
 
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
-use biomcp_types::{Reason, Section, Source, SourceOutcome, SourceState};
+use biomcp_types::{Reason, Section, Source, SourceState};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     if cx.fetch.disabled(Source::Oncokb) {
@@ -107,15 +107,11 @@ fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
                 )
             })
             .collect(),
-        source: SourceOutcome {
-            term: None,
-            count: None,
-            fetched: None,
-            notices: Vec::new(),
-            source: Source::Oncokb,
-            state: SourceState::Skipped,
-            reason: Some(reason),
-        },
+        source: biomcp_adapters::registry::outcome(
+            Source::Oncokb,
+            SourceState::Skipped,
+            Some(reason),
+        ),
         problems: Vec::new(),
         local: None,
     }

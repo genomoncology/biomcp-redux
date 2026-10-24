@@ -94,7 +94,11 @@ fn body(request: &str) -> Result<String, String> {
 
 fn envelope(value: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    let mut comparable = value.clone();
+    let mut comparable = super::source_terms::comparable(value, "")?;
+    let source_terms = full
+        - serde_json::to_vec(&comparable)
+            .map_err(|e| e.to_string())?
+            .len();
     let header = comparable
         .pointer_mut("/result/candidates/0")
         .and_then(Value::as_object_mut)
@@ -110,9 +114,9 @@ fn envelope(value: &Value) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .len();
     if terms != json!([{"component":"clinvar","terms":expected}])
-        || full - payload != 205
+        || full - payload != 205 + source_terms
         || payload > 1536
-        || full > 1771
+        || full - source_terms > 1771
     {
         return Err(format!(
             "hotspots full={full}, comparable={payload}; caps=1771/1536"

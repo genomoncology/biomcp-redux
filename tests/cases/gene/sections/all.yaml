@@ -38,7 +38,10 @@
         "/sources": {
           "includes": {
             "source": "hpa",
-            "state": "ok"
+            "state": "ok",
+            "use": "attribution",
+            "terms": "CC BY 4.0; third-party conditions",
+            "terms_url": "https://www.proteinatlas.org/about/licence"
           }
         },
         "/result/items/0/sections/oncokb/state": "data",
