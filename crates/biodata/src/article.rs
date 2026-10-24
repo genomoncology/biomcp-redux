@@ -1,53 +1,51 @@
 use crate::{Doi, PartialDate, Pmcid, Pmid, Text};
 use serde::{Deserialize, Serialize};
-/// Clinically meaningful PubMed publication types.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[non_exhaustive]
-pub enum PublicationType {
-    /// Randomized controlled trial.
-    RandomizedControlledTrial,
-    /// Clinical trial.
-    ClinicalTrial,
-    /// Phase one trial.
-    ClinicalTrialPhase1,
-    /// Phase two trial.
-    ClinicalTrialPhase2,
-    /// Phase three trial.
-    ClinicalTrialPhase3,
-    /// Phase four trial.
-    ClinicalTrialPhase4,
-    /// Meta-analysis.
-    MetaAnalysis,
-    /// Systematic review.
-    SystematicReview,
-    /// Review.
-    Review,
-    /// Practice guideline.
-    PracticeGuideline,
-    /// Guideline.
-    Guideline,
-    /// Case report.
-    CaseReport,
-    /// Observational study.
-    ObservationalStudy,
-    /// Multicenter study.
-    MulticenterStudy,
-    /// Letter.
-    Letter,
-    /// Comment.
-    Comment,
-    /// Editorial.
-    Editorial,
-    /// Preprint.
-    Preprint,
-    /// Retracted publication.
-    RetractedPublication,
-    /// Retraction notice.
-    RetractionNotice,
-    /// Erratum.
-    Erratum,
+crate::source::canonical_enum! {
+    /// Clinically meaningful PubMed publication types.
+    PublicationType, SourceUnknown {
+        /// Randomized controlled trial.
+        RandomizedControlledTrial => "randomized_controlled_trial",
+        /// Clinical trial.
+        ClinicalTrial => "clinical_trial",
+        /// Phase one trial.
+        ClinicalTrialPhase1 => "clinical_trial_phase_1",
+        /// Phase two trial.
+        ClinicalTrialPhase2 => "clinical_trial_phase_2",
+        /// Phase three trial.
+        ClinicalTrialPhase3 => "clinical_trial_phase_3",
+        /// Phase four trial.
+        ClinicalTrialPhase4 => "clinical_trial_phase_4",
+        /// Meta-analysis.
+        MetaAnalysis => "meta_analysis",
+        /// Systematic review.
+        SystematicReview => "systematic_review",
+        /// Review.
+        Review => "review",
+        /// Practice guideline.
+        PracticeGuideline => "practice_guideline",
+        /// Guideline.
+        Guideline => "guideline",
+        /// Case report.
+        CaseReport => "case_report",
+        /// Observational study.
+        ObservationalStudy => "observational_study",
+        /// Multicenter study.
+        MulticenterStudy => "multicenter_study",
+        /// Letter.
+        Letter => "letter",
+        /// Comment.
+        Comment => "comment",
+        /// Editorial.
+        Editorial => "editorial",
+        /// Preprint.
+        Preprint => "preprint",
+        /// Retracted publication.
+        RetractedPublication => "retracted_publication",
+        /// Retraction notice.
+        RetractionNotice => "retraction_notice",
+        /// Erratum.
+        Erratum => "erratum",
+    }
 }
 /// Citation metadata owned by PubMed.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
