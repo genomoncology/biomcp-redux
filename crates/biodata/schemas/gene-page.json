@@ -279,6 +279,8 @@
       "enum": [
         "hgnc",
         "mygene",
+        "reactome",
+        "hpa",
         "uniprot",
         "gnomad",
         "clingen",

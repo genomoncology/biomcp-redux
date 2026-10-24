@@ -43,4 +43,7 @@ pub use response::{
 
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
 
-pub use response::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid, CivicGene, ClinGenGene, ClinGenValidity, CancerPtpm, Expression, RnaAbundance, TissueNtpm};
+pub use response::{
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
+    ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
+};

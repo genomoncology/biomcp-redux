@@ -132,7 +132,8 @@ fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
         .ok_or(())
 }
 fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
-    let mut command = Command::new(name).disable_help_flag(true)
+    let mut command = Command::new(name)
+        .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
         let mut argument = Arg::new(name.clone());

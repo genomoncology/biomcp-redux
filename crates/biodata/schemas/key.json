@@ -109,7 +109,8 @@
         "no_key",
         "disabled",
         "replay_miss",
-        "syncing"
+        "syncing",
+        "no_join_id"
       ],
       "type": "string"
     },
@@ -118,7 +119,11 @@
       "enum": [
         "hgnc",
         "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
         "gnomad",
+        "clingen",
         "pubmed",
         "europepmc",
         "pubtator",

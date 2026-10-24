@@ -1,20 +1,20 @@
-mod constraint;
-mod protein;
-mod pathways;
 mod civic;
 mod clingen;
+mod constraint;
 mod expression;
 mod oncokb;
-pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
-pub use protein::Protein;
-pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
-pub use civic::CivicGene;
-pub use clingen::{ClinGenGene, ClinGenValidity};
-pub use expression::{CancerPtpm, Expression, RnaAbundance, TissueNtpm};
-pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
+mod pathways;
+mod protein;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
+pub use civic::CivicGene;
+pub use clingen::{ClinGenGene, ClinGenValidity};
+pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
+pub use expression::{CancerPtpm, Expression, RnaAbundance, TissueNtpm};
+pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
+pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
+pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

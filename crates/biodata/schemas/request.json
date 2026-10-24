@@ -12,8 +12,12 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "protein",
+        "civic",
+        "clingen",
         "constraint",
+        "expression",
         "pathways",
+        "oncokb",
         "all"
       ],
       "type": "string"
