@@ -29,19 +29,17 @@ impl SourceSpec {
     }
     /// Declare a form POST endpoint. Retries require explicit idempotence.
     pub const fn post_form(&'static self, path: &'static str) -> Endpoint {
-        Endpoint {
-            method: Method::Form,
-            idempotent: false,
-            ..self.get(path)
-        }
+        let mut endpoint = self.get(path);
+        endpoint.method = Method::Form;
+        endpoint.idempotent = false;
+        endpoint
     }
     /// Declare a JSON POST endpoint. Retries require explicit idempotence.
     pub const fn post_json(&'static self, path: &'static str) -> Endpoint {
-        Endpoint {
-            method: Method::Json,
-            idempotent: false,
-            ..self.get(path)
-        }
+        let mut endpoint = self.get(path);
+        endpoint.method = Method::Json;
+        endpoint.idempotent = false;
+        endpoint
     }
 }
 
