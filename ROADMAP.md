@@ -52,14 +52,14 @@ Each entity below repeats these steps.
 
 - [x] Investigation
 - [x] Questions answered by Ian
-- [ ] Biodata types and schema
+- [x] Biodata types and schema
 - [x] Search
-- [ ] Get and sections
-- [ ] Outside-in cases
-- [ ] Token budget
-- [ ] MCP parity
-- [ ] Docs
-- [ ] 0.9 accounting
+- [x] Get and sections
+- [x] Outside-in cases
+- [x] Token budget
+- [x] MCP parity
+- [x] Docs
+- [x] 0.9 accounting
 
 Sources:
 - [x] HGNC (bundle, identity and names)
