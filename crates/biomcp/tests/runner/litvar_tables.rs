@@ -1,4 +1,6 @@
 //! LitVar response boundaries through the existing isolated command runner.
+#![expect(clippy::unwrap_used, clippy::indexing_slicing,
+    reason = "Checked fixtures and response-only mutations fail directly on malformed shapes")]
 use super::response_cases::{checked_case, checked_steps};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};

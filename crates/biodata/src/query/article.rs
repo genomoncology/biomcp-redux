@@ -187,7 +187,7 @@ impl TryFrom<Fields> for ArticleSearch {
             || v.source
                 .iter()
                 .enumerate()
-                .any(|(i, source)| v.source[..i].contains(source))
+                .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]

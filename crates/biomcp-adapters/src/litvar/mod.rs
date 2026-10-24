@@ -42,7 +42,7 @@ pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search
     let change = variant
         .get(..2)
         .filter(|s| s.eq_ignore_ascii_case("p."))
-        .map_or(variant, |_| &variant[2..]);
+        .map_or(variant, |_| variant.get(2..).unwrap_or(variant));
     let term = if is_rsid {
         variant.to_owned()
     } else {
