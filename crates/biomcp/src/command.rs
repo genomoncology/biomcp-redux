@@ -93,17 +93,7 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
-        Action::Health => encode(
-            Envelope::new(
-                Status::Complete,
-                (),
-                Some(
-                    biomcp_query::health::run(fetch, crate::config::BUDGET)
-                        .map_err(io::Error::other)?,
-                ),
-            ),
-            crate::exit::Status::Success,
-        ),
+        Action::Health => health(fetch),
         Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
@@ -380,4 +370,14 @@ fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<b
             step
         })
         .collect()
+}
+
+fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
+    match biomcp_query::health::run(fetch, crate::config::BUDGET) {
+        Ok(result) => encode(
+            Envelope::new(Status::Complete, (), Some(result)),
+            crate::exit::Status::Success,
+        ),
+        Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
+    }
 }
