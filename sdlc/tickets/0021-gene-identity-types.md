@@ -1,6 +1,7 @@
 # 0021 — Add the gene identity types and schemas to biodata
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5770dff78019def41ae1bcb4cab3869015ad21ea
 
 Milestone: 1
 

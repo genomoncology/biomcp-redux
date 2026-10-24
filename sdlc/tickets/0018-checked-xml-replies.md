@@ -1,6 +1,7 @@
 # 0018 — Decode checked XML replies through the shared transport
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ac5498350a7d511ab93163b36c03c62af0784a2a
 
 Milestone: 1
 
