@@ -323,6 +323,8 @@
         "hpa",
         "uniprot",
         "gnomad",
+        "clinvar",
+        "erepo",
         "clingen",
         "pubmed",
         "europepmc",
@@ -350,6 +352,8 @@
         " Human Protein Atlas.",
         " UniProt.",
         " gnomAD.",
+        " ClinVar assertions.",
+        " ClinGen Evidence Repository.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -610,6 +614,7 @@
     "VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
+        "unresolved",
         "resolved",
         "candidates",
         "absent",

@@ -348,3 +348,15 @@ impl<'a> Decoder<'a, Bytes> {
         }
     }
 }
+
+impl crate::Leg<'_> {
+    /// Apply a request-bound XML check on cache/replay reads and before live cache admission.
+    pub fn xml_received_checked<T: XmlReply>(
+        &self,
+        ep: &crate::Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Result<(T, crate::ReplyMetadata), crate::RequestError> {
+        self.parameters(ep, params, Decoder::checked_xml(&check))
+    }
+}

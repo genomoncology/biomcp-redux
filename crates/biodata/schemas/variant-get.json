@@ -24,6 +24,20 @@
         "variantvalidator"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Explicit source assertion sections.",
+      "enum": [
+        "clinvar",
+        "erepo",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " ClinVar native assertions.",
+        " ClinGen native assertions.",
+        " Every implemented assertion section."
+      ]
     }
   },
   "$id": "biodata.variant-get/1",
@@ -66,6 +80,29 @@
       "$ref": "#/$defs/VariantResolver",
       "default": "car",
       "description": "Resolver for reference-qualified notation; never repairs the input locally."
+    },
+    "section": {
+      "description": "Named assertion source sections; identity remains the default.",
+      "items": {
+        "$ref": "#/$defs/VariantSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "default": 3,
+      "description": "Source assertion rows per page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Source assertion offset, independent of identity candidate paging.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
     }
   },
   "required": [
