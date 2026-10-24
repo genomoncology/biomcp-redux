@@ -9,6 +9,15 @@ use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/missing-study-array-is-not-an-empty-page", || {
+            missing_studies().map_err(Into::into)
+        }),
+        Trial::test("trial/gene-and-registry-share-command-budget", || {
+            sequential_budget(false).map_err(Into::into)
+        }),
+        Trial::test("trial/version-timeout-preserves-search-rows", || {
+            sequential_budget(true).map_err(Into::into)
+        }),
         Trial::test("trial/count-failure-preserves-continuation-rows", || {
             count_failure().map_err(Into::into)
         }),
@@ -19,6 +28,73 @@ pub(super) fn trials() -> Vec<Trial> {
             failures().map_err(Into::into)
         }),
     ]
+}
+
+fn missing_studies() -> Check {
+    for continuation in [false, true] {
+        let mut args = vec!["search", "trial", "--condition", "melanoma"];
+        if continuation {
+            args.extend(["--next-page", "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"]);
+        }
+        let output = checked_steps(
+            if continuation {
+                "trial/walk"
+            } else {
+                "trial/condition"
+            },
+            |_, record| {
+                if record["url"].as_str().is_some_and(|url| {
+                    url.contains("/studies?") && (!continuation || url.contains("pageToken="))
+                }) && let Some(body) = record["exchanges"][0]["body"]["value"].as_object_mut()
+                {
+                    body.remove("studies");
+                }
+            },
+            json!([
+                {"run":args,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"bad_reply"}},
+                {"run":args,"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
+            ]),
+        )?;
+        if output.get("page").is_some() || output.get("result").is_some() {
+            return Err("missing studies became a successful empty page".into());
+        }
+    }
+    Ok(())
+}
+
+fn sequential_budget(version_timeout: bool) -> Check {
+    checked_case(
+        "trial/gene",
+        &[
+            "search",
+            "trial",
+            "--condition",
+            "melanoma",
+            "--gene",
+            "BRAF",
+        ],
+        |source, record| {
+            record["exchanges"][0]["delay_ms"] = json!(if source == "hgnc" {
+                12000
+            } else if record["url"]
+                .as_str()
+                .is_some_and(|url| url.contains("/studies?"))
+            {
+                if version_timeout { 4000 } else { 12000 }
+            } else if version_timeout {
+                6000
+            } else {
+                0
+            });
+        },
+        if version_timeout {
+            json!({"/status":"partial","/result/items":{"count":10},"/page/total":354,"/sources/1/reason":"deadline_exceeded"})
+        } else {
+            json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"})
+        },
+        if version_timeout { 0 } else { 4 },
+    )?;
+    Ok(())
 }
 fn failures() -> Check {
     let args = ["search", "trial", "--condition", "melanoma"];
@@ -133,7 +209,7 @@ fn count_failure() -> Check {
                 record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
             }
         },
-        json!([{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable","/result/count_request":{"count":5}}}]),
+        json!([{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable","/result/count_request":{"count":4}}}]),
     )?;
     if output.get("page").is_some() || output["sources"][0].get("count").is_some() {
         return Err("failed native count asserted a total".into());

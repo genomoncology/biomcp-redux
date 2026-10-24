@@ -168,12 +168,12 @@ fn response(
     };
     match (request, result.body) {
         (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
-        (_, QueryBody::ArticleSaveRefused(url)) => {
-            usage_envelope(biodata::ErrorEnvelope::save_refused(url))
-        }
         (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)
+        }
+        (_, QueryBody::ArticleSaveRefused(url)) => {
+            usage_envelope(biodata::ErrorEnvelope::save_refused(url))
         }
         (_, QueryBody::PdfSaveRefused(link)) => {
             usage_envelope(biodata::ErrorEnvelope::save_refused(link.url))

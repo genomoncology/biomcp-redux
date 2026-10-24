@@ -1,7 +1,7 @@
 {
   "feature": "trial-search",
   "live_check": "public",
-  "story": "Registry native study-type search preserves captured total and native identity order; historical provider response captured 2026-10-23 and delivered locally through the actual CLI record path.",
+  "story": "Registry native study-type search preserves captured total and native identity order; provider response from the investigation, source processing date 2026-10-23, delivered locally through the actual CLI record path.",
   "replay": "trial/study-type",
   "steps": [
     {
@@ -39,7 +39,9 @@
           ]
         },
         "/result/source_updated": "2026-10-23T09:00:04"
-      }
+      },
+      "max_bytes": 5708,
+      "max_tokens": 1427
     }
   ]
 }

@@ -187,9 +187,6 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         let (flag, inline) = arg
             .split_once('=')
             .map_or((arg, None), |(key, value)| (key, Some(value)));
-        if ["--fresh", "--offline"].contains(&flag) && inline.is_none() {
-            continue;
-        }
         let table = match result.positional.get(..2) {
             Some(["search", "article"]) => ARTICLE_SEARCH,
             Some(["search", "trial"]) => TRIAL_SEARCH,
@@ -200,8 +197,8 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         let retired = find(table, flag);
         if retired.is_some() {
             result.retired_option = result.retired_option.or(retired);
-        } else if !recognized(flag, &result.positional) {
-            return None;
+        } else if !takes_value(flag, &result.positional)? && inline.is_none() {
+            continue;
         }
         let value = inline.or_else(|| args.next().and_then(|arg| arg.to_str()));
         if flag == "--section" {
@@ -214,31 +211,37 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
     Some(result)
 }
 
-fn recognized(flag: &str, positional: &[&str]) -> bool {
-    if ["--replay", "--record", "--case-cache"].contains(&flag) {
-        return true;
+fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
+    let globals = crate::grammar::global_arguments();
+    if let Some(argument) = globals
+        .get_arguments()
+        .find(|argument| argument.get_long() == flag.strip_prefix("--"))
+    {
+        return Some(argument.get_action().takes_values());
     }
     let Some([verb, entity]) = positional.get(..2) else {
-        return false;
+        return None;
     };
-    let Some((_, _, id)) = crate::grammar::QUERIES
+    let (_, _, id) = crate::grammar::QUERIES
         .iter()
-        .find(|(v, e, _)| v == verb && e == entity)
-    else {
-        return false;
-    };
+        .find(|(v, e, _)| v == verb && e == entity)?;
     crate::schema::find(id)
         .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
         .and_then(|schema| {
             schema
                 .get("properties")
                 .and_then(serde_json::Value::as_object)
-                .map(|properties| {
-                    properties.iter().any(|(name, property)| {
-                        property.get("x-positional").is_none()
-                            && flag == format!("--{}", name.replace('_', "-"))
-                    })
+                .and_then(|properties| {
+                    properties
+                        .iter()
+                        .find(|(name, property)| {
+                            property.get("x-positional").is_none()
+                                && flag == format!("--{}", name.replace('_', "-"))
+                        })
+                        .map(|(_, property)| {
+                            property.get("type").and_then(serde_json::Value::as_str)
+                                != Some("boolean")
+                        })
                 })
         })
-        .unwrap_or(false)
 }
