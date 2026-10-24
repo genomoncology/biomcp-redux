@@ -573,6 +573,7 @@ impl Leg<'_> {
             .validate(&response.body)
             .map_err(|reason| self.failure(reason, Some(status)))?;
         let reply = codec.decode(&response.body).ok_or_else(bad)?;
+        reply.check_status(status).map_err(|_| bad())?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }

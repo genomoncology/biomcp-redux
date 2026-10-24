@@ -34,7 +34,7 @@ struct Response {
     #[serde(rename = "metadata")]
     _metadata: Metadata,
     #[serde(flatten)]
-    variants: BTreeMap<String, Variant>,
+    variants: BTreeMap<String, RawVariant>,
 }
 #[derive(Deserialize)]
 struct Metadata {
@@ -42,7 +42,7 @@ struct Metadata {
     _version: Text,
 }
 #[derive(Deserialize)]
-struct Variant {
+struct RawVariant {
     submitted_variant: Text,
     hgvs_transcript_variant: String,
     #[serde(default)]
@@ -53,6 +53,9 @@ struct Locus {
     hgvs_genomic_description: Text,
 }
 impl Reply for Response {
+    fn check_status(&self, status: u16) -> Result<(), BadReply> {
+        if (200..300).contains(&status) || matches!(status, 400 | 422) && self.flag.as_str() == "warning" { Ok(()) } else { Err(BadReply) }
+    }
     fn check(&self) -> Result<(), BadReply> {
         if self.variants.is_empty() || self.variants.len() > 1000 {
             return Err(BadReply);

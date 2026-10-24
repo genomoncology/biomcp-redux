@@ -43,6 +43,10 @@ use std::{collections::BTreeMap, fmt, time::Duration};
 pub trait Reply: serde::de::DeserializeOwned {
     /// Refuse provider error envelopes and incomplete answers.
     fn check(&self) -> Result<(), BadReply>;
+    /// Refuse a successful-looking body on an error status. Explicit validation-reply types may accept only their checked rejection form.
+    fn check_status(&self, status: u16) -> Result<(), BadReply> {
+        if (200..300).contains(&status) { Ok(()) } else { Err(BadReply) }
+    }
 }
 
 /// Explicit transport configuration. Construction reads no environment settings.
