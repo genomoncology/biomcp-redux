@@ -161,7 +161,7 @@ fn wrong_identity() -> Result<(), String> {
 fn invalid_fields() -> Result<(), String> {
     for (field, invalid) in [("approvedDate", "invalid"), ("docVersion", "")] {
         let mut count = 0;
-        let stub = Stub::for_source("erepo.clinicalgenome.org", "application/json", move |_| {
+        let stub = Stub::for_source_status("erepo.clinicalgenome.org", "application/json", move |_| {
             count += 1;
             let mut reply: Value = serde_json::from_str(&body("CA000434"))
                 .map_err(|e| e.to_string())?;
@@ -169,7 +169,7 @@ fn invalid_fields() -> Result<(), String> {
                 reply["data"][0][field] = json!(invalid);
             }
             Ok(reply.to_string())
-        })?;
+        }, |_| 200)?;
         let env = environment(&stub)?;
         let bad = call(&env, &[])?;
         if bad.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
