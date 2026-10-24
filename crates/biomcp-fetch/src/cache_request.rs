@@ -22,8 +22,12 @@ impl Leg<'_> {
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<T, RequestError> {
-        self.parameters(endpoint, params, Decoder::checked_json(&check).cache_if(&cache_if))
-            .map(|(reply, _)| reply)
+        self.parameters(
+            endpoint,
+            params,
+            Decoder::checked_json(&check).cache_if(&cache_if),
+        )
+        .map(|(reply, _)| reply)
     }
 
     /// Return checked JSON while withholding a response from cache when request identity differs.

@@ -51,8 +51,6 @@ canonical_enum! {
     Source, SourceUnknown {
         /// HGNC.
         Hgnc => "hgnc",
-        /// Public cBioPortal with study-specific reuse terms.
-        Cbioportal => "cbioportal",
         /// MyGene.info.
         MyGene => "mygene",
         /// Reactome.
@@ -97,6 +95,8 @@ canonical_enum! {
         Mutalyzer => "mutalyzer",
         /// VariantValidator.
         VariantValidator => "variantvalidator",
+        /// Public cBioPortal with study-specific reuse terms.
+        Cbioportal => "cbioportal",
     }
 }
 

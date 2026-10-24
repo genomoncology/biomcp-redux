@@ -4,7 +4,6 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
-    &crate::cbioportal::SPEC,
     &crate::myvariant::SPEC,
     &crate::allele_registry::SPEC,
     &crate::mutalyzer::SPEC,
@@ -28,6 +27,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::icite::SPEC,
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
+    &crate::cbioportal::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {

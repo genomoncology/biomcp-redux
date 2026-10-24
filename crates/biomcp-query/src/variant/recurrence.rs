@@ -116,17 +116,17 @@ fn identity(
     let (mut candidates, rejection) = result?;
     if candidates.len() != 1
         || rejection.is_some()
-        || !candidates[0]
-            .identity
-            .representations
-            .iter()
-            .any(|r| r.build.is_some() && r.allele.is_some())
+        || !candidates.first().is_some_and(|c| c.identity.representations.iter().any(|r| r.build.is_some() && r.allele.is_some()))
     {
         out.problems.push(matching::problem(
             spec.source,
             query.input().as_str(),
             "identity.exact_allele",
         ));
+        if let Some(source) = out.sources.last_mut() {
+            source.state = biodata::SourceState::Failed;
+            source.reason = Some(Reason::Rejected);
+        }
         return Err(rejected(spec.source, Reason::Rejected));
     }
     Ok(candidates.remove(0).identity)
