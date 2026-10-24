@@ -108,7 +108,7 @@ fn chunked() -> Check {
         let frame = format!(
             "{:x};source=local\r\n{}\r\n",
             part.len(),
-            std::str::from_utf8(part).unwrap()
+            std::str::from_utf8(part).map_err(|e| e.to_string())?
         );
         socket
             .write_all(frame.as_bytes())

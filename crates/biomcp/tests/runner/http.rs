@@ -260,24 +260,49 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
     // Distinct replies expose cross-client ID and protocol state mistakes.
     let modern_args = vec!["help".to_string()];
     let old_args = vec!["help".to_string(), "get".into(), "gene".into()];
-    let modern_expected = super::mcp::call_with_globals(&server._environment, &modern_args, false, globals)?;
-    let old_expected = super::mcp::call_with_globals(&server._environment, &old_args, false, globals)?;
-    let modern = super::mcp::request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":modern_args}}));
-    let old = legacy(7, "tools/call", json!({"name":"biomcp","arguments":{"args":old_args}}));
+    let modern_expected =
+        super::mcp::call_with_globals(&server._environment, &modern_args, false, globals)?;
+    let old_expected =
+        super::mcp::call_with_globals(&server._environment, &old_args, false, globals)?;
+    let modern = super::mcp::request(
+        json!(7),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":modern_args}}),
+    );
+    let old = legacy(
+        7,
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":old_args}}),
+    );
     let barrier = std::sync::Barrier::new(2);
     let (modern, old) = std::thread::scope(|scope| {
-        let a = scope.spawn(|| { barrier.wait(); server.request("POST", "/mcp", &modern.to_string()) });
-        let b = scope.spawn(|| { barrier.wait(); server.raw("POST", "/mcp", &server.address.to_string(), legacy_headers(), &old.to_string()) });
-        (a.join().unwrap(), b.join().unwrap())
-    });
+        let a = scope.spawn(|| {
+            barrier.wait();
+            server.request("POST", "/mcp", &modern.to_string())
+        });
+        let b = scope.spawn(|| {
+            barrier.wait();
+            server.raw(
+                "POST",
+                "/mcp",
+                &server.address.to_string(),
+                legacy_headers(),
+                &old.to_string(),
+            )
+        });
+        Ok::<_, String>((a.join().map_err(|_| "modern HTTP caller stopped")?,
+            b.join().map_err(|_| "legacy HTTP caller stopped")?))
+    })?;
     let (modern_status, modern) = modern?;
     let (old_status, old, _) = old?;
     let old = old.ok_or("legacy response missing")?;
-    if modern_status != 200 || old_status != 200
+    if modern_status != 200
+        || old_status != 200
         || modern.pointer("/result/structuredContent") != Some(&modern_expected)
         || old.pointer("/result/structuredContent") != Some(&old_expected)
         || modern.pointer("/result/resultType") != Some(&json!("complete"))
-        || old.pointer("/result/resultType").is_some() {
+        || old.pointer("/result/resultType").is_some()
+    {
         return Err("concurrent equal IDs crossed client results or protocol state".into());
     }
     Ok(())
@@ -382,7 +407,7 @@ fn storage() -> Check {
         Some(json!({"http":{"allowed_hosts":["local.example"]}})),
         true,
     )?;
-    exposed.address = SocketAddr::new("127.0.0.1".parse().unwrap(), exposed.address.port());
+    exposed.address = SocketAddr::new(std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST), exposed.address.port());
     if exposed.raw("GET", "/health", "LOCAL.EXAMPLE", "", "")?.0 != 200
         || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403
     {

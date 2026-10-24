@@ -96,7 +96,11 @@ impl Service {
             .map(|v| serde_json::to_vec(&v))
             .transpose()?
             .unwrap_or_default();
-        let allow = (status == 405).then_some(if request.path == "/health" { "GET" } else { "POST" });
+        let allow = (status == 405).then_some(if request.path == "/health" {
+            "GET"
+        } else {
+            "POST"
+        });
         wire::write(&mut stream, status, &body, revision, allow)
     }
     fn route(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
