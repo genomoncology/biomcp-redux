@@ -155,6 +155,17 @@ impl Leg<'_> {
                 Err(error) => return Err(error),
             }
         }
+        if !forced && fresh {
+            let url = format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path);
+            self.observed(
+                &crate::retry::identity(&url),
+                Some(200),
+                0,
+                crate::Shape::default(),
+                std::time::Duration::ZERO,
+                ("bundle", true),
+            );
+        }
         if offline && !fresh {
             self.report
                 .lock()

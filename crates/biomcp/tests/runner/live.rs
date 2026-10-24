@@ -9,7 +9,9 @@ use std::{
     time::{Duration, Instant},
 };
 const MAX_CASES: usize = 1024;
-const MAX_CHANGES: usize = 16;
+#[path = "live_compare.rs"]
+mod comparison;
+pub(super) use comparison::compare;
 const CASE_SAMPLE: usize = 20;
 const RUN_BUDGET: Duration = Duration::from_secs(3600);
 
@@ -171,6 +173,7 @@ fn check(
     let mut changes = Vec::new();
     let mut ordinal = 0;
     let mut skipped = Vec::new();
+    let mut commands = Vec::new();
     for (index, (step, skip)) in case.steps.iter().zip(step_skips(case)).enumerate() {
         if let Some(reason) = skip {
             previous = (None, None);
@@ -200,13 +203,18 @@ fn check(
             let reply = invoke(&live, &args.1, None, ordinal);
             pace(&before, &reply, started);
             let (actual, after) = reply?;
-            if expected.get("status") != actual.get("status") {
-                changes.push("status changed from recorded result".into());
-            }
             if registry.validate(&actual, &args.1, true).is_err() {
                 changes.push("output schema failure".into());
             }
-            compare(&before, &after, &mut changes, sources);
+            commands.push(command_report(
+                ordinal,
+                &expected,
+                &actual,
+                &before,
+                &after,
+                &mut changes,
+                sources,
+            ));
             previous = (Some(expected), Some(actual));
             if step.walk.is_none() {
                 break;
@@ -228,7 +236,7 @@ fn check(
             }
         }
     }
-    Ok(json!({"drift": changes, "skipped_steps": skipped}))
+    Ok(json!({"drift": changes, "skipped_steps": skipped, "commands": commands}))
 }
 fn pace(
     before: &[Observation],
@@ -296,65 +304,23 @@ fn invoke(
         .collect::<Result<_, _>>()?;
     Ok((value, observations))
 }
-pub(super) fn compare(
+
+pub(super) fn command_report(
+    ordinal: usize,
+    expected: &Value,
+    actual: &Value,
     before: &[Observation],
     after: &[Observation],
     changes: &mut Vec<String>,
     sources: &mut BTreeMap<String, Value>,
-) {
-    let mut omitted = 0;
-    for item in after {
-        let name = serde_json::to_value(item.source)
-            .unwrap_or(Value::Null)
-            .as_str()
-            .unwrap_or("unknown")
-            .to_owned();
-        let totals = sources
-            .entry(name)
-            .or_insert(json!({"attempts": 0, "bytes": 0, "elapsed_ms": 0}));
-        for (key, value) in [
-            ("attempts", 1),
-            ("bytes", item.bytes),
-            ("elapsed_ms", item.elapsed_ms),
-        ] {
-            let previous = totals.get(key).and_then(Value::as_u64).unwrap_or(0);
-            if let Some(slot) = totals.get_mut(key) {
-                *slot = json!(previous.saturating_add(value));
-            }
-        }
-        if let Some(old) = before.iter().find(|old| old.identity == item.identity) {
-            if !before
-                .iter()
-                .any(|old| old.identity == item.identity && old.status == item.status)
-            {
-                changes.push(format!(
-                    "{}: new HTTP status {:?}",
-                    item.identity, item.status
-                ));
-            }
-            changes.extend(
-                drift(&old.shape, &item.shape)
-                    .into_iter()
-                    .map(|s| format!("{}: {s}", item.identity)),
-            );
-        } else {
-            changes.push(format!("{}: new request", item.identity));
-        }
-        if changes.len() > MAX_CHANGES {
-            omitted += changes.len() - MAX_CHANGES;
-            changes.truncate(MAX_CHANGES);
-        }
+) -> Value {
+    if expected.get("status") != actual.get("status") {
+        changes.push(format!(
+            "command {ordinal}: output status changed: {:?} -> {:?}",
+            expected.get("status"),
+            actual.get("status")
+        ));
     }
-    for old in before {
-        if !after.iter().any(|item| item.identity == old.identity) {
-            if changes.len() < MAX_CHANGES {
-                changes.push(format!("{}: request absent", old.identity));
-            } else {
-                omitted += 1;
-            }
-        }
-    }
-    if omitted > 0 {
-        changes.push(format!("{omitted} more drift details omitted"));
-    }
+    let evidence = compare(before, after, changes, sources);
+    json!({"ordinal": ordinal, "before_status": expected.get("status"), "after_status": actual.get("status"), "exchanges": evidence})
 }
