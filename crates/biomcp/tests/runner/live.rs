@@ -157,21 +157,7 @@ fn check(
                 return Err("recorded command has no provider observations".into());
             }
             let reply = invoke(&live, &args.1, None, ordinal);
-            let observed = reply
-                .as_ref()
-                .ok()
-                .map(|(_, records)| records.as_slice())
-                .unwrap_or_default();
-            let interval = before
-                .iter()
-                .chain(observed)
-                .map(|o| o.interval_ms)
-                .max()
-                .unwrap_or(0);
-            // Even a killed child may have sent a request just before it died.
-            std::thread::sleep(
-                Duration::from_millis(interval).min(RUN_BUDGET.saturating_sub(started.elapsed())),
-            );
+            pace(&before, &reply, started);
             let (actual, after) = reply?;
             if expected.get("status") != actual.get("status") {
                 changes.push("status changed from recorded result".into());
@@ -202,6 +188,27 @@ fn check(
         }
     }
     Ok(json!({"drift": changes, "skipped_steps": skipped}))
+}
+fn pace(
+    before: &[Observation],
+    reply: &Result<(Value, Vec<Observation>), String>,
+    started: Instant,
+) {
+    let observed = reply
+        .as_ref()
+        .ok()
+        .map(|(_, records)| records.as_slice())
+        .unwrap_or_default();
+    let interval = before
+        .iter()
+        .chain(observed)
+        .map(|o| o.interval_ms)
+        .max()
+        .unwrap_or(0);
+    // Even a killed child may have sent a request just before it died.
+    std::thread::sleep(
+        Duration::from_millis(interval).min(RUN_BUDGET.saturating_sub(started.elapsed())),
+    );
 }
 fn arguments(step: &Step, previous: Option<&Value>) -> Result<Vec<String>, String> {
     match &step.follow {
