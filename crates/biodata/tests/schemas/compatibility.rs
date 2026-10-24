@@ -159,10 +159,10 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.pattern = Some(pattern.as_str().ok_or("invalid pattern")?.into());
     }
     if let Some(minimum) = node.get("minimum") {
-        shape.minimum = Some(minimum.as_f64().ok_or("unsupported minimum")?);
+        shape.minimum = Some(bound(node, minimum)?);
     }
     if let Some(maximum) = node.get("maximum") {
-        shape.maximum = Some(maximum.as_f64().ok_or("unsupported maximum")?);
+        shape.maximum = Some(bound(node, maximum)?);
     }
     if node
         .get("format")
@@ -200,7 +200,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum_items = Some(bound.as_u64().ok_or("invalid maxItems")?);
     }
     if let Some(minimum) = node.get("minLength") {
-        shape.minimum_length = minimum.as_f64().ok_or("invalid minLength")?;
+        shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
     if let Some(additional) = node.get("additionalProperties") {
         shape.closed = !additional
@@ -382,4 +382,9 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
         }
     }
     Ok(())
+}
+
+fn bound(node: &Value, value: &Value) -> Check<f64> {
+    if node["type"] == "integer" { value.as_u64().ok_or("unsupported integer bound")?; }
+    value.as_f64().filter(|value| value.is_finite()).ok_or_else(|| "unsupported decimal bound".into())
 }
