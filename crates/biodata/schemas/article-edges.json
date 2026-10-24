@@ -1,7 +1,15 @@
 {
   "$defs": {
-    "Pmid": {
-      "pattern": "^[1-9][0-9]*$",
+    "ArticleInput": {
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "type": "string"
+    },
+    "EdgeSource": {
+      "description": "Graph edge provider, independent of article search providers.",
+      "enum": [
+        "icite",
+        "semantic-scholar"
+      ],
       "type": "string"
     },
     "Text": {
@@ -10,7 +18,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.article-edges/1",
+  "$id": "biodata.article-edges/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Page the citing or referenced PubMed papers of one checked PMID.",
@@ -31,13 +39,18 @@
       "type": "integer"
     },
     "pmid": {
-      "$ref": "#/$defs/Pmid",
-      "description": "PMID whose graph edges to read.",
+      "$ref": "#/$defs/ArticleInput",
+      "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
       "x-positional": 0
     },
     "pool": {
       "$ref": "#/$defs/Text",
       "description": "Fixed snapshot from an earlier page."
+    },
+    "source": {
+      "$ref": "#/$defs/EdgeSource",
+      "default": "icite",
+      "description": "Graph provider; iCite remains the default."
     }
   },
   "required": [

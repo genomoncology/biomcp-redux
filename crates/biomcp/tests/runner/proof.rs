@@ -7,7 +7,7 @@ type Check = Result<(), String>;
 pub(crate) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("article-semantic-sections/checked-edge-boundaries", || {
-            super::semantic_tables::check().map_err(|e| e.to_string())
+            super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
         Trial::test("runner/rejects-increasing-citation-counts", || {
             let assertion = super::assertions::Assertion::Nonincreasing;
