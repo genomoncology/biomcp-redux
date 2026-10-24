@@ -134,7 +134,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
+    let source = match bundle {
+        Bundle::Hgnc => biodata::Source::Hgnc,
+        Bundle::ClinGen => biodata::Source::ClinGen,
+    };
     let result = match bundle {
+        Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
         Bundle::Hgnc => {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
                 .and_then(|complete| {
@@ -162,15 +167,10 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         biomcp_fetch::RequestError::Source(error) => Some(error.reason),
         _ => None,
     });
-    let mut envelope = Envelope::<biodata::SyncResult>::new(
-        status,
-        biodata::SyncQuery {
-            source: biodata::Source::Hgnc,
-        },
-        result.ok(),
-    );
+    let mut envelope =
+        Envelope::<biodata::SyncResult>::new(status, biodata::SyncQuery { source }, result.ok());
     envelope.sources.push(biodata::SourceOutcome {
-        source: biodata::Source::Hgnc,
+        source,
         state: if status == Status::Complete {
             biodata::SourceState::Ok
         } else {

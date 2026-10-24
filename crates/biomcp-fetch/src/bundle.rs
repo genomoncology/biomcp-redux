@@ -32,6 +32,11 @@ pub struct Bundle<R: Row + 'static> {
 pub enum RowFormat {
     /// Tab-separated cells with a named header.
     Tsv,
+    /// Generated comma-separated records after physical banner lines.
+    Csv {
+        /// Number of physical lines preceding the header.
+        banner_lines: usize,
+    },
 }
 /// Searchable keys produced by a decoded row.
 #[derive(Debug)]

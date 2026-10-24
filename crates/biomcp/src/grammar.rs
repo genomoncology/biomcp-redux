@@ -59,7 +59,8 @@ fn root() -> Result<Command, ()> {
                 .subcommand(command_for("gene", &schema)?),
         );
     }
-    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])));
+    root = root
+        .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -84,7 +85,14 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     }
     let action = if verb == "sync" {
         Action::Sync {
-            bundle: Bundle::Hgnc,
+            bundle: if matches
+                .get_one::<String>("bundle")
+                .is_some_and(|v| v == "clingen")
+            {
+                Bundle::ClinGen
+            } else {
+                Bundle::Hgnc
+            },
         }
     } else {
         let (_, matches) = matches.subcommand().ok_or(())?;

@@ -55,6 +55,8 @@ canonical_enum! {
         MyGene => "mygene",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinGen.
+        ClinGen => "clingen",
         /// PubMed.
         PubMed => "pubmed",
         /// Europe PMC.

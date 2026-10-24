@@ -1,7 +1,9 @@
+mod clingen;
 mod constraint;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
+pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
@@ -87,4 +89,7 @@ pub struct GeneSections {
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,
+    /// ClinGen validity and dosage assessments.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clingen: Option<Section<ClinGenGene>>,
 }
