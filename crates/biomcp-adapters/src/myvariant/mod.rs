@@ -1,4 +1,6 @@
 //! MyVariant exact source identities and compact component-attributed facts.
+/// Independent terms for carried components.
+pub mod components;
 /// MyVariant-carried historical COSMIC fragments.
 pub mod cosmic;
 mod map;

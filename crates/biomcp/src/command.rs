@@ -82,7 +82,12 @@ fn dispatch_using(
                     return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
-            owned = fetch.with_secrets(secrets).restrict_sources(disabled);
+            owned = fetch
+                .with_secrets(secrets)
+                .restrict_sources(disabled)
+                .restrict_uses(biomcp_adapters::registry::disabled_uses(
+                    &parsed.globals.disable_sources,
+                ));
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {

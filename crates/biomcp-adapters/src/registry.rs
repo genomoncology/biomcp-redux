@@ -32,16 +32,22 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
 ];
+/// Preserve terms groups for component policy after source-name expansion.
+pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
+    names.iter().filter_map(|name| group(name)).collect()
+}
+fn group(name: &str) -> Option<Use> {
+    match name {
+        "noncommercial" => Some(Use::Noncommercial),
+        "restricted" => Some(Use::Restricted),
+        _ => None,
+    }
+}
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
-        let group = match name.as_str() {
-            "noncommercial" => Some(Use::Noncommercial),
-            "restricted" => Some(Use::Restricted),
-            _ => None,
-        };
-        if let Some(group) = group {
+        if let Some(group) = group(name) {
             disabled.extend(
                 SOURCES
                     .iter()
