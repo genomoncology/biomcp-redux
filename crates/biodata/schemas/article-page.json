@@ -116,6 +116,17 @@
             "null"
           ]
         },
+        "contexts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Capped"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First citation context and the source's complete context count."
+        },
         "found_by": {
           "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
@@ -148,6 +159,23 @@
             }
           ],
           "description": "Citation metadata when accepted."
+        },
+        "influential": {
+          "description": "Provider's influential flag; absent is distinct from false.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "intents": {
+          "description": "Citation intents in provider order; absent means not reported.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
         },
         "key": {
           "$ref": "#/$defs/ArticleKey",
@@ -438,6 +466,30 @@
       ],
       "type": "string"
     },
+    "Capped": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
@@ -721,6 +773,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",
