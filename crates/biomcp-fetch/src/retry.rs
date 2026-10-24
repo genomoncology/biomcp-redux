@@ -48,9 +48,8 @@ pub(crate) fn wait(delay: Duration, deadline: Deadline) -> bool {
     }
 }
 
-// Keep the identity internal until the reply store exists. Query credentials are
-// omitted before hashing; header credentials never enter this representation.
-pub(crate) fn identity(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> [u8; 32] {
+// The same credential-free URL is both persisted and hashed.
+pub(crate) fn canonical(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> String {
     let credential = match key {
         KeyUse::Optional(c) | KeyUse::Required(c) => match c.place {
             KeyPlace::Query(name) => Some(name),
@@ -65,6 +64,9 @@ pub(crate) fn identity(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> [u
         canonical.push('=');
         encode(&mut canonical, &value.value());
     }
+    canonical
+}
+pub(crate) fn identity(canonical: &str) -> [u8; 32] {
     let mut hash = Sha256::new();
     hash.update(b"GET\0");
     hash.update(canonical.as_bytes());
@@ -95,6 +97,9 @@ fn encode(out: &mut String, value: &str) {
 mod tests {
     use super::*;
     use crate::{Credential, SecretName};
+    fn identity(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> [u8; 32] {
+        super::identity(&canonical(url, params, key))
+    }
 
     #[test]
     fn only_connect_timeout_and_reset_are_retryable_transport_errors() {

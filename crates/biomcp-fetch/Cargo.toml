@@ -12,6 +12,10 @@ serde_json.workspace = true
 ureq.workspace = true
 sha2.workspace = true
 httpdate.workspace = true
+rusqlite.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
 
 [lints]
 workspace = true

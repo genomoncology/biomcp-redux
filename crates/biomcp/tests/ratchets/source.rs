@@ -9,6 +9,10 @@ const INLINE_TESTS: &[&str] = &[
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/cache.rs",
+        "Serialize SQLite operations on the shared transport connection",
+    ),
+    (
         "crates/biomcp/src/config.rs",
         "Read process arguments at the command boundary",
     ),

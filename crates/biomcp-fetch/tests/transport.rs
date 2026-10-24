@@ -180,6 +180,9 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
         let fetch = fetch();
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         let error = leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         assert_eq!((error.reason, error.status), (reason, Some(status)));
         if status == 404 {
             assert!(
@@ -210,6 +213,9 @@ fn unusable_success_replies_are_bad_reply() {
             .leg(spec, fetch.deadline(Duration::from_secs(10)))
             .json::<Answer>(&spec.get("/answer"), &[])
             .unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         assert_eq!((error.reason, error.status), (Reason::BadReply, Some(200)));
     }
 }
@@ -240,6 +246,9 @@ fn refusals_send_zero_requests() {
             .leg(spec, deadline)
             .json::<Answer>(&endpoint, &[])
             .unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         assert_eq!(
             error.reason,
             match refusal {
@@ -262,6 +271,9 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
             .leg(spec, fetch.deadline(Duration::from_secs(30)))
             .json::<Answer>(&spec.get("/answer"), &[])
             .unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         assert_eq!(
             (error.reason, error.status),
             (Reason::DeadlineExceeded, status)
@@ -285,6 +297,9 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
         let fetch = Fetch::open(config).unwrap();
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         let error = leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         for formatted in [
             format!("{fetch:?}"),
             format!("{leg:?}"),
@@ -335,6 +350,9 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
         .leg(spec, deadline)
         .json::<CheckedAnswer>(&spec.get("/answer"), &[])
         .unwrap_err();
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
     CHECK_DEADLINE.with(|timer| timer.set(None));
     assert_eq!(
         (error.reason, error.status),
