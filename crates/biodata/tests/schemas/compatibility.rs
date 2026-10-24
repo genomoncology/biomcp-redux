@@ -93,8 +93,7 @@ fn visit(
         if object.contains_key(composition)
             && object.keys().any(|key| {
                 key != composition
-                    && !["$schema", "$id", "$defs", "title", "description"]
-                        .contains(&key.as_str())
+                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
             })
         {
             return Err(format!(
