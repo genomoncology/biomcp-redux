@@ -6,7 +6,13 @@
 )]
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use std::{path::PathBuf, time::Duration};
-fn replay(dir: PathBuf) -> Fetch { Fetch::open(FetchConfig { mode: Mode::Replay { dir }, ..Default::default() }).unwrap() }
+fn replay(dir: PathBuf) -> Fetch {
+    Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir },
+        ..Default::default()
+    })
+    .unwrap()
+}
 #[test]
 // Expire only the case-owned documented cache metadata.
 fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {

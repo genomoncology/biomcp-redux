@@ -2,23 +2,45 @@ use super::{Check, case, tsv};
 use serde_json::json;
 
 pub(super) fn check() -> Check {
+    vocabulary()?;
     optional()?;
     required()?;
     withdrawn()?;
-    case("gene/main", &["search", "gene", "MLL2"], |source, record| {
-        if source == "hgnc" {
-            tsv(record, "KMT2D", &[("alias_symbol", "MLL2")]);
-            tsv(record, "H3P10", &[("alias_symbol", "MLL2")]);
-        }
-    }, json!({"/result/items/*/hgnc_id": ["HGNC:7133", "HGNC:15840", "HGNC:43802"],
-        "/result/items/0/match/kind": "previous_symbol"}), 0)?;
-    case("gene/main", &["get", "gene", "100874204"], |_, _| {},
+    case(
+        "gene/main",
+        &["search", "gene", "MLL2"],
+        |source, record| {
+            if source == "hgnc" {
+                tsv(record, "KMT2D", &[("alias_symbol", "MLL2")]);
+                tsv(record, "H3P10", &[("alias_symbol", "MLL2")]);
+            }
+        },
+        json!({"/result/items/*/hgnc_id": ["HGNC:7133", "HGNC:15840", "HGNC:43802"],
+        "/result/items/0/match/kind": "previous_symbol"}),
+        0,
+    )?;
+    case(
+        "gene/main",
+        &["get", "gene", "100874204"],
+        |_, _| {},
         json!({"/result/items/0/answer/candidates/*/hgnc_id": ["HGNC:40244", "HGNC:55559"],
-            "/result/items/0/answer/candidates/*/match/kind": ["entrez_id", "entrez_id"]}), 0)?;
-    case("gene/main", &["search", "gene", "--band", "9p21", "--limit", "50"], |_, _| {},
-        json!({"/page/total": 132, "/result/items/*/symbol": {"includes": "CDKN2A"}}), 0)?;
-    case("gene/main", &["search", "gene", "BRAF proto oncogene"], |_, _| {},
-        json!({"/result/items/*/symbol": {"includes": "BRAF"}}), 0)
+            "/result/items/0/answer/candidates/*/match/kind": ["entrez_id", "entrez_id"]}),
+        0,
+    )?;
+    case(
+        "gene/main",
+        &["search", "gene", "--band", "9p21", "--limit", "50"],
+        |_, _| {},
+        json!({"/page/total": 132, "/result/items/*/symbol": {"includes": "CDKN2A"}}),
+        0,
+    )?;
+    case(
+        "gene/main",
+        &["search", "gene", "BRAF proto oncogene"],
+        |_, _| {},
+        json!({"/result/items/*/symbol": {"includes": "BRAF"}}),
+        0,
+    )
 }
 
 fn optional() -> Check {
@@ -32,11 +54,19 @@ fn optional() -> Check {
         ("alias_symbol", " ", "aliases"),
         ("mane_select", "ENST00000646891|NM_004333.6", "mane_select"),
     ] {
-        case("gene/main", &["get", "gene", "BRAF"], |source, record| {
-            if source == "hgnc" { tsv(record, "BRAF", &[(field, value)]); }
-        }, json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+        case(
+            "gene/main",
+            &["get", "gene", "BRAF"],
+            |source, record| {
+                if source == "hgnc" {
+                    tsv(record, "BRAF", &[(field, value)]);
+                }
+            },
+            json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
             "/problems/*/field": {"includes": problem},
-            "/problems/*/record": {"includes": "HGNC:1097"}}), 0)?;
+            "/problems/*/record": {"includes": "HGNC:1097"}}),
+            0,
+        )?;
     }
     Ok(())
 }
@@ -49,30 +79,96 @@ fn required() -> Check {
         ("status", "new status", "HGNC:1097"),
         ("name", " ", "HGNC:1097"),
     ] {
-        case("gene/main", &["get", "gene", input], |source, record| {
-            if source == "hgnc" { tsv(record, "BRAF", &[(field, value)]); }
-        }, json!({"/result/items/0/answer/resolution": "not_found",
-            "/problems/*/field": {"includes": field}}), 1)?;
+        case(
+            "gene/main",
+            &["get", "gene", input],
+            |source, record| {
+                if source == "hgnc" {
+                    tsv(record, "BRAF", &[(field, value)]);
+                }
+            },
+            json!({"/result/items/0/answer/resolution": "not_found",
+            "/problems/*/field": {"includes": field}}),
+            1,
+        )?;
     }
     Ok(())
 }
 
 fn withdrawn() -> Check {
-    for (input, targets) in [("A2MR", vec!["HGNC:6692"]), ("HGNC:9", vec!["HGNC:6692"]),
-        ("CBBM", vec!["HGNC:4206", "HGNC:9936"]), ("ADCR", vec!["HGNC:12797"])] {
-        case("gene/main", &["get", "gene", input], |_, _| {},
+    for (input, targets) in [
+        ("A2MR", vec!["HGNC:6692"]),
+        ("HGNC:9", vec!["HGNC:6692"]),
+        ("CBBM", vec!["HGNC:4206", "HGNC:9936"]),
+        ("ADCR", vec!["HGNC:12797"]),
+    ] {
+        case(
+            "gene/main",
+            &["get", "gene", input],
+            |_, _| {},
             json!({"/result/items/0/answer/resolution": "withdrawn",
-                "/result/items/0/answer/merged_into": targets}), 0)?;
+                "/result/items/0/answer/merged_into": targets}),
+            0,
+        )?;
     }
-    for (field, value, input) in [("STATUS", "new status", "A2MR"),
-        ("HGNC_ID", "bad", "A2MR"), ("WITHDRAWN_SYMBOL", "bad symbol", "HGNC:9")] {
-        case("gene/main", &["get", "gene", input], |source, record| {
-            if source == "hgnc" { tsv(record, "A2MR", &[(field, value)]); }
-        }, json!({"/result/items/0/answer/resolution": "not_found",
-            "/problems/*/field": {"includes": field}}), 1)?;
+    for (field, value, input) in [
+        ("STATUS", "new status", "A2MR"),
+        ("HGNC_ID", "bad", "A2MR"),
+        ("WITHDRAWN_SYMBOL", "bad symbol", "HGNC:9"),
+    ] {
+        case(
+            "gene/main",
+            &["get", "gene", input],
+            |source, record| {
+                if source == "hgnc" {
+                    tsv(record, "A2MR", &[(field, value)]);
+                }
+            },
+            json!({"/result/items/0/answer/resolution": "not_found",
+            "/problems/*/field": {"includes": match field { "STATUS" => "hgnc_status", "HGNC_ID" => "hgnc_id", _ => "symbol" }}}),
+            1,
+        )?;
     }
-    case("gene/main", &["get", "gene", "A2MR"], |source, record| {
-        if source == "hgnc" { tsv(record, "A2MR", &[("MERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)",
-            "HGNC:6692|LRP1|Approved, bad|bad|Approved")]); }
-    }, json!({"/result/items/0/answer/merged_into": ["HGNC:6692"], "/problems": {"count": 1}}), 0)
+    case(
+        "gene/main",
+        &["get", "gene", "A2MR"],
+        |source, record| {
+            if source == "hgnc" {
+                tsv(
+                    record,
+                    "A2MR",
+                    &[(
+                        "MERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)",
+                        "HGNC:6692|LRP1|Approved, bad|bad|Approved",
+                    )],
+                );
+            }
+        },
+        json!({"/result/items/0/answer/merged_into": ["HGNC:6692"], "/problems": {"count": 1}}),
+        0,
+    )
+}
+
+fn vocabulary() -> Check {
+    let rows = [
+        ("gene with protein product", "gene_with_protein_product"),
+        ("RNA, cluster", "rna_cluster"), ("RNA, long non-coding", "long_non_coding_rna"),
+        ("RNA, micro", "micro_rna"), ("RNA, misc", "misc_rna"), ("RNA, ribosomal", "ribosomal_rna"),
+        ("RNA, small nuclear", "small_nuclear_rna"), ("RNA, small nucleolar", "small_nucleolar_rna"),
+        ("RNA, transfer", "transfer_rna"), ("RNA, vault", "vault_rna"), ("RNA, Y", "y_rna"),
+        ("pseudogene", "pseudogene"), ("complex locus constituent", "complex_locus_constituent"),
+        ("endogenous retrovirus", "endogenous_retrovirus"), ("fragile site", "fragile_site"),
+        ("immunoglobulin gene", "immunoglobulin_gene"), ("immunoglobulin pseudogene", "immunoglobulin_pseudogene"),
+        ("readthrough", "readthrough"), ("region", "region"), ("T cell receptor gene", "t_cell_receptor_gene"),
+        ("T cell receptor pseudogene", "t_cell_receptor_pseudogene"), ("unknown", "unknown"),
+        ("virus integration site", "virus_integration_site"),
+    ];
+    for (raw, mapped) in rows {
+        case("gene/main", &["get", "gene", "BRAF"], |source, record| {
+            if source == "hgnc" { tsv(record, "BRAF", &[("locus_type", raw)]); }
+        }, json!({"/result/items/0/answer/gene/locus_type": mapped}), 0)?;
+    }
+    case("gene/main", &["get", "gene", "BRAF"], |source, record| {
+        if source == "hgnc" { tsv(record, "BRAF", &[("mane_select", "ENST00000646891.2|NR_186305.1")]); }
+    }, json!({"/result/items/0/answer/gene/mane_select/refseq": "NR_186305.1"}), 0)
 }
