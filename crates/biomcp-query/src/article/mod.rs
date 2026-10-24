@@ -11,6 +11,7 @@ pub mod pdf;
 mod preprint;
 mod protein_change;
 pub mod recommend;
+pub mod save;
 mod sections;
 mod semantic_edges;
 pub mod semantic_scholar;

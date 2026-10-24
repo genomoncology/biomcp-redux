@@ -167,8 +167,11 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (_, QueryBody::ArticleSaveRefused(url)) => {
+            usage_envelope(biodata::ErrorEnvelope::save_refused(url))
+        }
         (_, QueryBody::PdfSaveRefused(link)) => {
-            usage_envelope(biodata::ErrorEnvelope::pdf_save_refused(link.url))
+            usage_envelope(biodata::ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
         (_, QueryBody::UnsupportedFilter { source, option }) => {
@@ -408,10 +411,15 @@ fn run_request(
         budget: crate::config::BUDGET,
         fresh,
     };
-    Ok(if let Request::ArticlePdf(query) = request {
-        crate::save::run(&cx, query, allow_save)
-    } else {
-        biomcp_query::run(&cx, request)
+    Ok(match request {
+        Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),
+        Request::ArticleText(query) if query.save().is_some() => {
+            crate::save::article::text(&cx, query, allow_save)
+        }
+        Request::ArticleSupplement(query) if query.save().is_some() => {
+            crate::save::article::supplement(&cx, query, allow_save)
+        }
+        _ => biomcp_query::run(&cx, request),
     })
 }
 
