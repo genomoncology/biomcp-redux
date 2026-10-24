@@ -373,6 +373,51 @@
         "/sources/0/reason": "disabled",
         "/sources/0/state": "skipped",
         "/result/items": []
+      },
+      "mcp": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--has",
+        "clinvar",
+        "--disable-sources",
+        "restricted"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--has",
+        "clinvar",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--has",
+        "clinvar",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/sources/0/reason": "disabled",
+        "/sources/0/state": "skipped",
+        "/result/items": []
       }
     }
   ]

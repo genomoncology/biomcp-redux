@@ -285,6 +285,34 @@
         "/error/code": "usage.arguments",
         "/error/message": "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction"
       }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction"
+      }
     }
   ]
 }

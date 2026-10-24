@@ -159,8 +159,19 @@ fn raw_and_region() -> Result<(), String> {
             "raw syntax, duplicate source candidates or regional build lost: {raw} {region}"
         ));
     }
-    if stub.finish()?.len() != 2 {
+    restricted_regions(&env)?;
+    if stub.finish()?.len() != 3 {
         return Err("selector made unexpected source calls".into());
+    }
+    Ok(())
+}
+fn restricted_regions(env: &Environment) -> Result<(), String> {
+    for group in ["restricted", "noncommercial"] {
+        let allowed = command(&env, &["search", "variant", "--region", "chr7:140753336-140753336", "--build", "GRCh38", "--disable-sources", group])?;
+        if allowed.pointer("/status") != Some(&json!("complete"))
+            || allowed.pointer("/page/returned") != Some(&json!(2)) {
+            return Err(format!("unrelated component restriction blocked region selector: {allowed}"));
+        }
     }
     Ok(())
 }
