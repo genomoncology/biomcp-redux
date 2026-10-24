@@ -23,7 +23,9 @@ impl FromStr for HgncId {
     type Err = Error;
 
     fn from_str(value: &str) -> Result<Self, Error> {
-        let number = value.strip_prefix(Self::PREFIX).ok_or(Error::HgncIdInvalid)?;
+        let number = value
+            .strip_prefix(Self::PREFIX)
+            .ok_or(Error::HgncIdInvalid)?;
         if number.starts_with('0') || !number.bytes().all(|ch| ch.is_ascii_digit()) {
             return Err(Error::HgncIdInvalid);
         }

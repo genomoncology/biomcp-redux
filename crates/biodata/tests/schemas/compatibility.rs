@@ -31,8 +31,12 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
         if old.pattern != new.pattern
-            || new.minimum.is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
-            || new.maximum.is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
+            || new
+                .minimum
+                .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
+            || new
+                .maximum
+                .is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
             || old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
