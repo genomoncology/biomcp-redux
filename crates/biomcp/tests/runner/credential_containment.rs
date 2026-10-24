@@ -38,6 +38,10 @@ fn reply(request: &str) -> Result<String, String> {
         Ok(json!({"total":0,"data":[],"ignored":KEY})
             .to_string()
             .replace("synthetic", "\\u0073ynthetic"))
+    } else if request.contains("keyword=duplicate") {
+        Ok(r#"{"total":0,"data":[],"ignored":"\u0073ynthetic-containment-key","ignored":"safe"}"#.into())
+    } else if request.contains("keyword=deep") {
+        Ok(format!(r#"{{"total":0,"data":[],"ignored":{}"\u0073ynthetic-containment-key"{}}}"#, "[".repeat(130), "]".repeat(130)))
     } else if request.contains("keyword=error") {
         Ok(KEY.into())
     } else {
@@ -133,7 +137,7 @@ fn files(root: &Path) -> Result<Vec<PathBuf>, String> {
 }
 fn wire() -> Check {
     let (env, stub) = setup()?;
-    for query in ["body", "escaped", "error", "media"] {
+    for query in ["duplicate", "deep", "body", "escaped", "error", "media"] {
         let dir = env.root().join(format!("record-{query}"));
         invoke(&env, args(query, "--record", &dir), true)?;
         for path in files(&dir)?
@@ -150,7 +154,7 @@ fn wire() -> Check {
     invoke(&env, args("safe", "--record", &dir), false)?;
     invoke(&env, args("safe", "--replay", &dir), false)?;
     let requests = stub.finish()?;
-    if requests.len() != 5
+    if requests.len() != 7
         || requests.iter().any(|(_, request)| {
             !request
                 .lines()
