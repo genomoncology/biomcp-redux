@@ -36,10 +36,10 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
         }))?,
     )?;
     let plan = diagnostic(&env, &root, true)?;
-    let cases = plan["cases"].as_array().ok_or("missing inventory")?;
+    let cases = plan.get("cases").and_then(Value::as_array).ok_or("missing inventory")?;
     for name in ["checked.yaml", "excluded.yaml"] {
         if !cases.iter().any(|case| {
-            case["case"] == name && case["skipped"] == "follow predecessor is ineligible"
+            case.get("case") == Some(&json!(name)) && case.get("skipped") == Some(&json!("follow predecessor is ineligible"))
         }) {
             return Err(format!("dependent case not excluded: {plan}").into());
         }
@@ -47,17 +47,17 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
     if cases.len() != 3
         || !cases
             .iter()
-            .any(|case| case["case"] == "eligible.yaml" && case["eligible"] == true)
+            .any(|case| case.get("case") == Some(&json!("eligible.yaml")) && case.get("eligible") == Some(&json!(true)))
     {
         return Err(format!("eligible follow inventory changed: {plan}").into());
     }
     // Remove the live case before execution: this proof never contacts a source.
     fs::remove_file(root.join("cases/eligible.yaml"))?;
     let report = diagnostic(&env, &root, false)?;
-    if report["discovered"] != 2
-        || report["checked"] != 0
-        || report["error_cases"] != 0
-        || report["skipped"]["follow predecessor is ineligible"] != 2
+    if report.get("discovered") != Some(&json!(2))
+        || report.get("checked") != Some(&json!(0))
+        || report.get("error_cases") != Some(&json!(0))
+        || report.pointer("/skipped/follow predecessor is ineligible") != Some(&json!(2))
     {
         return Err(format!("skipped diagnostic counts changed: {report}").into());
     }
