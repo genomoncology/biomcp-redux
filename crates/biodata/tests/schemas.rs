@@ -39,6 +39,12 @@ fn registry() -> Vec<Contract> {
     }
     contracts! {
         ErrorEnvelope => ("error", "biomcp.error/1"),
+        GeneGet => ("gene-get", "biodata.gene-get/1"),
+        GeneSearch => ("gene-search", "biodata.gene-search/1"),
+        Request => ("request", "biodata.request/1"),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/1"),
+        Envelope<GenePage> => ("gene-page", "biomcp.gene_page/1"),
+        Envelope<SyncResult> => ("sync", "biomcp.sync/1"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),

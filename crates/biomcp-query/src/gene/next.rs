@@ -1,0 +1,90 @@
+use crate::{Action, Bundle};
+use biodata::{
+    GeneGet, GeneHeader, GeneItem, GeneResolution, GeneSearch, PageInfo, Request, SourceOutcome,
+    SourceState, StepKind,
+};
+fn retry(request: Request) -> (StepKind, Action) {
+    (
+        StepKind::Fresh,
+        Action::Run {
+            request,
+            fresh: true,
+        },
+    )
+}
+fn sync() -> (StepKind, Action) {
+    (
+        StepKind::Sync,
+        Action::Sync {
+            bundle: Bundle::Hgnc,
+        },
+    )
+}
+fn get_id(id: biodata::HgncId) -> Option<(StepKind, Action)> {
+    let query = GeneGet::new(vec![biodata::GeneInput::HgncId(id)].into()).ok()?;
+    Some((
+        StepKind::Disambiguate,
+        Action::Run {
+            request: Request::GetGene(query),
+            fresh: false,
+        },
+    ))
+}
+pub(crate) fn get(
+    query: &GeneGet,
+    items: &[GeneItem],
+    sources: &[SourceOutcome],
+) -> Vec<(StepKind, Action)> {
+    let mut steps = Vec::new();
+    if sources.iter().any(|source| source.state != SourceState::Ok) {
+        steps.push(retry(Request::GetGene(query.clone())));
+    }
+    if sources
+        .iter()
+        .any(|source| source.source == biodata::Source::Hgnc && source.state != SourceState::Ok)
+    {
+        steps.push(sync());
+    }
+    for item in items {
+        if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
+            for candidate in candidates {
+                if let Some(step) = get_id(candidate.hgnc_id)
+                    && !steps.contains(&step)
+                    && steps.len() < 5
+                {
+                    steps.push(step);
+                }
+            }
+        }
+    }
+    steps
+}
+pub(crate) fn search(
+    query: &GeneSearch,
+    items: &[GeneHeader],
+    page: &PageInfo,
+    source: &SourceOutcome,
+) -> Vec<(StepKind, Action)> {
+    let mut steps = Vec::new();
+    if source.state != SourceState::Ok {
+        steps.push(retry(Request::SearchGene(query.clone())));
+        steps.push(sync());
+    }
+    if let Some(offset) = page.offset.checked_add(page.returned)
+        && u64::from(offset) < page.total
+    {
+        steps.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::SearchGene(query.at_offset(offset)),
+                fresh: false,
+            },
+        ));
+    }
+    if let Some(header) = items.first()
+        && let Some(step) = get_id(header.hgnc_id)
+    {
+        steps.push(step);
+    }
+    steps
+}

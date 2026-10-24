@@ -1,0 +1,142 @@
+use super::{next, resolve};
+use crate::{Ctx, Outcome, status};
+use biodata::{
+    GeneCards, GeneGet, GeneItem, GeneResolution, Problem, ProblemCode, QueryBody, Source,
+    SourceState, Status, Text,
+};
+use biomcp_adapters::{hgnc, mygene};
+
+pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
+    let deadline = cx.fetch.deadline(cx.budget);
+    let leg = cx.fetch.leg(&hgnc::SPEC, deadline);
+    let mut problems = Vec::new();
+    let mut hgnc_error = None;
+    let mut local = None;
+    let mut items: Vec<_> = query
+        .input()
+        .iter()
+        .map(|input| {
+            let (answer, state) = match resolve(&leg, input) {
+                Ok(mapped) => {
+                    status::append(&mut problems, mapped.problems);
+                    let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
+                        Status::Absent
+                    } else {
+                        Status::Complete
+                    };
+                    (Some(mapped.value), state)
+                }
+                Err(error) => {
+                    hgnc_error = Some(error);
+                    local = local.or(status::local(error));
+                    (None, Status::Failed)
+                }
+            };
+            GeneItem {
+                input: input.clone(),
+                status: state,
+                answer,
+            }
+        })
+        .collect();
+    let hgnc = status::source(Source::Hgnc, leg.finish(), hgnc_error);
+    if hgnc.state == SourceState::Stale {
+        for item in &mut items {
+            if item.status == Status::Complete {
+                item.status = Status::Partial;
+            }
+        }
+    }
+    let mut sources = vec![hgnc];
+    let ids: Vec<_> = items
+        .iter()
+        .filter_map(|item| match &item.answer {
+            Some(GeneResolution::Resolved { gene, .. }) => gene.entrez_id,
+            _ => None,
+        })
+        .collect();
+    if !ids.is_empty() {
+        let leg = cx.fetch.leg(&mygene::SPEC, deadline);
+        let batches = mygene::genes(&leg, &ids);
+        let mut error = None;
+        for batch in batches {
+            status::append(&mut problems, batch.problems);
+            match batch.result {
+                Ok(extras) => {
+                    for item in &mut items {
+                        join(item, &extras, &batch.ids, &mut problems);
+                    }
+                }
+                Err(failure) => {
+                    error = Some(failure);
+                    local = local.or(status::local(failure));
+                    for item in &mut items {
+                        if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
+                        {
+                            item.status = Status::Partial;
+                        }
+                    }
+                }
+            }
+        }
+        let source = status::source(Source::MyGene, leg.finish(), error);
+        if source.state == SourceState::Stale {
+            for item in &mut items {
+                if matches!(item.answer, Some(GeneResolution::Resolved { .. })) {
+                    item.status = Status::Partial;
+                }
+            }
+        }
+        sources.push(source);
+    }
+    let state = status::status(items.iter().map(|item| item.status));
+    let next = next::get(query, &items, &sources);
+    Outcome {
+        status: state,
+        body: QueryBody::GeneCards(GeneCards {
+            items: items.into(),
+        }),
+        page: None,
+        sources,
+        problems,
+        next,
+        local,
+    }
+}
+fn join(
+    item: &mut GeneItem,
+    extras: &[biomcp_adapters::Mapped<mygene::GeneExtras>],
+    ids: &[biodata::EntrezGeneId],
+    problems: &mut Vec<Problem>,
+) {
+    let Some(GeneResolution::Resolved { gene, .. }) = &mut item.answer else {
+        return;
+    };
+    let Some(id) = gene.entrez_id.filter(|id| ids.contains(id)) else {
+        return;
+    };
+    let matching = extras.iter().find(|extra| extra.value.query_id == id);
+    if let Some(extra) = matching {
+        status::append(problems, extra.problems.clone());
+    }
+    if let Some(extra) = matching
+        .filter(|extra| extra.value.hgnc_id == Some(gene.hgnc_id) && extra.value.entrez_id == id)
+    {
+        gene.summary = extra.value.summary.clone();
+        gene.spans = extra.value.spans.clone();
+        if !extra.problems.is_empty() {
+            item.status = Status::Partial;
+        }
+    } else {
+        item.status = Status::Partial;
+        status::append(
+            problems,
+            [Problem {
+                source: Source::MyGene,
+                record: Text::new(&id.to_string()).ok(),
+                field: "hgnc_id".into(),
+                code: ProblemCode::ValueUnknown,
+            }],
+        );
+    }
+}

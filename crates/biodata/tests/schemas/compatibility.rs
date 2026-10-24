@@ -9,6 +9,8 @@ struct Shape {
     values: Option<BTreeSet<String>>,
     required: BTreeSet<String>,
     minimum_length: u64,
+    minimum_items: u64,
+    maximum_items: Option<u64>,
     pattern: Option<String>,
     minimum: Option<u64>,
     maximum: Option<u64>,
@@ -40,6 +42,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
+            || new.minimum_items > old.minimum_items
+            || new
+                .maximum_items
+                .is_some_and(|bound| old.maximum_items.is_none_or(|old| bound < old))
             || (!old.closed && new.closed)
             || match (&old.values, &new.values) {
                 (Some(old), Some(new)) => !old.is_subset(new),
@@ -127,7 +133,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null", "integer", "array"].contains(&kind) {
+            if !["string", "object", "null", "integer", "array", "boolean"].contains(&kind) {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
@@ -167,6 +173,12 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
                 .required
                 .insert(name.as_str().ok_or("invalid required name")?.into());
         }
+    }
+    if let Some(bound) = node.get("minItems") {
+        shape.minimum_items = bound.as_u64().ok_or("invalid minItems")?;
+    }
+    if let Some(bound) = node.get("maxItems") {
+        shape.maximum_items = Some(bound.as_u64().ok_or("invalid maxItems")?);
     }
     if let Some(minimum) = node.get("minLength") {
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
@@ -271,6 +283,10 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "minimum",
             "maximum",
             "format",
+            "default",
+            "minItems",
+            "maxItems",
+            "x-positional",
         ]
         .contains(&key.as_str())
         {

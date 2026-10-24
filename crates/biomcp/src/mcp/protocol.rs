@@ -33,7 +33,7 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
 }
 
 pub(super) fn tool() -> Value {
-    json!({"name":"biomcp", "description":format!("Run BioMCP commands. schema <artifact id>\nArtifacts: {}", crate::schema::names().collect::<Vec<_>>().join(", ")),
+    json!({"name":"biomcp", "description":format!("Run BioMCP commands. get gene <input>...; search gene [text] [--band band]; sync [hgnc|hgnc-withdrawn]; schema <artifact id>\nArtifacts: {}", crate::schema::names().collect::<Vec<_>>().join(", ")),
         "inputSchema":{"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},
             "required":["args"],"additionalProperties":false},"outputSchema":{"type":"object"}})
 }
@@ -68,5 +68,5 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
 pub(super) fn outcome(outcome: &crate::command::Outcome) -> Value {
     json!({"structuredContent":outcome.value,
         "content":[{"type":"text","text":outcome.value.to_string()}],
-        "isError":matches!(outcome.status, crate::exit::Status::Usage)})
+        "isError":!matches!(outcome.status, crate::exit::Status::Success)})
 }

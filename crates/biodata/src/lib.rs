@@ -29,3 +29,12 @@ pub use gene::{
 };
 
 pub use coord::{Build, Contig, GenomicInterval, Strand};
+
+mod query;
+pub use query::{GeneGet, GeneSearch, Request};
+pub use response::{
+    Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
+    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+};
+
+pub use response::{SyncQuery, SyncResult};

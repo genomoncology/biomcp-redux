@@ -1,0 +1,52 @@
+use crate::{Ctx, gene};
+use biodata::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status, StepKind};
+use biomcp_fetch::RequestError;
+/// Housekeeping selector independent of an entity query.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Bundle {
+    /// Approved HGNC records.
+    Hgnc,
+    /// Withdrawn HGNC records.
+    HgncWithdrawn,
+}
+/// Typed action before an interface spells command arguments.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Action {
+    /// Run a query, retaining fresh policy.
+    Run {
+        #[doc = "Checked query."]
+        request: Request,
+        #[doc = "Bypass cache reads."]
+        fresh: bool,
+    },
+    /// Synchronize one declared file.
+    Sync {
+        #[doc = "Bundle selector."]
+        bundle: Bundle,
+    },
+}
+/// Query result before the interface adds its typed envelope and next spelling.
+#[derive(Debug)]
+pub struct Outcome {
+    /// Overall outcome.
+    pub status: Status,
+    /// Typed response body.
+    pub body: QueryBody,
+    /// Search counts.
+    pub page: Option<PageInfo>,
+    /// Sources actually asked.
+    pub sources: Vec<SourceOutcome>,
+    /// Rejected fields.
+    pub problems: Vec<Problem>,
+    /// Typed next actions.
+    pub next: Vec<(StepKind, Action)>,
+    /// Local errors remain distinct even alongside useful answers.
+    pub local: Option<RequestError>,
+}
+/// Run one checked request through the shared query layer.
+pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
+    match request {
+        Request::GetGene(query) => gene::get::get(cx, query),
+        Request::SearchGene(query) => gene::search::search(cx, query),
+    }
+}
