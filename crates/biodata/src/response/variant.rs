@@ -96,7 +96,7 @@ pub struct VariantSections {
     pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 }
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
