@@ -34,7 +34,13 @@ impl<In: Transport> Connector<In> for TlsConnector {
         let name = ServerName::try_from(name.to_owned()).map_err(|_| Error::Tls("invalid server name"))?;
         let mut conn = ClientConnection::new(self.0.clone(), name)?;
         let mut sock = TransportAdapter::new(transport.boxed(), details.current_time.clone());
-        sock.set_timeout_at(details.timeout, details.now);
+        let mut timeout = details.timeout;
+        use ureq::unversioned::transport::time::Duration;
+        if let (Duration::Exact(limit), Duration::Exact(elapsed)) =
+            (timeout.after, (details.current_time)().duration_since(details.now)) {
+            timeout.after = Duration::Exact(limit.saturating_sub(elapsed));
+        }
+        sock.set_timeout(timeout);
         conn.complete_io(&mut sock).map_err(tls_io)?;
         Ok(Some(Either::B(TlsTransport {
             buffers: LazyBuffers::new(details.config.input_buffer_size(), details.config.output_buffer_size()),
@@ -47,7 +53,6 @@ fn tls_io(error: std::io::Error) -> Error {
         Error::Tls("certificate or handshake verification failed")
     } else { error.into() }
 }
-#[derive(Debug)]
 pub(crate) struct TlsTransport {
     buffers: LazyBuffers,
     stream: StreamOwned<ClientConnection, TransportAdapter>,
@@ -74,5 +79,11 @@ pub(crate) fn reason(error: &Error) -> biodata::Reason {
         Error::Tls(_) | Error::Rustls(_) => biodata::Reason::Tls,
         Error::Timeout(_) => biodata::Reason::DeadlineExceeded,
         _ => biodata::Reason::Unavailable,
+    }
+}
+
+impl std::fmt::Debug for TlsTransport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TlsTransport").finish_non_exhaustive()
     }
 }
