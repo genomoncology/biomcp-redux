@@ -1,5 +1,11 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub(crate) mod assertions;
+mod components;
+mod conservation;
+mod cosmic;
+mod predict;
 pub mod search;
+mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
@@ -40,32 +46,22 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
-    if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
+    if query.sections().is_empty()
+        && spec.source == Source::AlleleRegistry
+        && resolution == VariantResolution::Resolved
+    {
         let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
+    let (section_sources, section_problems, section_error) =
+        sections::apply(cx, query, &mut candidates, deadline);
+    sources.extend(section_sources);
+    problems.extend(section_problems);
+    local = local.or(section_error);
     let next = next(query, resolution, &candidates, page.as_ref());
-    let overall = if matches!(
-        resolution,
-        VariantResolution::Unavailable | VariantResolution::Rejected
-    ) {
-        Status::Failed
-    } else if resolution == VariantResolution::Absent {
-        Status::Absent
-    } else if !problems.is_empty()
-        || sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biodata::SourceState::Failed | biodata::SourceState::Stale
-            )
-        }) && resolution != VariantResolution::Rejected
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
+    let overall = overall(resolution, &problems, &sources);
     let out = Outcome {
         status: overall,
         body: QueryBody::VariantCard(VariantCard {
@@ -83,6 +79,32 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+fn overall(
+    resolution: VariantResolution,
+    problems: &[biodata::Problem],
+    sources: &[biodata::SourceOutcome],
+) -> Status {
+    if matches!(
+        resolution,
+        VariantResolution::Unavailable | VariantResolution::Rejected
+    ) {
+        Status::Failed
+    } else if resolution == VariantResolution::Absent {
+        Status::Absent
+    } else if !problems.is_empty()
+        || sources.iter().any(|s| {
+            matches!(
+                s.state,
+                biodata::SourceState::Failed | biodata::SourceState::Stale
+            )
+        }) && resolution != VariantResolution::Rejected
+    {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
+}
+
 fn classify(len: usize) -> VariantResolution {
     match len {
         0 => VariantResolution::Absent,
@@ -90,7 +112,7 @@ fn classify(len: usize) -> VariantResolution {
         _ => VariantResolution::Candidates,
     }
 }
-fn resolve(
+pub(super) fn resolve(
     query: &VariantGet,
     leg: &Leg<'_>,
     problems: &mut Vec<biodata::Problem>,
@@ -167,7 +189,7 @@ fn join_id(row: &VariantHeader) -> Option<String> {
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }
-fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
+pub(super) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
     let direct = matches!(
         query.input().namespace(),
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome)
@@ -283,3 +305,7 @@ fn candidate_page(
         truncated: None,
     })
 }
+
+mod gwas;
+mod population;
+pub(crate) mod population_detail;

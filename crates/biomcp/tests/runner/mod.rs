@@ -43,7 +43,9 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
+mod variant_civic;
 mod variant_filters;
+mod variant_population;
 mod variant_search;
 
 use libtest_mimic::Trial;
@@ -285,6 +287,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
+    trials.extend(variant_population::trials());
+    trials.extend(variant_civic::trials());
     trials.extend(variant_search::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());

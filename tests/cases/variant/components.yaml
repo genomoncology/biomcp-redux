@@ -1,0 +1,42 @@
+{
+  "feature": "variant-myvariant-sections",
+  "live_check": "synthetic",
+  "story": "Every candidate keeps restricted components unavailable and historical fragments explicitly unverified",
+  "replay": "variant/synthetic-components",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic"
+      ],
+      "max_bytes": 5220,
+      "max_tokens": 1305,
+      "expect": {
+        "/status": "partial",
+        "/result/candidates": {
+          "count": 3
+        },
+        "/result/candidates/0/sections/predict/reason": "restricted_terms",
+        "/result/candidates/0/sections/conservation/reason": "restricted_terms",
+        "/result/candidates/0/sections/cosmic/data/records/0/identity": "unverified",
+        "/result/candidates/0/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>G",
+        "/result/candidates/1/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>T",
+        "/result/candidates/2/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>C",
+        "/result/candidates/1/sections/cosmic/data/components/0/license": "https://example.org/synthetic-component-terms",
+        "/result/candidates/1/sections/cosmic/data/components/0/version": "68"
+      }
+    }
+  ]
+}

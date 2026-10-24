@@ -12,6 +12,19 @@
         " Genome Reference Consortium human build 38."
       ]
     },
+    "CivicClaimKind": {
+      "description": "CIViC native claim collection.",
+      "enum": [
+        "evidence",
+        "assertions"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
     "VariantInput": {
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
@@ -24,6 +37,36 @@
         "variantvalidator"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Named variant source sections, without automatic expansion of identity cards.",
+      "enum": [
+        "clinvar",
+        "erepo",
+        "population",
+        "gwas",
+        "civic",
+        "hotspots",
+        "predict",
+        "conservation",
+        "cosmic",
+        "oncokb",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " ClinVar native assertions.",
+        " ClinGen evidence repository assertions.",
+        " gnomAD population frequencies.",
+        " GWAS Catalog associations.",
+        " CIViC molecular-profile evidence.",
+        " Cancer Hotspots native residues and counts.",
+        " MyVariant source predictor scores.",
+        " MyVariant conservation scores.",
+        " Historical COSMIC fields carried by MyVariant.",
+        " Keyed OncoKB annotation with explicit tumor context and build.",
+        " Every implemented variant section."
+      ]
     }
   },
   "$id": "biodata.variant-get/1",
@@ -41,6 +84,37 @@
         }
       ],
       "description": "Required for chromosome notation; no assembly is guessed."
+    },
+    "civic_cursor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native CIViC cursor, retained unchanged."
+    },
+    "civic_kind": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CivicClaimKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native CIViC claim collection within the selected profile."
+    },
+    "civic_profile": {
+      "description": "Selected CIViC molecular profile for native claim paging.",
+      "format": "uint64",
+      "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ]
     },
     "input": {
       "$ref": "#/$defs/VariantInput",
@@ -66,6 +140,40 @@
       "$ref": "#/$defs/VariantResolver",
       "default": "car",
       "description": "Resolver for reference-qualified notation; never repairs the input locally."
+    },
+    "section": {
+      "description": "Named source sections; omitted by default.",
+      "items": {
+        "$ref": "#/$defs/VariantSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "default": 3,
+      "description": "Rows per named source section page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Source rows to skip independently of identity candidate paging.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "tumor_type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Explicit tumor context for keyed OncoKB annotation."
     }
   },
   "required": [

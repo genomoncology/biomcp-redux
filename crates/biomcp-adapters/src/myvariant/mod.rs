@@ -1,5 +1,12 @@
 //! MyVariant exact source identities and compact component-attributed facts.
+/// Independent terms for carried components.
+pub mod components;
+/// MyVariant-carried historical COSMIC fragments.
+pub mod cosmic;
 mod map;
+/// Capture-proven component measurements.
+pub mod measurements;
+mod metadata;
 mod raw;
 mod search;
 use crate::{Mapped, quotas};

@@ -17,6 +17,9 @@ impl super::ResponseBody for Health {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceHealth {
+    /// Independently licensed carried components, without separate network probes.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub components: Box<[ComponentHealth]>,
     /// Implemented source identity.
     pub source: Source,
     /// Publisher license or terms name.
@@ -46,4 +49,17 @@ pub struct HttpHealth {
     pub version: Text,
     /// Whether the owned transport and query store opened within the health budget.
     pub store: bool,
+}
+
+/// Policy labels for one carried source component.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ComponentHealth {
+    /// Native component name.
+    pub name: Text,
+    /// Independently reviewed publisher terms.
+    pub terms: crate::ComponentTerms,
+    /// Explicit source or component group policy prevents this component.
+    pub disabled: bool,
 }

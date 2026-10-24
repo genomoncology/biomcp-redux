@@ -62,6 +62,8 @@ pub struct FetchConfig {
     pub cache_owners: Vec<SchemaOwner>,
     /// Source identities switched off before keys, caches, replay or requests.
     pub disabled_sources: std::collections::BTreeSet<biodata::Source>,
+    /// Component terms categories switched off by the same source policy.
+    pub disabled_uses: std::collections::BTreeSet<biodata::Use>,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -90,6 +92,7 @@ impl Default for FetchConfig {
             observations: None,
             cache_owners: Vec::new(),
             disabled_sources: Default::default(),
+            disabled_uses: Default::default(),
             secrets: Secrets::default(),
             cache: None,
             mode: Mode::default(),
@@ -120,6 +123,7 @@ pub struct Fetch {
     config: std::sync::Arc<FetchConfig>,
     bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
     disabled_sources: std::collections::BTreeSet<biodata::Source>,
+    disabled_uses: std::collections::BTreeSet<biodata::Use>,
 }
 
 impl fmt::Debug for Fetch {
@@ -168,6 +172,7 @@ impl Fetch {
             recordings: std::sync::Arc::new(recordings),
             clock: clock.map(std::sync::Arc::new),
             disabled_sources: config.disabled_sources.clone(),
+            disabled_uses: config.disabled_uses.clone(),
             config: std::sync::Arc::new(config),
             limiters: std::sync::Arc::default(),
             bundle_imports: std::sync::Arc::default(),
@@ -184,6 +189,17 @@ impl Fetch {
     pub fn restrict_sources(&self, disabled: std::collections::BTreeSet<biodata::Source>) -> Self {
         let mut restricted = self.clone();
         restricted.disabled_sources.extend(disabled);
+        restricted
+    }
+
+    /// Whether a component category was explicitly switched off.
+    pub fn disabled_use(&self, usage: biodata::Use) -> bool {
+        self.disabled_uses.contains(&usage)
+    }
+    /// Add component restrictions without changing source policy or shared resources.
+    pub fn restrict_uses(&self, disabled: std::collections::BTreeSet<biodata::Use>) -> Self {
+        let mut restricted = self.clone();
+        restricted.disabled_uses.extend(disabled);
         restricted
     }
 

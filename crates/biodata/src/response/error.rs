@@ -43,6 +43,7 @@ singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
         NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
+        VariantPredict => "renamed; use: get variant <id> predict",
         VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction",
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",

@@ -82,7 +82,12 @@ fn dispatch_using(
                     return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
-            owned = fetch.with_secrets(secrets).restrict_sources(disabled);
+            owned = fetch
+                .with_secrets(secrets)
+                .restrict_sources(disabled)
+                .restrict_uses(biomcp_adapters::registry::disabled_uses(
+                    &parsed.globals.disable_sources,
+                ));
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
@@ -255,6 +260,12 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, body)
         }
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
+            meta.encode(query, Some(body))
+        }
+        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
+            meta.encode(query, Some(body))
+        }
+        (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
             meta.encode(query, Some(body))
         }
         (Request::SearchVariant(query), QueryBody::VariantPage(body)) => {

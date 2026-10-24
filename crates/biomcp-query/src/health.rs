@@ -48,6 +48,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                         )
                     };
                     Ok(SourceHealth {
+                        components: component_health(spec.source, fetch)?.into(),
                         source: spec.source,
                         terms: Text::new(spec.terms.name)
                             .map_err(|_| biomcp_fetch::InputError::Serialization)?,
@@ -66,4 +67,22 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
     Ok(Health {
         sources: sources.into_iter().collect::<Result<Vec<_>, _>>()?.into(),
     })
+}
+
+fn component_health(
+    source: biodata::Source,
+    fetch: &Fetch,
+) -> Result<Vec<biodata::ComponentHealth>, RequestError> {
+    biomcp_adapters::myvariant::components::all()
+        .iter()
+        .filter(|component| component.source == source)
+        .map(|component| {
+            Ok(biodata::ComponentHealth {
+                name: Text::new(component.name)
+                    .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+                terms: biomcp_adapters::myvariant::components::label(component.terms)?,
+                disabled: biomcp_adapters::myvariant::components::disabled(fetch, component.name),
+            })
+        })
+        .collect()
 }

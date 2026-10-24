@@ -4,7 +4,10 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::clinvar::SPEC,
+    &crate::erepo::SPEC,
     &crate::myvariant::SPEC,
+    &crate::gwas::SPEC,
     &crate::allele_registry::SPEC,
     &crate::mutalyzer::SPEC,
     &crate::variantvalidator::SPEC,
@@ -16,6 +19,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
+    &crate::hotspots::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
@@ -28,20 +32,31 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
 ];
+/// Preserve terms groups for component policy after source-name expansion.
+pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
+    names.iter().filter_map(|name| group(name)).collect()
+}
+fn group(name: &str) -> Option<Use> {
+    match name {
+        "noncommercial" => Some(Use::Noncommercial),
+        "restricted" => Some(Use::Restricted),
+        _ => None,
+    }
+}
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
-        let group = match name.as_str() {
-            "noncommercial" => Some(Use::Noncommercial),
-            "restricted" => Some(Use::Restricted),
-            _ => None,
-        };
-        if let Some(group) = group {
+        if let Some(group) = group(name) {
             disabled.extend(
                 SOURCES
                     .iter()
-                    .filter(|s| s.terms.usage == group)
+                    .filter(|s| {
+                        s.terms.usage == group
+                            && !crate::myvariant::components::COMPONENTS
+                                .iter()
+                                .any(|component| component.source == s.source)
+                    })
                     .map(|s| s.source),
             );
         } else {
@@ -110,6 +125,10 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::Gwas => (
+            "/associations",
+            vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))],
+        ),
         Source::MyVariant => ("/metadata", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
         Source::Mutalyzer => ("/normalize/NM_004333.4:c.1799T%3EA", vec![]),
@@ -130,6 +149,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
+        Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
         Source::PubMed => (
             "/einfo.fcgi",
