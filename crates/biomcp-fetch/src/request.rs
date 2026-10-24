@@ -127,9 +127,10 @@ impl Leg<'_> {
     fn send<T: Reply>(
         &self,
         ep: &Endpoint,
-        prepared: Prepared,
+        mut prepared: Prepared,
         codec: Decoder<T>,
     ) -> Result<T, RequestError> {
+        prepared.identity_encoding = ep.identity_encoding;
         let keyed = self.keyed();
         self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
             self.attempts(&prepared, keyed, &codec)
@@ -216,6 +217,9 @@ impl Leg<'_> {
             self.fetch.agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
+        if prepared.identity_encoding {
+            request = request.header("Accept-Encoding", "identity");
+        }
         for (name, value) in headers {
             request = request.header(*name, value);
         }
