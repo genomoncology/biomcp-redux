@@ -116,7 +116,12 @@ fn identity(
     let (mut candidates, rejection) = result?;
     if candidates.len() != 1
         || rejection.is_some()
-        || !candidates.first().is_some_and(|c| c.identity.representations.iter().any(|r| r.build.is_some() && r.allele.is_some()))
+        || !candidates.first().is_some_and(|c| {
+            c.identity
+                .representations
+                .iter()
+                .any(|r| r.build.is_some() && r.allele.is_some())
+        })
     {
         out.problems.push(matching::problem(
             spec.source,

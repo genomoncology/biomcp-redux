@@ -9,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || wire().map_err(Into::into),
     )]
 }
-fn args() -> Vec<String> {
+pub(super) fn args() -> Vec<String> {
     [
         "variant",
         "recurrence",
@@ -31,26 +31,23 @@ fn args() -> Vec<String> {
     .map(Into::into)
     .collect()
 }
-fn config(env: &Environment, stub: &Stub) -> Result<(), String> {
+pub(super) fn config(env: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = env.root().join("synthetic.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())
 }
-fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> {
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), args)
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() {
-        return Err(format!(
-            "command failed: {} {}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        ));
+pub(super) fn call(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
+    if output.status.code() != Some(exit) {
+        return Err(format!("expected exit {exit}, got {:?}: {} {}", output.status.code(), String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr)));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
+    Ok(value)
 }
+fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> { call(env, args, 0) }
+
 fn wire() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_sources(
@@ -121,10 +118,10 @@ fn car(_: &str) -> Result<String, String> {
 fn hgnc(_: &str) -> Result<String, String> {
     Ok("hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tB-Raf proto-oncogene, serine/threonine kinase\tprotein-coding gene\tgene with protein product\tApproved\t673\n".into())
 }
-fn row(sample: &str, alternate: &str) -> Value {
+pub(super) fn row(sample: &str, alternate: &str) -> Value {
     json!({"molecularProfileId":"msk_impact_2017_mutations","studyId":"msk_impact_2017","sampleId":sample,"entrezGeneId":673,"chr":"7","startPosition":140453136,"endPosition":140453136,"referenceAllele":"A","variantAllele":alternate,"ncbiBuild":"GRCh37"})
 }
-fn cbio(request: &str) -> Result<String, String> {
+pub(super) fn cbio(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/") {
         return car(request);
     }

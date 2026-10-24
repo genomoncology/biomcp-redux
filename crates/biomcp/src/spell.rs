@@ -60,7 +60,38 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         Request::GetGene(query) => serde_json::to_value(query)?,
         Request::SearchGene(query) => serde_json::to_value(query)?,
     };
-    let mut args = vec![
+    let mut args = command_words(request);
+    let positional = fields(&schema, &query, &mut args);
+    if positional.iter().any(|arg| arg.starts_with('-')) {
+        args.push("--".into());
+        args.extend(positional);
+    } else {
+        args.splice(2..2, positional);
+    }
+    Ok(args)
+}
+
+fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
+    let item = property.get("items").unwrap_or(&Value::Null);
+    let item = item
+        .get("$ref")
+        .and_then(Value::as_str)
+        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
+        .unwrap_or(item);
+    query
+        .get("input")
+        .and_then(Value::as_array)
+        .is_some_and(|inputs| {
+            inputs.iter().any(|input| {
+                item.get("enum")
+                    .and_then(Value::as_array)
+                    .is_some_and(|words| words.contains(input))
+            })
+        })
+}
+
+fn command_words(request: &Request) -> Vec<String> {
+    vec![
         match request {
             Request::VariantRecurrence(_) => "variant",
             Request::TrialDocument(_) => "trial",
@@ -110,34 +141,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             "gene"
         }
         .into(),
-    ];
-    let positional = fields(&schema, &query, &mut args);
-    if positional.iter().any(|arg| arg.starts_with('-')) {
-        args.push("--".into());
-        args.extend(positional);
-    } else {
-        args.splice(2..2, positional);
-    }
-    Ok(args)
-}
-
-fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
-    let item = property.get("items").unwrap_or(&Value::Null);
-    let item = item
-        .get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
-        .unwrap_or(item);
-    query
-        .get("input")
-        .and_then(Value::as_array)
-        .is_some_and(|inputs| {
-            inputs.iter().any(|input| {
-                item.get("enum")
-                    .and_then(Value::as_array)
-                    .is_some_and(|words| words.contains(input))
-            })
-        })
+    ]
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {
