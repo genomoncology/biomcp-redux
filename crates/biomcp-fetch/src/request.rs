@@ -124,16 +124,6 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::xml())
     }
 
-    /// Apply a request-bound XML check on cache/replay reads and before live cache admission.
-    pub fn xml_received_checked<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_xml(&check))
-    }
-
     pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
@@ -240,7 +230,6 @@ impl Leg<'_> {
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
-        codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
         let (reply, fetched) =
             self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
@@ -284,7 +273,6 @@ impl Leg<'_> {
                     let status = response.status;
                     if (200..300).contains(&status)
                         || codec.json_rejections && matches!(status, 400 | 422)
-                        || codec.json_absence && status == 404
                     {
                         return self.decode(response, codec).map_err(Into::into);
                     }
@@ -463,9 +451,7 @@ impl Leg<'_> {
         let body = self.read_body(
             &mut response,
             status,
-            recording
-                || codec.json_rejections && matches!(status, 400 | 422)
-                || codec.json_absence && status == 404,
+            recording || codec.json_rejections && matches!(status, 400 | 422),
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
         let wire = Wire {

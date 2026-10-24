@@ -14,13 +14,8 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     if cx.fetch.disabled(source) {
         return Some(source);
     }
-    if matches!(section, S::Predict | S::Conservation) {
-        return Some(source);
-    }
     match (query.input().namespace().ok()?, section) {
-        (VariantNamespace::Rs, S::Gwas)
-        | (VariantNamespace::ClinVar, S::Clinvar)
-        | (VariantNamespace::Ca, S::Erepo | S::Civic) => Some(source),
+        (VariantNamespace::Rs, S::Gwas) => Some(source),
         _ => None,
     }
 }

@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
-    /// Page source variant assertions.
-    VariantAssertions(crate::VariantAssertionsGet),
     /// Read a published variant identifier.
     GetVariant(crate::VariantGet),
     /// Read source ancestry observations.

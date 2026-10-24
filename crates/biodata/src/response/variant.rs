@@ -64,36 +64,12 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
-    /// Explicit keyed OncoKB source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
-    /// Explicit clinvar source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub clinvar: Option<crate::Section<crate::VariantAssertions>>,
-    /// Explicit erepo source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub erepo: Option<crate::Section<crate::VariantAssertions>>,
     /// Explicit population source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub population: Option<crate::Section<crate::VariantPopulation>>,
-    /// Explicit gwas source result.
+    /// Explicit GWAS Catalog source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gwas: Option<crate::Section<crate::VariantGwas>>,
-    /// Explicit civic source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub civic: Option<crate::Section<crate::VariantCivic>>,
-    /// Explicit hotspots source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
-    /// Explicit predict source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub predict: Option<crate::Section<crate::VariantPredictors>>,
-    /// Explicit conservation source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub conservation: Option<crate::Section<crate::VariantConservation>>,
-    /// Explicit cosmic source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 }
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

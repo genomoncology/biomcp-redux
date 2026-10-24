@@ -1,9 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
-pub(crate) mod assertions;
-mod civic;
 mod continuations;
 mod direct;
-mod hotspots;
 pub mod normalize;
 pub mod recurrence;
 pub mod search;

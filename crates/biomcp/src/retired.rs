@@ -1,5 +1,5 @@
 //! Fixed migration guidance matched at command and section boundaries.
-use biodata::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
+use biodata::{ArticleSectionWord, ErrorMessage, GeneSectionWord};
 use std::ffi::OsString;
 
 const GENE: &[(&str, ErrorMessage)] = &[
@@ -92,16 +92,11 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
         ["search", "gene", ..] | ["search", "trial", ..] => words.retired_option,
-        ["get", "gene", input @ ..] => trailing::<GeneSectionWord>(&words, input, SECTIONS),
-        ["get", "variant", input @ ..] => trailing::<VariantSection>(
-            &words,
-            input,
-            &[("predictions", ErrorMessage::VariantPredict)],
-        ),
+        ["get", "gene", input @ ..] => trailing(&words, input, SECTIONS, false),
         ["search", "article", ..] => words.retired_option,
         ["get", "article", input @ ..] => words
             .retired_option
-            .or_else(|| trailing::<ArticleSectionWord>(&words, input, ARTICLE_SECTIONS)),
+            .or_else(|| trailing(&words, input, ARTICLE_SECTIONS, true)),
         _ => None,
     }
 }
@@ -125,10 +120,11 @@ fn command(positional: &[&str]) -> Option<ErrorMessage> {
         _ => None,
     }
 }
-fn trailing<T: serde::de::DeserializeOwned>(
+fn trailing(
     words: &Words<'_>,
     input: &[&str],
     table: &[(&str, ErrorMessage)],
+    article: bool,
 ) -> Option<ErrorMessage> {
     if !words.sections.is_empty() {
         return words.sections.iter().find_map(|word| find(table, word));
@@ -143,7 +139,17 @@ fn trailing<T: serde::de::DeserializeOwned>(
         .rev()
         .take_while(|word| {
             find(table, word).is_some()
-                || serde_json::from_value::<T>(serde_json::Value::String((**word).into())).is_ok()
+                || if article {
+                    serde_json::from_value::<ArticleSectionWord>(serde_json::Value::String(
+                        (**word).into(),
+                    ))
+                    .is_ok()
+                } else {
+                    serde_json::from_value::<GeneSectionWord>(serde_json::Value::String(
+                        (**word).into(),
+                    ))
+                    .is_ok()
+                }
         })
         .find_map(|word| find(table, word))
 }
