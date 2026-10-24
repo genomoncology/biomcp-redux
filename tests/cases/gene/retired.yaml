@@ -1,0 +1,602 @@
+{
+  "feature": "gene-commands",
+  "story": "Retired syntax has fixed guidance without consuming legitimate gene inputs",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "gene",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: get gene <gene>"
+          }
+        }
+      },
+      "exit": 2,
+      "mcp": [
+        "gene",
+        "secret-input"
+      ]
+    },
+    {
+      "run": [
+        "gene",
+        "get"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: get gene <gene>"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "definition"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: get gene <gene>"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "pathways",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: get gene <gene> pathways"
+          }
+        }
+      },
+      "exit": 2,
+      "mcp": [
+        "gene",
+        "pathways",
+        "secret-input"
+      ]
+    },
+    {
+      "run": [
+        "gene",
+        "trials",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: search trial --gene <gene>"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "articles",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: search article --gene <gene>"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "drugs",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: search drug --target <gene>"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "cell-lines",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "moved to the cell line entity"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "gene",
+        "cspec",
+        "secret-input"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "moved to the variant entity"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "secret-input",
+        "--type",
+        "secret-value"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: --locus-group"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "secret-input",
+        "--chromosome",
+        "secret-value"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: --band"
+          }
+        }
+      },
+      "exit": 2,
+      "mcp": [
+        "search",
+        "gene",
+        "secret-input",
+        "--chromosome",
+        "secret-value"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "secret-input",
+        "--region",
+        "secret-value"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "secret-input",
+        "--pathway",
+        "secret-value"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "secret-input",
+        "--go",
+        "secret-value"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "hpa"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "use: expression"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "ontology"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2,
+      "mcp": [
+        "get",
+        "gene",
+        "secret-input",
+        "ontology"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "diseases"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "go"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "interactions"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "funding"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "disgenet"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "dropped in 1.0"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "druggability"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "moved to the drug entity"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "diagnostics"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "moved to the diagnostic entity"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "gencc"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/1",
+        "/status": "usage",
+        "/error": {
+          "equals": {
+            "code": "usage.retired",
+            "message": "deferred"
+          }
+        }
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "--go"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "mcp": [
+        "search",
+        "gene",
+        "--band",
+        "--go"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "--",
+        "--go"
+      ],
+      "expect": {
+        "/query/input": [
+          "--go"
+        ],
+        "/result/items/0/answer/resolution": "not_found"
+      },
+      "exit": 1,
+      "mcp": [
+        "get",
+        "gene",
+        "--",
+        "--go"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "go"
+      ],
+      "expect": {
+        "/query/input": [
+          "go"
+        ],
+        "/result/items/0/answer/resolution": "not_found"
+      },
+      "exit": 1,
+      "mcp": [
+        "get",
+        "gene",
+        "go"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "go",
+        "diagnostics",
+        "--section",
+        "all"
+      ],
+      "expect": {
+        "/query/input": [
+          "go",
+          "diagnostics"
+        ],
+        "/query/section": [
+          "all"
+        ],
+        "/result/items/*/answer/resolution": [
+          "not_found",
+          "not_found"
+        ]
+      },
+      "exit": 1,
+      "mcp": [
+        "get",
+        "gene",
+        "go",
+        "diagnostics",
+        "--section",
+        "all"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--",
+        "--go"
+      ],
+      "expect": {
+        "/query/query": "--go",
+        "/page/total": 0
+      },
+      "mcp": [
+        "search",
+        "gene",
+        "--",
+        "--go"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band=--go"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "mcp": [
+        "search",
+        "gene",
+        "--band=--go"
+      ]
+    }
+  ]
+}
