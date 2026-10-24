@@ -114,7 +114,11 @@ fn validation_frames() -> Result<Vec<Value>, String> {
             "params":{"_meta":malformed}}));
     }
     for (index, malformed) in [Value::Null, json!([]), json!(7)].into_iter().enumerate() {
-        frames.push(request(json!(23 + index), "tools/list", json!({"cursor":malformed})));
+        frames.push(request(
+            json!(23 + index),
+            "tools/list",
+            json!({"cursor":malformed}),
+        ));
     }
     Ok(frames)
 }

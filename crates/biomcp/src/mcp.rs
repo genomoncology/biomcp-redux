@@ -127,7 +127,7 @@ impl Server {
             }
             return Ok(None);
         };
-        if !params.is_object() {
+        if !protocol::valid_params(method, &params) {
             return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
         }
         let modern = current::identified(&params)

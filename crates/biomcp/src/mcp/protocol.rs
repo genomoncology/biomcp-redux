@@ -26,6 +26,12 @@ pub(super) fn validate(value: &Value) -> bool {
         && value.get("id").is_none_or(valid_id)
 }
 
+pub(super) fn valid_params(method: &str, params: &Value) -> bool {
+    params.is_object()
+        && params.get("_meta").is_none_or(Value::is_object)
+        && (method != "tools/list" || params.get("cursor").is_none_or(Value::is_string))
+}
+
 pub(super) fn tool() -> Value {
     json!({"name":"biomcp", "description":format!("Run BioMCP commands. schema <artifact id>\nArtifacts: {}", crate::schema::names().collect::<Vec<_>>().join(", ")),
         "inputSchema":{"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},
