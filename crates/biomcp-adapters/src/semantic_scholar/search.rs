@@ -32,17 +32,32 @@ pub struct Paper {
     pub authors: Option<Vec<Author>>,
 }
 /// External identities, preserving absence independently of paper identity.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct ExternalIds {
     /// PubMed identity.
-    #[serde(rename = "PubMed")]
     pub pubmed: Option<Pmid>,
     /// PMC identity.
-    #[serde(rename = "PubMedCentral")]
     pub pmc: Option<Pmcid>,
     /// DOI spelling reported by the source.
-    #[serde(rename = "DOI")]
     pub doi: Option<Doi>,
+}
+impl<'de> Deserialize<'de> for ExternalIds {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        struct Raw {
+            #[serde(rename = "PubMed")]
+            pubmed: Option<Pmid>,
+            #[serde(rename = "PubMedCentral")]
+            pmc: Option<String>,
+            #[serde(rename = "DOI")]
+            doi: Option<Doi>,
+        }
+        let raw = Raw::deserialize(deserializer)?;
+        let pmc = raw.pmc.map(|value| {
+            if value.starts_with("PMC") { value } else { format!("PMC{value}") }
+        }).map(|value| value.parse()).transpose().map_err(serde::de::Error::custom)?;
+        Ok(Self { pubmed: raw.pubmed, pmc, doi: raw.doi })
+    }
 }
 /// One source author.
 #[derive(Debug, Deserialize)]
