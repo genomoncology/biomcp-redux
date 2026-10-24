@@ -1,0 +1,213 @@
+//! Stdio scheduling and the single response writer.
+mod current;
+mod framing;
+mod legacy;
+mod protocol;
+
+use framing::Frame;
+use serde_json::{Value, json};
+use std::{
+    collections::BTreeMap,
+    io::{self, Write},
+    sync::mpsc,
+    thread,
+};
+
+const MAX_ACTIVE_CALLS: usize = 8;
+const MAX_RETAINED_EVENTS: usize = 32;
+
+enum Event {
+    Input(Frame),
+    Completed(String, io::Result<crate::command::Outcome>),
+}
+
+struct Call {
+    id: Value,
+    modern: bool,
+    cancelled: bool,
+    worker: thread::JoinHandle<()>,
+}
+
+struct Server {
+    sender: mpsc::SyncSender<Event>,
+    active: BTreeMap<String, Call>,
+    legacy: bool,
+}
+
+pub(crate) fn serve() -> io::Result<()> {
+    let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);
+    start_input(sender.clone())?;
+    let mut server = Server {
+        sender,
+        active: BTreeMap::new(),
+        legacy: false,
+    };
+    let mut output = io::stdout().lock();
+    let mut eof = false;
+    while !eof || !server.active.is_empty() {
+        let event = receiver
+            .recv()
+            .map_err(|_| io::Error::other("MCP input stopped"))?;
+        let oversized = matches!(&event, Event::Input(Frame::Oversized));
+        let reply = match event {
+            Event::Input(Frame::Eof) => {
+                eof = true;
+                None
+            }
+            Event::Input(Frame::Malformed) => {
+                eof = true;
+                Some(protocol::error(Value::Null, -32700, "Parse error"))
+            }
+            Event::Input(Frame::Oversized) => {
+                eof = true;
+                Some(protocol::error(Value::Null, -32600, "Frame too large"))
+            }
+            Event::Input(Frame::Message(frame)) => server.message(&frame)?,
+            Event::Completed(key, outcome) => server.complete(&key, outcome)?,
+        };
+        if let Some(reply) = reply {
+            let mut bytes = serde_json::to_vec(&reply)?;
+            bytes.push(b'\n');
+            output.write_all(&bytes)?;
+            output.flush()?;
+        }
+        if oversized {
+            return Ok(());
+        }
+    }
+    // The input thread may still be in a blocking stdin read after output breaks.
+    // Dropping its handle lets main return without joining that read.
+    Ok(())
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Stdio input owns the bounded frame channel"
+)]
+fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
+    thread::Builder::new()
+        .name("mcp-input".into())
+        .spawn(move || {
+            let mut input = io::stdin().lock();
+            loop {
+                let frame = framing::read(&mut input).unwrap_or(Frame::Malformed);
+                let terminal = !matches!(frame, Frame::Message(_));
+                if sender.send(Event::Input(frame)).is_err() || terminal {
+                    break;
+                }
+            }
+        })?;
+    Ok(())
+}
+
+impl Server {
+    fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
+        let Ok(value) = serde_json::from_slice::<Value>(frame) else {
+            return Ok(Some(protocol::error(Value::Null, -32700, "Parse error")));
+        };
+        if !protocol::validate(&value) {
+            let id = value
+                .get("id")
+                .filter(|id| protocol::valid_id(id))
+                .cloned()
+                .unwrap_or(Value::Null);
+            return Ok(Some(protocol::error(id, -32600, "Invalid Request")));
+        }
+        let method = value
+            .get("method")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let params = value.get("params").cloned().unwrap_or_else(|| json!({}));
+        let Some(id) = value.get("id") else {
+            if method == "notifications/cancelled"
+                && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
+                && let Some(call) = self.active.get_mut(&id.to_string())
+            {
+                call.cancelled = true;
+            }
+            return Ok(None);
+        };
+        if !protocol::valid_params(method, &params) {
+            return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
+        }
+        let modern = current::identified(&params)
+            || method == "server/discover"
+            || !self.legacy && method != "initialize";
+        if modern {
+            if let Err(error) = current::validate(id, &params) {
+                return Ok(Some(error));
+            }
+        } else if method == "initialize" {
+            let Some(result) = legacy::initialize(&params) else {
+                return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
+            };
+            self.legacy = true;
+            return Ok(Some(protocol::result(id.clone(), result, false)));
+        }
+        let result = match method {
+            "ping" => json!({}),
+            "server/discover" => current::discover(),
+            "tools/list" => json!({"tools":[protocol::tool()]}),
+            "tools/call" => return self.admit(id.clone(), &params, modern),
+            _ => {
+                return Ok(Some(protocol::error(
+                    id.clone(),
+                    -32601,
+                    "Method not found",
+                )));
+            }
+        };
+        Ok(Some(protocol::result(id.clone(), result, modern)))
+    }
+
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Bounded tool workers own command execution"
+    )]
+    fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
+        let Some(args) = protocol::args(params) else {
+            return Ok(Some(protocol::error(id, -32602, "Invalid params")));
+        };
+        let key = id.to_string();
+        if self.active.contains_key(&key) {
+            return Ok(Some(protocol::error(id, -32600, "Request already active")));
+        }
+        if self.active.len() >= MAX_ACTIVE_CALLS {
+            return Ok(Some(protocol::error(id, -31000, "Tool capacity exceeded")));
+        }
+        let sender = self.sender.clone();
+        let worker_key = key.clone();
+        let worker = thread::Builder::new()
+            .name("mcp-tool".into())
+            .spawn(move || {
+                let outcome = crate::command::dispatch(&args);
+                let _ = sender.send(Event::Completed(worker_key, outcome));
+            })?;
+        self.active.insert(
+            key,
+            Call {
+                id,
+                modern,
+                cancelled: false,
+                worker,
+            },
+        );
+        Ok(None)
+    }
+
+    fn complete(
+        &mut self,
+        key: &str,
+        outcome: io::Result<crate::command::Outcome>,
+    ) -> io::Result<Option<Value>> {
+        let Some(call) = self.active.remove(key) else {
+            return Ok(None);
+        };
+        call.worker
+            .join()
+            .map_err(|_| io::Error::other("MCP worker stopped"))?;
+        let outcome = outcome?;
+        Ok((!call.cancelled)
+            .then(|| protocol::result(call.id, protocol::outcome(&outcome), call.modern)))
+    }
+}

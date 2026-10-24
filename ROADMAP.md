@@ -28,7 +28,7 @@ Each slice updates these counts when its accounting lands.
 - [ ] JSON envelope, statuses, exit codes and next steps
 - [ ] Markdown view over JSON
 - [ ] Outside-in runner with size ceilings and coverage floor
-- [ ] The one MCP tool over the CLI grammar
+- [x] The one MCP tool over the CLI grammar
 - [ ] Release pipeline carried over from 0.9
 
 ## Every entity's checklist

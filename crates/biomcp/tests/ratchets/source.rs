@@ -17,6 +17,10 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Reserve shared replay cursors and publish complete captures",
     ),
     (
+        "crates/biomcp/src/mcp.rs",
+        "Own bounded stdio input and tool threads",
+    ),
+    (
         "crates/biomcp-fetch/src/lib.rs",
         "Retain typed leg reports across concurrent scoped requests",
     ),
