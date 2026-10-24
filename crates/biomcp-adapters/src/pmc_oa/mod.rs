@@ -1,0 +1,63 @@
+//! PMC OA bucket listing, checked metadata and confined JATS reads.
+mod location;
+mod raw;
+use crate::{jats, quotas};
+use biodata::{License, Pmcid, Pmid, Reason, Source};
+use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec};
+use std::time::Duration;
+/// Conservative application policy; no numeric provider limit is claimed.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::PmcOa,
+    base: "https://pmc-oa-opendata.s3.amazonaws.com",
+    key: KeyUse::None,
+    quota: &quotas::PMC_OA,
+    deadline: Duration::from_secs(15),
+};
+const LIST: Endpoint = SPEC.get("/").fresh(Freshness::Days(1));
+const FILE: Endpoint = SPEC.get("/").octet_stream().fresh(Freshness::Days(7));
+/// Selected processing version and source text.
+#[derive(Debug)]
+pub struct Document {
+    /// License owned by the JSON metadata record.
+    pub license: License,
+    /// Highest numeric processing version, not publication chronology.
+    pub version: u32,
+    /// Author manuscript flag from metadata.
+    pub manuscript: bool,
+    /// Parsed source body.
+    pub body: jats::Body,
+}
+fn bad(_: impl std::fmt::Debug) -> RequestError {
+    SourceError { source: Source::PmcOa, reason: Reason::BadReply, status: None, retry_after: None }.into()
+}
+/// Return no document only when the bucket has no matching processing record.
+pub fn read(leg: &Leg<'_>, id: Pmcid, pmid: Option<Pmid>) -> Result<Option<Document>, RequestError> {
+    let prefix = format!("{id}.");
+    let listing = leg.xml::<raw::Listing>(&LIST, &[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))])?;
+    let Some(version) = listing.contents.iter().filter_map(|e| location::version(&e.key, id)).max() else {
+        return Ok(None);
+    };
+    let directory = format!("{id}.{version}/");
+    let path = format!("/{directory}{id}.{version}.json");
+    let record = leg.json::<raw::Record>(&FILE.clone().with_path(path).map_err(bad)?, &[])?;
+    if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) { return Err(bad(BadReply)); }
+    let loc = location::Location::checked(&record.xml_url, &directory).map_err(bad)?;
+    let params: Vec<_> = loc.md5.as_ref().map(|v| ("md5", Arg::Text(v))).into_iter().collect();
+    let body = leg.xml::<jats::Body>(&FILE.clone().with_path(loc.path).map_err(bad)?, &params)?;
+    if body.pmcid.is_some_and(|found| found != id) { return Err(bad(BadReply)); }
+    Ok(Some(Document { license: license(&record.license_code), version, manuscript: record.is_manuscript, body }))
+}
+fn license(value: &str) -> License {
+    match value.to_ascii_uppercase().replace('-', " ").as_str() {
+        "CC BY" => License::CcBy,
+        "CC BY NC" => License::CcByNc,
+        "CC BY SA" => License::CcBySa,
+        "CC BY NC SA" => License::CcByNcSa,
+        "CC BY ND" => License::CcByNd,
+        "CC BY NC ND" => License::CcByNcNd,
+        "CC0" => License::Cc0,
+        "PUBLIC DOMAIN" => License::PublicDomain,
+        "TDM" => License::Tdm,
+        _ => License::Other,
+    }
+}

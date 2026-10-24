@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Read licensed PMC body text.
+    ArticleText(crate::ArticleText),
     /// Retrieve PubMed article cards.
     GetArticle(crate::ArticleGet),
     /// Search PubMed article identities.

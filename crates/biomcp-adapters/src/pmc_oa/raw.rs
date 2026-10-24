@@ -1,0 +1,34 @@
+use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
+use serde::Deserialize;
+#[derive(Debug, Deserialize)]
+#[serde(rename = "ListBucketResult")]
+pub(super) struct Listing {
+    #[serde(rename = "Contents", default)]
+    pub contents: Vec<Entry>,
+    #[serde(rename = "IsTruncated", default)]
+    truncated: bool,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Entry {
+    #[serde(rename = "Key")]
+    pub key: String,
+}
+impl Reply for Listing {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.truncated { Err(BadReply) } else { Ok(()) }
+    }
+}
+impl XmlReply for Listing {}
+#[derive(Debug, Deserialize)]
+pub(super) struct Record {
+    pub pmcid: biodata::Pmcid,
+    pub pmid: Option<u32>,
+    pub license_code: String,
+    pub is_manuscript: bool,
+    pub xml_url: String,
+}
+impl Reply for Record {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.pmid == Some(0) || self.license_code.trim().is_empty() { Err(BadReply) } else { Ok(()) }
+    }
+}

@@ -1,5 +1,6 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
+pub(crate) mod fulltext;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSections, Section,
@@ -13,22 +14,30 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                annotations: card.pmid.is_none().then_some(Section::NotApplicable),
+                annotations: (query.sections().iter().any(|s| matches!(s, biodata::ArticleSectionWord::Annotations | biodata::ArticleSectionWord::All)) && card.pmid.is_none()).then_some(Section::NotApplicable),
+                fulltext: (query.sections().iter().any(|s| matches!(s, biodata::ArticleSectionWord::Fulltext | biodata::ArticleSectionWord::All)) && card.pmcid.is_none()).then_some(Section::NotApplicable),
             });
-        } else if card.pmid.is_some() {
-            item.more = Box::new([ArticleSection::Annotations]);
+        } else {
+            let mut more = Vec::new();
+            if card.pmid.is_some() { more.push(ArticleSection::Annotations); }
+            if card.pmcid.is_some() { more.push(ArticleSection::Fulltext); }
+            item.more = more.into();
         }
     }
     requested
 }
-pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
-    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
-        return;
-    };
-    let ids = annotations::ids(&cards.items);
-    if ids.is_empty() {
-        return;
+pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, query: &ArticleGet, out: &mut crate::Outcome) {
+    if query.sections().iter().any(|s| matches!(s, biodata::ArticleSectionWord::Annotations | biodata::ArticleSectionWord::All)) {
+        annotations(cx, deadline, out);
     }
+    if query.sections().iter().any(|s| matches!(s, biodata::ArticleSectionWord::Fulltext | biodata::ArticleSectionWord::All)) {
+        fulltext::run(cx, deadline, out);
+    }
+}
+fn annotations<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
+    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else { return; };
+    let ids = annotations::ids(&cards.items);
+    if ids.is_empty() { return; }
     let result = annotations::run(cx, deadline, &ids);
     annotations::join(&mut cards.items, &result);
     out.local = out.local.or(result.local);

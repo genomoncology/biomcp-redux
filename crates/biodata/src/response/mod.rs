@@ -1,5 +1,7 @@
 mod article;
 mod article_cards;
+mod article_text;
+pub use article_text::{ArticleTextResult, TextContent, TextHit, TextPart, TextPartKind, FullText, FigureCaption, License};
 pub use article::{ArticleItem, ArticleKey, ArticlePage};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 mod error;

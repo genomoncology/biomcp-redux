@@ -21,3 +21,6 @@ pub mod clingen;
 pub mod hpa;
 
 pub mod pubtator;
+
+pub mod pmc_oa;
+pub mod jats;

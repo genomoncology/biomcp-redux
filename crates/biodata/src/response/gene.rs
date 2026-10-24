@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Bounded licensed body reader.
+    ArticleText(crate::ArticleTextResult),
+    /// Invalid body reader position.
+    TextPositionError,
     /// PubMed article cards.
     ArticleCards(crate::ArticleCards),
     /// Invalid snapshot selector; the interface spells its typed restart.

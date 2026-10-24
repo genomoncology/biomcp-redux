@@ -53,12 +53,14 @@ pub trait XmlReply: Reply {
 
 pub(crate) struct Decoder<T> {
     codec: Codec,
+    octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
 }
 impl<T: Reply> Decoder<T> {
     pub(crate) fn json() -> Self {
         Self {
             codec: Codec::Json,
+            octet_stream: false,
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
@@ -68,6 +70,7 @@ impl<T: Reply> Decoder<T> {
     {
         Self {
             codec: Codec::Xml,
+            octet_stream: false,
             parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
@@ -76,11 +79,12 @@ impl<T: Reply> Decoder<T> {
             },
         }
     }
+    pub(crate) fn octet_stream(mut self, accepted: bool) -> Self { self.octet_stream = accepted; self }
     pub(crate) fn name(&self) -> &'static str {
         self.codec.name()
     }
     pub(crate) fn accepts(&self, media: &str) -> bool {
-        self.codec.accepts(media)
+        self.codec.accepts(media) || self.octet_stream && media.split(';').next().is_some_and(|v| v.trim().eq_ignore_ascii_case("binary/octet-stream"))
     }
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;

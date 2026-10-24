@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 pub mod get;
+pub mod text;
 mod next;
 mod sections;
 mod term;
