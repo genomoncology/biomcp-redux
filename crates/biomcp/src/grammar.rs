@@ -132,7 +132,7 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
         } else {
-            argument = argument.long(name.clone());
+            argument = argument.long(name.replace('_', "-"));
         }
         if schema
             .get("required")

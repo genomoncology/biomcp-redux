@@ -5,6 +5,7 @@
       "enum": [
         "usage.schema",
         "usage.arguments",
+        "usage.retired",
         "local.failure"
       ],
       "type": "string"
@@ -26,10 +27,25 @@
       "type": "object"
     },
     "ErrorMessage": {
+      "description": "Fixed input-free error and migration guidance.",
       "enum": [
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
-        "local configuration, cache or recording failed"
+        "local configuration, cache or recording failed",
+        "use: get gene <gene>",
+        "use: get gene <gene> pathways",
+        "use: search trial --gene <gene>",
+        "use: search article --gene <gene>",
+        "use: search drug --target <gene>",
+        "moved to the cell line entity",
+        "moved to the variant entity",
+        "use: --locus-group",
+        "use: --band",
+        "dropped in 1.0",
+        "use: expression",
+        "moved to the drug entity",
+        "moved to the diagnostic entity",
+        "deferred"
       ],
       "type": "string"
     },

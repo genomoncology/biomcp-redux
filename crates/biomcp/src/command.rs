@@ -29,6 +29,12 @@ fn dispatch_using(
             cli_bytes: text.as_bytes().to_vec(),
         });
     }
+    if let Some(message) = crate::retired::message(args) {
+        return encode(
+            biodata::ErrorEnvelope::retired(message),
+            crate::exit::Status::Usage,
+        );
+    }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
         Err(()) => return usage(args),

@@ -102,7 +102,7 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));
             let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {
-                args.push(format!("--{name}"));
+                args.push(format!("--{}", name.replace('_', "-")));
             }
             for value in value
                 .as_array()
@@ -117,7 +117,7 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
                     &mut *args
                 };
                 if explicit {
-                    target.push(format!("--{name}"));
+                    target.push(format!("--{}", name.replace('_', "-")));
                 }
                 target.push(
                     value

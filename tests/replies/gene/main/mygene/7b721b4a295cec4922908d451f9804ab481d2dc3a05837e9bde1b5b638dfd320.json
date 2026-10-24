@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "1a2f3f009db7d166c3739daf0c8daa95430b8e84f45241d7207cc49b27f70ad9"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 309,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"10855","HGNC":"5164","_id":"10855","_version":1,"entrezgene":"10855","genomic_pos":{"chr":"4","end":83335153,"ensemblgene":"ENSG00000173083","start":83292461,"strand":-1},"genomic_pos_hg19":{"chr":"4","end":84256306,"start":84213614,"strand":-1},"summary":"Heparan sulfate proteoglycans are major components of the basement membrane and extracellular matrix. The protein encoded by this gene is an enzyme that cleaves heparan sulfate proteoglycans to permit cell movement through remodeling of the extracellular matrix. In addition, this cleavage can release bioactive molecules from the extracellular matrix. Several transcript variants encoding different isoforms have been found for this gene. [provided by RefSeq, Sep 2011]."}]
+      }
+    }
+  ]
+}

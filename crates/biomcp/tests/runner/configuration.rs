@@ -88,7 +88,7 @@ fn ownership() -> Check {
         0,
     )?;
     if value.get("schema") != Some(&json!("biomcp.sync/1"))
-        || value.pointer("/result/rows") != Some(&json!(175))
+        || value.pointer("/result/rows") != Some(&json!(176))
         || value.pointer("/query/source") != Some(&json!("hgnc"))
     {
         return Err("source sync lost metadata".into());

@@ -53,7 +53,7 @@ Each entity below repeats these steps.
 - [x] Investigation
 - [x] Questions answered by Ian
 - [ ] Biodata types and schema
-- [ ] Search
+- [x] Search
 - [ ] Get and sections
 - [ ] Outside-in cases
 - [ ] Token budget

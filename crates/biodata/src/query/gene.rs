@@ -1,4 +1,4 @@
-use crate::{Cytoband, GeneInput, Text};
+use crate::{Cytoband, GeneInput, LocusGroup, Text};
 use serde::{Deserialize, Serialize};
 const MIN_INPUTS: usize = 1;
 const MAX_INPUTS: usize = 20;
@@ -89,6 +89,14 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Cytoband"))]
     band: Option<Cytoband>,
+    /// Optional HGNC locus group intersected with the selector.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "LocusGroup"))]
+    locus_group: Option<LocusGroup>,
     /// Number of results per page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = MIN_LIMIT, max = MAX_LIMIT)))]
@@ -103,7 +111,13 @@ fn default_limit() -> u32 {
 impl TryFrom<SearchFields> for GeneSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        Self::new(fields.query, fields.band, fields.limit, fields.offset)
+        Self::filtered(
+            fields.query,
+            fields.band,
+            fields.locus_group,
+            fields.limit,
+            fields.offset,
+        )
     }
 }
 impl GeneSearch {
@@ -114,12 +128,23 @@ impl GeneSearch {
         limit: u32,
         offset: u32,
     ) -> Result<Self, QueryInvalid> {
+        Self::filtered(query, band, None, limit, offset)
+    }
+    /// Check the selector, optional locus-group filter and page bounds.
+    pub fn filtered(
+        query: Option<Text>,
+        band: Option<Cytoband>,
+        locus_group: Option<LocusGroup>,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Self, QueryInvalid> {
         if query.is_none() && band.is_none() || !(MIN_LIMIT..=MAX_LIMIT).contains(&limit) {
             return Err(QueryInvalid);
         }
         Ok(Self(SearchFields {
             query,
             band,
+            locus_group,
             limit,
             offset,
         }))
@@ -131,6 +156,10 @@ impl GeneSearch {
     /// Optional band prefix.
     pub fn band(&self) -> Option<&Cytoband> {
         self.0.band.as_ref()
+    }
+    /// Optional HGNC locus group.
+    pub fn locus_group(&self) -> Option<LocusGroup> {
+        self.0.locus_group
     }
     /// Page size.
     pub fn limit(&self) -> u32 {

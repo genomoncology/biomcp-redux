@@ -3,7 +3,7 @@ mod problem;
 
 pub use problem::{Problem, ProblemCode};
 
-pub use error::{ErrorCode, ErrorEnvelope, ErrorStatus};
+pub use error::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus};
 
 mod envelope;
 mod gene;
