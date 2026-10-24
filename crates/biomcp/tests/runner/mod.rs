@@ -25,6 +25,8 @@ mod nci;
 mod nci_walk;
 mod negative_cases;
 mod network_stub;
+mod oncokb;
+mod oncokb_context;
 mod normalization;
 mod pdf;
 mod pmc_tables;
