@@ -50,8 +50,10 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
             let name = path
                 .strip_prefix(root)
                 .map_err(|error| error.to_string())?
-                .to_string_lossy()
-                .replace('\\', "/");
+                .iter()
+                .map(|part| part.to_str().ok_or("case path must be UTF-8"))
+                .collect::<Result<Vec<_>, _>>()?
+                .join("/");
             Ok(Trial::test(name, move || {
                 run_case(&path).map_err(Into::into)
             }))

@@ -121,6 +121,8 @@ fn negatives() -> Check {
 }
 
 fn selection() -> Check {
+    #[cfg(unix)]
+    literal_backslash_names()?;
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     put(
         directory.path(),
@@ -160,6 +162,24 @@ fn selection() -> Check {
         || stdout.contains("right/same.yaml")
     {
         return Err(format!("--cases with filtered --list: {stdout}"));
+    }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn literal_backslash_names() -> Check {
+    let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
+    for name in ["left/same.yaml", "left\\same.yaml"] {
+        put(directory.path(), name, "    expect: {'/type': string}")?;
+    }
+    let output = invoke(directory.path(), &["left\\same.yaml", "--exact"])?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if !output.status.success()
+        || !stdout.contains("left\\same.yaml ... ok")
+        || !stdout.contains("1 passed")
+        || !stdout.contains("1 filtered out")
+    {
+        return Err(format!("literal filename must remain distinct: {stdout}"));
     }
     Ok(())
 }
