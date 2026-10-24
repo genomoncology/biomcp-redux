@@ -68,15 +68,14 @@ Sources:
 - [x] Reactome
 - [x] CIViC
 - [x] ClinGen
-- [ ] GenCC (bundle)
 - [x] gnomAD (constraint)
-- [ ] GTEx
 - [x] Human Protein Atlas
 - [x] OncoKB (keyed)
-- [ ] COSMIC Cancer Gene Census (keyed)
+- [ ] COSMIC Cancer Gene Census (keyed; awaits a ruling)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
-- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG
+- Deferred: GenCC (bundle)
+- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG, GTEx
 
 ### Article
 

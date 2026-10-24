@@ -13,7 +13,10 @@
         "/status": "complete",
         "/result/items/0/hgnc_id": "HGNC:6407",
         "/result/items/0/match/kind": "symbol",
-        "/page/total": 1
+        "/page/total": 1,
+        "/result/items/0": {
+          "max_tokens": 60
+        }
       },
       "max_bytes": 528
     },
@@ -28,7 +31,13 @@
         "/result/items/*/hgnc_id": [
           "HGNC:1787",
           "HGNC:43802"
-        ]
+        ],
+        "/result/items/0": {
+          "max_tokens": 60
+        },
+        "/result/items/1": {
+          "max_tokens": 60
+        }
       },
       "max_bytes": 780
     },

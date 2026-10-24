@@ -25,7 +25,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .iter()
             .map(|(name, node)| argument(name, node, &schema))
             .collect();
-        let section = resolve(field(field(field(&schema, "properties"), "section"), "items"), &schema);
+        let section = resolve(
+            field(field(field(&schema, "properties"), "section"), "items"),
+            &schema,
+        );
         let sections = field(section, "enum")
             .as_array()
             .into_iter()
@@ -34,7 +37,12 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .filter_map(|(i, v)| {
                 Some(HelpWord {
                     word: v.as_str()?.into(),
-                    description: field(section, "x-enum-descriptions").get(i).unwrap_or(&Value::Null).as_str()?.trim().into(),
+                    description: field(section, "x-enum-descriptions")
+                        .get(i)
+                        .unwrap_or(&Value::Null)
+                        .as_str()?
+                        .trim()
+                        .into(),
                 })
             })
             .collect::<Vec<_>>();
@@ -93,8 +101,12 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
             .as_array()
             .is_some_and(|v| v.iter().any(|v| v == name)),
         position,
-        minimum: field(node, "minimum").as_u64().or(field(node, "minItems").as_u64()),
-        maximum: field(node, "maximum").as_u64().or(field(node, "maxItems").as_u64()),
+        minimum: field(node, "minimum")
+            .as_u64()
+            .or(field(node, "minItems").as_u64()),
+        maximum: field(node, "maximum")
+            .as_u64()
+            .or(field(node, "maxItems").as_u64()),
         choices: field(resolved, "enum")
             .as_array()
             .into_iter()
@@ -142,4 +154,6 @@ pub(crate) fn tree() -> String {
     lines.join("\n")
 }
 
-fn field<'a>(node: &'a Value, key: &str) -> &'a Value { node.get(key).unwrap_or(&Value::Null) }
+fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
+    node.get(key).unwrap_or(&Value::Null)
+}

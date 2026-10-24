@@ -42,10 +42,17 @@ fn main() -> Result<(), Box<dyn Error>> {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());
         let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
-        let steps = case.get("steps").and_then(serde_json::Value::as_array).ok_or("case steps required")?;
+        let steps = case
+            .get("steps")
+            .and_then(serde_json::Value::as_array)
+            .ok_or("case steps required")?;
         for index in indices.into_iter().take(if verb == "get" { 1 } else { 2 }) {
             let run = serde_json::from_value(
-                steps.get(index).and_then(|step| step.get("run")).ok_or("missing example step")?.clone(),
+                steps
+                    .get(index)
+                    .and_then(|step| step.get("run"))
+                    .ok_or("missing example step")?
+                    .clone(),
             )?;
             examples.entry(verb.into()).or_default().push(run);
         }

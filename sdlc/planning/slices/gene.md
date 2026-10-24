@@ -8,35 +8,35 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 
 ### Commands and options
 
-| 0.9 command | Options | Sources it calls | What it returns |
-| --- | --- | --- | --- |
-| `search gene <q>` or `-q` | `--type`, `--chromosome`, `--region`, `--pathway`, `--go`, `--limit` 1-50, `--offset` | MyGene.info query | Rows of symbol, name, Entrez ID, GRCh38 span, UniProt, OMIM |
-| `get gene <symbol> [sections]` | 16 sections plus `all` | MyGene.info and Open Targets for the default card | Card with symbol, name, Entrez, Ensembl, chromosome, GRCh38 span, OMIM, UniProt, type, summary, 5 aliases, 5 "clinical" diseases and 5 drugs |
-| section `pathways` | | Reactome and KEGG | Pathway IDs and names |
-| section `ontology` | | Enrichr GO libraries | Single-gene "enrichment" terms with p-values |
-| section `diseases` | | Enrichr DisGeNET and OMIM libraries | Single-gene "enrichment" terms with p-values |
-| section `diagnostics` | | NCBI GTR local bundle | Genetic tests naming the gene |
-| section `protein` | | UniProt | Accession, name, function text, length, isoforms |
-| section `go` | | QuickGO | GO terms with evidence codes |
-| section `interactions` | | STRING | Partner symbols with scores |
-| section `civic` | | CIViC | Assertions and evidence items |
-| section `expression` | | GTEx | Median TPM by tissue |
-| section `hpa` | | Human Protein Atlas | Tissue levels and subcellular location |
-| section `druggability` | | DGIdb and Open Targets | Drug interactions and categories |
-| section `clingen` | | ClinGen bulk files | Validity classifications and dosage |
-| section `gencc` | | GenCC bundle | Submission-level validity |
-| section `constraint` | | gnomAD | pLI, LOEUF, missense Z, synonymous Z |
-| section `disgenet` | | DisGeNET, key required | Scored gene-disease pairs |
-| section `funding` | | NIH RePORTER | Grants naming the gene |
-| `gene definition`, `gene get` | | Same as `get gene` | Same card |
-| `gene <symbol>` | | Same as `get gene` | Same card, through an external-subcommand fallback |
-| `gene trials <symbol>` | `--limit`, `--offset`, `--source ctgov|nci` | ClinicalTrials.gov or NCI CTS | Trials whose text names the symbol |
-| `gene drugs <symbol>` | `--limit`, `--offset` | MyChem and drug sources | Drugs listing the gene as target |
-| `gene articles <symbol>` | `--limit`, `--offset` | PubMed and article sources | Article rows |
-| `gene pathways <symbol>` | `--limit` 1-25, `--offset` | Reactome and KEGG | The whole gene card with the pathways section |
-| `gene cell-lines <symbol> --group G` | `--limit` 1-100, `--offset` | HPA cell line data | nTPM for each cell line in one cancer group |
-| `gene cspec <symbol>` | `--version`, `--capture-id`, `--files`, `--offset`, `--limit`, `document <capture-id>` | ClinGen CSpec registry | Variant interpretation criteria specifications |
-| MCP | the shared `search` and `get` tools and a separate `gene_cspec` tool | | |
+| 0.9 command | Options | Sources it calls | What it returns | 1.0 |
+| --- | --- | --- | --- | --- |
+| `search gene <q>` or `-q` | `--type`, `--chromosome`, `--region`, `--pathway`, `--go`, `--limit` 1-50, `--offset` | MyGene.info query | Rows of symbol, name, Entrez ID, GRCh38 span, UniProt, OMIM | `search gene <q>`; `-q` is removed. `--type` → `--locus-group` (`use: --locus-group`); `--chromosome` → `--band` (`use: --band`); `--region`, `--pathway`, `--go` dropped (`dropped in 1.0`): no harvested question needs them. `--limit` and `--offset` remain. |
+| `get gene <symbol> [sections]` | 16 sections plus `all` | MyGene.info and Open Targets for the default card | Card with symbol, name, Entrez, Ensembl, chromosome, GRCh38 span, OMIM, UniProt, type, summary, 5 aliases, 5 "clinical" diseases and 5 drugs | `get gene <input>... [sections]`; `all` requests the seven shipped sections. `--section WORD` preserves inputs that equal section words. The card uses HGNC identity and MyGene extras; arbitrary Open Targets diseases and drugs are dropped. |
+| section `pathways` | | Reactome and KEGG | Pathway IDs and names | `get gene <input> pathways`; Reactome only; KEGG dropped for its reuse terms. |
+| section `ontology` | | Enrichr GO libraries | Single-gene "enrichment" terms with p-values | Dropped: single-gene enrichment does not answer a harvested question. `dropped in 1.0`. |
+| section `diseases` | | Enrichr DisGeNET and OMIM libraries | Single-gene "enrichment" terms with p-values | Dropped: single-gene enrichment does not answer a harvested question. `dropped in 1.0`. |
+| section `diagnostics` | | NCBI GTR local bundle | Genetic tests naming the gene | Diagnostic slice. `moved to the diagnostic entity`. |
+| section `protein` | | UniProt | Accession, name, function text, length, isoforms | `get gene <input> protein`; all reviewed human proteins joined by IDs. |
+| section `go` | | QuickGO | GO terms with evidence codes | Dropped: no harvested question needs GO lists. `dropped in 1.0`. |
+| section `interactions` | | STRING | Partner symbols with scores | Dropped: no harvested question needs interaction scores. `dropped in 1.0`. |
+| section `civic` | | CIViC | Assertions and evidence items | `get gene <input> civic`; gene description and counts; variant evidence moves to the variant slice. |
+| section `expression` | | GTEx | Median TPM by tissue | GTEx is dropped because no harvested question needs it. The shipped `expression` word requests HPA. |
+| section `hpa` | | Human Protein Atlas | Tissue levels and subcellular location | `get gene <input> expression`; `use: expression`. |
+| section `druggability` | | DGIdb and Open Targets | Drug interactions and categories | Drug slice. `moved to the drug entity`. |
+| section `clingen` | | ClinGen bulk files | Validity classifications and dosage | `get gene <input> clingen`; validity and dosage. |
+| section `gencc` | | GenCC bundle | Submission-level validity | Deferred; ClinGen supplies the accepted validity source. `deferred`. |
+| section `constraint` | | gnomAD | pLI, LOEUF, missense Z, synonymous Z | `get gene <input> constraint`; population metrics with version. |
+| section `disgenet` | | DisGeNET, key required | Scored gene-disease pairs | Dropped: ClinGen covers validated links. `dropped in 1.0`. |
+| section `funding` | | NIH RePORTER | Grants naming the gene | Dropped: no harvested question needs grants. `dropped in 1.0`. |
+| `gene definition`, `gene get` | | Same as `get gene` | Same card | `get gene <input>`; both aliases return `use: get gene <gene>`. |
+| `gene <symbol>` | | Same as `get gene` | Same card, through an external-subcommand fallback | `get gene <input>`; fallback returns `use: get gene <gene>`. |
+| `gene trials <symbol>` | `--limit`, `--offset`, `--source ctgov|nci` | ClinicalTrials.gov or NCI CTS | Trials whose text names the symbol | Trial slice: `search trial --gene <gene>`; `use: search trial --gene <gene>`. Its paging and source options belong to that slice. |
+| `gene drugs <symbol>` | `--limit`, `--offset` | MyChem and drug sources | Drugs listing the gene as target | Drug slice: `search drug --target <gene>`; `use: search drug --target <gene>`. Its paging options belong to that slice. |
+| `gene articles <symbol>` | `--limit`, `--offset` | PubMed and article sources | Article rows | Article slice: `search article --gene <gene>`; `use: search article --gene <gene>`. Its paging options belong to that slice. |
+| `gene pathways <symbol>` | `--limit` 1-25, `--offset` | Reactome and KEGG | The whole gene card with the pathways section | `get gene <input> pathways`; `use: get gene <gene> pathways`. Old `--limit` and `--offset` belong to pathway paging in the pathway slice; this section returns its bounded list. |
+| `gene cell-lines <symbol> --group G` | `--limit` 1-100, `--offset` | HPA cell line data | nTPM for each cell line in one cancer group | Cell line slice, including `--group`, `--limit` and `--offset`. `moved to the cell line entity`. |
+| `gene cspec <symbol>` | `--version`, `--capture-id`, `--files`, `--offset`, `--limit`, `document <capture-id>` | ClinGen CSpec registry | Variant interpretation criteria specifications | Variant slice, including `--version`, `--capture-id`, `--files`, `--offset`, `--limit` and `document`. `moved to the variant entity`. |
+| MCP | the shared `search` and `get` tools and a separate `gene_cspec` tool | | | One `biomcp` tool takes the same argument array as the CLI. Separate `search`, `get` and `gene_cspec` tools are replaced. |
 
 ### Speed and size
 
@@ -298,7 +298,7 @@ Keyed: OncoKB runs only with the user's key, as section 7 says.
 
 ### How it was measured
 
-Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a scratch script built each 1.0 output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-24: the HGNC bundle and withdrawn file, MyGene.info, UniProt, CIViC, the ClinGen files, gnomAD, HPA and Reactome. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown. 0.9 `pathways` and `all` were not run, because they call KEGG. OncoKB was not called, because no key is configured.
+The original 1.0 design estimates below use bytes divided by 4. Before implementation, a scratch script built each proposed 1.0 output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-24: the HGNC bundle and withdrawn file, MyGene.info, UniProt, CIViC, the ClinGen files, gnomAD, HPA and Reactome. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown. 0.9 `pathways` and `all` were not run, because they call KEGG. OncoKB was not called, because no key is configured.
 
 "Facts" counts the facts a careful answer to the case needs, checked as exact text in each output: for KRAS these are the HGNC ID, band, Entrez ID, Ensembl ID, previous symbol KRAS2, MANE RefSeq, UniProt accession, GRCh38 start, GRCh37 start and the RefSeq summary date.
 
@@ -320,44 +320,46 @@ Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a 
 
 ### Token table, 1.0 against 0.9.3
 
-| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | 1.0 tokens | 1.0 facts |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `get gene KRAS` | 10 | 1056 | 4 | 406 | 4 | 392 | 10 |
-| `get gene HER2` | 6 | 1060 | 2 | 406 | 2 | 521 | 6 |
-| `get gene MLL` | 5 | 1055 | 1 | 405 | 1 | 503 | 5 |
-| `get gene FAM46C` | 4 | 990 | 1 | 354 | 1 | 303 | 4 |
-| `get gene BRAF` | 7 | 1062 | 1 | 411 | 1 | 457 | 7 |
-| `get gene HGNC:1097` | 3 | 54 (error) | 1 | 28 (error) | 1 | 460 | 3 |
-| `get gene MLL2` (ambiguous) | 5 | 238 | 4 | 61 | 4 | 154 | 5 |
-| `get gene p16` (ambiguous) | 4 | 241 | 2 | 66 | 2 | 150 | 4 |
-| `get gene BRCA3` (withdrawn) | 2 | 194 | 0 | 57 | 0 | 58 | 2 |
-| `get gene NOTAGENE` | 1 | 44 | 1 | 20 | 0 | 41 | 1 |
-| `search gene p16` | 3 | 602 | 2 | 240 | 2 | 130 | 3 |
-| `search gene KRAS` | 3 | 163 | 1 | 105 | 1 | 88 | 3 |
-| `get gene CDKN2A protein` | 2 | 1332 | 1 | 364 | 1 | 1133 | 2 |
-| `get gene MIR21 protein constraint` | 3, and no wrong protein | 1529 (orangutan PARN) | 0 | 591 | 0 | 516 | 3 |
-| `get gene VISTA civic` | 3 | 1096 | 1 | 229 | 1 | 407 | 3 |
-| `get gene ERBB2 civic` | 4 | 2689 | 0 | 280 | 0 | 735 | 4 |
-| `get gene TP53 constraint clingen` | 6 | 1401 | 5 | 404 | 5 | 585 | 6 |
-| `get gene CLDN18 expression` (0.9 `hpa`) | 5 | 2158 | 4 | 679 | 4 | 572 | 5 |
-| Lynch, five genes with `clingen` (0.9: five calls) | 7 | 6651 | 2 | 1965 | 2 | 2901 | 7 |
-| `search gene --band 9p21.3`, first 10 of 65 | 3 | no 0.9 command | | | | 464 | 2 on page 1, 3 in the walk |
+| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | 1.0 tokens | 1.0 facts | 1.0 shipped |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `get gene KRAS` | 10 | 1056 | 4 | 406 | 4 | 392 | 10 | 438 |
+| `get gene HER2` | 6 | 1060 | 2 | 406 | 2 | 521 | 6 | 567 |
+| `get gene MLL` | 5 | 1055 | 1 | 405 | 1 | 503 | 5 | 577 |
+| `get gene FAM46C` | 4 | 990 | 1 | 354 | 1 | 303 | 4 | 354 |
+| `get gene BRAF` | 7 | 1062 | 1 | 411 | 1 | 457 | 7 | 508 |
+| `get gene HGNC:1097` | 3 | 54 (error) | 1 | 28 (error) | 1 | 460 | 3 | 512 |
+| `get gene MLL2` (ambiguous) | 5 | 238 | 4 | 61 | 4 | 154 | 5 | 187 |
+| `get gene p16` (ambiguous) | 4 | 241 | 2 | 66 | 2 | 150 | 4 | 184 |
+| `get gene BRCA3` (withdrawn) | 2 | 194 | 0 | 57 | 0 | 58 | 2 | 77 |
+| `get gene NOTAGENE` | 1 | 44 | 1 | 20 | 0 | 41 | 1 | 55 |
+| `search gene p16` | 3 | 602 | 2 | 240 | 2 | 130 | 3 | 163 |
+| `search gene KRAS` | 3 | 163 | 1 | 105 | 1 | 88 | 3 | 116 |
+| `get gene CDKN2A protein` | 2 | 1332 | 1 | 364 | 1 | 1133 | 2 | 1,187 |
+| `get gene MIR21 protein constraint` | 3, and no wrong protein | 1529 (orangutan PARN) | 0 | 591 | 0 | 516 | 3 | not measured in this section order; `constraint protein`: 584 |
+| `get gene VISTA civic` | 3 | 1096 | 1 | 229 | 1 | 407 | 3 | 451 |
+| `get gene ERBB2 civic` | 4 | 2689 | 0 | 280 | 0 | 735 | 4 | 780 |
+| `get gene TP53 constraint clingen` | 6 | 1401 | 5 | 404 | 5 | 585 | 6 | 719 |
+| `get gene CLDN18 expression` (0.9 `hpa`) | 5 | 2158 | 4 | 679 | 4 | 572 | 5 | 620 |
+| Lynch, five genes with `clingen` (0.9: five calls) | 7 | 6651 | 2 | 1965 | 2 | 2901 | 7 | 3,659 |
+| `search gene --band 9p21.3`, first 10 of 65 | 3 | no 0.9 command | | | | 464 | 2 on page 1, 3 in the walk | 540 |
 
-Section cost on BRAF, as tokens added to the default card:
+Shipped values above come from the recorded cases on 2026-10-24, using the runner's compact UTF-8 JSON size rounded up after division by four. They measure the whole response, including its envelope and `next`. The design estimates remain historical. `protein-mir21.yaml` requests the same two sections in the order `constraint protein`; its size is measured separately from the unrecorded table spelling.
 
-| Section | 1.0 | 0.9 JSON added | 0.9 Markdown section |
-| --- | --- | --- | --- |
-| `constraint` | 48 | 110 | 249 |
-| `expression` (0.9 `hpa`) | 83 | 1081 | 590 |
-| `protein` | 155 | 219 | 370 |
-| `clingen` | 229 | 323 | 401 |
-| `pathways` | 305 | not run (KEGG) | not run |
-| `civic` | 468 | 1975 | 310 |
-| `oncokb` | about 400, estimated | none | none |
+Section cost on BRAF, as tokens added to the proposed default card:
 
-BRAF default card by part: summary 845 bytes, identifiers and names 520, spans on two builds 213, the `next` step 118, envelope 79, MANE 54. Two trims are already in: NCBI-only aliases are used for matching and not printed (saves 85 tokens on KRAS), and `next` is one step with a section list instead of six commands (saves about 45 tokens per card).
+| Section | 1.0 | 0.9 JSON added | 0.9 Markdown section | 1.0 shipped |
+| --- | --- | --- | --- | --- |
+| `constraint` | 48 | 110 | 249 | BRAF not recorded; TP53 section: 56 |
+| `expression` (0.9 `hpa`) | 83 | 1081 | 590 | BRAF not recorded; CLDN18 section: 108 |
+| `protein` | 155 | 219 | 370 | BRAF not recorded; CDKN2A two-protein section: 547 |
+| `clingen` | 229 | 323 | 401 | BRAF not recorded; TP53 section: 148; Lynch sections: 243–337 |
+| `pathways` | 305 | not run (KEGG) | not run | BRAF section: 295 |
+| `civic` | 468 | 1975 | 310 | BRAF not recorded; ERBB2 section: 198 |
+| `oncokb` | about 400, estimated | none | none | Real key not measured; synthetic TP53 section: 65 (shape only) |
 
-### Where 1.0 costs more, and why
+Original BRAF design estimate by part: summary 845 bytes, identifiers and names 520, spans on two builds 213, the `next` step 118, envelope 79, MANE 54. Two trims are already in: NCBI-only aliases are used for matching and not printed (saves 85 tokens on KRAS), and `next` is one step with a section list instead of six commands (saves about 45 tokens per card).
+
+### Where the original 1.0 design cost more, and why
 
 - **Against 0.9 Markdown on HER2, MLL and BRAF cards** (521, 503 and 457 against about 406). 1.0 carries every needed fact (6, 5 and 7) where 0.9 carries 2, 1 and 1. The extra cost is the full summary Ian ruled in, both builds, the MANE pair and the match kind. JSON is the default output, and against 0.9 JSON every 1.0 card is 50 to 70% smaller.
 - **`get gene HGNC:1097`** (460 against 54). 0.9 refuses the ID with an error; 1.0 returns the card.
@@ -367,7 +369,9 @@ BRAF default card by part: summary 845 bytes, identifiers and names 520, spans o
 
 ### Budget
 
-The cases in section 8 enforce a byte ceiling on each output, set at about 1.5 times the measured size so that upstream summary edits do not fail them and real growth does. Per-command budgets: a search header 60 tokens, a default card 650 tokens, `constraint` 100, `expression` 150, `protein` 400 per protein, `clingen` 600, `pathways` 600, `civic` 1,000, `oncokb` 700, an ambiguous result 60 tokens per candidate, a withdrawn or not-found result 100.
+The cases in section 8 enforce a byte ceiling on each output, set at about 1.5 times the measured size so that upstream summary edits do not fail them and real growth does. The shipped cases enforce section budgets on each section object, including its state and source; the search and ambiguity budgets apply to individual headers, while the default-card budget applies to each single-card response. Per-command budgets: a search header 60 tokens, a default card 650 tokens, `constraint` 100, `expression` 150, `protein` 400 per protein, `clingen` 600, `pathways` 600, `civic` 1,000, `oncokb` 700, an ambiguous result 60 tokens per candidate, a withdrawn or not-found result 100.
+
+The section ceilings appear in `constraint.yaml`, `expression-cldn18.yaml`, `protein-data.yaml` (two proteins), `clingen-validity.yaml` (each gene), `pathways-data.yaml`, `civic-data.yaml` and `oncokb-data.yaml` under `tests/cases/gene/sections/`. The OncoKB case uses invented text and proves the wire shape and ceiling only. A key holder must still verify the real-key case outside the repo; no licensed-content token result is claimed. Shipped measurements for a BRAF section without a recorded BRAF case remain unmeasured.
 
 ## 7. Keyed sources
 
