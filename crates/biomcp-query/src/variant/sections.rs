@@ -78,11 +78,30 @@ pub(super) fn apply(
                 S::Hotspots => {
                     sections.hotspots = Some(pending(Source::CancerHotspots, &mut sources))
                 }
-                S::Predict => sections.predict = Some(pending(Source::MyVariant, &mut sources)),
-                S::Conservation => {
-                    sections.conservation = Some(pending(Source::MyVariant, &mut sources))
+                S::Predict => {
+                    sections.predict = Some(retain(
+                        super::predict::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
                 }
-                S::Cosmic => sections.cosmic = Some(pending(Source::MyVariant, &mut sources)),
+                S::Conservation => {
+                    sections.conservation = Some(retain(
+                        super::conservation::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
+                S::Cosmic => {
+                    sections.cosmic = Some(retain(
+                        super::cosmic::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 S::Oncokb => {
                     sections.oncokb = Some(retain(
                         super::oncokb::section(cx, query, candidates, deadline),
@@ -91,6 +110,7 @@ pub(super) fn apply(
                         &mut local,
                     ))
                 }
+
                 S::All => {}
                 _ => {}
             }

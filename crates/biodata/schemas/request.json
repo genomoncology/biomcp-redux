@@ -498,62 +498,6 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read source ancestry observations.",
-      "properties": {
-        "build": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Build"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Explicit source assembly when required by identity input."
-        },
-        "command": {
-          "const": "variant_population",
-          "type": "string"
-        },
-        "detail": {
-          "default": false,
-          "description": "Read source ancestry groups, preserving overlapping groups individually.",
-          "type": "boolean"
-        },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Exact published allele identity; ambiguous candidates must first be selected.",
-          "x-positional": 0
-        },
-        "limit": {
-          "default": 10,
-          "description": "Maximum rows per page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Native rows to skip.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "resolver": {
-          "$ref": "#/$defs/VariantResolver",
-          "default": "car",
-          "description": "Resolver for reference-qualified input."
-        }
-      },
-      "required": [
-        "command",
-        "input"
-      ],
-      "type": "object"
-    },
-    {
-      "additionalProperties": false,
       "description": "Save an exact registry document to an explicit destination.",
       "properties": {
         "command": {
