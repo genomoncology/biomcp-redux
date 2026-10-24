@@ -50,7 +50,7 @@ pub struct Constraint {
 pub struct FiniteNumberError;
 impl std::fmt::Display for FiniteNumberError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("number.non_finite")
+        f.write_str(crate::Error::NumberNonFinite.code())
     }
 }
 impl std::error::Error for FiniteNumberError {}

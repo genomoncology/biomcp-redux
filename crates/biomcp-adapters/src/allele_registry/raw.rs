@@ -35,6 +35,7 @@ pub(super) struct Clinvar {
 }
 #[derive(Deserialize)]
 pub(super) struct Genomic {
+    pub chromosome: Option<Text>,
     #[serde(rename = "referenceGenome")]
     pub assembly: Option<Text>,
     pub hgvs: Vec<Text>,

@@ -19,7 +19,8 @@ fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":["civic","hotspots"]});
+    let disabled = unrelated_sources();
+    let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":disabled});
     env.config(&config).map_err(|e| e.to_string())?;
     for id in ["rs113488022", "CA123643"] {
         let args = args(id)?;
@@ -53,7 +54,7 @@ fn run() -> Result<(), String> {
                         && s.get("args")
                             == Some(&json!([
                                 "--disable-sources",
-                                "civic,hotspots",
+                                disabled.join(","),
                                 "help",
                                 "get",
                                 "variant"
@@ -112,4 +113,14 @@ fn reply(request: &str) -> Result<String, String> {
         return Ok(json!({"total":1,"hits":[{"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}}}]}).to_string());
     }
     oncokb::reply(request)
+}
+
+fn unrelated_sources() -> Vec<String> {
+    use biodata::Source;
+    let allowed = [Source::MyVariant, Source::AlleleRegistry, Source::Oncokb];
+    biomcp_adapters::registry::SOURCES
+        .iter()
+        .filter(|spec| !allowed.contains(&spec.source))
+        .map(|spec| spec.source.to_string())
+        .collect()
 }

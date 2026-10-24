@@ -97,7 +97,18 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             .as_str()
             .parse::<biodata::HgvsText>()
             .and_then(|h| h.accession());
-        let allele = if g.coordinates.len() == 1 {
+        let agrees = g.chromosome.as_ref().is_none_or(|given| {
+            build
+                .zip(sequence.as_ref().ok())
+                .is_some_and(|(build, accession)| {
+                    biodata::Chromosome::from_accession(*accession, build)
+                        .is_ok_and(|chromosome| chromosome.name() == given.as_str())
+                })
+        });
+        if !agrees {
+            problems.push(problem(record, "representations.chromosome"));
+        }
+        let allele = if agrees && g.coordinates.len() == 1 {
             g.coordinates.first().and_then(|c| {
                 Allele::new(
                     SequenceLocation {

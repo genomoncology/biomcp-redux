@@ -19,3 +19,6 @@ pub use notation::{Expression, ExpressionSyntax, HgvsText};
 
 mod statement;
 pub use statement::*;
+
+mod population;
+pub use population::{PopulationDataType, PopulationFrequency, PopulationSex};

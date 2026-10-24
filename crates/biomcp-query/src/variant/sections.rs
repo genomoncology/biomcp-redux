@@ -23,6 +23,8 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
+            VariantSection::Population,
+            VariantSection::Gwas,
             VariantSection::Civic,
             VariantSection::Hotspots,
             VariantSection::Oncokb,
@@ -33,37 +35,36 @@ pub(super) fn apply(
                 continue;
             }
             let candidates = std::slice::from_ref(&*candidate);
+            macro_rules! attach {
+                ($field:ident, $read:expr) => {
+                    sections.$field = Some(retain(
+                        permitted(cx, section, || $read),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                };
+            }
             match section {
-                VariantSection::Civic => {
-                    sections.civic = Some(retain(
-                        permitted(cx, section, || {
-                            super::civic::section(cx, query, candidates, deadline)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
+                VariantSection::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Gwas => {
+                    attach!(gwas, super::gwas::section(cx, query, candidates, deadline))
                 }
-                VariantSection::Hotspots => {
-                    sections.hotspots = Some(retain(
-                        permitted(cx, section, || {
-                            super::hotspots::section(cx, query, candidates, deadline)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                VariantSection::Oncokb => {
-                    sections.oncokb = Some(retain(
-                        permitted(cx, section, || {
-                            super::oncokb::section(cx, query, candidates, deadline)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ));
-                }
+                VariantSection::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, deadline)
+                ),
                 _ => {}
             }
         }
@@ -75,6 +76,8 @@ pub(super) fn apply(
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
+        VariantSection::Population => Some(Source::Gnomad),
+        VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
         VariantSection::Oncokb => Some(Source::Oncokb),
         VariantSection::Hotspots => Some(Source::CancerHotspots),

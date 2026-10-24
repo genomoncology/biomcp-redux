@@ -24,6 +24,7 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     }
     match (query.input().namespace().ok()?, section) {
         (VariantNamespace::Ca, S::Civic) => Some(source),
+        (VariantNamespace::Rs, S::Gwas) => Some(source),
         _ => None,
     }
 }

@@ -2,6 +2,13 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A shared numeric value violates its bounds.
+    PopulationCountExceedsNumber,
+    /// A shared numeric value violates its bounds.
+    PopulationFrequencyRange,
+    /// A shared numeric value violates its bounds.
+    NumberNonFinite,
+
     /// A subject reference lacks its source identity or notation.
     VariantRefInvalid,
     /// A concept identifier lacks a checked prefix or local part.
@@ -140,6 +147,10 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::PopulationCountExceedsNumber => "population.count.exceeds_number",
+            Self::PopulationFrequencyRange => "population.frequency.range",
+            Self::NumberNonFinite => "number.value.non_finite",
+
             Self::VariantRefInvalid => "variant.reference.invalid",
             Self::CurieInvalid => "concept.curie.invalid",
             Self::AccessionDigitsWidth => "accession.digits.width",

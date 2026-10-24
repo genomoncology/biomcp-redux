@@ -47,3 +47,6 @@ pub(crate) use protein_change::ProteinQuery;
 pub use protein_change::protein_query_forms;
 mod variant_search;
 pub use variant_search::{MyVariantQuery, VariantRegion, VariantSearch, VariantSearchSource};
+
+mod variant_population;
+pub use variant_population::VariantPopulationQuery;
