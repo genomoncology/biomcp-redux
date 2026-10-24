@@ -7,7 +7,8 @@ const INLINE_TESTS: &[&str] = &[
     "crates/biomcp-fetch/src/xml.rs",
 ];
 // New exceptions require a reviewed path and reason here.
-const EXCEPTIONS: &[(&str, &str)] = &[(
+const EXCEPTIONS: &[(&str, &str)] = &[
+    ("crates/biomcp/src/config.rs", "Read process arguments at the command boundary"),(
     "crates/biomcp-fetch/src/quota.rs",
     "Shared transport quota state and FIFO waits",
 )];
