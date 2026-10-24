@@ -71,7 +71,11 @@ pub(super) fn check(root: &Path) -> Check {
         {
             return Err(format!("{}: workspace lint inheritance required", path.display()).into());
         }
-        let build_only: &[&str] = if *name == "biomcp" { &["serde-saphyr"] } else { &[] };
+        let build_only: &[&str] = if *name == "biomcp" {
+            &["serde-saphyr"]
+        } else {
+            &[]
+        };
         check_tables(&manifest, &workspace, allowed, build_only, &path)?;
         if let Some(targets) = manifest.get("target").and_then(Value::as_table) {
             for target in targets.values() {
@@ -82,12 +86,20 @@ pub(super) fn check(root: &Path) -> Check {
     Ok(())
 }
 
-fn check_tables(manifest: &Value, workspace: &Value, allowed: &[&str], build_only: &[&str], path: &Path) -> Check {
+fn check_tables(
+    manifest: &Value,
+    workspace: &Value,
+    allowed: &[&str],
+    build_only: &[&str],
+    path: &Path,
+) -> Check {
     for kind in ["dependencies", "build-dependencies"] {
         if let Some(deps) = manifest.get(kind).and_then(Value::as_table) {
             for (alias, spec) in deps {
                 let package = package(alias, spec, workspace)?;
-                if !allowed.contains(&package) && !(kind == "build-dependencies" && build_only.contains(&package)) {
+                if !(allowed.contains(&package)
+                    || kind == "build-dependencies" && build_only.contains(&package))
+                {
                     return Err(format!(
                         "{}: forbidden {kind} dependency {alias} ({package})",
                         path.display()

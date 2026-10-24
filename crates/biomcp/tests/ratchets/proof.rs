@@ -31,11 +31,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
     check(valid.path())?;
     let cases = [
         (
-            "crates/biomcp/Cargo.toml",
-            "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
-            "forbidden dependencies dependency",
-        ),
-        (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nureq='3'\n",
             "forbidden dependencies dependency",
@@ -164,4 +159,13 @@ fn static_quota_references_are_not_quota_declarations() -> Check {
         "quota declarations",
     )?;
     Ok(())
+}
+
+#[test]
+fn case_parser_stays_outside_runtime_dependencies() -> Check {
+    rejects(
+        "crates/biomcp/Cargo.toml",
+        "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
+        "forbidden dependencies dependency",
+    )
 }
