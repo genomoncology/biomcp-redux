@@ -224,7 +224,8 @@ fn old_version(version: u32) -> Check {
     })?;
     let db = fetch.cache_access()?.connect()?;
     use sha2::{Digest, Sha256};
-    let old_key = Sha256::digest(format!("biomcp.trial_snapshot/{version}\0NCT03734029").as_bytes()).to_vec();
+    let old_key =
+        Sha256::digest(format!("biomcp.trial_snapshot/{version}\0NCT03734029").as_bytes()).to_vec();
     db.execute(
         "UPDATE trial_snapshot SET request_key=?1,payload='[\"old positional snapshot\"]'",
         [old_key],
