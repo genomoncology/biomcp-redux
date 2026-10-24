@@ -1,6 +1,7 @@
 # 0066 — Finish installed platform and HTTP proof from landed main
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fe3b52274b32172579c38b3fdd72b9aa62208174
 
 Milestone: 1
 

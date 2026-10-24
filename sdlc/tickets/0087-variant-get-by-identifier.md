@@ -1,6 +1,7 @@
 # 0087 — Get variants by rsID, CAid, ClinVar ID or HGVS with a compact card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a6e509948b15c0193f7d1bf56f0308e2304dd539
 
 Milestone: 2
 
