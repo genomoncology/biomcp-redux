@@ -37,11 +37,14 @@ struct Message {
     code: Text,
 }
 impl Normalized {
-    fn errors(&self) -> &[Message] { self.errors.as_deref().unwrap_or(&[]) }
+    fn errors(&self) -> &[Message] {
+        self.errors.as_deref().unwrap_or(&[])
+    }
 }
 impl Reply for Normalized {
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if (200..300).contains(&status) || matches!(status, 400 | 422) && !self.errors().is_empty() {
+        if (200..300).contains(&status) || matches!(status, 400 | 422) && !self.errors().is_empty()
+        {
             Ok(())
         } else {
             Err(BadReply)

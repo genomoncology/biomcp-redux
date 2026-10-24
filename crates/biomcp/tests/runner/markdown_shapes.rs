@@ -22,7 +22,7 @@ const SHAPES: &[Shape] = &[
         required: &[
             "# BRAF",
             "**status:**",
-            "| Build | Contig | End | Start | Strand |",
+            "| Build | Chromosome | End | Start | Strand |",
             "biomcp get gene HGNC:1097",
         ],
         max_bytes: 2382,
