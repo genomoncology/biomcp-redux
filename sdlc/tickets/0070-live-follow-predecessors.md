@@ -1,6 +1,7 @@
 # 0070 — Handle skipped predecessors in live follow commands
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 092c27944a1f10ea69458a62aea92ed9152531dd
 
 Milestone: 1
 
