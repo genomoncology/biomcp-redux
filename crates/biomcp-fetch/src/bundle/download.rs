@@ -173,7 +173,7 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
-            let response = self.wire_call(&prepared, "text/tab-separated-values", &headers);
+            let response = self.wire_call(&prepared, b.format.media(), &headers);
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
@@ -255,6 +255,9 @@ impl Leg<'_> {
     ) -> Result<BundleInfo, RequestError> {
         let status = response.status().as_u16();
         self.validate_range(t, response)?;
+        if matches!(b.format, super::RowFormat::Csv { .. }) {
+            t.part.etag = None;
+        }
         self.stream(t, response)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
@@ -281,7 +284,7 @@ impl Leg<'_> {
         if matches!(self.fetch.config.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 status: 200,
-                content_type: "text/tab-separated-values".into(),
+                content_type: b.format.media().into(),
                 delay_ms: crate::record::millis(t.started.elapsed())
                     .map_err(RequestError::Recording)?,
                 retry_after_ms: None,

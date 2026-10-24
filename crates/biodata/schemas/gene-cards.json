@@ -9,6 +9,100 @@
       ],
       "type": "string"
     },
+    "ClinGenGene": {
+      "additionalProperties": false,
+      "description": "ClinGen gene validity and dosage assessments in published source order.",
+      "properties": {
+        "dosage_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source dosage assessment date, preserving its original spelling."
+        },
+        "haploinsufficiency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source haploinsufficiency assessment, when a dosage record exists."
+        },
+        "triplosensitivity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source triplosensitivity assessment, when a dosage record exists."
+        },
+        "validity": {
+          "description": "Whole gene–disease validity records in file order.",
+          "items": {
+            "$ref": "#/$defs/ClinGenValidity"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "validity"
+      ],
+      "type": "object"
+    },
+    "ClinGenValidity": {
+      "additionalProperties": false,
+      "description": "One published ClinGen gene–disease validity record.",
+      "properties": {
+        "classification": {
+          "$ref": "#/$defs/Text",
+          "description": "Source classification without inference."
+        },
+        "classification_date": {
+          "$ref": "#/$defs/Text",
+          "description": "Source classification date, preserving its original spelling."
+        },
+        "disease": {
+          "$ref": "#/$defs/Text",
+          "description": "Source disease label."
+        },
+        "expert_panel": {
+          "$ref": "#/$defs/Text",
+          "description": "Source expert panel."
+        },
+        "mode_of_inheritance": {
+          "$ref": "#/$defs/Text",
+          "description": "Source mode of inheritance."
+        },
+        "mondo_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source MONDO identifier."
+        },
+        "report_url": {
+          "$ref": "#/$defs/Text",
+          "description": "Source report URL."
+        }
+      },
+      "required": [
+        "disease",
+        "mondo_id",
+        "mode_of_inheritance",
+        "classification",
+        "classification_date",
+        "expert_panel",
+        "report_url"
+      ],
+      "type": "object"
+    },
     "Constraint": {
       "additionalProperties": false,
       "description": "Source constraint metrics for the source's preferred transcript.",
@@ -483,7 +577,8 @@
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
       "enum": [
-        "constraint"
+        "constraint",
+        "clingen"
       ],
       "type": "string"
     },
@@ -491,6 +586,7 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "constraint",
+        "clingen",
         "all"
       ],
       "type": "string"
@@ -499,6 +595,17 @@
       "additionalProperties": false,
       "description": "Landed gene sections, each retaining its source and explicit state.",
       "properties": {
+        "clingen": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinGen validity and dosage assessments."
+        },
         "constraint": {
           "anyOf": [
             {
@@ -884,12 +991,134 @@
         }
       ]
     },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ClinGenGene",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
         "hgnc",
         "mygene",
         "gnomad",
+        "clingen",
         "pubmed",
         "europepmc",
         "pubtator",

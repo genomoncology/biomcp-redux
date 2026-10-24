@@ -38,6 +38,14 @@ pub enum RowFormat {
         banner_lines: usize,
     },
 }
+impl RowFormat {
+    fn media(self) -> &'static str {
+        match self {
+            Self::Tsv => "text/tab-separated-values",
+            Self::Csv { .. } => "text/csv",
+        }
+    }
+}
 /// Searchable keys produced by a decoded row.
 #[derive(Debug)]
 pub struct Keys {

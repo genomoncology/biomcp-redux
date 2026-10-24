@@ -275,6 +275,7 @@
         "hgnc",
         "mygene",
         "gnomad",
+        "clingen",
         "pubmed",
         "europepmc",
         "pubtator",
