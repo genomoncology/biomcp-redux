@@ -1,6 +1,6 @@
 //! Bounded scoped callbacks with one persistent replay clock per worker.
 use crate::{Leg, RequestError};
-use biodata::Reason;
+use biomcp_types::Reason;
 use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
 
 /// Maximum scoped workers per outer batch; provider quota admission is independent.

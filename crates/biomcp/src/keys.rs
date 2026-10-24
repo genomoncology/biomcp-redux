@@ -50,15 +50,15 @@ pub(crate) fn run(
 ) -> io::Result<crate::command::Outcome> {
     match run_inner(command, globals) {
         Ok(value) => crate::command::encode(
-            biodata::Envelope::new(biodata::Status::Complete, (), Some(value)),
+            biomcp_types::Envelope::new(biomcp_types::Status::Complete, (), Some(value)),
             crate::exit::Status::Success,
         ),
         Err(Failure::Usage) => crate::command::encode(
-            biodata::ErrorEnvelope::arguments(),
+            biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
         Err(Failure::Local) => {
-            crate::command::encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local)
+            crate::command::encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local)
         }
     }
 }
@@ -74,7 +74,7 @@ impl From<io::Error> for Failure {
 fn run_inner(
     command: Command,
     globals: &crate::grammar::Globals,
-) -> Result<biodata::RegisteredKeys, Failure> {
+) -> Result<biomcp_types::RegisteredKeys, Failure> {
     let path = crate::config::config_path(globals.config.as_ref()).ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
     if path.exists() {
@@ -82,7 +82,7 @@ fn run_inner(
     }
     if matches!(command, Command::List) {
         let value = crate::config::key_file::read(&path)?;
-        return Ok(biodata::RegisteredKeys {
+        return Ok(biomcp_types::RegisteredKeys {
             entries: SecretName::ALL
                 .iter()
                 .map(|&name| entry(name, state(&value, name)))
@@ -105,18 +105,18 @@ fn run_inner(
             keys.as_object_mut()
                 .ok_or(Failure::Local)?
                 .insert(name.config().into(), Value::String(key));
-            (name, biodata::KeyState::Stored)
+            (name, biomcp_types::KeyState::Stored)
         }
         Command::Remove(name) => {
             if let Some(keys) = value.get_mut("keys").and_then(Value::as_object_mut) {
                 keys.remove(name.config());
             }
-            (name, biodata::KeyState::None)
+            (name, biomcp_types::KeyState::None)
         }
         Command::List => return Err(Failure::Local),
     };
     crate::config::key_file::write(&path, &value)?;
-    Ok(biodata::RegisteredKeys {
+    Ok(biomcp_types::RegisteredKeys {
         entries: vec![entry(name, status)?],
     })
 }
@@ -127,18 +127,18 @@ fn stored(value: &Value, name: SecretName) -> Option<&str> {
         .as_str()
         .filter(|s| !s.is_empty())
 }
-fn state(value: &Value, name: SecretName) -> biodata::KeyState {
+fn state(value: &Value, name: SecretName) -> biomcp_types::KeyState {
     if stored(value, name).is_some() {
-        biodata::KeyState::Stored
+        biomcp_types::KeyState::Stored
     } else if crate::config::has_environment_key(name) {
-        biodata::KeyState::Environment
+        biomcp_types::KeyState::Environment
     } else {
-        biodata::KeyState::None
+        biomcp_types::KeyState::None
     }
 }
-fn entry(name: SecretName, state: biodata::KeyState) -> Result<biodata::RegisteredKey, Failure> {
+fn entry(name: SecretName, state: biomcp_types::KeyState) -> Result<biomcp_types::RegisteredKey, Failure> {
     let text = |s: String| biodata::Text::new(&s).map_err(|_| Failure::Local);
-    Ok(biodata::RegisteredKey {
+    Ok(biomcp_types::RegisteredKey {
         source: text(name.source().into())?,
         config: text(format!("keys.{}", name.config()))?,
         environment: text(name.environment().into())?,

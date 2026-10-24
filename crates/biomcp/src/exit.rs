@@ -27,12 +27,12 @@ pub(crate) fn finish(result: io::Result<()>, status: Status) -> ExitCode {
     }
 }
 
-impl From<biodata::Status> for Status {
-    fn from(status: biodata::Status) -> Self {
+impl From<biomcp_types::Status> for Status {
+    fn from(status: biomcp_types::Status) -> Self {
         match status {
-            biodata::Status::Complete | biodata::Status::Partial => Self::Success,
-            biodata::Status::Absent => Self::Absent,
-            biodata::Status::Failed => Self::Failed,
+            biomcp_types::Status::Complete | biomcp_types::Status::Partial => Self::Success,
+            biomcp_types::Status::Absent => Self::Absent,
+            biomcp_types::Status::Failed => Self::Failed,
         }
     }
 }

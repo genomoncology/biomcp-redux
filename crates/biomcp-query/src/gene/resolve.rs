@@ -1,6 +1,5 @@
-use biodata::{
-    Gene, GeneHeader, GeneInput, GeneResolution, LocusGroup, Match, MatchKind, Problem, Text,
-};
+use biodata::{Gene, GeneHeader, GeneInput, GeneResolution, LocusGroup, Match, MatchKind, Text};
+use biomcp_types::{Problem};
 use biomcp_adapters::{Mapped, hgnc};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use std::collections::BTreeMap;

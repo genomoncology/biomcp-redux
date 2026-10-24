@@ -2,7 +2,8 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Constraint, EnsemblGeneId, Source};
+use biodata::{EnsemblGeneId};
+use biomcp_types::{Constraint, Source};
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
@@ -11,7 +12,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
         url: "https://gnomad.broadinstitute.org/policies",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Gnomad,
     base: "https://gnomad.broadinstitute.org",
@@ -78,7 +79,7 @@ pub fn constraints(
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Gnomad,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

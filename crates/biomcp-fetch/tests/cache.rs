@@ -11,7 +11,7 @@
 #[path = "support/cache_process.rs"]
 mod cache_process;
 mod support;
-use biodata::Reason;
+use biomcp_types::Reason;
 use biomcp_fetch::{
     Arg, BadReply, CacheError, Credential, Endpoint, Fetch, FetchConfig, FetchError, Freshness,
     KeyPlace, KeyUse, Mode, Quota, Rate, Reply, RequestError, Secret, SecretName, SourceKey,

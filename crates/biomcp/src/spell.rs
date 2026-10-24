@@ -1,5 +1,6 @@
 //! Reverse the same embedded query schema used by the parser.
-use biodata::{Request, Step, StepKind};
+
+use biomcp_types::{Request, Step, StepKind};
 use biomcp_query::{Action, Bundle};
 use serde_json::Value;
 

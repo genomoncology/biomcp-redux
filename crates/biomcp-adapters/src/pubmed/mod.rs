@@ -6,7 +6,8 @@ pub use efetch::{FetchedArticle, fetch_articles, resolve_ids};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{ArticleHeader, ArticleSort, Pmid, Source, SourceNotice, Text};
+use biodata::{ArticleHeader, Pmid, Text};
+use biomcp_types::{ArticleSort, Source, SourceNotice};
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, Secret, SecretName,
     SourceSpec,
@@ -17,7 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in abstracts",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::PubMed,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",

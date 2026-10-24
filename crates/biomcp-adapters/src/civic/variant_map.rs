@@ -3,11 +3,8 @@ use super::{
     variant_claims, variant_raw as raw,
 };
 use crate::Mapped;
-use biodata::{
-    CivicClaimKind, CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement,
-    GeneSymbol, HgvsText, Problem, ProblemCode, Reason, Source, SourceRecord, Text, VariantCivic,
-    VariantGet, VariantRef,
-};
+use biodata::{GeneSymbol, HgvsText, Text, VariantRef};
+use biomcp_types::{CivicClaimKind, CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord, VariantCivic, VariantGet};
 use biomcp_fetch::RequestError;
 
 pub(super) fn page(

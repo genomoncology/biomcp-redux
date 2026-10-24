@@ -1,8 +1,7 @@
 use super::sources::ResultLeg;
 use crate::{Ctx, status};
-use biodata::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, NcbiGeneId, Reason, Source, Text,
-};
+use biodata::{NcbiGeneId, Text};
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Reason, Source};
 use biomcp_adapters::{litsense, pubtator};
 use biomcp_fetch::Deadline;
 /// Literal gene input and words remain separate from HGNC's resolved entity join.

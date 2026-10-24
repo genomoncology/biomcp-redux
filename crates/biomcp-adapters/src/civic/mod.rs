@@ -5,9 +5,8 @@ mod variant_claims;
 mod variant_map;
 mod variant_raw;
 use crate::{Mapped, quotas, raw::Field};
-use biodata::{
-    CivicGene, GeneSymbol, NcbiGeneId, Problem, ProblemCode, Section, Source, SourceRecord, Text,
-};
+use biodata::{GeneSymbol, NcbiGeneId, Text};
+use biomcp_types::{CivicGene, Problem, ProblemCode, Section, Source, SourceRecord};
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
@@ -17,7 +16,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
         url: "https://civicdb.org/releases/licensing",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Civic,
     base: "https://civicdb.org",
@@ -101,7 +100,7 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) 
             });
             Section::Unavailable {
                 source: Source::Civic,
-                reason: biodata::Reason::BadReply,
+                reason: biomcp_types::Reason::BadReply,
             }
         }
         Some(gene) => map(gene, &mut problems),
@@ -120,7 +119,7 @@ fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
     let Ok(url) = Text::new(&format!("https://civicdb.org{}", gene.link)) else {
         return Section::Unavailable {
             source: Source::Civic,
-            reason: biodata::Reason::BadReply,
+            reason: biomcp_types::Reason::BadReply,
         };
     };
     let description = match &gene.description {
@@ -145,7 +144,7 @@ fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
                     Err(_) => {
                         return Section::Unavailable {
                             source: Source::Civic,
-                            reason: biodata::Reason::BadReply,
+                            reason: biomcp_types::Reason::BadReply,
                         };
                     }
                 },
@@ -167,7 +166,7 @@ fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Civic,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

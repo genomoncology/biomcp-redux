@@ -1,5 +1,5 @@
 //! Accession grammar and display copied from the owning value module; no molecular parser.
-use crate::{Error, macros::text_value};
+use crate::{Error, text_value};
 use std::{fmt, str::FromStr};
 use winnow::{
     ModalResult, Parser,
@@ -37,7 +37,7 @@ pub enum Accession {
     },
 }
 
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// The RefSeq prefixes a variant description uses.
     RefSeqPrefix, AccessionInvalid {
     /// Published prefix.
@@ -62,7 +62,7 @@ crate::source::canonical_enum! {
     Xr => "XR_",
 }}
 
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// What an Ensembl accession names.
     EnsemblFeature, AccessionInvalid {
     /// Published prefix.

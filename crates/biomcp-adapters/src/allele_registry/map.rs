@@ -3,10 +3,8 @@ use super::{
     raw::{Allele as RawAllele, Genomic},
 };
 use crate::Mapped;
-use biodata::{
-    Allele, Build, Expression, Problem, ProblemCode, Representation, SequenceLocation, Source,
-    SourceRecord, Span0, Text, Variant, VariantHeader, VariantId,
-};
+use biodata::{Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId};
+use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
 pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadReply> {
     if let Some(error) = raw.error_type {
         return Ok(Resolution::Rejected(error));
@@ -49,7 +47,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
                 for form in [forms.ensembl, forms.refseq].into_iter().flatten() {
                     match Expression::hgvs(form.hgvs) {
                         Ok(expression) => representations.push(Representation {
-                            source: Source::AlleleRegistry,
+                            source: Source::AlleleRegistry.text(),
                             expression,
                             build: None,
                             allele: None,
@@ -128,7 +126,7 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
             problems.push(problem(record, "representations.allele"));
         }
         out.push(Representation {
-            source: Source::AlleleRegistry,
+            source: Source::AlleleRegistry.text(),
             expression,
             build,
             allele,

@@ -1,9 +1,7 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    GeneCards, GeneGet, GeneItem, GeneResolution, Problem, ProblemCode, QueryBody, Source,
-    SourceState, Status, Text,
-};
+use biodata::{GeneResolution, Text};
+use biomcp_types::{GeneCards, GeneGet, GeneItem, Problem, ProblemCode, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::{hgnc, mygene};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
@@ -157,7 +155,7 @@ fn mygene_join(
     items: &mut [GeneItem],
     batches: Vec<mygene::GeneBatch>,
     report: biomcp_fetch::LegReport,
-    sources: &mut Vec<biodata::SourceOutcome>,
+    sources: &mut Vec<biomcp_types::SourceOutcome>,
     problems: &mut Vec<Problem>,
     local: &mut Option<biomcp_fetch::RequestError>,
 ) {

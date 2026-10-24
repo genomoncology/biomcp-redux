@@ -141,9 +141,9 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
         terms: biomcp_fetch::Terms {
             name: "Test terms",
             url: "https://example.test/terms",
-            usage: biodata::Use::Open,
+            usage: biomcp_types::Use::Open,
         },
-        source: biodata::Source::PubMed,
+        source: biomcp_types::Source::PubMed,
         base: "https://example.invalid",
         key: KeyUse::None,
         quota: Box::leak(Box::new(Quota::new(

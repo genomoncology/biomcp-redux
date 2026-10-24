@@ -1,9 +1,7 @@
 use super::next;
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    Gene, GeneHeader, GeneSearch, LocusGroup, Match, MatchKind, PageInfo, QueryBody, Source,
-    SourceState, Status, Text,
-};
+use biodata::{Gene, GeneHeader, LocusGroup, Match, MatchKind, Text};
+use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 
@@ -48,7 +46,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let next = next::search(query, &items, &page, &source);
     Outcome {
         status: state,
-        body: QueryBody::GenePage(biodata::GenePage {
+        body: QueryBody::GenePage(biomcp_types::GenePage {
             items: items.into(),
         }),
         page: Some(page),
@@ -61,7 +59,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
 fn collect(
     leg: &Leg<'_>,
     query: &GeneSearch,
-    problems: &mut Vec<biodata::Problem>,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<Vec<(u8, GeneHeader)>, RequestError> {
     let Some(text) = query.query() else {
         let rows = hgnc::in_band(leg, query.band().map_or("", |band| band.as_str()))?;

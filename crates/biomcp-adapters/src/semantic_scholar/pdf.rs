@@ -1,5 +1,6 @@
 //! The paper record supplies a link, never credentials for the publisher.
-use biodata::{ArticleInput, License, OpenAccessStatus};
+use biodata::{ArticleInput};
+use biomcp_types::{License, OpenAccessStatus};
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use serde::Deserialize;
 /// Source PDF-link fields with absence preserved.
@@ -66,11 +67,11 @@ pub fn pdf(leg: &Leg<'_>, input: &ArticleInput) -> Result<PdfRecord, RequestErro
 
 /// Credential-free publisher declaration, distinct from the optional-key API.
 pub static PUBLISHER: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
-    source: biodata::Source::SemanticScholar,
+    source: biomcp_types::Source::SemanticScholar,
     terms: biomcp_fetch::Terms {
         name: "Publisher PDF; article-specific source license",
         url: "https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     base: "",
     key: biomcp_fetch::KeyUse::None,

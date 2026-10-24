@@ -1,5 +1,5 @@
 use super::{LIMITS, Row, Sheet, check};
-use biodata::Reason;
+use biomcp_types::Reason;
 use biomcp_fetch::LocalDeadline;
 use calamine::Reader;
 use std::io::{Cursor, Read, Seek, SeekFrom};

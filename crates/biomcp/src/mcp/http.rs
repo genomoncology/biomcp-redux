@@ -216,7 +216,7 @@ impl Service {
         let value = biodata::Text::new(env!("CARGO_PKG_VERSION"))
             .ok()
             .and_then(|version| {
-                serde_json::to_value(biodata::HttpHealth {
+                serde_json::to_value(biomcp_types::HttpHealth {
                     version,
                     store: healthy,
                 })

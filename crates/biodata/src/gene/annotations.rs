@@ -1,7 +1,7 @@
 use super::SummarySource;
 use crate::{Accession, Error, PartialDate, Text};
 use serde::{Deserialize, Serialize};
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// The source-stated MANE transcript status.
     ManeStatus, ManeStatusUnknown {
         /// MANE Select transcript pair.

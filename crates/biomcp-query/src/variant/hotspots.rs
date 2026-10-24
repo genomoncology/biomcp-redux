@@ -1,8 +1,6 @@
 use crate::{Ctx, status};
-use biodata::{
-    PageInfo, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet,
-    VariantHeader, VariantHotspots,
-};
+
+use biomcp_types::{PageInfo, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader, VariantHotspots};
 use biomcp_fetch::{Deadline, RequestError};
 
 pub(super) fn section(
@@ -67,7 +65,7 @@ pub(super) fn section(
 
 fn disclose(
     query: &VariantGet,
-    rows: Vec<biodata::HotspotRecord>,
+    rows: Vec<biomcp_types::HotspotRecord>,
     error: Option<RequestError>,
     problems: &mut Vec<Problem>,
 ) -> Section<VariantHotspots> {

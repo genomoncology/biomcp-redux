@@ -4,16 +4,14 @@ use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
-use biodata::{
-    ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
-    Request, Source, Status, StepKind, Text,
-};
+use biodata::{Text};
+use biomcp_types::{ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody, Request, Source, Status, StepKind};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
     Search(&'a ArticleSearch),
-    Recommend(&'a biodata::ArticleRecommend),
+    Recommend(&'a biomcp_types::ArticleRecommend),
     Edges(&'a ArticleEdges, bool),
 }
 impl Cursor<'_> {
@@ -59,7 +57,7 @@ pub(super) fn read<'a>(
     if pool
         .sources
         .iter()
-        .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biodata::Reason::Disabled))
+        .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled))
     {
         out.sources = pool
             .sources
@@ -67,8 +65,8 @@ pub(super) fn read<'a>(
             .cloned()
             .map(|mut s| {
                 if cx.fetch.disabled(s.source) {
-                    s.state = biodata::SourceState::Skipped;
-                    s.reason = Some(biodata::Reason::Disabled);
+                    s.state = biomcp_types::SourceState::Skipped;
+                    s.reason = Some(biomcp_types::Reason::Disabled);
                     s.count = None;
                     s.fetched = None;
                 }
@@ -111,7 +109,7 @@ pub(super) fn read<'a>(
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
                 out.sources.push(source);
-                if !matches!(error, RequestError::Source(e) if e.reason == biodata::Reason::Disabled)
+                if !matches!(error, RequestError::Source(e) if e.reason == biomcp_types::Reason::Disabled)
                 {
                     out.status = Status::Failed;
                     query.retry(Some(pool.info.id.clone()), out);
@@ -134,7 +132,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     let stale = out
         .sources
         .iter()
-        .any(|s| s.state == biodata::SourceState::Stale);
+        .any(|s| s.state == biomcp_types::SourceState::Stale);
     let failed = sources::failed(&out.sources);
     let partial = stale
         || failed
@@ -165,7 +163,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
                 .is_some_and(|(count, fetched)| count > u64::from(fetched))
                 || s.notices
                     .iter()
-                    .any(|n| matches!(n, biodata::SourceNotice::GraphTruncated { .. }))
+                    .any(|n| matches!(n, biomcp_types::SourceNotice::GraphTruncated { .. }))
         })),
     });
     let items = rows.into_iter().map(|r| r.item).collect();
@@ -234,10 +232,10 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             item.pmid
                 .map(biodata::ArticleInput::Pmid)
                 .or_else(|| match item.key.as_ref() {
-                    Some(biodata::ArticleKey::Doi(id)) => {
+                    Some(biomcp_types::ArticleKey::Doi(id)) => {
                         Some(biodata::ArticleInput::Doi(id.clone()))
                     }
-                    Some(biodata::ArticleKey::Pmc(id)) => Some(biodata::ArticleInput::Pmcid(*id)),
+                    Some(biomcp_types::ArticleKey::Pmc(id)) => Some(biodata::ArticleInput::Pmcid(*id)),
                     _ => None,
                 });
         if let Some(input) = input {
@@ -249,7 +247,7 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             out.next.push((
                 StepKind::Disambiguate,
                 Action::Run {
-                    request: Request::ArticleEvidence(biodata::ArticleEvidence::new(citing, cited)),
+                    request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(citing, cited)),
                     fresh: false,
                 },
             ));
@@ -257,7 +255,7 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) = biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
+        && let Ok(query) = biomcp_types::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
     {
         out.next.push((
             StepKind::Disambiguate,

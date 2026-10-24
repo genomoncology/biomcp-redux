@@ -1,9 +1,7 @@
 //! Cheap publisher-link sections never download a file.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, QueryBody, Reason,
-    Request, Section, Source, Status, StepKind, Text,
-};
+use biodata::{ArticleInput, Text};
+use biomcp_types::{ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, QueryBody, Reason, Request, Section, Source, Status, StepKind};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 

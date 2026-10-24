@@ -2,7 +2,7 @@ use crate::record::{Body, Exchange};
 use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
-use biodata::Reason;
+use biomcp_types::Reason;
 use std::{
     io::Read,
     time::{Duration, Instant},

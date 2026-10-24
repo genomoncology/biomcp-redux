@@ -1,8 +1,7 @@
 //! Europe PMC owns preprint cards and document fetching; section dispatch stays shared.
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status,
-};
+use biodata::{ArticleInput};
+use biomcp_types::{ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status};
 use biomcp_adapters::europepmc;
 use biomcp_fetch::Deadline;
 pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
@@ -94,7 +93,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                     Source::EuropePmc,
                     match e {
                         biomcp_fetch::RequestError::Source(e) => e.reason,
-                        _ => biodata::Reason::Unavailable,
+                        _ => biomcp_types::Reason::Unavailable,
                     },
                 )
             }

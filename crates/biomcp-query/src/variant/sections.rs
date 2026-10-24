@@ -1,9 +1,7 @@
 //! Candidate-specific source sections under one command deadline.
 use crate::Ctx;
-use biodata::{
-    Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
-    VariantSection, VariantSections,
-};
+
+use biomcp_types::{Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantSection, VariantSections};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
     Section<T>,

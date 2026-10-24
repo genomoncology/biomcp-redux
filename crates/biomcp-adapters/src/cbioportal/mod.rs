@@ -1,6 +1,7 @@
 //! Bounded, explicit-cohort mutation observations; no inferred recurrence denominator.
 mod raw;
-use biodata::{NcbiGeneId, RecurrenceStudy, Source, VariantRecurrenceQuery};
+use biodata::{NcbiGeneId};
+use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 pub use raw::Mutation;
 use std::time::Duration;
@@ -14,7 +15,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "cBioPortal study-specific terms unverified; commercial restrictions may apply",
         url: "https://docs.cbioportal.org/user-guide/faq/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
 };
 /// Checked metadata for the exact caller-selected cohort.
@@ -146,7 +147,7 @@ fn sample_count(
     }
     Err(biomcp_fetch::SourceError {
         source: Source::Cbioportal,
-        reason: biodata::Reason::Unavailable,
+        reason: biomcp_types::Reason::Unavailable,
         status: None,
         retry_after: None,
     }

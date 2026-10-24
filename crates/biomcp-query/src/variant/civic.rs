@@ -1,7 +1,6 @@
 use crate::{Ctx, status};
-use biodata::{
-    Problem, Reason, Section, Source, SourceOutcome, VariantCivic, VariantGet, VariantHeader,
-};
+
+use biomcp_types::{Problem, Reason, Section, Source, SourceOutcome, VariantCivic, VariantGet, VariantHeader};
 use biomcp_fetch::{Deadline, RequestError};
 
 pub(super) fn section(

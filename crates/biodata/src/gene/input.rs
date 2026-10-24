@@ -1,4 +1,4 @@
-use crate::macros::text_value;
+use crate::text_value;
 use crate::{EnsemblGeneId, Error, HgncId, NcbiGeneId, Text};
 use std::{fmt, str::FromStr};
 

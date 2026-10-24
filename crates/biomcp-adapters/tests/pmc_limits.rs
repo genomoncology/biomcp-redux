@@ -1,5 +1,5 @@
 //! Confined native request identities with synthetic response-only boundary variants.
-use biodata::Reason;
+use biomcp_types::Reason;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, RequestError};
 use serde_json::Value;

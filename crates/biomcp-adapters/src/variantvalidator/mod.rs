@@ -1,6 +1,7 @@
 //! Explicit VariantValidator GET reads; warning envelopes never resolve identity.
 use crate::quotas;
-use biodata::{Build, Representation, Source, SourceRecord, Text, Variant, VariantHeader};
+use biodata::{Build, Representation, Text, Variant};
+use biomcp_types::{Source, SourceRecord, VariantHeader};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
@@ -12,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "VariantValidator service output terms require review",
         url: "https://variantvalidator.org/help/about/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::VariantValidator,
     base: "https://rest.variantvalidator.org/VariantValidator",
@@ -126,7 +127,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
         let key = Text::new(&v.hgvs_transcript_variant).map_err(|_| bad())?;
         let expression = biodata::Expression::hgvs(key.clone()).map_err(|_| bad())?;
         let mut representations = vec![Representation {
-            source: Source::VariantValidator,
+            source: Source::VariantValidator.text(),
             expression,
             build: None,
             allele: None,
@@ -140,7 +141,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
                 _ => None,
             };
             representations.push(Representation {
-                source: Source::VariantValidator,
+                source: Source::VariantValidator.text(),
                 expression,
                 build: source_build,
                 allele: None,
@@ -168,7 +169,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::VariantValidator,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

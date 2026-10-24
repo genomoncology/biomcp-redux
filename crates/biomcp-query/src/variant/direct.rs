@@ -1,9 +1,7 @@
 //! Checked caller IDs can select one source without making an allele-identity claim.
 use crate::{Ctx, Outcome};
-use biodata::{
-    QueryBody, Source, Status, Variant, VariantCard, VariantGet, VariantHeader, VariantNamespace,
-    VariantResolution, VariantSection,
-};
+use biodata::{Variant};
+use biomcp_types::{QueryBody, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution, VariantSection};
 use biomcp_fetch::Deadline;
 pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     let [section] = query.sections() else {
@@ -53,7 +51,7 @@ pub(super) fn get(
         },
         requested,
         source,
-        record: biodata::SourceRecord {
+        record: biomcp_types::SourceRecord {
             id: query.input().text().clone(),
             url: None,
         },
@@ -66,13 +64,13 @@ pub(super) fn get(
     let status = if sources.is_empty()
         || sources
             .iter()
-            .all(|s| s.state == biodata::SourceState::Failed)
+            .all(|s| s.state == biomcp_types::SourceState::Failed)
     {
         Status::Failed
     } else if sources.iter().any(|s| {
         matches!(
             s.state,
-            biodata::SourceState::Failed | biodata::SourceState::Stale
+            biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
         )
     }) || !problems.is_empty()
     {

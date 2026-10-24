@@ -29,7 +29,7 @@ The plan covers three crates:
 | Option meaning | The source has no value | The publisher did not supply it | The source did not state it |
 | Enums | `canonical_enum!` and `wire_enum!` declare each spelling once; snake_case; unknown values become a problem and leave the field absent ([macros.rs](../../crates/biodata/src/macros.rs)) | snake_case in the crate; PascalCase on several reader enums; refusal codes for unknown input | Per-type spellings |
 | Serde | Both directions, through the same checks; internally tagged enums; `deny_unknown_fields`; no flatten | Serialize behind a feature, some Deserialize; externally tagged enums; flatten in writers | No derives on core types; hand-written documents |
-| Schemas | `schemars`, checked in under `schemas/`, named `biodata.<entity>/<major>`, with drift and compatibility tests ([tests/schemas.rs](../../crates/biodata/tests/schemas.rs)) | None | Hand-written JSON Schema 2020-12, unversioned by rule |
+| Schemas | `schemars`, checked in under `schemas/`, named `biodata.<entity>/<major>`, with drift and compatibility tests ([tests/schemas.rs](../../crates/biomcp-types/tests/schemas.rs)) | None | Hand-written JSON Schema 2020-12, unversioned by rule |
 | Error codes | Dotted stable codes, mostly two parts, such as `build.unknown` and `position.zero` ([error.rs](../../crates/biodata/src/error.rs)) | Dotted stable codes such as `coordinate.zero_position` and `hgvs.edit.invalid` | Flat snake codes such as `hgvs_routing_unrecognized_prefix` |
 | Toolchain | Edition 2024, Rust 1.95.0; serde, winnow and optional schemars | Edition 2024, Rust 1.95.0; winnow and optional serde | Edition 2024, Rust 1.86; serde, serde_json, XML readers, sha2 |
 

@@ -6,10 +6,8 @@ mod oncokb;
 mod pathways;
 mod protein;
 use crate::Ctx;
-use biodata::{
-    Gene, GeneGet, GeneItem, GeneResolution, GeneSection, GeneSectionWord, GeneSections, HgncId,
-    Problem, Section, SourceOutcome, SourceState, Status,
-};
+use biodata::{Gene, GeneResolution, HgncId};
+use biomcp_types::{GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome, SourceState, Status};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) struct SectionResult {
     pub values: Vec<(HgncId, SectionValue)>,
@@ -18,13 +16,13 @@ pub(super) struct SectionResult {
     pub local: Option<RequestError>,
 }
 pub(super) enum SectionValue {
-    Protein(Section<Box<[biodata::Protein]>>),
-    Civic(Section<biodata::CivicGene>),
-    ClinGen(Section<biodata::ClinGenGene>),
-    Constraint(Section<biodata::Constraint>),
-    Expression(Section<biodata::GeneExpression>),
-    Pathways(Section<biodata::Capped<biodata::PathwayRef>>),
-    Oncokb(Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool),
+    Protein(Section<Box<[biomcp_types::Protein]>>),
+    Civic(Section<biomcp_types::CivicGene>),
+    ClinGen(Section<biomcp_types::ClinGenGene>),
+    Constraint(Section<biomcp_types::Constraint>),
+    Expression(Section<biomcp_types::GeneExpression>),
+    Pathways(Section<biomcp_types::Capped<biomcp_types::PathwayRef>>),
+    Oncokb(Section<biomcp_types::Oncokb>, Option<biomcp_types::OncokbCard>, bool),
 }
 const SECTIONS: [GeneSection; 7] = [
     GeneSection::Protein,
@@ -88,7 +86,7 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem], keyed: bool) -> V
                 civic: requested
                     .contains(&GeneSection::Civic)
                     .then_some(Section::Empty {
-                        source: biodata::Source::Civic,
+                        source: biomcp_types::Source::Civic,
                         record: None,
                     }),
                 clingen: requested

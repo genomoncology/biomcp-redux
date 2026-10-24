@@ -96,14 +96,14 @@ impl SaveTarget {
 /// Keep destination policy and every filesystem mutation at the binary boundary.
 pub(crate) fn run(
     cx: &biomcp_query::Ctx<'_>,
-    query: &biodata::ArticlePdf,
+    query: &biomcp_types::ArticlePdf,
     allow_save: bool,
 ) -> biomcp_query::Outcome {
     let target = allow_save
         .then(|| {
             SaveTarget::new(
                 query.save.as_str(),
-                &biodata::ArticlePdf::filename(&query.input),
+                &biomcp_types::ArticlePdf::filename(&query.input),
                 query.replace,
             )
         })
@@ -117,10 +117,10 @@ pub(crate) fn run(
                 biodata::Text::new(&saved.sha256),
             ) {
                 (Ok(path), Ok(sha256)) => {
-                    biodata::QueryBody::ArticlePdf(biodata::ArticlePdfResult {
-                        file: biodata::Section::Data {
-                            source: biodata::Source::SemanticScholar,
-                            data: biodata::PdfSaved {
+                    biomcp_types::QueryBody::ArticlePdf(biomcp_types::ArticlePdfResult {
+                        file: biomcp_types::Section::Data {
+                            source: biomcp_types::Source::SemanticScholar,
+                            data: biomcp_types::PdfSaved {
                                 path,
                                 bytes: saved.bytes,
                                 sha256,
@@ -129,9 +129,9 @@ pub(crate) fn run(
                         },
                     })
                 }
-                _ => biodata::QueryBody::PdfSaveRefused(link),
+                _ => biomcp_types::QueryBody::PdfSaveRefused(link),
             },
-            None => biodata::QueryBody::PdfSaveRefused(link),
+            None => biomcp_types::QueryBody::PdfSaveRefused(link),
         };
     }
     out

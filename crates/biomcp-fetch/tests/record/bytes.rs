@@ -67,12 +67,12 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         ));
     }
     // Disabled policy wins even when replay would open a hostile sidecar.
-    let disabled = replay.restrict_sources([biodata::Source::PubMed].into());
+    let disabled = replay.restrict_sources([biomcp_types::Source::PubMed].into());
     assert!(
-        matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
+        matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
     );
     assert!(
-        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| Err(biodata::Reason::BadReply)), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
+        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| Err(biomcp_types::Reason::BadReply)), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
     );
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
@@ -99,7 +99,7 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
         let worker = scope.spawn(|| bytes(&fetch, spec));
         server.next().raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
         assert!(
-            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );
     });
     assert!(server.requests.try_recv().is_err());

@@ -13,7 +13,7 @@ pub(super) struct Record {
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.as_str().parse::<biodata::VariantInput>().is_ok() {
+        if self.id.as_str().parse::<biomcp_types::VariantInput>().is_ok() {
             Ok(())
         } else {
             Err(BadReply)

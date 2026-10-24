@@ -1,6 +1,7 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId, Reason, Section, Source, SourceOutcome, SourceState};
+use biodata::{Gene, HgncId};
+use biomcp_types::{Reason, Section, Source, SourceOutcome, SourceState};
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
 
@@ -121,7 +122,7 @@ fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
 fn mapped_value(
     data: Option<oncokb::GeneData>,
     partial: bool,
-) -> (Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool) {
+) -> (Section<biomcp_types::Oncokb>, Option<biomcp_types::OncokbCard>, bool) {
     match data {
         Some(data) => (
             Section::Data {

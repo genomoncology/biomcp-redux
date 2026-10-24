@@ -1,4 +1,5 @@
-use biodata::{SourceOutcome, Text};
+use biodata::{Text};
+use biomcp_types::{SourceOutcome};
 use biomcp_adapters::ctgov::detail::Detail;
 use biomcp_fetch::CacheError;
 use sha2::{Digest, Sha256};

@@ -1,8 +1,7 @@
 use super::{Snapshot, advance, continue_records, records, section};
 use crate::{Action, Outcome};
-use biodata::{
-    ArticleGet, ArticleInput, Request, StepKind, Text, TrialGet, TrialSection, TrialSections,
-};
+use biodata::{ArticleInput, Text};
+use biomcp_types::{ArticleGet, Request, StepKind, TrialGet, TrialSection, TrialSections};
 use biomcp_fetch::RequestError;
 pub(super) fn render(
     query: &TrialGet,

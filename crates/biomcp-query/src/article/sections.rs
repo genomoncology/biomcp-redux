@@ -6,10 +6,8 @@ pub(super) mod indexing;
 pub(in crate::article) mod pdf;
 mod tldr;
 use crate::{Ctx, status};
-use biodata::{
-    ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
-    ArticleSections, Section,
-};
+
+use biomcp_types::{ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord, ArticleSections, Section};
 use biomcp_fetch::Deadline;
 pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool {
     let requested = !query.sections().is_empty();
@@ -107,7 +105,7 @@ pub(super) fn run<'a>(
     if selected(query, ArticleSectionWord::Pdf) {
         pdf::run(cx, deadline, out);
     }
-    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
+    let biomcp_types::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };
     let ids = annotations::ids(&cards.items);

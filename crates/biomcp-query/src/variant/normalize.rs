@@ -1,9 +1,7 @@
 //! Explicit provider normalization with independent source outcomes.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
-    Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution,
-};
+
+use biomcp_types::{NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState, Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution};
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
 type Row = (NormalizationResult, SourceOutcome, Option<RequestError>);
@@ -101,14 +99,14 @@ fn service(
 ) -> Row {
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let result = match spec.source {
-        biodata::Source::AlleleRegistry => allele_registry::normalize(&leg, query.hgvs().as_str()),
-        biodata::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs().as_str()),
+        biomcp_types::Source::AlleleRegistry => allele_registry::normalize(&leg, query.hgvs().as_str()),
+        biomcp_types::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs().as_str()),
         _ => query
             .build()
             .ok_or(
                 biomcp_fetch::SourceError {
                     source: spec.source,
-                    reason: biodata::Reason::Rejected,
+                    reason: biomcp_types::Reason::Rejected,
                     status: None,
                     retry_after: None,
                 }
@@ -121,7 +119,7 @@ fn service(
     let result = result.unwrap_or_else(|_| NormalizationResult::unavailable(spec.source));
     if result.outcome == VariantResolution::Rejected {
         source.state = SourceState::Failed;
-        source.reason = Some(biodata::Reason::Rejected);
+        source.reason = Some(biomcp_types::Reason::Rejected);
     }
     (result, source, error.and_then(status::local))
 }

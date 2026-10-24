@@ -1,5 +1,6 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
-use biodata::{NciDisease, NciTrial, NctId, Text, TrialSearch};
+use biodata::{NctId, Text};
+use biomcp_types::{NciDisease, NciTrial, TrialSearch};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, Reply, RequestError,
     SecretName, SourceSpec,
@@ -8,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 /// NCI requires the user's own API key for every request, including health probes.
 pub static SPEC: SourceSpec = SourceSpec {
-    source: biodata::Source::Nci,
+    source: biomcp_types::Source::Nci,
     base: "https://clinicaltrialsapi.cancer.gov/api/v2",
     key: KeyUse::Required(Credential {
         secret: SecretName::NciApiKey,
@@ -19,7 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCI Clinical Trials Search publisher terms; user's API key required",
         url: "https://www.cancer.gov/syndication/api",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
 };
 /// Native trial search, also used for one bounded health request.
@@ -58,11 +59,11 @@ pub struct Trial {
     brief_summary: Option<Box<str>>,
     #[serde(default)]
     diseases: Vec<NciDisease>,
-    eligibility: Option<biodata::NciEligibility>,
+    eligibility: Option<biomcp_types::NciEligibility>,
     #[serde(default)]
     arms: Vec<Arm>,
     #[serde(default)]
-    outcome_measures: Vec<biodata::NciOutcome>,
+    outcome_measures: Vec<biomcp_types::NciOutcome>,
 }
 #[derive(Debug, Deserialize)]
 struct Arm {
@@ -70,7 +71,7 @@ struct Arm {
     description: Option<Box<str>>,
     r#type: Option<Text>,
     #[serde(default)]
-    interventions: Vec<biodata::NciIntervention>,
+    interventions: Vec<biomcp_types::NciIntervention>,
 }
 /// Native sections and compact card from one validated source record.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -82,11 +83,11 @@ pub struct Detail {
     /// Original disease concepts, without deduplication or inferred ranking.
     pub diseases: Box<[NciDisease]>,
     /// Original criteria and native structured fields.
-    pub eligibility: Option<biodata::NciEligibility>,
+    pub eligibility: Option<biomcp_types::NciEligibility>,
     /// Original outcomes in source order.
-    pub outcomes: Box<[biodata::NciOutcome]>,
+    pub outcomes: Box<[biomcp_types::NciOutcome]>,
     /// Original arm and intervention records with preserved relationships.
-    pub arms: Box<[biodata::NciArmRecord]>,
+    pub arms: Box<[biomcp_types::NciArmRecord]>,
 }
 impl Reply for Trial {
     fn check(&self) -> Result<(), BadReply> {
@@ -106,7 +107,7 @@ impl Trial {
             current_trial_status: self.current_trial_status.clone(),
             phase: self.phase.clone(),
             brief_summary: if summary {
-                self.brief_summary.as_ref().map(|s| biodata::NciTextPage {
+                self.brief_summary.as_ref().map(|s| biomcp_types::NciTextPage {
                     continuation: None,
                     text: s.chars().take(CARD_SUMMARY_CHARACTERS).collect(),
                     offset: 0,
@@ -115,7 +116,7 @@ impl Trial {
             } else {
                 None
             },
-            diseases: biodata::TrialRecords {
+            diseases: biomcp_types::TrialRecords {
                 continuation: None,
                 offset: 0,
                 total: self.diseases.len() as u32,
@@ -123,7 +124,7 @@ impl Trial {
                     .diseases
                     .iter()
                     .take(CARD_DISEASES)
-                    .map(|d| biodata::NciDiseaseRef {
+                    .map(|d| biomcp_types::NciDiseaseRef {
                         name: d.name.clone(),
                         nci_thesaurus_concept_id: d.nci_thesaurus_concept_id.clone(),
                     })
@@ -135,9 +136,9 @@ impl Trial {
         let card = self.card(true);
         let mut arms = Vec::new();
         for (arm_index, arm) in self.arms.into_iter().enumerate() {
-            arms.push(biodata::NciArmRecord::Arm {
+            arms.push(biomcp_types::NciArmRecord::Arm {
                 arm_index: arm_index as u32,
-                data: biodata::NciArm {
+                data: biomcp_types::NciArm {
                     name: arm.name,
                     description: arm.description,
                     r#type: arm.r#type,
@@ -147,7 +148,7 @@ impl Trial {
                 arm.interventions
                     .into_iter()
                     .enumerate()
-                    .map(|(index, data)| biodata::NciArmRecord::Intervention {
+                    .map(|(index, data)| biomcp_types::NciArmRecord::Intervention {
                         arm_index: arm_index as u32,
                         index: index as u32,
                         data,

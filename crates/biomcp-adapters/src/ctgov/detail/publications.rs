@@ -1,4 +1,5 @@
-use biodata::{License, NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference};
+use biodata::{NctId, PartialDate, Pmid, Text, TrialDocument, TrialReference};
+use biomcp_types::{License};
 use biomcp_fetch::BadReply;
 use serde::Deserialize;
 #[derive(Deserialize)]

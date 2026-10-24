@@ -1,7 +1,6 @@
 //! Historical fragments retain their original spellings and unverified association.
-use biodata::{
-    Build, CosmicCoordinates, CosmicIdentity, CosmicRecord, FiniteNumber, Text, VariantCosmic,
-};
+use biodata::{Build, FiniteNumber, Text};
+use biomcp_types::{CosmicCoordinates, CosmicIdentity, CosmicRecord, VariantCosmic};
 use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, Reply, RequestError};
 use serde::Deserialize;
 /// Read one exact aggregator record, without asserting its fragment's allele identity.
@@ -63,7 +62,7 @@ struct Record {
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.as_str().parse::<biodata::VariantInput>().is_ok() {
+        if self.id.as_str().parse::<biomcp_types::VariantInput>().is_ok() {
             Ok(())
         } else {
             Err(BadReply)

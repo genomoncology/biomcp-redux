@@ -159,7 +159,7 @@ fn safe_path(path: &Path) -> Result<(), CacheError> {
 #[serde(deny_unknown_fields)]
 struct Recording {
     method: String,
-    source: biodata::Source,
+    source: biomcp_types::Source,
     url: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     post: Option<crate::prepared::PostMetadata>,
@@ -240,13 +240,13 @@ pub(crate) enum Recordings {
     Capture(Capture),
     Replay {
         dir: PathBuf,
-        cursors: Mutex<BTreeMap<(biodata::Source, [u8; 32]), Cursor>>,
+        cursors: Mutex<BTreeMap<(biomcp_types::Source, [u8; 32]), Cursor>>,
     },
 }
 #[derive(Debug)]
 pub(crate) struct Capture {
     dir: PathBuf,
-    sequences: Mutex<BTreeMap<(biodata::Source, [u8; 32]), Recording>>,
+    sequences: Mutex<BTreeMap<(biomcp_types::Source, [u8; 32]), Recording>>,
 }
 #[derive(Debug)]
 pub(crate) struct Cursor {
@@ -299,7 +299,7 @@ impl Recordings {
     }
     pub(crate) fn replay(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
         post: Option<&crate::prepared::PostMetadata>,
@@ -309,7 +309,7 @@ impl Recordings {
     }
     pub(crate) fn replay_bundle(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
     ) -> Result<Option<Exchange>, RecordError> {
@@ -324,7 +324,7 @@ impl Recordings {
     }
     fn replay_bounded(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
         post: Option<&crate::prepared::PostMetadata>,
@@ -367,7 +367,7 @@ impl Recordings {
     }
     pub(crate) fn append(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
         post: Option<&crate::prepared::PostMetadata>,
@@ -377,7 +377,7 @@ impl Recordings {
     }
     pub(crate) fn append_bundle(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
         exchange: Exchange,
@@ -386,7 +386,7 @@ impl Recordings {
     }
     fn append_bounded(
         &self,
-        source: biodata::Source,
+        source: biomcp_types::Source,
         key: &[u8; 32],
         url: &str,
         post: Option<&crate::prepared::PostMetadata>,
@@ -429,13 +429,13 @@ impl Recordings {
         result
     }
 }
-fn path(dir: &Path, source: biodata::Source, key: &[u8; 32]) -> PathBuf {
+fn path(dir: &Path, source: biomcp_types::Source, key: &[u8; 32]) -> PathBuf {
     let key: String = key.iter().map(|byte| format!("{byte:02x}")).collect();
     dir.join(source.to_string()).join(format!("{key}.json"))
 }
 fn read(
     path: &Path,
-    source: biodata::Source,
+    source: biomcp_types::Source,
     url: &str,
     post: Option<&crate::prepared::PostMetadata>,
     limit: u64,

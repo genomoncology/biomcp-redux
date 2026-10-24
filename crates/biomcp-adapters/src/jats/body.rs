@@ -1,6 +1,7 @@
 use super::{blocks, markdown, parts::Part};
 use crate::xml_element::Element;
-use biodata::{Text, TextPartKind};
+use biodata::{Text};
+use biomcp_types::{TextPartKind};
 use biomcp_fetch::BadReply;
 /// One source row and its rendered representation, before bounded fragmentation.
 #[derive(Debug)]

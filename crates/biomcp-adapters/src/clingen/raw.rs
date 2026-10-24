@@ -1,4 +1,5 @@
-use biodata::{ClinGenValidity, HgncId, Text};
+use biodata::{HgncId, Text};
+use biomcp_types::{ClinGenValidity};
 use biomcp_fetch::{KeyKind, Keys, RequestError, Row};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]

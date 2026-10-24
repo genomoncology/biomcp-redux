@@ -1,6 +1,7 @@
 //! Bounded PubTator3 native pages; no autocomplete or local score ordering.
 use super::SPEC;
-use biodata::{Pmid, Reason, Source};
+use biodata::{Pmid};
+use biomcp_types::{Reason, Source};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/search/").fresh(Freshness::Days(1));

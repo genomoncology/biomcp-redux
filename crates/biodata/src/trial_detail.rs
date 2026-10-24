@@ -64,7 +64,7 @@ pub struct TrialEligibility {
     /// Original criteria text without heading interpretation.
     pub criteria: Option<Markdown>,
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Registry outcome collection.
     TrialOutcomeKind {
         /// Primary registered outcome.
@@ -120,7 +120,7 @@ pub struct TrialIntervention {
     pub other_names: Box<[Box<str>]>,
 }
 
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Registry date qualifier, without local interpretation.
     TrialDateKind {
         /// Source marks this date actual.
@@ -139,7 +139,7 @@ pub struct TrialDate {
     /// Source qualifier, absent only if the registry omitted it.
     pub kind: Option<TrialDateKind>,
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Native registry arm group type from the publisher enum metadata.
     #[non_exhaustive]
     TrialArmKind {
@@ -157,7 +157,7 @@ crate::macros::wire_enum! {
         Other => "OTHER",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Native registry intervention type from the publisher enum metadata.
     #[non_exhaustive]
     TrialInterventionKind {

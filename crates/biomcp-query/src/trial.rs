@@ -3,14 +3,12 @@ pub mod document;
 pub(crate) mod get;
 mod nci;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    GeneResolution, QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage,
-    TrialSearch,
-};
+use biodata::{GeneResolution};
+use biomcp_types::{QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch};
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
-    if query.source() == biodata::TrialSource::Nci {
+    if query.source() == biomcp_types::TrialSource::Nci {
         return nci::search(cx, query);
     }
     if let Some(option) = query.unsupported() {
@@ -94,7 +92,7 @@ fn apply_page(
     if query.count_only() {
         page.items.clear();
     }
-    outcome.page = page.total.map(|total| biodata::PageInfo {
+    outcome.page = page.total.map(|total| biomcp_types::PageInfo {
         offset: 0,
         returned: page.items.len() as u32,
         total,
@@ -117,10 +115,10 @@ fn apply_page(
 }
 fn parameters(
     values: std::collections::BTreeMap<String, String>,
-) -> Box<[biodata::TrialParameter]> {
+) -> Box<[biomcp_types::TrialParameter]> {
     values
         .into_iter()
-        .map(|(name, value)| biodata::TrialParameter { name, value })
+        .map(|(name, value)| biomcp_types::TrialParameter { name, value })
         .collect()
 }
 fn empty() -> Outcome {

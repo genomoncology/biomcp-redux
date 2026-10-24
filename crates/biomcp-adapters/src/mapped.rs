@@ -1,4 +1,4 @@
-use biodata::Problem;
+use biomcp_types::Problem;
 
 /// A source value with rejected fields retained as problems.
 #[derive(Debug)]

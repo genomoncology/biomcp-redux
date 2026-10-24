@@ -1,9 +1,7 @@
 use super::raw::{Genes, Hit, OneOrMany};
 use crate::Mapped;
-use biodata::{
-    Build, Expression, ExpressionSyntax, Problem, ProblemCode, Representation, Source,
-    SourceRecord, Text, Variant, VariantHeader, VariantId,
-};
+use biodata::{Build, Expression, ExpressionSyntax, Representation, Text, Variant, VariantId};
+use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
 pub(super) fn candidates(
     hits: Vec<Hit>,
     query: &str,
@@ -61,7 +59,7 @@ pub(super) fn candidates(
         let expression = Expression::new(ExpressionSyntax::HgvsG, hit.id.clone(), None);
         let representations = match expression {
             Ok(expression) => vec![Representation {
-                source: Source::MyVariant,
+                source: Source::MyVariant.text(),
                 expression,
                 build,
                 allele: None,
@@ -99,7 +97,7 @@ fn problem(record: Text, field: &str) -> Problem {
     }
 }
 
-fn component_terms(ids: &[VariantId]) -> Box<[biodata::ComponentLabel]> {
+fn component_terms(ids: &[VariantId]) -> Box<[biomcp_types::ComponentLabel]> {
     if ids
         .iter()
         .any(|id| matches!(id, VariantId::ClinVarVariation(_)))
@@ -107,7 +105,7 @@ fn component_terms(ids: &[VariantId]) -> Box<[biodata::ComponentLabel]> {
         Text::new("clinvar")
             .ok()
             .zip(super::components::label(super::components::CLINVAR.terms).ok())
-            .map(|(component, terms)| biodata::ComponentLabel { component, terms })
+            .map(|(component, terms)| biomcp_types::ComponentLabel { component, terms })
             .into_iter()
             .collect()
     } else {

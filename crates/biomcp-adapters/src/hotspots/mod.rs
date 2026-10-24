@@ -1,6 +1,7 @@
 //! Native transcript/residue counts; public reachability grants no redistribution rights.
 use crate::{Mapped, quotas};
-use biodata::{GeneSymbol, HotspotAlternate, HotspotMembership, HotspotRecord, Source, Text};
+use biodata::{GeneSymbol, Text};
+use biomcp_types::{HotspotAlternate, HotspotMembership, HotspotRecord, Source};
 use biomcp_fetch::{
     BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
@@ -11,7 +12,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "Publisher-specific terms; data reuse unverified",
         url: "https://www.cancerhotspots.org/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::CancerHotspots,
     base: "https://www.cancerhotspots.org",
@@ -58,11 +59,11 @@ pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord
     let mut rows = Vec::new();
     for row in raw.0 {
         if &row.hugo_symbol != gene {
-            problems.push(biodata::Problem {
+            problems.push(biomcp_types::Problem {
                 source: Source::CancerHotspots,
                 record: Some(row.residue),
                 field: "transcript_gene".into(),
-                code: biodata::ProblemCode::ValueUnknown,
+                code: biomcp_types::ProblemCode::ValueUnknown,
             });
             continue;
         }
@@ -82,7 +83,7 @@ pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord
                         .map_err(|_| {
                             biomcp_fetch::SourceError {
                                 source: Source::CancerHotspots,
-                                reason: biodata::Reason::BadReply,
+                                reason: biomcp_types::Reason::BadReply,
                                 status: None,
                                 retry_after: None,
                             }

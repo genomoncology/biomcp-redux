@@ -1,8 +1,6 @@
 use crate::{Ctx, status};
-use biodata::{
-    Annotations, ArticleCardItem, ArticleResolution, Pmid, Problem, Reason, Section, Source,
-    SourceOutcome, SourceState, Status,
-};
+use biodata::{Pmid};
+use biomcp_types::{Annotations, ArticleCardItem, ArticleResolution, Problem, Reason, Section, Source, SourceOutcome, SourceState, Status};
 use biomcp_adapters::pubtator;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) struct Result {

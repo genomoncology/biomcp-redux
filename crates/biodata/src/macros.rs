@@ -1,4 +1,6 @@
 // JSON strings use the public parser, so serde cannot bypass validation.
+/// Implement validated string serialization and schema.
+#[macro_export]
 macro_rules! text_value {
     ($ty:ty, $schema_name:expr, $pattern:expr) => {
         impl serde::Serialize for $ty {
@@ -35,11 +37,13 @@ macro_rules! text_value {
     };
 }
 
-pub(crate) use text_value;
 
+
+/// Define one closed wire vocabulary.
+#[macro_export]
 macro_rules! wire_enum {
     (described $(#[$doc:meta])* $name:ident { $($(#[doc = $vdoc:literal])* $variant:ident => $literal:literal),+ $(,)? }) => {
-        $crate::macros::wire_enum! {
+        $crate::wire_enum! {
             $(#[$doc])*
             #[cfg_attr(feature = "schema", schemars(extend("x-enum-descriptions" = [$(concat!($($vdoc),*)),+])))]
             $name { $($(#[doc = $vdoc])* $variant => $literal),+ }
@@ -58,4 +62,52 @@ macro_rules! wire_enum {
         }
     }
 }
-pub(crate) use wire_enum;
+
+
+// Define each canonical spelling once for parsing, display and JSON.
+/// Define one canonical string vocabulary.
+#[macro_export]
+macro_rules! canonical_enum {
+    ($(#[$doc:meta])* $name:ident, $error:ident { $($(#[doc = $variant_doc:literal])* $variant:ident => $text:literal),+ $(,)? }) => {
+        $(#[$doc])*
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", schemars(!try_from, !into, with = "str", extend("enum" = [$($text),+], "x-enum-descriptions" = [$(concat!($($variant_doc),*)),+])))]
+        #[non_exhaustive]
+        #[serde(try_from = "String", into = "&'static str")]
+        pub enum $name {
+            $($(#[doc = $variant_doc])* $variant),+
+        }
+
+        impl From<$name> for &'static str {
+            fn from(value: $name) -> Self {
+                match value { $($name::$variant => $text),+ }
+            }
+        }
+
+        impl std::str::FromStr for $name {
+            type Err = crate::Error;
+
+            fn from_str(value: &str) -> Result<Self, Self::Err> {
+                match value {
+                    $($text => Ok(Self::$variant),)+
+                    _ => Err(crate::Error::$error),
+                }
+            }
+        }
+
+        impl TryFrom<String> for $name {
+            type Error = crate::Error;
+
+            fn try_from(value: String) -> Result<Self, Self::Error> {
+                value.parse()
+            }
+        }
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str((*self).into())
+            }
+        }
+    };
+}

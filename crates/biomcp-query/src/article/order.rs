@@ -1,5 +1,6 @@
 use crate::{Ctx, Outcome, status};
-use biodata::{ArticleItem, Pmid, QueryBody, Source, SourceOutcome, Status};
+use biodata::{Pmid};
+use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome, Status};
 use biomcp_adapters::icite;
 use biomcp_fetch::{Deadline, RequestError};
 /// Application citation enrichment window, shared by searches and graph pages.
@@ -58,11 +59,11 @@ pub(super) fn apply<'a>(
     let stale = out
         .sources
         .iter()
-        .any(|s| s.source == Source::Icite && s.state == biodata::SourceState::Stale);
+        .any(|s| s.source == Source::Icite && s.state == biomcp_types::SourceState::Stale);
     out.sources.retain(|s| s.source != Source::Icite);
     let mut source = result.source;
     if stale && result.error.is_none() {
-        source.state = biodata::SourceState::Stale;
+        source.state = biomcp_types::SourceState::Stale;
     }
     out.sources.push(source);
     if let Some(error) = result.local {

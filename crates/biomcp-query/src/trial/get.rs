@@ -3,15 +3,13 @@ pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{
-    NctId, QueryBody, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards,
-    TrialGet,
-};
+use biodata::{NctId};
+use biomcp_types::{QueryBody, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards, TrialGet};
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
 /// Retrieve independent input states under one shared command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
-    if query.source() == biodata::TrialSource::Nci {
+    if query.source() == biomcp_types::TrialSource::Nci {
         return super::nci::get(cx, query);
     }
 
@@ -146,7 +144,7 @@ fn restore(
     Ok(())
 }
 fn not_found(error: RequestError) -> bool {
-    matches!(error,RequestError::Source(e) if e.reason==biodata::Reason::NotFound)
+    matches!(error,RequestError::Source(e) if e.reason==biomcp_types::Reason::NotFound)
 }
 fn unresolved(input: NctId, status: Status) -> TrialCardItem {
     TrialCardItem {

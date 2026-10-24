@@ -1,6 +1,7 @@
 //! Source predictions retain their independent component terms and source labels.
 use crate::Ctx;
-use biodata::{VariantGet, VariantHeader, VariantPredictors};
+
+use biomcp_types::{VariantGet, VariantHeader, VariantPredictors};
 use biomcp_fetch::Deadline;
 pub(super) fn section(
     cx: &Ctx<'_>,

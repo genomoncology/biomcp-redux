@@ -1,5 +1,6 @@
 //! Public transport contract against isolated local servers.
-use biodata::{Reason, Source};
+
+use biomcp_types::{Reason, Source};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Reply, Secret, SecretName,
     SourceSpec,
@@ -91,7 +92,7 @@ impl Stub {
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",
                 url: "https://example.test/terms",
-                usage: biodata::Use::Open,
+                usage: biomcp_types::Use::Open,
             },
             source: Source::PubMed,
             base: self.base,

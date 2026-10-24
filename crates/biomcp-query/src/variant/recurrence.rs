@@ -1,9 +1,8 @@
 //! Page-local exact sample observations with explicit cohort and source provenance.
 mod matching;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery,
-};
+
+use biomcp_types::{QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery};
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
@@ -28,9 +27,9 @@ pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
 fn empty() -> VariantRecurrence {
     VariantRecurrence {
         identity: None,
-        matching_granularity: biodata::RecurrenceGranularity::ExactGenomicAllele, entrez_gene_id: None, study: None, selected_sample_count: None,
+        matching_granularity: biomcp_types::RecurrenceGranularity::ExactGenomicAllele, entrez_gene_id: None, study: None, selected_sample_count: None,
         observed_sample_count: None, examined_rows: 0, all_pages_read: false, more: false,
-        terms: biodata::RecurrenceTerms {
+        terms: biomcp_types::RecurrenceTerms {
             unverified: true,
             notice: "Individual studies may impose commercial restrictions; public access does not verify study-specific reuse rights".into(),
             url: "https://docs.cbioportal.org/user-guide/faq/".into(),
@@ -82,7 +81,7 @@ fn execute(
         && out
             .sources
             .iter()
-            .all(|s| s.state == biodata::SourceState::Ok)
+            .all(|s| s.state == biomcp_types::SourceState::Ok)
     {
         Status::Complete
     } else {
@@ -102,7 +101,7 @@ fn execute(
 fn metadata(query: &VariantRecurrenceQuery, cohort: &cbioportal::Cohort, out: &mut Outcome) {
     if let Some(error) = cohort.count_error {
         if let Some(source) = out.sources.last_mut() {
-            source.state = biodata::SourceState::Failed;
+            source.state = biomcp_types::SourceState::Failed;
             if let RequestError::Source(e) = error {
                 source.reason = Some(e.reason);
             }
@@ -129,7 +128,7 @@ fn identity(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<biodata::Variant, RequestError> {
-    let q = biodata::VariantGet::new(query.input().clone(), biodata::VariantResolver::Car, None)
+    let q = biomcp_types::VariantGet::new(query.input().clone(), biomcp_types::VariantResolver::Car, None)
         .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
@@ -152,7 +151,7 @@ fn identity(
             "identity.exact_allele",
         ));
         if let Some(source) = out.sources.last_mut() {
-            source.state = biodata::SourceState::Failed;
+            source.state = biomcp_types::SourceState::Failed;
             source.reason = Some(Reason::Rejected);
         }
         return Err(rejected(spec.source, Reason::Rejected));

@@ -1,5 +1,6 @@
 use crate::xml_element::Element;
-use biodata::{Capped, Indexing, MeshHeading, MeshQualifier, Text};
+use biodata::{Indexing, MeshHeading, MeshQualifier, Text};
+use biomcp_types::{Capped};
 use biomcp_fetch::BadReply;
 pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing, BadReply> {
     let mut mesh = Vec::new();

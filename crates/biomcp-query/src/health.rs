@@ -1,5 +1,6 @@
 //! Bounded source probes, never local storage or HTTP service liveness.
-use biodata::{Health, Reason, SourceHealth, SourceState, Text};
+use biodata::{Text};
+use biomcp_types::{Health, Reason, SourceHealth, SourceState};
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
 use std::time::Duration;
@@ -70,14 +71,14 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
 }
 
 fn component_health(
-    source: biodata::Source,
+    source: biomcp_types::Source,
     fetch: &Fetch,
-) -> Result<Vec<biodata::ComponentHealth>, RequestError> {
+) -> Result<Vec<biomcp_types::ComponentHealth>, RequestError> {
     biomcp_adapters::myvariant::components::all()
         .iter()
         .filter(|component| component.source == source)
         .map(|component| {
-            Ok(biodata::ComponentHealth {
+            Ok(biomcp_types::ComponentHealth {
                 name: Text::new(component.name)
                     .map_err(|_| biomcp_fetch::InputError::Serialization)?,
                 terms: biomcp_adapters::myvariant::components::label(component.terms)?,

@@ -1,6 +1,7 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId, Reason, Section, Source};
+use biodata::{Gene, HgncId};
+use biomcp_types::{Reason, Section, Source};
 use biomcp_adapters::hpa;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn applicable(gene: &Gene) -> bool {

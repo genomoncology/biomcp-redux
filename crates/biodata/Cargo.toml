@@ -13,9 +13,5 @@ winnow.workspace = true
 serde.workspace = true
 schemars = { workspace = true, optional = true }
 
-[dev-dependencies]
-jsonschema.workspace = true
-serde_json.workspace = true
-
 [lints]
 workspace = true

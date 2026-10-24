@@ -13,7 +13,7 @@ pub fn download(
         biomcp_fetch::RequestError::Source(mut source)
             if source.status.is_some_and(|s| (400..500).contains(&s)) =>
         {
-            source.reason = biodata::Reason::Rejected;
+            source.reason = biomcp_types::Reason::Rejected;
             source.into()
         }
         error => error,

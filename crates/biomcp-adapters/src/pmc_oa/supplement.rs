@@ -1,4 +1,5 @@
-use biodata::{FileKind, SupplementFile, Text};
+use biodata::{Text};
+use biomcp_types::{FileKind, SupplementFile};
 use biomcp_fetch::{Arg, BadReply, Leg, RequestError};
 /// Source-confirmed supplement with a confined bucket location.
 #[derive(Debug)]

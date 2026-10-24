@@ -15,7 +15,8 @@ fn replay(dir: PathBuf) -> Fetch {
 #[test]
 // Expire only the case-owned documented cache metadata.
 fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
-    use biodata::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
+
+use biomcp_types::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
     use biomcp_fetch::ReplayCache;
     use biomcp_query::{Ctx, run};
     let directory = tempfile::tempdir().unwrap();
@@ -91,7 +92,8 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     reason = "Mutate isolated public recordings"
 )]
 fn clingen_local_failure_survives_later_source_deadline() {
-    use biodata::{GeneGet, GeneSectionWord, Request};
+
+use biomcp_types::{GeneGet, GeneSectionWord, Request};
     use biomcp_fetch::RequestError;
     use biomcp_query::{Ctx, run};
     let directory = tempfile::tempdir().unwrap();
@@ -153,10 +155,10 @@ fn clingen_local_failure_survives_later_source_deadline() {
         outcome
             .sources
             .iter()
-            .find(|source| source.source == biodata::Source::ClinGen)
+            .find(|source| source.source == biomcp_types::Source::ClinGen)
             .unwrap()
             .reason,
-        Some(biodata::Reason::Syncing)
+        Some(biomcp_types::Reason::Syncing)
     );
     assert!(
         matches!(outcome.local, Some(RequestError::Recording(_))),

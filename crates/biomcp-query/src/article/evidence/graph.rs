@@ -1,9 +1,7 @@
 use super::{Snapshot, bad, source};
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    ArticleEvidence, ArticleInput, Capped, CitationContexts, Doi, EvidenceContext, EvidenceNotice,
-    Pmid, Section, Source,
-};
+use biodata::{ArticleInput, Doi, Pmid};
+use biomcp_types::{ArticleEvidence, Capped, CitationContexts, EvidenceContext, EvidenceNotice, Section, Source};
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 /// A target's independently checked native identities, never a rendered citation match.
@@ -224,9 +222,9 @@ fn finish(snapshot: &mut Snapshot) {
         };
     }
 }
-pub(super) fn reason(error: RequestError) -> biodata::Reason {
+pub(super) fn reason(error: RequestError) -> biomcp_types::Reason {
     match error {
         RequestError::Source(e) => e.reason,
-        _ => biodata::Reason::Unavailable,
+        _ => biomcp_types::Reason::Unavailable,
     }
 }

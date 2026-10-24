@@ -1,9 +1,7 @@
 //! Missing keys and disabled policy stop before source, cache and replay access.
 use crate::{Ctx, status};
-use biodata::{
-    Build, PageInfo, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
-    VariantHeader, VariantOncokb, VariantSection,
-};
+use biodata::{Build};
+use biomcp_types::{PageInfo, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantOncokb, VariantSection};
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
 
@@ -160,13 +158,13 @@ pub(super) fn input_genomic(query: &VariantGet, build: Build) -> Option<String> 
 pub(super) fn next(
     query: &VariantGet,
     sources: &[SourceOutcome],
-) -> Vec<(biodata::StepKind, crate::Action)> {
+) -> Vec<(biomcp_types::StepKind, crate::Action)> {
     if sources
         .iter()
         .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
     {
         vec![(
-            biodata::StepKind::Key,
+            biomcp_types::StepKind::Key,
             crate::Action::KeyHelp(Source::Oncokb),
         )]
     } else if (query.build().is_none() || query.tumor_type().is_none())
@@ -175,8 +173,8 @@ pub(super) fn next(
             .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoJoinId))
     {
         vec![(
-            biodata::StepKind::Configure,
-            crate::Action::QueryHelp(biodata::Request::GetVariant(query.clone())),
+            biomcp_types::StepKind::Configure,
+            crate::Action::QueryHelp(biomcp_types::Request::GetVariant(query.clone())),
         )]
     } else {
         Vec::new()

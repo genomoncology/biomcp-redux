@@ -1,6 +1,7 @@
 //! Spell each provider's typed continuation without changing source identity or page selectors.
 use crate::Action;
-use biodata::{Request, Section, StepKind, VariantHeader};
+
+use biomcp_types::{Request, Section, StepKind, VariantHeader};
 pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Action)>) {
     for candidate in candidates {
         let Some(sections) = candidate.sections.as_deref() else {

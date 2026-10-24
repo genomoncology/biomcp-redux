@@ -1,8 +1,6 @@
 use crate::{Action, Bundle};
-use biodata::{
-    GeneGet, GeneHeader, GeneItem, GeneResolution, GeneSearch, PageInfo, Request, SourceOutcome,
-    SourceState, StepKind,
-};
+use biodata::{GeneHeader, GeneResolution};
+use biomcp_types::{GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind};
 fn retry(request: Request) -> (StepKind, Action) {
     (
         StepKind::Fresh,
@@ -45,7 +43,7 @@ pub(crate) fn get(
         steps.push(retry(Request::GetGene(query.clone())));
     }
     if sources.iter().any(|source| {
-        source.source == biodata::Source::Hgnc
+        source.source == biomcp_types::Source::Hgnc
             && matches!(
                 source.state,
                 SourceState::Stale | SourceState::Failed | SourceState::Syncing
@@ -55,7 +53,7 @@ pub(crate) fn get(
     }
     if sources
         .iter()
-        .any(|source| source.source == biodata::Source::ClinGen && source.state != SourceState::Ok)
+        .any(|source| source.source == biomcp_types::Source::ClinGen && source.state != SourceState::Ok)
     {
         steps.push((
             StepKind::Sync,
@@ -65,11 +63,11 @@ pub(crate) fn get(
         ));
     }
     if sources.iter().any(|source| {
-        source.source == biodata::Source::Oncokb
+        source.source == biomcp_types::Source::Oncokb
             && source.state == SourceState::Skipped
-            && source.reason == Some(biodata::Reason::NoKey)
+            && source.reason == Some(biomcp_types::Reason::NoKey)
     }) {
-        steps.push((StepKind::Key, Action::KeyHelp(biodata::Source::Oncokb)));
+        steps.push((StepKind::Key, Action::KeyHelp(biomcp_types::Source::Oncokb)));
     }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {

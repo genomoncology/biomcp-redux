@@ -1,9 +1,7 @@
 //! Only the cited source vocabulary maps into the approved common claim model.
 use super::{variant::failure, variant_raw as raw};
-use biodata::{
-    Attribution, CivicStatement, Concept, Direction, Predicate, Problem, ProblemCode, Proposition,
-    Reason, Source, SourceRecord, Statement, Term, Text, VariantRef,
-};
+use biodata::{Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef};
+use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord};
 use biomcp_fetch::RequestError;
 
 struct Claim<'a> {
@@ -159,8 +157,8 @@ fn build(
         significance: Some(row.significance.clone()),
     })
 }
-fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biodata::CivicNativeClaim {
-    biodata::CivicNativeClaim {
+fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biomcp_types::CivicNativeClaim {
+    biomcp_types::CivicNativeClaim {
         classification: row.classification.clone(),
         strength: row.level.clone(),
         condition: row.disease.map(|d| Concept {
@@ -184,7 +182,7 @@ fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biodata::CivicNativeC
         }),
         citations: row.citations.clone(),
         attribution: Attribution {
-            source: Source::Civic,
+            source: Source::Civic.text(),
             record: Some(id.clone()),
             version: None,
             release: None,

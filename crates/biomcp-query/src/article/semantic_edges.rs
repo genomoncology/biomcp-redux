@@ -1,6 +1,7 @@
 //! Semantic Scholar edge pools retain source order and per-edge evidence.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
+
+use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 pub(super) fn create<'a>(
@@ -43,7 +44,7 @@ pub(super) fn create<'a>(
     source.count = (!truncated).then_some(count);
     source.fetched = Some(count as u32);
     if truncated {
-        source.notices.push(biodata::SourceNotice::GraphTruncated {
+        source.notices.push(biomcp_types::SourceNotice::GraphTruncated {
             fallback: if references {
                 "article references <PMID> --source icite"
             } else {
@@ -152,9 +153,9 @@ fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
         StepKind::Fresh,
         Action::Run {
             request: if references {
-                biodata::Request::ArticleReferences(query.page(0, None))
+                biomcp_types::Request::ArticleReferences(query.page(0, None))
             } else {
-                biodata::Request::ArticleCitations(query.page(0, None))
+                biomcp_types::Request::ArticleCitations(query.page(0, None))
             },
             fresh: true,
         },
@@ -183,7 +184,7 @@ fn resolve_input<'a>(
     let input = match result {
         Ok(ids) if ids.len() == 1 => ids.first().copied().map(biodata::ArticleInput::Pmid),
         Ok(ids) => {
-            source.state = biodata::SourceState::Failed;
+            source.state = biomcp_types::SourceState::Failed;
             source.reason = Some(if ids.is_empty() {
                 Reason::NotFound
             } else {

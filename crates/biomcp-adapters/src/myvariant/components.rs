@@ -1,5 +1,6 @@
 //! Component terms have one home for queries, filters, labels and health.
-use biodata::{Source, Use};
+
+use biomcp_types::{Source, Use};
 use biomcp_fetch::Terms;
 /// One aggregator component with independent publisher terms.
 #[derive(Clone, Copy, Debug)]
@@ -65,8 +66,8 @@ pub fn terms(name: &str) -> Option<Terms> {
 }
 
 /// Convert a declaration to its public response label without repeating its values.
-pub fn label(terms: Terms) -> Result<biodata::ComponentTerms, biomcp_fetch::InputError> {
-    Ok(biodata::ComponentTerms {
+pub fn label(terms: Terms) -> Result<biomcp_types::ComponentTerms, biomcp_fetch::InputError> {
+    Ok(biomcp_types::ComponentTerms {
         usage: terms.usage,
         name: biodata::Text::new(terms.name)
             .map_err(|_| biomcp_fetch::InputError::Serialization)?,

@@ -6,7 +6,7 @@ pub struct Supplement {
     /// Source filename reference.
     pub href: String,
     /// Explicit source MIME declaration, when present.
-    pub kind: Option<biodata::FileKind>,
+    pub kind: Option<biomcp_types::FileKind>,
     /// Optional source label.
     pub label: Option<Text>,
     /// Optional source caption.
@@ -54,8 +54,8 @@ fn caption(item: crate::xml_element::Element<'_>) -> Result<Option<Markdown>, Ba
     }
     super::markdown(caption.0).map(Some)
 }
-fn mime(item: crate::xml_element::Element<'_>) -> Result<Option<biodata::FileKind>, BadReply> {
-    use biodata::FileKind;
+fn mime(item: crate::xml_element::Element<'_>) -> Result<Option<biomcp_types::FileKind>, BadReply> {
+    use biomcp_types::FileKind;
     let Some(top) = item.attr("mimetype")? else {
         return Ok(None);
     };

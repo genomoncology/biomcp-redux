@@ -114,7 +114,7 @@ fn invoke(
 }
 #[test]
 fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
-    use biodata::Reason;
+    use biomcp_types::Reason;
     let server = Server::new();
     let spec = spec(&server);
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
@@ -190,7 +190,7 @@ fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
 }
 #[test]
 fn xml_body_and_nested_inline_content_are_bounded() {
-    use biodata::Reason;
+    use biomcp_types::Reason;
     let server = Server::new();
     let spec = spec(&server);
     for (max_body, body) in [
@@ -302,7 +302,7 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     })
     .unwrap();
     assert!(
-        matches!(invoke(&offline, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Offline)
+        matches!(invoke(&offline, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Offline)
     );
     assert!(server.requests.try_recv().is_err());
 }

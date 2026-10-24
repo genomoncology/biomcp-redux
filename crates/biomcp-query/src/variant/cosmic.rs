@@ -1,6 +1,7 @@
 //! Historical COSMIC fragments remain associated with their MyVariant parent record.
 use crate::{Ctx, status};
-use biodata::{Reason, Section, Source, VariantCosmic, VariantGet, VariantHeader};
+
+use biomcp_types::{Reason, Section, Source, VariantCosmic, VariantGet, VariantHeader};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn section(
     cx: &Ctx<'_>,

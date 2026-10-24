@@ -1,6 +1,7 @@
 //! Encode the variant command responses through the shared envelope.
 use super::{Outcome, ResponseMeta};
-use biodata::{QueryBody, Request};
+
+use biomcp_types::{QueryBody, Request};
 use std::io;
 
 pub(super) fn response(

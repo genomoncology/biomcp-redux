@@ -1,10 +1,7 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 mod publications;
 mod sites;
-use biodata::{
-    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
-    TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
-};
+use biodata::{Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility, TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus};
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::{Deserialize, Serialize};
 /// Whole source protocol projection; query owns section paging.

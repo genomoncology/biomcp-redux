@@ -1,6 +1,6 @@
 //! Check ZIP layout before zip allocates, then actual XML before calamine allocates.
 use super::{LIMITS, check};
-use biodata::Reason;
+use biomcp_types::Reason;
 use biomcp_fetch::LocalDeadline;
 use std::io::{Cursor, Read};
 fn number(bytes: &[u8], at: usize, len: usize) -> Result<usize, Reason> {

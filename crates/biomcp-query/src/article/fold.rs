@@ -1,4 +1,5 @@
-use biodata::{ArticleItem, ArticleSource};
+
+use biomcp_types::{ArticleItem, ArticleSource};
 /// Take turns over native rows, preserving ranks before duplicate suppression.
 pub(super) fn fold(
     legs: Vec<(ArticleSource, Vec<ArticleItem>)>,

@@ -1,4 +1,4 @@
-use crate::{Doi, Error, EuropePmcId, Pmcid, Pmid, macros::text_value};
+use crate::{Doi, Error, EuropePmcId, Pmcid, Pmid, text_value};
 /// A checked article identifier, retaining its namespace.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ArticleInput {
@@ -45,7 +45,7 @@ text_value!(
     "ArticleInput",
     r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
 );
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// Identifier used to resolve this article.
     ArticleMatchKind, SourceUnknown {
         /// PubMed identifier.

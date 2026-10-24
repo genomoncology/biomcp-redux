@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
+
+use biomcp_types::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -230,9 +231,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             .subcommand()
             .filter(|(name, _)| *name == "key")
             .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biodata::Source::Oncokb), |s| {
+            .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
                 if s == "ncbi" {
-                    Ok(biodata::Source::PubMed)
+                    Ok(biomcp_types::Source::PubMed)
                 } else {
                     s.parse()
                 }
@@ -470,47 +471,47 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
         ("variant", "population") => {
-            serde_json::from_value::<biodata::VariantPopulationQuery>(value)
+            serde_json::from_value::<biomcp_types::VariantPopulationQuery>(value)
                 .map(Request::VariantPopulation)
                 .map_err(|_| ())
         }
-        ("variant", "normalize") => serde_json::from_value::<biodata::VariantNormalize>(value)
+        ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
             .map(Request::VariantNormalize)
             .map_err(|_| ()),
-        ("search", "variant") => serde_json::from_value::<biodata::VariantSearch>(value)
+        ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
             .map(Request::SearchVariant)
             .map_err(|_| ()),
         ("variant", "recurrence") => {
-            serde_json::from_value::<biodata::VariantRecurrenceQuery>(value)
+            serde_json::from_value::<biomcp_types::VariantRecurrenceQuery>(value)
                 .map(Request::VariantRecurrence)
                 .map_err(|_| ())
         }
-        ("get", "variant") => serde_json::from_value::<biodata::VariantGet>(value)
+        ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
             .map(Request::GetVariant)
             .map_err(|_| ()),
-        ("get", "trial") => serde_json::from_value::<biodata::TrialGet>(value)
+        ("get", "trial") => serde_json::from_value::<biomcp_types::TrialGet>(value)
             .map(Request::GetTrial)
             .map_err(|_| ()),
-        ("search", "trial") => serde_json::from_value::<biodata::TrialSearch>(value)
+        ("search", "trial") => serde_json::from_value::<biomcp_types::TrialSearch>(value)
             .map(Request::SearchTrial)
             .map_err(|_| ()),
-        ("trial", "document") => serde_json::from_value::<biodata::TrialDocumentGet>(value)
+        ("trial", "document") => serde_json::from_value::<biomcp_types::TrialDocumentGet>(value)
             .map(Request::TrialDocument)
             .map_err(|_| ()),
-        ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
+        ("article", "pdf") => serde_json::from_value::<biomcp_types::ArticlePdf>(value)
             .map(Request::ArticlePdf)
             .map_err(|_| ()),
         ("article", "citation-evidence") => {
-            serde_json::from_value::<biodata::ArticleEvidence>(value)
+            serde_json::from_value::<biomcp_types::ArticleEvidence>(value)
                 .map(Request::ArticleEvidence)
                 .map_err(|_| ())
         }
         ("article", "recommendations") => {
-            serde_json::from_value::<biodata::ArticleRecommend>(value)
+            serde_json::from_value::<biomcp_types::ArticleRecommend>(value)
                 .map(Request::ArticleRecommend)
                 .map_err(|_| ())
         }
-        ("article", "supplement") => serde_json::from_value::<biodata::ArticleSupplement>(value)
+        ("article", "supplement") => serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
             .map(Request::ArticleSupplement)
             .map_err(|_| ()),
         ("article", "text") => serde_json::from_value::<ArticleText>(value)

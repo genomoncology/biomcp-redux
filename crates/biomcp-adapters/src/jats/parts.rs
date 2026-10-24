@@ -1,5 +1,6 @@
 use super::body::{BodyRow, Group, Rows};
-use biodata::{Text, TextPart};
+use biodata::{Text};
+use biomcp_types::{TextPart};
 use biomcp_fetch::BadReply;
 /// Serialized text capacity leaves room for reader envelope and advancing step.
 pub const TEXT_BYTES: usize = 12_000;

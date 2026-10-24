@@ -1,7 +1,8 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod steps;
 mod variant;
-use biodata::{Envelope, QueryBody, Request, Status};
+
+use biomcp_types::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
 use serde_json::Value;
 use std::{ffi::OsString, io};
@@ -34,7 +35,7 @@ fn dispatch_using(
     }
     if let Some(message) = crate::retired::message(args) {
         return encode(
-            biodata::ErrorEnvelope::retired(message),
+            biomcp_types::ErrorEnvelope::retired(message),
             crate::exit::Status::Usage,
         );
     }
@@ -79,20 +80,20 @@ fn dispatch_using(
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
                 Err(()) => {
-                    return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
+                    return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
-            return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
+            return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
         }
         _ => {
             owned = match crate::config::fetch(&parsed.globals) {
                 Ok(fetch) => fetch,
                 Err(()) => {
-                    return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
+                    return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
             &owned
@@ -107,16 +108,16 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     } = action
     {
         if q.nci_disease_invalid() {
-            return Some(usage_envelope(biodata::ErrorEnvelope::nci_disease()));
+            return Some(usage_envelope(biomcp_types::ErrorEnvelope::nci_disease()));
         }
         if let Some(option) = q.unsupported() {
-            let source = if q.source() == biodata::TrialSource::Nci {
-                biodata::Source::Nci
+            let source = if q.source() == biomcp_types::TrialSource::Nci {
+                biomcp_types::Source::Nci
             } else {
-                biodata::Source::ClinicalTrialsGov
+                biomcp_types::Source::ClinicalTrialsGov
             };
             return Some(usage_envelope(
-                biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
+                biomcp_types::ErrorEnvelope::unsupported_trial_filter(source, option),
             ));
         }
     }
@@ -128,7 +129,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         && let Some((source, option)) = biomcp_query::article::unsupported(query)
     {
         return Some(encode(
-            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            biomcp_types::ErrorEnvelope::unsupported_filter(source, option),
             crate::exit::Status::Usage,
         ));
     }
@@ -163,14 +164,14 @@ fn execute(
 }
 struct ResponseMeta {
     status: Status,
-    sources: Vec<biodata::SourceOutcome>,
-    problems: Vec<biodata::Problem>,
-    next: Vec<biodata::Step>,
-    page: Option<biodata::PageInfo>,
+    sources: Vec<biomcp_types::SourceOutcome>,
+    problems: Vec<biomcp_types::Problem>,
+    next: Vec<biomcp_types::Step>,
+    page: Option<biomcp_types::PageInfo>,
     exit: crate::exit::Status,
 }
 impl ResponseMeta {
-    fn encode<B: biodata::ResponseBody>(
+    fn encode<B: biomcp_types::ResponseBody>(
         self,
         query: B::Query,
         body: Option<B>,
@@ -202,12 +203,12 @@ fn response(
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
-            usage_envelope(biodata::ErrorEnvelope::variant_query_policy())
+            usage_envelope(biomcp_types::ErrorEnvelope::variant_query_policy())
         }
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
-            biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
+            biomcp_types::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),
-        (_, QueryBody::NciDiseaseError) => usage_envelope(biodata::ErrorEnvelope::nci_disease()),
+        (_, QueryBody::NciDiseaseError) => usage_envelope(biomcp_types::ErrorEnvelope::nci_disease()),
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))
         }
@@ -225,17 +226,17 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, body)
         }
         (_, QueryBody::ArticleSaveRefused(url)) => {
-            usage_envelope(biodata::ErrorEnvelope::save_refused(url))
+            usage_envelope(biomcp_types::ErrorEnvelope::save_refused(url))
         }
         (_, QueryBody::PdfSaveRefused(link)) => {
-            usage_envelope(biodata::ErrorEnvelope::save_refused(link.url))
+            usage_envelope(biomcp_types::ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
         (_, QueryBody::UnsupportedFilter { source, option }) => {
-            usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
+            usage_envelope(biomcp_types::ErrorEnvelope::unsupported_filter(source, option))
         }
         (_, QueryBody::TextPositionError) => encode(
-            biodata::ErrorEnvelope::arguments(),
+            biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
         (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
@@ -252,7 +253,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, Some(body))
         }
         (_, QueryBody::TooManyPmids { count }) => encode(
-            biodata::ErrorEnvelope::too_many_pmids(count),
+            biomcp_types::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
         ),
         (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, meta.next),
@@ -302,7 +303,7 @@ fn tool_using(
             .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
     }) {
         return encode(
-            biodata::ErrorEnvelope::arguments(),
+            biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         );
     }
@@ -342,12 +343,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 .iter()
                 .any(|(verb, _, _)| *verb == root)
         }) {
-        biodata::ErrorEnvelope::arguments()
+        biomcp_types::ErrorEnvelope::arguments()
     } else {
-        biodata::ErrorEnvelope::schema_usage()
+        biomcp_types::ErrorEnvelope::schema_usage()
     };
     if root == Some("get") && words.next() == Some("variant") {
-        error = biodata::ErrorEnvelope::variant_arguments();
+        error = biomcp_types::ErrorEnvelope::variant_arguments();
     }
     if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
         let flags: Vec<_> = args
@@ -360,14 +361,14 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 .iter()
                 .any(|flag| ["--lat", "--lon", "--distance"].contains(flag))
         {
-            error = biodata::ErrorEnvelope::trial_facility_radius();
+            error = biomcp_types::ErrorEnvelope::trial_facility_radius();
         }
     }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL
             .iter()
-            .map(|name| biodata::Step {
-                kind: biodata::StepKind::Configure,
+            .map(|name| biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
                 args: vec!["help".into(), "key".into(), name.source().into()].into(),
             })
             .collect();
@@ -376,8 +377,8 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = match bundle {
-        Bundle::Hgnc => biodata::Source::Hgnc,
-        Bundle::ClinGen => biodata::Source::ClinGen,
+        Bundle::Hgnc => biomcp_types::Source::Hgnc,
+        Bundle::ClinGen => biomcp_types::Source::ClinGen,
     };
     let result = match bundle {
         Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
@@ -388,7 +389,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
                         fetch,
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
-                    Ok(biodata::SyncResult {
+                    Ok(biomcp_types::SyncResult {
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,
                     })
@@ -409,19 +410,19 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         _ => None,
     });
     let mut envelope =
-        Envelope::<biodata::SyncResult>::new(status, biodata::SyncQuery { source }, result.ok());
-    envelope.sources.push(biodata::SourceOutcome {
+        Envelope::<biomcp_types::SyncResult>::new(status, biomcp_types::SyncQuery { source }, result.ok());
+    envelope.sources.push(biomcp_types::SourceOutcome {
         term: None,
         count: None,
         fetched: None,
         notices: Vec::new(),
         source,
-        state: if reason == Some(biodata::Reason::Disabled) {
-            biodata::SourceState::Skipped
+        state: if reason == Some(biomcp_types::Reason::Disabled) {
+            biomcp_types::SourceState::Skipped
         } else if status == Status::Complete {
-            biodata::SourceState::Ok
+            biomcp_types::SourceState::Ok
         } else {
-            biodata::SourceState::Failed
+            biomcp_types::SourceState::Failed
         },
         reason,
     });
@@ -435,19 +436,19 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
     )
 }
-fn key_help(source: biodata::Source) -> io::Result<Outcome> {
+fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
-        biodata::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
-        biodata::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
-        biodata::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
+        biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
+        biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
-    let data = biodata::KeyHelp {
+    let data = biomcp_types::KeyHelp {
         guidance: Some(
             biodata::Text::new(&format!(
                 "biomcp key set {}{}",
                 name.source(),
-                if source == biodata::Source::SemanticScholar {
+                if source == biomcp_types::Source::SemanticScholar {
                     "; a free key raises the request limit"
                 } else {
                     ""
@@ -504,13 +505,13 @@ fn run_request(
     })
 }
 
-fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {
+fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outcome> {
     let restart = steps
         .into_iter()
         .next()
         .ok_or_else(|| io::Error::other("missing restart"))?;
     encode(
-        biodata::ErrorEnvelope::pool(mismatch, restart),
+        biomcp_types::ErrorEnvelope::pool(mismatch, restart),
         if mismatch {
             crate::exit::Status::Usage
         } else {
@@ -519,7 +520,7 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
     )
 }
 
-fn usage_envelope(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
+fn usage_envelope(error: biomcp_types::ErrorEnvelope) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 
@@ -529,7 +530,7 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
             Envelope::new(Status::Complete, (), Some(result)),
             crate::exit::Status::Success,
         ),
-        Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
+        Err(_) => encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local),
     }
 }
 

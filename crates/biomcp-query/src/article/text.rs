@@ -1,9 +1,7 @@
 //! Bounded body selection under one command budget, including PMID resolution.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticleText, ArticleTextResult, PageInfo, Pmcid, QueryBody, Reason, Request,
-    Section, Source, Status, StepKind, Text, TextContent, TextHit,
-};
+use biodata::{ArticleInput, Pmcid, Text};
+use biomcp_types::{ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, TextContent, TextHit};
 use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 /// Read a bounded part or find page through the same transport and command budget.
@@ -76,7 +74,7 @@ pub(super) fn resolve<'a>(
             *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
             let source =
                 status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
-            if source.state == biodata::SourceState::Stale {
+            if source.state == biomcp_types::SourceState::Stale {
                 out.status = Status::Partial;
             }
             out.sources.push(source);
@@ -123,7 +121,7 @@ fn execute<'a>(
     let result = pmc_oa::read(&leg, id, pmid);
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
-    if source.state == biodata::SourceState::Stale {
+    if source.state == biomcp_types::SourceState::Stale {
         out.status = Status::Partial;
     }
     out.sources.push(source);
@@ -325,7 +323,7 @@ fn preprint<'a>(
         leg.finish(),
         result.as_ref().err().copied(),
     );
-    if source.state == biodata::SourceState::Stale {
+    if source.state == biomcp_types::SourceState::Stale {
         out.status = Status::Partial;
     }
     out.sources.push(source);

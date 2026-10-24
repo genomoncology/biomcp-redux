@@ -20,7 +20,8 @@ pub mod supplement;
 mod term;
 pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
+use biodata::{Text};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
@@ -39,14 +40,14 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
         out.status = Status::Failed;
     }
     if out.sources.iter().any(|source| {
-        source.source == biodata::Source::SemanticScholar
-            && source.reason == Some(biodata::Reason::RateLimited)
+        source.source == biomcp_types::Source::SemanticScholar
+            && source.reason == Some(biomcp_types::Reason::RateLimited)
     }) {
         out.next.insert(
             0,
             (
                 StepKind::Key,
-                Action::KeyHelp(biodata::Source::SemanticScholar),
+                Action::KeyHelp(biomcp_types::Source::SemanticScholar),
             ),
         );
     }
@@ -78,10 +79,10 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let resolved = if query.sources().contains(&biodata::ArticleSource::Pubmed)
-                || query.sources().contains(&biodata::ArticleSource::Litvar)
-                || query.sources().contains(&biodata::ArticleSource::Pubtator)
-                    && !cx.fetch.disabled(biodata::Source::PubTator)
+            let resolved = if query.sources().contains(&biomcp_types::ArticleSource::Pubmed)
+                || query.sources().contains(&biomcp_types::ArticleSource::Litvar)
+                || query.sources().contains(&biomcp_types::ArticleSource::Pubtator)
+                    && !cx.fetch.disabled(biomcp_types::Source::PubTator)
             {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
                     return Ok(());
@@ -100,7 +101,7 @@ fn execute<'a>(
                 }
                 return Ok(());
             };
-            if query.sort() == biodata::ArticleSort::Citations
+            if query.sort() == biomcp_types::ArticleSort::Citations
                 && !order::apply(cx, deadline, &mut items, out)?
             {
                 retry(query, None, out);
@@ -160,18 +161,19 @@ pub(super) fn consume<'a>(
 }
 
 /// Page one citation graph direction.
-pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> Outcome {
+pub fn edges(cx: &Ctx<'_>, query: &biomcp_types::ArticleEdges, references: bool) -> Outcome {
     edges::run(cx, query, references)
 }
 
 /// Check source capabilities before resolving inputs or opening a store.
-pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
-    use biodata::{ArticleFilter as F, ArticleSource as S};
+pub fn unsupported(query: &ArticleSearch) -> Option<(biomcp_types::Source, biomcp_types::ArticleFilter)> {
+
+use biomcp_types::{ArticleFilter as F, ArticleSource as S};
     if query.sources().contains(&S::Litvar) {
         let variant = query.variant().map_or("", Text::as_str);
         let rsid = biomcp_adapters::litvar::is_rsid(variant);
         if variant.is_empty() || (!rsid && query.gene().is_none()) {
-            return Some((biodata::Source::LitVar, F::Variant));
+            return Some((biomcp_types::Source::LitVar, F::Variant));
         }
         if let Some(option) = query.rejects(&[
             F::Text,
@@ -187,12 +189,12 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
             F::NoPreprints,
             F::ExcludeRetracted,
         ]) {
-            return Some((biodata::Source::LitVar, option));
+            return Some((biomcp_types::Source::LitVar, option));
         }
     }
     for (selector, source) in [
-        (S::Litsense, biodata::Source::LitSense),
-        (S::Pubtator, biodata::Source::PubTator),
+        (S::Litsense, biomcp_types::Source::LitSense),
+        (S::Pubtator, biomcp_types::Source::PubTator),
     ] {
         if query.sources().contains(&selector)
             && let Some(option) = query.rejects(&[
@@ -220,7 +222,7 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
                 F::NoPreprints,
                 F::ExcludeRetracted,
             ])
-            .map(|filter| (biodata::Source::SemanticScholar, filter));
+            .map(|filter| (biomcp_types::Source::SemanticScholar, filter));
     }
     None
 }

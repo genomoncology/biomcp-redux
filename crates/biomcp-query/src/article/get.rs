@@ -1,9 +1,7 @@
 //! PubMed card resolution under one command deadline.
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    Article, ArticleCardItem, ArticleCards, ArticleGet, ArticleInput, ArticleMatch,
-    ArticleResolution, Pmid, QueryBody, Source, SourceState, Status,
-};
+use biodata::{Article, ArticleInput, Pmid};
+use biomcp_types::{ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Leg, RequestError};
 /// Resolve and hydrate article cards under one absolute command deadline.
@@ -164,7 +162,7 @@ fn append(
     }
 }
 
-fn sources(query: &ArticleGet, source: biodata::SourceOutcome) -> Vec<biodata::SourceOutcome> {
+fn sources(query: &ArticleGet, source: biomcp_types::SourceOutcome) -> Vec<biomcp_types::SourceOutcome> {
     if query
         .input()
         .iter()

@@ -1,4 +1,4 @@
-use biodata::Source;
+use biomcp_types::Source;
 use std::time::Duration;
 
 /// A source declaration enforced by the transport.
@@ -280,5 +280,5 @@ pub struct Terms {
     /// Publisher page documenting the terms.
     pub url: &'static str,
     /// Reviewed category used by the source switch.
-    pub usage: biodata::Use,
+    pub usage: biomcp_types::Use,
 }

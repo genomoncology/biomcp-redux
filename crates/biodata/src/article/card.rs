@@ -104,7 +104,7 @@ pub struct AbstractPart {
     /// Whole paragraph text.
     pub text: crate::Markdown,
 }
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// Source correction relationship kind.
     CorrectionKind, SourceUnknown {
         /// Retraction relationship.
@@ -115,7 +115,7 @@ crate::source::canonical_enum! {
         ExpressionOfConcern => "expression_of_concern",
     }
 }
-crate::source::canonical_enum! {
+crate::canonical_enum! {
     /// Direction of a source correction relationship.
     CorrectionRelation, SourceUnknown {
         /// The related record is the notice.

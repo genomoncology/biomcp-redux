@@ -56,8 +56,8 @@ impl Reply for Raw {
 }
 fn bad(_: impl std::fmt::Debug) -> RequestError {
     biomcp_fetch::SourceError {
-        source: biodata::Source::EuropePmc,
-        reason: biodata::Reason::BadReply,
+        source: biomcp_types::Source::EuropePmc,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

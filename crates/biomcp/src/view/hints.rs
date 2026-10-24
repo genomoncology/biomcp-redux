@@ -1,5 +1,5 @@
 //! Data-only presentation hints; paths refer exclusively to response JSON.
-use biodata::ResponseBody;
+use biomcp_types::ResponseBody;
 pub(super) struct Hint {
     pub(super) schema: &'static str,
     pub(super) title: &'static str,
@@ -7,27 +7,27 @@ pub(super) struct Hint {
 }
 const HINTS: &[Hint] = &[
     Hint {
-        schema: biodata::ArticleSupplementResult::SCHEMA,
+        schema: biomcp_types::ArticleSupplementResult::SCHEMA,
         title: "",
         columns: &["sheet", "row", "header", "cells", "fragment"],
     },
     Hint {
-        schema: biodata::GeneCards::SCHEMA,
+        schema: biomcp_types::GeneCards::SCHEMA,
         title: "/answer/gene/symbol",
         columns: &[],
     },
     Hint {
-        schema: biodata::ArticleCards::SCHEMA,
+        schema: biomcp_types::ArticleCards::SCHEMA,
         title: "/answer/card/title",
         columns: &[],
     },
     Hint {
-        schema: biodata::GenePage::SCHEMA,
+        schema: biomcp_types::GenePage::SCHEMA,
         title: "",
         columns: &["symbol", "name", "hgnc_id", "location", "status"],
     },
     Hint {
-        schema: biodata::ArticlePage::SCHEMA,
+        schema: biomcp_types::ArticlePage::SCHEMA,
         title: "",
         columns: &[
             "pmid",
@@ -39,7 +39,7 @@ const HINTS: &[Hint] = &[
         ],
     },
     Hint {
-        schema: biodata::ArticleEdgePage::SCHEMA,
+        schema: biomcp_types::ArticleEdgePage::SCHEMA,
         title: "",
         columns: &["pmid", "header/title", "header/journal", "cited_by"],
     },

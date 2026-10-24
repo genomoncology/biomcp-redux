@@ -1,6 +1,5 @@
-use biodata::{
-    ArticleHeader, ArticleItem, ArticleKey, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text,
-};
+use biodata::{ArticleHeader, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biomcp_types::{ArticleItem, ArticleKey};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));

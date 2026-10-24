@@ -24,14 +24,14 @@ fn public_batches_reject_empty_and_oversized_inputs_before_io() {
             })
             .collect();
         assert!(
-            matches!(civic::genes(&civic_leg,&civic_ids), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+            matches!(civic::genes(&civic_leg,&civic_ids), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );
         let gnomad_leg = fetch.leg(&gnomad::SPEC, fetch.deadline(Duration::from_secs(20)));
         let ids: Vec<_> = (0..count)
             .map(|id| format!("ENSG{id:011}").parse().unwrap())
             .collect();
         assert!(
-            matches!(gnomad::constraints(&gnomad_leg,&ids), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+            matches!(gnomad::constraints(&gnomad_leg,&ids), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );
     }
     let leg = fetch.leg(&mygene::SPEC, fetch.deadline(Duration::from_secs(20)));

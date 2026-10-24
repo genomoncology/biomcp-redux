@@ -1,9 +1,7 @@
 use super::super::order;
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    ArticleCardItem, ArticleResolution, Pmid, QueryBody, Reason, Section, Source, SourceState,
-    Status,
-};
+use biodata::{Pmid};
+use biomcp_types::{ArticleCardItem, ArticleResolution, QueryBody, Reason, Section, Source, SourceState, Status};
 use biomcp_fetch::Deadline;
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], out: &mut Outcome) {
     let result = order::fetch(cx, deadline, ids);

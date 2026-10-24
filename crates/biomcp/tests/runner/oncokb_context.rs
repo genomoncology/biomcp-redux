@@ -118,7 +118,7 @@ fn reply(request: &str) -> Result<String, String> {
 }
 
 fn unrelated_sources() -> Vec<String> {
-    use biodata::Source;
+    use biomcp_types::Source;
     let allowed = [Source::MyVariant, Source::AlleleRegistry, Source::Oncokb];
     biomcp_adapters::registry::SOURCES
         .iter()

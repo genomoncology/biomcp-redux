@@ -1,8 +1,7 @@
 //! Shared Semantic Scholar search metadata and PubMed DOI joins.
 use crate::{Ctx, status};
-use biodata::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Doi, Source, Text,
-};
+use biodata::{Doi, Text};
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Source};
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn search<'a>(
@@ -64,11 +63,11 @@ pub(super) fn search<'a>(
 #[derive(Debug)]
 pub struct DoiResolution {
     /// Actual PubMed state, including a failed or stale leg.
-    pub source: biodata::SourceOutcome,
+    pub source: biomcp_types::SourceOutcome,
     /// Original error, so local failures remain distinct.
     pub error: Option<RequestError>,
     /// Malformed summary fields retained alongside valid mappings.
-    pub problems: Vec<biodata::Problem>,
+    pub problems: Vec<biomcp_types::Problem>,
 }
 /// Resolve DOI-only rows using PubMed's actual DOI field, retaining unmatched rows.
 /// Return a failed join explicitly; the caller retains the original source items.

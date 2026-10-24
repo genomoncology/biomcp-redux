@@ -1,6 +1,7 @@
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
-use biodata::{ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source};
+
+use biomcp_types::{ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn read<'a>(
@@ -49,7 +50,7 @@ pub(super) fn read<'a>(
             out.local = out.local.or(status::local(error));
             Section::unavailable(Source::PmcOa, super::graph::reason(error))
         }
-        Ok(None) => Section::unavailable(Source::PmcOa, biodata::Reason::NotOpen),
+        Ok(None) => Section::unavailable(Source::PmcOa, biomcp_types::Reason::NotOpen),
         Ok(Some(document)) => paragraphs(&document, &target)?,
     });
     Ok(())

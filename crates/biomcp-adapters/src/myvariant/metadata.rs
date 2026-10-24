@@ -1,6 +1,7 @@
 //! Component provenance from the aggregator, without a blanket component license.
 use crate::raw::Field;
-use biodata::{ComponentUpload, Text, VariantComponent};
+use biodata::{Text};
+use biomcp_types::{ComponentUpload, VariantComponent};
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 use std::collections::BTreeMap;

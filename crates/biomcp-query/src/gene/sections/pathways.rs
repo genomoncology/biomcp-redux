@@ -1,6 +1,7 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Capped, Gene, HgncId, Reason, Section, Source};
+use biodata::{Gene, HgncId};
+use biomcp_types::{Capped, Reason, Section, Source};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError};
 const LIMIT: usize = 25;
@@ -43,7 +44,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     for pathway in &mapped.value {
                         if !pathways
                             .iter()
-                            .any(|item: &biodata::PathwayRef| item.id == pathway.id)
+                            .any(|item: &biomcp_types::PathwayRef| item.id == pathway.id)
                         {
                             pathways.push(pathway.clone());
                         }

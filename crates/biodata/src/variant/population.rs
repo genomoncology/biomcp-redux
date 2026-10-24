@@ -133,7 +133,7 @@ impl PopulationFrequency {
         self
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Dataset sequencing sample set.
     PopulationDataType {
         /// Exome samples.
@@ -144,7 +144,7 @@ crate::macros::wire_enum! {
         Joint => "joint",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Sex stratum stated by a population source.
     PopulationSex {
         /// Source XX stratum.

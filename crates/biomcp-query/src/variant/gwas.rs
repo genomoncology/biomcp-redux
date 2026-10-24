@@ -1,9 +1,7 @@
 //! Source-local GWAS Catalog pages, with no inference from catalog absence.
 use crate::{Ctx, status};
-use biodata::{
-    GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source,
-    VariantGet, VariantGwas, VariantHeader, VariantId,
-};
+use biodata::{VariantId};
+use biomcp_types::{GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source, VariantGet, VariantGwas, VariantHeader};
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, RequestError};
 /// Ask only the current catalog and preserve source selection and paging.
@@ -43,7 +41,7 @@ pub(super) fn section(
                 .to_string()
                 .parse()
                 .ok()
-                .map(|id| biodata::SourceRecord { id, url: None }),
+                .map(|id| biomcp_types::SourceRecord { id, url: None }),
         },
         Ok(page) => {
             let rows = page
@@ -108,7 +106,7 @@ fn map(row: gwas::Association) -> GwasAssociation {
         ontology_traits: row
             .efo_traits
             .into_iter()
-            .map(|t| biodata::GwasTrait {
+            .map(|t| biomcp_types::GwasTrait {
                 id: t.efo_id,
                 label: t.efo_trait,
             })
@@ -149,6 +147,6 @@ fn continuation(
             .for_candidate(id.to_string().parse().ok()?)
             .ok()?
             .at_section_offset(next)
-            .with_sections(Box::new([biodata::VariantSection::Gwas])),
+            .with_sections(Box::new([biomcp_types::VariantSection::Gwas])),
     )
 }

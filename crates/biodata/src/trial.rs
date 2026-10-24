@@ -25,8 +25,8 @@ impl std::fmt::Display for NctId {
         write!(f, "NCT{:08}", self.0)
     }
 }
-crate::macros::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
-crate::macros::wire_enum! {
+crate::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
+crate::wire_enum! {
     /// Source-native registry value.
     TrialPhase {
         /// Registry EARLY_PHASE1 value.
@@ -43,7 +43,7 @@ crate::macros::wire_enum! {
         NotApplicable => "NA",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     TrialStatus {
         /// Registry ACTIVE_NOT_RECRUITING value.
@@ -74,7 +74,7 @@ crate::macros::wire_enum! {
         Unknown => "UNKNOWN",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     StudyType {
         /// Registry INTERVENTIONAL value.
@@ -85,7 +85,7 @@ crate::macros::wire_enum! {
         ExpandedAccess => "EXPANDED_ACCESS",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     TrialSex {
         /// Registry ALL value.

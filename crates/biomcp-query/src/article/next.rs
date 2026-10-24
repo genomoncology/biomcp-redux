@@ -1,5 +1,6 @@
 use crate::{Action, Outcome};
-use biodata::{ArticleGet, ArticleInput, ArticleResolution, QueryBody, Request, Status, StepKind};
+use biodata::{ArticleInput};
+use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, StepKind};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
     if matches!(out.status, Status::Failed | Status::Partial) {
         out.next.push((
@@ -21,9 +22,9 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             matches!(
                 s.fulltext,
                 Some(
-                    biodata::Section::NotApplicable
-                        | biodata::Section::Unavailable {
-                            reason: biodata::Reason::NotOpen,
+                    biomcp_types::Section::NotApplicable
+                        | biomcp_types::Section::Unavailable {
+                            reason: biomcp_types::Reason::NotOpen,
                             ..
                         }
                 )
@@ -34,7 +35,7 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             .or_else(|| card.doi.clone().map(ArticleInput::Doi))
             && let Ok(query) = ArticleGet::with_sections(
                 vec![input].into(),
-                vec![biodata::ArticleSectionWord::Pdf].into(),
+                vec![biomcp_types::ArticleSectionWord::Pdf].into(),
             )
         {
             push(&mut out.next, StepKind::Section, Request::GetArticle(query));
@@ -62,20 +63,20 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         push(
             &mut out.next,
             StepKind::Disambiguate,
-            Request::ArticleCitations(biodata::ArticleEdges::new(id)),
+            Request::ArticleCitations(biomcp_types::ArticleEdges::new(id)),
         );
 
         push(
             &mut out.next,
             StepKind::Disambiguate,
             Request::ArticleCitations(
-                biodata::ArticleEdges::new(id).sourced(biodata::EdgeSource::SemanticScholar),
+                biomcp_types::ArticleEdges::new(id).sourced(biomcp_types::EdgeSource::SemanticScholar),
             ),
         );
         push(
             &mut out.next,
             StepKind::Disambiguate,
-            Request::ArticleRecommend(biodata::ArticleRecommend::new(ArticleInput::Pmid(id))),
+            Request::ArticleRecommend(biomcp_types::ArticleRecommend::new(ArticleInput::Pmid(id))),
         );
     }
 }
@@ -93,7 +94,7 @@ fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
 }
 
 /// A short complete pool offers caller-controlled alternatives without running them.
-pub(super) fn search(query: &biodata::ArticleSearch, total: u64, partial: bool, out: &mut Outcome) {
+pub(super) fn search(query: &biomcp_types::ArticleSearch, total: u64, partial: bool, out: &mut Outcome) {
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (
@@ -108,8 +109,8 @@ pub(super) fn search(query: &biodata::ArticleSearch, total: u64, partial: bool, 
     variant_step(query, out);
 }
 
-fn variant_step(search: &biodata::ArticleSearch, out: &mut Outcome) {
-    if search.sources() == [biodata::ArticleSource::Pubmed]
+fn variant_step(search: &biomcp_types::ArticleSearch, out: &mut Outcome) {
+    if search.sources() == [biomcp_types::ArticleSource::Pubmed]
         && search.gene().is_some()
         && search.variant().is_some()
     {

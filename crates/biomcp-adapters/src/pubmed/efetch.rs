@@ -1,9 +1,6 @@
 use super::{SPEC, map::publication_type};
 use crate::xml_element::Element;
-use biodata::{
-    AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
-    PartialDate, Pmid, Text,
-};
+use biodata::{AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation, PartialDate, Pmid, Text};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError, Secret,
     xml::XmlReply,

@@ -16,7 +16,8 @@ pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> 
     markdown::checked(xml)
 }
 use crate::xml_element::Element;
-use biodata::{FigureCaption, Pmcid, Text};
+use biodata::{Pmcid, Text};
+use biomcp_types::{FigureCaption};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
 pub use parts::{Part, Row, TEXT_BYTES, escaped_bytes};
 use serde::{Deserialize, Deserializer};

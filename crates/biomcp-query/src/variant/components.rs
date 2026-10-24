@@ -1,9 +1,7 @@
 //! Component restrictions are decided before reading replies or caches.
 use crate::{Ctx, status};
-use biodata::{
-    Build, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
-    VariantPredictors,
-};
+use biodata::{Build};
+use biomcp_types::{Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantPredictors};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn skipped<T>() -> super::sections::Result<T> {
     (
