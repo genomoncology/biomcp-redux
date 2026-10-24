@@ -172,7 +172,7 @@ fn raw_and_region() -> Result<(), String> {
 fn restricted_regions(env: &Environment) -> Result<(), String> {
     for group in ["restricted", "noncommercial"] {
         let allowed = command(
-            &env,
+            env,
             &[
                 "search",
                 "variant",
