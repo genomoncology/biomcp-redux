@@ -122,7 +122,8 @@
         "gene",
         "--locus-group",
         "protein_coding"
-      ]
+      ],
+      "is_error": true
     }
   ]
 }
