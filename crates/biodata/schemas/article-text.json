@@ -54,6 +54,10 @@
       "minimum": 1,
       "type": "integer"
     },
+    "pdf": {
+      "description": "Read publisher PDF text instead of structured JATS.",
+      "type": "boolean"
+    },
     "variant": {
       "$ref": "#/$defs/Text",
       "description": "Explicit checked protein substitution."

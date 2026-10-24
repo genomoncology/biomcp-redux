@@ -8,6 +8,7 @@
       "description": "Article section request including all landed sections.",
       "enum": [
         "annotations",
+        "pdf",
         "fulltext",
         "supplements",
         "tldr",
@@ -17,6 +18,7 @@
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
+        " Explicit publisher PDF outline; excluded from all.",
         " Licensed PMC body outline.",
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",

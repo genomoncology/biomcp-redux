@@ -1,4 +1,8 @@
 //! The PDF child has no credentials, a bounded protocol, and the leg's parent deadline.
+#![expect(
+    clippy::disallowed_types,
+    reason = "This reviewed boundary launches only the current executable as its isolated PDF child"
+)]
 use crate::{Leg, RequestError};
 use biodata::Reason;
 use std::{
@@ -53,7 +57,7 @@ impl Leg<'_> {
         let mut child = ChildGuard(command.spawn().map_err(|_| bad())?);
         let mut input = child.0.stdin.take().ok_or_else(bad)?;
         let mut output = child.0.stdout.take().ok_or_else(bad)?;
-        let result = std::thread::scope(|scope| {
+        std::thread::scope(|scope| {
             scope.spawn(move || {
                 let _ = input.write_all(bytes);
             });
@@ -84,8 +88,7 @@ impl Leg<'_> {
                 }
                 _ => Err(bad().into()),
             }
-        });
-        result
+        })
     }
 }
 struct ChildGuard(Child);
