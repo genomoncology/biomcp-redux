@@ -99,7 +99,7 @@ Equality of two `Allele` values is equality of what the sources stated. It is no
 | --- | --- | --- | --- |
 | `Hgvs` (text) | Canonical text, kept exactly as given, such as `"NM_004333.4:c.1799T>A"` | Checked only for the published form: an `Accession`, a colon, one of `g.`, `c.`, `n.`, `r.`, `p.`, `m.`, `o.`, and a nonempty printable body. Name in Rust: `HgvsText` | HGVS 21.1 |
 | `HgvsParsed` | The projecting crate's parsed form | Built only by the projecting crate's grammar. It never replaces the text: any value that holds a parsed form also holds the `HgvsText` it came from. Its JSON is not a public contract until the merge | HGVS 21.1 grammar |
-| `ExpressionSyntax` | `"hgvs.g"`, `"hgvs.c"`, `"hgvs.n"`, `"hgvs.r"`, `"hgvs.p"`, `"hgvs.m"`, `"spdi"`, `"gnomad"`, `"vcf"`, `"iscn"` | VRS spellings, plus `vcf` for `chrom:pos:ref:alt` text | VRS `Expression.syntax` |
+| `ExpressionSyntax` | `"hgvs.g"`, `"hgvs.c"`, `"hgvs.n"`, `"hgvs.r"`, `"hgvs.p"`, `"hgvs.m"`, `"hgvs.o"`, `"spdi"`, `"gnomad"`, `"vcf"`, `"iscn"` | VRS spellings, plus `vcf` for `chrom:pos:ref:alt` text and `hgvs.o` for HGVS circular genomic text, which `HgvsText` accepts. A later GA4GH export leaves out `hgvs.o` and `vcf` expressions, which VRS does not list | VRS `Expression.syntax` |
 | `Expression` | `{"syntax", "value", "syntax_version"?}` | The value is checked against its syntax's published form at construction | VRS `Expression` |
 | `Representation` | `{"source", "expression", "build"?, "allele"?}` | One source's own form of a variant. `allele` is present only when the source gave reference, alternate and interbase bounds, or a padded VCF row the adapter converted under section 3.2. `build` is the source's stated build | VRS `expressions`, ClinGen Allele Registry genomic and transcript alleles |
 
@@ -112,7 +112,7 @@ A MyVariant `_id` such as `chr7:g.140453136A>T` is not reference-qualified HGVS.
 | Variant | Wire text | Check | Standard |
 | --- | --- | --- | --- |
 | `Rs` | `"rs113488022"` | `rs` and a positive number, stored as u64 | dbSNP |
-| `Ca` | `"CA123643"` | `CA` and a positive number | ClinGen Allele Registry nucleotide allele |
+| `Ca` | `"CA123643"`, `"CA000434"` | `CA` and a positive number written with at least six digits, zero-padded to six as the registry publishes it. Text with fewer than six digits, or more than six digits starting with zero, is refused. It serializes as that canonical text and compares by its number | ClinGen Allele Registry nucleotide allele |
 | `Pa` | `"PA..."` | `PA` and a positive number | ClinGen Allele Registry protein allele; confirm the form against the registry when built |
 | `ClinVarVariation` | `"clinvar:13961"` | Positive number with the `clinvar:` prefix | identifiers.org and Bioregistry `clinvar` |
 | `ClinVarAllele` | `"clinvar.allele:..."` | Positive number | ClinVar AlleleID |

@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT02563002",
+  "title": "Study of Pembrolizumab (MK-3475) vs Standard Therapy in Participants With Microsatellite Instability-High (MSI-H) or Mismatch Repair Deficient (dMMR) Stage IV Colorectal Carcinoma (MK-3475-177/KEYNOTE-177)",
+  "status": "COMPLETED",
+  "phases": [
+    "PHASE3"
+  ],
+  "study_type": "INTERVENTIONAL",
+  "conditions": [
+    "Colorectal Carcinoma"
+  ],
+  "interventions": [
+    "mFOLFOX6",
+    "FOLFIRI",
+    "Pembrolizumab",
+    "Bevacizumab",
+    "Cetuximab"
+  ],
+  "sponsor": "Merck Sharp & Dohme LLC",
+  "start": {
+    "date": "2015-11-30",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2021-02-19",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2023-07-17",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2024-10-03",
+    "kind": "ACTUAL"
+  },
+  "brief_summary": "In this study, participants with stage IV Microsatellite Instability-High (MSI-H) or Mismatch Repair Deficient (dMMR) colorectal carcinoma (CRC) will be randomly assigned to receive either pembrolizumab or the Investigator's choice of 1 of 6 standard of care (SOC) chemotherapy regimens for the treatment of advanced colorectal carcinoma. The primary study hypothesis is that pembrolizumab will prolong progression-free survival (PFS) or overall survival (OS) compared to current SOC chemotherapy.",
+  "url": "https://clinicaltrials.gov/study/NCT02563002"
+}

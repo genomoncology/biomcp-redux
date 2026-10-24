@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&filter.advanced=AREA%5BNCTId%5DNCT02563002%20AND%20AREA%5BPhase%5DPHASE1&pageSize=10",
+  "exchanges": [
+    {
+      "fetched": 1792863382,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 133,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":0,"studies":[
+
+]}
+      }
+    }
+  ]
+}

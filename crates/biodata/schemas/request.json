@@ -62,18 +62,6 @@
       ],
       "type": "string"
     },
-    "Build": {
-      "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Genome Reference Consortium human build 37.",
-        " Genome Reference Consortium human build 38."
-      ]
-    },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
@@ -132,8 +120,26 @@
         " HGNC's stated other group."
       ]
     },
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PhaseFilter": {
+      "description": "Explicit source phase selection, including the registry's combined phases.",
+      "enum": [
+        "early-1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "not-applicable",
+        "1/2",
+        "2/3"
+      ],
       "type": "string"
     },
     "RetractionFilter": {
@@ -148,10 +154,83 @@
       "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
+    "SponsorType": {
+      "description": "Registry funding category facet.",
+      "enum": [
+        "nih",
+        "fed",
+        "industry",
+        "other"
+      ],
+      "type": "string"
+    },
+    "StudyType": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "INTERVENTIONAL",
+        "OBSERVATIONAL",
+        "EXPANDED_ACCESS"
+      ],
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
+    },
+    "TrialSection": {
+      "description": "Available source protocol sections.",
+      "enum": [
+        "eligibility",
+        "outcomes",
+        "arms",
+        "locations",
+        "contacts",
+        "references",
+        "documents",
+        "all"
+      ],
+      "type": "string"
+    },
+    "TrialSex": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ALL",
+        "FEMALE",
+        "MALE"
+      ],
+      "type": "string"
+    },
+    "TrialStatus": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ACTIVE_NOT_RECRUITING",
+        "COMPLETED",
+        "ENROLLING_BY_INVITATION",
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "WITHDRAWN",
+        "AVAILABLE",
+        "NO_LONGER_AVAILABLE",
+        "APPROVED_FOR_MARKETING",
+        "WITHHELD",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38."
+      ]
     },
     "VariantInput": {
       "pattern": "^(rs[1-9][0-9]*|CA[1-9][0-9]*|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
@@ -842,6 +921,213 @@
           "$ref": "#/$defs/Text",
           "description": "Words matched against symbols, previous symbols, aliases and names.",
           "x-positional": 0
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Save an exact registry document to an explicit destination.",
+      "properties": {
+        "command": {
+          "const": "trial_document",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "x-positional": 1
+        },
+        "input": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity.",
+          "x-positional": 0
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-owned file or existing folder."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "file",
+        "save"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Retrieve exact trial cards and source protocol sections.",
+      "properties": {
+        "command": {
+          "const": "get_trial",
+          "type": "string"
+        },
+        "input": {
+          "description": "One to twenty exact NCT identifiers, in caller order.",
+          "items": {
+            "$ref": "#/$defs/NctId"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Checked stored source record, supplied by a continuation."
+        },
+        "section": {
+          "description": "Optional intact source sections. The default returns cards only.",
+          "items": {
+            "$ref": "#/$defs/TrialSection"
+          },
+          "type": "array",
+          "x-trailing-section": true
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Search ClinicalTrials.gov without local screening.",
+      "properties": {
+        "age": {
+          "description": "Age in years; unstated source bounds count as no limit.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "command": {
+          "const": "search_trial",
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/$defs/Text",
+          "description": "Condition-only source text."
+        },
+        "count_only": {
+          "default": false,
+          "description": "Source total only; no returned study rows.",
+          "type": "boolean"
+        },
+        "criteria": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal eligibility-field discovery text."
+        },
+        "distance": {
+          "$ref": "#/$defs/Text",
+          "description": "Source distance with explicit mi or km units."
+        },
+        "facility": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact registry facility field; cannot combine with radius."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Resolve one checked gene before registry discovery."
+        },
+        "has_results": {
+          "default": false,
+          "description": "Require posted source results.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact NCT identity in a conjunction with other filters."
+        },
+        "intervention": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source intervention text."
+        },
+        "lat": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center latitude in degrees."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Headers per page; default ten, maximum one hundred.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "lon": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center longitude in degrees."
+        },
+        "next_page": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque registry continuation; keep filters unchanged."
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseFilter",
+          "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "General registry discovery text.",
+          "x-positional": 0
+        },
+        "sex": {
+          "$ref": "#/$defs/TrialSex",
+          "description": "Registry sex facet."
+        },
+        "sponsor": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact lead sponsor field."
+        },
+        "sponsor_type": {
+          "$ref": "#/$defs/SponsorType",
+          "description": "Registry sponsor funding facet."
+        },
+        "status": {
+          "$ref": "#/$defs/TrialStatus",
+          "description": "Exact registry overall status."
+        },
+        "study_type": {
+          "$ref": "#/$defs/StudyType",
+          "description": "Exact registry study type."
+        },
+        "updated_since": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "First included registry update date."
+        },
+        "updated_until": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Last included registry update date."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-supplied variant discovery text; no eligibility inference."
         }
       },
       "required": [

@@ -7,6 +7,12 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Read a published variant identifier.
     GetVariant(crate::VariantGet),
+    /// Save an exact registry document to an explicit destination.
+    TrialDocument(crate::TrialDocumentGet),
+    /// Retrieve exact trial cards and source protocol sections.
+    GetTrial(crate::TrialGet),
+    /// Search ClinicalTrials.gov without local screening.
+    SearchTrial(crate::TrialSearch),
     /// Save a publisher PDF to an explicit destination.
     ArticlePdf(crate::ArticlePdf),
     /// Read source citation evidence.

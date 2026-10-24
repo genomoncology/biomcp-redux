@@ -8,6 +8,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::allele_registry::SPEC,
     &crate::mutalyzer::SPEC,
     &crate::variantvalidator::SPEC,
+    &crate::ctgov::SPEC,
     &crate::hgnc::SPEC,
     &crate::mygene::SPEC,
     &crate::oncokb::SPEC,
@@ -115,6 +116,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/variantvalidator/GRCh38/LRG_321p1%3Ap.Arg273His/all",
             vec![("content-type", Arg::Text("application/json"))],
         ),
+        Source::ClinicalTrialsGov => ("/version", vec![]),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::UniProt => (

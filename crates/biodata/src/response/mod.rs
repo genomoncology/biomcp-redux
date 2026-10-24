@@ -66,3 +66,14 @@ pub use article::{
 
 mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantResolution};
+mod trial;
+pub use trial::{TrialPage, TrialParameter};
+
+mod trial_get;
+pub use trial_get::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
+    TrialRecords, TrialSections,
+};
+
+mod trial_document;
+pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};

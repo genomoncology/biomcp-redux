@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "generated-help",
-  "story": "Generated gene help documents the shipped grammar and executable examples. Whole-help budget uses 17282 measured bytes plus fifteen percent; no matching 0.9 baseline exists",
+  "story": "Generated help documents the shipped grammar and executable examples; the whole-tree budget follows the measured output as commands are added.",
   "replay": "gene/main",
   "steps": [
     {
@@ -15,7 +15,7 @@
           "gene"
         ]
       },
-      "max_bytes": 19875
+      "max_bytes": 24132
     },
     {
       "run": [
@@ -228,5 +228,5 @@
       }
     }
   ],
-  "verified": "Root help now includes all landed article verbs. Measured14974bytes; max_bytes allows exactly ceil(actual*1.15). No comparable0.9 generated-help JSON baseline exists. Gene-specific help bounds remain unchanged."
+  "verified": "Whole help includes trial search and all landed article verbs. j10465 measured the root help at 20984 bytes; max_bytes is ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
 }

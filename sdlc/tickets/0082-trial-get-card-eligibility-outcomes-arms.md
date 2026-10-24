@@ -1,6 +1,7 @@
 # 0082 — Get trials by NCT ID with the card, eligibility, outcomes and arms
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4cc1d5d38acd7cc9734076231aeb55a49469b0be
 
 Milestone: 2
 

@@ -67,6 +67,12 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Source-qualified variant identity.
     VariantCard(crate::VariantCard),
+    /// Source trial document receipt.
+    TrialDocument(crate::TrialDocumentResult),
+    /// Exact trial cards and source protocol sections.
+    TrialCards(crate::TrialCards),
+    /// Native registry search page.
+    TrialPage(crate::TrialPage),
     /// Explicit PDF save result.
     ArticlePdf(crate::ArticlePdfResult),
     /// Invalid destination or unavailable save surface, retaining the source link.

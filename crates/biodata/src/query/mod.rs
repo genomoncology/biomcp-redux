@@ -29,3 +29,11 @@ pub use variant::{VariantGet, VariantResolver};
 
 mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};
+mod trial;
+pub use trial::{PhaseFilter, SponsorType, TrialSearch};
+
+mod trial_get;
+pub use trial_get::{TrialGet, TrialSection};
+
+mod trial_document;
+pub use trial_document::TrialDocumentGet;

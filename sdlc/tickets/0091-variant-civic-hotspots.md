@@ -12,4 +12,4 @@ The `civic` section returns CIViC evidence and assertions for the variant's exac
 
 - Starts from: variant.md (CIViC and Cancer Hotspots rows, budgets); the rulings; the gene slice's CIViC adapter.
 - Risks the proof must cover: a CIViC name match is a candidate until exact variant membership is joined; a compound OR profile is shown as compound; residue counts never read as allele frequency or actionability.
-- Proof: BRAF V600E asserts its exact profile evidence apart from the compound profile; a hotspots case with residue and alternate counts and transcript; failure cases; MCP parity; ceilings. Cancer Hotspots captures run from outside the repo until its terms are checked. Then make landing-gate runs through pm job after current main.
+- Proof: the shared fixture's CIViC Statement row runs through BioMCP's `Statement`; BRAF V600E asserts its exact profile evidence apart from the compound profile; a hotspots case with residue and alternate counts and transcript; failure cases; MCP parity; ceilings. Cancer Hotspots captures run from outside the repo until its terms are checked. Then make landing-gate runs through pm job after current main.

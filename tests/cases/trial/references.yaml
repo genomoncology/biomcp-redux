@@ -1,0 +1,31 @@
+{
+  "live_check": "local-only retained source capture delivered over local TLS",
+  "feature": "trial-publications",
+  "story": "VISION retains registry publication identity and type without classifying its references",
+  "replay": "trial/get/NCT03511664",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03511664",
+        "references"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT03511664",
+        "references"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/references/data/items/5/pmid": "34161051",
+        "/result/items/0/sections/references/data/items/5/kind": "RESULT",
+        "/next/1/args": {
+          "includes": "34161051"
+        }
+      },
+      "max_bytes": 7808
+    }
+  ]
+}

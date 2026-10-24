@@ -95,6 +95,9 @@ pub(crate) static VARIANT_VALIDATOR: Quota = Quota::new(
     None,
     1,
 );
+// Conservative serial registry policy; no published numeric quota was established.
+pub(crate) static CTGOV: Quota =
+    Quota::new(SourceKey::declare("ctgov"), Rate::per_second(1), None, 1);
 /// Independent credential-free publisher download quota.
 pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(
     SourceKey::declare("publisher-pdf"),

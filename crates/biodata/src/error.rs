@@ -18,6 +18,8 @@ pub enum Error {
     AlleleEmpty,
     /// Input is not a published variant identifier.
     VariantInputInvalid,
+    /// A trial identifier failed its namespace syntax.
+    TrialIdInvalid,
     /// An article identifier failed its namespace syntax.
     ArticleIdInvalid,
     /// The checked EntrezGeneIdInvalid value was rejected.
@@ -86,6 +88,7 @@ impl Error {
             Self::AlleleReferenceLength => "allele.reference_length",
             Self::AlleleEmpty => "allele.empty",
             Self::VariantInputInvalid => "variant.input.invalid",
+            Self::TrialIdInvalid => "id.trial.invalid",
             Self::ArticleIdInvalid => "id.article.invalid",
             Self::LocusTypeUnknown => "gene.locus_type.unknown",
             Self::BuildUnknown => "build.unknown",

@@ -34,6 +34,9 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::GetVariant(_) => "biodata.variant-get/1",
+        Request::TrialDocument(_) => "biodata.trial-document/1",
+        Request::GetTrial(_) => "biodata.trial-get/1",
+        Request::SearchTrial(_) => "biodata.trial-search/1",
         Request::ArticlePdf(_) => "biodata.article-pdf/1",
         Request::ArticleEvidence(_) => "biodata.article-evidence/1",
         Request::ArticleRecommend(_) => "biodata.article-recommend/1",
@@ -59,8 +62,11 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("article", "references", "biodata.article-edges/2"),
     ("article", "citation-evidence", "biodata.article-evidence/1"),
     ("article", "recommendations", "biodata.article-recommend/1"),
+    ("search", "trial", "biodata.trial-search/1"),
+    ("get", "trial", "biodata.trial-get/1"),
+    ("trial", "document", "biodata.trial-document/1"),
 ];
-fn root() -> Result<Command, ()> {
+pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_help_subcommand(true)
@@ -98,7 +104,18 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for verb in ["get", "search", "article"] {
+    root
+}
+fn root() -> Result<Command, ()> {
+    let mut root = global_arguments();
+    for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
+        if QUERIES
+            .iter()
+            .take(index)
+            .any(|(prior, _, _)| *prior == verb)
+        {
+            continue;
+        }
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
@@ -444,6 +461,15 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     match (verb, entity) {
         ("get", "variant") => serde_json::from_value::<biodata::VariantGet>(value)
             .map(Request::GetVariant)
+.map_err(|_| ()),
+        ("get", "trial") => serde_json::from_value::<biodata::TrialGet>(value)
+            .map(Request::GetTrial)
+            .map_err(|_| ()),
+        ("search", "trial") => serde_json::from_value::<biodata::TrialSearch>(value)
+            .map(Request::SearchTrial)
+            .map_err(|_| ()),
+        ("trial", "document") => serde_json::from_value::<biodata::TrialDocumentGet>(value)
+            .map(Request::TrialDocument)
             .map_err(|_| ()),
         ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
             .map(Request::ArticlePdf)

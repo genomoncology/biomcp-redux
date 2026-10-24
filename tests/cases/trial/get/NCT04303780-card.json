@@ -1,0 +1,35 @@
+{
+  "nct_id": "NCT04303780",
+  "title": "Study to Compare AMG 510 \"Proposed INN Sotorasib\" With Docetaxel in Non Small Cell Lung Cancer (NSCLC) (CodeBreak 200).",
+  "status": "COMPLETED",
+  "phases": [
+    "PHASE3"
+  ],
+  "study_type": "INTERVENTIONAL",
+  "conditions": [
+    "KRAS p, G12c Mutated /Advanced Metastatic NSCLC"
+  ],
+  "interventions": [
+    "AMG 510",
+    "Docetaxel"
+  ],
+  "sponsor": "Amgen",
+  "start": {
+    "date": "2020-06-04",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2022-08-02",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2026-06-24",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2026-07-22",
+    "kind": "ACTUAL"
+  },
+  "brief_summary": "A Phase 3 Study to Compare AMG 510 with Docetaxel in Non Small Cell Lung Cancer (NSCLC) subjects with KRAS p. G12c mutation",
+  "url": "https://clinicaltrials.gov/study/NCT04303780"
+}

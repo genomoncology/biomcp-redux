@@ -58,19 +58,27 @@ pub trait XmlReply: Reply {
 }
 
 type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biodata::Reason> + 'a;
+type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
+    check: Option<&'a ReplyCheck<'a, T>>,
     codec: Codec,
     pub(crate) limit: Option<u64>,
     pub(crate) json_rejections: bool,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
 }
-impl<T: Reply> Decoder<'_, T> {
+impl<'a, T: Reply> Decoder<'a, T> {
+    pub(crate) fn checked_json(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self {
+        let mut codec = Self::json();
+        codec.check = Some(check);
+        codec
+    }
     pub(crate) fn json() -> Self {
         Self {
             codec: Codec::Json,
             validate: None,
+            check: None,
             octet_stream: false,
             limit: None,
             json_rejections: false,
@@ -84,6 +92,7 @@ impl<T: Reply> Decoder<'_, T> {
         Self {
             codec: Codec::Xml,
             validate: None,
+            check: None,
             octet_stream: false,
             limit: None,
             json_rejections: false,
@@ -119,6 +128,9 @@ impl<T: Reply> Decoder<'_, T> {
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;
         reply.check().ok()?;
+        if let Some(check) = self.check {
+            check(&reply).ok()?;
+        }
         Some(reply)
     }
 }
@@ -275,6 +287,7 @@ impl Decoder<'_, Probe> {
         Self {
             codec: Codec::Probe,
             validate: None,
+            check: None,
             limit: None,
             json_rejections: false,
             octet_stream: false,
@@ -302,6 +315,7 @@ impl<'a> Decoder<'a, Bytes> {
         Self {
             codec: Codec::Bytes,
             validate: None,
+            check: None,
             octet_stream: false,
             limit: Some(limit),
             json_rejections: false,

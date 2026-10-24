@@ -103,3 +103,37 @@ pub use variant::{
 pub use variant::{Expression, ExpressionSyntax, HgvsText, VariantId};
 
 pub use query::{VariantInput, VariantNamespace};
+mod trial;
+pub use query::PhaseFilter;
+pub use query::SponsorType;
+pub use query::TrialSearch;
+pub use response::TrialPage;
+pub use response::TrialParameter;
+pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
+
+mod trial_detail;
+pub use trial_detail::{
+    TrialAgeBound, TrialArm, TrialCard, TrialEligibility, TrialIntervention, TrialOutcome,
+    TrialOutcomeKind,
+};
+
+pub use query::{TrialGet, TrialSection};
+pub use response::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
+    TrialRecords, TrialSections,
+};
+
+pub use trial_detail::{TrialDate, TrialDateKind};
+
+pub use trial_detail::{TrialArmKind, TrialInterventionKind};
+
+mod trial_sites;
+pub use trial_sites::{
+    TrialContact, TrialContactRole, TrialCoordinates, TrialLocation, TrialOfficial,
+    TrialOfficialRole, TrialSiteStatus,
+};
+
+mod trial_publications;
+pub use query::TrialDocumentGet;
+pub use response::{TrialDocumentResult, TrialDocumentSaved};
+pub use trial_publications::{TrialDocument, TrialReference};
