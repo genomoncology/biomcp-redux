@@ -87,7 +87,16 @@ pub fn read(
         .map(|v| ("md5", Arg::Text(v)))
         .into_iter()
         .collect();
-    let url = biodata::Text::new(&format!("{}{}{}", SPEC.base, loc.path, loc.md5.as_ref().map(|v| format!("?md5={v}")).unwrap_or_default())).map_err(bad)?;
+    let url = biodata::Text::new(&format!(
+        "{}{}{}",
+        SPEC.base,
+        loc.path,
+        loc.md5
+            .as_ref()
+            .map(|v| format!("?md5={v}"))
+            .unwrap_or_default()
+    ))
+    .map_err(bad)?;
     let body = leg.xml::<jats::Body>(&FILE.clone().with_path(loc.path).map_err(bad)?, &params)?;
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));

@@ -17,12 +17,12 @@ pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
 };
 pub use response::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
+    TextPart, TextPartKind,
 };
 pub use response::{
-    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
-    TextPartKind,
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
 };
 mod response;
 mod source;

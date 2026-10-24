@@ -55,7 +55,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
             },
         ));
     }
-    super::save::Download { out, file: save.file }
+    super::save::Download {
+        out,
+        file: save.file,
+    }
 }
 fn failure(reason: Reason) -> RequestError {
     SourceError {
@@ -102,7 +105,11 @@ fn execute<'a>(
         if query.save().is_some() {
             content.url = Some(file.url.clone());
             if save.allow {
-                save.file = Some(super::save::File { bytes: pmc_oa::download_bytes(&leg, file)?, url: file.url.clone(), parts: None });
+                save.file = Some(super::save::File {
+                    bytes: pmc_oa::download_bytes(&leg, file)?,
+                    url: file.url.clone(),
+                    parts: None,
+                });
             }
         } else if !file.file.kind.readable() {
             content.url = Some(file.url.clone());

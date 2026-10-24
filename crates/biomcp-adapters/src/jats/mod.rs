@@ -110,14 +110,22 @@ fn own_id(metadata: Option<Element<'_>>) -> Result<Option<Pmcid>, BadReply> {
     Ok(own)
 }
 
-fn header(metadata: Option<Element<'_>>) -> Result<(Option<Text>, Vec<(Text, Text)>), BadReply> {
-    let Some(metadata) = metadata else { return Ok((None, Vec::new())); };
-    let title = metadata.value(&["title-group", "article-title"])?
-        .map(|s| Text::new(&s).map_err(|_| BadReply)).transpose()?;
+type Header = (Option<Text>, Vec<(Text, Text)>);
+fn header(metadata: Option<Element<'_>>) -> Result<Header, BadReply> {
+    let Some(metadata) = metadata else {
+        return Ok((None, Vec::new()));
+    };
+    let title = metadata
+        .value(&["title-group", "article-title"])?
+        .map(|s| Text::new(&s).map_err(|_| BadReply))
+        .transpose()?;
     let mut ids = Vec::new();
     for id in metadata.children("article-id")? {
         if let Some(kind) = id.attr("pub-id-type")? {
-            ids.push((Text::new(&kind).map_err(|_| BadReply)?, Text::new(&id.text()?).map_err(|_| BadReply)?));
+            ids.push((
+                Text::new(&kind).map_err(|_| BadReply)?,
+                Text::new(&id.text()?).map_err(|_| BadReply)?,
+            ));
         }
     }
     Ok((title, ids))

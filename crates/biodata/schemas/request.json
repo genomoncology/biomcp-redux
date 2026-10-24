@@ -307,9 +307,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "replace": {
+          "description": "Replace an existing destination only when explicitly requested with save.",
+          "type": "boolean"
+        },
         "rows": {
           "$ref": "#/$defs/SheetRows",
           "description": "Inclusive original row range."
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Save the whole original document to an explicit file or existing folder."
         },
         "sheet": {
           "$ref": "#/$defs/Text",
@@ -344,6 +352,11 @@
           "required": [
             "variant"
           ]
+        },
+        {
+          "required": [
+            "save"
+          ]
         }
       ],
       "description": "Read licensed PMC body text.",
@@ -373,6 +386,14 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "replace": {
+          "description": "Replace an existing destination only when explicitly requested with save.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Save the whole original document to an explicit file or existing folder."
         },
         "variant": {
           "$ref": "#/$defs/Text",

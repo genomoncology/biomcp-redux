@@ -1,3 +1,4 @@
+mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
@@ -33,7 +34,6 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
-mod article_save;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

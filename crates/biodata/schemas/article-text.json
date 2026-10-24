@@ -28,6 +28,11 @@
       "required": [
         "variant"
       ]
+    },
+    {
+      "required": [
+        "save"
+      ]
     }
   ],
   "description": "Read one bounded body part or a page of matching paragraphs and table rows.",
@@ -53,6 +58,14 @@
       "format": "uint32",
       "minimum": 1,
       "type": "integer"
+    },
+    "replace": {
+      "description": "Replace an existing destination only when explicitly requested with save.",
+      "type": "boolean"
+    },
+    "save": {
+      "$ref": "#/$defs/Text",
+      "description": "Save the whole original document to an explicit file or existing folder."
     },
     "variant": {
       "$ref": "#/$defs/Text",

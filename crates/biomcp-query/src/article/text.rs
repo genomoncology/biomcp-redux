@@ -56,7 +56,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             },
         ));
     }
-    super::save::Download { out, file: save.file }
+    super::save::Download {
+        out,
+        file: save.file,
+    }
 }
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
@@ -127,8 +130,14 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
-            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out, save)
-            else {
+            let Some(content) = select(
+                query,
+                selection,
+                ArticleInput::Pmcid(id),
+                &document,
+                out,
+                save,
+            ) else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
@@ -321,7 +330,14 @@ fn preprint<'a>(
     }
     out.sources.push(source);
     let document = result?;
-    let Some(content) = select(query, selection, query.input().clone(), &document, out, save) else {
+    let Some(content) = select(
+        query,
+        selection,
+        query.input().clone(),
+        &document,
+        out,
+        save,
+    ) else {
         out.body = QueryBody::TextPositionError;
         return Ok(());
     };
