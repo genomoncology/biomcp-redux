@@ -76,6 +76,9 @@ fn source(error: RequestError) -> biomcp_fetch::SourceError {
     error
 }
 
+#[path = "cache/credentials.rs"]
 mod credentials;
+#[path = "cache/freshness.rs"]
 mod freshness;
+#[path = "cache/storage.rs"]
 mod storage;

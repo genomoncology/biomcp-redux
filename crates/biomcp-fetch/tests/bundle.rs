@@ -439,5 +439,7 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
     });
 }
 
+#[path = "bundle/download.rs"]
 mod download;
+#[path = "bundle/rows.rs"]
 mod rows;
