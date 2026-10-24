@@ -337,6 +337,7 @@
       "description": "Why a source could not supply data.",
       "enum": [
         "not_found",
+        "not_open",
         "rate_limited",
         "unavailable",
         "rejected",
@@ -352,6 +353,7 @@
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " The source rejected the request.",
@@ -378,6 +380,7 @@
         "pubmed",
         "europepmc",
         "semantic-scholar",
+        "pmc-oa",
         "icite",
         "pubtator",
         "ctgov",
@@ -396,6 +399,7 @@
         " PubMed.",
         " Europe PMC.",
         " Semantic Scholar.",
+        " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",

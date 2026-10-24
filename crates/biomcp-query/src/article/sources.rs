@@ -81,7 +81,10 @@ pub(super) fn search<'a>(
         }
     }
     for failure in join_failures {
-        if let Some(existing) = results.iter_mut().find(|r| r.outcome.source == failure.source) {
+        if let Some(existing) = results
+            .iter_mut()
+            .find(|r| r.outcome.source == failure.source)
+        {
             existing.outcome.state = failure.state;
             existing.outcome.reason = failure.reason;
         } else {

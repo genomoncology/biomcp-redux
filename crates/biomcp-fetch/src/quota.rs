@@ -89,6 +89,12 @@ pub struct Quota {
 }
 
 impl Quota {
+    /// Nominal request interval for this credential policy, excluding bursts.
+    /// A diagnostic caller may use it to pace separate command processes.
+    pub fn interval(&self, keyed: bool) -> Duration {
+        let rate = if keyed { self.keyed_rate.unwrap_or(self.rate) } else { self.rate };
+        Duration::from_nanos((1_000_000_000 * u64::from(rate.seconds)).div_ceil(u64::from(rate.per_second)))
+    }
     /// Declare validated provider limits.
     ///
     /// # Panics

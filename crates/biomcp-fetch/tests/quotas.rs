@@ -150,7 +150,12 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
 fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
     for configured in [false, true] {
         let server = Server::new();
-        let shared = quota("keyed", Rate::every_seconds(2), Some(Rate::per_second(1)), 1);
+        let shared = quota(
+            "keyed",
+            Rate::every_seconds(2),
+            Some(Rate::per_second(1)),
+            1,
+        );
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
@@ -160,9 +165,10 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
         );
         let mut config = FetchConfig::default();
         if configured {
-            config
-                .secrets
-                .insert(SecretName::SemanticScholarApiKey, Secret::new("placeholder"));
+            config.secrets.insert(
+                SecretName::SemanticScholarApiKey,
+                Secret::new("placeholder"),
+            );
         }
         let fetch = Fetch::open(config).unwrap();
         let (sent, receive) = mpsc::channel();
