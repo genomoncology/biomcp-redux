@@ -79,10 +79,14 @@ pub(super) fn render(
             Status::Failed
         }
     } else if !snapshot.terminal
-        || snapshot
-            .sources
-            .iter()
-            .any(|s| matches!(s.state,biodata::SourceState::Stale|biodata::SourceState::Failed|biodata::SourceState::Skipped))
+        || snapshot.sources.iter().any(|s| {
+            matches!(
+                s.state,
+                biodata::SourceState::Stale
+                    | biodata::SourceState::Failed
+                    | biodata::SourceState::Skipped
+            )
+        })
     {
         Status::Partial
     } else {
@@ -97,7 +101,7 @@ pub(super) fn render(
             },
         ));
     }
-    sources(out,snapshot.sources);
+    sources(out, snapshot.sources);
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,
@@ -125,8 +129,12 @@ fn page<T: Clone + serde::Serialize>(
     Ok(out)
 }
 
-fn sources(out:&mut Outcome,sources:Vec<biodata::SourceOutcome>) {
+fn sources(out: &mut Outcome, sources: Vec<biodata::SourceOutcome>) {
     for incoming in sources {
-        if let Some(original)=out.sources.iter_mut().find(|s|s.source==incoming.source) {crate::status::retain_source_state(original,&incoming);}else{out.sources.push(incoming)}
+        if let Some(original) = out.sources.iter_mut().find(|s| s.source == incoming.source) {
+            crate::status::retain_source_state(original, &incoming);
+        } else {
+            out.sources.push(incoming)
+        }
     }
 }

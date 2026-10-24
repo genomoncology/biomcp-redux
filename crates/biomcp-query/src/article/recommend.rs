@@ -62,13 +62,13 @@ fn execute<'a>(
     let pool = match old {
         Some(pool) if pool.key != key.as_slice() => {
             out.body = QueryBody::PoolError { mismatch: true };
-            restart(query,out);
+            restart(query, out);
             return Ok(());
         }
         Some(pool) => pool,
         None if explicit.is_some() => {
             out.body = QueryBody::PoolError { mismatch: false };
-            restart(query,out);
+            restart(query, out);
             return Ok(());
         }
         None => {
@@ -148,6 +148,12 @@ fn create<'a>(
     Ok(items)
 }
 
-fn restart(query:&ArticleRecommend,out:&mut Outcome) {
-    out.next.push((StepKind::Restart,Action::Run{request:Request::ArticleRecommend(query.page(0,None)),fresh:false}));
+fn restart(query: &ArticleRecommend, out: &mut Outcome) {
+    out.next.push((
+        StepKind::Restart,
+        Action::Run {
+            request: Request::ArticleRecommend(query.page(0, None)),
+            fresh: false,
+        },
+    ));
 }

@@ -1,11 +1,20 @@
 //! Checked evidence continuation state belongs to the existing per-command store.
-use super::{CacheError,Store,db};
-use biodata::{Source,SourceOutcome,Text};
-use rusqlite::{OptionalExtension,params};
+use super::{CacheError, Store, db};
+use biodata::{Source, SourceOutcome, Text};
+use rusqlite::{OptionalExtension, params};
 /// Source admission happens before the private snapshot payload is read.
-pub(crate) enum EvidenceState { Missing, Disabled, Ready(String) }
+pub(crate) enum EvidenceState {
+    Missing,
+    Disabled,
+    Ready(String),
+}
 impl Store<'_> {
-    pub(crate) fn evidence(&self,id:&str,key:&[u8],disabled:impl Fn(Source)->bool)->Result<EvidenceState,CacheError> {
+    pub(crate) fn evidence(
+        &self,
+        id: &str,
+        key: &[u8],
+        disabled: impl Fn(Source) -> bool,
+    ) -> Result<EvidenceState, CacheError> {
         self.read(|cx| {
             let outcomes:Option<String>=cx.query_row("SELECT outcomes FROM citation_evidence WHERE id=?1 AND request_key=?2 AND expires>?3",params![id,key,Self::now()],|row|row.get(0)).optional().map_err(db)?;
             let Some(outcomes)=outcomes else{return Ok(EvidenceState::Missing)};
@@ -14,7 +23,13 @@ impl Store<'_> {
             cx.query_row("SELECT payload FROM citation_evidence WHERE id=?1",params![id],|row|row.get(0)).map(EvidenceState::Ready).map_err(db)
         })
     }
-    pub(crate) fn save_evidence(&mut self,id:Option<&Text>,key:&[u8],payload:&str,sources:&[SourceOutcome])->Result<Text,CacheError> {
+    pub(crate) fn save_evidence(
+        &mut self,
+        id: Option<&Text>,
+        key: &[u8],
+        payload: &str,
+        sources: &[SourceOutcome],
+    ) -> Result<Text, CacheError> {
         self.write(|tx| {
             let id=match id {Some(id)=>id.to_string(),None=>tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?};
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;

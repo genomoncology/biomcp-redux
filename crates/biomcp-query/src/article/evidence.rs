@@ -84,16 +84,23 @@ fn execute<'a>(
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
     let key = Sha256::digest([b"biomcp.article_evidence/1\0".as_slice(), &identity].concat());
-    let mut restored=false;
-    let mut snapshot = if let Some(id)=query.pool() {
-        match store.evidence(id.as_str(),&key,|source|cx.fetch.disabled(source))? {
-            crate::store::EvidenceState::Missing=>{
-                out.body=QueryBody::PoolError{mismatch:false};restart(query,out);return Ok(())
+    let mut restored = false;
+    let mut snapshot = if let Some(id) = query.pool() {
+        match store.evidence(id.as_str(), &key, |source| cx.fetch.disabled(source))? {
+            crate::store::EvidenceState::Missing => {
+                out.body = QueryBody::PoolError { mismatch: false };
+                restart(query, out);
+                return Ok(());
             }
-            crate::store::EvidenceState::Disabled=>Snapshot::empty(),
-            crate::store::EvidenceState::Ready(payload)=>{restored=true;serde_json::from_str(&payload).map_err(|_|CacheError::Database)?}
+            crate::store::EvidenceState::Disabled => Snapshot::empty(),
+            crate::store::EvidenceState::Ready(payload) => {
+                restored = true;
+                serde_json::from_str(&payload).map_err(|_| CacheError::Database)?
+            }
         }
-    }else{Snapshot::empty()};
+    } else {
+        Snapshot::empty()
+    };
     if graph_disabled {
         snapshot.graph = Section::unavailable(Source::SemanticScholar, biodata::Reason::Disabled);
         snapshot.terminal = true;
@@ -116,7 +123,12 @@ fn execute<'a>(
     }
     store.set_deadline(*deadline);
     let payload = serde_json::to_string(&snapshot).map_err(|_| CacheError::Database)?;
-    let id = store.save_evidence(query.pool().filter(|_|restored), &key, &payload,&snapshot.sources)?;
+    let id = store.save_evidence(
+        query.pool().filter(|_| restored),
+        &key,
+        &payload,
+        &snapshot.sources,
+    )?;
     page::render(query, snapshot, id, out)?;
     Ok(())
 }
@@ -141,6 +153,12 @@ pub(super) fn bad() -> RequestError {
     .into()
 }
 
-fn restart(query:&ArticleEvidence,out:&mut Outcome) {
-    out.next.push((StepKind::Restart,Action::Run{request:Request::ArticleEvidence(query.identity()),fresh:false}));
+fn restart(query: &ArticleEvidence, out: &mut Outcome) {
+    out.next.push((
+        StepKind::Restart,
+        Action::Run {
+            request: Request::ArticleEvidence(query.identity()),
+            fresh: false,
+        },
+    ));
 }

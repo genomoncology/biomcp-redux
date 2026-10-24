@@ -55,15 +55,21 @@ pub(super) fn target<'a>(
         snapshot,
         status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied()),
     );
-    let result=match result {
-        Err(error) if matches!(query.cited(),ArticleInput::Pmid(_)) => {
-            out.local=out.local.or(status::local(error));
-            let pmid=if let ArticleInput::Pmid(id)=query.cited(){Some(*id)}else{None};
-            Ok(Target{pmid,doi:None})
+    let result = match result {
+        Err(error) if matches!(query.cited(), ArticleInput::Pmid(_)) => {
+            out.local = out.local.or(status::local(error));
+            let pmid = if let ArticleInput::Pmid(id) = query.cited() {
+                Some(*id)
+            } else {
+                None
+            };
+            Ok(Target { pmid, doi: None })
         }
-        result=>result,
+        result => result,
     };
-    if let Ok(target) = &result {snapshot.target = Some(target.clone());}
+    if let Ok(target) = &result {
+        snapshot.target = Some(target.clone());
+    }
     result
 }
 pub(super) fn read<'a>(

@@ -10,7 +10,9 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/evidence/independent-source-outcomes",||independence().map_err(|e|e.to_string().into())),
+        Trial::test("article/evidence/independent-source-outcomes", || {
+            independence().map_err(|e| e.to_string().into())
+        }),
         Trial::test("article/evidence/fifth-page-continuation", || {
             cursor().map_err(Into::into)
         }),
@@ -190,18 +192,51 @@ fn combine(root: &std::path::Path) -> Result<std::path::PathBuf, String> {
     Ok(capture)
 }
 
-fn independence()->Result<(),Box<dyn std::error::Error>> {
-    for (mode,expect) in [
-        ("empty",json!({"/status":"complete","/result/semantic_scholar/data/notice":"not_in_references"})),
-        ("graph-failure",json!({"/status":"partial","/result/semantic_scholar/state":"unavailable","/result/fulltext/data/paragraphs/total":7,"/next/0/args":["help","key","semantic-scholar"]})),
-        ("summary-failure",json!({"/status":"partial","/result/semantic_scholar/data/contexts/total":6,"/result/fulltext/data/paragraphs/total":7})),
+fn independence() -> Result<(), Box<dyn std::error::Error>> {
+    for (mode, expect) in [
+        (
+            "empty",
+            json!({"/status":"complete","/result/semantic_scholar/data/notice":"not_in_references"}),
+        ),
+        (
+            "graph-failure",
+            json!({"/status":"partial","/result/semantic_scholar/state":"unavailable","/result/fulltext/data/paragraphs/total":7,"/next/0/args":["help","key","semantic-scholar"]}),
+        ),
+        (
+            "summary-failure",
+            json!({"/status":"partial","/result/semantic_scholar/data/contexts/total":6,"/result/fulltext/data/paragraphs/total":7}),
+        ),
     ] {
-        let command=if mode=="empty" {json!(["article","citation-evidence","33123537","17611497"])}else{json!(["article","citation-evidence","33123537","17611497","--fulltext"])};
-        checked_steps("article/evidence/source",|source,record| {
-            if mode=="empty"&&source=="semantic-scholar" {record["exchanges"][0]["body"]["value"]["data"]=json!([]);}
-            let fail=mode=="graph-failure"&&source=="semantic-scholar" || mode=="summary-failure"&&record.pointer("/exchanges/0/body/value/result/uids")==Some(&json!(["17611497"]));
-            if fail {let mut reply=record["exchanges"][0].clone();reply["status"]=json!(if mode=="graph-failure" {429}else{500});reply["body"]=json!({"kind":"json","value":{"error":"Synthetic failure"}});record["exchanges"]=json!([reply.clone(),reply.clone(),reply]);}
-        },json!([{"run":command,"expect":expect}]))?;
+        let command = if mode == "empty" {
+            json!(["article", "citation-evidence", "33123537", "17611497"])
+        } else {
+            json!([
+                "article",
+                "citation-evidence",
+                "33123537",
+                "17611497",
+                "--fulltext"
+            ])
+        };
+        checked_steps(
+            "article/evidence/source",
+            |source, record| {
+                if mode == "empty" && source == "semantic-scholar" {
+                    record["exchanges"][0]["body"]["value"]["data"] = json!([]);
+                }
+                let fail = mode == "graph-failure" && source == "semantic-scholar"
+                    || mode == "summary-failure"
+                        && record.pointer("/exchanges/0/body/value/result/uids")
+                            == Some(&json!(["17611497"]));
+                if fail {
+                    let mut reply = record["exchanges"][0].clone();
+                    reply["status"] = json!(if mode == "graph-failure" { 429 } else { 500 });
+                    reply["body"] = json!({"kind":"json","value":{"error":"Synthetic failure"}});
+                    record["exchanges"] = json!([reply.clone(), reply.clone(), reply]);
+                }
+            },
+            json!([{"run":command,"expect":expect}]),
+        )?;
     }
     Ok(())
 }
