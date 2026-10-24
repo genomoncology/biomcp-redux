@@ -19,7 +19,11 @@ pub(super) fn checked_case(
     expect: Value,
     exit: i32,
 ) -> Result<Value, Box<dyn std::error::Error>> {
-    checked_steps(capture, change, json!([{"run": args, "expect": expect, "exit": exit}]))
+    checked_steps(
+        capture,
+        change,
+        json!([{"run": args, "expect": expect, "exit": exit}]),
+    )
 }
 
 pub(super) fn checked_steps(

@@ -165,7 +165,6 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
         ]) {
             return Some((biodata::Source::LitVar, option));
         }
-
     }
     None
 }
