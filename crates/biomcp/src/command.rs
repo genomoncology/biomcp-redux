@@ -397,7 +397,6 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
         ),
         Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
     }
-
 }
 
 fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {

@@ -251,5 +251,4 @@ pub struct Terms {
     pub url: &'static str,
     /// Reviewed category used by the source switch.
     pub usage: biodata::Use,
-
 }
