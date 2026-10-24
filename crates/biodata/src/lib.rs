@@ -171,3 +171,4 @@ pub use response::{
     VariantAssertion, VariantAssertions,
 };
 pub use query::VariantPopulationQuery;
+pub use variant::{PredictorScore, VariantComponent, VariantPredictors, VariantConservation, VariantCosmic, CosmicRecord};
