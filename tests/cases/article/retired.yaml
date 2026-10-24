@@ -37,7 +37,7 @@
     {"run": ["article", "batch", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id>..."}}}, "exit": 2, "max_bytes": 400},
     {"run": ["batch", "article", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id>..."}}}, "exit": 2, "max_bytes": 400},
     {"run": ["article", "authors", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id>..."}}}, "exit": 2, "max_bytes": 400},
-    {"run": ["variant", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --variant <variant>"}}}, "exit": 2, "max_bytes": 400, "mcp": ["variant", "articles", "secret-input"], "is_error": true},
+    {"run": ["variant", "articles", "AKT1 E17K"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --variant <variant>"}}}, "exit": 2, "max_bytes": 400, "mcp": ["variant", "articles", "AKT1 E17K"], "is_error": true},
     {"run": ["disease", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --disease <disease>"}}}, "exit": 2, "max_bytes": 400},
     {"run": ["drug", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --drug <drug>"}}}, "exit": 2, "max_bytes": 400},
     {"run": ["pathway", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "moved to the pathway entity"}}}, "exit": 2, "max_bytes": 400},
@@ -61,6 +61,12 @@
     {"run": ["article", "recommendations", "secret-input"], "mcp": ["article", "recommendations", "secret-input"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["get", "article", "33123537", "--section", "annotations"], "expect": {"/result/items/0/sections/annotations/state": "data"}, "mcp": ["get", "article", "33123537", "--section", "annotations"]},
     {"run": ["article", "--", "entities"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
-    {"run": ["schema", "article"], "expect": {"/error/code": "usage.schema"}, "exit": 2}
+    {"run": ["schema", "article"], "expect": {"/error/code": "usage.schema"}, "exit": 2},
+    # Global option boundaries and missing values preserve ordinary argument classification.
+    {"run": ["--offline", "article", "recommendations"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
+    {"run": ["--case-cache=secret", "article", "recommendations"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
+    {"run": ["article", "supplement", "assets", "--find", "--outline"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
+    {"run": ["--outline", "get", "article", "secret-input"], "expect": {"/error/code": "usage.schema"}, "exit": 2},
+    {"run": ["search", "article", "--author"], "expect": {"/error/code": "usage.arguments"}, "exit": 2}
   ]
 }
