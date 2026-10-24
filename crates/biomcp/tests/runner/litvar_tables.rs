@@ -149,6 +149,11 @@ fn failures() -> Check {
             let exit = if partial { 0 } else { 4 };
             let mut expected = json!({"/status":status});
             expected[source] = json!(reason);
+            expected[if partial {
+                "/sources/1/term"
+            } else {
+                "/sources/0/term"
+            }] = json!("rs121434592");
             if partial {
                 expected["/result/items"] = json!({"count":3});
             }
