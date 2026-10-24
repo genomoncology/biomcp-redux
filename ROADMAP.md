@@ -22,7 +22,7 @@ Each slice updates these counts when its accounting lands.
 - [x] Minimal biodata core types and conventions
 - [x] Transport: deadlines, source-key rate limits, retries, keyed sources, reply checks, cache
 - [x] Record, replay and offline modes
-- [ ] SQLite store: reply cache, pools, bundle rows
+- [x] SQLite store: reply cache, pools, bundle rows
 - [x] Bundle sync with lock and budget
 - [x] Schema generation, checked-in schemas and the compatibility check
 - [x] JSON envelope, statuses, exit codes and next steps
@@ -81,17 +81,17 @@ Sources:
 
 - [ ] Investigation
 - [ ] Questions answered by Ian
-- [ ] Biodata types and schema
-- [ ] Search, with plain PubMed as the floor
+- [x] Plain PubMed search types and schema
+- [x] Plain PubMed search with stable stored pages
 - [ ] Get, full text, supplementary material and citations
-- [ ] Outside-in cases, including AKT1 E17K
+- [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
-- [ ] MCP parity
+- [x] Plain PubMed search MCP parity
 - [ ] Docs
 - [ ] 0.9 accounting
 
 Sources:
-- [ ] PubMed (optional key)
+- [x] PubMed search and page summaries (optional key)
 - [ ] PubTator3 (optional key)
 - [ ] Europe PMC
 - [ ] Semantic Scholar (optional key)
