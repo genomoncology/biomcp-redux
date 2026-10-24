@@ -118,5 +118,9 @@ fn filters(query: &ArticleSearch, words: String) -> String {
             .to_owned(),
         );
     }
-    parts.join(" AND ")
+    let mut term = parts.join(" AND ");
+    if query.open_access() { term.push_str(" AND \"pubmed pmc open access\"[filter]"); }
+    if query.no_preprints() { term.push_str(" NOT preprint[pt]"); }
+    if query.exclude_retracted() { term.push_str(" NOT retracted publication[pt]"); }
+    term
 }

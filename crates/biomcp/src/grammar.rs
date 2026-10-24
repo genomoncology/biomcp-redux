@@ -222,6 +222,13 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
+        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
+            for flag in flags.keys() {
+                command = command.arg(Arg::new(flag.clone()).long(flag.clone()).action(ArgAction::SetTrue)
+                    .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()));
+            }
+            continue;
+        }
         let mut argument = Arg::new(name.clone());
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
@@ -247,13 +254,25 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
                 argument.num_args(1..).action(ArgAction::Append)
             };
         }
-        command = command.arg(argument.value_parser(clap::builder::StringValueParser::new()));
+        command = command.arg(if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            argument.action(ArgAction::SetTrue)
+        } else { argument.value_parser(clap::builder::StringValueParser::new()) });
     }
     Ok(command)
 }
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
+        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
+            for (flag, value) in flags {
+                if matches.get_flag(flag) { result.insert(name.clone(), value.clone()); }
+            }
+            continue;
+        }
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            if matches.get_flag(name) { result.insert(name.clone(), Value::Bool(true)); }
+            continue;
+        }
         let Some(values) = matches.get_many::<String>(name) else {
             continue;
         };

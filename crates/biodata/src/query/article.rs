@@ -73,6 +73,16 @@ pub struct ArticleSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
+    /// Require the source's native open-access filter; Semantic Scholar means a public PDF.
+    #[serde(default, skip_serializing_if = "is_false")]
+    open_access: bool,
+    /// Exclude preprints using the source's native filter.
+    #[serde(default, skip_serializing_if = "is_false")]
+    no_preprints: bool,
+    /// Include retracted papers by default, or exclude them using a native filter.
+    #[serde(default, skip_serializing_if = "is_include")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-cli-flags" = {"include-retracted":"include", "exclude-retracted":"exclude"})))]
+    retracted: RetractionFilter,
     /// Words sent to each named source in its default fields.
     #[serde(
         default,
@@ -187,6 +197,18 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
+fn is_false(v: &bool) -> bool { !v }
+fn is_include(v: &RetractionFilter) -> bool { *v == RetractionFilter::Include }
+crate::macros::wire_enum! {
+    /// Native retraction inclusion policy.
+    RetractionFilter {
+        /// Preserve every source row, including retractions.
+        Include => "include",
+        /// Ask the source to omit retracted publications.
+        Exclude => "exclude",
+    }
+}
+impl Default for RetractionFilter { fn default() -> Self { Self::Include } }
 fn sources() -> Box<[ArticleSource]> {
     Box::new([ArticleSource::Pubmed])
 }
@@ -232,6 +254,12 @@ impl TryFrom<Fields> for ArticleSearch {
     }
 }
 impl ArticleSearch {
+    /// Whether native open access is required.
+    pub fn open_access(&self) -> bool { self.0.open_access }
+    /// Whether native preprints must be excluded.
+    pub fn no_preprints(&self) -> bool { self.0.no_preprints }
+    /// Whether native retractions must be excluded.
+    pub fn exclude_retracted(&self) -> bool { self.0.retracted == RetractionFilter::Exclude }
     /// Sources in the caller’s turn order.
     pub fn sources(&self) -> &[ArticleSource] {
         &self.0.source
@@ -353,12 +381,21 @@ crate::macros::wire_enum! {
         Type => "--type",
         /// Native date ordering.
         DateSort => "--sort date",
+        /// Native open-access selector.
+        OpenAccess => "--open-access",
+        /// Native preprint exclusion.
+        NoPreprints => "--no-preprints",
+        /// Native retraction exclusion.
+        ExcludeRetracted => "--exclude-retracted",
     }
 }
 impl ArticleSearch {
     /// Whether any named unsupported capability is requested.
     pub fn rejects(&self, filters: &[ArticleFilter]) -> Option<ArticleFilter> {
         filters.iter().copied().find(|filter| match filter {
+            ArticleFilter::OpenAccess => self.open_access(),
+            ArticleFilter::NoPreprints => self.no_preprints(),
+            ArticleFilter::ExcludeRetracted => self.exclude_retracted(),
             ArticleFilter::Text => self.0.text.is_some(),
             ArticleFilter::Gene => self.0.gene.is_some(),
             ArticleFilter::Variant => self.0.variant.is_some(),
