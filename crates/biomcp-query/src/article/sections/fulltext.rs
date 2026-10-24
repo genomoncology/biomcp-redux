@@ -5,6 +5,7 @@ use biodata::{
 };
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::Deadline;
+type Identity = (Pmcid, Option<biodata::Pmid>);
 /// Outline owner; the same document reader supplies text commands.
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
@@ -13,7 +14,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut error = None;
-    let mut loaded: Vec<((Pmcid, Option<biodata::Pmid>), Section<FullText>)> = Vec::new();
+    let mut loaded: Vec<(Identity, Section<FullText>)> = Vec::new();
     for item in &mut cards.items {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
@@ -27,7 +28,9 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         let Some(id) = card.pmcid else {
             continue;
         };
-        let section = if let Some((_, section)) = loaded.iter().find(|(found, _)| *found == (id, card.pmid)) {
+        let section = if let Some((_, section)) =
+            loaded.iter().find(|(found, _)| *found == (id, card.pmid))
+        {
             section.clone()
         } else {
             let section = match pmc_oa::read(&leg, id, card.pmid) {

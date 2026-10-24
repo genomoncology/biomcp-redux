@@ -59,15 +59,25 @@ fn resolve<'a>(
             let started = leg.remaining();
             let result = pubmed::summaries(&leg, &[*id], cx.ncbi_email.as_ref());
             *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
-            let source = status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
-            if source.state == biodata::SourceState::Stale { out.status = Status::Partial; }
+            let source =
+                status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
+            if source.state == biodata::SourceState::Stale {
+                out.status = Status::Partial;
+            }
             out.sources.push(source);
             let mapped = result?;
-            if !mapped.problems.is_empty() { out.status = Status::Partial; }
+            if !mapped.problems.is_empty() {
+                out.status = Status::Partial;
+            }
             status::append(&mut out.problems, mapped.problems);
-            let header = mapped.value.into_iter().find(|h| h.pmid == *id).ok_or(biomcp_fetch::SourceError {
-                source: Source::PubMed, reason: Reason::BadReply, status: None, retry_after: None,
-            })?;
+            let header = mapped.value.into_iter().find(|h| h.pmid == *id).ok_or(
+                biomcp_fetch::SourceError {
+                    source: Source::PubMed,
+                    reason: Reason::BadReply,
+                    status: None,
+                    retry_after: None,
+                },
+            )?;
             Ok(header.pmcid)
         }
         ArticleInput::Doi(_) => Ok(None),
