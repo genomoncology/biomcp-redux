@@ -98,11 +98,12 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
     } else {
         crate::exit::Status::from(result.status)
     };
-    let steps = result
+    let mut steps = result
         .next
         .iter()
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
+    network_steps(&mut steps, &result.sources);
     match (request, result.body) {
         (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
             biodata::ErrorEnvelope::arguments(),
@@ -266,6 +267,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     });
+    network_steps(&mut envelope.next, &envelope.sources);
     encode(
         envelope,
         if local {
@@ -326,4 +328,22 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
             crate::exit::Status::Expired
         },
     )
+}
+
+fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
+    for (reason, setting) in [
+        (biodata::Reason::Tls, "ca_bundle"),
+        (biodata::Reason::Proxy, "proxy"),
+    ] {
+        if sources.iter().any(|source| source.reason == Some(reason)) {
+            steps.insert(
+                0,
+                biodata::Step {
+                    kind: biodata::StepKind::Configure,
+                    args: vec!["help".into(), "network".into(), setting.into()].into(),
+                },
+            );
+        }
+    }
+    steps.truncate(5);
 }

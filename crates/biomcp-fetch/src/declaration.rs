@@ -90,6 +90,8 @@ pub struct Credential {
 pub enum SecretName {
     /// NCBI API key.
     NcbiApiKey,
+    /// Semantic Scholar API key.
+    SemanticScholarApiKey,
     /// OncoKB API key.
     OncokbApiKey,
 }
