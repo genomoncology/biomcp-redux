@@ -155,6 +155,8 @@ fn failures(env: &Environment, search: &[&str], dir: &Path) -> Check {
         (500, "unavailable"),
         (0, "bad_reply"),
         (1, "deadline_exceeded"),
+        (2, "bad_reply"),
+        (3, "bad_reply"),
     ] {
         let target = env.root().join(format!("failure-{kind}"));
         fs::create_dir_all(target.join("nci")).map_err(|e| e.to_string())?;
@@ -166,6 +168,11 @@ fn failures(env: &Environment, search: &[&str], dir: &Path) -> Check {
             exchange["retry_after_ms"] = json!(1);
         } else if kind == 0 {
             exchange["body"] = json!({"kind":"text","value":"{\"data\":"});
+        } else if kind == 2 {
+            let row = exchange["body"]["value"]["data"][0].clone();
+            exchange["body"]["value"]["data"] = json!([row.clone(), row]);
+        } else if kind == 3 {
+            exchange["body"] = json!({"kind":"json","value":{"error":"synthetic source failure"}});
         } else {
             exchange["delay_ms"] = json!(30001);
         }
