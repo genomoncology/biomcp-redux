@@ -1,5 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
+mod continuations;
 mod direct;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
@@ -254,6 +255,7 @@ fn next(
             },
         ));
     }
+    continuations::collect(candidates, &mut next);
     next
 }
 

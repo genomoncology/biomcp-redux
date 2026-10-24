@@ -1,8 +1,8 @@
 //! Checked caller IDs can select one source without making an allele-identity claim.
 use crate::{Ctx, Outcome};
 use biodata::{
-    QueryBody, Source, Status, Text, Variant, VariantCard, VariantGet, VariantHeader,
-    VariantNamespace, VariantResolution, VariantSection,
+    QueryBody, Source, Status, Variant, VariantCard, VariantGet, VariantHeader, VariantNamespace,
+    VariantResolution, VariantSection,
 };
 use biomcp_fetch::Deadline;
 pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
@@ -60,7 +60,7 @@ pub(super) fn get(
         requested,
         source,
         record: biodata::SourceRecord {
-            id: Text::new(input).unwrap_or_else(|_| unreachable!()),
+            id: query.input().text().clone(),
             url: None,
         },
         myvariant: None,
