@@ -1,6 +1,7 @@
 # 0112 — Read the gnomAD release from the same response as its counts
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 19f954da18eef770364751d3a050fa1651895b64
 
 Milestone: 2
 
