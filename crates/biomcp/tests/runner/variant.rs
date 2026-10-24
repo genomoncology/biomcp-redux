@@ -5,6 +5,9 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/component-groups-guard-warm-data", || {
+            component_groups().map_err(Into::into)
+        }),
         Trial::test("variant/missing-historical-fragment-is-empty", || {
             missing_component().map_err(Into::into)
         }),
@@ -261,8 +264,8 @@ fn components() -> Result<(), String> {
     )?;
     let base = "/result/candidates/0/sections";
     for name in ["predict", "conservation"] {
-        if value.pointer(&format!("{base}/{name}/reason")) != Some(&json!("restricted_terms")) {
-            return Err(format!("restricted component became an offer: {value}"));
+        if value.pointer(&format!("{base}/{name}/state")) != Some(&json!("data")) {
+            return Err(format!("default component data missing: {value}"));
         }
     }
     let cosmic = value
@@ -277,24 +280,42 @@ fn components() -> Result<(), String> {
             .and_then(Value::as_f64)
             != Some(0.0)
         || cosmic.pointer("/components/0/version") != Some(&json!("synthetic-68"))
-        || requests.len() != 3
+        || requests.len() != 5
     {
         return Err(format!(
             "historical source values changed or extra source request: {value}; requests={requests:?}"
         ));
     }
-    if requests
-        .iter()
-        .any(|(_, r)| r.contains("cadd") || r.contains("dbnsfp"))
+    if value
+        .pointer(&format!("{base}/predict/data/scores/0/score"))
+        .and_then(Value::as_f64)
+        != Some(1.5)
+        || value.pointer(&format!("{base}/predict/data/components/0/terms/usage"))
+            != Some(&json!("noncommercial"))
     {
-        return Err("restricted fields reached the wire".into());
+        return Err(format!(
+            "native scores or independent terms changed: {value}"
+        ));
     }
     Ok(())
 }
 fn component_body(request: &str) -> Result<String, String> {
     // Synthetic provider bodies test transport and association, not source truth.
     if request.starts_with("GET /v1/metadata") {
-        return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{"cosmic":{"version":"synthetic-68","license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"}}}).to_string());
+        return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{
+            "cosmic":{"version":"synthetic-68","license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
+            "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
+            "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms","upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}}
+        }}).to_string());
+    }
+    if request.contains("cadd.phred") || request.contains("dbnsfp.gerp") {
+        return Ok(json!({"_id":"chr7:g.140453136A>T",
+            "cadd":{"phred":1.5,"rawscore":0.25,"sift":{"val":0,"cat":"synthetic_native_label"}},
+            "dbnsfp":{"hgvsp":["p.SourceOne","p.SourceTwo"],"ensembl":{"transcriptid":["source_transcript_one","source_transcript_two"]},
+                "polyphen2":{"hdiv":{"score":0.4,"pred":"D"},"hvar":{"score":0.3,"pred":"B"}},"revel":{"score":0.2},"mutationtaster":{"score":0.1,"pred":"D"},
+                "gerp++":{"nr":1.5,"rs":1.2,"rs_rankscore":0.1},"phastcons":{"100way_vertebrate":{"score":0.8,"rankscore":0.6}},
+                "siphy_29way":{"logodds_score":1.4,"logodds_rankscore":0.2,"pi":{"a":1,"c":0,"g":0,"t":0}}}
+        }).to_string());
     }
     if request.contains("fields=_id%2Ccosmic") {
         return Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,"end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}).to_string());
@@ -434,4 +455,62 @@ fn component_page_body(request: &str) -> Result<String, String> {
     }
     // Explicit synthetic rows keep source order and use no captured source content.
     Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":[{"cosmic_id":"COSM999991"},{"cosmic_id":"COSM999992"},{"cosmic_id":"COSM999993"},{"cosmic_id":"COSM999994"}]}).to_string())
+}
+
+fn component_groups() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", component_body)?;
+    let environment = source_environment(&stub)?;
+    let base = [
+        "get",
+        "variant",
+        "chr7:g.140453136A>T",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--build",
+        "GRCh37",
+    ];
+    for group in [
+        None,
+        Some("noncommercial"),
+        Some("restricted"),
+        Some("myvariant"),
+    ] {
+        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
+        if let Some(group) = group {
+            args.extend(["--disable-sources".into(), group.into()]);
+        }
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if group == Some("myvariant") {
+            if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+                return Err(format!("explicit source switch failed: {value}"));
+            }
+            continue;
+        }
+        let prefix = "/result/candidates/0/sections";
+        for section in ["predict", "conservation", "cosmic"] {
+            let off = group == Some("noncommercial") && section != "cosmic"
+                || group == Some("restricted") && section == "cosmic";
+            if value.pointer(&format!("{prefix}/{section}/state"))
+                != Some(&json!(if off { "skipped" } else { "data" }))
+            {
+                return Err(format!(
+                    "component group leaked or hid unaffected data: {value}"
+                ));
+            }
+        }
+    }
+    let requests = stub.finish()?;
+    // A changed identity projection needs one new read; its ignored ClinVar response must not leak.
+    if requests.len() != 6 {
+        return Err(format!(
+            "warm policy caused extra component reads: {}",
+            requests.len()
+        ));
+    }
+    Ok(())
 }
