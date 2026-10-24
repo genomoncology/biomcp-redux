@@ -164,7 +164,6 @@ Sources:
 - [ ] MyVariant.info
 - [ ] ClinGen Allele Registry
 - [ ] ClinVar through NCBI EFetch (optional key)
-- [ ] dbSNP
 - [ ] gnomAD
 - [ ] CIViC
 - [ ] cBioPortal
@@ -174,6 +173,7 @@ Sources:
 - [ ] ClinGen evidence repository
 - [ ] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro, and AlphaGenome (keyed)
+- Dropped: a direct dbSNP adapter, because rsIDs come through MyVariant and the ClinGen Allele Registry
 
 The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
 
