@@ -1,5 +1,7 @@
 //! PubTator3 abstract annotation export, joined by each document's own PMID.
 mod map;
+mod search;
+pub use search::{Search, search};
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Annotations, Pmid, Section, Source};

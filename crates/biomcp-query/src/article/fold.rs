@@ -11,17 +11,23 @@ pub(super) fn fold(
             let Some(row) = rows.get(rank) else {
                 continue;
             };
+            let native_rank = row.found_by.get(source).copied().unwrap_or((rank + 1) as u32);
             if let Some(existing) = items.iter_mut().find(|item| item.key == row.key) {
+                if existing.sentence.is_none() {
+                    existing.sentence = row.sentence.clone();
+                }
                 if disclose {
                     existing
                         .found_by
                         .entry(*source)
-                        .or_insert((rank + 1) as u32);
+                        .or_insert(native_rank);
                 }
             } else {
                 let mut row = row.clone();
                 if disclose {
-                    row.found_by.insert(*source, (rank + 1) as u32);
+                    row.found_by.insert(*source, native_rank);
+                } else {
+                    row.found_by.clear();
                 }
                 items.push(row);
             }

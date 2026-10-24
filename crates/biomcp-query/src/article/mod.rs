@@ -3,6 +3,7 @@ mod edges;
 mod fold;
 pub mod get;
 mod next;
+mod named;
 mod order;
 mod page;
 mod sections;
@@ -56,18 +57,19 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let (term, gene) = if query.sources().contains(&biodata::ArticleSource::Pubmed)
+            let resolved = if query.sources().contains(&biodata::ArticleSource::Pubmed)
                 || query.sources().contains(&biodata::ArticleSource::Litvar)
+                || query.sources().contains(&biodata::ArticleSource::Pubtator) && !cx.fetch.disabled(biodata::Source::PubTator)
             {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
                     return Ok(());
                 };
                 term
             } else {
-                (String::new(), None)
+                term::Resolved { term: String::new(), symbol: None, entrez: None }
             };
             let Some(mut items) =
-                sources::search(cx, query, &term, gene.as_deref(), deadline, out)?
+                sources::search(cx, query, &resolved, deadline, out)?
             else {
                 if out.status != Status::Absent {
                     retry(query, None, out);
@@ -159,6 +161,12 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
             F::DateSort,
         ]) {
             return Some((biodata::Source::LitVar, option));
+        }
+    }
+    for (selector, source) in [(S::Litsense, biodata::Source::LitSense), (S::Pubtator, biodata::Source::PubTator)] {
+        if query.sources().contains(&selector)
+            && let Some(option) = query.rejects(&[F::Author, F::Journal, F::Since, F::Until, F::Type, F::DateSort]) {
+            return Some((source, option));
         }
     }
     None

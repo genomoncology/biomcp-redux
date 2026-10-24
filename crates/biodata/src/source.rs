@@ -69,6 +69,8 @@ canonical_enum! {
         EuropePmc => "europepmc",
         /// NCBI LitVar2.
         LitVar => "litvar",
+        /// NCBI LitSense2.
+        LitSense => "litsense",
         /// Semantic Scholar.
         SemanticScholar => "semantic-scholar",
         /// PMC Open Access bucket.

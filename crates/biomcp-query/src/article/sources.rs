@@ -6,22 +6,21 @@ use biodata::{
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use std::time::Duration;
-struct ResultLeg {
-    source: ArticleSource,
-    outcome: SourceOutcome,
-    items: Vec<ArticleItem>,
-    elapsed: Duration,
-    error: Option<RequestError>,
+pub(super) struct ResultLeg {
+    pub(super) source: ArticleSource,
+    pub(super) outcome: SourceOutcome,
+    pub(super) items: Vec<ArticleItem>,
+    pub(super) elapsed: Duration,
+    pub(super) error: Option<RequestError>,
 }
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
-    pubmed_term: &str,
-    gene: Option<&str>,
+    resolved: &super::term::Resolved,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
-    let mut prepared = prepare_litvar(cx, query, gene, deadline, out);
+    let mut prepared = prepare_litvar(cx, query, resolved.symbol.as_deref(), deadline, out);
     if out.status == Status::Absent {
         return Ok(None);
     }
@@ -33,12 +32,14 @@ pub(super) fn search<'a>(
         .filter_map(|selector| {
             let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
                 ArticleSource::Pubmed => {
-                    Box::new(move || pubmed_search(cx, query, pubmed_term, start))
+                    Box::new(move || pubmed_search(cx, query, &resolved.term, start))
                 }
                 ArticleSource::Europepmc => {
                     let term = &epmc_term;
                     Box::new(move || europe_search(cx, query, term, start))
                 }
+                ArticleSource::Litsense => Box::new(move || super::named::litsense(cx, query, start)),
+                ArticleSource::Pubtator => Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start)),
                 ArticleSource::Litvar => {
                     let prepared = prepared.take()?;
                     Box::new(move || litvar_search(prepared))
@@ -55,7 +56,7 @@ pub(super) fn search<'a>(
             && r.error.is_some()
             && r.outcome.reason != Some(biodata::Reason::Disabled)
     });
-    let answered = results.iter().any(|r| r.error.is_none());
+    let answered = results.iter().any(|r| r.error.is_none() || !r.items.is_empty());
     let error = results
         .iter()
         .filter_map(|r| r.error)
@@ -101,6 +102,7 @@ fn pubmed_search<'a>(
                     header: None,
                     cited_by: None,
                     found_by: Default::default(),
+                    sentence: None,
                 })
                 .collect()
         }
@@ -248,6 +250,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
                     header: None,
                     cited_by: None,
                     found_by: Default::default(),
+                    sentence: None,
                 })
                 .collect()
         }

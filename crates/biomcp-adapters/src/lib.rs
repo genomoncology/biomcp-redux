@@ -33,3 +33,6 @@ pub mod litvar;
 mod xml_element;
 
 pub mod registry;
+
+/// Sentence resemblance in native provider order.
+pub mod litsense;

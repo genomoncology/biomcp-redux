@@ -1,0 +1,43 @@
+use super::sources::ResultLeg;
+use crate::{Ctx, status};
+use biodata::{ArticleItem, ArticleKey, ArticleSearch, ArticleSource, EntrezGeneId, Reason, Source, Text};
+use biomcp_adapters::{litsense, pubtator};
+use biomcp_fetch::{Deadline, RequestError};
+/// Literal gene input and words remain separate from HGNC's resolved entity join.
+pub(super) fn litsense<'a>(cx: &Ctx<'a>, query: &ArticleSearch, deadline: Deadline<'a>) -> ResultLeg {
+    let term = query.gene().map(ToString::to_string).into_iter().chain([query.words()]).filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" ");
+    let leg = cx.fetch.leg(&litsense::SPEC, deadline).fresh(cx.fresh);
+    let start = leg.remaining();
+    let result = litsense::search(&leg, &term);
+    let elapsed = start.saturating_sub(leg.remaining());
+    let error = result.as_ref().err().copied();
+    let mut outcome = status::source(Source::LitSense, leg.finish(), error);
+    outcome.term = Text::new(&term).ok();
+    let items = result.unwrap_or_default();
+    if error.is_none() {
+        outcome.count = Some(items.len() as u64);
+        outcome.fetched = Some(items.len() as u32);
+    }
+    ResultLeg { source: ArticleSource::Litsense, outcome, items, elapsed, error }
+}
+pub(super) fn pubtator<'a>(cx: &Ctx<'a>, query: &ArticleSearch, entrez: Option<EntrezGeneId>, deadline: Deadline<'a>) -> ResultLeg {
+    let leg = cx.fetch.leg(&pubtator::SPEC, deadline).fresh(cx.fresh);
+    let start = leg.remaining();
+    let term = entrez.map(|id| format!("@GENE_{id}")).into_iter().chain([query.words()]).filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" AND ");
+    let result = if query.gene().is_some() && entrez.is_none() && !cx.fetch.disabled(Source::PubTator) {
+        Err(biomcp_fetch::SourceError { source: Source::PubTator, reason: Reason::NoJoinId, status: None, retry_after: None }.into())
+    } else { pubtator::search(&leg, &term) };
+    let elapsed = start.saturating_sub(leg.remaining());
+    let error = result.as_ref().err().copied().or_else(|| result.as_ref().ok().and_then(|r| r.error));
+    let mut outcome = status::source(Source::PubTator, leg.finish(), error);
+    outcome.term = Text::new(&term).ok();
+    let items = match result {
+        Ok(reply) => {
+            outcome.count = Some(reply.count);
+            outcome.fetched = Some(reply.ids.len() as u32);
+            reply.ids.into_iter().map(|id| ArticleItem { key: ArticleKey::Pubmed(id), pmid: Some(id), found_by: Default::default(), cited_by: None, header: None, sentence: None }).collect()
+        }
+        Err(_) => Vec::new(),
+    };
+    ResultLeg { source: ArticleSource::Pubtator, outcome, items, elapsed, error }
+}

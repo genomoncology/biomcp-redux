@@ -134,6 +134,7 @@ fn create<'a>(
             header: None,
             cited_by: None,
             found_by: Default::default(),
+                    sentence: None,
         })
         .collect();
     if !order::apply(cx, deadline, &mut items, out)? {

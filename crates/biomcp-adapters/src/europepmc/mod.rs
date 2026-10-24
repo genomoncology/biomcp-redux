@@ -152,6 +152,7 @@ impl Row {
             header,
             cited_by: None,
             found_by: Default::default(),
+                    sentence: None,
         })
     }
 }
