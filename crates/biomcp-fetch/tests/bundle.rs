@@ -267,24 +267,10 @@ fn recording_replay_replaces_warm_case_rows_once_and_ignores_user_cache() {
     });
     drop(record);
     let case = biomcp_fetch::ReplayCache::temporary().unwrap();
-    let source_dir = std::fs::read_dir(&capture)
-        .unwrap()
-        .next()
-        .unwrap()
-        .unwrap()
-        .path();
-    let recording = std::fs::read_dir(source_dir)
-        .unwrap()
-        .next()
-        .unwrap()
-        .unwrap()
-        .path();
+    let recording = recording_path(&capture);
     for round in 0..2 {
         if round == 1 {
-            let mut value: serde_json::Value =
-                serde_json::from_slice(&std::fs::read(&recording).unwrap()).unwrap();
-            value["exchanges"][0]["body"]["value"] = TSV.into();
-            std::fs::write(&recording, serde_json::to_vec(&value).unwrap()).unwrap();
+            replace_recorded_body(&recording, TSV);
         }
         let replay = Fetch::open(FetchConfig {
             cache: Some(dir.path().join("must-not-exist.sqlite")),
@@ -681,4 +667,25 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
     let leg = offline.leg(b.spec, offline.deadline(Duration::from_secs(1)));
     assert_eq!(leg.rows(&b, Find::Words("kinase")).unwrap().len(), 1);
     assert!(leg.finish().stale);
+}
+
+fn recording_path(dir: &std::path::Path) -> std::path::PathBuf {
+    let source = std::fs::read_dir(dir)
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    std::fs::read_dir(source)
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path()
+}
+fn replace_recorded_body(path: &std::path::Path, body: &str) {
+    let mut value: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    value["exchanges"][0]["body"]["value"] = body.into();
+    std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
 }

@@ -35,7 +35,11 @@ impl Leg<'_> {
         if matches!(self.fetch.config.mode, Mode::Replay { .. }) {
             return self.replay_bundle(b);
         }
-        let old = cache.bundle_info(b.name, self.budget())?;
+        let old = if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+            None
+        } else {
+            cache.bundle_info(b.name, self.budget())?
+        };
         if auto
             && old
                 .as_ref()
@@ -111,6 +115,11 @@ impl Leg<'_> {
                 .map(|m| store::info(b, m))
                 .ok_or(CacheError::Database.into());
         }
+        let _permit = self
+            .fetch
+            .limiters
+            .acquire(self.spec.quota, self.keyed(), self.budget())
+            .ok_or_else(|| self.failure(Reason::Syncing, None))?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         let key = crate::retry::identity(&url);
         let exchange = self
@@ -150,12 +159,7 @@ impl Leg<'_> {
     ) -> Result<BundleInfo, RequestError> {
         let prepared = Prepared::new(url.into(), Vec::new(), Method::Get, true);
         let mut headers = conditional(t.part, old)?;
-        let keyed = match self.spec.key {
-            crate::KeyUse::Optional(c) | crate::KeyUse::Required(c) => {
-                self.fetch.config.secrets.get(c.secret).is_some()
-            }
-            crate::KeyUse::None => false,
-        };
+        let keyed = self.keyed();
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
                 .fetch

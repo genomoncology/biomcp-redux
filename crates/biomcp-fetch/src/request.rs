@@ -130,17 +130,20 @@ impl Leg<'_> {
         prepared: Prepared,
         codec: Decoder<T>,
     ) -> Result<T, RequestError> {
-        let keyed = match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => {
-                self.fetch.config.secrets.get(c.secret).is_some()
-            }
-            KeyUse::None => false,
-        };
+        let keyed = self.keyed();
         self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
             self.attempts(&prepared, keyed, &codec)
         })
     }
 
+    pub(crate) fn keyed(&self) -> bool {
+        match self.spec.key {
+            KeyUse::Optional(c) | KeyUse::Required(c) => {
+                self.fetch.config.secrets.get(c.secret).is_some()
+            }
+            KeyUse::None => false,
+        }
+    }
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,

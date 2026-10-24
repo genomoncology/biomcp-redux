@@ -96,7 +96,11 @@ impl Leg<'_> {
             return Err(self.failure(biodata::Reason::Offline, None).into());
         }
         let cache = self.bundle_cache()?;
-        let old = cache.bundle_info(bundle.name, self.budget())?;
+        let old = if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+            None
+        } else {
+            cache.bundle_info(bundle.name, self.budget())?
+        };
         let replay = matches!(self.fetch.config.mode, Mode::Replay { .. });
         let offline = matches!(self.fetch.config.mode, Mode::Offline);
         let fresh = old
