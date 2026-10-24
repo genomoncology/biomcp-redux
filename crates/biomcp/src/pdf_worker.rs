@@ -15,7 +15,8 @@ pub(crate) fn run() -> ExitCode {
         Err(_) => Extraction::BadReply,
     };
     let written = serde_json::to_writer(std::io::stdout().lock(), &result)
-        .and_then(|()| std::io::stdout().flush().map_err(Into::into));
+        .map_err(std::io::Error::other)
+        .and_then(|()| std::io::stdout().flush());
     if written.is_ok() {
         ExitCode::SUCCESS
     } else {

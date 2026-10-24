@@ -36,7 +36,11 @@ impl Leg<'_> {
         let ep = ep.clone().fresh(crate::Freshness::Never);
         self.validate(&ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         self.send(
             &ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
@@ -81,7 +85,11 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, false)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         let (url, body) = if ep.method == Method::Get {
             (
                 crate::retry::canonical(&url, params, self.spec.key),
@@ -136,7 +144,11 @@ impl Leg<'_> {
         self.validate(ep, true)?;
         let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         self.send(
             ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
@@ -177,6 +189,7 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
+        prepared.publisher = ep.publisher;
         let codec = codec.octet_stream(ep.octet_stream);
         let keyed = self.keyed();
         let (reply, fetched) =
@@ -289,6 +302,9 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        if prepared.publisher {
+            return self.publisher_call(&prepared.url, accept);
+        }
         let agent = self.fetch.agents.for_url(
             &self.fetch.config.network,
             self.fetch.config.proxy.is_some(),
