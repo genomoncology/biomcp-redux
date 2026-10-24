@@ -146,6 +146,10 @@ fn consumed_queries_stay_inside_the_flat_command_grammar() {
         }
     }
 }
+#[expect(
+    clippy::expect_used,
+    reason = "The grammar contract must fail on unresolved generated schema references"
+)]
 fn flat_value(root: &Value, node: &Value) {
     if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
         flat_value(
