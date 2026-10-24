@@ -1,5 +1,15 @@
 [advisories]
 version = 2
+# Approved PDF parser chain only. The upstream report describes exponential CPU
+# exhaustion, not merely abandoned maintenance. Extraction stays in the isolated
+# worker with its mandatory heap cap and parent deadline/kill; Unix adds OS CPU
+# limits. The dependency ratchet pins the reviewed chain. Any version change
+# needs another ruling. All other advisory IDs retain the default failure policy.
+# https://rustsec.org/advisories/RUSTSEC-2026-0192.html
+# https://github.com/harfbuzz/ttf-parser/issues/217
+ignore = [
+    { id = "RUSTSEC-2026-0192", allow = ["lopdf@=0.42.0"], reason = "The exact reviewed PDF chain runs only in the capped child with parent termination and available OS CPU limits; the upstream CPU-exhaustion risk remains." },
+]
 
 [licenses]
 allow = ["MIT", "Apache-2.0"]

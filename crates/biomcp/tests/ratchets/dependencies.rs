@@ -72,6 +72,7 @@ fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
 }
 
 pub(super) fn check(root: &Path) -> Check {
+    pdf_chain(root)?;
     let workspace = read(&root.join("Cargo.toml"))?;
     for (name, allowed) in LAYERS {
         let path = root.join("crates").join(name).join("Cargo.toml");
@@ -169,6 +170,34 @@ fn collect_sqlite(manifest: &Value, workspace: &Value, aliases: &mut Vec<String>
                     aliases.push(alias.replace('-', "_"));
                 }
             }
+        }
+    }
+    Ok(())
+}
+
+// Approval of the advisory exception covers only this parser chain. Keep the
+// reviewed versions here so a lockfile refresh cannot silently broaden it.
+fn pdf_chain(root: &Path) -> Check {
+    let lock = read(&root.join("Cargo.lock"))?;
+    let packages = lock
+        .get("package")
+        .and_then(Value::as_array)
+        .ok_or("missing packages")?;
+    for (name, version) in [
+        ("pdf-extract", "0.12.1"),
+        ("lopdf", "0.42.0"),
+        ("ttf-parser", "0.25.1"),
+    ] {
+        let found: Vec<_> = packages
+            .iter()
+            .filter(|p| p.get("name").and_then(Value::as_str) == Some(name))
+            .collect();
+        if found.len() != 1
+            || found
+                .iter()
+                .any(|p| p.get("version").and_then(Value::as_str) != Some(version))
+        {
+            return Err(format!("PDF advisory approval requires reviewed {name} {version}; obtain a new ruling before changing the parser chain").into());
         }
     }
     Ok(())
