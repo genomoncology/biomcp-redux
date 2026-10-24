@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native variant assertions.
+    VariantAssertions(crate::VariantAssertions),
     /// Native NCI discovery page.
     NciTrialPage(crate::NciTrialPage),
     /// Native NCI exact cards.

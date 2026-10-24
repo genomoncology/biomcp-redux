@@ -27,13 +27,69 @@ pub struct CivicProfile {
     /// Whether a source member was joined to the requested exact identity.
     pub membership: CivicMembership,
     /// Every source member reference, without collapsing compound profiles.
-    pub members: Box<[VariantRef]>,
+    pub members: Box<[CivicMember]>,
     /// Native evidence count, independent of the displayed page.
     pub evidence_count: u64,
     /// Native assertion count, independent of the displayed page.
     pub assertion_count: u64,
     /// Source claims; a compound claim retains a profile subject.
-    pub statements: Box<[Statement]>,
+    pub statements: Box<[CivicStatement]>,
+    /// Native evidence stream and its independent continuation.
+    pub evidence_page: CivicClaimPage,
+    /// Native assertion stream and its independent continuation.
+    pub assertion_page: CivicClaimPage,
+}
+
+/// A native CIViC member, including members without a common-model subject.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicMember {
+    /// Native variant identity and link.
+    pub record: SourceRecord,
+    /// Whole source variant label.
+    pub label: Text,
+    /// Native feature label, including fusion features.
+    pub feature: Text,
+    /// Source-qualified subject when supported by the common model.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subject: Option<VariantRef>,
+}
+
+/// Native stream bounds; evidence and assertions have separate cursors.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicClaimPage {
+    /// Number of native rows displayed in this stream.
+    pub returned: u32,
+    /// Native total for this stream.
+    pub total: u64,
+    /// Continue the same source candidate, profile and claim stream.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next: Option<VariantGet>,
+}
+
+/// One CIViC claim with native labels that exceed the common statement model.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicStatement {
+    /// Common source-attributed claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statement: Option<Statement>,
+    /// Native claim identity, retained even when no common proposition applies.
+    pub record: SourceRecord,
+    /// Source claim category, without a fallback proposition.
+    pub kind: Text,
+    /// Native curation state, without implying that every row is accepted.
+    pub status: Text,
+    /// Original provider direction; disputes never implies the opposite effect.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direction: Option<Text>,
+    /// Original significance, including when the classification holds an AMP tier.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub significance: Option<Text>,
 }
 
 crate::macros::wire_enum! {

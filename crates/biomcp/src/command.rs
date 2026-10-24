@@ -259,6 +259,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
             meta.encode(query, Some(body))
         }
+        (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
             meta.encode(query, Some(body))
         }
