@@ -132,7 +132,7 @@ fn stratum(id: &Text) -> (Option<Text>, Option<PopulationSex>) {
         return (None, sex);
     }
     // Source PopulationId keys and PopulationIdAndChromosome grammar:
-    // https://github.com/broadinstitute/gnomad-browser/blob/main/dataset-metadata/gnomadPopulations.ts
+    // https://github.com/broadinstitute/gnomad-browser/blob/db245371f1e572106bda8481ef0f9a6baac6c00d/dataset-metadata/gnomadPopulations.ts
     if [
         "afr",
         "ami",

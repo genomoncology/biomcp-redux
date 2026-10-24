@@ -369,6 +369,8 @@ fn unknown_group() -> Result<(), String> {
         || row.get("ancestry_group").is_some()
         || row.get("sex").is_some()
         || row.get("ac") != Some(&json!(1))
+        || value.pointer("/result/groups/1/ancestry_group") != Some(&json!("nfe_swe"))
+        || value.pointer("/result/groups/1/sex") != Some(&json!("xx"))
         || !value
             .get("problems")
             .and_then(Value::as_array)
@@ -391,6 +393,9 @@ fn unknown_group_body(request: &str) -> Result<String, String> {
         *body
             .pointer_mut("/data/variant/exome/populations/0/id")
             .ok_or("missing synthetic group")? = json!("unknown_XX");
+        *body
+            .pointer_mut("/data/variant/exome/populations/1/id")
+            .ok_or("missing second synthetic group")? = json!("nfe_swe_XX");
     }
     Ok(body.to_string())
 }
