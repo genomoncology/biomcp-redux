@@ -9,67 +9,7 @@ use biomcp_fetch::RequestError;
 pub fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut problems = Vec::new();
-    let mut sources = Vec::new();
-    let identity = query.identity();
-    let mut local = None;
-    let mut rows = Vec::new();
-    if let Ok(identity) = &identity {
-        let spec = super::source(identity);
-        let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-        let found = super::resolve(identity, &leg, &mut problems);
-        let error = found.as_ref().err().copied();
-        sources.push(status::source(spec.source, leg.finish(), error));
-        local = error.and_then(status::local);
-        if let Ok((candidates, None)) = found {
-            rows = candidates;
-        }
-    }
-    let mut groups = Vec::new();
-    let population = if let Some((id, subject)) = super::population::join(&rows) {
-        let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
-        let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
-            raw.map(|raw| {
-                let summary = super::population::summary(&raw, &subject)?;
-                if query.detail() {
-                    groups = ancestry(&raw, &subject)?;
-                }
-                Ok(summary)
-            })
-            .transpose()
-        });
-        let error = result.as_ref().err().copied();
-        sources.push(status::source(Source::Gnomad, leg.finish(), error));
-        local = local.or(error.and_then(status::local));
-        match result {
-            Ok(Some(data)) => Section::Data {
-                source: Source::Gnomad,
-                data,
-            },
-            Ok(None) => Section::Empty {
-                source: Source::Gnomad,
-                record: None,
-            },
-            Err(e) => Section::unavailable(
-                Source::Gnomad,
-                match e {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                },
-            ),
-        }
-    } else {
-        problems.push(biodata::Problem {
-            source: Source::Gnomad,
-            record: None,
-            field: "GRCh38_allele".into(),
-            code: biodata::ProblemCode::ValueUnknown,
-        });
-        Section::Unavailable {
-            source: Source::Gnomad,
-            reason: Reason::NoJoinId,
-        }
-    };
+    let (population, groups, sources, problems, local) = read(cx, query, deadline);
     let total = groups.len() as u64;
     let groups: Box<[_]> = groups
         .into_iter()
@@ -112,6 +52,107 @@ pub fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+type PopulationRead = (
+    Section<biodata::VariantPopulation>,
+    Vec<PopulationGroup>,
+    Vec<biodata::SourceOutcome>,
+    Vec<biodata::Problem>,
+    Option<RequestError>,
+);
+fn read(
+    cx: &Ctx<'_>,
+    query: &VariantPopulationQuery,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> PopulationRead {
+    let mut problems = Vec::new();
+    let mut sources = Vec::new();
+    let mut local = None;
+    if cx.fetch.disabled(Source::Gnomad) {
+        return (
+            Section::Skipped {
+                source: Source::Gnomad,
+                reason: Reason::Disabled,
+            },
+            Vec::new(),
+            sources,
+            problems,
+            local,
+        );
+    }
+    let mut rows = Vec::new();
+    if let Ok(identity) = query.identity() {
+        let spec = super::source(&identity);
+        let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
+        let found = super::resolve(&identity, &leg, &mut problems);
+        let error = found.as_ref().err().copied();
+        sources.push(status::source(spec.source, leg.finish(), error));
+        local = error.and_then(status::local);
+        if let Ok((candidates, None)) = found {
+            rows = candidates;
+        }
+        if let Some(RequestError::Source(error)) = error {
+            return (
+                Section::unavailable(Source::Gnomad, error.reason),
+                Vec::new(),
+                sources,
+                problems,
+                local,
+            );
+        }
+    }
+    let Some((id, subject)) = super::population::join(&rows) else {
+        problems.push(biodata::Problem {
+            source: Source::Gnomad,
+            record: None,
+            field: "GRCh38_allele".into(),
+            code: biodata::ProblemCode::ValueUnknown,
+        });
+        return (
+            Section::Unavailable {
+                source: Source::Gnomad,
+                reason: Reason::NoJoinId,
+            },
+            Vec::new(),
+            sources,
+            problems,
+            local,
+        );
+    };
+    let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
+    let mut groups = Vec::new();
+    let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
+        raw.map(|raw| {
+            let summary = super::population::summary(&raw, &subject)?;
+            if query.detail() {
+                groups = ancestry(&raw, &subject)?;
+            }
+            Ok(summary)
+        })
+        .transpose()
+    });
+    let error = result.as_ref().err().copied();
+    sources.push(status::source(Source::Gnomad, leg.finish(), error));
+    local = local.or(error.and_then(status::local));
+    let section = match result {
+        Ok(Some(data)) => Section::Data {
+            source: Source::Gnomad,
+            data,
+        },
+        Ok(None) => Section::Empty {
+            source: Source::Gnomad,
+            record: None,
+        },
+        Err(error) => Section::unavailable(
+            Source::Gnomad,
+            match error {
+                RequestError::Source(e) => e.reason,
+                _ => Reason::Unavailable,
+            },
+        ),
+    };
+    (section, groups, sources, problems, local)
+}
+
 fn ancestry(
     raw: &gnomad::variant::Variant,
     subject: &biodata::VariantRef,
