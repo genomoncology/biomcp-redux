@@ -9,6 +9,30 @@
       ],
       "type": "string"
     },
+    "Capped": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/PathwayRef"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
     "Constraint": {
       "additionalProperties": false,
       "description": "Source constraint metrics for the source's preferred transcript.",
@@ -483,7 +507,8 @@
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
       "enum": [
-        "constraint"
+        "constraint",
+        "pathways"
       ],
       "type": "string"
     },
@@ -491,6 +516,7 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "constraint",
+        "pathways",
         "all"
       ],
       "type": "string"
@@ -502,13 +528,24 @@
         "constraint": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Population constraint reported by gnomAD."
+        },
+        "pathways": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lowest-level human Reactome mappings."
         }
       },
       "type": "object"
@@ -704,6 +741,25 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
+    "PathwayRef": {
+      "additionalProperties": false,
+      "description": "A pathway reference without membership or hierarchy data.",
+      "properties": {
+        "displayName": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source pathway name."
+        },
+        "stId": {
+          "$ref": "#/$defs/ReactomeId",
+          "description": "Human stable identifier."
+        }
+      },
+      "required": [
+        "stId",
+        "displayName"
+      ],
+      "type": "object"
+    },
     "Problem": {
       "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
@@ -746,6 +802,10 @@
       ],
       "type": "string"
     },
+    "ReactomeId": {
+      "pattern": "^R-HSA-[1-9][0-9]*$",
+      "type": "string"
+    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -764,6 +824,127 @@
       "type": "string"
     },
     "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Capped",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -889,6 +1070,7 @@
       "enum": [
         "hgnc",
         "mygene",
+        "reactome",
         "gnomad",
         "pubmed",
         "europepmc",

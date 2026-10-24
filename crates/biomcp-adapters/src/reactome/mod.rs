@@ -15,7 +15,9 @@ pub static SPEC: SourceSpec = SourceSpec {
 #[derive(Deserialize)]
 struct Rows(Vec<Row>);
 impl Reply for Rows {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -26,25 +28,40 @@ struct Row {
     schema_class: String,
 }
 /// Fetch one accession; a checked 404 is an empty mapping.
-pub fn pathways(leg: &Leg<'_>, accession: &UniProtAcc) -> Result<Mapped<Vec<PathwayRef>>, RequestError> {
-    let endpoint = SPEC.get("/data/mapping/UniProt")
+pub fn pathways(
+    leg: &Leg<'_>,
+    accession: &UniProtAcc,
+) -> Result<Mapped<Vec<PathwayRef>>, RequestError> {
+    let endpoint = SPEC
+        .get("/data/mapping/UniProt")
         .with_path(format!("/data/mapping/UniProt/{accession}/pathways"))?
         .fresh(Freshness::Days(7));
     let rows = match leg.json::<Rows>(&endpoint, &[("species", Arg::Text("9606"))]) {
         Ok(rows) => rows,
         Err(RequestError::Source(error)) if error.reason == biodata::Reason::NotFound => {
-            return Ok(Mapped { value: Vec::new(), problems: Vec::new() });
+            return Ok(Mapped {
+                value: Vec::new(),
+                problems: Vec::new(),
+            });
         }
         Err(error) => return Err(error),
     };
     let mut value = Vec::new();
     let mut problems = Vec::new();
     for row in rows.0 {
-        let mapped = row.st_id.parse().ok().zip(Text::new(&row.display_name).ok());
-        if row.species_name == "Homo sapiens" && row.schema_class == "Pathway"
+        let mapped = row
+            .st_id
+            .parse()
+            .ok()
+            .zip(Text::new(&row.display_name).ok());
+        if row.species_name == "Homo sapiens"
+            && row.schema_class == "Pathway"
             && let Some((st_id, display_name)) = mapped
         {
-            value.push(PathwayRef { st_id, display_name });
+            value.push(PathwayRef {
+                st_id,
+                display_name,
+            });
         } else {
             problems.push(Problem {
                 source: Source::Reactome,

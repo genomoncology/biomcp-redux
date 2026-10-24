@@ -51,7 +51,9 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
             .collect();
         if !requested.is_empty() {
             item.sections = Some(GeneSections {
-                pathways: requested.contains(&GeneSection::Pathways).then_some(Section::NotApplicable),
+                pathways: requested
+                    .contains(&GeneSection::Pathways)
+                    .then_some(Section::NotApplicable),
                 constraint: requested
                     .contains(&GeneSection::Constraint)
                     .then_some(Section::NotApplicable),
@@ -80,7 +82,9 @@ pub(super) fn jobs<'a>(
     if requested(query).contains(&GeneSection::Pathways)
         && genes.iter().any(|(_, gene)| pathways::applicable(gene))
     {
-        jobs.push(Box::new(move || super::get::Job::Section(pathways::run(cx, deadline, genes))));
+        jobs.push(Box::new(move || {
+            super::get::Job::Section(pathways::run(cx, deadline, genes))
+        }));
     }
     jobs
 }
@@ -95,11 +99,12 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         if match section {
             SectionValue::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             SectionValue::Pathways(value) => matches!(value, Section::Unavailable { .. }),
-        }
-            || result.source.state == SourceState::Stale
+        } || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
-                    gene.ensembl_id.as_ref().is_some_and(|id| record.as_str() == id.base())
+                    gene.ensembl_id
+                        .as_ref()
+                        .is_some_and(|id| record.as_str() == id.base())
                         || gene.uniprot.iter().any(|id| record.as_str() == id.as_str())
                 })
             })
@@ -108,8 +113,12 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         }
         if let Some(sections) = &mut item.sections {
             match (result.section, section) {
-                (GeneSection::Constraint, SectionValue::Constraint(value)) => sections.constraint = Some(value.clone()),
-                (GeneSection::Pathways, SectionValue::Pathways(value)) => sections.pathways = Some(value.clone()),
+                (GeneSection::Constraint, SectionValue::Constraint(value)) => {
+                    sections.constraint = Some(value.clone())
+                }
+                (GeneSection::Pathways, SectionValue::Pathways(value)) => {
+                    sections.pathways = Some(value.clone())
+                }
                 _ => {}
             }
         }

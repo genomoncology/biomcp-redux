@@ -5,6 +5,7 @@
   "enum": [
     "hgnc",
     "mygene",
+    "reactome",
     "gnomad",
     "pubmed",
     "europepmc",
