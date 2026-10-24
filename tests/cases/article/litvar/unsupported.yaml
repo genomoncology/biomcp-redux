@@ -1,0 +1,27 @@
+{
+  "feature": "article-search",
+  "story": "LitVar rejects unsupported filters before any source request",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--author",
+        "Smith"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--author"
+      }
+    }
+  ]
+}
