@@ -340,6 +340,38 @@
       "expect": {
         "/error/message": "renamed; use: --next-page with the opaque registry cursor"
       }
+    },
+    {
+      "run": [
+        "--format",
+        "json",
+        "search",
+        "trial",
+        "--count-only",
+        "--mutation",
+        "old-value"
+      ],
+      "exit": 2,
+      "offline": true,
+      "expect": {
+        "/error/message": "retired; use: --variant for explicit discovery text"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--config",
+        "unused-retired-command-config",
+        "--has-results",
+        "--offset",
+        "old-value"
+      ],
+      "exit": 2,
+      "offline": true,
+      "expect": {
+        "/error/message": "renamed; use: --next-page with the opaque registry cursor"
+      }
     }
   ]
 }
