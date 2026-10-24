@@ -146,6 +146,108 @@
   "oneOf": [
     {
       "additionalProperties": false,
+      "description": "Read source citation evidence.",
+      "properties": {
+        "cited": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "Cited PMID, PMC identity or DOI.",
+          "x-positional": 1
+        },
+        "citing": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "Citing PMID, PMC identity or DOI.",
+          "x-positional": 0
+        },
+        "command": {
+          "const": "article_evidence",
+          "type": "string"
+        },
+        "fulltext": {
+          "default": false,
+          "description": "Include the citing paper's own explicit reference paragraphs.",
+          "type": "boolean"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Context fragment position returned by the advancing step.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "paragraph_offset": {
+          "default": 0,
+          "description": "Full-text fragment position returned by the advancing step.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Stored checked source scan and original hit positions."
+        }
+      },
+      "required": [
+        "command",
+        "citing",
+        "cited"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Source-native paper recommendations.",
+      "properties": {
+        "command": {
+          "const": "article_recommend",
+          "type": "string"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum recommendations requested, in native order.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "negative": {
+          "default": [],
+          "description": "Up to ten negative paper identities.",
+          "items": {
+            "$ref": "#/$defs/ArticleInput"
+          },
+          "maxItems": 10,
+          "type": "array"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of stored recommendations to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Fixed recommendation pool."
+        },
+        "seeds": {
+          "description": "One to ten positive paper identities.",
+          "items": {
+            "$ref": "#/$defs/ArticleInput"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "seeds"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
       "description": "Read a licensed supplementary file.",
       "properties": {
         "command": {

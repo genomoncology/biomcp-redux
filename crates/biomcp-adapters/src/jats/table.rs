@@ -11,6 +11,7 @@ struct Cells {
     expanded: Vec<String>,
     plain: String,
     references: Box<[Text]>,
+    paragraphs: Vec<super::references::Paragraph>,
 }
 pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply> {
     let label = table.value(&["label"])?.unwrap_or_else(|| "Table".into());
@@ -45,6 +46,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
             .collect();
         md.resize(width, String::new());
         rendered.push(BodyRow {
+            paragraphs: cells.paragraphs,
             plain: cells.plain,
             markdown: format!("| {} |", md.join(" | ")),
             context: false,
@@ -52,6 +54,11 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         });
     }
     let mut rows = vec![BodyRow {
+        paragraphs: table
+            .child("caption")?
+            .map(|node| references::paragraphs(node.0))
+            .transpose()?
+            .unwrap_or_default(),
         plain: format!("{label} {}", table.value(&["caption"])?.unwrap_or_default()),
         markdown: caption.clone(),
         context: true,
@@ -65,6 +72,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         context.push_str(&format!("\n\n{}\n{separator}", header.markdown));
         rows.push(header);
         rows.push(BodyRow {
+            paragraphs: Vec::new(),
             plain: String::new(),
             markdown: separator,
             context: true,
@@ -86,6 +94,7 @@ fn cells(row: Element<'_>) -> Result<Cells, BadReply> {
         expanded: Vec::new(),
         plain: String::new(),
         references: references::ids(row.0)?,
+        paragraphs: references::paragraphs(row.0)?,
     };
     let mut bytes = 0usize;
     for (name, cell) in blocks::body_nodes(row.0)? {

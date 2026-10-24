@@ -149,6 +149,13 @@ fn response(
             biodata::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
+        (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
+            meta.encode(query, Some(body))
+        }
+        (Request::ArticleRecommend(query), QueryBody::ArticleRecommendations(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
         (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body)) => {
             meta.encode(query, Some(body))
         }
