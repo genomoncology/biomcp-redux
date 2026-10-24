@@ -16,7 +16,7 @@
           "description": "Source label, when supplied."
         },
         "text": {
-          "$ref": "#/$defs/Markdown",
+          "$ref": "#/$defs/Text",
           "description": "Whole paragraph text."
         }
       },
@@ -383,13 +383,11 @@
     "ArticleSection": {
       "description": "A landed article section.",
       "enum": [
-        "fulltext",
         "annotations",
         "citations"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Licensed PMC body outline.",
         " Normalized text-mined entities from PubTator3.",
         " Citation counts from NIH iCite."
       ]
@@ -398,14 +396,12 @@
       "description": "Article section request including all landed sections.",
       "enum": [
         "annotations",
-        "fulltext",
         "citations",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
-        " Licensed PMC body outline.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
@@ -417,7 +413,7 @@
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
@@ -428,24 +424,13 @@
         "citations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Citation counts from NIH iCite."
-        },
-        "fulltext": {
-          "anyOf": [
-            {
               "$ref": "#/$defs/Section"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Licensed PMC body outline."
+          "description": "Citation counts from NIH iCite."
         }
       },
       "type": "object"
@@ -600,105 +585,10 @@
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "FigureCaption": {
-      "additionalProperties": false,
-      "description": "Figure text in document order.",
-      "properties": {
-        "caption": {
-          "$ref": "#/$defs/Markdown",
-          "description": "Source caption."
-        },
-        "label": {
-          "$ref": "#/$defs/Text",
-          "description": "Source label."
-        }
-      },
-      "required": [
-        "label",
-        "caption"
-      ],
-      "type": "object"
-    },
     "FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
       "format": "double",
       "type": "number"
-    },
-    "FullText": {
-      "additionalProperties": false,
-      "description": "Bucket license and body outline; processing version is not publication chronology.",
-      "properties": {
-        "figures": {
-          "description": "Source figure captions in document order.",
-          "items": {
-            "$ref": "#/$defs/FigureCaption"
-          },
-          "type": "array"
-        },
-        "license": {
-          "$ref": "#/$defs/License",
-          "description": "Selected bucket license."
-        },
-        "manuscript": {
-          "description": "Whether this selected version is an author manuscript.",
-          "type": "boolean"
-        },
-        "parts": {
-          "description": "Bounded body parts in reading order.",
-          "items": {
-            "$ref": "#/$defs/TextPart"
-          },
-          "type": "array"
-        },
-        "processing_version": {
-          "description": "Highest numeric processing version.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "license",
-        "processing_version",
-        "manuscript",
-        "parts",
-        "figures"
-      ],
-      "type": "object"
-    },
-    "License": {
-      "description": "License reported by the bucket metadata record.",
-      "enum": [
-        "cc_by",
-        "cc_by_nc",
-        "cc_by_sa",
-        "cc_by_nc_sa",
-        "cc_by_nd",
-        "cc_by_nc_nd",
-        "cc0",
-        "public_domain",
-        "tdm",
-        "other"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Creative Commons Attribution.",
-        " Creative Commons Attribution NonCommercial.",
-        " Creative Commons Attribution ShareAlike.",
-        " Creative Commons Attribution NonCommercial ShareAlike.",
-        " Creative Commons Attribution NoDerivatives.",
-        " Creative Commons Attribution NonCommercial NoDerivatives.",
-        " Creative Commons public-domain dedication.",
-        " Public domain.",
-        " Text and data mining manuscript terms.",
-        " The bucket reports another license."
-      ]
-    },
-    "Markdown": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
-      "format": "markdown",
-      "minLength": 1,
-      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -894,7 +784,6 @@
       "description": "Why a source could not supply data.",
       "enum": [
         "not_found",
-        "not_open",
         "rate_limited",
         "unavailable",
         "rejected",
@@ -910,7 +799,6 @@
       "type": "string",
       "x-enum-descriptions": [
         " The requested record was not found.",
-        " The public bucket does not hold an open text record.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " The source rejected the request.",
@@ -925,127 +813,6 @@
       ]
     },
     "Section": {
-      "description": "A requested section has exactly one state.",
-      "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "The source returned data.",
-          "properties": {
-            "data": {
-              "$ref": "#/$defs/FullText",
-              "description": "Whole section data."
-            },
-            "source": {
-              "$ref": "#/$defs/Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "data",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "data"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "The source answered with no data.",
-          "properties": {
-            "record": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/SourceRecord"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Native entry, if any."
-            },
-            "source": {
-              "$ref": "#/$defs/Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "empty",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "A requested source failed.",
-          "properties": {
-            "reason": {
-              "$ref": "#/$defs/Reason",
-              "description": "Typed reason."
-            },
-            "source": {
-              "$ref": "#/$defs/Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "unavailable",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "reason"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "User settings prevented the source request.",
-          "properties": {
-            "reason": {
-              "$ref": "#/$defs/Reason",
-              "description": "Typed reason."
-            },
-            "source": {
-              "$ref": "#/$defs/Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "skipped",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "reason"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "description": "Entity facts rule this section out.",
-          "properties": {
-            "state": {
-              "const": "not_applicable",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state"
-          ],
-          "type": "object"
-        }
-      ]
-    },
-    "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -1166,7 +933,7 @@
         }
       ]
     },
-    "Section3": {
+    "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -1299,7 +1066,7 @@
         "clingen",
         "pubmed",
         "europepmc",
-        "pmc-oa",
+        "semantic-scholar",
         "icite",
         "pubtator",
         "ctgov",
@@ -1317,7 +1084,7 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
-        " PMC Open Access bucket.",
+        " Semantic Scholar.",
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
@@ -1504,51 +1271,6 @@
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
-    },
-    "TextPart": {
-      "additionalProperties": false,
-      "description": "One independently readable bounded part.",
-      "properties": {
-        "kind": {
-          "$ref": "#/$defs/TextPartKind",
-          "description": "Source structure kind."
-        },
-        "number": {
-          "description": "One-based reader selector.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "title": {
-          "$ref": "#/$defs/Text",
-          "description": "Source section title or table label."
-        },
-        "tokens": {
-          "description": "Compact serialized text bytes divided by four, rounded up.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "number",
-        "title",
-        "kind",
-        "tokens"
-      ],
-      "type": "object"
-    },
-    "TextPartKind": {
-      "description": "Body part kind.",
-      "enum": [
-        "section",
-        "table"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Top-level body section.",
-        " Table, including caption and rows."
-      ]
     }
   },
   "$id": "biomcp.article_cards/1",

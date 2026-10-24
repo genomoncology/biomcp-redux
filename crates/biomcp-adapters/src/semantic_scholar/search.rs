@@ -23,7 +23,7 @@ pub struct Paper {
     /// Whole title when supplied.
     pub title: Option<Text>,
     /// Source venue.
-    pub venue: Option<Text>,
+    pub venue: Option<String>,
     /// Publication year when full date is absent.
     pub year: Option<u16>,
     /// Publication date at source precision.
@@ -95,7 +95,7 @@ impl Paper {
             doi,
             europepmc_id: None,
             title,
-            journal: self.venue,
+            journal: self.venue.and_then(|s| Text::new(&s).ok()),
             date: self
                 .publication_date
                 .or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
