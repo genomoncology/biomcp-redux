@@ -65,7 +65,7 @@ pub use article::{
 };
 
 mod recurrence;
-pub use recurrence::{RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
+pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantResolution};
 mod trial;

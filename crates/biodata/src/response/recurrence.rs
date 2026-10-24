@@ -8,6 +8,8 @@ pub struct VariantRecurrence {
     /// Source-qualified resolved identity; omitted when resolution failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub identity: Option<Variant>,
+    /// Genomic allele equality only, never a protein, residue or gene match.
+    pub matching_granularity: RecurrenceGranularity,
     /// HGNC-resolved gene query bound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entrez_gene_id: Option<EntrezGeneId>,
@@ -58,4 +60,12 @@ pub struct RecurrenceTerms {
     pub notice: Box<str>,
     /// Publisher FAQ explaining study-specific terms.
     pub url: Box<str>,
+}
+
+crate::macros::wire_enum! {
+    /// Source fields required for a recurrence observation.
+    RecurrenceGranularity {
+        /// Source build, chromosome, genomic bounds, reference and alternate all agree.
+        ExactGenomicAllele => "exact_genomic_allele",
+    }
 }

@@ -27,7 +27,8 @@ pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
 }
 fn empty() -> VariantRecurrence {
     VariantRecurrence {
-        identity: None, entrez_gene_id: None, study: None, selected_sample_count: None,
+        identity: None,
+        matching_granularity: biodata::RecurrenceGranularity::ExactGenomicAllele, entrez_gene_id: None, study: None, selected_sample_count: None,
         observed_sample_count: None, examined_rows: 0, all_pages_read: false, more: false,
         terms: biodata::RecurrenceTerms {
             unverified: true,
@@ -67,6 +68,9 @@ fn execute(
         if let Some(source) = out.sources.last_mut() { source.state = biodata::SourceState::Failed; if let RequestError::Source(e) = error { source.reason = Some(e.reason); } }
         out.local = status::local(error);
         out.problems.push(matching::problem(Source::Cbioportal, query.sample_set().as_str(), "sample_set.metadata"));
+    }
+    if cohort.selected_sample_count.is_none() {
+        out.problems.push(matching::problem(Source::Cbioportal, query.sample_set().as_str(), "sample_set.selected_sample_count"));
     }
     let (count, problems) = matching::count(&identity, &rows, query.study());
     out.problems.extend(problems);

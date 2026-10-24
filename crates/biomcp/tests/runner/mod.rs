@@ -33,6 +33,7 @@ mod protocol;
 mod publication;
 mod recurrence;
 mod recurrence_errors;
+mod recurrence_metadata;
 mod response_cases;
 mod schema;
 mod schema_proof;
@@ -287,6 +288,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant::trials());
     trials.extend(recurrence::trials());
     trials.extend(recurrence_errors::trials());
+    trials.extend(recurrence_metadata::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());
