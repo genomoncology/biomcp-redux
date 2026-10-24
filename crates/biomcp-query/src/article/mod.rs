@@ -1,6 +1,6 @@
+//! PubMed snapshots and stable pages through one checked command consumer.
 pub mod evidence;
 pub mod recommend;
-//! PubMed snapshots and stable pages through one checked command consumer.
 mod edges;
 mod fold;
 pub mod get;

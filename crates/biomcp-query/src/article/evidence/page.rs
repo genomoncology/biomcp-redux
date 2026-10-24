@@ -21,7 +21,7 @@ pub(super) fn render(query:&ArticleEvidence,mut snapshot:Snapshot,id:Text,out:&m
         let total=data.contexts.items.len();
         let start=query.offset() as usize;if start>total {out.body=QueryBody::TextPositionError;return Ok(())}
         let items=page(&data.contexts.items,start,4500)?;context_end+=items.len() as u32;
-        more=context_end as usize<total;data.contexts.items=items.into();
+        more=(context_end as usize)<total;data.contexts.items=items.into();
     }
     if let Some(Section::Data{data,..})=&mut snapshot.fulltext {
         let total=data.paragraphs.items.len();
