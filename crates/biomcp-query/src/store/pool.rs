@@ -11,7 +11,6 @@ pub(crate) struct Pool {
 pub(crate) struct StoredItem {
     pub item: ArticleItem,
     pub checked: bool,
-    pub header: Option<ArticleHeader>,
     pub problems: Vec<Problem>,
     pub outcome: Option<SourceOutcome>,
 }
@@ -40,10 +39,11 @@ impl Store<'_> {
             let size=u32::try_from(items.len()).map_err(|_|CacheError::Database)?;
             tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",params![id,key,created,expires,size,outcomes]).map_err(db)?;
             {
-                let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,pmid,item,header,checked) VALUES (?1,?2,?3,?4,?5,?6)").map_err(db)?;
+                let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,identity,item,header,checked) VALUES (?1,?2,?3,?4,?5,?6)").map_err(db)?;
                 for (rank,item) in items.iter().enumerate(){
                     let identity=serde_json::to_string(&item.key).map_err(|_|CacheError::Database)?;
-                    let payload=serde_json::to_string(item).map_err(|_|CacheError::Database)?;
+                    let mut identity_item=item.clone(); identity_item.header=None;
+                    let payload=serde_json::to_string(&identity_item).map_err(|_|CacheError::Database)?;
                     let header=item.header.as_ref().map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
                     insert.execute(params![id,rank as u32,identity,payload,header,item.pmid.is_none()]).map_err(db)?;
                 }
@@ -65,10 +65,11 @@ impl Store<'_> {
             }).map_err(db)?;
             rows.map(|row| {
                 let (id,checked,header,problems,outcome)=row.map_err(db)?;
+                let mut item:ArticleItem=serde_json::from_str(&id).map_err(|_|CacheError::Database)?;
+                item.header=header.map(|h|serde_json::from_str(&h).map_err(|_|CacheError::Database)).transpose()?;
                 Ok(StoredItem {
-                    item:serde_json::from_str(&id).map_err(|_|CacheError::Database)?,
+                    item,
                     checked,
-                    header:header.map(|h|serde_json::from_str(&h).map_err(|_|CacheError::Database)).transpose()?,
                     problems:serde_json::from_str(&problems).map_err(|_|CacheError::Database)?,
                     outcome:outcome.map(|v|serde_json::from_str(&v).map_err(|_|CacheError::Database)).transpose()?,
                 })
@@ -98,7 +99,7 @@ impl Store<'_> {
                 }).collect();
                 let problems=serde_json::to_string(&problems).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.
-                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND pmid=?2 AND header IS NULL",params![pool,identity,header,problems,outcome]).map_err(db)?;
+                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND identity=?2 AND header IS NULL",params![pool,identity,header,problems,outcome]).map_err(db)?;
             }
             Ok(())
         })

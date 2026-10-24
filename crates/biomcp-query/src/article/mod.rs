@@ -84,7 +84,7 @@ fn read_page<'a>(
     let mut rows = store.page(id, query.offset(), query.limit())?;
     let missing: Vec<_> = rows
         .iter()
-        .filter(|r| r.header.is_none() && (!r.checked || cx.fresh))
+        .filter(|r| r.item.header.is_none() && (!r.checked || cx.fresh))
         .filter_map(|r| r.item.pmid)
         .collect();
     if !missing.is_empty() {
@@ -132,7 +132,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
         .iter()
         .any(|s| s.state == biodata::SourceState::Stale);
     let failed = sources::failed(&out.sources);
-    let partial = stale || failed || rows.iter().any(|r| r.header.is_none());
+    let partial = stale || failed || rows.iter().any(|r| r.item.header.is_none());
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }
@@ -141,6 +141,9 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     } else {
         Status::Complete
     };
+    let missing_external = rows
+        .iter()
+        .any(|r| r.item.pmid.is_none() && r.item.header.is_none());
     let returned = u32::try_from(rows.len()).unwrap_or(u32::MAX);
     let total = u64::from(pool.info.size);
     out.page = Some(PageInfo {
@@ -155,14 +158,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
         })),
     });
     out.body = QueryBody::ArticlePage(ArticlePage {
-        items: rows
-            .into_iter()
-            .map(|r| {
-                let mut item = r.item;
-                item.header = r.header;
-                item
-            })
-            .collect(),
+        items: rows.into_iter().map(|r| r.item).collect(),
     });
     if let Some(offset) = query
         .offset()
@@ -193,7 +189,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     if partial {
         retry(
             query,
-            if stale || failed {
+            if stale || failed || missing_external {
                 None
             } else {
                 Some(pool.info.id.clone())

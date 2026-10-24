@@ -15,8 +15,8 @@
         "items": "/result/items",
         "max_pages": 32
       },
-      "max_bytes": 5228,
-      "max_tokens": 1307,
+      "max_bytes": 6139,
+      "max_tokens": 1535,
       "expect": {
         "/status": "partial",
         "/sources/1/source": "europepmc",
@@ -40,11 +40,13 @@
         "pubmed,europepmc"
       ],
       "offline": true,
-      "max_bytes": 5228,
+      "max_bytes": 6139,
       "expect": {
         "/status": "partial",
         "/page/total": 192
-      }
+      },
+      "max_tokens": 1535
     }
-  ]
+  ],
+  "verified": "M5 replay j9286: maximum default-page output 5338 bytes (1335 tokens); ceiling ceil(5338 * 1.15) = 6139 bytes (1535 tokens). Matching 0.9 AKT1 E17K JSON baseline: 1307 tokens, 5228 bytes. PM m4353 permits required found_by provenance, failed Europe PMC outcome and fresh continuation to exceed that baseline. PubMed-only ceilings remain unchanged."
 }

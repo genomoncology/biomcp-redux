@@ -97,7 +97,6 @@
         }
       },
       "required": [
-        "pmid",
         "title",
         "types",
         "author_count"
@@ -146,8 +145,7 @@
         }
       },
       "required": [
-        "key",
-        "pmid"
+        "key"
       ],
       "type": "object"
     },
