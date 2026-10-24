@@ -59,7 +59,7 @@ impl ResponseBody for GeneCards {
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene_page/1";
+    const SCHEMA: &'static str = "biomcp.gene_page/2";
     type Query = GeneSearch;
 }
 /// Typed dispatch result before the interface constructs an envelope.

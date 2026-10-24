@@ -102,7 +102,7 @@ fn registry() -> Vec<Contract> {
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
         Request => ("request", "biodata.request/3"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/3"),
-        Envelope<GenePage> => ("gene-page", "biomcp.gene_page/1"),
+        Envelope<GenePage> => ("gene-page", "biomcp.gene_page/2"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/1"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
@@ -115,7 +115,7 @@ fn registry() -> Vec<Contract> {
         Problem => ("problem", "biodata.problem/1"),
         GeneInput => ("gene-input", "biodata.gene-input/1"),
         Gene => ("gene", "biodata.gene/3"),
-        GeneHeader => ("gene-header", "biomcp.gene_header/1"),
+        GeneHeader => ("gene-header", "biomcp.gene_header/2"),
         GeneResolution => ("gene-resolution", "biodata.gene-resolution/3"),
         NcbiGeneId => ("ncbi-gene-id", "biodata.ncbi-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
@@ -146,10 +146,10 @@ fn registry() -> Vec<Contract> {
 }
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
-        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/2"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
-        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/2"),
+        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
         Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/2"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
@@ -164,7 +164,7 @@ fn trial_contracts() -> Vec<Contract> {
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci_trial_page/1"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial_cards/1"),
         TrialSearch => ("trial-search", "biodata.trial-search/1"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/2"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/3"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }
