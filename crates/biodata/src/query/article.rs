@@ -310,44 +310,32 @@ impl ArticleSearch {
     }
 }
 
-/// Source capability selectors checked before any lookup or transport request.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["TEXT", "--gene", "--variant", "--disease", "--drug", "--author", "--journal", "--since", "--until", "--type", "--sort date"])))]
-pub enum ArticleFilter {
-    /// Free text.
-    #[serde(rename = "TEXT")]
-    Text,
-    /// Gene selector.
-    #[serde(rename = "--gene")]
-    Gene,
-    /// Variant selector.
-    #[serde(rename = "--variant")]
-    Variant,
-    /// Disease selector.
-    #[serde(rename = "--disease")]
-    Disease,
-    /// Drug selector.
-    #[serde(rename = "--drug")]
-    Drug,
-    /// Author selector.
-    #[serde(rename = "--author")]
-    Author,
-    /// Journal selector.
-    #[serde(rename = "--journal")]
-    Journal,
-    /// Lower publication date bound.
-    #[serde(rename = "--since")]
-    Since,
-    /// Upper publication date bound.
-    #[serde(rename = "--until")]
-    Until,
-    /// Publication type selector.
-    #[serde(rename = "--type")]
-    Type,
-    /// Native date ordering.
-    #[serde(rename = "--sort date")]
-    DateSort,
+crate::response::wire_enum! {
+    /// Source capability selectors checked before any lookup or transport request.
+    ArticleFilter {
+        /// Free text.
+        Text => "TEXT",
+        /// Gene selector.
+        Gene => "--gene",
+        /// Variant selector.
+        Variant => "--variant",
+        /// Disease selector.
+        Disease => "--disease",
+        /// Drug selector.
+        Drug => "--drug",
+        /// Author selector.
+        Author => "--author",
+        /// Journal selector.
+        Journal => "--journal",
+        /// Lower publication date bound.
+        Since => "--since",
+        /// Upper publication date bound.
+        Until => "--until",
+        /// Publication type selector.
+        Type => "--type",
+        /// Native date ordering.
+        DateSort => "--sort date",
+    }
 }
 impl ArticleSearch {
     /// Whether any named unsupported capability is requested.
