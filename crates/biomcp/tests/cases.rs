@@ -41,11 +41,10 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
     let default = directory.is_none();
     let directory = directory
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases"));
-    let mut trials = runner::discover(&directory)?;
+    let mut trials = runner::discover(&directory, default)?;
     if default {
         trials.extend(runner::proof::trials());
         trials.extend(runner::protocol_trials());
-        trials.extend(runner::schema_proof::trials());
     }
     Ok((Arguments::from_iter(cargo_args), trials))
 }

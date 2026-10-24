@@ -1,13 +1,16 @@
+use super::schema::Registry;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use std::sync::Arc;
 
-pub(crate) fn trials() -> Vec<Trial> {
+pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
+    let raw_registry = Arc::clone(&registry);
     vec![
-        Trial::test("runner/validates-results-before-assertions", || {
-            results().map_err(Into::into)
+        Trial::test("runner/validates-results-before-assertions", move || {
+            results(&registry).map_err(Into::into)
         }),
-        Trial::test("runner/validates-raw-artifact-request", || {
-            raw_artifacts().map_err(Into::into)
+        Trial::test("runner/validates-raw-artifact-request", move || {
+            raw_artifacts(&raw_registry).map_err(Into::into)
         }),
         Trial::test("runner/resolves-only-registered-schema-references", || {
             references().map_err(Into::into)
@@ -15,11 +18,11 @@ pub(crate) fn trials() -> Vec<Trial> {
     ]
 }
 
-fn results() -> Result<(), String> {
+fn results(registry: &Registry) -> Result<(), String> {
     let good = json!({"schema":"biomcp.error/1", "status":"usage",
         "error":{"code":"usage.schema","message":"expected schema <known artifact id>"}});
     let args = vec!["unknown".into()];
-    super::schema::validate(&good, &args, false)?;
+    registry.validate(&good, &args, false)?;
     let mut rows = vec![
         json!({}),
         json!({"schema":42}),
@@ -36,10 +39,11 @@ fn results() -> Result<(), String> {
         .remove("status");
     rows.push(missing);
     for value in rows {
-        rejects(&value, &args, false)?;
+        rejects(registry, &value, &args, false)?;
     }
     let long_id = json!({"schema": "🚫".repeat(10_000)});
-    let diagnostic = super::schema::validate(&long_id, &args, false)
+    let diagnostic = registry
+        .validate(&long_id, &args, false)
         .err()
         .ok_or("long unknown identity accepted")?;
     if diagnostic.chars().count() > 240 {
@@ -48,7 +52,7 @@ fn results() -> Result<(), String> {
     Ok(())
 }
 
-fn raw_artifacts() -> Result<(), String> {
+fn raw_artifacts(registry: &Registry) -> Result<(), String> {
     let artifact = |id: &str| -> Result<Value, String> {
         let (_, text) = super::schema::ARTIFACTS
             .iter()
@@ -58,23 +62,28 @@ fn raw_artifacts() -> Result<(), String> {
     };
     let source = artifact("biodata.source/1")?;
     let args = vec!["schema".into(), "biodata.source/1".into()];
-    super::schema::validate(&source, &args, true)?;
-    rejects(&source, &args, false)?;
-    rejects(&source, &["unknown".into()], true)?;
-    rejects(&source, &["schema".into(), "missing/1".into()], true)?;
-    rejects(&artifact("biomcp.error/1")?, &args, true)?;
+    registry.validate(&source, &args, true)?;
+    rejects(registry, &source, &args, false)?;
+    rejects(registry, &source, &["unknown".into()], true)?;
+    rejects(
+        registry,
+        &source,
+        &["schema".into(), "missing/1".into()],
+        true,
+    )?;
+    rejects(registry, &artifact("biomcp.error/1")?, &args, true)?;
     let mut changed = source.clone();
     changed
         .as_object_mut()
         .ok_or("not object")?
         .insert("description".into(), json!("changed"));
-    rejects(&changed, &args, true)?;
+    rejects(registry, &changed, &args, true)?;
     let mut wrong_id = source;
     wrong_id
         .as_object_mut()
         .ok_or("not object")?
         .insert("$id".into(), json!("invented/1"));
-    rejects(&wrong_id, &args, true)
+    rejects(registry, &wrong_id, &args, true)
 }
 
 fn references() -> Result<(), String> {
@@ -118,8 +127,13 @@ fn references() -> Result<(), String> {
     Ok(())
 }
 
-fn rejects(value: &Value, args: &[String], success: bool) -> Result<(), String> {
-    match super::schema::validate(value, args, success) {
+fn rejects(
+    registry: &Registry,
+    value: &Value,
+    args: &[String],
+    success: bool,
+) -> Result<(), String> {
+    match registry.validate(value, args, success) {
         Err(error) if error.starts_with("schema validation:") => Ok(()),
         result => Err(format!(
             "expected schema validation failure; actual {result:?}"
