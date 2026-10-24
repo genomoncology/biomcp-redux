@@ -44,14 +44,15 @@ impl Drop for Server {
     }
 }
 impl Server {
-    fn start() -> Result<Self, String> {
+    fn start() -> Result<Self, String> { Self::configured("127.0.0.1:0", None, true) }
+    fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
-        let address: SocketAddr = "127.0.0.1:0".parse().map_err(|_| "local address")?;
+        if let Some(config) = config { environment.config(&config).map_err(|e| e.to_string())?; }
+        let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
-        args.extend(environment.globals(
-            Some(&super::launch::fixtures().join("replies/gene/main")),
-            false,
-        ));
+        if replay { args.extend(environment.globals(
+            Some(&super::launch::fixtures().join("replies/gene/main")), false,
+        )); }
         let child = environment
             .command(env!("CARGO_BIN_EXE_biomcp"), &args)
             .stdin(Stdio::null())
@@ -149,6 +150,11 @@ fn lifecycle() -> Check {
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));
     }
+    let schema = super::schema::ARTIFACTS.iter().find(|(id, _)| *id == "biomcp.http-health/1")
+        .ok_or("HTTP health schema missing")?.1;
+    let schema: Value = serde_json::from_str(schema).map_err(|e| e.to_string())?;
+    jsonschema::validator_for(&schema).map_err(|e| e.to_string())?
+        .validate(&health).map_err(|e| e.to_string())?;
     let request = json!({"jsonrpc":"2.0","id":1,"method":"server/discover","params":{
         "_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28",
         "io.modelcontextprotocol/clientCapabilities":{}}}});
@@ -340,10 +346,11 @@ fn resources() -> Check {
     // Continuously send data while waiting for the server's close event. An idle
     // timeout would stay open forever; the absolute deadline must end the read.
     let copy = slow.try_clone().map_err(|e| e.to_string())?;
+    let (stop, receiver) = std::sync::mpsc::channel::<()>();
     let writer = std::thread::spawn(move || {
         let mut copy = copy;
-        while copy.write_all(b"x").is_ok() {
-            std::thread::yield_now();
+        while receiver.recv_timeout(Duration::from_millis(100)).is_err() {
+            if copy.write_all(b"x").is_err() { break; }
         }
     });
     let mut byte = [0];
@@ -380,6 +387,22 @@ fn storage() -> Check {
         if output.status.code() != Some(2) {
             return Err("unsafe bind must fail with usage status".into());
         }
+    }
+    let failed = Server::configured("127.0.0.1:0", Some(json!({"ca_bundle":"missing-private-ca.pem"})), false)?;
+    let (status, body, _) = failed.raw("GET", "/health", &failed.address.to_string(), "", "")?;
+    if status != 503 || body != Some(json!({"version":env!("CARGO_PKG_VERSION"),"store":false})) {
+        return Err("local initialization failure leaked details or passed health".into());
+    }
+    let ipv6 = Server::configured("[::1]:0", None, true)?;
+    let authority = format!("[0:0:0:0:0:0:0:1]:{}", ipv6.address.port());
+    if ipv6.raw("GET", "/health", &authority, "", "")?.0 != 200 {
+        return Err("equivalent IPv6 authority was rejected".into());
+    }
+    let mut exposed = Server::configured("0.0.0.0:0", Some(json!({"http":{"allowed_hosts":["local.example"]}})), true)?;
+    exposed.address = SocketAddr::new("127.0.0.1".parse().unwrap(), exposed.address.port());
+    if exposed.raw("GET", "/health", "LOCAL.EXAMPLE", "", "")?.0 != 200
+        || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403 {
+        return Err("configured host allowlist was not enforced".into());
     }
     Ok(())
 }

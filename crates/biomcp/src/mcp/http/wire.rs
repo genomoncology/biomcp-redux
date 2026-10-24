@@ -108,7 +108,7 @@ fn timeout(stream: &TcpStream, end: Instant) -> io::Result<()> {
 }
 pub(super) fn malformed() -> io::Error { io::Error::new(io::ErrorKind::InvalidData, "Invalid HTTP request") }
 pub(super) fn write(stream: &mut TcpStream, status: u16, body: &[u8], revision: Option<&str>) -> io::Result<()> {
-    stream.set_write_timeout(Some(READ_BUDGET))?;
+    let end = Instant::now() + READ_BUDGET;
     let revision = revision
         .map(|revision| format!("MCP-Protocol-Version: {revision}\r\n"))
         .unwrap_or_default();
@@ -116,8 +116,8 @@ pub(super) fn write(stream: &mut TcpStream, status: u16, body: &[u8], revision: 
         "HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: close\r\nCache-Control: no-store\r\n{revision}Content-Length: {}\r\n\r\n",
         body.len()
     );
-    stream.write_all(head.as_bytes())?;
-    stream.write_all(body)
+    write_part(stream, head.as_bytes(), end)?;
+    write_part(stream, body, end)
 }
 
 pub(super) fn read_more(stream: &mut TcpStream, bytes: &mut Vec<u8>, cap: usize, end: Instant) -> io::Result<()> {
@@ -128,5 +128,17 @@ pub(super) fn read_more(stream: &mut TcpStream, bytes: &mut Vec<u8>, cap: usize,
     let read = stream.read(buffer.get_mut(..available).ok_or_else(malformed)?)?;
     if read == 0 { return Err(malformed()); }
     bytes.extend_from_slice(buffer.get(..read).ok_or_else(malformed)?);
+    Ok(())
+}
+
+fn write_part(stream: &mut TcpStream, mut bytes: &[u8], end: Instant) -> io::Result<()> {
+    while !bytes.is_empty() {
+        let left = end.checked_duration_since(Instant::now()).filter(|left| !left.is_zero())
+            .ok_or_else(|| io::Error::new(io::ErrorKind::TimedOut, "HTTP write budget"))?;
+        stream.set_write_timeout(Some(left))?;
+        let written = stream.write(bytes)?;
+        if written == 0 { return Err(io::Error::from(io::ErrorKind::WriteZero)); }
+        bytes = bytes.get(written..).ok_or_else(malformed)?;
+    }
     Ok(())
 }
