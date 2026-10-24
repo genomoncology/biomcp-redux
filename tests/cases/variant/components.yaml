@@ -127,7 +127,9 @@
         "/result/candidates": {
           "count": 0
         }
-      }
+      },
+      "exit": 4,
+      "is_error": true
     }
   ]
 }

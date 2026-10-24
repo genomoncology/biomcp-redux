@@ -6,6 +6,10 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "variant-search/component-terms-preserve-comparable-payload",
+            || terms_budget().map_err(Into::into),
+        ),
+        Trial::test(
             "variant-search/native-window-discloses-unretrieved-total",
             || window().map_err(Into::into),
         ),
@@ -337,4 +341,54 @@ fn window_body(request: &str) -> Result<String, String> {
         ));
     }
     Ok(json!({"total":10001,"hits":[{"_id":"chr7:g.55259515T>G"}]}).to_string())
+}
+
+fn terms_budget() -> Result<(), String> {
+    let registry = super::schema::Registry::embedded()?;
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases/variant");
+    let expected = json!([{"component": "clinvar", "terms": biomcp_adapters::myvariant::components::label(biomcp_adapters::myvariant::components::CLINVAR.terms).map_err(|e| e.to_string())?}]);
+    for (name, cap) in [
+        ("L858R", 743),
+        ("G719A", 743),
+        ("S768I", 743),
+        ("T790M", 743),
+        ("E709K", 745),
+        ("L861Q", 745),
+        ("Arg117Gly", 758),
+        ("G719C", 742),
+        ("G719S", 742),
+        ("region", 1271),
+        ("raw", 1504),
+    ] {
+        let mut value = super::run_case(&root.join(format!("search-{name}.yaml")), &registry)?;
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        let items = value
+            .pointer_mut("/result/items")
+            .and_then(Value::as_array_mut)
+            .ok_or("missing source rows")?;
+        let mut labeled = 0;
+        for item in items {
+            if let Some(terms) = item
+                .as_object_mut()
+                .and_then(|v| v.remove("component_terms"))
+            {
+                if terms != expected {
+                    return Err("component terms changed during subtraction".into());
+                }
+                labeled += 1;
+            }
+        }
+        let payload = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        if labeled == 0 || full - payload != labeled * 205 || payload > cap {
+            return Err(format!(
+                "{name}: full={full}, metadata={}, payload={payload}, comparable cap={cap}",
+                full - payload
+            ));
+        }
+        println!(
+            "{name}: full={full}, exact required metadata={}, payload={payload}, unchanged comparable cap={cap}",
+            full - payload
+        );
+    }
+    Ok(())
 }

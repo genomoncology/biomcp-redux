@@ -4,7 +4,7 @@
   "replay": "variant/search/S768I",
   "story": "Explicit MyVariant S768I candidates retain the source identities and query",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim",
+  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim; Required-provenance exception: full envelope 851 bytes; exactly 205 bytes of new component_terms metadata; payload remains under the unchanged 743-byte comparable cap. The component-terms-preserve-comparable-payload case checks this subtraction. Full envelope ceiling is ceil(measured * 1.15).",
   "steps": [
     {
       "run": [
@@ -23,8 +23,8 @@
         "--protein",
         "S768I"
       ],
-      "max_bytes": 743,
-      "max_tokens": 186,
+      "max_bytes": 979,
+      "max_tokens": 245,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",
@@ -61,7 +61,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55249005G>T"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -112,7 +122,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55249005G>T"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }
