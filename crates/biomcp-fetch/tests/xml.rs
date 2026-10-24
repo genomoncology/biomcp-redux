@@ -243,14 +243,14 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     database
         .execute_batch("UPDATE reply SET fresh_until=0")
         .unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
         let worker =
             scope.spawn(|| leg.xml::<Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[]));
         server.next().respond(403, "", "unchecked-secret");
         assert_eq!(worker.join().unwrap().unwrap().text.as_str(), "BRAFV600E");
-        assert!(leg.finish().stale);
     });
+    assert!(leg.finish().stale);
     database
         .execute_batch("UPDATE reply SET body='<broken>'")
         .unwrap();
