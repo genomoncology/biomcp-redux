@@ -1,6 +1,7 @@
 # 0103 — Measure the HTTP close event before test cleanup
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6d6206c3b55e9a7aa16af94b367706086948074a
 
 Milestone: 1
 
