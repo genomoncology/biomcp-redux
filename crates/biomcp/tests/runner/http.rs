@@ -78,18 +78,29 @@ impl Server {
     pub(super) fn start() -> Result<Self, String> {
         Self::configured("127.0.0.1:0", None, true)
     }
+    pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
+        Self::configured_at("127.0.0.1:0", None, Some(path))
+    }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
+        Self::configured_at(
+            bind,
+            config,
+            replay.then(|| super::launch::fixtures().join("replies/gene/main")),
+        )
+    }
+    fn configured_at(
+        bind: &str,
+        config: Option<Value>,
+        replay: Option<std::path::PathBuf>,
+    ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
             environment.config(&config).map_err(|e| e.to_string())?;
         }
         let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
-        if replay {
-            args.extend(environment.globals(
-                Some(&super::launch::fixtures().join("replies/gene/main")),
-                false,
-            ));
+        if let Some(path) = replay {
+            args.extend(environment.globals(Some(&path), false));
         }
         let child = environment
             .command(env!("CARGO_BIN_EXE_biomcp"), &args)
@@ -129,7 +140,12 @@ impl Server {
         Ok(server)
     }
 
-    fn request(&self, method: &str, path: &str, body: &str) -> Result<(u16, Value), String> {
+    pub(super) fn request(
+        &self,
+        method: &str,
+        path: &str,
+        body: &str,
+    ) -> Result<(u16, Value), String> {
         let value = serde_json::from_str::<Value>(body).ok();
         let method_header = value
             .as_ref()

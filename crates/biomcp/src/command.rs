@@ -10,10 +10,11 @@ pub(crate) struct Outcome {
     pub(crate) cli_bytes: Vec<u8>,
 }
 pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Outcome> {
-    dispatch_using(args, None)
+    dispatch_using(args, true, None)
 }
 fn dispatch_using(
     args: &[OsString],
+    allow_save: bool,
     shared: Option<(
         &crate::grammar::Globals,
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
@@ -92,15 +93,15 @@ fn dispatch_using(
             &owned
         }
     };
-    execute(fetch, action)
+    execute(fetch, action, allow_save)
 }
-fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
+fn execute(fetch: &biomcp_fetch::Fetch, action: Action, allow_save: bool) -> io::Result<Outcome> {
     match action {
         Action::Health => health(fetch),
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
-            let result = run_request(fetch, &request, fresh)?;
+            let result = run_request(fetch, &request, fresh, allow_save)?;
             response(fetch, request, result)
         }
     }
@@ -142,6 +143,10 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (_, QueryBody::PdfSaveRefused(link)) => {
+            usage_envelope(biodata::ErrorEnvelope::pdf_save_refused(link.url))
+        }
+        (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
         (_, QueryBody::UnsupportedFilter { source, option }) => {
             usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
         }
@@ -192,6 +197,21 @@ pub(crate) fn tool(
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
 ) -> io::Result<Outcome> {
+    tool_using(args, globals, fetch, true)
+}
+pub(crate) fn tool_http(
+    args: &[OsString],
+    globals: &crate::grammar::Globals,
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+) -> io::Result<Outcome> {
+    tool_using(args, globals, fetch, false)
+}
+fn tool_using(
+    args: &[OsString],
+    globals: &crate::grammar::Globals,
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+    allow_save: bool,
+) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
         ["--record", "--replay", "--case-cache"]
             .iter()
@@ -205,7 +225,7 @@ pub(crate) fn tool(
     if args.first().is_some_and(|arg| arg == "schema") {
         return dispatch(args);
     }
-    dispatch_using(args, Some((globals, fetch)))
+    dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
@@ -326,17 +346,20 @@ fn run_request(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,
     fresh: bool,
+    allow_save: bool,
 ) -> io::Result<biomcp_query::Outcome> {
-    Ok(biomcp_query::run(
-        &biomcp_query::Ctx {
-            ncbi_email: crate::config::ncbi_email()
-                .map_err(|()| io::Error::other("local configuration failed"))?,
-            fetch,
-            budget: crate::config::BUDGET,
-            fresh,
-        },
-        request,
-    ))
+    let cx = biomcp_query::Ctx {
+        ncbi_email: crate::config::ncbi_email()
+            .map_err(|()| io::Error::other("local configuration failed"))?,
+        fetch,
+        budget: crate::config::BUDGET,
+        fresh,
+    };
+    Ok(if let Request::ArticlePdf(query) = request {
+        crate::save::run(&cx, query, allow_save)
+    } else {
+        biomcp_query::run(&cx, request)
+    })
 }
 
 fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {

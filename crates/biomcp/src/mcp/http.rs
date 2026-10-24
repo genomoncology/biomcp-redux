@@ -176,7 +176,7 @@ impl Service {
                         Some(revision),
                     );
                 };
-                match crate::command::tool(&args, &self.globals, &self.fetch) {
+                match crate::command::tool_http(&args, &self.globals, &self.fetch) {
                     Ok(outcome) => {
                         super::protocol::result(id, super::protocol::outcome(&outcome), modern)
                     }

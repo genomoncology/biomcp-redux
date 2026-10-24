@@ -40,6 +40,8 @@ fn embed_examples() -> Result<(), Box<dyn Error>> {
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();
     for (file, index) in [
+        ("article/pdf/synthetic.yaml", 1),
+        ("article/pdf/synthetic.yaml", 2),
         ("gene/kras.yaml", 0),
         ("gene/braf.yaml", 0),
         ("gene/search.yaml", 0),

@@ -1,0 +1,92 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Inspect a publisher link and save only to an explicit destination.",
+  "replay": "article/pdf/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "max_bytes": 3500,
+      "expect": {
+        "/result/items/0/sections/pdf/state": "data",
+        "/result/items/0/sections/pdf/data/license": "cc_by",
+        "/result/items/0/sections/pdf/data/status": "gold"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "pdf",
+        "41351423",
+        "--save",
+        "owned.pdf",
+        "--replace"
+      ],
+      "mcp": [
+        "article",
+        "pdf",
+        "41351423",
+        "--save",
+        "owned.pdf",
+        "--replace"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/result/file/state": "data",
+        "/result/file/data/license": "cc_by"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "pdf",
+        "41351423",
+        "--save",
+        "second.pdf",
+        "--replace"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/result/file/state": "data"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "pdf",
+        "41351423"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "41351423",
+        "--pdf",
+        "--part",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

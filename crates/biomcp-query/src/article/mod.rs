@@ -7,6 +7,7 @@ mod named;
 mod next;
 mod order;
 mod page;
+pub mod pdf;
 mod preprint;
 mod protein_change;
 pub mod recommend;

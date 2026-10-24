@@ -19,6 +19,7 @@ mod mcp;
 mod named_search;
 mod negative_cases;
 mod network_stub;
+mod pdf;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -260,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(configuration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
+    trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
 
     trials.extend(http::trials());

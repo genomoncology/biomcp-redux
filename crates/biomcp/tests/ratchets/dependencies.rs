@@ -11,6 +11,7 @@ const LAYERS: &[(&str, &[&str])] = &[
         &[
             "biodata",
             "ureq",
+            "url",
             "rustls",
             "rustls-platform-verifier",
             "httpdate",
@@ -56,6 +57,8 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-adapters",
             "biomcp-query",
             "clap",
+            "sha2",
+            "tempfile",
             "httparse",
             "ctrlc",
             "base64",

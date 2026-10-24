@@ -6,6 +6,8 @@ pub use article::{
     ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter,
 };
 pub use article_supplement::{ArticleSupplement, SheetRows};
+mod article_pdf;
+pub use article_pdf::ArticlePdf;
 mod article_text;
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use article_text::ArticleText;
