@@ -10,11 +10,15 @@ use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--live-check") {
-        let list = env::args().nth(2).as_deref() == Some("--list");
-        if env::args().len() > if list { 3 } else { 2 } {
+        let mode = env::args().nth(2);
+        let list = mode.as_deref() == Some("--list");
+        let details = mode.as_deref() == Some("--details");
+        if mode.is_some() && !list && !details
+            || env::args().len() > if mode.is_some() { 3 } else { 2 }
+        {
             return ExitCode::FAILURE;
         }
-        return match runner::live::run(list) {
+        return match runner::live::run(list, details) {
             Ok(report) => {
                 use std::io::Write;
                 let _ = writeln!(std::io::stdout(), "{report}");

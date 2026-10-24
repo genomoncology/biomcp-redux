@@ -33,7 +33,7 @@ pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
     changes
 }
 
-pub(crate) fn run(list: bool) -> Result<Value, String> {
+pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases");
     let mut paths = Vec::new();
     collect(&root, &mut paths).map_err(|e| e.to_string())?;
@@ -87,7 +87,7 @@ pub(crate) fn run(list: bool) -> Result<Value, String> {
         .filter(|r| r.get("skipped").is_none())
         .collect();
     Ok(
-        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(CASE_SAMPLE).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(CASE_SAMPLE)}),
+        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })}),
     )
 }
 fn eligibility(case: &Case) -> Option<&str> {
@@ -139,6 +139,9 @@ fn check(
                 return Err("case command budget exhausted".into());
             }
             let (expected, before) = invoke(&baseline, &args.0, Some(&replay), ordinal)?;
+            if ordinal == 1 && before.is_empty() {
+                return Err("recorded command has no provider observations".into());
+            }
             let (actual, after) = invoke(&live, &args.1, None, ordinal)?;
             std::thread::sleep(
                 Duration::from_millis(after.iter().map(|o| o.interval_ms).max().unwrap_or(0))
