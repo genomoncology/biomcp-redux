@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "ArticleSort": {
+      "description": "Article ordering supported by this command.",
+      "enum": [
+        "rank"
+      ],
+      "type": "string"
+    },
+    "ArticleSource": {
+      "description": "Source selectors supported by article search.",
+      "enum": [
+        "pubmed"
+      ],
+      "type": "string"
+    },
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.article-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": [
+        "text"
+      ]
+    },
+    {
+      "required": [
+        "gene"
+      ]
+    },
+    {
+      "required": [
+        "variant"
+      ]
+    },
+    {
+      "required": [
+        "disease"
+      ]
+    },
+    {
+      "required": [
+        "drug"
+      ]
+    }
+  ],
+  "description": "Checked search selectors and pool cursor.",
+  "properties": {
+    "disease": {
+      "$ref": "#/$defs/Text",
+      "description": "Disease words."
+    },
+    "drug": {
+      "$ref": "#/$defs/Text",
+      "description": "Drug words."
+    },
+    "gene": {
+      "$ref": "#/$defs/GeneInput",
+      "description": "Gene input resolved through HGNC."
+    },
+    "limit": {
+      "default": 10,
+      "description": "Maximum page length.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Number of pool items to skip.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Stable snapshot from an earlier response."
+    },
+    "sort": {
+      "$ref": "#/$defs/ArticleSort",
+      "default": "rank",
+      "description": "Native relevance order."
+    },
+    "source": {
+      "default": [
+        "pubmed"
+      ],
+      "description": "Sources in caller order; defaults to PubMed.",
+      "items": {
+        "$ref": "#/$defs/ArticleSource"
+      },
+      "maxItems": 1,
+      "minItems": 1,
+      "type": "array"
+    },
+    "text": {
+      "$ref": "#/$defs/Text",
+      "description": "Words sent to PubMed in its default fields.",
+      "x-positional": 0
+    },
+    "variant": {
+      "$ref": "#/$defs/Text",
+      "description": "Variant words."
+    }
+  },
+  "title": "ArticleSearch",
+  "type": "object"
+}

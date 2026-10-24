@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "Doi": {
+      "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Pmcid": {
+      "pattern": "^PMC[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PublicationType": {
+      "description": "Clinically meaningful PubMed publication types.",
+      "enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Randomized controlled trial.",
+        " Clinical trial.",
+        " Phase one trial.",
+        " Phase two trial.",
+        " Phase three trial.",
+        " Phase four trial.",
+        " Meta-analysis.",
+        " Systematic review.",
+        " Review.",
+        " Practice guideline.",
+        " Guideline.",
+        " Case report.",
+        " Observational study.",
+        " Multicenter study.",
+        " Letter.",
+        " Comment.",
+        " Editorial.",
+        " Preprint.",
+        " Retracted publication.",
+        " Retraction notice.",
+        " Erratum."
+      ]
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.article_header/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Citation metadata owned by PubMed.",
+  "properties": {
+    "author_count": {
+      "description": "Whole source author count.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "date": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Publication date at source precision."
+    },
+    "doi": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Doi"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Checked DOI, when supplied."
+    },
+    "first_author": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "First author in source order."
+    },
+    "journal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Journal name."
+    },
+    "pmcid": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Pmcid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Checked PMC identity, when supplied."
+    },
+    "pmid": {
+      "$ref": "#/$defs/Pmid",
+      "description": "Checked PubMed identity."
+    },
+    "title": {
+      "$ref": "#/$defs/Text",
+      "description": "Whole source title."
+    },
+    "types": {
+      "description": "Clinical publication types.",
+      "items": {
+        "$ref": "#/$defs/PublicationType"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "pmid",
+    "title",
+    "types",
+    "author_count"
+  ],
+  "title": "ArticleHeader",
+  "type": "object"
+}

@@ -6,7 +6,9 @@
         "usage.schema",
         "usage.arguments",
         "usage.retired",
-        "local.failure"
+        "local.failure",
+        "pool.expired",
+        "usage.pool_mismatch"
       ],
       "type": "string"
     },
@@ -45,7 +47,9 @@
         "use: expression",
         "moved to the drug entity",
         "moved to the diagnostic entity",
-        "deferred"
+        "deferred",
+        "pool expired; restart the search",
+        "pool selectors do not match this search"
       ],
       "type": "string"
     },
@@ -59,7 +63,43 @@
       "description": "The status of an invalid schema request.",
       "enum": [
         "usage",
-        "local"
+        "local",
+        "expired"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key"
       ],
       "type": "string"
     }
@@ -71,6 +111,13 @@
   "properties": {
     "error": {
       "$ref": "#/$defs/ErrorDetail"
+    },
+    "next": {
+      "description": "Typed restart when a snapshot cannot answer this query.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
     },
     "schema": {
       "$ref": "#/$defs/ErrorSchema"

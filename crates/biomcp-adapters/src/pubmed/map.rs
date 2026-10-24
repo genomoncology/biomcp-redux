@@ -8,10 +8,7 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
     let mut problems = Vec::new();
     let mut value = Vec::new();
     for id in ids {
-        let mapped = match reply.result.get(id.as_ref()) {
-            Some(SummaryValue::Row(_)) => true,
-            _ => false,
-        };
+        let mapped = matches!(reply.result.get(id.as_ref()), Some(SummaryValue::Row(_)));
         if !mapped {
             problem(&mut problems, id, "summary");
         }
