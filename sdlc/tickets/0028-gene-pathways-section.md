@@ -1,6 +1,7 @@
 # 0028 — Add the pathways section from Reactome
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 901fd6687160e2ce31a44257893704c67236fa28
 
 Milestone: 1
 

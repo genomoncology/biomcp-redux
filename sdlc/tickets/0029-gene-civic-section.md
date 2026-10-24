@@ -1,6 +1,7 @@
 # 0029 — Add the civic section from CIViC
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 268f86913ebf5d086b1c2b6649ce4f229d8af957
 
 Milestone: 1
 

@@ -1,6 +1,7 @@
 # 0033 — Add search gene --locus-group and retire the 0.9 gene spellings
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 737e52e3aa79cf0ffe3ddb650015a446e28ffb3a
 
 Milestone: 1
 

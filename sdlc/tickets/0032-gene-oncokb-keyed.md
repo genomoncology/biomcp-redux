@@ -1,6 +1,7 @@
 # 0032 — Add OncoKB as a keyed gene source
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 836afa66d8efcad23be3bf3b7622bf9fcbd48716
 
 Milestone: 1
 

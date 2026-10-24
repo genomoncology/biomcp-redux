@@ -1,6 +1,7 @@
 # 0031 — Add the expression section from the Human Protein Atlas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0d3f525587ef4c968ce05e6ccee78a913ef11a5d
 
 Milestone: 1
 

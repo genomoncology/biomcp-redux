@@ -1,6 +1,7 @@
 # 0030 — Add the clingen section from the ClinGen bundles
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 560397d338b8ecbf1a90a086c19780dcad0ffd4f
 
 Milestone: 1
 

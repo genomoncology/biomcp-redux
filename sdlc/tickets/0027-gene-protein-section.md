@@ -1,6 +1,7 @@
 # 0027 — Add the protein section from UniProt by HGNC accessions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6bcf1fb9cd7d6f34f3da8f590b0b39e9eb7afd09
 
 Milestone: 1
 
