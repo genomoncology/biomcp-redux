@@ -131,22 +131,7 @@ fn validate(text: &str) -> Option<()> {
                     return None;
                 }
                 declaration = true;
-                decl.xml_version().ok()?;
-                let attributes = quick_xml::events::BytesStart::from_content(decl.as_ref(), 3);
-                let mut previous = 0;
-                for attribute in attributes.attributes() {
-                    let attribute = attribute.ok()?;
-                    let order = match attribute.key.as_ref() {
-                        "version" => 1,
-                        "encoding" if attribute.value.eq_ignore_ascii_case("utf-8") => 2,
-                        "standalone" if matches!(attribute.value.as_ref(), "yes" | "no") => 3,
-                        _ => return None,
-                    };
-                    if order <= previous {
-                        return None;
-                    }
-                    previous = order;
-                }
+                validate_declaration(&decl)?;
             }
             Event::DocType(_) => {
                 if roots != 0 || doctype {
@@ -177,6 +162,26 @@ fn validate(text: &str) -> Option<()> {
             _ => {}
         }
     }
+}
+
+fn validate_declaration(decl: &quick_xml::events::BytesDecl<'_>) -> Option<()> {
+    decl.xml_version().ok()?;
+    let attributes = quick_xml::events::BytesStart::from_content(decl.as_ref(), 3);
+    let mut previous = 0;
+    for attribute in attributes.attributes() {
+        let attribute = attribute.ok()?;
+        let order = match attribute.key.as_ref() {
+            "version" => 1,
+            "encoding" if attribute.value.eq_ignore_ascii_case("utf-8") => 2,
+            "standalone" if matches!(attribute.value.as_ref(), "yes" | "no") => 3,
+            _ => return None,
+        };
+        if order <= previous {
+            return None;
+        }
+        previous = order;
+    }
+    Some(())
 }
 
 /// All text within an XML element, with inline markup removed in document order.
