@@ -1,6 +1,7 @@
 # 0036 — Answer get article by PMID, PMCID and DOI
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7ea27fa8e898e22eb74a0cae3c43191519065e30
 
 Milestone: 1
 

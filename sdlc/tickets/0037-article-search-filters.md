@@ -1,6 +1,7 @@
 # 0037 — Add PubMed filters and date order to search article
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cf8e19254dacbddf584d738b43bcb40c7802ab32
 
 Milestone: 1
 
