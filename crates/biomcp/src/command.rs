@@ -108,6 +108,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.sources = result.sources;
                     envelope.problems = result.problems;
                     envelope.next = steps;
+                    network_steps(&mut envelope.next, &envelope.sources);
                     envelope.page = result.page;
                     encode(envelope, status)
                 }
@@ -134,6 +135,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.sources = result.sources;
                     envelope.problems = result.problems;
                     envelope.next = steps;
+                    network_steps(&mut envelope.next, &envelope.sources);
                     envelope.page = result.page;
                     encode(envelope, status)
                 }
@@ -142,6 +144,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.sources = result.sources;
                     envelope.problems = result.problems;
                     envelope.next = steps;
+                    network_steps(&mut envelope.next, &envelope.sources);
                     encode(envelope, status)
                 }
                 (Request::GetGene(query), QueryBody::GeneCards(body)) => {
@@ -149,6 +152,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.sources = result.sources;
                     envelope.problems = result.problems;
                     envelope.next = steps;
+                    network_steps(&mut envelope.next, &envelope.sources);
                     encode(envelope, status)
                 }
                 (Request::SearchGene(query), QueryBody::GenePage(body)) => {
@@ -156,6 +160,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                     envelope.sources = result.sources;
                     envelope.problems = result.problems;
                     envelope.next = steps;
+                    network_steps(&mut envelope.next, &envelope.sources);
                     envelope.page = result.page;
                     encode(envelope, status)
                 }
@@ -255,6 +260,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     });
+    network_steps(&mut envelope.next, &envelope.sources);
     encode(
         envelope,
         if local {
@@ -276,8 +282,6 @@ fn key_help() -> io::Result<Outcome> {
     )
 }
 fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
-    let mut value = serde_json::to_value(value)?;
-    network_steps(&mut value)?;
     let mut bytes = serde_json::to_vec(&value)?;
     bytes.push(b'\n');
     Ok(Outcome {
@@ -304,21 +308,12 @@ fn run_request(
     ))
 }
 
-fn network_steps(value: &mut Value) -> io::Result<()> {
-    let reasons: Vec<_> = value.get("sources").and_then(Value::as_array).into_iter().flatten()
-        .filter_map(|source| source.get("reason").and_then(Value::as_str))
-        .filter_map(|reason| match reason { "tls" => Some("ca_bundle"), "proxy" => Some("proxy"), _ => None })
-        .collect();
-    let settings: std::collections::BTreeSet<_> = reasons.into_iter().map(str::to_owned).collect();
-    if settings.is_empty() { return Ok(()); }
-    let Some(object) = value.as_object_mut() else { return Ok(()); };
-    let steps = object.entry("next").or_insert_with(|| Value::Array(Vec::new()));
-    let Some(steps) = steps.as_array_mut() else { return Ok(()); };
-    for setting in settings {
-        let step = biodata::Step { kind: biodata::StepKind::Configure,
-            args: vec!["help".into(), "network".into(), setting.into_boxed_str()].into() };
-        steps.insert(0, serde_json::to_value(step)?);
+fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
+    for (reason, setting) in [(biodata::Reason::Tls, "ca_bundle"), (biodata::Reason::Proxy, "proxy")] {
+        if sources.iter().any(|source| source.reason == Some(reason)) {
+            steps.insert(0, biodata::Step { kind: biodata::StepKind::Configure,
+                args: vec!["help".into(), "network".into(), setting.into()].into() });
+        }
     }
     steps.truncate(5);
-    Ok(())
 }

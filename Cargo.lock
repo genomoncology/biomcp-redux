@@ -137,6 +137,7 @@ dependencies = [
  "clap",
  "jsonschema",
  "libtest-mimic",
+ "rustls",
  "serde",
  "serde-saphyr",
  "serde_json",
@@ -149,8 +150,8 @@ name = "biomcp-adapters"
 version = "1.0.0"
 dependencies = [
  "biodata",
- "quick-xml",
  "biomcp-fetch",
+ "quick-xml",
  "serde",
  "serde_json",
  "tempfile",
@@ -164,6 +165,8 @@ dependencies = [
  "httpdate",
  "quick-xml",
  "rusqlite",
+ "rustls",
+ "rustls-platform-verifier",
  "serde",
  "serde_json",
  "sha2",

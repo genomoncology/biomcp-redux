@@ -1,6 +1,7 @@
 mod assertions;
 mod configuration;
 mod corporate;
+mod network_stub;
 mod gene_tables;
 mod held_proxy;
 mod launch;
