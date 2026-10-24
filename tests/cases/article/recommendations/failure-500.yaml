@@ -1,0 +1,28 @@
+{
+  "feature": "article-recommendations",
+  "story": "failure 500",
+  "verified": "Response-only synthetic failure; actual exact recorded request identity is unchanged.",
+  "replay": "article/recommendations/synthetic-500",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "recommendations",
+        "17611497"
+      ],
+      "exit": 3,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "server_error"
+      }
+    },
+    {
+      "follow": "fresh",
+      "offline": true,
+      "exit": 3,
+      "expect": {
+        "/status": "failed"
+      }
+    }
+  ]
+}

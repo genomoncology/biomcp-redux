@@ -8,10 +8,10 @@
   },
   "exchanges": [
     {
-      "fetched": 1792852067,
+      "fetched": 1792858201,
       "status": 200,
       "content_type": "application/json; charset=UTF-8",
-      "delay_ms": 89,
+      "delay_ms": 94,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

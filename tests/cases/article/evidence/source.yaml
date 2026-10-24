@@ -1,7 +1,7 @@
 {
   "feature": "article-evidence",
   "story": "Read source citation evidence without local ranking.",
-  "verified": "Reuse accepted actual CC BY references/JATS captures; PubMed locator for 33123537 is a response-only synthetic summary under its recorded exact request identity.",
+  "verified": "Reuse accepted actual CC BY graph/JATS and actual keyless PubMed locator captures from command j10188. Every request identity remains unchanged.",
   "replay": "article/evidence/source",
   "steps": [
     {

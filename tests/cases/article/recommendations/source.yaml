@@ -1,8 +1,8 @@
 {
   "feature": "article-recommendations",
-  "story": "Keep a successful empty recommendation pool distinct from failure.",
-  "verified": "Checked public source boundary; source capture will be reused or recorded before green.",
-  "replay": "article/recommendations/source",
+  "story": "source",
+  "verified": "Actual keyless command capture; preserve native order and whole bibliographic metadata.",
+  "replay": "article/recommendations/empty",
   "steps": [
     {
       "run": [
@@ -19,6 +19,19 @@
         "/status": "complete",
         "/page/total": 0,
         "/result/notice": "no_recommendations"
+      },
+      "max_bytes": 600
+    },
+    {
+      "run": [
+        "article",
+        "recommendations",
+        "17611497"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
       }
     }
   ]

@@ -1,0 +1,28 @@
+{
+  "feature": "article-recommendations",
+  "story": "failure error",
+  "verified": "Response-only synthetic failure; actual exact recorded request identity is unchanged.",
+  "replay": "article/recommendations/synthetic-error",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "recommendations",
+        "17611497"
+      ],
+      "exit": 3,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "bad_reply"
+      }
+    },
+    {
+      "follow": "fresh",
+      "offline": true,
+      "exit": 3,
+      "expect": {
+        "/status": "failed"
+      }
+    }
+  ]
+}
