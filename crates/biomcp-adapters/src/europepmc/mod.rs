@@ -11,6 +11,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public search policy with a conservative local quota.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms { name: "Europe PMC copyright; record-specific licenses", url: "https://europepmc.org/Copyright", usage: biodata::Use::Restricted },
     source: Source::EuropePmc,
     base: "https://www.ebi.ac.uk/europepmc/webservices/rest",
     key: KeyUse::None,

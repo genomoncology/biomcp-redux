@@ -22,7 +22,7 @@ pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
 pub use cache::{SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline};
 pub use declaration::{
-    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
+    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec, Terms,
 };
 pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,
@@ -43,6 +43,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 pub struct FetchConfig {
     /// Other schema owners checked before any cache mutation.
     pub cache_owners: Vec<SchemaOwner>,
+    /// Source identities switched off before keys, caches, replay or requests.
+    pub disabled_sources: std::collections::BTreeSet<biodata::Source>,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -67,6 +69,7 @@ impl Default for FetchConfig {
     fn default() -> Self {
         Self {
             cache_owners: Vec::new(),
+            disabled_sources: Default::default(),
             secrets: Secrets::default(),
             cache: None,
             mode: Mode::default(),
@@ -163,6 +166,11 @@ impl Fetch {
             limiters: quota::Limiters::default(),
             bundle_imports: std::sync::Mutex::default(),
         })
+    }
+
+    /// Whether the explicit source policy prevents every read and request.
+    pub fn disabled(&self, source: biodata::Source) -> bool {
+        self.config.disabled_sources.contains(&source)
     }
 
     /// Report whether a configured credential is nonempty without exposing it.

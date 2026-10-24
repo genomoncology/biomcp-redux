@@ -9,6 +9,7 @@ use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
 /// Public CIViC GraphQL source policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms { name: "CC0 1.0", url: "https://civicdb.org/about", usage: biodata::Use::Open },
     source: Source::Civic,
     base: "https://civicdb.org",
     key: KeyUse::None,

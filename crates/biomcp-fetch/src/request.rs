@@ -122,6 +122,9 @@ impl Leg<'_> {
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
+        if self.fetch.disabled(self.spec.source) {
+            return Err(self.failure(Reason::Disabled, None).into());
+        }
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
         }

@@ -113,3 +113,18 @@ canonical_enum! {
         NoJoinId => "no_join_id",
     }
 }
+
+/// Reviewed source-use category, without inferring rights in individual records.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum Use {
+    /// Public-domain or unrestricted source data.
+    Open,
+    /// Attribution is required.
+    Attribution,
+    /// Commercial use requires separate permission.
+    Noncommercial,
+    /// Source-specific or mixed rights require checking the publisher's terms.
+    Restricted,
+}

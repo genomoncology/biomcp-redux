@@ -21,6 +21,7 @@ fn config(cache: &Path, mode: Mode) -> FetchConfig {
     }
 }
 fn spec(server: &Server, key: &'static str) -> &'static biomcp_fetch::SourceSpec {
+    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
     server.spec(
         Box::leak(Box::new(Quota::new(
             SourceKey::declare(key),

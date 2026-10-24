@@ -7,6 +7,7 @@ use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSp
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms { name: "CC BY 4.0", url: "https://www.uniprot.org/help/license", usage: biodata::Use::Attribution },
     source: Source::UniProt,
     base: "https://rest.uniprot.org",
     key: KeyUse::None,
