@@ -112,17 +112,37 @@ fn has_drift(result: &Value) -> bool {
 }
 fn eligibility(case: &Case) -> Option<&str> {
     match case.live_check.as_deref() {
-        Some("public")
-            if case.replay.is_some()
-                && case.config.is_none()
-                && case.steps.iter().any(eligible_step) =>
-        {
-            None
+        Some("public") if case.replay.is_some() && case.config.is_none() => {
+            let skips = step_skips(case);
+            if skips.iter().any(Option::is_none) {
+                None
+            } else if skips.contains(&Some("follow predecessor is ineligible")) {
+                Some("follow predecessor is ineligible")
+            } else {
+                Some("configured, local-only or offline-only case")
+            }
         }
         Some("public") => Some("configured, local-only or offline-only case"),
         Some(reason) => Some(reason),
         None => Some("provenance not reviewed for live use"),
     }
+}
+fn step_skips(case: &Case) -> Vec<Option<&'static str>> {
+    let mut predecessor = false;
+    case.steps
+        .iter()
+        .map(|step| {
+            let reason = if !eligible_step(step) {
+                Some("local validation or offline step")
+            } else if step.follow.is_some() && !predecessor {
+                Some("follow predecessor is ineligible")
+            } else {
+                None
+            };
+            predecessor = reason.is_none();
+            reason
+        })
+        .collect()
 }
 fn eligible_step(step: &Step) -> bool {
     if step.offline || step.exit > 1 {
@@ -151,9 +171,10 @@ fn check(
     let mut changes = Vec::new();
     let mut ordinal = 0;
     let mut skipped = Vec::new();
-    for (index, step) in case.steps.iter().enumerate() {
-        if !eligible_step(step) {
-            skipped.push(json!({"step": index + 1, "reason": "local validation or offline step"}));
+    for (index, (step, skip)) in case.steps.iter().zip(step_skips(case)).enumerate() {
+        if let Some(reason) = skip {
+            previous = (None, None);
+            skipped.push(json!({"step": index + 1, "reason": reason}));
             continue;
         }
         let mut args = (

@@ -6,6 +6,7 @@ mod held_proxy;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
+mod live_follow_proof;
 mod live_proof;
 mod markdown;
 mod markdown_shapes;
@@ -235,6 +236,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
     trials.extend(live_proof::trials());
+    trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());

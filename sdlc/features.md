@@ -26,7 +26,11 @@ corporate-network: A caller adds corporate certificate authorities, follows stan
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.
 source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests. Cases: `crates/biomcp/tests/runner/source_controls.rs`.
+<<<<<<< HEAD
 live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`.
 article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters. Cases: `tests/cases/article/litsense/*.yaml`, `tests/cases/article/pubtator/*.yaml`, `crates/biomcp/tests/runner/named_search.rs`.
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID. Cases: `tests/cases/article/preprint/*.yaml`.
+=======
+live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`, `crates/biomcp/tests/runner/live_follow_proof.rs`.
+>>>>>>> 0afd67c9838de4862901758a8b8d909643579e7e
