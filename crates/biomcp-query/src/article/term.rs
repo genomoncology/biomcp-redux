@@ -1,5 +1,7 @@
 use crate::{Action, Ctx, Outcome, gene, status};
-use biodata::{ArticleSearch, GeneInput, GeneResolution, Request, Source, Status, StepKind};
+use biodata::{
+    ArticleSearch, ArticleType, GeneInput, GeneResolution, Request, Source, Status, StepKind,
+};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn resolve<'a>(
@@ -10,7 +12,7 @@ pub(super) fn resolve<'a>(
 ) -> Result<Option<String>, RequestError> {
     let words = query.words();
     let Some(input) = query.gene() else {
-        return Ok(Some(words));
+        return Ok(Some(filters(query, words)));
     };
     let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -44,11 +46,14 @@ pub(super) fn resolve<'a>(
             } else {
                 names.join("")
             };
-            Ok(Some(if words.is_empty() {
-                group
-            } else {
-                format!("{group} AND {words}")
-            }))
+            Ok(Some(filters(
+                query,
+                if words.is_empty() {
+                    group
+                } else {
+                    format!("{group} AND {words}")
+                },
+            )))
         }
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
@@ -68,4 +73,40 @@ pub(super) fn resolve<'a>(
             Ok(None)
         }
     }
+}
+
+fn filters(query: &ArticleSearch, words: String) -> String {
+    let mut parts: Vec<String> = (!words.is_empty()).then_some(words).into_iter().collect();
+    if let Some(author) = query.author() {
+        parts.push(format!("{author}[au]"));
+    }
+    if let Some(journal) = query.journal() {
+        parts.push(format!("{journal}[ta]"));
+    }
+    let (since, until) = query.dates();
+    if since.is_some() || until.is_some() {
+        let date = |value: Option<biodata::PartialDate>, default: &str| {
+            value.map_or_else(|| default.to_owned(), |v| v.to_string().replace('-', "/"))
+        };
+        parts.push(format!(
+            "{}:{}[dp]",
+            date(since, "1800"),
+            date(until, "3000")
+        ));
+    }
+    if let Some(kind) = query.kind() {
+        parts.push(
+            match kind {
+                ArticleType::Trial => "\"clinical trial\"[pt]",
+                ArticleType::Randomized => "\"randomized controlled trial\"[pt]",
+                ArticleType::Review => "review[pt]",
+                ArticleType::SystematicReview => "\"systematic review\"[pt]",
+                ArticleType::MetaAnalysis => "\"meta-analysis\"[pt]",
+                ArticleType::Guideline => "(guideline[pt] OR \"practice guideline\"[pt])",
+                ArticleType::CaseReport => "\"case reports\"[pt]",
+            }
+            .to_owned(),
+        );
+    }
+    parts.join(" AND ")
 }

@@ -8,7 +8,7 @@ pub use article::{
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid};
 pub use query::ArticleGet;
-pub use query::{ArticleSearch, ArticleSort, ArticleSource};
+pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
 mod response;

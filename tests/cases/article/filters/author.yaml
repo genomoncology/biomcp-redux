@@ -1,0 +1,29 @@
+{
+  "feature": "article-search",
+  "story": "PubMed author fields find the discovery paper without hiding native order.",
+  "replay": "article/filters/author",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1",
+        "--author",
+        "Carpten"
+      ],
+      "max_bytes": 1723,
+      "max_tokens": 432,
+      "expect": {
+        "/status": "complete",
+        "/sources/0/term": "AKT1 AND Carpten[au]",
+        "/result/items/*/pmid": {
+          "equals": [
+            "22505016",
+            "17611497",
+            "18053070"
+          ]
+        }
+      }
+    }
+  ]
+}

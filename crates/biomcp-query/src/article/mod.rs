@@ -58,7 +58,7 @@ fn execute<'a>(
             *deadline = store.deadline();
             let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
             let started = leg.remaining();
-            let result = pubmed::search_ids(&leg, &term, cx.ncbi_email.as_ref());
+            let result = pubmed::search_ids(&leg, &term, query.sort(), cx.ncbi_email.as_ref());
             *deadline = consume(*deadline, started, leg.remaining());
             store.set_deadline(*deadline);
             let mut source =
