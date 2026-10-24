@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 1
 
+Changes: Cargo.lock, Cargo.toml, README.md, crates/biodata/, crates/biomcp-fetch/, crates/biomcp/, sdlc/planning/architecture.md
+
 ## Outcome
 
 BioMCP works on hospital and company networks. The config file takes a `ca_bundle` path whose certificates are added to the platform trust roots for every source. The transport reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` in `config.rs` when the config file names no proxy. TLS failures and proxy failures each get their own `Reason`, so they never read as not found or as a source outage. 0.9 had no way to add a corporate root (issues 8 and 250), one source ignored the CA bundle, and a proxy failure was reported as not found.
