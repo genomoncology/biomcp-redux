@@ -19,7 +19,8 @@
           "hgnc",
           "mygene"
         ],
-        "/result/items/0/answer/gene/location": "1p12"
+        "/result/items/0/answer/gene/location": "1p12",
+        "/result/items/0/answer/match/text": "FAM46C"
       },
       "max_bytes": 1900
     }

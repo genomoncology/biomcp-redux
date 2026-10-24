@@ -24,7 +24,10 @@
         "/result/items/0/answer/gene/location": "12p12.1",
         "/result/items/0/answer/gene/previous_symbols": {
           "includes": "KRAS2"
-        }
+        },
+        "/result/items/0/answer/match/text": "KRAS",
+        "/result/items/0/answer/gene/mane_select/refseq": "NM_004985.5",
+        "/result/items/0/answer/gene/mane_select/ensembl": "ENST00000311936.8"
       },
       "max_bytes": 2400,
       "mcp": [

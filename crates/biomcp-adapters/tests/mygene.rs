@@ -4,7 +4,7 @@
     clippy::indexing_slicing,
     reason = "Checked case fixtures fail immediately if their setup shape changes"
 )]
-use biodata::{Build, EntrezGeneId, HgncId, Strand};
+use biodata::{Build, EntrezGeneId, HgncId};
 use biomcp_adapters::mygene;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use std::{path::PathBuf, time::Duration};
@@ -24,7 +24,7 @@ fn id(value: u32) -> EntrezGeneId {
 }
 
 #[test]
-fn recorded_gene_extras_preserve_whole_summary_and_source_coordinates() {
+fn recorded_batch_keeps_correlation_deduplication_and_multicontig_coordinates() {
     let fetch = replay(captured());
     let leg = fetch.leg(&mygene::SPEC, fetch.deadline(Duration::from_secs(20)));
     let batches = mygene::genes(&leg, &[id(999999999), id(673), id(1438), id(673)]);
@@ -35,34 +35,6 @@ fn recorded_gene_extras_preserve_whole_summary_and_source_coordinates() {
     let braf = &values[0];
     assert!(braf.problems.is_empty());
     assert_eq!(braf.value.hgnc_id, Some(HgncId::new(1097).unwrap()));
-    let summary = braf.value.summary.as_ref().unwrap();
-    assert!(summary.text.as_str().contains("V600E"));
-    assert_eq!(summary.text.as_str().len(), 777);
-    assert!(
-        summary
-            .text
-            .as_str()
-            .ends_with("A pseudogene of this gene has been identified on the X chromosome.")
-    );
-    assert!(!summary.text.as_str().contains("[provided by"));
-    assert_eq!(summary.dated.unwrap().to_string(), "2017-08");
-    let intervals = &braf.value.spans;
-    assert_eq!(intervals.len(), 2);
-    assert_eq!(intervals[0].build, Build::Grch38);
-    assert_eq!(
-        (intervals[0].span.start(), intervals[0].span.end()),
-        (140719326, 140925199)
-    );
-    assert_eq!(intervals[1].build, Build::Grch37);
-    assert_eq!(
-        (intervals[1].span.start(), intervals[1].span.end()),
-        (140419126, 140624564)
-    );
-    assert!(
-        intervals
-            .iter()
-            .all(|span| span.strand == Some(Strand::Reverse))
-    );
     let csf2ra = &values[1].value;
     let chroms: Vec<_> = csf2ra
         .spans

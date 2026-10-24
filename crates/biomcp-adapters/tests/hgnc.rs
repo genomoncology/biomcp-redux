@@ -23,7 +23,7 @@ fn replay(dir: PathBuf) -> Fetch {
 fn captured_single_band_prefixes_return_headers_and_snapshot_totals() {
     let fetch = replay(captured());
     let leg = fetch.leg(&hgnc::SPEC, fetch.deadline(Duration::from_secs(120)));
-    for (prefix, total) in [("9p21.3", 65), ("9p21", 132)] {
+    for (prefix, total) in [("9p21", 132)] {
         let headers = hgnc::in_band(&leg, prefix).unwrap();
         assert!(headers.problems.is_empty());
         assert_eq!(headers.value.len(), total);

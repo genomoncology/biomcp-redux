@@ -179,7 +179,7 @@ fn boundaries() -> Check {
     for config in [
         json!({"unknown":"sensitive"}),
         json!({"proxy":9}),
-        json!({"proxy":"sensitive"}),
+        json!({"proxy":"http://[invalid"}),
     ] {
         fs::write(directory.join("config.json"), config.to_string()).map_err(|e| e.to_string())?;
         let value = invoke(

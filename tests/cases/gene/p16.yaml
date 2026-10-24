@@ -15,7 +15,11 @@
           "HGNC:1787",
           "HGNC:43802"
         ],
-        "/result/items/0/answer/candidates/0/symbol": "CDKN2A"
+        "/result/items/0/answer/candidates/0/symbol": "CDKN2A",
+        "/result/items/0/answer/candidates/*/match/kind": [
+          "alias",
+          "alias"
+        ]
       },
       "max_bytes": 1000
     }

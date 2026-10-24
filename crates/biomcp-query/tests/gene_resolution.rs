@@ -1,4 +1,4 @@
-//! Temporary public resolution contracts until command cases consume this surface.
+//! Public resolution contracts not covered by the shipped command cases.
 #![expect(
     clippy::unwrap_used,
     clippy::indexing_slicing,
@@ -26,54 +26,12 @@ fn resolve(fetch: &Fetch, text: &str) -> GeneResolution {
     mapped.value
 }
 #[test]
-fn captured_symbols_aliases_previous_symbols_and_namespaced_ids_resolve() {
-    let fetch = replay(captured());
-    for (text, id, kind, source) in [
-        ("BRAF", 1097, MatchKind::Symbol, "BRAF"),
-        ("braf", 1097, MatchKind::Symbol, "BRAF"),
-        ("HER2", 3430, MatchKind::Alias, "HER2"),
-        ("MLL", 7132, MatchKind::PreviousSymbol, "MLL"),
-        ("FAM46C", 24712, MatchKind::PreviousSymbol, "FAM46C"),
-        ("HGNC:1097", 1097, MatchKind::HgncId, "HGNC:1097"),
-        ("673", 1097, MatchKind::EntrezId, "673"),
-        (
-            "ENSG00000157764",
-            1097,
-            MatchKind::EnsemblId,
-            "ENSG00000157764",
-        ),
-        (
-            "ENSG00000157764.12",
-            1097,
-            MatchKind::EnsemblId,
-            "ENSG00000157764",
-        ),
-    ] {
-        let GeneResolution::Resolved { gene, r#match } = resolve(&fetch, text) else {
-            panic!("expected resolved {text}")
-        };
-        assert_eq!(gene.hgnc_id.get(), id);
-        assert_eq!(r#match.kind, kind);
-        assert_eq!(r#match.text.as_str(), source);
-    }
-}
-#[test]
 fn captured_ambiguity_orders_every_distinct_identity_without_selection() {
     let fetch = replay(captured());
-    for (text, want) in [
-        (
-            "MLL2",
-            vec![(7133, MatchKind::PreviousSymbol), (15840, MatchKind::Alias)],
-        ),
-        (
-            "p16",
-            vec![(1787, MatchKind::Alias), (43802, MatchKind::Alias)],
-        ),
-        (
-            "100874204",
-            vec![(40244, MatchKind::EntrezId), (55559, MatchKind::EntrezId)],
-        ),
-    ] {
+    for (text, want) in [(
+        "100874204",
+        vec![(40244, MatchKind::EntrezId), (55559, MatchKind::EntrezId)],
+    )] {
         let GeneResolution::Ambiguous { candidates } = resolve(&fetch, text) else {
             panic!("expected ambiguous {text}")
         };
@@ -88,7 +46,6 @@ fn captured_ambiguity_orders_every_distinct_identity_without_selection() {
 fn captured_withdrawn_identity_preserves_all_stated_successors() {
     let fetch = replay(captured());
     for (text, id, status, targets) in [
-        ("BRCA3", 18617, HgncStatus::EntryWithdrawn, vec![]),
         ("A2MR", 9, HgncStatus::MergedSplit, vec![6692]),
         ("HGNC:9", 9, HgncStatus::MergedSplit, vec![6692]),
         ("CBBM", 1531, HgncStatus::MergedSplit, vec![4206, 9936]),
@@ -113,19 +70,13 @@ fn captured_withdrawn_identity_preserves_all_stated_successors() {
     assert!(
         matches!(resolve(&fetch,"AK6"),GeneResolution::Resolved{gene,..} if gene.symbol.as_str()=="AK6")
     );
-    for text in ["NOTAGENE", "999999999", "ENSG99999999999"] {
+    for text in ["999999999", "ENSG99999999999"] {
         assert!(matches!(resolve(&fetch, text), GeneResolution::NotFound {}));
     }
 }
 #[test]
 fn captured_gene_fields_keep_source_precision_and_optional_absence() {
     let fetch = replay(captured());
-    let GeneResolution::Resolved { gene, .. } = resolve(&fetch, "KRAS") else {
-        panic!("KRAS")
-    };
-    let mane = gene.mane_select.unwrap();
-    assert_eq!(mane.refseq().to_string(), "NM_004985.5");
-    assert_eq!(mane.ensembl().to_string(), "ENST00000311936.8");
     let GeneResolution::Resolved { gene, .. } = resolve(&fetch, "MIR21") else {
         panic!("MIR21")
     };

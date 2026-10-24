@@ -18,7 +18,8 @@
         "/sources/*/source": [
           "hgnc",
           "mygene"
-        ]
+        ],
+        "/result/items/0/answer/match/text": "ENSG00000157764"
       },
       "max_bytes": 2800
     }

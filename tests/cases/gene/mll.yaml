@@ -18,7 +18,8 @@
         "/sources/*/source": [
           "hgnc",
           "mygene"
-        ]
+        ],
+        "/result/items/0/answer/match/text": "MLL"
       },
       "max_bytes": 3000
     }

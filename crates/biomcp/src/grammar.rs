@@ -43,7 +43,8 @@ fn root() -> Result<Command, ()> {
             Arg::new(name)
                 .long(name)
                 .global(true)
-                .action(ArgAction::SetTrue),
+                .action(ArgAction::SetTrue)
+                .overrides_with(name),
         );
     }
     for (verb, id) in [

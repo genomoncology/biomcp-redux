@@ -106,6 +106,9 @@ pub(crate) fn tool(
             crate::exit::Status::Usage,
         );
     }
+    if args.first().is_some_and(|arg| arg == "schema") {
+        return dispatch(args);
+    }
     let mut args = args.to_vec();
     args.extend_from_slice(globals);
     dispatch_using(&args, Some(fetch))

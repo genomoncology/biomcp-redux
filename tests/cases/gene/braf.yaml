@@ -20,9 +20,38 @@
           "mygene"
         ],
         "/result/items/0/answer/gene/summary/text": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signaling pathway, which affects cell division, differentiation, and secretion. Mutations in this gene, most commonly the V600E mutation, are the most frequently identified cancer-causing mutations in melanoma, and have been identified in various other cancers as well, including non-Hodgkin lymphoma, colorectal cancer, thyroid carcinoma, non-small cell lung carcinoma, hairy cell leukemia and adenocarcinoma of lung. Mutations in this gene are also associated with cardiofaciocutaneous, Noonan, and Costello syndromes, which exhibit overlapping phenotypes. A pseudogene of this gene has been identified on the X chromosome.",
-        "/result/items/0/answer/gene/summary/dated": "2017-08"
+        "/result/items/0/answer/gene/summary/dated": "2017-08",
+        "/result/items/0/answer/match/text": "BRAF",
+        "/result/items/0/answer/gene/spans/0/span/start": 140719326,
+        "/result/items/0/answer/gene/spans/0/span/end": 140925199,
+        "/result/items/0/answer/gene/spans/0/build": "GRCh38",
+        "/result/items/0/answer/gene/spans/1/span/start": 140419126,
+        "/result/items/0/answer/gene/spans/1/span/end": 140624564,
+        "/result/items/0/answer/gene/spans/1/build": "GRCh37"
       },
       "max_bytes": 2800
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "braf"
+      ],
+      "expect": {
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+        "/result/items/0/answer/match/text": "BRAF"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "ENSG00000157764.12"
+      ],
+      "expect": {
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+        "/result/items/0/answer/match/text": "ENSG00000157764"
+      }
     }
   ]
 }
