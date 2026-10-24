@@ -92,6 +92,7 @@ impl Stub {
             base: self.base,
             key,
             deadline,
+            quota: Box::leak(Box::new(biomcp_fetch::Quota::new(biomcp_fetch::SourceKey::declare("transport"), biomcp_fetch::Rate::per_second(1000), None, 8))),
         }))
     }
     fn finish(mut self) -> Vec<String> {
@@ -289,7 +290,7 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
             assert!(!formatted.contains(secret));
         }
         let requests = stub.finish();
-        assert_eq!(requests.len(), 1);
+        assert_eq!(requests.len(), 3);
         assert!(requests[0].contains(secret));
     }
 }

@@ -7,7 +7,7 @@ const INLINE_TESTS: &[&str] = &[
     "crates/biomcp-fetch/src/xml.rs",
 ];
 // New exceptions require a reviewed path and reason here.
-const EXCEPTIONS: &[(&str, &str)] = &[];
+const EXCEPTIONS: &[(&str, &str)] = &[("crates/biomcp-fetch/src/quota.rs", "Shared transport quota state and FIFO waits")];
 const FILE_LIMIT: usize = 600;
 const ADAPTER_LIMIT: usize = 300;
 

@@ -18,6 +18,9 @@ ureq = { version = "3.5.0", default-features = false, features = ["rustls", "pla
 schemars = { version = "1.2.3", default-features = false, features = ["derive", "std"] }
 jsonschema = { version = "0.46.0", default-features = false }
 
+sha2 = { version = "0.11.1", default-features = false }
+httpdate = "1.0.3"
+
 [workspace.lints.rust]
 unsafe_code = "deny"
 unreachable_pub = "deny"

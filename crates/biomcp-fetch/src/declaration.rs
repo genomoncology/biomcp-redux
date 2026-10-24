@@ -10,6 +10,8 @@ pub struct SourceSpec {
     pub base: &'static str,
     /// Credential policy.
     pub key: KeyUse,
+    /// Provider limit shared with all sources using its key.
+    pub quota: &'static crate::Quota,
     /// Maximum duration of this source's leg.
     pub deadline: Duration,
 }
