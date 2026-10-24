@@ -53,32 +53,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     } else {
         Status::Complete
     };
-    if let Ok(mut page) = result {
+    if let Ok(page) = result {
         source.count = page.total;
         source.fetched = Some(page.items.len() as u32);
-        if query.count_only() {
-            page.items.clear();
-        }
-        outcome.page = page.total.map(|total| biodata::PageInfo {
-            offset: 0,
-            returned: page.items.len() as u32,
-            total,
-            pool: None,
-            truncated: None,
-        });
-        if let Some(token) = page.next.filter(|_| !query.count_only()) {
-            outcome.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::SearchTrial(query.at_page(token)),
-                    fresh: cx.fresh,
-                },
-            ));
-        }
-        if let QueryBody::TrialPage(body) = &mut outcome.body {
-            body.items = page.items.into();
-            body.count_request = page.count_request.map(parameters);
-        }
+        apply_page(query, cx.fresh, &mut outcome, page);
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
         body.request = parameters(params);
@@ -91,6 +69,36 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     outcome.sources.push(source);
     command.finish(deadline.remaining());
     outcome
+}
+fn apply_page(
+    query: &TrialSearch,
+    fresh: bool,
+    outcome: &mut Outcome,
+    mut page: ctgov::SearchPage,
+) {
+    if query.count_only() {
+        page.items.clear();
+    }
+    outcome.page = page.total.map(|total| biodata::PageInfo {
+        offset: 0,
+        returned: page.items.len() as u32,
+        total,
+        pool: None,
+        truncated: None,
+    });
+    if let Some(token) = page.next.filter(|_| !query.count_only()) {
+        outcome.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::SearchTrial(query.at_page(token)),
+                fresh,
+            },
+        ));
+    }
+    if let QueryBody::TrialPage(body) = &mut outcome.body {
+        body.items = page.items.into();
+        body.count_request = page.count_request.map(parameters);
+    }
 }
 fn parameters(
     values: std::collections::BTreeMap<String, String>,
