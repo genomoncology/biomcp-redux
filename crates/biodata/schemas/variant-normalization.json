@@ -322,6 +322,7 @@
         "reactome",
         "hpa",
         "uniprot",
+        "gwas",
         "gnomad",
         "clingen",
         "pubmed",
@@ -349,6 +350,7 @@
         " Reactome.",
         " Human Protein Atlas.",
         " UniProt.",
+        " GWAS Catalog v2.",
         " gnomAD.",
         " ClinGen.",
         " PubMed.",
@@ -610,6 +612,7 @@
     "VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
+        "unresolved",
         "resolved",
         "candidates",
         "absent",
