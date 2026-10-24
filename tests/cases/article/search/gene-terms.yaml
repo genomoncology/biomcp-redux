@@ -109,6 +109,19 @@
       "run": [
         "search",
         "article",
+        "G12C",
+        "--gene",
+        "kras"
+      ],
+      "max_bytes": 4885,
+      "expect": {
+        "/sources/1/term": "KRAS AND G12C"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
         "kinase",
         "--gene",
         "MLL2"
