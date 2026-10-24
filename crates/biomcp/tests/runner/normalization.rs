@@ -13,6 +13,10 @@ pub(super) fn trials() -> Vec<Trial> {
             warning().map_err(Into::into)
         }),
         Trial::test(
+            "variant-normalization/nested-rejection-stays-uncached",
+            || nested().map_err(Into::into),
+        ),
+        Trial::test(
             "variant-normalization/all-keeps-independent-results",
             || independent().map_err(Into::into),
         ),
@@ -87,12 +91,11 @@ fn walk() -> Result<(), String> {
         return Err("native mapping walk repeated or reordered rows".into());
     }
     let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests[0]
-            .1
-            .starts_with("GET /api/normalize/NM_004333.4%3Ac.1799T%3EA HTTP/1.1")
-    {
-        return Err("warm pages made another call or unchanged request was altered".into());
+    let [(_, request)] = requests.as_slice() else {
+        return Err("warm pages made another request".into());
+    };
+    if !request.starts_with("GET /api/normalize/NM_004333.4%3Ac.1799T%3EA HTTP/1.1") {
+        return Err(format!("unchanged request was altered: {request}"));
     }
     Ok(())
 }
@@ -160,4 +163,36 @@ fn independent() -> Result<(), String> {
         return Err("disabled services made requests".into());
     }
     Ok(())
+}
+
+fn nested() -> Result<(), String> {
+    let stub = Stub::for_source("mutalyzer.nl", "application/json", nested_body)?;
+    let environment = environment(&stub)?;
+    let args = [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "NC_000017.10:g.7576633A>G",
+    ];
+    for _ in 0..2 {
+        let value = run(&environment, &args)?;
+        if value.pointer("/result/results/0/outcome") != Some(&json!("rejected"))
+            || value.pointer("/result/results/0/messages/0/code")
+                != Some(&json!("ESEQUENCEMISMATCH"))
+        {
+            return Err(format!("nested source rejection lost: {value}"));
+        }
+    }
+    let mut offline = args.to_vec();
+    offline.push("--offline");
+    let value = run(&environment, &offline)?;
+    if value.pointer("/sources/0/reason") != Some(&json!("offline")) || stub.finish()?.len() != 2 {
+        return Err("provider rejection entered shared reply cache".into());
+    }
+    Ok(())
+}
+fn nested_body(_: &str) -> Result<String, String> {
+    Ok(json!({"custom":{"input_description":"NC_000017.10:g.7576633A>G","errors":[{"code":"ESEQUENCEMISMATCH","details":"source reference mismatch"}]},"message":"Errors encountered."}).to_string())
 }
