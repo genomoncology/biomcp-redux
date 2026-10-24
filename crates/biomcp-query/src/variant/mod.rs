@@ -1,5 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
+mod oncokb;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
@@ -55,7 +56,13 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let next = next(query, resolution, &candidates, page.as_ref());
+    let mut next = next(query, resolution, &candidates, page.as_ref());
+    if sources
+        .iter()
+        .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
+    {
+        next.push((StepKind::Key, Action::KeyHelp(Source::Oncokb)));
+    }
     let overall = if matches!(
         resolution,
         VariantResolution::Unavailable | VariantResolution::Rejected

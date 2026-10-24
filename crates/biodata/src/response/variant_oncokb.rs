@@ -45,18 +45,27 @@ pub enum OncokbVariantRecord {
     /// Native narrative, split only at checked character boundaries.
     Text {
         /// Original provider field name.
-        field: Text,
+        field: Box<str>,
         /// Character offset into this provider field.
         offset: u32,
         /// Complete number of characters in this provider field.
         total: u32,
         /// This exact text fragment, without trimming or rewriting.
-        text: Text,
+        text: Box<str>,
+    },
+    /// A source label without a representable source protein subject.
+    UnmappedLabel {
+        /// Native field.
+        field: Box<str>,
+        /// Whole native classification.
+        classification: Term,
+        /// No subject was invented.
+        statement_unmapped: bool,
     },
     /// Native therapeutic, diagnostic or prognostic implication.
     Implication {
         /// Original provider collection name.
-        field: Text,
+        field: Box<str>,
         /// Source evidence level, without a clinical interpretation.
         level: Term,
         /// Native tumor type; never replaced with the request's context.
@@ -68,8 +77,19 @@ pub enum OncokbVariantRecord {
         /// Source alteration labels, which may describe a group or protein subject.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
         alterations: Box<[Text]>,
-        /// Common statement only where the provider's claim can be mapped exactly.
+        /// Native grouping cannot be represented by a common source profile ID.
+        statement_unmapped: bool,
+        /// Source PMID citations.
+        citations: Box<[crate::Pmid]>,
+        /// Source narrative, kept without trimming.
         #[serde(skip_serializing_if = "Option::is_none")]
-        statement: Option<Box<Statement>>,
+        description: Option<Box<str>>,
+        /// Native excluded contexts, never filled from the caller context.
+        excluded_tumor_types: Box<[Concept]>,
+        /// Native approved indication labels.
+        approved_indications: Box<[Text]>,
+        /// Native FDA level label, independent of the evidence level.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        fda_level: Option<Term>,
     },
 }

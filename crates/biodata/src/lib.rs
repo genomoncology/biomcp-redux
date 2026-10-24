@@ -184,3 +184,5 @@ pub use variant::PopulationFrequency;
 pub use response::VariantPopulationResult;
 
 pub use response::GwasTrait;
+
+pub use variant::{OncokbLevelCode, OncokbOncogenicityCode};

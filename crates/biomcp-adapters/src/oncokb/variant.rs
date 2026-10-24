@@ -51,11 +51,15 @@ pub struct Annotation {
 #[serde(rename_all = "camelCase")]
 pub struct Query {
     /// Source genomic query.
-    pub hgvs: String,
+    pub hgvs: biodata::Text,
     /// Source assembly.
     pub reference_genome: Build,
     /// Source tumor context.
     pub tumor_type: String,
+    /// Source-supplied gene context, never inferred locally.
+    pub hugo_symbol: Option<biodata::GeneSymbol>,
+    /// Source-supplied protein alteration, never converted to a genomic allele.
+    pub alteration: Option<biodata::Text>,
 }
 /// Native mutation effect and text, without local interpretation.
 #[derive(Deserialize)]
@@ -65,6 +69,15 @@ pub struct MutationEffect {
     pub known_effect: Option<String>,
     /// Native text.
     pub description: Option<String>,
+    /// Native effect citations.
+    pub citations: Option<Citations>,
+}
+/// Native publication citations.
+#[derive(Deserialize)]
+pub struct Citations {
+    /// Source PMID identities.
+    #[serde(default)]
+    pub pmids: Vec<String>,
 }
 /// Native drug identity.
 #[derive(Deserialize)]
@@ -88,7 +101,7 @@ pub struct TumorType {
 #[serde(rename_all = "camelCase")]
 pub struct Treatment {
     /// Native source level.
-    pub level: String,
+    pub level: biodata::Text,
     /// Source tumor context.
     pub level_associated_cancer_type: Option<TumorType>,
     /// Source drugs in native order.
@@ -100,13 +113,23 @@ pub struct Treatment {
     /// Native citations.
     #[serde(default)]
     pub pmids: Vec<String>,
+    /// Native source description.
+    pub description: Option<String>,
+    /// Native excluded tumor contexts.
+    #[serde(default)]
+    pub level_excluded_cancer_types: Vec<TumorType>,
+    /// Native approved indication labels.
+    #[serde(default)]
+    pub approved_indications: Vec<String>,
+    /// Native FDA level label.
+    pub fda_level: Option<String>,
 }
 /// Native diagnostic or prognostic implication.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Implication {
     /// Native source level.
-    pub level_of_evidence: String,
+    pub level_of_evidence: biodata::Text,
     /// Native source tumor concept.
     pub tumor_type: Option<TumorType>,
     /// Source alteration group.
@@ -115,6 +138,8 @@ pub struct Implication {
     /// Native citations.
     #[serde(default)]
     pub pmids: Vec<String>,
+    /// Native source description.
+    pub description: Option<String>,
 }
 impl Reply for Annotation {
     fn check(&self) -> Result<(), BadReply> {
@@ -138,7 +163,7 @@ pub fn annotation(
             ("tumorType", Arg::Text(tumor_type)),
         ],
         |row: &Annotation| {
-            if row.query.hgvs == hgvsg
+            if row.query.hgvs.as_str() == hgvsg
                 && row.query.reference_genome == build
                 && row.query.tumor_type == tumor_type
             {

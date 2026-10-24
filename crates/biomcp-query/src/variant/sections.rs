@@ -83,7 +83,14 @@ pub(super) fn apply(
                     sections.conservation = Some(pending(Source::MyVariant, &mut sources))
                 }
                 S::Cosmic => sections.cosmic = Some(pending(Source::MyVariant, &mut sources)),
-                S::Oncokb => sections.oncokb = Some(pending(Source::Oncokb, &mut sources)),
+                S::Oncokb => {
+                    sections.oncokb = Some(retain(
+                        super::oncokb::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 S::All => {}
                 _ => {}
             }
