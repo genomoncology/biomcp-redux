@@ -122,10 +122,12 @@ impl Reply for Profiles {
         }
         self.data.molecular_profiles.check()?;
         for profile in &self.data.molecular_profiles.nodes {
-            if profile.id == 0
+            if !id(profile.id)
                 || profile.variants.is_empty()
                 || !profile.link.as_str().starts_with("/molecular-profiles/")
-                || profile.variants.iter().any(|v| v.id == 0)
+                || profile.variants.iter().any(|v| !id(v.id))
+                || profile.evidence_items.nodes.iter().any(|row| !id(row.id))
+                || profile.assertions.nodes.iter().any(|row| !id(row.id))
             {
                 return Err(BadReply);
             }
@@ -134,4 +136,7 @@ impl Reply for Profiles {
         }
         Ok(())
     }
+}
+fn id(value: u64) -> bool {
+    value > 0 && value <= i32::MAX as u64
 }
