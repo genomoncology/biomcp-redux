@@ -23,7 +23,7 @@
           "count": 2
         },
         "/result/commands/0/sections/*/word": {
-          "includes": [
+          "includes_all_of": [
             "fulltext",
             "supplements",
             "annotations",
@@ -56,7 +56,7 @@
           "count": 2
         },
         "/result/commands/0/arguments/*/name": {
-          "includes": [
+          "includes_all_of": [
             "--source",
             "--sort",
             "--open-access",

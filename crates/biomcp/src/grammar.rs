@@ -99,36 +99,24 @@ fn root() -> Result<Command, ()> {
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     root = root.subcommand(Command::new("health"));
-    root = root.subcommand(
-        Command::new("help")
-            .subcommand(
-                Command::new("network").arg(
-                    Arg::new("setting")
-                        .required(true)
-                        .value_parser(["ca_bundle", "proxy"]),
-                ),
-            )
-            .subcommand(
-                Command::new("key").arg(
-                    Arg::new("source")
-                        .required(true)
-                        .value_parser(["oncokb", "semantic-scholar"]),
-                ),
-            )
-            .subcommand(
-                Command::new("get")
-                    .subcommand_required(true)
-                    .subcommand(Command::new("gene"))
-                    .subcommand(Command::new("article")),
-            )
-            .subcommand(
-                Command::new("search")
-                    .subcommand_required(true)
-                    .subcommand(Command::new("gene"))
-                    .subcommand(Command::new("article")),
-            ),
-    );
+    root = root.subcommand(help_command());
     Ok(root.subcommand(Command::new("serve")))
+}
+fn help_command() -> Command {
+    let mut help = Command::new("help")
+        .subcommand(Command::new("network").arg(Arg::new("setting").required(true)
+            .value_parser(["ca_bundle", "proxy"])))
+        .subcommand(Command::new("key").arg(Arg::new("source").required(true)
+            .value_parser(["oncokb", "semantic-scholar"])));
+    let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
+    for &(verb, entity, _) in QUERIES {
+        let command = verbs.remove(verb).unwrap_or_else(|| Command::new(verb).subcommand_required(true));
+        verbs.insert(verb, command.subcommand(Command::new(entity)));
+    }
+    for command in verbs.into_values() {
+        help = help.subcommand(command);
+    }
+    help
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;

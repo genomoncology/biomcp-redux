@@ -102,6 +102,11 @@ fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
 fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
     let position = field(node, "x-positional").as_u64();
     let resolved = resolve(node, root);
+    let choices = if text(resolved, "type") == "array" {
+        resolve(field(resolved, "items"), root)
+    } else {
+        resolved
+    };
     HelpArgument {
         name: if position.is_some() {
             name.into()
@@ -120,7 +125,7 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
         maximum: field(node, "maximum")
             .as_u64()
             .or(field(node, "maxItems").as_u64()),
-        choices: field(resolved, "enum")
+        choices: field(choices, "enum")
             .as_array()
             .into_iter()
             .flatten()
