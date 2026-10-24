@@ -27,6 +27,7 @@ fn missing() -> Result<(),String> {
     Ok(())
 }
 fn missing_reply(request: &str) -> Result<String,String> {
+    if !request.starts_with("GET /api/") { return cbio(request); }
     let mut body: Value = serde_json::from_str(&cbio(request)?).map_err(|e|e.to_string())?;
     if request.contains("/sample-lists/") { body.as_object_mut().ok_or("sample-list object")?.remove("sampleCount"); }
     if request.contains("/mutations?") {

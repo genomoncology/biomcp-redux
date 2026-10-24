@@ -38,15 +38,25 @@ pub(super) fn config(env: &Environment, stub: &Stub) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 pub(super) fn call(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
+        .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) {
-        return Err(format!("expected exit {exit}, got {:?}: {} {}", output.status.code(), String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr)));
+        return Err(format!(
+            "expected exit {exit}, got {:?}: {} {}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
     let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
     Ok(value)
 }
-fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> { call(env, args, 0) }
+fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> {
+    call(env, args, 0)
+}
 
 fn wire() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
