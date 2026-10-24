@@ -104,11 +104,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     }
 }
 fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outcome> {
-    let status = if result.local.is_some() {
-        crate::exit::Status::Local
-    } else {
-        crate::exit::Status::from(result.status)
-    };
+    let status = response_status(&result);
     let mut steps = result
         .next
         .iter()
@@ -362,4 +358,12 @@ fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutco
         }
     }
     steps.truncate(5);
+}
+
+fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
+    if result.local.is_some() {
+        crate::exit::Status::Local
+    } else {
+        crate::exit::Status::from(result.status)
+    }
 }
