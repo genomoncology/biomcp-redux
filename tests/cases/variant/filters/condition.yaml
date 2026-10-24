@@ -4,7 +4,7 @@
   "replay": "variant/filters/condition",
   "story": "The proved MyVariant condition filter keeps its literal field query and native candidates",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection",
+  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection; projection identity locally recorded from unchanged retained response on 2026-10-24, with original source date and reuse label retained externally",
   "steps": [
     {
       "run": [
@@ -28,8 +28,8 @@
         "Carcinoma of colon (CRC)"
       ],
       "expect": {
-        "/schema": "biomcp.variant_page/1",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/2",
+        "/status": "partial",
         "/query": {
           "equals": {
             "region": "chr7:140453136-140453136",
@@ -54,8 +54,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -92,10 +91,20 @@
             "name": "NCBI policy; submission rights remain source-specific",
             "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       },
-      "max_bytes": 1310,
-      "max_tokens": 328
+      "max_bytes": 1316,
+      "max_tokens": 329
     },
     {
       "run": [
@@ -110,7 +119,7 @@
       ],
       "offline": true,
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items": {
           "equals": [
             {
@@ -125,8 +134,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -156,6 +164,16 @@
             "returned": 1,
             "total": 1
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       }
     },
@@ -185,7 +203,7 @@
         "noncommercial"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items": {
           "equals": [
             {
@@ -200,8 +218,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -231,6 +248,16 @@
             "returned": 1,
             "total": 1
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       }
     },

@@ -4,7 +4,7 @@
   "replay": "variant/filters/review-status",
   "story": "The proved MyVariant review-status filter keeps its literal field query and native candidates",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection",
+  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection; projection identity locally recorded from unchanged retained response on 2026-10-24, with original source date and reuse label retained externally",
   "steps": [
     {
       "run": [
@@ -28,8 +28,8 @@
         "no assertion criteria provided"
       ],
       "expect": {
-        "/schema": "biomcp.variant_page/1",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/2",
+        "/status": "partial",
         "/query": {
           "equals": {
             "region": "chr7:140453136-140453136",
@@ -54,8 +54,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -89,8 +88,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453134_140453136del"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -124,8 +122,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>C"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -162,10 +159,32 @@
             "name": "NCBI policy; submission rights remain source-specific",
             "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453134_140453136del",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>C",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       },
-      "max_bytes": 2614,
-      "max_tokens": 654
+      "max_bytes": 2625,
+      "max_tokens": 657
     },
     {
       "run": [
@@ -180,7 +199,7 @@
       ],
       "offline": true,
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items": {
           "equals": [
             {
@@ -195,8 +214,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -230,8 +248,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453134_140453136del"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -265,8 +282,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>C"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -296,6 +312,28 @@
             "returned": 3,
             "total": 3
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453134_140453136del",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>C",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       }
     },
@@ -325,7 +363,7 @@
         "noncommercial"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items": {
           "equals": [
             {
@@ -340,8 +378,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>T"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -375,8 +412,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453134_140453136del"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -410,8 +446,7 @@
                     "expression": {
                       "syntax": "hgvs.g",
                       "value": "chr7:g.140453136A>C"
-                    },
-                    "build": "GRCh37"
+                    }
                   }
                 ],
                 "genes": [
@@ -441,6 +476,28 @@
             "returned": 3,
             "total": 3
           }
+        },
+        "/problems": {
+          "equals": [
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>T",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453134_140453136del",
+              "field": "representations.build",
+              "code": "value.unknown"
+            },
+            {
+              "source": "myvariant",
+              "record": "chr7:g.140453136A>C",
+              "field": "representations.build",
+              "code": "value.unknown"
+            }
+          ]
         }
       }
     },
