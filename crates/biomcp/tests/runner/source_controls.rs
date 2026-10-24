@@ -49,9 +49,20 @@ fn disabled() -> Check {
     {
         return Err("disabled HGNC restored a cached gene".into());
     }
-    let reader = invoke(&env, vec!["article".into(), "text".into(), "33123537".into(),
-        "--part".into(), "1".into(), "--disable-sources".into(), "pubmed".into(),
-        "--offline".into()], 4)?;
+    let reader = invoke(
+        &env,
+        vec![
+            "article".into(),
+            "text".into(),
+            "33123537".into(),
+            "--part".into(),
+            "1".into(),
+            "--disable-sources".into(),
+            "pubmed".into(),
+            "--offline".into(),
+        ],
+        4,
+    )?;
     if reader.pointer("/result/content/source") != Some(&json!("pubmed"))
         || reader.pointer("/result/content/state") != Some(&json!("skipped"))
         || reader.pointer("/result/content/reason") != Some(&json!("disabled"))

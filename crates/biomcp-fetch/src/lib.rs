@@ -116,10 +116,6 @@ impl fmt::Debug for Fetch {
 
 impl Fetch {
     /// Open a client using platform TLS roots and only the supplied proxy.
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Initialize the Fetch-local bundle import reservation"
-    )]
     pub fn open(mut config: FetchConfig) -> Result<Self, FetchError> {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
