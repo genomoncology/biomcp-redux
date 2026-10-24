@@ -596,7 +596,7 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
     let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
     for index in 0..8 {
         let url = format!("https://example.invalid/answer?index={index}");
-        let key = Sha256::digest(url.as_bytes())
+        let key = Sha256::digest(format!("GET\0{url}").as_bytes())
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
