@@ -4,6 +4,7 @@ mod corporate;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
+mod help_examples;
 mod http;
 mod http_limits;
 mod key_registration;
@@ -236,6 +237,9 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.push(Trial::test("article-help/executable-examples", || {
+        help_examples::check().map_err(Into::into)
+    }));
     trials.push(Trial::test(
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),

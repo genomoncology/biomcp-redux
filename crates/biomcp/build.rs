@@ -32,14 +32,34 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
+    embed_examples()
+}
+
+fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
-    for (verb, file, index) in [
-        ("get gene", "gene/kras.yaml", 0),
-        ("get gene", "gene/braf.yaml", 0),
-        ("search gene", "gene/search.yaml", 0),
-        ("search gene", "gene/search.yaml", 1),
-        ("search article", "article/search/pubmed-floor.yaml", 0),
+    let mut witnesses = Vec::new();
+    for (file, index) in [
+        ("gene/kras.yaml", 0),
+        ("gene/braf.yaml", 0),
+        ("gene/search.yaml", 0),
+        ("gene/search.yaml", 1),
+        ("article/search/pubmed-floor.yaml", 0),
+        ("article/filters/since.yaml", 0),
+        ("article/get/card.yaml", 0),
+        ("article/preprint/reader.yaml", 0),
+        ("article/fulltext/outline.yaml", 2),
+        ("article/fulltext/variant.yaml", 0),
+        ("article/supplements/workbook.yaml", 0),
+        ("article/supplements/protein-change.yaml", 0),
+        ("article/citations/citing.yaml", 0),
+        ("article/edges/window.yaml", 0),
+        ("article/citations/references.yaml", 0),
+        ("article/edges/references.yaml", 0),
+        ("article/evidence/source.yaml", 0),
+        ("article/evidence/source.yaml", 1),
+        ("article/recommendations/single.yaml", 0),
+        ("article/recommendations/multi.yaml", 0),
     ] {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());
@@ -48,18 +68,27 @@ fn main() -> Result<(), Box<dyn Error>> {
             .get("steps")
             .and_then(serde_json::Value::as_array)
             .ok_or("case steps required")?;
-        let run = serde_json::from_value(
+        let run: Vec<String> = serde_json::from_value(
             steps
                 .get(index)
                 .and_then(|step| step.get("run"))
                 .ok_or("missing example step")?
                 .clone(),
         )?;
-        examples.entry(verb.into()).or_default().push(run);
+        let command = run
+            .get(..2)
+            .ok_or("example needs a verb and entity")?
+            .join(" ");
+        examples.entry(command).or_default().push(run);
+        witnesses.push((file, index));
     }
     fs::write(
         PathBuf::from(env::var("OUT_DIR")?).join("examples.json"),
         serde_json::to_vec(&examples)?,
+    )?;
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("example-cases.json"),
+        serde_json::to_vec(&witnesses)?,
     )?;
     Ok(())
 }
