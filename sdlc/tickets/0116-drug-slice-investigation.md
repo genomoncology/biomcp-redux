@@ -16,4 +16,5 @@ Milestone: 3
 - 0.9: measure 0.9's drug commands on the same examples in time, bytes and facts, find any filter mapped to the wrong field, and account for every command, option and section.
 - Design: the delight questions, types and schema, a search that returns drug headers with drill-downs into approvals, label, targets, interactions and other sections the examples need, disclosure layers and token budget against 0.9, sources and bundles kept and dropped, harvested case list, and the open questions for Ian with options and a recommendation.
 - Proof: the PM reviews the design on its branch. Live captures run through pm job with raw evidence on the evidence store. No licensed content enters the repo.
+- PM ruling 2026-10-24 after j11400: the old 0.9 binary bypassed the capture proxy, so its outputs have unknown network provenance and are excluded. The design is reviewed from the verified direct and bundle captures, with the 0.9 comparison marked unmeasured. A later 0.9 baseline runs only behind verified network containment, under a separate ticket.
 - Defers: tickets, which the PM files from the reviewed design.

@@ -83,7 +83,7 @@ fn candidate() -> Result<(), String> {
     }
     Ok(())
 }
-fn body(request: &str) -> Result<String, String> {
+pub(super) fn body(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/variant/") {
         Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
     } else {

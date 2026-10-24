@@ -1,5 +1,6 @@
 mod article_save;
 mod assertions;
+mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
@@ -19,6 +20,8 @@ mod live_proof;
 mod markdown;
 mod markdown_shapes;
 mod markdown_sources;
+mod markdown_variant_sources;
+mod markdown_variant_trial;
 mod mcp;
 mod named_search;
 mod nci;
@@ -278,6 +281,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(trial_tables::trials());
     trials.extend(trial_get::trials());
     trials.extend(nci::trials());
+    trials.extend(clinvar_key::trials());
     trials.extend(nci_walk::trials());
     trials.extend(trial_documents::trials());
     trials.extend(trial_sites::trials());
@@ -320,6 +324,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
+    trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
