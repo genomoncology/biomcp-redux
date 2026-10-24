@@ -58,10 +58,17 @@ pub(super) fn check() -> Check {
         }
     }
     anonymous()?;
-    for value in [
-        json!({"data":[],"next":0}),
-        json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
-        json!({"data":[{"citingPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{}}}]}),
+    for (value, reason) in [
+        (json!({"data":[],"next":0}), "bad_reply"),
+        (
+            json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
+            "bad_reply",
+        ),
+        (
+            json!({"data":[{"citingPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{}}}]}),
+            "bad_reply",
+        ),
+        (json!({"data":null}), "unavailable"),
     ] {
         case(
             CAPTURE,
@@ -71,7 +78,7 @@ pub(super) fn check() -> Check {
                     record["exchanges"][0]["body"]["value"] = value.clone();
                 }
             },
-            json!({"/status":"failed","/sources/0/reason":"bad_reply"}),
+            json!({"/status":"failed","/sources/0/reason":reason}),
             4,
         )?;
     }
