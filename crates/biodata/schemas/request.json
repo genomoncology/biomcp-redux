@@ -114,6 +114,10 @@
         " Every landed section."
       ]
     },
+    "HgvsText": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
+      "type": "string"
+    },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "enum": [
@@ -134,6 +138,16 @@
     },
     "NctId": {
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "NormalizationSource": {
+      "description": "Explicit normalization service selection.",
+      "enum": [
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "all"
+      ],
       "type": "string"
     },
     "PartialDate": {
@@ -272,6 +286,56 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Send unchanged HGVS to explicit normalization services.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Caller assembly; required when VariantValidator is selected."
+        },
+        "command": {
+          "const": "variant_normalize",
+          "type": "string"
+        },
+        "hgvs": {
+          "$ref": "#/$defs/HgvsText",
+          "description": "Unchanged reference-qualified HGVS; no local molecular parse."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Source mapping rows per service, with typed continuation for remaining rows.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Source mapping rows to skip per service.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/NormalizationSource",
+          "description": "Explicit service; all preserves independent results without consensus."
+        }
+      },
+      "required": [
+        "command",
+        "source",
+        "hgvs"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Read a published variant identifier.",
