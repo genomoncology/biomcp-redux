@@ -5,11 +5,13 @@ mod negative_cases;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod schema;
+mod schema_proof;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
 use serde_json::Value;
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 
 // Maintained serde YAML parser; only deserialization is needed. Its typed parser
 // rejects unknown fields so a misspelled assertion cannot silently pass.
@@ -44,14 +46,15 @@ struct Step {
     expect: BTreeMap<String, Value>,
 }
 
-pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
+pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, String> {
     let mut paths = Vec::new();
     collect(root, &mut paths).map_err(|error| format!("{}: {error}", root.display()))?;
     paths.sort();
     if paths.is_empty() {
         return Err(format!("{}: no YAML cases", root.display()));
     }
-    paths
+    let registry = Arc::new(schema::Registry::embedded()?);
+    let mut trials = paths
         .into_iter()
         .map(|path| {
             let name = path
@@ -61,11 +64,16 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
                 .map(|part| part.to_str().ok_or("case path must be UTF-8"))
                 .collect::<Result<Vec<_>, _>>()?
                 .join("/");
+            let registry = Arc::clone(&registry);
             Ok(Trial::test(name, move || {
-                run_case(&path).map_err(Into::into)
+                run_case(&path, &registry).map_err(Into::into)
             }))
         })
-        .collect()
+        .collect::<Result<Vec<_>, String>>()?;
+    if include_proof {
+        trials.extend(schema_proof::trials(registry));
+    }
+    Ok(trials)
 }
 
 fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<()> {
@@ -83,7 +91,7 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
     Ok(())
 }
 
-fn run_case(path: &Path) -> Result<(), String> {
+fn run_case(path: &Path, registry: &schema::Registry) -> Result<(), String> {
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     let case: Case = serde_saphyr::from_str(&text).map_err(|error| error.to_string())?;
     if case.story.trim().is_empty() || case.steps.is_empty() {
@@ -103,7 +111,7 @@ fn run_case(path: &Path) -> Result<(), String> {
         .collect::<Result<Vec<_>, _>>()?;
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
-        run_step(step, &environment, expectations)
+        run_step(step, &environment, expectations, registry)
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
     }
     Ok(())
@@ -113,6 +121,7 @@ fn run_step(
     step: &Step,
     environment: &launch::Environment,
     expectations: &assertions::Expectations<'_>,
+    registry: &schema::Registry,
 ) -> Result<(), String> {
     let cli = step
         .run
@@ -133,12 +142,16 @@ fn run_step(
             if !output.stderr.is_empty() {
                 return Err("error output: expected empty stderr".into());
             }
+            let value = serde_json::from_slice::<Value>(&output.stdout)
+                .map_err(|error| error.to_string())?;
+            registry.validate(&value, args, output.status.success())?;
             assertions::check(&output.stdout, step, expectations)?;
-            serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())
+            Ok(value)
         })
         .transpose()?;
     if let Some(args) = &step.mcp {
         let result = mcp::call(environment, args, step.is_error)?;
+        registry.validate(&result, args, !step.is_error)?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,

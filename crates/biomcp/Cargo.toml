@@ -13,6 +13,7 @@ biodata = { path = "../biodata", features = ["schema"] }
 serde_json.workspace = true
 
 [dev-dependencies]
+jsonschema.workspace = true
 serde.workspace = true
 libtest-mimic.workspace = true
 serde-saphyr.workspace = true

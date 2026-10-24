@@ -1,0 +1,11 @@
+feature: schema
+story: Schema validation applies with no optional assertions
+steps:
+  - run: [schema, biodata.source/1]
+    mcp: [schema, biodata.source/1]
+  - run: [unknown]
+    mcp: [unknown]
+    exit: 2
+    is_error: true
+  - mcp: [schema, biomcp.error/1]
+  - run: [schema, biomcp.error/1]
