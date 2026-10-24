@@ -118,7 +118,7 @@ pub struct Observation {
     pub source: biodata::Source,
     /// HTTP status, absent on transport failure.
     pub status: Option<u16>,
-    /// Received bytes.
+    /// Retained decoded body bytes; transport/read failures retain no body.
     pub bytes: u64,
     /// Nominal keyless interval from the same shared quota declaration.
     pub interval_ms: u64,
