@@ -96,8 +96,14 @@ fn checked_in_schemas_match_types() {
         .map(|contract| {
             let mut new = (contract.generate)();
             new["$id"] = contract.id.into();
-            compatibility::check(&new, &new)
-                .unwrap_or_else(|error| panic!("{}: {error}", contract.name));
+            compatibility::check(&new, &new).unwrap_or_else(|error| {
+                fs::write(
+                    std::env::temp_dir().join("biomcp-schema-debug.json"),
+                    serde_json::to_vec_pretty(&new).expect("serialize debug schema"),
+                )
+                .expect("write debug schema");
+                panic!("{}: {error}", contract.name)
+            });
             let path = root.join(format!("{}.json", contract.name));
             if path.exists() {
                 let old: Value =
