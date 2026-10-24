@@ -99,19 +99,19 @@ The adapter owns provider raw shapes and maps them once. The query layer owns co
 9. **When can an agent stop?** The search header answers identity/status discovery; the source's complete count answers a count question; an exact get plus one section answers a specific protocol question. More detail is never loaded merely because it exists.
 10. **What supports trust?** An exact source query, registration update date, retrieval date, source URL, field provenance, current source state and an explicit warning that text matches are discovery only.
 
-## Design decisions for review
+## Accepted design decisions
 
-These are product choices for PM review. None authorizes implementation before that review.
+The PM accepted this design at `15ae48b1`. The table points to [the accepted trial slice rulings](../../decisions/2026-10-24-trial-slice-rulings.md). Those decisions govern the design; implementation belongs to the PM's trial tickets.
 
-| Question | Options and trade-offs | Recommendation |
+| Question | Options and trade-offs | Accepted PM decision |
 | --- | --- | --- |
 | What should molecular text mean? | Keep distinct legacy biomarker/mutation heuristics; or expose explicit source text and eligibility-text search with no inference. Legacy behavior changes counts after retrieval and can mistake exclusions for requirements. | Keep `--variant` and `--gene` as explicitly labeled discovery inputs; `--criteria` searches source eligibility text. Echo the exact fields and never verify clinical inclusion locally. |
-| Should `--age` remain? | Local conversion and post-filtering breaks source-count parity; native source range constraints retain parity but require proved no-limit semantics. | Keep only a native, captured source expression. Include source missing-limit handling explicitly and describe this as registry-bound filtering, not full eligibility. |
-| Should facility and radius mean the same site? | Independent trial-wide terms may match different sites; a source-native nested location expression can bind them to one site. | Use the source's same-location grouping when both restrictions are requested. Refuse a combination the source cannot express honestly. |
-| Should NCI be folded with ClinicalTrials.gov? | A fold requires additional identity/status/conflict rules; named sources preserve each source's own coverage and counts. | Default ClinicalTrials.gov; explicit `--source nci`, no automatic fallback or combined best order. |
-| Should old therapy-line options survive? | Reproduce word lists; or remove semantic claims and offer literal eligibility text. | Drop `--line-of-therapy`, `--prior-therapies` and `--progression-on` as semantic filters. Preserve their questions with `--criteria` and full text; the agent inspects the passage. |
+| Should `--age` remain? | Local conversion and post-filtering breaks source-count parity; native source range constraints retain parity but require proved no-limit semantics. | Ruling 2: use the native expression that admits each missing bound as no limit. Malformed values never become no limit. This proves only the structured age filter. |
+| Should facility and radius mean the same site? | Independent trial-wide terms may match different sites; a source-native nested location expression can bind them to one site. | Ruling 3: refuse `--facility` together with `--lat/--lon/--distance`. Keep them as separate trial-wide filters and expose site coordinates in `locations`. |
+| Should NCI be folded with ClinicalTrials.gov? | A fold requires additional identity/status/conflict rules; named sources preserve each source's own coverage and counts. | Ruling 4: default ClinicalTrials.gov; explicit keyed `--source nci` with native statuses/counts. Disease filters require an NCIt identifier; free text uses an explicit keyword option. No fold or fallback. |
+| Should old therapy-line options survive? | Reproduce word lists; or remove semantic claims and offer literal eligibility text. | Ruling 5: retire `--line-of-therapy`, `--prior-therapies` and `--progression-on` with messages naming `--criteria`. |
 | Where should bulky detail live? | Full protocol in the default card; or bounded sections with honest continuations. | Header, card, then sections. Keep full criteria and descriptions recoverable without arbitrary sentence truncation. |
-| Should documents be readable here? | Add another PDF parsing path; or list metadata and save exact advertised bytes. | List and save. Reuse binary transport and outbound policy; defer document interpretation. |
+| Should documents be readable here? | Add another PDF parsing path; or list metadata and save exact advertised bytes. | Ruling 7: list documents and save exact advertised bytes. Never read document text. |
 
 ## Structural risks
 
@@ -263,7 +263,7 @@ Keep complete eligibility text recoverable when it exceeds one page. Preserve ch
 
 ## 0.9 command, option and section accounting
 
-This is a proposed disposition for PM review. The machine-readable table deliberately leaves units undecided until a ruling accepts them. It does not claim that trial commands are implemented. Global flags and aliases are not command-specific option slots. Positional section values are accounted below separately. The existing gene design owns the `gene trials` ledger row; this design accounts for its destination without duplicating that row.
+The PM accepted the design dispositions in [the accepted trial slice rulings](../../decisions/2026-10-24-trial-slice-rulings.md). The machine-readable table leaves runtime units undecided until implementation proves their port, rename or retirement. It does not claim that trial commands are implemented. Global flags and aliases are not command-specific option slots. Positional section values are accounted below separately. The existing gene design owns the `gene trials` ledger row; this design accounts for its destination without duplicating that row.
 
 | Legacy surface | Proposed disposition | Reason |
 | --- | --- | --- |
@@ -284,9 +284,9 @@ This is a proposed disposition for PM review. The machine-readable table deliber
 | `--criteria` | Keep literal eligibility-field search | No inclusion/exclusion verification after the source answers |
 | `--prior-therapies`, `--progression-on`, `--line-of-therapy` | Drop semantic filters | Literal criteria search preserves discovery without phrase lists |
 | `--sponsor`, `--sponsor-type` | Keep native field/facet | Exact source totals, no local classification |
-| `--date-from`, `--date-to` | Keep, named as registry update range | Do not confuse with study start or publication date; `--since`/`--until` are aliases |
+| `--date-from`, `--date-to` | Rename to `--updated-since`, `--updated-until` | Ruling 8: one spelling per option; old spellings return retirement messages. No `--since`/`--until` aliases |
 | `--lat`, `--lon`, `--distance` | Keep trial-wide native radius | Explicit units and no same-site promise without source proof |
-| `--has-results` | Keep | Posted results flag, not proof that registered outcomes have been measured; `--results-available` is an alias |
+| `--has-results` | Keep | Posted results flag, not proof that registered outcomes have been measured; ruling 8 retires `--results-available` with a message naming `--has-results` |
 | `--count-only` | Keep exact source count | No detail fetches or local screening |
 | `--source` | Keep explicit named source | Default CTGov; NCI requires the user's key; no silent provider fallback |
 | `--limit`, `--next-page` | Keep bounded opaque paging | Echo unchanged query parameters across pages |
@@ -300,12 +300,12 @@ Every legacy ordinary section is kept: `eligibility`, `contacts`, `locations`, `
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search trial` | Not yet decided | — | — | `--condition`, `--intervention`, `--no-alias-expand`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--prior-therapies`, `--progression-on`, `--line-of-therapy`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | Proposed dispositions above; PM review required |
-| `get trial` | Not yet decided | — | — | `--source`, `--offset`, `--limit` | Proposed dispositions above; PM review required |
-| `batch trial` | Not yet decided | — | — | `--mode`, `--sections`, `--source`, `--pdf` | Proposed dispositions above; PM review required |
-| `variant trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Proposed dispositions above; PM review required |
-| `disease trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Proposed dispositions above; PM review required |
-| `drug trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source`, `--no-alias-expand` | Proposed dispositions above; PM review required |
+| `search trial` | Not yet decided | — | — | `--condition`, `--intervention`, `--no-alias-expand`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--prior-therapies`, `--progression-on`, `--line-of-therapy`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `get trial` | Not yet decided | — | — | `--source`, `--offset`, `--limit` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `batch trial` | Not yet decided | — | — | `--mode`, `--sections`, `--source`, `--pdf` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `variant trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `disease trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `drug trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source`, `--no-alias-expand` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
 <!-- /parity-accounting -->
 
 
@@ -315,4 +315,4 @@ Raw responses, exact request manifests, released-product outputs, official speci
 
 The clinical review covered all 24 questions and the bounded age-metadata clarification. It confirmed publication facts and the no-limit convention, kept recruitment and count claims tied to captured registry data, and rejected clinical eligibility conclusions from text search or a structured age match. The investigator read both results before using them.
 
-Product compilation, release artifact builds, production changes, scheduled source refreshes, new implementation tickets and landing are outside this investigation. The PM reviews this branch, settles the proposed user-visible choices, and files implementation tickets. In particular, NCI disease-filter/detail/section parity, same-site facility-plus-radius semantics, exact shipped token ceilings and warm installed-command measurements remain implementation proof obligations rather than claims of completed runtime support.
+Product compilation, release artifact builds, production changes, scheduled source refreshes, new implementation tickets and landing are outside this investigation. The PM accepted the user-visible choices in [the accepted trial slice rulings](../../decisions/2026-10-24-trial-slice-rulings.md) and filed the implementation tickets. In particular, NCI disease-filter/detail/section parity, same-site facility-plus-radius semantics, exact shipped token ceilings and warm installed-command measurements remain implementation proof obligations rather than claims of completed runtime support.
