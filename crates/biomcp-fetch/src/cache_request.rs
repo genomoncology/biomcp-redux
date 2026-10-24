@@ -1,11 +1,15 @@
 //! Checked cache reuse around the single live request path.
 use crate::{
-    CacheError, Endpoint, Leg, Mode, Reply, RequestError, SourceError,
-    cache::{Entry, now},
+    Endpoint, Leg, Mode, Reply, RequestError, SourceError,
+    cache::{Cache, Entry, now},
 };
 use biodata::Reason;
 
 const NEGATIVE_SECONDS: i64 = 600;
+enum Checked<T> {
+    Positive(T, bool),
+    Absent,
+}
 
 impl Leg<'_> {
     pub(crate) fn cached<T: Reply>(
@@ -22,26 +26,14 @@ impl Leg<'_> {
             return live().map(|(reply, _, _)| reply).map_err(Into::into);
         };
         let mut stale = None;
-        if self.fetch.config.mode == (Mode::Live { fresh: false })
-            && let Some(entry) = cache.read(key, self.fetch.config.max_body, self.deadline)?
-        {
-            if entry.status == 404 {
-                if entry.fresh_until > now() {
+        if self.fetch.config.mode == (Mode::Live { fresh: false }) {
+            match self.checked_cached(cache, key)? {
+                Some(Checked::Positive(reply, true)) => return Ok(reply),
+                Some(Checked::Positive(reply, false)) => stale = Some(reply),
+                Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
-            } else {
-                let reply: T =
-                    serde_json::from_slice(&entry.body).map_err(|_| CacheError::InvalidReply)?;
-                reply.check().map_err(|_| CacheError::InvalidReply)?;
-                if self.deadline.expired() {
-                    return Err(self
-                        .failure(Reason::DeadlineExceeded, Some(entry.status))
-                        .into());
-                }
-                if entry.fresh_until > now() {
-                    return Ok(reply);
-                }
-                stale = Some(reply);
+                None => {}
             }
         }
         match live() {
@@ -78,7 +70,10 @@ impl Leg<'_> {
             }
             Err(error) => {
                 if let Some(reply) = stale {
-                    let mut report = self.report.borrow_mut();
+                    let mut report = self
+                        .report
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
                     report.stale = true;
                     report.failures.push(error);
                     Ok(reply)
@@ -87,5 +82,34 @@ impl Leg<'_> {
                 }
             }
         }
+    }
+
+    fn checked_cached<T: Reply>(
+        &self,
+        cache: &Cache,
+        key: &[u8; 32],
+    ) -> Result<Option<Checked<T>>, RequestError> {
+        let Some(entry) = cache.read(key, self.fetch.config.max_body, self.deadline)? else {
+            return Ok(None);
+        };
+        let fresh = entry.fresh_until > now();
+        if entry.status == 404 {
+            return Ok(fresh.then_some(Checked::Absent));
+        }
+        let reply = serde_json::from_slice::<T>(&entry.body)
+            .ok()
+            .filter(|reply| reply.check().is_ok());
+        let Some(reply) = reply else {
+            // A type or limit change invalidates this entry. It is a miss and
+            // cannot become a stale fallback after the live request fails.
+            cache.remove(key, self.deadline)?;
+            return Ok(None);
+        };
+        if self.deadline.expired() {
+            return Err(self
+                .failure(Reason::DeadlineExceeded, Some(entry.status))
+                .into());
+        }
+        Ok(Some(Checked::Positive(reply, fresh)))
     }
 }

@@ -253,20 +253,30 @@ fn every_cached_read_obeys_current_reply_type_body_limit_and_sql_contract() {
         get(&fetch, spec, &endpoint, &[])
     })
     .unwrap();
-    let strict = fetch
-        .leg(spec, fetch.deadline(Duration::from_secs(10)))
-        .json::<Strict>(&endpoint, &[])
-        .unwrap_err();
-    assert_eq!(strict, RequestError::Cache(CacheError::InvalidReply));
+    // A stricter public type invalidates and replaces the previous checked body.
+    let strict = exchange(&server, 200, r#"{"answer":false}"#, || {
+        fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .json::<Strict>(&endpoint, &[])
+    })
+    .unwrap();
+    assert!(!strict.answer);
     let limited = Fetch::open(FetchConfig {
         max_body: 1,
         ..config(&path)
     })
     .unwrap();
-    assert_eq!(
-        get(&limited, spec, &endpoint, &[]).unwrap_err(),
-        RequestError::Cache(CacheError::InvalidReply)
-    );
+    // The oversized old entry is evicted. Its stale body cannot hide this failure.
+    let error = exchange(&server, 400, "rejected", || {
+        get(&limited, spec, &endpoint, &[])
+    })
+    .unwrap_err();
+    assert_eq!(source(error).reason, Reason::Rejected);
+    let count: u32 = Connection::open(&path)
+        .unwrap()
+        .query_row("SELECT count(*) FROM reply", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 0);
     Connection::open(&path)
         .unwrap()
         .execute_batch("DROP TABLE reply")

@@ -127,14 +127,25 @@ impl Cache {
                 "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until FROM reply WHERE key=?1",
                 params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?)),
             ).optional().map_err(db_error)?;
-            entry.map(|(status, body, fresh_until)| {
-                let body = body.ok_or(CacheError::InvalidReply)?;
-                if !((200..300).contains(&status) || status == 404 && body.is_empty()) {
-                    return Err(CacheError::InvalidReply);
+            match entry {
+                Some((status, Some(body), fresh_until)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    Ok(Some(Entry {status, body, fresh_until}))
                 }
-                Ok(Entry {status, body, fresh_until})
-            }).transpose()
+                Some(_) => { Self::delete(connection, key)?; Ok(None) }
+                None => Ok(None),
+            }
         })
+    }
+
+    pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline) -> Result<(), CacheError> {
+        self.sql(deadline, |connection| Self::delete(connection, key))
+    }
+
+    fn delete(connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
+        connection
+            .execute("DELETE FROM reply WHERE key=?1", [key])
+            .map_err(db_error)?;
+        Ok(())
     }
 
     pub(crate) fn write(

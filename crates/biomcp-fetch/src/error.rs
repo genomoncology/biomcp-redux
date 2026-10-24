@@ -59,8 +59,6 @@ pub enum CacheError {
     Version,
     /// The connection or database remained busy until the request deadline.
     Busy,
-    /// A stored reply violates the current body, decode or check contract.
-    InvalidReply,
 }
 impl fmt::Display for CacheError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -68,7 +66,6 @@ impl fmt::Display for CacheError {
             Self::Database => "fetch.cache_database",
             Self::Version => "fetch.cache_version",
             Self::Busy => "fetch.cache_busy",
-            Self::InvalidReply => "fetch.cache_reply",
         })
     }
 }

@@ -131,19 +131,23 @@ impl Fetch {
             spec,
             deadline: deadline.child(cap),
             no_key,
-            report: std::cell::RefCell::new(LegReport::default()),
+            report: std::sync::Mutex::new(LegReport::default()),
         }
     }
 }
 
 /// One source's requests under a shared absolute deadline.
+#[expect(
+    clippy::disallowed_types,
+    reason = "Keep typed report state shared across concurrent requests; never hold its lock during request work"
+)]
 #[derive(Debug)]
 pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
     deadline: Deadline,
     no_key: bool,
-    report: std::cell::RefCell<LegReport>,
+    report: std::sync::Mutex<LegReport>,
 }
 
 /// Request policy for live provider access.
@@ -172,6 +176,8 @@ pub struct LegReport {
 impl Leg<'_> {
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
-        self.report.into_inner()
+        self.report
+            .into_inner()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 }
