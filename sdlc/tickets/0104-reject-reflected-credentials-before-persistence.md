@@ -1,6 +1,7 @@
 # 0104 — Reject reflected credentials before recording, caching or output
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0121dc0ddf1f17f738ab19e3e38973530448201f
 
 Milestone: 1
 

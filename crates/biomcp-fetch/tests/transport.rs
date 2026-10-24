@@ -338,7 +338,7 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
 }
 
 #[test]
-fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
+fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure() {
     let secret = "placeholder-only-abc123";
     for place in [
         KeyPlace::Query("api_key"),
@@ -367,8 +367,9 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
         ] {
             assert!(!formatted.contains(secret));
         }
+        assert_eq!(error.reason, Reason::BadReply);
         let requests = stub.finish();
-        assert_eq!(requests.len(), 3);
+        assert_eq!(requests.len(), 1);
         assert!(requests[0].contains(secret));
     }
 }
