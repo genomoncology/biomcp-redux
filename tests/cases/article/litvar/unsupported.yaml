@@ -1,5 +1,5 @@
 {
-  "feature": "article-search",
+  "feature": "article-litvar",
   "story": "LitVar rejects unsupported filters before any source request",
   "steps": [
     {

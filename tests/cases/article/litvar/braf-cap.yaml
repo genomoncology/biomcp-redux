@@ -1,5 +1,5 @@
 {
-  "feature": "article-search",
+  "feature": "article-litvar",
   "story": "A combined BRAF pool above the citation window refuses before any iCite request",
   "replay": "article/litvar/braf-cap",
   "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim. HGNC alone uses a synthetic five-gene response subset of the actual captured bundle; request identity, delay and all LitVar/iCite/PubMed responses are unchanged.",

@@ -1,5 +1,5 @@
 {
-  "feature": "article-search",
+  "feature": "article-litvar",
   "story": "Exact KRAS G12C selects the second autocomplete candidate and preserves all native PMIDs",
   "replay": "article/litvar/kras-g12c",
   "verified": "Actual --record command on 2026-10-24 measured 4650 bytes. Bounds add15percent. The endpoint lists8915PMIDs; only its native sequence is claimed. No exact0.9 named LitVar-only JSON baseline exists. HGNC alone uses a synthetic five-gene response subset of the actual captured bundle; request identity, delay and all LitVar/iCite/PubMed responses are unchanged.",
