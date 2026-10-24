@@ -13,3 +13,6 @@ mod id;
 pub use id::VariantId;
 mod notation;
 pub use notation::{Expression, ExpressionSyntax, HgvsText};
+
+mod statement;
+pub use statement::*;
