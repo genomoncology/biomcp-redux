@@ -18,6 +18,26 @@ pub enum Error {
     EnsemblTranscriptInvalid,
     /// The checked RefSeqTranscriptInvalid value was rejected.
     RefSeqTranscriptInvalid,
+    /// The GeneStatusUnknown boundary rejected a value.
+    GeneStatusUnknown,
+    /// The LocusGroupUnknown boundary rejected a value.
+    LocusGroupUnknown,
+    /// The MatchKindUnknown boundary rejected a value.
+    MatchKindUnknown,
+    /// The SummarySourceUnknown boundary rejected a value.
+    SummarySourceUnknown,
+    /// The HgncStatusUnknown boundary rejected a value.
+    HgncStatusUnknown,
+    /// The ManeVersionRequired boundary rejected a value.
+    ManeVersionRequired,
+    /// The LocusTypeUnknown boundary rejected a value.
+    LocusTypeUnknown,
+    /// The BuildUnknown boundary rejected a value.
+    BuildUnknown,
+    /// The StrandUnknown boundary rejected a value.
+    StrandUnknown,
+    /// The ContigInvalid boundary rejected a value.
+    ContigInvalid,
     /// An HGNC identifier was not canonical positive u32 text.
     HgncIdInvalid,
     /// A date had invalid precision or calendar components.
@@ -40,6 +60,18 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::LocusTypeUnknown => "gene.locus_type.unknown",
+            Self::BuildUnknown => "build.unknown",
+            Self::StrandUnknown => "strand.unknown",
+            Self::ContigInvalid => "contig.invalid",
+
+            Self::GeneStatusUnknown => "gene.status.unknown",
+            Self::LocusGroupUnknown => "gene.locus_group.unknown",
+            Self::MatchKindUnknown => "gene.match_kind.unknown",
+            Self::SummarySourceUnknown => "gene.summary_source.unknown",
+            Self::HgncStatusUnknown => "gene.hgnc_status.unknown",
+            Self::ManeVersionRequired => "gene.mane.version_required",
+
             Self::EntrezGeneIdInvalid => "id.entrez.invalid",
             Self::GeneSymbolInvalid => "gene.symbol.invalid",
             Self::OmimIdInvalid => "id.omim.invalid",

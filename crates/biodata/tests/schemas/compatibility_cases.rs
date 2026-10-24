@@ -130,3 +130,22 @@ fn compatibility_preserves_patterns_and_rejects_tighter_integer_bounds() {
         assert!(check(&old, &new).is_err());
     }
 }
+
+#[test]
+fn compatibility_tracks_array_items_and_each_tagged_variant() {
+    let old = json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"}});
+    let mut new = old.clone(); new["items"]["type"] = json!("integer");
+    assert!(check(&old, &new).is_err());
+    fn branch(tag: &str, fields: Value) -> Value {
+        let mut properties = fields.as_object().unwrap().clone();
+        properties.insert("resolution".into(), json!({"type":"string","const":tag}));
+        json!({"type":"object","properties":properties,"required":["resolution"],"additionalProperties":false})
+    }
+    let old = json!({"$id":"biodata.example/1","oneOf":[branch("a", json!({"name":{"type":"string"}})), branch("b",json!({"name":{"type":"string"}}))]});
+    let reordered = json!({"$id":"biodata.example/1","oneOf":[branch("b",json!({"name":{"type":"string"}})),branch("a",json!({"name":{"type":"string"}}))]});
+    assert!(check(&old, &reordered).is_ok());
+    let removed = json!({"$id":"biodata.example/1","oneOf":[branch("a",json!({})),branch("b",json!({"name":{"type":"string"}}))]});
+    assert!(check(&old, &removed).is_err());
+    let retyped = json!({"$id":"biodata.example/1","oneOf":[branch("a",json!({"name":{"type":"integer"}})),branch("b",json!({"name":{"type":"string"}}))]});
+    assert!(check(&old, &retyped).is_err());
+}

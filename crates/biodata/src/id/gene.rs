@@ -42,7 +42,7 @@ impl fmt::Display for GeneSymbol { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> 
 text_value!(GeneSymbol, "GeneSymbol", format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN));
 
 macro_rules! accession {
-    ($(#[$doc:meta])* $name:ident, $error:ident, $pattern:literal, $check:expr) => {
+    ($(#[$doc:meta])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
         $(#[$doc])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub struct $name(Box<str>);
@@ -54,21 +54,21 @@ macro_rules! accession {
         }
         impl FromStr for $name { type Err = Error; fn from_str(value: &str) -> Result<Self, Error> { Self::new(value) } }
         impl fmt::Display for $name { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) } }
-        text_value!($name, "GeneAccession", $pattern);
+        text_value!($name, $schema, $pattern);
     };
 }
 // Keep literal schema names for text_value's diagnostic concat.
 accession! {
     /// A six-digit OMIM identifier, preserving all six digits.
-    OmimId, OmimIdInvalid, "^[0-9]{6}$", |value: &str| value.len() == 6 && value.bytes().all(|ch| ch.is_ascii_digit())
+    OmimId, OmimIdInvalid, "OmimId", "^[0-9]{6}$", |value: &str| value.len() == 6 && value.bytes().all(|ch| ch.is_ascii_digit())
 }
 accession! {
     /// A whole UniProt base accession, without an isoform suffix.
-    UniProtAcc, UniProtAccInvalid, "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$", uniprot
+    UniProtAcc, UniProtAccInvalid, "UniProtAcc", "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$", uniprot
 }
 accession! {
     /// A single nuclear cytogenetic band, without a range or location descriptor.
-    Cytoband, CytobandInvalid, "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][0-9]{2}(\\.[0-9]+)?$", cytoband
+    Cytoband, CytobandInvalid, "Cytoband", "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$", cytoband
 }
 fn uniprot(value: &str) -> bool {
     let bytes = value.as_bytes();
@@ -84,5 +84,5 @@ fn cytoband(value: &str) -> bool {
     let Some((chromosome, band)) = value.split_once(['p', 'q']) else { return false; };
     let chromosome_ok = matches!(chromosome, "X" | "Y") || chromosome.parse::<u8>().is_ok_and(|number| (1..=22).contains(&number) && number.to_string() == chromosome);
     let (major, minor) = band.split_once('.').map_or((band, None), |(major, minor)| (major, Some(minor)));
-    chromosome_ok && major.len() == 2 && major.bytes().all(|ch| ch.is_ascii_digit()) && minor.is_none_or(|minor| !minor.is_empty() && minor.bytes().all(|ch| ch.is_ascii_digit()))
+    chromosome_ok && major.len() == 2 && !major.starts_with('0') && major.bytes().all(|ch| ch.is_ascii_digit()) && minor.is_none_or(|minor| !minor.is_empty() && minor.bytes().all(|ch| ch.is_ascii_digit()))
 }
