@@ -68,7 +68,9 @@ fn map(
         .map(member)
         .collect::<Result<Vec<_>, _>>()?;
     let record = record(raw.id, &raw.link)?;
-    let subject = if raw.is_complex || members.len() != 1 {
+    let subject = if members.iter().any(|member| member.subject.is_none()) {
+        None
+    } else if raw.is_complex || members.len() != 1 {
         VariantRef::profile(
             record.id.clone(),
             raw.name.clone(),

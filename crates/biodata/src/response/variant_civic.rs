@@ -78,6 +78,9 @@ pub struct CivicStatement {
     /// Common source-attributed claim.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement: Option<Statement>,
+    /// Complete native claim facts when the common subject or proposition is unavailable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub native: Option<CivicNativeClaim>,
     /// Native claim identity, retained even when no common proposition applies.
     pub record: SourceRecord,
     /// Source claim category, without a fallback proposition.
@@ -90,6 +93,32 @@ pub struct CivicStatement {
     /// Original significance, including when the classification holds an AMP tier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub significance: Option<Text>,
+}
+
+/// Source facts retained without inventing a common-model subject or proposition.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicNativeClaim {
+    /// Whole native classification.
+    pub classification: crate::Term,
+    /// Native level, when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strength: Option<crate::Term>,
+    /// Source disease context.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub condition: Option<crate::Concept>,
+    /// Native therapies in source order.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub therapies: Box<[crate::Concept]>,
+    /// Native origin, when stated.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allele_origin: Option<crate::Term>,
+    /// Native publication identities.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub citations: Box<[crate::Pmid]>,
+    /// Original source provenance.
+    pub attribution: crate::Attribution,
 }
 
 crate::macros::wire_enum! {

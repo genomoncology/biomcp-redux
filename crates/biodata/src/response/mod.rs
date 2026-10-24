@@ -68,7 +68,8 @@ mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 mod variant_civic;
 pub use variant_civic::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement, VariantCivic,
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    VariantCivic,
 };
 mod variant_hotspots;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
