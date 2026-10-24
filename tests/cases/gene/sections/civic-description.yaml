@@ -20,7 +20,15 @@
         "/result/items/0/status": "complete",
         "/result/items/1/status": "partial",
         "/result/items/2/status": "complete",
-        "/problems/0/field": "description"
+        "/problems/0/field": "description",
+        "/problems/0/record": "20",
+        "/result/items/1/sections/civic/data": {
+          "equals": {
+            "id": 20,
+            "variant_count": 126,
+            "url": "https://civicdb.org/features/20"
+          }
+        }
       },
       "mcp": [
         "get",
