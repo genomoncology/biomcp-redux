@@ -32,6 +32,7 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
+mod article_save;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -242,6 +243,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
+    trials.push(Trial::test("article-saves/explicit-original-files", || {
+        article_save::check().map_err(Into::into)
+    }));
     trials.extend(live_proof::trials());
     trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
