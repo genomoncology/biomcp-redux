@@ -52,8 +52,7 @@ pub fn read(
     if listing.contents.iter().any(|e| !e.key.starts_with(&prefix)) {
         return Err(bad(BadReply));
     }
-    let Some(version) = listing
-        .contents
+    let Some(version) = contents
         .iter()
         .filter_map(|e| location::version(&e.key, id))
         .max()

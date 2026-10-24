@@ -3,9 +3,9 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename = "ListBucketResult")]
 pub(super) struct Listing {
-    #[serde(rename = "Contents", default)]
-    pub contents: Vec<Entry>,
-    #[serde(rename = "IsTruncated", default)]
+    #[serde(rename = "Contents")]
+    pub contents: Option<Vec<Entry>>,
+    #[serde(rename = "IsTruncated")]
     truncated: bool,
 }
 #[derive(Debug, Deserialize)]
