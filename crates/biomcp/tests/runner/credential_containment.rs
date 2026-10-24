@@ -177,7 +177,8 @@ fn stored() -> Check {
     let mut replay = args("safe", "--replay", &dir);
     replay.extend(["--case-cache".into(), cache.to_string_lossy().into()]);
     invoke(&env, replay, false)?;
-    let connection = rusqlite::Connection::open(&cache).map_err(|e| e.to_string())?;
+    let connection =
+        rusqlite::Connection::open(cache.join("replay.sqlite")).map_err(|e| e.to_string())?;
     let body = json!({"total":0,"data":[],"ignored":KEY}).to_string();
     for fresh in [i64::MAX, 0] {
         connection
