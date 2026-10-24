@@ -36,16 +36,17 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 Section::unavailable(Source::SemanticScholar, reason(error))
             }
         };
-        if matches!(section, Section::Data { .. }) && out.next.len() < 5 {
-            if let Ok(text) = biodata::ArticleText::part(input, 1) {
-                out.next.push((
-                    StepKind::Section,
-                    Action::Run {
-                        request: Request::ArticleText(text.with_pdf()),
-                        fresh: false,
-                    },
-                ));
-            }
+        if matches!(section, Section::Data { .. })
+            && out.next.len() < 5
+            && let Ok(text) = biodata::ArticleText::part(input, 1)
+        {
+            out.next.push((
+                StepKind::Section,
+                Action::Run {
+                    request: Request::ArticleText(text.with_pdf()),
+                    fresh: false,
+                },
+            ));
         }
         let QueryBody::ArticleCards(cards) = &mut out.body else {
             return;
@@ -66,7 +67,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         out.status = status::status(cards.items.iter().map(|item| item.status));
     }
 }
-pub(in crate::article) fn load<'a>(
+fn load<'a>(
     cx: &Ctx<'a>,
     input: &ArticleInput,
     deadline: &mut Deadline<'a>,
@@ -80,16 +81,16 @@ pub(in crate::article) fn load<'a>(
     }
     let article = serde_json::to_string(input).map_err(|_| bad(Reason::BadReply))?;
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
-    if !cx.fresh {
-        if let Some(encoded) = store.pdf_get(&article)? {
-            let document: Document =
-                serde_json::from_str(&encoded).map_err(|_| bad(Reason::BadReply))?;
-            notice(out);
-            return Ok(Section::Data {
-                source: Source::SemanticScholar,
-                data: document,
-            });
-        }
+    if !cx.fresh
+        && let Some(encoded) = store.pdf_get(&article)?
+    {
+        let document: Document =
+            serde_json::from_str(&encoded).map_err(|_| bad(Reason::BadReply))?;
+        notice(out);
+        return Ok(Section::Data {
+            source: Source::SemanticScholar,
+            data: document,
+        });
     }
     let leg = cx
         .fetch

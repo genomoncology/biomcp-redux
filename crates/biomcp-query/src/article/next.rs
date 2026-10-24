@@ -33,13 +33,11 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
                         ..
                     })
             )
-        }) {
-            if let Ok(query) = ArticleGet::with_sections(
-                vec![input.clone()].into(),
-                vec![biodata::ArticleSectionWord::Pdf].into(),
-            ) {
-                push(&mut out.next, StepKind::Section, Request::GetArticle(query));
-            }
+        }) && let Ok(query) = ArticleGet::with_sections(
+            vec![input.clone()].into(),
+            vec![biodata::ArticleSectionWord::Pdf].into(),
+        ) {
+            push(&mut out.next, StepKind::Section, Request::GetArticle(query));
         }
         if !item.more.is_empty() {
             let words = item

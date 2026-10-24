@@ -1,5 +1,5 @@
 //! One bounded text partition shared by outlines, direct reads and finds.
-use biodata::{PdfPart, PdfText, Text};
+use biodata::{PdfPart, PdfText};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -74,10 +74,10 @@ fn fragments(text: &str) -> Vec<String> {
         }
         bytes += size;
     }
-    if let Some(value) = text.get(start..) {
-        if !value.is_empty() {
-            out.push(value.to_owned());
-        }
+    if let Some(value) = text.get(start..)
+        && !value.is_empty()
+    {
+        out.push(value.to_owned());
     }
     out
 }
