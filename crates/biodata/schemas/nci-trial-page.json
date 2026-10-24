@@ -584,7 +584,7 @@
     },
     "TrialGet": {
       "additionalProperties": false,
-      "description": "Retrieve exact trial cards and bounded source sections in input order.",
+      "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
       "properties": {
         "input": {
           "description": "One to twenty exact NCT identifiers, in caller order.",
@@ -616,7 +616,7 @@
           "description": "Checked stored source record, supplied by a continuation."
         },
         "section": {
-          "description": "Optional intact source sections. The default returns cards only.",
+          "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
           "items": {
             "$ref": "#/$defs/TrialSection"
           },
@@ -696,7 +696,7 @@
     },
     "TrialSearch": {
       "additionalProperties": false,
-      "description": "Checked registry search with source-native filters.",
+      "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
       "properties": {
         "age": {
           "description": "Age in years; unstated source bounds count as no limit.",
@@ -715,7 +715,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Text",
-          "description": "Literal eligibility-field discovery text."
+          "description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
         },
         "distance": {
           "$ref": "#/$defs/Text",
@@ -727,7 +727,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Resolve one checked gene before registry discovery."
+          "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
         },
         "has_results": {
           "default": false,
@@ -809,7 +809,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Text",
-          "description": "Caller-supplied variant discovery text; no eligibility inference."
+          "description": "Literal variant text for registry discovery only; no eligibility judgment."
         }
       },
       "type": "object"
