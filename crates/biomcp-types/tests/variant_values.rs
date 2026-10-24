@@ -336,7 +336,7 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
         "attribution":{"source":"civic","record":row["record"]}
     });
     let statement: Statement = serde_json::from_value(value)?;
-    assert_eq!(statement.attribution.source, Source::Civic);
+    assert_eq!(statement.attribution.source, Source::Civic.text());
     assert_eq!(
         statement.classification.coding,
         Some(Coding::AmpAscoCap2017Tier(AmpAscoCap2017TierCode::TierI))
