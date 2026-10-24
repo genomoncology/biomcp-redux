@@ -72,7 +72,7 @@ Sources:
 - [x] gnomAD (constraint)
 - [ ] GTEx
 - [ ] Human Protein Atlas
-- [ ] OncoKB (keyed)
+- [x] OncoKB (keyed)
 - [ ] COSMIC Cancer Gene Census (keyed)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
