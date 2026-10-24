@@ -149,6 +149,14 @@ class Installer(unittest.TestCase):
         target.symlink_to(other)
         self.assertNotEqual(self.install(str(archive), checksum, str(self.destination)).returncode, 0)
         self.assertEqual(other.read_bytes(), b"keep")
+        target.unlink()
+        directory_link = self.root / "directory-link"
+        directory_link.symlink_to(self.destination, target_is_directory=True)
+        for suffix in ["", "/", "/.", "/./"]:
+            result = self.install(str(archive), checksum, str(directory_link) + suffix)
+            self.assertNotEqual(result.returncode, 0, suffix)
+            self.assertIn("symbolic-link install directory", result.stderr)
+            self.assertFalse(target.exists())
 
     def test_unknown_platform_names_failure_and_help_needs_no_download(self):
         for system, machine, message in [("Plan9", "x86_64", "Plan9"), ("Linux", "mips", "mips"), ("MSYS_NT", "arm64", "windows/arm64")]:
