@@ -65,7 +65,7 @@ pub use article::{
 };
 
 mod variant;
-pub use variant::{VariantCard, VariantHeader, VariantResolution};
+pub use variant::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 mod variant_civic;
 pub use variant_civic::{CivicMembership, CivicProfile, CivicStatement, VariantCivic};
 mod variant_hotspots;
@@ -91,3 +91,15 @@ pub use nci_detail::{
 };
 mod trial_document;
 pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
+
+mod variant_population;
+pub use variant_population::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
+
+mod variant_assertions;
+pub use variant_assertions::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};

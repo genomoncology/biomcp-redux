@@ -92,9 +92,9 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver, VariantSection};
+pub use query::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
 pub use coord::Chromosome;
 
@@ -157,3 +157,23 @@ pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, ClingenCgcVicc2022Code,
     ClingenLowPenetrance2024Code,
 };
+
+pub use response::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
+
+pub use variant::CivicEvidenceLevelCode;
+
+pub use query::VariantPopulationQuery;
+pub use query::{AssertionSource, VariantAssertionsGet};
+pub use response::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};
+pub use variant::{
+    CosmicRecord, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
+    VariantPredictors,
+};
+
+pub use variant::PopulationFrequency;

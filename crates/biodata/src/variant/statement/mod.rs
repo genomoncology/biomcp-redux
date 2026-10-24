@@ -152,3 +152,29 @@ crate::macros::wire_enum! {
         ImpactsFunctionOf => "impacts_function_of",
     }
 }
+
+impl Statement {
+    /// Build one explicit source claim with absent qualifiers and empty source lists.
+    pub fn new(
+        subject: VariantRef,
+        proposition: Proposition,
+        classification: Term,
+        attribution: Attribution,
+    ) -> Self {
+        Self {
+            subject,
+            proposition,
+            predicate: None,
+            direction: None,
+            classification,
+            strength: None,
+            condition: None,
+            therapies: Box::default(),
+            allele_origin: None,
+            gene_context: None,
+            criteria: Box::default(),
+            citations: Box::default(),
+            attribution,
+        }
+    }
+}
