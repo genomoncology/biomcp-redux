@@ -114,6 +114,6 @@ pub use response::TrialHeader;
 
 pub use query::{AssertionSource, VariantAssertionsGet};
 pub use response::{
-    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail, AssertionDocument, AssertionDomain,
     AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
 };

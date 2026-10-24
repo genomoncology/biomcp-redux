@@ -89,6 +89,9 @@ pub struct AssertionDetail {
     /// All source conditions; ID-only conditions stay ID-only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub conditions: Box<[AssertionCondition]>,
+    /// Native trait relationships, kept separate from assertion conditions.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub condition_relationships: Box<[AssertionConditionRelationship]>,
     /// Source origin labels without reducing multiple observations.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub origins: Box<[Text]>,
@@ -113,6 +116,19 @@ pub struct AssertionDetail {
     /// Native document versions offered by the source.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub versions: Box<[Text]>,
+}
+/// A source trait relationship without assigning a clinical interpretation.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AssertionConditionRelationship {
+    /// Relationship type exactly supplied by the source.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub relationship_type: Option<Text>,
+    /// Conditions on the source trait that owns this relationship.
+    pub source_conditions: Box<[AssertionCondition]>,
+    /// Conditions named by the related source trait.
+    pub related_conditions: Box<[AssertionCondition]>,
 }
 /// A native condition with independently optional identifier and label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

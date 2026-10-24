@@ -96,7 +96,7 @@ pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
 
 mod variant_assertions;
 pub use variant_assertions::{
-    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail, AssertionDocument, AssertionDomain,
     AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
 };
 mod variant_civic;
