@@ -197,8 +197,27 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
     ) -> Result<T, RequestError> {
+        self.post_json_decoded(ep, params, body, Decoder::json())
+    }
+
+    /// Recheck request-bound identity before admitting or reusing a JSON POST reply.
+    pub fn post_json_checked_cache<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        body: &B,
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<T, RequestError> {
+        self.post_json_decoded(ep, &[], body, Decoder::json().cache_if(&cache_if))
+    }
+
+    fn post_json_decoded<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        body: &B,
+        codec: Decoder<'_, T>,
+    ) -> Result<T, RequestError> {
         self.validate(ep, true)?;
-        let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
             ep.path.to_string()
