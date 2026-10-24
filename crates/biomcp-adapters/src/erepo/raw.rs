@@ -23,6 +23,9 @@ impl Reply for ReplyBody {
                     r.ca_id.parse::<biodata::VariantId>().is_ok()
                         && !r.id.is_empty()
                         && !r.classification.is_empty()
+                        // Mapping validates every field that reaches the output.
+                        // Do this before cache admission, using the same rules.
+                        && r.clone().map().is_ok()
                 })
             }) =>
             {
@@ -45,7 +48,7 @@ impl Reply for ReplyBody {
         }
     }
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub(super) struct Record {
     #[serde(rename = "caId")]
     pub ca_id: String,

@@ -5,9 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant/assertions-erepo-invalid-fields-never-cache", || {
-            invalid_fields().map_err(Into::into)
-        }),
+        Trial::test(
+            "variant/assertions-erepo-invalid-fields-never-cache",
+            || invalid_fields().map_err(Into::into),
+        ),
         Trial::test(
             "variant/assertions-synthetic-drug-response-stays-native",
             || drug_response().map_err(Into::into),
@@ -161,25 +162,34 @@ fn wrong_identity() -> Result<(), String> {
 fn invalid_fields() -> Result<(), String> {
     for (field, invalid) in [("approvedDate", "invalid"), ("docVersion", "")] {
         let mut count = 0;
-        let stub = Stub::for_source_status("erepo.clinicalgenome.org", "application/json", move |_| {
-            count += 1;
-            let mut reply: Value = serde_json::from_str(&body("CA000434"))
-                .map_err(|e| e.to_string())?;
-            if count == 1 {
-                reply["data"][0][field] = json!(invalid);
-            }
-            Ok(reply.to_string())
-        }, |_| 200)?;
+        let stub = Stub::for_source_status(
+            "erepo.clinicalgenome.org",
+            "application/json",
+            move |_| {
+                count += 1;
+                let mut reply: Value =
+                    serde_json::from_str(&body("CA000434")).map_err(|e| e.to_string())?;
+                if count == 1 {
+                    reply["data"][0][field] = json!(invalid);
+                }
+                Ok(reply.to_string())
+            },
+            |_| 200,
+        )?;
         let env = environment(&stub)?;
         let bad = call(&env, &[])?;
         if bad.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
             return Err(format!("invalid {field} accepted: {bad}"));
         }
         let recovered = call(&env, &[])?;
-        if recovered.pointer("/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version")
-            != Some(&json!("1.1.0")) || stub.finish()?.len() != 2
+        if recovered.pointer(
+            "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version",
+        ) != Some(&json!("1.1.0"))
+            || stub.finish()?.len() != 2
         {
-            return Err(format!("invalid {field} persisted instead of recovering: {recovered}"));
+            return Err(format!(
+                "invalid {field} persisted instead of recovering: {recovered}"
+            ));
         }
     }
     Ok(())
