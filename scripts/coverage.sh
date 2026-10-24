@@ -15,10 +15,11 @@ threshold=$(awk '
     }
 ' coverage.floor) || { echo 'coverage: invalid coverage.floor' >&2; exit 1; }
 
+coverage_env=$(cargo llvm-cov show-env --sh)
+eval "$coverage_env"
+
 case "${1:-run}" in
     run)
-        coverage_env=$(cargo llvm-cov show-env --sh)
-        eval "$coverage_env"
         cargo llvm-cov clean --workspace
         profile_dir=${LLVM_PROFILE_FILE%/*}
         case "$profile_dir" in
