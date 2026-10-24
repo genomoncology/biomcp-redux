@@ -15,11 +15,20 @@ fn get_rejects_empty_and_oversized_batches_at_constructor_and_json_boundary() {
         );
     }
     for sections in [json!([]), json!(["constraint", "all", "constraint"])] {
-        let query: GeneGet = serde_json::from_value(json!({"input":["BRAF"],"section":sections})).unwrap();
+        let query: GeneGet =
+            serde_json::from_value(json!({"input":["BRAF"],"section":sections})).unwrap();
         assert_eq!(query.sections().len(), sections.as_array().unwrap().len());
     }
-    for sections in [json!(["Constraint"]), json!(["unknown"]), json!(null), json!("constraint")] {
-        assert!(serde_json::from_value::<GeneGet>(json!({"input":["BRAF"],"section":sections})).is_err());
+    for sections in [
+        json!(["Constraint"]),
+        json!(["unknown"]),
+        json!(null),
+        json!("constraint"),
+    ] {
+        assert!(
+            serde_json::from_value::<GeneGet>(json!({"input":["BRAF"],"section":sections}))
+                .is_err()
+        );
     }
 }
 #[test]
