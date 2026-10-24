@@ -54,8 +54,9 @@ pub trait XmlReply: Reply {
     }
 }
 
+type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biodata::Reason> + 'a;
 pub(crate) struct Decoder<'a, T> {
-    validate: Option<&'a dyn Fn(&[u8]) -> Result<(), biodata::Reason>>,
+    validate: Option<&'a BodyCheck<'a>>,
     codec: Codec,
     pub(crate) limit: Option<u64>,
     octet_stream: bool,
