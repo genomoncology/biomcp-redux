@@ -32,7 +32,10 @@ pub(crate) fn backoff(identity: &[u8; 32], attempt: u32) -> Duration {
     BASE_BACKOFF * (1 << attempt) + Duration::from_millis(seed % 100)
 }
 
-pub(crate) fn wait(delay: Duration, deadline: Deadline) -> bool {
+pub(crate) fn wait(delay: Duration, deadline: Deadline<'_>) -> bool {
+    if deadline.virtual_time() {
+        return deadline.advance(delay);
+    }
     let Some(end) = Instant::now().checked_add(delay) else {
         return false;
     };

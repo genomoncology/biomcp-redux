@@ -26,7 +26,7 @@ impl Reply for Answer {
 pub(super) struct Request<T> {
     pub(super) text: String,
     observation: T,
-    reply: mpsc::Sender<String>,
+    reply: mpsc::Sender<Vec<u8>>,
 }
 impl<T> std::ops::Deref for Request<T> {
     type Target = T;
@@ -43,7 +43,10 @@ impl<T> Request<T> {
         self.raw(&response);
     }
     pub(super) fn raw(self, response: &str) {
-        let _ = self.reply.send(response.to_owned());
+        self.bytes(response.as_bytes().to_vec());
+    }
+    pub(super) fn bytes(self, response: Vec<u8>) {
+        let _ = self.reply.send(response);
     }
     pub(super) fn ok(self) {
         self.respond(200, "", r#"{"answer":true}"#);
@@ -91,7 +94,7 @@ impl<T: Default + Send + 'static> Server<T> {
                 }
                 handlers.push(thread::spawn(move || {
                     if let Ok(response) = receive.recv_timeout(Duration::from_secs(10)) {
-                        let _ = stream.write_all(response.as_bytes());
+                        let _ = stream.write_all(&response);
                     }
                 }));
             }
@@ -106,7 +109,9 @@ impl<T: Default + Send + 'static> Server<T> {
         }
     }
     pub(super) fn next(&self) -> Request<T> {
-        self.requests.recv_timeout(Duration::from_secs(10)).unwrap()
+        let request = self.requests.recv_timeout(Duration::from_secs(10)).unwrap();
+        assert!(request.text.starts_with("GET "));
+        request
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {

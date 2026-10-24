@@ -36,6 +36,8 @@ pub enum FetchError {
     BodyLimit,
     /// The explicit cache could not be opened safely.
     Cache(CacheError),
+    /// Local recording ownership or content failure.
+    Recording(RecordError),
 }
 
 impl fmt::Display for FetchError {
@@ -44,6 +46,7 @@ impl fmt::Display for FetchError {
             Self::Proxy => "fetch.proxy",
             Self::BodyLimit => "fetch.body_limit",
             Self::Cache(error) => return error.fmt(f),
+            Self::Recording(error) => return error.fmt(f),
         })
     }
 }
@@ -78,6 +81,8 @@ pub enum RequestError {
     Source(SourceError),
     /// Local cache access or validation failed.
     Cache(CacheError),
+    /// Local recording ownership or content failure.
+    Recording(RecordError),
 }
 impl From<SourceError> for RequestError {
     fn from(error: SourceError) -> Self {
@@ -94,7 +99,46 @@ impl fmt::Display for RequestError {
         match self {
             Self::Source(error) => error.fmt(f),
             Self::Cache(error) => error.fmt(f),
+            Self::Recording(error) => error.fmt(f),
         }
     }
 }
 impl std::error::Error for RequestError {}
+
+/// Local recording failures never retain paths, URLs or provider text.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RecordError {
+    /// The capture directory is nonempty or already owned.
+    Conflict,
+    /// Local recording I/O failed.
+    Io,
+    /// No file matches this source and request identity.
+    Missing,
+    /// Every exchange for this request was consumed.
+    Exhausted,
+    /// Recording metadata or exchange content is invalid.
+    Malformed,
+    /// Recording size or sequence bounds were exceeded.
+    Limit,
+    /// Binary capture needs a future sidecar representation.
+    NonUtf8,
+}
+impl fmt::Display for RecordError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Conflict => "fetch.record_conflict",
+            Self::Io => "fetch.record_io",
+            Self::Missing => "fetch.record_missing",
+            Self::Exhausted => "fetch.record_exhausted",
+            Self::Malformed => "fetch.record_malformed",
+            Self::Limit => "fetch.record_limit",
+            Self::NonUtf8 => "fetch.record_non_utf8",
+        })
+    }
+}
+impl std::error::Error for RecordError {}
+impl From<RecordError> for RequestError {
+    fn from(error: RecordError) -> Self {
+        Self::Recording(error)
+    }
+}
