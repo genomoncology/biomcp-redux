@@ -35,10 +35,9 @@ fn candidate() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
-    eprintln!(
-        "Hotspots candidate envelope bytes: {}",
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
-    );
+    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 1536 {
+        return Err("hotspots default envelope exceeded its measured ceiling".into());
+    }
     let base = "/result/candidates/0/sections/hotspots/data";
     for (path, expected) in [
         ("/reason", json!("no_join_id")),

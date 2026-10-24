@@ -252,8 +252,19 @@ fn source_environment(
 }
 fn unjoined() -> Result<(), String> {
     let (environment, source) = source_environment(wrong_body)?;
-    for _ in 0..2 {
-        let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
+    let recording = environment.root().join("record");
+    fs::create_dir(&recording).map_err(|e| e.to_string())?;
+    let recording = fs::canonicalize(recording).map_err(|e| e.to_string())?;
+    let recording = recording.to_str().ok_or("recording path is not UTF-8")?;
+    for attempt in 0..3 {
+        let mut args = vec!["get", "variant", "CA123643", "civic"];
+        if attempt == 0 {
+            args.extend(["--record", recording]);
+        }
+        if attempt == 2 {
+            args.extend(["--civic-profile", "99", "--civic-kind", "evidence"]);
+        }
+        let value = run(&environment, &args)?;
         let base = "/result/candidates/0/sections/civic/data/profiles/0";
         if value.pointer(&format!("{base}/membership")) != Some(&json!("candidate"))
             || value
@@ -269,12 +280,21 @@ fn unjoined() -> Result<(), String> {
             ));
         }
     }
+    let replay = run(
+        &environment,
+        &["--replay", recording, "get", "variant", "CA123643", "civic"],
+    )?;
+    if replay.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership")
+        != Some(&json!("candidate"))
+    {
+        return Err("replayed source member mismatch became an exact claim".into());
+    }
     let offline = run(
         &environment,
         &["--offline", "get", "variant", "CA123643", "civic"],
     )?;
     if offline.pointer("/sources/0/reason") != Some(&json!("offline"))
-        || source.finish()?.len() != 2
+        || source.finish()?.len() != 3
     {
         return Err("unjoined profile entered or reused the source cache".into());
     }
@@ -335,8 +355,14 @@ fn compound() -> Result<(), String> {
 }
 fn wrong_body(request: &str) -> Result<String, String> {
     let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
-    *raw.pointer_mut("/data/molecularProfiles/nodes/0/variants/0/alleleRegistryId")
-        .ok_or("member identity")? = json!("CA999999");
+    let (_, body) = request
+        .split_once("\r\n\r\n")
+        .ok_or("missing request body")?;
+    let request: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    if request.pointer("/variables/ids/0") != Some(&json!(99)) {
+        *raw.pointer_mut("/data/molecularProfiles/nodes/0/variants/0/alleleRegistryId")
+            .ok_or("member identity")? = json!("CA999999");
+    }
     Ok(raw.to_string())
 }
 fn compound_body(request: &str) -> Result<String, String> {
