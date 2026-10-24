@@ -93,11 +93,37 @@ fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
 }
 
 /// A short complete pool offers caller-controlled alternatives without running them.
-pub(super) fn term_drops(query: &biodata::ArticleSearch, total: u64, partial: bool, out: &mut Outcome) {
+pub(super) fn search(
+    query: &biodata::ArticleSearch,
+    total: u64,
+    partial: bool,
+    out: &mut Outcome,
+) {
+    variant_step(query, out);
     if !partial && total < u64::from(query.limit()) {
-        out.next.extend(query.term_drops().into_iter().map(|query| (
+        out.next.extend(query.term_drops().into_iter().map(|query| {
+            (
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::SearchArticle(query),
+                    fresh: false,
+                },
+            )
+        }));
+    }
+}
+
+fn variant_step(search: &biodata::ArticleSearch, out: &mut Outcome) {
+    if search.sources() == [biodata::ArticleSource::Pubmed]
+        && search.gene().is_some()
+        && search.variant().is_some()
+    {
+        out.next.push((
             StepKind::Disambiguate,
-            Action::Run { request: Request::SearchArticle(query), fresh: false },
-        )));
+            crate::Action::Run {
+                request: Request::SearchArticle(search.with_litvar()),
+                fresh: false,
+            },
+        ));
     }
 }
