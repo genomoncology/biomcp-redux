@@ -109,10 +109,22 @@ impl Leg<'_> {
         if offline && old.is_none() {
             return Err(self.failure(biodata::Reason::Offline, None).into());
         }
-        let forced = replay || self.fresh || matches!(self.fetch.config.mode, Mode::Record { .. });
+        // One command can make several indexed lookups against the same bundle.
+        // Fresh revalidates once for this leg, including its concurrent children.
+        let mut refreshed = self.fresh.then(|| {
+            self.refreshed_bundles
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+        });
+        let force_fresh = refreshed.as_ref().is_some_and(|names| !names.contains(bundle.name));
+        let forced = replay || force_fresh || matches!(self.fetch.config.mode, Mode::Record { .. });
         if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {
-                Ok(_) => {}
+                Ok(_) => {
+                    if let Some(names) = &mut refreshed {
+                        names.insert(bundle.name);
+                    }
+                }
                 Err(RequestError::Source(error))
                     if old.is_some()
                         && matches!(self.fetch.config.mode, Mode::Live { .. })

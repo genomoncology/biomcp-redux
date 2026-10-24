@@ -189,6 +189,7 @@ impl Fetch {
             no_key,
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,
+            refreshed_bundles: Default::default(),
             fresh: matches!(self.config.mode, Mode::Live { fresh: true }),
         }
     }
@@ -210,6 +211,7 @@ pub struct Leg<'a> {
     report: std::sync::Arc<std::sync::Mutex<LegReport>>,
     nested_batch: bool,
     fresh: bool,
+    refreshed_bundles: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
 }
 
 /// Request policy for live provider access.
