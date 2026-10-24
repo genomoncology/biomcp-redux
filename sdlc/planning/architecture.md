@@ -522,7 +522,7 @@ pub enum StepKind { Page, Fresh, Disambiguate, Sync }
 pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing }
 ```
 
-`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Action` into a `Step` through the grammar (section 8.3). `Action::Run { request, fresh }` retains request policy; `Action::Sync { bundle }` names housekeeping without inventing an entity request. The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
+`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Action` into a `Step` through the grammar (section 8.3). `Action::Run { request, fresh }` retains request policy; `Action::Sync { bundle }` names source-level housekeeping without inventing an entity request. The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
 
 ### 3.9 Schemas and versions
 

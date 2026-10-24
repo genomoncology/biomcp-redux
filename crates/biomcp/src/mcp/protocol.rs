@@ -33,7 +33,7 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
 }
 
 pub(super) fn tool() -> Value {
-    json!({"name":"biomcp", "description":format!("Run BioMCP commands. get gene <input>...; search gene [text] [--band band]; sync [hgnc|hgnc-withdrawn]; schema <artifact id>\nArtifacts: {}", crate::schema::names().collect::<Vec<_>>().join(", ")),
+    json!({"name":"biomcp", "description":format!("Run BioMCP commands. get gene <input>...; search gene [text] [--band band]; sync [hgnc]; schema <artifact id>\nArtifacts: {}", crate::schema::names().collect::<Vec<_>>().join(", ")),
         "inputSchema":{"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},
             "required":["args"],"additionalProperties":false},"outputSchema":{"type":"object"}})
 }

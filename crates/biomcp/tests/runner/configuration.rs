@@ -79,20 +79,20 @@ fn ownership() -> Check {
         return Err("replay wrote the user cache".into());
     }
     let sync_case = env.root().join("sync-case");
-    for bundle in ["hgnc", "hgnc-withdrawn"] {
-        let value = invoke(
-            &env,
-            cached(&["sync", bundle], &sync_case, Some(&root())),
-            0,
-        )?;
-        if value.get("schema") != Some(&json!("biomcp.sync/1"))
-            || value
-                .pointer("/result/rows")
-                .and_then(Value::as_u64)
-                .is_none_or(|count| count == 0)
-        {
-            return Err("sync lost bundle metadata".into());
-        }
+    let value = invoke(
+        &env,
+        cached(&["sync", "hgnc"], &sync_case, Some(&root())),
+        0,
+    )?;
+    if value.get("schema") != Some(&json!("biomcp.sync/1"))
+        || value.pointer("/result/rows") != Some(&json!(175))
+        || value.pointer("/query/source") != Some(&json!("hgnc"))
+    {
+        return Err("source sync lost metadata".into());
+    }
+    let withdrawn = invoke(&env, cached(&["get", "gene", "BRCA3"], &sync_case, None), 0)?;
+    if withdrawn.pointer("/result/items/0/answer/resolution") != Some(&json!("withdrawn")) {
+        return Err("HGNC sync omitted withdrawn identity".into());
     }
     Ok(())
 }

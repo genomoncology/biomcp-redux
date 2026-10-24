@@ -4,10 +4,8 @@ use biomcp_fetch::RequestError;
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
-    /// Approved HGNC records.
+    /// The HGNC identity source, including approved and withdrawn records.
     Hgnc,
-    /// Withdrawn HGNC records.
-    HgncWithdrawn,
 }
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -47,13 +47,13 @@ pub enum QueryBody {
     GenePage(GenePage),
 }
 
-/// Explicit synchronization selector.
+/// Explicit source synchronization selector.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncQuery {
-    /// Declared bundle name.
-    pub bundle: String,
+    /// Source whose complete identity data is synchronized.
+    pub source: crate::Source,
 }
 /// Published bundle metadata after synchronization.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

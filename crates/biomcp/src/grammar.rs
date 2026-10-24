@@ -60,7 +60,7 @@ fn root() -> Result<Command, ()> {
         );
     }
     root = root.subcommand(
-        Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "hgnc-withdrawn"])),
+        Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])),
     );
     Ok(root.subcommand(Command::new("serve")))
 }
@@ -85,13 +85,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         });
     }
     let action = if verb == "sync" {
-        Action::Sync {
-            bundle: if matches
-                .get_one::<String>("bundle")
-                .is_some_and(|value| value == "hgnc-withdrawn")
-            {
-                Bundle::HgncWithdrawn
-            } else {
+        Action::Sync { bundle: Bundle::Hgnc }
+    } else {
                 Bundle::Hgnc
             },
         }
