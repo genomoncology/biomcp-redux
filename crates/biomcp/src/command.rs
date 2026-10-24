@@ -4,7 +4,7 @@ use biomcp_query::{Action, Bundle};
 use serde_json::Value;
 use std::{ffi::OsString, io};
 mod next;
-use next::{next_steps, source_steps};
+use next::{network_steps, next_steps};
 
 pub(crate) struct Outcome {
     pub(crate) value: Value,

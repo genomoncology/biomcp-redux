@@ -13,10 +13,7 @@ pub(super) fn next_steps(
     Ok(source_steps(fetch, steps))
 }
 
-pub(super) fn source_steps(
-    fetch: &biomcp_fetch::Fetch,
-    steps: Vec<biodata::Step>,
-) -> Vec<biodata::Step> {
+fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
     let disabled = biomcp_adapters::registry::SOURCES
         .iter()
         .filter(|s| fetch.disabled(s.source))
@@ -43,7 +40,7 @@ pub(super) fn source_steps(
         .collect()
 }
 
-fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
+pub(super) fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
     for (reason, setting) in [
         (biodata::Reason::Tls, "ca_bundle"),
         (biodata::Reason::Proxy, "proxy"),
