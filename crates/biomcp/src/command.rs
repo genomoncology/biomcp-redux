@@ -60,6 +60,17 @@ fn dispatch_using(
     if action == Action::KeyHelp {
         return key_help();
     }
+    if let Action::Run {
+        request: Request::SearchArticle(query),
+        ..
+    } = &action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        );
+    }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => {
@@ -103,17 +114,15 @@ fn response(
     request: Request,
     result: biomcp_query::Outcome,
 ) -> io::Result<Outcome> {
-    let status = if result.local.is_some() {
-        crate::exit::Status::Local
-    } else {
-        crate::exit::Status::from(result.status)
-    };
+    let status = response_status(&result);
     let steps = next_steps(fetch, &result)?;
     match (request, result.body) {
-        (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
-            biodata::ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::UnsupportedFilter { source, option }) => {
+            usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
+        }
+        (Request::ArticleText(_), QueryBody::TextPositionError) => {
+            usage_envelope(biodata::ErrorEnvelope::arguments())
+        }
         (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
             let mut envelope = Envelope::new(result.status, query, Some(body));
             envelope.sources = result.sources;
@@ -123,10 +132,9 @@ fn response(
             encode(envelope, status)
         }
 
-        (_, QueryBody::TooManyPmids { count }) => encode(
-            biodata::ErrorEnvelope::too_many_pmids(count),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::TooManyPmids { count }) => {
+            usage_envelope(biodata::ErrorEnvelope::too_many_pmids(count))
+        }
         (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
@@ -337,6 +345,10 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
     )
 }
 
+fn usage_envelope(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
+    encode(error, crate::exit::Status::Usage)
+}
+
 fn next_steps(
     fetch: &biomcp_fetch::Fetch,
     result: &biomcp_query::Outcome,
@@ -403,4 +415,12 @@ fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutco
         }
     }
     steps.truncate(5);
+}
+
+fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
+    if result.local.is_some() {
+        crate::exit::Status::Local
+    } else {
+        crate::exit::Status::from(result.status)
+    }
 }

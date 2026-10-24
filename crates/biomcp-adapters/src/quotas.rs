@@ -64,3 +64,7 @@ pub(crate) static PMC_OA: Quota =
 // Conservative local iCite policy; no published numeric provider limit verified.
 pub(crate) static ICITE: Quota =
     Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);
+
+// Conservative local LitVar2 policy; no published numeric rate verified.
+pub(crate) static LITVAR: Quota =
+    Quota::new(SourceKey::declare("litvar"), Rate::per_second(3), None, 3);

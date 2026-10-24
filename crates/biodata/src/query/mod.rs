@@ -1,8 +1,8 @@
 //! Checked command inputs shared by every interface.
 mod article;
 mod article_get;
+pub use article::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 mod article_text;
-pub use article::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use article_text::ArticleText;
 mod gene;
