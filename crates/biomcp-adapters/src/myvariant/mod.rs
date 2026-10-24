@@ -1,5 +1,6 @@
 //! MyVariant exact source identities and compact component-attributed facts.
 mod map;
+mod metadata;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
