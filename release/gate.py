@@ -42,9 +42,16 @@ def installed(args):
         results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
         print(json.dumps(results[-1]), flush=True)
     venv = root / "venv"
-    subprocess.run([args.python, "-m", "venv", str(venv)], check=True)
+    subprocess.run([args.python, "-m", "venv", "--without-pip", str(venv)], check=True)
     python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-    subprocess.run([str(python), "-m", "pip", "install", "--no-index", "--no-deps", str(wheel)], check=True, env={**environment(root), "PATH": os.defpath, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1"})
+    install_env = {**environment(root), "PATH": os.defpath, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1", "UV_CACHE_DIR": str(root / "uv-cache")}
+    uv = shutil.which("uv")
+    if uv:
+        installer = [uv, "--offline", "--no-config", "pip", "install", "--python", str(python)]
+    else:
+        subprocess.run([str(python), "-m", "ensurepip"], check=True, env=install_env)
+        installer = [str(python), "-m", "pip", "install"]
+    subprocess.run(installer + ["--no-index", "--no-deps", str(wheel)], check=True, env=install_env)
     check("wheel", venv / ("Scripts/biomcp.exe" if os.name == "nt" else "bin/biomcp"))
     archive = next(output.glob("*.tar.gz"))
     destination = root / "installer-bin"
