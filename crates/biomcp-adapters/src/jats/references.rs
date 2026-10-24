@@ -63,15 +63,21 @@ fn typed_ids(xml: &str, kinds: &[&str]) -> Result<Box<[Text]>, BadReply> {
 }
 
 /// One original JATS paragraph and its explicit reference relationships.
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Paragraph {
     /// Whole original paragraph as Markdown.
-    pub markdown:String,
+    pub markdown: String,
     /// Exact source xref/rid identifiers.
-    pub references:Box<[Text]>,
+    pub references: Box<[Text]>,
 }
-pub(super) fn paragraphs(xml:&str)->Result<Vec<Paragraph>,BadReply> {
-    blocks::descendants(xml,"p")?.into_iter().map(|node|Ok(Paragraph {
-        markdown:super::markdown::inline(node.0)?.trim().to_owned(),references:ids(node.0)?,
-    })).collect()
+pub(super) fn paragraphs(xml: &str) -> Result<Vec<Paragraph>, BadReply> {
+    blocks::descendants(xml, "p")?
+        .into_iter()
+        .map(|node| {
+            Ok(Paragraph {
+                markdown: super::markdown::inline(node.0)?.trim().to_owned(),
+                references: ids(node.0)?,
+            })
+        })
+        .collect()
 }

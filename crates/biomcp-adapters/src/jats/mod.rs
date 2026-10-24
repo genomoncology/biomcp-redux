@@ -9,7 +9,7 @@ mod render;
 const MAX_MARKDOWN_BYTES: usize = 8 * 1024 * 1024;
 mod table;
 pub use body::BodyRow;
-pub use references::{Reference,Paragraph};
+pub use references::{Paragraph, Reference};
 mod markdown;
 /// Preserve JATS inline markup in a checked Markdown value.
 pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> {

@@ -77,15 +77,29 @@ fn paragraphs(
         })
         .map(|r| &r.id)
         .collect();
-    let mut paragraphs=Vec::new();
-    let mut position=0;
-    for (index,row) in document.body.rows.iter().enumerate() {
+    let mut paragraphs = Vec::new();
+    let mut position = 0;
+    for (index, row) in document.body.rows.iter().enumerate() {
         for paragraph in &row.paragraphs {
-            position+=1;
-            if !paragraph.references.iter().any(|id|refs.contains(&id)) {continue}
-            let Some(part)=document.body.parts.iter().find(|p|p.rows.iter().any(|r|r.source_row==index))else{continue};
-            for (offset,text) in super::page::split(&paragraph.markdown) {
-                paragraphs.push(EvidenceParagraph{position,part:part.meta.number,character_offset:offset,markdown:biodata::Markdown::new(&text).map_err(|_|super::bad())?});
+            position += 1;
+            if !paragraph.references.iter().any(|id| refs.contains(&id)) {
+                continue;
+            }
+            let Some(part) = document
+                .body
+                .parts
+                .iter()
+                .find(|p| p.rows.iter().any(|r| r.source_row == index))
+            else {
+                continue;
+            };
+            for (offset, text) in super::page::split(&paragraph.markdown) {
+                paragraphs.push(EvidenceParagraph {
+                    position,
+                    part: part.meta.number,
+                    character_offset: offset,
+                    markdown: biodata::Markdown::new(&text).map_err(|_| super::bad())?,
+                });
             }
         }
     }

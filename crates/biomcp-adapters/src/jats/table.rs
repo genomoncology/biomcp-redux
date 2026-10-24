@@ -54,7 +54,11 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         });
     }
     let mut rows = vec![BodyRow {
-        paragraphs: table.child("caption")?.map(|node|references::paragraphs(node.0)).transpose()?.unwrap_or_default(),
+        paragraphs: table
+            .child("caption")?
+            .map(|node| references::paragraphs(node.0))
+            .transpose()?
+            .unwrap_or_default(),
         plain: format!("{label} {}", table.value(&["caption"])?.unwrap_or_default()),
         markdown: caption.clone(),
         context: true,

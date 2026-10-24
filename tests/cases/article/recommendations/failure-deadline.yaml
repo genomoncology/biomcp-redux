@@ -10,7 +10,7 @@
         "recommendations",
         "17611497"
       ],
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/sources/0/reason": "deadline_exceeded"
@@ -19,7 +19,7 @@
     {
       "follow": "fresh",
       "offline": true,
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed"
       }

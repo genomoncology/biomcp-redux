@@ -10,16 +10,16 @@
         "recommendations",
         "17611497"
       ],
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "server_error"
+        "/sources/0/reason": "unavailable"
       }
     },
     {
       "follow": "fresh",
       "offline": true,
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed"
       }
