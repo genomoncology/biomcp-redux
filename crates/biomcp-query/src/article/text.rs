@@ -141,12 +141,13 @@ fn select(
             .iter()
             .find(|p| p.meta.number == number)?;
         content.part = Some(number);
-        content.text = Text::new(&part.rows.join("\n")).ok();
+        content.text = Text::new(&part.rows.iter().map(|r| r.text.as_str()).collect::<Vec<_>>().join("\n")).ok();
         if part.continuation {
             super::sections::fulltext::next(id, number.checked_add(1)?, &mut out.next);
         }
     } else {
         let needle = query.find()?.as_str().to_lowercase();
+        let matching: Vec<_> = document.body.rows.iter().map(|r| r.to_lowercase().contains(&needle)).collect();
         let hits: Vec<_> = document
             .body
             .parts
@@ -154,8 +155,8 @@ fn select(
             .flat_map(|p| {
                 p.rows
                     .iter()
-                    .filter(|row| row.to_lowercase().contains(&needle))
-                    .map(|row| (p.meta.number, row))
+                    .filter(|row| matching.get(row.source_row).copied().unwrap_or(false))
+                    .map(|row| (p.meta.number, &row.text))
             })
             .collect();
         let offset = usize::try_from(query.offset()).ok()?;

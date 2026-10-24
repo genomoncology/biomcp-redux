@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c405c30fa60b9904eab81c9c758de6b119c3bcff73eb21fafe9e23122636bf83"
+  },
+  "exchanges": [
+    {
+      "fetched": 1792842757,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 172,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esummary","version":"0.3"},"result":{"uids":["35440569"],"35440569":{"uid":"35440569","pubdate":"2022 Apr 19","epubdate":"2022 Apr 19","source":"Nat Commun","authors":[{"name":"Shrestha Bhattarai T","authtype":"Author","clusterid":""},{"name":"Shamu T","authtype":"Author","clusterid":""},{"name":"Gorelick AN","authtype":"Author","clusterid":""},{"name":"Chang MT","authtype":"Author","clusterid":""},{"name":"Chakravarty D","authtype":"Author","clusterid":""},{"name":"Gavrila EI","authtype":"Author","clusterid":""},{"name":"Donoghue MTA","authtype":"Author","clusterid":""},{"name":"Gao J","authtype":"Author","clusterid":""},{"name":"Patel S","authtype":"Author","clusterid":""},{"name":"Gao SP","authtype":"Author","clusterid":""},{"name":"Reynolds MH","authtype":"Author","clusterid":""},{"name":"Phillips SM","authtype":"Author","clusterid":""},{"name":"Soumerai T","authtype":"Author","clusterid":""},{"name":"Abida W","authtype":"Author","clusterid":""},{"name":"Hyman DM","authtype":"Author","clusterid":""},{"name":"Schram AM","authtype":"Author","clusterid":""},{"name":"Solit DB","authtype":"Author","clusterid":""},{"name":"Smyth LM","authtype":"Author","clusterid":""},{"name":"Taylor BS","authtype":"Author","clusterid":""}],"lastauthor":"Taylor BS","title":"AKT mutant allele-specific activation dictates pharmacologic sensitivities.","sorttitle":"akt mutant allele specific activation dictates pharmacologic sensitivities","volume":"13","issue":"1","pages":"2111","lang":["eng"],"nlmuniqueid":"101528555","issn":"","essn":"2041-1723","pubtype":["Clinical Trial, Phase II","Journal Article","Research Support, N.I.H., Extramural","Research Support, Non-U.S. Gov't"],"recordstatus":"PubMed - indexed for MEDLINE","pubstatus":"3","articleids":[{"idtype":"pubmed","idtypen":1,"value":"35440569"},{"idtype":"pmc","idtypen":8,"value":"PMC9018718"},{"idtype":"pmcid","idtypen":5,"value":"pmc-id: PMC9018718;"},{"idtype":"doi","idtypen":3,"value":"10.1038/s41467-022-29638-1"},{"idtype":"pii","idtypen":4,"value":"10.1038/s41467-022-29638-1"}],"history":[{"pubstatus":"received","date":"2019/10/03 00:00"},{"pubstatus":"accepted","date":"2022/03/25 00:00"},{"pubstatus":"entrez","date":"2022/04/20 05:27"},{"pubstatus":"pubmed","date":"2022/04/21 06:00"},{"pubstatus":"medline","date":"2022/04/22 06:00"},{"pubstatus":"pmc-release","date":"2022/04/19 00:00"}],"references":[],"attributes":["Has Abstract"],"pmcrefcount":60,"fulljournalname":"Nature communications","elocationid":"doi: 10.1038/s41467-022-29638-1","doctype":"citation","srccontriblist":[],"booktitle":"","medium":"","edition":"","publisherlocation":"","publishername":"","srcdate":"","reportnumber":"","availablefromurl":"","locationlabel":"","doccontriblist":[],"docdate":"","bookname":"","chapter":"","sortpubdate":"2022/04/19 00:00","sortfirstauthor":"Shrestha Bhattarai T","vernaculartitle":""}}}
+      }
+    }
+  ]
+}

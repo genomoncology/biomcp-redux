@@ -4,7 +4,7 @@ mod parts;
 use crate::xml_element::Element;
 use biodata::{FigureCaption, Pmcid, Text, TextPartKind};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
-pub use parts::{Part, TEXT_BYTES, escaped_bytes};
+pub use parts::{Part, Row, TEXT_BYTES, escaped_bytes};
 use serde::{Deserialize, Deserializer};
 /// Body text with source row boundaries and deterministic reading order.
 #[derive(Debug)]
@@ -13,6 +13,8 @@ pub struct Body {
     pub pmcid: Option<Pmcid>,
     /// Bounded body parts.
     pub parts: Vec<Part>,
+    /// Whole original paragraphs and table rows, used to find text across fragment boundaries.
+    pub rows: Vec<String>,
     /// Figure captions in source order.
     pub figures: Vec<FigureCaption>,
 }
@@ -38,6 +40,7 @@ impl XmlReply for Body {
         let tables = blocks::descendants(body.0, "table-wrap")?;
         let mut emitted = Vec::new();
         let mut parts = Vec::new();
+        let mut rows = Vec::new();
         for sec in body.children("sec")? {
             let title = sec
                 .value(&["title"])?
@@ -48,6 +51,7 @@ impl XmlReply for Body {
                 &title,
                 TextPartKind::Section,
                 blocks::rows(sec.0, true)?,
+                &mut rows,
             )?;
             for table in &tables {
                 let id = table.attr("id")?;
@@ -56,7 +60,7 @@ impl XmlReply for Body {
                     .is_some_and(|id| cited(sec, id).unwrap_or(false))
                     && !emitted.contains(&table.0)
                 {
-                    append_table(&mut parts, *table)?;
+                    append_table(&mut parts, *table, &mut rows)?;
                     emitted.push(table.0);
                 }
             }
@@ -67,11 +71,12 @@ impl XmlReply for Body {
                 "Body",
                 TextPartKind::Section,
                 blocks::rows(body.0, true)?,
+                &mut rows,
             )?;
         }
         for table in tables {
             if !emitted.contains(&table.0) {
-                append_table(&mut parts, table)?;
+                append_table(&mut parts, table, &mut rows)?;
             }
         }
         let figures = blocks::descendants(body.0, "fig")?
@@ -90,6 +95,7 @@ impl XmlReply for Body {
         Ok(Self {
             pmcid,
             parts,
+            rows,
             figures,
         })
     }
@@ -118,7 +124,7 @@ fn own_id(metadata: Option<Element<'_>>) -> Result<Option<Pmcid>, BadReply> {
 }
 fn cited(sec: Element<'_>, id: &str) -> Result<bool, BadReply> {
     for node in blocks::descendants(sec.0, "xref")? {
-        if node.attr("ref-type")?.as_deref() == Some("table")
+        if matches!(node.attr("ref-type")?.as_deref(), Some("table" | "table-wrap"))
             && node
                 .attr("rid")?
                 .is_some_and(|v| v.split_whitespace().any(|v| v == id))
@@ -128,7 +134,7 @@ fn cited(sec: Element<'_>, id: &str) -> Result<bool, BadReply> {
     }
     Ok(false)
 }
-fn append_table(parts: &mut Vec<Part>, table: Element<'_>) -> Result<(), BadReply> {
+fn append_table(parts: &mut Vec<Part>, table: Element<'_>, rows: &mut Vec<String>) -> Result<(), BadReply> {
     let title = table
         .value(&["label"])?
         .filter(|v| !v.trim().is_empty())
@@ -138,5 +144,6 @@ fn append_table(parts: &mut Vec<Part>, table: Element<'_>) -> Result<(), BadRepl
         &title,
         TextPartKind::Table,
         blocks::rows(table.0, false)?,
+        rows,
     )
 }

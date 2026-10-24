@@ -8,21 +8,33 @@ pub struct Part {
     /// Public outline metadata.
     pub meta: TextPart,
     /// Source paragraphs or table rows, split only for the output bound.
-    pub rows: Vec<String>,
+    pub rows: Vec<Row>,
     /// Following part is a continuation of this source section or table.
     pub continuation: bool,
+}
+/// Bounded fragment of one original source paragraph or table row.
+#[derive(Debug)]
+pub struct Row {
+    /// Source row index in the document's original rows.
+    pub source_row: usize,
+    /// Whole fragment text; concatenating fragments preserves the original row.
+    pub text: String,
 }
 pub(super) fn append(
     out: &mut Vec<Part>,
     title: &str,
     kind: TextPartKind,
     rows: Vec<String>,
+    originals: &mut Vec<String>,
 ) -> Result<(), BadReply> {
     let start = out.len();
     let mut group = Vec::new();
     let mut bytes = 0;
     for row in rows {
-        for piece in split(&row) {
+        let source_row = originals.len();
+        let pieces = split(&row);
+        originals.push(row);
+        for piece in pieces {
             let size = escaped_bytes(&piece);
             if !group.is_empty() && bytes + size + 2 > TEXT_BYTES {
                 push(out, title, kind, std::mem::take(&mut group), bytes)?;
@@ -32,7 +44,7 @@ pub(super) fn append(
                 bytes += 2;
             }
             bytes += size;
-            group.push(piece);
+            group.push(Row { source_row, text: piece });
         }
     }
     if !group.is_empty() {
@@ -48,7 +60,7 @@ fn push(
     out: &mut Vec<Part>,
     title: &str,
     kind: TextPartKind,
-    rows: Vec<String>,
+    rows: Vec<Row>,
     bytes: usize,
 ) -> Result<(), BadReply> {
     out.push(Part {

@@ -28,17 +28,7 @@ pub(super) fn rows(xml: &str, omit_floats: bool) -> Result<Vec<String>, BadReply
                 reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
                 let element = &xml[begin..reader.buffer_position() as usize];
                 if tag.name().as_ref() == "tr" {
-                    let cells = Element(element).children("td")?;
-                    let cells = if cells.is_empty() {
-                        Element(element).children("th")?
-                    } else {
-                        cells
-                    };
-                    row = cells
-                        .into_iter()
-                        .map(Element::text)
-                        .collect::<Result<Vec<_>, _>>()?
-                        .join("\t");
+                    row = cells(element)?;
                 } else {
                     row = MixedText::from_xml(element)?.as_str().to_owned();
                 }
@@ -83,6 +73,23 @@ pub(super) fn descendants<'a>(xml: &'a str, name: &str) -> Result<Vec<Element<'a
                 out.push(Element(&xml[begin..reader.buffer_position() as usize]));
             }
             Event::Eof => return Ok(out),
+            _ => {}
+        }
+    }
+}
+
+fn cells(xml: &str) -> Result<String, BadReply> {
+    let mut reader = Reader::from_str(xml);
+    let mut cells = Vec::new();
+    loop {
+        let begin = reader.buffer_position() as usize;
+        match reader.read_event().map_err(|_| BadReply)? {
+            Event::Start(tag) if matches!(tag.name().as_ref(), "td" | "th") => {
+                reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
+                cells.push(Element(&xml[begin..reader.buffer_position() as usize]).text()?);
+            }
+            Event::Empty(tag) if matches!(tag.name().as_ref(), "td" | "th") => cells.push(String::new()),
+            Event::Eof => return Ok(cells.join("\t")),
             _ => {}
         }
     }
