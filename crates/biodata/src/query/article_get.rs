@@ -55,6 +55,8 @@ crate::source::canonical_enum! {
     ArticleSectionWord, SourceUnknown {
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
+        /// Explicit publisher PDF outline; excluded from all.
+        Pdf => "pdf",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
@@ -70,6 +72,8 @@ crate::source::canonical_enum! {
 crate::source::canonical_enum! {
     /// A landed article section.
     ArticleSection, SourceUnknown {
+        /// Explicit publisher PDF outline; excluded from all.
+        Pdf => "pdf",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.

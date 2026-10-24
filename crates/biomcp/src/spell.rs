@@ -124,6 +124,12 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             else {
                 continue;
             };
+            if property.get("type").and_then(Value::as_str) == Some("boolean") {
+                if value == &Value::Bool(true) {
+                    args.push(format!("--{}", name.replace('_', "-")));
+                }
+                continue;
+            }
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));
             let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {

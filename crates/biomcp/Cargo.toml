@@ -6,6 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+cap.workspace = true
 clap.workspace = true
 serde.workspace = true
 biomcp-fetch = { path = "../biomcp-fetch" }

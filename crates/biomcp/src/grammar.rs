@@ -234,6 +234,10 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         {
             argument = argument.required(true);
         }
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            command = command.arg(argument.action(ArgAction::SetTrue));
+            continue;
+        }
         if property.get("type").and_then(Value::as_str) == Some("array") {
             argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
                 argument
@@ -253,6 +257,12 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            if matches.get_flag(name) {
+                result.insert(name.clone(), Value::Bool(true));
+            }
+            continue;
+        }
         let Some(values) = matches.get_many::<String>(name) else {
             continue;
         };

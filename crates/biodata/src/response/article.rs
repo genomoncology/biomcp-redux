@@ -1,3 +1,5 @@
+mod pdf;
+pub use pdf::{OpenAccessStatus, PdfPart, PdfText, TextOrigin};
 mod supplement;
 use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};
 use serde::{Deserialize, Serialize};

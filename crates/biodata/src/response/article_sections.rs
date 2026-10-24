@@ -44,6 +44,9 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// Publisher PDF outline, requested explicitly and excluded from all.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pdf: Option<Section<crate::PdfText>>,
     /// JATS supplementary files confirmed by the bucket record.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supplements: Option<Section<crate::Supplements>>,

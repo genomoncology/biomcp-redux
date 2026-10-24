@@ -24,6 +24,23 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(input) = input else {
             continue;
         };
+        if item.sections.as_ref().is_some_and(|sections| {
+            matches!(
+                sections.fulltext,
+                Some(biodata::Section::NotApplicable)
+                    | Some(biodata::Section::Unavailable {
+                        reason: biodata::Reason::NotOpen,
+                        ..
+                    })
+            )
+        }) {
+            if let Ok(query) = ArticleGet::with_sections(
+                vec![input.clone()].into(),
+                vec![biodata::ArticleSectionWord::Pdf].into(),
+            ) {
+                push(&mut out.next, StepKind::Section, Request::GetArticle(query));
+            }
+        }
         if !item.more.is_empty() {
             let words = item
                 .more

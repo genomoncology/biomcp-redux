@@ -1,3 +1,4 @@
+pub use article::{OpenAccessStatus, PdfPart, PdfText, TextOrigin};
 mod article;
 pub use article::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,

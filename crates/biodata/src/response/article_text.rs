@@ -83,6 +83,10 @@ pub struct FullText {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextHit {
+    /// Original PDF page; absent for structured JATS rows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub page: Option<u32>,
     /// Outline part containing this text.
     pub part: u32,
     /// Whole bounded source row.
@@ -106,6 +110,18 @@ pub struct ArticleTextResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextContent {
+    /// Present for extracted PDF text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "crate::TextOrigin"))]
+    pub origin: Option<crate::TextOrigin>,
+    /// Original PDF first page for a selected part.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub first_page: Option<u32>,
+    /// Original PDF last page for a selected part.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub last_page: Option<u32>,
     /// Literal protein change spellings searched by an explicit variant selector.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forms: Option<[String; 4]>,

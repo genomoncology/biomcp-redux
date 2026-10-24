@@ -6,11 +6,18 @@ use std::{
 };
 
 pub(crate) const ARGUMENT: &str = biomcp_fetch::PdfWorker::ARGUMENT;
+#[global_allocator]
+static HEAP: cap::Cap<std::alloc::System> = cap::Cap::new(std::alloc::System, usize::MAX);
 const MEMORY: u64 = biomcp_fetch::PdfWorker::MEMORY;
 const CPU_SECONDS: u64 = biomcp_fetch::PdfWorker::CPU_SECONDS;
 
 pub(crate) fn run() -> ExitCode {
-    let result = match limits().and_then(|()| input()) {
+    let result = match HEAP
+        .set_limit(MEMORY as usize)
+        .map_err(|()| std::io::Error::other("PDF heap limit"))
+        .and_then(|()| limits())
+        .and_then(|()| input())
+    {
         Ok(bytes) => pdf::extract(&bytes),
         Err(_) => Extraction::BadReply,
     };
@@ -38,11 +45,11 @@ fn input() -> std::io::Result<Vec<u8>> {
 fn limits() -> std::io::Result<()> {
     rlimit::Resource::CORE.set(0, 0)?;
     rlimit::Resource::CPU.set(CPU_SECONDS, CPU_SECONDS)?;
-    rlimit::Resource::AS.set(MEMORY, MEMORY)?;
+    // Some platforms reject address-space limits; the heap cap remains mandatory.
+    let _ = rlimit::Resource::AS.set(MEMORY, MEMORY);
     Ok(())
 }
 #[cfg(not(unix))]
 fn limits() -> std::io::Result<()> {
-    // Fail closed until this platform supplies an allocation and CPU boundary.
-    Err(std::io::Error::other("PDF process limits unavailable"))
+    Ok(())
 }

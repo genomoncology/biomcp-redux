@@ -93,6 +93,8 @@ canonical_enum! {
         NotFound => "not_found",
         /// The public bucket does not hold an open text record.
         NotOpen => "not_open",
+        /// The publisher link returned a body without a PDF signature.
+        NotPdf => "not_pdf",
         /// The local reader does not support the file or container format.
         Unsupported => "unsupported",
         /// The response exceeds an explicit reader resource bound.

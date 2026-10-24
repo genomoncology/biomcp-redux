@@ -75,3 +75,11 @@ pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
     Some(Rate::per_second(1)),
     1,
 );
+
+// One bounded publisher download per command; no API key or source-specific rate claim.
+pub(crate) static PUBLISHER_PDF: Quota = Quota::new(
+    SourceKey::declare("publisher-pdf"),
+    Rate::per_second(1),
+    None,
+    1,
+);

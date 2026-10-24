@@ -76,3 +76,5 @@ pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;
 pub use response::{Health, SourceHealth};
+
+pub use response::{OpenAccessStatus, PdfPart, PdfText, TextOrigin};
