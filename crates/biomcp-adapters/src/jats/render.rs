@@ -8,7 +8,8 @@ pub(super) fn body(node: Element<'_>) -> Result<(Vec<Part>, Vec<BodyRow>), BadRe
     let mut identities = BTreeMap::new();
     for (index, table) in tables.iter().enumerate() {
         if let Some(id) = table.attr("id")?
-            && identities.insert(id, index).is_some() {
+            && identities.insert(id, index).is_some()
+        {
             return Err(BadReply);
         }
     }
@@ -30,7 +31,11 @@ pub(super) fn body(node: Element<'_>) -> Result<(Vec<Part>, Vec<BodyRow>), BadRe
             body::append(&mut parts, group, &mut rows)?;
             for index in cited {
                 if emitted.insert(index) {
-                    body::append(&mut parts, table::group(*tables.get(index).ok_or(BadReply)?, &path)?, &mut rows)?;
+                    body::append(
+                        &mut parts,
+                        table::group(*tables.get(index).ok_or(BadReply)?, &path)?,
+                        &mut rows,
+                    )?;
                 }
             }
         }
