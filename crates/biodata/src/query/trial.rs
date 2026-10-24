@@ -208,7 +208,18 @@ fn default_limit() -> u32 {
 }
 impl TryFrom<Fields> for TrialSearch {
     type Error = QueryInvalid;
-    fn try_from(f: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
+        if let Some(id) = f
+            .query
+            .as_ref()
+            .and_then(|q| q.as_str().parse::<NctId>().ok())
+        {
+            if f.id.is_some_and(|explicit| explicit != id) {
+                return Err(QueryInvalid);
+            }
+            f.id = Some(id);
+            f.query = None;
+        }
         if !(1..=100).contains(&f.limit)
             || f.age.is_some_and(|v| v > 150)
             || f.updated_since

@@ -63,6 +63,41 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
     }
+    let advanced = advanced(query);
+    if !advanced.is_empty() {
+        p.insert("filter.advanced".into(), advanced);
+    }
+    let mut facets = Vec::new();
+    if let Some(sex) = query.sex() {
+        facets.push(format!(
+            "sex:{}",
+            match sex {
+                biodata::TrialSex::Female => "f",
+                biodata::TrialSex::Male => "m",
+                biodata::TrialSex::All => "a",
+            }
+        ));
+    }
+    if let Some(sponsor) = query.sponsor_type() {
+        facets.push(format!("funderType:{}", sponsor.as_str()));
+    }
+    if !facets.is_empty() {
+        p.insert("aggFilters".into(), facets.join(","));
+    }
+    if let (Some(lat), Some(lon), Some(distance)) = (query.lat(), query.lon(), query.distance()) {
+        p.insert(
+            "filter.geo".into(),
+            format!(
+                "distance({},{},{})",
+                lat.as_str(),
+                lon.as_str(),
+                distance.as_str()
+            ),
+        );
+    }
+    p
+}
+fn advanced(query: &TrialSearch) -> String {
     let mut advanced = Vec::new();
     if let Some(id) = query.id() {
         advanced.push(format!("AREA[NCTId]{id}"));
@@ -104,38 +139,7 @@ pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, S
     if query.has_results() {
         advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
     }
-    if !advanced.is_empty() {
-        p.insert("filter.advanced".into(), advanced.join(" AND "));
-    }
-    let mut facets = Vec::new();
-    if let Some(sex) = query.sex() {
-        facets.push(format!(
-            "sex:{}",
-            match sex {
-                biodata::TrialSex::Female => "f",
-                biodata::TrialSex::Male => "m",
-                biodata::TrialSex::All => "a",
-            }
-        ));
-    }
-    if let Some(sponsor) = query.sponsor_type() {
-        facets.push(format!("funderType:{}", sponsor.as_str()));
-    }
-    if !facets.is_empty() {
-        p.insert("aggFilters".into(), facets.join(","));
-    }
-    if let (Some(lat), Some(lon), Some(distance)) = (query.lat(), query.lon(), query.distance()) {
-        p.insert(
-            "filter.geo".into(),
-            format!(
-                "distance({},{},{})",
-                lat.as_str(),
-                lon.as_str(),
-                distance.as_str()
-            ),
-        );
-    }
-    p
+    advanced.join(" AND ")
 }
 fn quote(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))

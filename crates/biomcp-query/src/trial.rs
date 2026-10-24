@@ -7,22 +7,7 @@ use biodata::{
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
-    let mut outcome = Outcome {
-        status: Status::Failed,
-        body: QueryBody::TrialPage(TrialPage {
-            items: Box::default(),
-            request: Default::default(),
-            source_updated: None,
-            attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
-                .into(),
-            gene_resolution: None,
-        }),
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    };
+    let mut outcome = empty();
     let Some(gene) = gene(cx, query, &mut outcome) else {
         return outcome;
     };
@@ -78,6 +63,24 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome
+}
+fn empty() -> Outcome {
+    Outcome {
+        status: Status::Failed,
+        body: QueryBody::TrialPage(TrialPage {
+            items: Box::default(),
+            request: Default::default(),
+            source_updated: None,
+            attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
+                .into(),
+            gene_resolution: None,
+        }),
+        page: None,
+        sources: Vec::new(),
+        problems: Vec::new(),
+        next: Vec::new(),
+        local: None,
+    }
 }
 fn gene(cx: &Ctx<'_>, query: &TrialSearch, outcome: &mut Outcome) -> Option<Option<String>> {
     let Some(input) = query.gene() else {
