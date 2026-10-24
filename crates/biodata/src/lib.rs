@@ -88,7 +88,10 @@ pub use response::{
 };
 
 mod variant;
-pub use variant::{VariantInput, VariantNamespace, VariantIdentity, VariantRepresentation, VariantResolution, VariantHeader, VariantFact, VariantResolver, variant_build};
+pub use variant::{
+    VariantFact, VariantHeader, VariantIdentity, VariantInput, VariantNamespace,
+    VariantRepresentation, VariantResolution, VariantResolver, variant_build,
+};
 
 pub use query::VariantGet;
 pub use response::VariantCard;

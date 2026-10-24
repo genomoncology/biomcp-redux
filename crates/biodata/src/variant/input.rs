@@ -28,29 +28,56 @@ impl VariantInput {
         Ok(input)
     }
     /// Return the unchanged identifier.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
     /// Classify a published namespace, without parsing molecular meaning.
     pub fn namespace(&self) -> Result<VariantNamespace, Error> {
         let value = self.as_str();
-        if value.strip_prefix("rs").is_some_and(positive) { return Ok(VariantNamespace::Rs); }
-        if value.strip_prefix("CA").is_some_and(positive) { return Ok(VariantNamespace::Ca); }
+        if value.strip_prefix("rs").is_some_and(positive) {
+            return Ok(VariantNamespace::Rs);
+        }
+        if value.strip_prefix("CA").is_some_and(positive) {
+            return Ok(VariantNamespace::Ca);
+        }
         if positive(value) || value.strip_prefix("ClinVar:").is_some_and(positive) {
             return Ok(VariantNamespace::ClinVar);
         }
         let Some((reference, description)) = value.split_once(':') else {
             return Err(Error::VariantInputInvalid);
         };
-        if description.len() < 3 || !matches!(description.as_bytes().first(), Some(b'c' | b'g' | b'n' | b'p' | b'r' | b'm')) || description.as_bytes().get(1) != Some(&b'.') {
+        if description.len() < 3
+            || !matches!(
+                description.as_bytes().first(),
+                Some(b'c' | b'g' | b'n' | b'p' | b'r' | b'm')
+            )
+            || description.as_bytes().get(1) != Some(&b'.')
+        {
             return Err(Error::VariantInputInvalid);
         }
-        if reference.strip_prefix("chr").is_some_and(|s| matches!(s, "X" | "Y" | "M") || positive(s)) {
+        if reference
+            .strip_prefix("chr")
+            .is_some_and(|s| matches!(s, "X" | "Y" | "M") || positive(s))
+        {
             return Ok(VariantNamespace::Chromosome);
         }
-        let valid = ["NC_", "NM_", "NP_", "NG_", "NR_", "NT_", "NW_", "ENST", "ENSP", "LRG_"]
-            .iter().any(|prefix| reference.strip_prefix(prefix).is_some_and(|tail| {
-                !tail.is_empty() && tail.bytes().all(|b| b.is_ascii_digit() || matches!(b, b'.' | b't' | b'p'))
-            }));
-        if valid { Ok(VariantNamespace::Hgvs) } else { Err(Error::VariantInputInvalid) }
+        let valid = [
+            "NC_", "NM_", "NP_", "NG_", "NR_", "NT_", "NW_", "ENST", "ENSP", "LRG_",
+        ]
+        .iter()
+        .any(|prefix| {
+            reference.strip_prefix(prefix).is_some_and(|tail| {
+                !tail.is_empty()
+                    && tail
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || matches!(b, b'.' | b't' | b'p'))
+            })
+        });
+        if valid {
+            Ok(VariantNamespace::Hgvs)
+        } else {
+            Err(Error::VariantInputInvalid)
+        }
     }
 }
 fn positive(value: &str) -> bool {
@@ -58,9 +85,13 @@ fn positive(value: &str) -> bool {
 }
 impl FromStr for VariantInput {
     type Err = Error;
-    fn from_str(value: &str) -> Result<Self, Error> { Self::new(value) }
+    fn from_str(value: &str) -> Result<Self, Error> {
+        Self::new(value)
+    }
 }
 impl fmt::Display for VariantInput {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
 }
 text_value!(VariantInput, "VariantInput", r"^[\x21-\x7e]{1,2048}$");

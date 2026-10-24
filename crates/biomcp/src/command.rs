@@ -204,7 +204,9 @@ fn response(
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
             meta.encode(query, Some(body))
         }
-        (Request::GetVariant(query), QueryBody::VariantCard(body)) => meta.encode(query, Some(body)),
+        (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
         _ => Err(io::Error::other("query response mismatch")),

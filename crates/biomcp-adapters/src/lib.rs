@@ -40,7 +40,7 @@ pub mod registry;
 pub mod litsense;
 pub mod sheet;
 
-pub mod myvariant;
 pub mod allele_registry;
 pub mod mutalyzer;
+pub mod myvariant;
 pub mod variantvalidator;

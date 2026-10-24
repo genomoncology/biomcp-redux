@@ -1,13 +1,17 @@
 //! MyVariant exact source identities and compact component-attributed facts.
-mod raw;
 mod map;
+mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
 pub static SPEC: SourceSpec = SourceSpec {
-    terms: biomcp_fetch::Terms { name: "MyVariant.info terms and component data licenses", url: "https://docs.myvariant.info/en/latest/terms.html", usage: biodata::Use::Restricted },
+    terms: biomcp_fetch::Terms {
+        name: "MyVariant.info terms and component data licenses",
+        url: "https://docs.myvariant.info/en/latest/terms.html",
+        usage: biodata::Use::Restricted,
+    },
     source: Source::MyVariant,
     base: "https://myvariant.info/v1",
     key: KeyUse::None,
@@ -22,17 +26,35 @@ pub fn lookup(leg: &Leg<'_>, query: &str) -> Result<Mapped<Vec<VariantHeader>>, 
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
-        let page = leg.json::<raw::Page>(&QUERY, &[("q", Arg::Text(query)), ("size", Arg::Num(1000)), ("from", Arg::Num(offset)), ("fields", Arg::Text(FIELDS))])?;
+        let page = leg.json::<raw::Page>(
+            &QUERY,
+            &[
+                ("q", Arg::Text(query)),
+                ("size", Arg::Num(1000)),
+                ("from", Arg::Num(offset)),
+                ("fields", Arg::Text(FIELDS)),
+            ],
+        )?;
         let count = page.hits.len() as u64;
         hits.extend(page.hits);
         offset += count;
-        if offset >= page.total { break; }
-        if count == 0 || offset > 10_000 { return Err(leg_bad()); }
+        if offset >= page.total {
+            break;
+        }
+        if count == 0 || offset > 10_000 {
+            return Err(leg_bad());
+        }
     }
     Ok(map::candidates(hits, query))
 }
 fn leg_bad() -> RequestError {
-    biomcp_fetch::SourceError { source: Source::MyVariant, reason: biodata::Reason::BadReply, status: None, retry_after: None }.into()
+    biomcp_fetch::SourceError {
+        source: Source::MyVariant,
+        reason: biodata::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
 /// Match CAR's exact source identifier to MyVariant's published genomic record key.
 /// This builds only the documented chromosome spelling, never converts an allele.

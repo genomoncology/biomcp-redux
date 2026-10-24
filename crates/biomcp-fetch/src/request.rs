@@ -267,7 +267,9 @@ impl Leg<'_> {
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
-                    if (200..300).contains(&status) || codec.json_rejections && matches!(status, 400 | 422) {
+                    if (200..300).contains(&status)
+                        || codec.json_rejections && matches!(status, 400 | 422)
+                    {
                         return self.decode(response, codec).map_err(Into::into);
                     }
                     let delay = response.retry_after;

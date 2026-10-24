@@ -89,8 +89,14 @@ crate::macros::wire_enum! {
 impl VariantResolver {
     /// Declared source policy for this service.
     pub fn source(self) -> Source {
-        match self { Self::Car => Source::AlleleRegistry, Self::Mutalyzer => Source::Mutalyzer, Self::Variantvalidator => Source::VariantValidator }
+        match self {
+            Self::Car => Source::AlleleRegistry,
+            Self::Mutalyzer => Source::Mutalyzer,
+            Self::Variantvalidator => Source::VariantValidator,
+        }
     }
 }
 /// Only explicitly supported coordinate assemblies can be selected by the caller.
-pub fn variant_build(build: Build) -> bool { matches!(build, Build::Grch37 | Build::Grch38) }
+pub fn variant_build(build: Build) -> bool {
+    matches!(build, Build::Grch37 | Build::Grch38)
+}

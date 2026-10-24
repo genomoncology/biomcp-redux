@@ -81,6 +81,17 @@ pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
 );
 
 // Conservative service-specific local limits; no verified published numeric limits.
-pub(crate) static ALLELE_REGISTRY: Quota = Quota::new(SourceKey::declare("car"), Rate::per_second(1), None, 1);
-pub(crate) static MUTALYZER: Quota = Quota::new(SourceKey::declare("mutalyzer"), Rate::per_second(1), None, 1);
-pub(crate) static VARIANT_VALIDATOR: Quota = Quota::new(SourceKey::declare("variantvalidator"), Rate::per_second(1), None, 1);
+pub(crate) static ALLELE_REGISTRY: Quota =
+    Quota::new(SourceKey::declare("car"), Rate::per_second(1), None, 1);
+pub(crate) static MUTALYZER: Quota = Quota::new(
+    SourceKey::declare("mutalyzer"),
+    Rate::per_second(1),
+    None,
+    1,
+);
+pub(crate) static VARIANT_VALIDATOR: Quota = Quota::new(
+    SourceKey::declare("variantvalidator"),
+    Rate::per_second(1),
+    None,
+    1,
+);

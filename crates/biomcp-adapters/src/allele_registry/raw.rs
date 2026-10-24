@@ -20,9 +20,14 @@ pub(super) struct External {
     pub clinvar: Vec<Clinvar>,
 }
 #[derive(Deserialize)]
-pub(super) struct Rs { pub rs: u64 }
+pub(super) struct Rs {
+    pub rs: u64,
+}
 #[derive(Deserialize)]
-pub(super) struct Clinvar { #[serde(rename = "variationId")] pub id: u64 }
+pub(super) struct Clinvar {
+    #[serde(rename = "variationId")]
+    pub id: u64,
+}
 #[derive(Deserialize)]
 pub(super) struct Genomic {
     pub chromosome: Option<biodata::Contig>,
@@ -35,17 +40,36 @@ pub(super) struct Genomic {
 }
 #[derive(Deserialize)]
 pub(super) struct Coordinate {
-    pub start: u32, pub end: u32,
+    pub start: u32,
+    pub end: u32,
     #[serde(rename = "referenceAllele")]
     pub reference: String,
     pub allele: String,
 }
 impl Reply for Allele {
     fn check(&self) -> Result<(), BadReply> {
-        if self.error_type.is_some() && self.id.is_none() { return Ok(()); }
-        let key = self.id.as_ref().and_then(|v| v.as_str().strip_prefix("http://reg.genome.network/allele/"));
-        if !key.is_some_and(|k| k.parse::<biodata::VariantInput>().is_ok_and(|v| v.namespace().ok() == Some(biodata::VariantNamespace::Ca))) || self.genomic.is_empty() || self.genomic.len() > 1000 { return Err(BadReply); }
-        if self.genomic.iter().any(|g| g.hgvs.is_empty() || g.coordinates.is_empty() || g.coordinates.iter().any(|c| c.start > c.end)) { return Err(BadReply); }
+        if self.error_type.is_some() && self.id.is_none() {
+            return Ok(());
+        }
+        let key = self
+            .id
+            .as_ref()
+            .and_then(|v| v.as_str().strip_prefix("http://reg.genome.network/allele/"));
+        if !key.is_some_and(|k| {
+            k.parse::<biodata::VariantInput>()
+                .is_ok_and(|v| v.namespace().ok() == Some(biodata::VariantNamespace::Ca))
+        }) || self.genomic.is_empty()
+            || self.genomic.len() > 1000
+        {
+            return Err(BadReply);
+        }
+        if self.genomic.iter().any(|g| {
+            g.hgvs.is_empty()
+                || g.coordinates.is_empty()
+                || g.coordinates.iter().any(|c| c.start > c.end)
+        }) {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }

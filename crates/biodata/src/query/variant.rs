@@ -17,10 +17,16 @@ struct Fields {
     #[serde(default = "resolver")]
     resolver: VariantResolver,
     /// Required for chromosome notation; no assembly is guessed.
-    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     build: Option<Build>,
 }
-fn resolver() -> VariantResolver { VariantResolver::Car }
+fn resolver() -> VariantResolver {
+    VariantResolver::Car
+}
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
@@ -29,16 +35,33 @@ impl TryFrom<Fields> for VariantGet {
 }
 impl VariantGet {
     /// Check coordinate assembly and preserve resolver choice.
-    pub fn new(input: VariantInput, resolver: VariantResolver, build: Option<Build>) -> Result<Self, super::gene::QueryInvalid> {
-        if resolver == VariantResolver::Variantvalidator && build.is_none() || build.is_some_and(|b| !crate::variant_build(b)) || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none() {
+    pub fn new(
+        input: VariantInput,
+        resolver: VariantResolver,
+        build: Option<Build>,
+    ) -> Result<Self, super::gene::QueryInvalid> {
+        if resolver == VariantResolver::Variantvalidator && build.is_none()
+            || build.is_some_and(|b| !crate::variant_build(b))
+            || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none()
+        {
             return Err(super::gene::QueryInvalid);
         }
-        Ok(Self(Fields { input, resolver, build }))
+        Ok(Self(Fields {
+            input,
+            resolver,
+            build,
+        }))
     }
     /// Unchanged checked identifier.
-    pub fn input(&self) -> &VariantInput { &self.0.input }
+    pub fn input(&self) -> &VariantInput {
+        &self.0.input
+    }
     /// Explicit resolver service.
-    pub fn resolver(&self) -> VariantResolver { self.0.resolver }
+    pub fn resolver(&self) -> VariantResolver {
+        self.0.resolver
+    }
     /// Caller assembly; never a default.
-    pub fn build(&self) -> Option<Build> { self.0.build }
+    pub fn build(&self) -> Option<Build> {
+        self.0.build
+    }
 }
