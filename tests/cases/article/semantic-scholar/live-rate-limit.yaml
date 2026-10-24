@@ -1,0 +1,37 @@
+{
+  "feature": "article-search",
+  "story": "live rate limit",
+  "replay": "article/semantic-scholar/live",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "max_bytes": 600,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "semantic-scholar",
+        "/sources/0/reason": "rate_limited",
+        "/next/0/args": [
+          "help",
+          "key",
+          "semantic-scholar"
+        ]
+      }
+    }
+  ],
+  "verified": "Synthetic responses copy canonical request identity from actual keyless --record j9693, which returned three429 responses. Successful live verification is tracked separately in0061. Budgets are provisional until replay measurement; no equivalent0.9 command includes this source."
+}

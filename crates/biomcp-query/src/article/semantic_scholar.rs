@@ -80,11 +80,16 @@ pub fn resolve_dois<'a>(
         for batch in dois.chunks(100) {
             let term = batch
                 .iter()
-                .map(|doi| format!("\"{doi}\"[doi]"))
+                .map(|doi| {
+                    format!(
+                        "\"{}\"[doi]",
+                        doi.to_string().replace('\\', "\\\\").replace('"', "\\\"")
+                    )
+                })
                 .collect::<Vec<_>>()
                 .join(" OR ");
             let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
-            for chunk in ids.ids.chunks(100) {
+            for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
                 problems.extend(mapped.problems);
                 for item in items.iter_mut().filter(|item| item.pmid.is_none()) {
@@ -96,7 +101,7 @@ pub fn resolve_dois<'a>(
                         && let Some(id) = header.pmid
                     {
                         item.pmid = Some(id);
-                        item.key = ArticleKey::Pubmed(id);
+                        item.key = Some(ArticleKey::Pubmed(id));
                         item.header = Some(header.clone());
                     }
                 }

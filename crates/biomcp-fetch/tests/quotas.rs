@@ -163,7 +163,17 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
                 place: KeyPlace::Header("x-api-key"),
             }),
         );
-        let mut config = FetchConfig::default();
+        assert_eq!(
+            shared.interval(configured),
+            Duration::from_secs(if configured { 1 } else { 2 })
+        );
+        let recorded = tempfile::tempdir().unwrap();
+        let mut config = FetchConfig {
+            mode: biomcp_fetch::Mode::Record {
+                dir: recorded.path().to_owned(),
+            },
+            ..FetchConfig::default()
+        };
         if configured {
             config.secrets.insert(
                 SecretName::SemanticScholarApiKey,
@@ -183,7 +193,13 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             });
             let first = server.next();
             let started = first.started;
-            assert_eq!(first.text.contains("placeholder"), configured);
+            assert_eq!(
+                first
+                    .text
+                    .to_ascii_lowercase()
+                    .contains("x-api-key: placeholder"),
+                configured
+            );
             first.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
             let second = server.next();
@@ -192,6 +208,30 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
         });
+        drop(fetch);
+        let path = std::fs::read_dir(recorded.path().join("pubmed"))
+            .unwrap()
+            .next()
+            .unwrap()
+            .unwrap()
+            .path();
+        let text = std::fs::read_to_string(path).unwrap();
+        assert!(!text.contains("placeholder") && !text.contains("x-api-key"));
+        let replay = Fetch::open(FetchConfig {
+            mode: biomcp_fetch::Mode::Replay {
+                dir: recorded.path().to_owned(),
+            },
+            ..FetchConfig::default()
+        })
+        .unwrap();
+        assert!(
+            replay
+                .leg(spec, replay.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&spec.get("/answer"), &[])
+                .unwrap()
+                .answer
+        );
+        assert!(server.requests.try_recv().is_err());
     }
 }
 

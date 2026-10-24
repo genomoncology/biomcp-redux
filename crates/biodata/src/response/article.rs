@@ -22,8 +22,10 @@ pub enum ArticleKey {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleItem {
-    /// Stable checked pool key.
-    pub key: ArticleKey,
+    /// Stable checked paper identity when the provider supplies one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "ArticleKey"))]
+    pub key: Option<ArticleKey>,
     /// The selected PMID, retained when summary mapping fails.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]

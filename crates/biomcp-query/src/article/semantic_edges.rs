@@ -63,7 +63,9 @@ pub(super) fn create<'a>(
         }
     }
     let mut seen = std::collections::HashSet::new();
-    items.retain(|item| seen.insert(serde_json::to_string(&item.key).unwrap_or_default()));
+    items.retain(|item| {
+        item.key.is_none() || seen.insert(serde_json::to_string(&item.key).unwrap_or_default())
+    });
     Ok(Some(items))
 }
 fn collect(
