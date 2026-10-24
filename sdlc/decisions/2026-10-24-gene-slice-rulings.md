@@ -11,4 +11,4 @@ Decided by Ian, approving the recommendations in `planning/slices/gene.md`.
 - The default card carries the full RefSeq summary with its date.
 - Positions are shown on both genome builds.
 - Genes are human only.
-- OncoKB's gene list stays out: its terms allow free use for academic research only.
+- OncoKB is a source when the user supplies an OncoKB API key, under `2026-10-24-keyed-sources-run-only-with-the-user-s-key.md`.
