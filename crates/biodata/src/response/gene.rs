@@ -1,4 +1,6 @@
 mod constraint;
+mod pathways;
+pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
@@ -84,6 +86,9 @@ impl ResponseBody for SyncResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
+    /// Lowest-level human Reactome mappings.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pathways: Option<Section<Capped<PathwayRef>>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

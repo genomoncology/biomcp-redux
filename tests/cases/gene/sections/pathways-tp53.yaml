@@ -1,0 +1,37 @@
+{
+  "feature": "gene-sections",
+  "story": "TP53 caps references after counting all distinct pathways",
+  "replay": "gene/pathways",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "pathways"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "pathways"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/pathways/state": "data",
+        "/result/items/0/sections/pathways/data/total": 46,
+        "/result/items/0/sections/pathways": {
+          "max_tokens": 600
+        },
+        "/sources/*/source": {
+          "includes": "reactome",
+          "excludes": "gnomad"
+        },
+        "/result/items/0/sections/pathways/data/items": {
+          "count": 25
+        }
+      },
+      "max_bytes": 6000
+    }
+  ]
+}

@@ -66,7 +66,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 },
             },
         };
-        sections.push((*id, section));
+        sections.push((*id, super::SectionValue::Constraint(section)));
     }
     SectionResult {
         section: GeneSection::Constraint,

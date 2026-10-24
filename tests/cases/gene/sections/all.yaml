@@ -17,7 +17,9 @@
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
           "includes": "gnomad"
-        }
+        },
+        "/result/items/0/sections/pathways/state": "data",
+        "/result/items/0/sections/pathways/data/total": 46
       },
       "max_bytes": 14200,
       "mcp": [

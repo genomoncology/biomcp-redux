@@ -157,6 +157,8 @@ fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
 crate::source::canonical_enum! {
     /// A section request word, including expansion to all landed sections.
     GeneSectionWord, SourceUnknown {
+        /// Lowest-level human Reactome pathways.
+        Pathways => "pathways",
         /// Population constraint metrics.
         Constraint => "constraint",
         /// Every landed section.
@@ -166,6 +168,8 @@ crate::source::canonical_enum! {
 crate::source::canonical_enum! {
     /// A landed section that can be requested for a gene.
     GeneSection, SourceUnknown {
+        /// Lowest-level human Reactome pathways.
+        Pathways => "pathways",
         /// Population constraint metrics.
         Constraint => "constraint",
     }
