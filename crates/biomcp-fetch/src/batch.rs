@@ -21,18 +21,14 @@ impl Leg<'_> {
         if chunks.is_empty() {
             return Vec::new();
         }
-        let refusal = self.check_source().and_then(|()| {
-            if self.budget().expired() {
-                Err(self.failure(Reason::DeadlineExceeded, None).into())
-            } else {
-                Ok(())
-            }
-        });
-        if let Err(error) = refusal {
+        if let Err(error) = self.batch_ready() {
             return chunks.iter().map(|_| Err(error)).collect();
         }
         if self.nested_batch {
-            return chunks.iter().map(|chunk| call(self, chunk)).collect();
+            return chunks
+                .iter()
+                .map(|chunk| self.invoke(chunk, &call))
+                .collect();
         }
         self.scoped(chunks, &call)
     }
@@ -63,7 +59,7 @@ impl Leg<'_> {
                                 .enumerate()
                                 .skip(worker)
                                 .step_by(workers)
-                                .map(|(index, chunk)| (index, call(&leg, chunk)))
+                                .map(|(index, chunk)| (index, leg.invoke(chunk, call)))
                                 .collect::<Vec<_>>()
                         }));
                         (outcome, leg.clock)
@@ -96,6 +92,23 @@ impl Leg<'_> {
         }
         results.sort_unstable_by_key(|(index, _)| *index);
         results.into_iter().map(|(_, result)| result).collect()
+    }
+
+    fn batch_ready(&self) -> Result<(), RequestError> {
+        self.check_source()?;
+        if self.budget().expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, None).into());
+        }
+        Ok(())
+    }
+
+    fn invoke<C, T>(
+        &self,
+        chunk: &C,
+        call: &(impl Fn(&Leg<'_>, &C) -> Result<T, RequestError> + Sync),
+    ) -> Result<T, RequestError> {
+        self.batch_ready()?;
+        call(self, chunk)
     }
 
     fn branch(&self) -> Leg<'_> {
