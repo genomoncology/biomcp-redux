@@ -22,7 +22,11 @@ pub(super) fn section(
     let (Some(build), Some(tumor)) = (query.build(), query.tumor_type()) else {
         return unavailable(Reason::NoJoinId);
     };
-    let Some(hgvsg) = candidates.first().and_then(|row| genomic(row, build)) else {
+    let Some(hgvsg) = candidates
+        .first()
+        .and_then(|row| genomic(row, build))
+        .or_else(|| input_genomic(query, build))
+    else {
         return unavailable(Reason::NoJoinId);
     };
     let leg = cx.fetch.leg(&oncokb::SPEC, deadline).fresh(cx.fresh);
@@ -130,4 +134,21 @@ fn source(state: SourceState, reason: Reason) -> SourceOutcome {
         fetched: None,
         notices: Vec::new(),
     }
+}
+
+fn input_genomic(query: &VariantGet, build: Build) -> Option<String> {
+    let (reference, body) = query.input().as_str().split_once(':')?;
+    if !body.starts_with("g.") {
+        return None;
+    }
+    let chromosome = if let Ok(accession) = reference.parse::<biodata::Accession>() {
+        biodata::Chromosome::from_accession(accession, build).ok()?
+    } else {
+        reference
+            .strip_prefix("chr")
+            .unwrap_or(reference)
+            .parse()
+            .ok()?
+    };
+    Some(format!("{}:{body}", chromosome.name()))
 }

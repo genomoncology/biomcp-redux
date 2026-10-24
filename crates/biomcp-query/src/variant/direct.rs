@@ -24,7 +24,7 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     if cx.fetch.disabled(source) {
         return Some(source);
     }
-    if matches!(section, S::Predict | S::Conservation) {
+    if matches!(section, S::Predict | S::Conservation | S::Oncokb) {
         return Some(source);
     }
     match (query.input().namespace().ok()?, section) {
@@ -93,9 +93,19 @@ pub(super) fn get(
             rejection: None,
         }),
         page: None,
-        sources,
+        sources: sources.clone(),
         problems,
-        next: Vec::new(),
+        next: if sources
+            .iter()
+            .any(|s| s.source == Source::Oncokb && s.reason == Some(biodata::Reason::NoKey))
+        {
+            vec![(
+                biodata::StepKind::Key,
+                crate::Action::KeyHelp(Source::Oncokb),
+            )]
+        } else {
+            Vec::new()
+        },
         local,
     }
 }
