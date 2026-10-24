@@ -6,7 +6,7 @@ pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
 ) -> super::sections::Result<VariantCosmic> {
     let Some((id, build)) = super::components::target(candidates) else {
         return (Section::NotApplicable, Vec::new(), Vec::new(), None);
@@ -19,10 +19,12 @@ pub(super) fn section(
     }
     let leg = cx
         .fetch
-        .leg(&biomcp_adapters::myvariant::SPEC, deadline)
+        .leg(&biomcp_adapters::myvariant::SPEC, *deadline)
         .fresh(cx.fresh);
+    let started = leg.remaining();
     let result = biomcp_adapters::myvariant::cosmic::get(&leg, &id, build);
     let error = result.as_ref().err().copied();
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::MyVariant, leg.finish(), error);
     let section = match result {
         Ok(mut data) if !data.records.is_empty() => {

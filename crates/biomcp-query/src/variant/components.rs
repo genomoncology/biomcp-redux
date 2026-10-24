@@ -41,7 +41,7 @@ pub(super) fn measurements(
     cx: &Ctx<'_>,
     _query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
     conservation: bool,
 ) -> super::sections::Result<VariantPredictors> {
     use biomcp_adapters::myvariant::{self, components};
@@ -53,9 +53,11 @@ pub(super) fn measurements(
     let Some((id, build)) = target(candidates) else {
         return (Section::NotApplicable, Vec::new(), Vec::new(), None);
     };
-    let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let result = myvariant::measurements::get(&leg, &id, build, conservation, cadd, dbnsfp);
     let error = result.as_ref().err().copied();
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::MyVariant, leg.finish(), error);
     let mut problems = Vec::new();
     let section = match result {

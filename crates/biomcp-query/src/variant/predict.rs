@@ -6,7 +6,7 @@ pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
 ) -> super::sections::Result<VariantPredictors> {
     super::components::measurements(cx, query, candidates, deadline, false)
 }

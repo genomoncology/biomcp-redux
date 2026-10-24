@@ -14,7 +14,7 @@ pub(super) fn apply(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &mut [VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
     let mut sources = Vec::new();
     let mut problems = Vec::new();

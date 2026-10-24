@@ -6,7 +6,7 @@ pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
 ) -> super::sections::Result<VariantConservation> {
     let (section, sources, problems, local) =
         super::components::measurements(cx, query, candidates, deadline, true);

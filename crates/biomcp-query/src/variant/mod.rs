@@ -17,12 +17,14 @@ use biomcp_fetch::{Leg, RequestError};
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
     let spec = source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let mut problems = Vec::new();
     let result = resolve(query, &leg, &mut problems);
     let error = result.as_ref().err().copied();
+    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut main_source = status::source(spec.source, leg.finish(), error);
     let mut candidates = Vec::new();
     let mut rejection = None;
@@ -48,13 +50,13 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
     if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
-        let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
+        let (source, error) = enrich(cx, &mut deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
     let next = next(query, resolution, &candidates, page.as_ref());
-    let (more, issues, error) = sections::apply(cx, query, &mut candidates, deadline);
+    let (more, issues, error) = sections::apply(cx, query, &mut candidates, &mut deadline);
     sources.extend(more);
     problems.extend(issues);
     local = local.or(error);
@@ -206,12 +208,13 @@ pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
 
 fn enrich(
     cx: &Ctx<'_>,
-    deadline: biomcp_fetch::Deadline<'_>,
+    deadline: &mut biomcp_fetch::Deadline<'_>,
     candidates: &mut [VariantHeader],
     problems: &mut Vec<biodata::Problem>,
 ) -> (biodata::SourceOutcome, Option<RequestError>) {
     let mut local = None;
-    let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let mut join_error = None;
     for candidate in candidates {
         if let Some(id) = join_id(candidate) {
@@ -229,6 +232,7 @@ fn enrich(
             }
         }
     }
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     (
         status::source(Source::MyVariant, leg.finish(), join_error),
         local,
