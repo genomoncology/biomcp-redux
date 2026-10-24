@@ -121,6 +121,16 @@ fn table() -> Result<(), String> {
     Ok(())
 }
 fn abstract_part() -> Result<(), String> {
+    let italic = run(
+        "article/get/synthetic-derived",
+        &["get", "article", "28944238"],
+        8000,
+    )?;
+    contains(
+        &italic,
+        "/result/items/0/answer/card/abstract_parts/2/text",
+        &["*APC*", "*MLH1*", "*MUTYH*"],
+    )?;
     let value = run(
         "article/get/synthetic-derived",
         &["get", "article", "35440569"],
