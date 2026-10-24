@@ -60,7 +60,9 @@ fn root() -> Result<Command, ()> {
         );
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])));
-    root = root.subcommand(Command::new("help").subcommand_required(true).subcommand(Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"]))));
+    root = root.subcommand(Command::new("help").subcommand_required(true).subcommand(
+        Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
+    ));
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {

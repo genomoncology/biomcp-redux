@@ -192,8 +192,15 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     )
 }
 fn key_help() -> io::Result<Outcome> {
-    let data = biodata::KeyHelp { source: biodata::Source::Oncokb, config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?, environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)? };
-    encode(Envelope::new(Status::Complete, (), Some(data)), crate::exit::Status::Success)
+    let data = biodata::KeyHelp {
+        source: biodata::Source::Oncokb,
+        config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?,
+        environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)?,
+    };
+    encode(
+        Envelope::new(Status::Complete, (), Some(data)),
+        crate::exit::Status::Success,
+    )
 }
 fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
     let mut bytes = serde_json::to_vec(&value)?;

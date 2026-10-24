@@ -1,24 +1,19 @@
 use crate::Text;
 use serde::{Deserialize, Serialize};
-/// OncoKB's stated gene classification, without inference from other sources.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum OncokbGeneType {
-    /// Both source-stated roles.
-    #[serde(rename = "ONCOGENE_AND_TSG")]
-    OncogeneAndTsg,
-    /// Source-stated oncogene.
-    #[serde(rename = "ONCOGENE")]
-    Oncogene,
-    /// Source-stated tumor suppressor.
-    #[serde(rename = "TSG")]
-    Tsg,
-    /// Source states insufficient evidence.
-    #[serde(rename = "INSUFFICIENT_EVIDENCE")]
-    InsufficientEvidence,
-    /// Source states neither role.
-    #[serde(rename = "NEITHER")]
-    Neither,
+crate::source::canonical_enum! {
+    /// OncoKB's stated gene classification.
+    OncokbGeneType, SourceUnknown {
+        /// Both stated roles.
+        OncogeneAndTsg => "ONCOGENE_AND_TSG",
+        /// Source-stated oncogene.
+        Oncogene => "ONCOGENE",
+        /// Source-stated tumor suppressor.
+        Tsg => "TSG",
+        /// Source states insufficient evidence.
+        InsufficientEvidence => "INSUFFICIENT_EVIDENCE",
+        /// Source states neither role.
+        Neither => "NEITHER",
+    }
 }
 /// Short source-stated annotation on a gene card.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

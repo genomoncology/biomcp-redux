@@ -1,0 +1,1 @@
+These invented OncoKB replies use public API field shapes. They contain no licensed records. Uppercase enum serialization remains inferred until a key holder checks the deployment outside this repository. HGNC and MyGene replies reuse public recordings.

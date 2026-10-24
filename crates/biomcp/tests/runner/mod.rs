@@ -116,7 +116,11 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<(), String> {
         })
         .collect::<Result<Vec<_>, _>>()?;
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
-    if let Some(config) = &case.config { environment.config(config).map_err(|error| error.to_string())?; }
+    if let Some(config) = &case.config {
+        environment
+            .config(config)
+            .map_err(|error| error.to_string())?;
+    }
     let replay = case.replay.as_ref().map(|name| {
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../tests/replies")
