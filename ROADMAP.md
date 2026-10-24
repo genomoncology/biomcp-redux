@@ -67,7 +67,7 @@ Sources:
 - [ ] UniProt
 - [ ] Reactome
 - [ ] CIViC
-- [ ] ClinGen
+- [x] ClinGen
 - [ ] GenCC (bundle)
 - [x] gnomAD (constraint)
 - [ ] GTEx
