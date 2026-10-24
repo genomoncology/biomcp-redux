@@ -48,7 +48,7 @@ pub(super) fn ping_after_refusal() -> Result<(), String> {
         }
         send(&mut stdin, &mcp::request(json!(2), "ping", json!({})))?;
         let ping = receive(&receiver)?;
-        if ping.get("id") != Some(&json!(2)) || ping.get("result") != Some(&json!({})) {
+        if ping.get("id") != Some(&json!(2)) || ping.pointer("/result/resultType") != Some(&json!("complete")) {
             return Err(format!("MCP unavailable after refusal: {ping}"));
         }
         Ok(())

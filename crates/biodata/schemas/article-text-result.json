@@ -16,6 +16,11 @@
           "required": [
             "find"
           ]
+        },
+        {
+          "required": [
+            "variant"
+          ]
         }
       ],
       "description": "Read one bounded body part or a page of matching paragraphs and table rows.",
@@ -41,6 +46,10 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit checked protein substitution."
         }
       },
       "required": [
@@ -244,6 +253,8 @@
       "enum": [
         "not_found",
         "not_open",
+        "unsupported",
+        "too_large",
         "rate_limited",
         "unavailable",
         "rejected",
@@ -260,6 +271,8 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " The source rejected the request.",
@@ -616,6 +629,18 @@
       "additionalProperties": false,
       "description": "One bounded part or matching rows with the bucket license.",
       "properties": {
+        "forms": {
+          "description": "Literal protein change spellings searched by an explicit variant selector.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "heading_path": {
           "description": "Section ancestry for a selected part.",
           "items": {

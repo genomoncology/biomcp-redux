@@ -85,7 +85,7 @@ impl TryFrom<Fields> for ArticleSupplement {
                 .count()
                 > 1
             || v.file.as_str().contains(['/', '\\'])
-            || v.file.as_str().starts_with('.')
+            || matches!(v.file.as_str(), "." | "..")
             || v.sheet.is_some() && v.rows.is_none()
         {
             return Err(QueryInvalid);
