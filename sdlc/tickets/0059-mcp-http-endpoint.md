@@ -1,6 +1,7 @@
 # 0059 — Serve MCP over streamable HTTP with a health endpoint
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8d79b3ab97d42b2a1de2628a82fd8e71ffe31c4e
 
 Milestone: 1
 
