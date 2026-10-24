@@ -6,25 +6,41 @@ use biomcp_fetch::{BadReply, Reply, RequestError};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct ReplyBody {
-    pub data: Vec<Record>,
+    #[serde(default)]
+    pub data: Option<Vec<Record>>,
     status: Status,
 }
 #[derive(Deserialize)]
 struct Status {
     code: u16,
+    name: String,
 }
 impl Reply for ReplyBody {
     fn check(&self) -> Result<(), BadReply> {
-        if self.status.code != 200
-            || self.data.iter().any(|r| {
-                r.ca_id.parse::<biodata::VariantId>().is_err()
-                    || r.id.is_empty()
-                    || r.classification.is_empty()
-            })
-        {
-            Err(BadReply)
+        match self.status.code {
+            200 if self.data.as_ref().is_some_and(|rows| {
+                rows.iter().all(|r| {
+                    r.ca_id.parse::<biodata::VariantId>().is_ok()
+                        && !r.id.is_empty()
+                        && !r.classification.is_empty()
+                })
+            }) =>
+            {
+                Ok(())
+            }
+            404 if self.status.name == "No Records Found"
+                && self.data.as_ref().is_none_or(Vec::is_empty) =>
+            {
+                Ok(())
+            }
+            _ => Err(BadReply),
+        }
+    }
+    fn check_status(&self, status: u16) -> Result<(), BadReply> {
+        if status == self.status.code {
+            self.check()
         } else {
-            Ok(())
+            Err(BadReply)
         }
     }
 }
