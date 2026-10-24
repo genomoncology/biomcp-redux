@@ -68,9 +68,9 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
     ("get", "variant", "biodata.variant-get/1"),
+    ("search", "variant", "biodata.variant-search/1"),
     ("variant", "assertions", "biodata.variant-assertions/1"),
     ("variant", "population", "biodata.variant-population/1"),
-    ("search", "variant", "biodata.variant-search/1"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")

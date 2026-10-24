@@ -55,3 +55,5 @@ variant-hotspots: Show source transcript and residue/alternate recurrence counts
 variant-assertions: Retrieve source-native ClinVar and ClinGen assertions without merging classification domains or mistaking source absence for unknown allele identity. Cases: `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/variant_assertions.rs`.
 
 variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
+
+variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups. Cases: `crates/biomcp/tests/runner/oncokb.rs`.

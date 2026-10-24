@@ -14,7 +14,7 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     if cx.fetch.disabled(source) {
         return Some(source);
     }
-    if matches!(section, S::Predict | S::Conservation) {
+    if matches!(section, S::Predict | S::Conservation | S::Oncokb) {
         return Some(source);
     }
     match (query.input().namespace().ok()?, section) {
@@ -74,7 +74,16 @@ pub(super) fn get(
     } else {
         Status::Complete
     };
-    let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
+    let mut next = super::next(query, VariantResolution::Unresolved, &candidates, None);
+    if sources
+        .iter()
+        .any(|s| s.source == Source::Oncokb && s.reason == Some(biodata::Reason::NoKey))
+    {
+        next.push((
+            biodata::StepKind::Key,
+            crate::Action::KeyHelp(Source::Oncokb),
+        ));
+    }
     Outcome {
         status,
         body: QueryBody::VariantCard(VariantCard {

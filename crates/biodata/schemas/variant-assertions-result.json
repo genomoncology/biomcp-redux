@@ -309,6 +309,42 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "description": "OncoKB oncogenicity vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbOncogenicityCode"
+            },
+            "system": {
+              "const": "oncokb_oncogenicity",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "OncoKB evidence levels.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbLevelCode"
+            },
+            "system": {
+              "const": "oncokb_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "CIViC evidence level.",
           "properties": {
             "code": {
@@ -541,6 +577,37 @@
           "type": "object"
         }
       ]
+    },
+    "OncokbLevelCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "level_1",
+        "level_2",
+        "level_3a",
+        "level_3b",
+        "level_4",
+        "level_r1",
+        "level_r2",
+        "level_dx1",
+        "level_dx2",
+        "level_dx3",
+        "level_px1",
+        "level_px2",
+        "level_px3"
+      ],
+      "type": "string"
+    },
+    "OncokbOncogenicityCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "oncogenic",
+        "likely_oncogenic",
+        "likely_neutral",
+        "inconclusive",
+        "resistance",
+        "unknown"
+      ],
+      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,

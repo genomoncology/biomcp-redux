@@ -7,6 +7,7 @@ mod continuations;
 mod cosmic;
 mod direct;
 mod hotspots;
+mod oncokb;
 mod predict;
 pub mod search;
 mod sections;
@@ -69,7 +70,13 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let next = next(query, resolution, &candidates, page.as_ref());
+    let mut next = next(query, resolution, &candidates, page.as_ref());
+    if sources
+        .iter()
+        .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
+    {
+        next.push((StepKind::Key, Action::KeyHelp(Source::Oncokb)));
+    }
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
@@ -87,32 +94,6 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn overall(
-    resolution: VariantResolution,
-    problems: &[biodata::Problem],
-    sources: &[biodata::SourceOutcome],
-) -> Status {
-    if matches!(
-        resolution,
-        VariantResolution::Unavailable | VariantResolution::Rejected
-    ) {
-        Status::Failed
-    } else if resolution == VariantResolution::Absent {
-        Status::Absent
-    } else if !problems.is_empty()
-        || sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biodata::SourceState::Failed | biodata::SourceState::Stale
-            )
-        }) && resolution != VariantResolution::Rejected
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
-
 fn classify(len: usize) -> VariantResolution {
     match len {
         0 => VariantResolution::Absent,

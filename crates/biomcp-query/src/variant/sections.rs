@@ -99,7 +99,10 @@ pub(super) fn apply(
                     cosmic,
                     super::cosmic::section(cx, query, candidates, deadline)
                 ),
-                S::Oncokb => attach!(oncokb, pending(Source::Oncokb)),
+                S::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, deadline)
+                ),
                 S::All => {}
                 _ => {}
             }
@@ -133,9 +136,6 @@ fn permitted<T>(
         return unavailable(source, Reason::Disabled, SourceState::Skipped);
     }
     read()
-}
-fn pending<T>(source: Source) -> Result<T> {
-    unavailable(source, Reason::Unavailable, SourceState::Failed)
 }
 fn unavailable<T>(source: Source, reason: Reason, state: SourceState) -> Result<T> {
     (
