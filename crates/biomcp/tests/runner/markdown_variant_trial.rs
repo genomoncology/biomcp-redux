@@ -13,7 +13,8 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(super::markdown_variant_sources::trials());
     trials
 }
-// Initial bounds deliberately fail so each retained replay measures its rendered shape.
+// Ceilings are ceil(measured comparable Markdown bytes * 1.15), from j11380.
+// The existing checker subtracts only the validated new source terms columns.
 const SHAPES: &[(&str, Shape)] = &[
     (
         "variant-search",
@@ -29,8 +30,8 @@ const SHAPES: &[(&str, Shape)] = &[
                 "GRCh37",
             ],
             replies: "variant/search/L858R",
-            required: &["## Result", "EGFR", "L858R", "|"],
-            max_bytes: 1,
+            required: &["## Result", "EGFR", "L858R", "chr7:g.55259515T&gt;G"],
+            max_bytes: 1306,
         },
     ),
     (
@@ -38,8 +39,8 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022"],
             replies: "variant/synthetic-components",
-            required: &["## Result", "rs113488022", "|"],
-            max_bytes: 1,
+            required: &["## Result", "rs113488022", "chr7:g.140453136A&gt;G", "BRAF"],
+            max_bytes: 2560,
         },
     ),
     (
@@ -47,8 +48,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022", "predict"],
             replies: "variant/synthetic-components",
-            required: &["## Result", " Predict\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "cadd.phred",
+                "0.25",
+                "## Result",
+                " Predict\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 9861,
         },
     ),
     (
@@ -56,8 +64,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022", "conservation"],
             replies: "variant/synthetic-components",
-            required: &["## Result", " Conservation\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "dbnsfp.gerp++.nr",
+                "1.5",
+                "## Result",
+                " Conservation\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 11070,
         },
     ),
     (
@@ -65,8 +80,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022", "cosmic"],
             replies: "variant/synthetic-components",
-            required: &["## Result", " Cosmic\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "COSM999999",
+                "unverified",
+                "## Result",
+                " Cosmic\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 5713,
         },
     ),
     (
@@ -80,7 +102,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**state:** data",
                 "VCV000013961",
             ],
-            max_bytes: 1,
+            max_bytes: 1717,
         },
     ),
     (
@@ -94,7 +116,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**state:** data",
                 "PCER000001171",
             ],
-            max_bytes: 1,
+            max_bytes: 1185,
         },
     ),
     (
@@ -102,8 +124,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "CA123643", "population"],
             replies: "variant-population/main",
-            required: &["## Result", " Population\n\n", "**state:** data", "gnomad"],
-            max_bytes: 1,
+            required: &[
+                "1460618",
+                "7-140753336-A-T",
+                "## Result",
+                " Population\n\n",
+                "**state:** data",
+                "gnomad",
+            ],
+            max_bytes: 1301,
         },
     ),
     (
@@ -111,8 +140,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022", "gwas"],
             replies: "variant-population/gwas-positive",
-            required: &["## Result", " Gwas\n\n", "**state:** data", "gwas"],
-            max_bytes: 1,
+            required: &[
+                "GCST90996374",
+                "40210729",
+                "## Result",
+                " Gwas\n\n",
+                "**state:** data",
+                "gwas",
+            ],
+            max_bytes: 1996,
         },
     ),
     (
@@ -128,7 +164,7 @@ const SHAPES: &[(&str, Shape)] = &[
             ],
             replies: "variant/synthetic-components",
             required: &["## Result", "civic", "skipped", "disabled"],
-            max_bytes: 1,
+            max_bytes: 601,
         },
     ),
     (
@@ -144,7 +180,7 @@ const SHAPES: &[(&str, Shape)] = &[
             ],
             replies: "variant/synthetic-components",
             required: &["## Result", "hotspots", "skipped", "disabled"],
-            max_bytes: 1,
+            max_bytes: 618,
         },
     ),
     (
@@ -164,7 +200,7 @@ const SHAPES: &[(&str, Shape)] = &[
             ],
             replies: "variant/synthetic-components",
             required: &["## Result", "oncokb", "skipped", "disabled"],
-            max_bytes: 1,
+            max_bytes: 667,
         },
     ),
     (
@@ -180,7 +216,7 @@ const SHAPES: &[(&str, Shape)] = &[
             ],
             replies: "variant/normalization/mutalyzer",
             required: &["## Result", "mutalyzer", "NM\\_004333.4"],
-            max_bytes: 1,
+            max_bytes: 845,
         },
     ),
     (
@@ -188,8 +224,8 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["variant", "population", "CA123643", "--detail"],
             replies: "variant-population/main",
-            required: &["## Result", "gnomad"],
-            max_bytes: 1,
+            required: &["1460618", "7-140753336-A-T", "## Result", "gnomad"],
+            max_bytes: 1777,
         },
     ),
     (
@@ -198,7 +234,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["variant", "assertions", "CA000434", "--source", "erepo"],
             replies: "variant/assertions/erepo-current",
             required: &["## Result", "PCER000001171"],
-            max_bytes: 1,
+            max_bytes: 832,
         },
     ),
     (
@@ -222,8 +258,8 @@ const SHAPES: &[(&str, Shape)] = &[
                 "3",
             ],
             replies: "variant/recurrence",
-            required: &["## Result", "cbioportal"],
-            max_bytes: 1,
+            required: &["msk\\_impact\\_2017", "## Result", "cbioportal"],
+            max_bytes: 1875,
         },
     ),
     (
@@ -231,8 +267,8 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["search", "trial", "--condition", "melanoma"],
             replies: "trial/condition",
-            required: &["## Result", "NCT", "|"],
-            max_bytes: 1,
+            required: &["## Result", "NCT04631731", "NCT01874119", "|"],
+            max_bytes: 4527,
         },
     ),
     (
@@ -240,8 +276,8 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", "NCT04303780", "|"],
-            max_bytes: 1,
+            required: &["## Result", "NCT04303780", "CodeBreak 200", "|"],
+            max_bytes: 1821,
         },
     ),
     (
@@ -249,8 +285,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "locations"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Locations\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "Pacific Cancer Medical Center Inc",
+                "Anaheim",
+                "## Result",
+                " Locations\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 3962,
         },
     ),
     (
@@ -258,8 +301,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "contacts"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Contacts\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "Amgen",
+                "MD",
+                "## Result",
+                " Contacts\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 2107,
         },
     ),
     (
@@ -267,8 +317,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "eligibility"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Eligibility\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "Inclusion Criteria:",
+                "ECOG ≤ 1",
+                "## Result",
+                " Eligibility\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 2805,
         },
     ),
     (
@@ -276,8 +333,14 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "outcomes"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Outcomes\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "Progression-free Survival (PFS)",
+                "## Result",
+                " Outcomes\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 2919,
         },
     ),
     (
@@ -285,8 +348,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "arms"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Arms\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "AMG 510",
+                "Docetaxel",
+                "## Result",
+                " Arms\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 2621,
         },
     ),
     (
@@ -294,8 +364,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT04303780", "documents"],
             replies: "trial/get/NCT04303780",
-            required: &["## Result", " Documents\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "SAP\\_001.pdf",
+                "557905",
+                "## Result",
+                " Documents\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 2619,
         },
     ),
     (
@@ -303,8 +380,15 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "trial", "NCT03511664", "references"],
             replies: "trial/get/NCT03511664",
-            required: &["## Result", " References\n\n", "**state:** data", "data"],
-            max_bytes: 1,
+            required: &[
+                "34161051",
+                "RESULT",
+                "## Result",
+                " References\n\n",
+                "**state:** data",
+                "data",
+            ],
+            max_bytes: 7650,
         },
     ),
     (
@@ -326,7 +410,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**bytes:** 67",
                 "**state:** data",
             ],
-            max_bytes: 1,
+            max_bytes: 858,
         },
     ),
 ];

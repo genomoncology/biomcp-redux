@@ -1,4 +1,5 @@
 //! Positive section views reuse the existing synthetic source responders.
+// Ceilings are ceil(j11380 measured comparable Markdown bytes * 1.15).
 use super::{
     launch::Environment,
     markdown_shapes::{Shape, check_environment},
@@ -50,7 +51,7 @@ fn positive(source: &str) -> Result<(), String> {
                 "BRAF V600E",
                 "dabrafenib",
             ],
-            max_bytes: 1,
+            max_bytes: 4699,
         },
         "hotspots" => Shape {
             args: &[
@@ -70,7 +71,7 @@ fn positive(source: &str) -> Result<(), String> {
                 "V600",
                 "candidate",
             ],
-            max_bytes: 1,
+            max_bytes: 2034,
         },
         _ => Shape {
             args: &[
@@ -93,7 +94,7 @@ fn positive(source: &str) -> Result<(), String> {
                 "Oncogenic",
                 "Synthetic mutation effect.",
             ],
-            max_bytes: 1,
+            max_bytes: 2470,
         },
     };
     check_environment(&shape, &env, &[], config)
