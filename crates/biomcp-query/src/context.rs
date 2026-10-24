@@ -6,6 +6,7 @@ pub struct Ctx<'a> {
     /// Checked transport.
     /// Optional outgoing-only NCBI contact.
     pub ncbi_email: Option<biomcp_fetch::Secret>,
+    /// Shared checked transport.
     pub fetch: &'a Fetch,
     /// Absolute command budget shared by source legs.
     pub budget: Duration,
