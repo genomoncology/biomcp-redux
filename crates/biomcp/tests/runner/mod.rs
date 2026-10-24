@@ -2,12 +2,12 @@ mod assertions;
 mod configuration;
 mod held_proxy;
 mod launch;
+mod markdown;
 mod mcp;
 mod negative_cases;
 mod process;
 pub(super) mod proof;
 mod protocol;
-mod markdown;
 mod schema;
 mod schema_proof;
 

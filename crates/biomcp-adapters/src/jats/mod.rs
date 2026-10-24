@@ -58,37 +58,16 @@ impl XmlReply for Body {
             if matches!(name.as_str(), "table-wrap" | "table-wrap-group") {
                 continue;
             }
-            let groups = if name == "sec" {
-                body::section(node, &[])?
-            } else {
-                let mut group = body::Group::section(Vec::new());
-                let rendered = if name == "fig" {
-                    body::figure(node)?
-                } else {
-                    let plain = node.text()?;
-                    if plain.trim().is_empty() {
-                        None
-                    } else {
-                        Some(body::BodyRow {
-                            plain,
-                            markdown: markdown::inline(node.0)?.trim().to_owned(),
-                            context: false,
-                            references: references::ids(node.0)?,
-                        })
-                    }
-                };
-                if let Some(row) = rendered {
-                    group.rows.push(row);
-                }
-                vec![group]
-            };
+            let groups = body::groups(&name, node)?;
             let start = parts.len();
             for group in groups {
                 body::append(&mut parts, group, &mut rows)?;
             }
             if name == "sec" {
                 let end = parts.len();
-                for (index, part) in parts.iter_mut().enumerate().skip(start) { part.continuation = index + 1 < end; }
+                for (index, part) in parts.iter_mut().enumerate().skip(start) {
+                    part.continuation = index + 1 < end;
+                }
             }
             for table in &tables {
                 let mentioned = match table.attr("id")? {

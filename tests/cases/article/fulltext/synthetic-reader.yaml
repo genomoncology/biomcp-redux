@@ -110,7 +110,7 @@
         "/result/content/data/hits": {
           "count": 25
         },
-        "/page/total": 29,
+        "/page/total": 30,
         "/next/0/args": [
           "article",
           "text",
@@ -127,7 +127,7 @@
       "follow": "page",
       "expect": {
         "/result/content/data/hits": {
-          "count": 4
+          "count": 5
         },
         "/page/offset": 25
       },

@@ -13,7 +13,8 @@ pub(super) fn inline(xml: &str) -> Result<String, BadReply> {
                 let whole = Element(&xml[begin..reader.buffer_position() as usize]);
                 let body = &xml[span.start as usize..span.end as usize];
                 if tag.name().as_ref() == "list" {
-                    out.push_str(&list(whole)?); out.push_str("\n\n");
+                    out.push_str(&list(whole)?);
+                    out.push_str("\n\n");
                 } else if tag.name().as_ref() == "sup" {
                     if citations(body)? {
                         out.push_str(&format!("[{}]", whole.text()?));
@@ -35,7 +36,10 @@ pub(super) fn inline(xml: &str) -> Result<String, BadReply> {
                 if let Some(ch) = v.resolve_char_ref().map_err(|_| BadReply)? {
                     text(&mut out, &ch.to_string());
                 } else {
-                    text(&mut out, quick_xml::escape::resolve_predefined_entity(v.as_ref()).ok_or(BadReply)?);
+                    text(
+                        &mut out,
+                        quick_xml::escape::resolve_predefined_entity(v.as_ref()).ok_or(BadReply)?,
+                    );
                 }
             }
             Event::Eof => return Ok(out),
@@ -93,7 +97,9 @@ fn list(node: Element<'_>) -> Result<String, BadReply> {
         let mut lines = rendered.trim().lines();
         let first = lines.next().unwrap_or("");
         let mut text = format!("- {first}");
-        for line in lines { text.push_str(&format!("\n  {line}")); }
+        for line in lines {
+            text.push_str(&format!("\n  {line}"));
+        }
         out.push(text);
     }
     Ok(out.join("\n"))
@@ -102,8 +108,12 @@ fn list(node: Element<'_>) -> Result<String, BadReply> {
 fn text(out: &mut String, value: &str) {
     for ch in value.chars() {
         match ch {
-            '\\' | '*' | '_' | '[' | ']' | '`' => { out.push('\\'); out.push(ch); }
-            '<' => out.push_str("&lt;"), '>' => out.push_str("&gt;"),
+            '\\' | '*' | '_' | '[' | ']' | '`' => {
+                out.push('\\');
+                out.push(ch);
+            }
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
             c => out.push(c),
         }
     }

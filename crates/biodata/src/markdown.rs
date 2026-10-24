@@ -2,16 +2,17 @@ use crate::{Error, Text};
 use serde::{Deserialize, Serialize};
 /// Nonempty source text whose Markdown structure is preserved by text views.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct Markdown(Text);
+#[serde(try_from = "String")]
+pub struct Markdown(Box<str>);
 impl Markdown {
     /// Check the same nonempty boundary as ordinary text.
     pub fn new(value: &str) -> Result<Self, Error> {
-        Text::new(value).map(Self)
+        Text::new(value)?;
+        Ok(Self(value.into()))
     }
     /// Borrow the source Markdown.
     pub fn as_str(&self) -> &str {
-        self.0.as_str()
+        &self.0
     }
 }
 
@@ -25,4 +26,9 @@ impl schemars::JsonSchema for Markdown {
         schema.insert("format".into(), "markdown".into());
         schema
     }
+}
+
+impl TryFrom<String> for Markdown {
+    type Error = Error;
+    fn try_from(value: String) -> Result<Self, Error> { Self::new(&value) }
 }

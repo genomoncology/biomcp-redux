@@ -27,7 +27,13 @@ pub(super) struct Group {
     pub(super) rows: Vec<BodyRow>,
 }
 impl Group {
-    pub(super) fn separator(&self) -> &'static str { if self.kind == TextPartKind::Table { "\n" } else { "\n\n" } }
+    pub(super) fn separator(&self) -> &'static str {
+        if self.kind == TextPartKind::Table {
+            "\n"
+        } else {
+            "\n\n"
+        }
+    }
     pub(super) fn section(path: Vec<Text>) -> Self {
         Self {
             title: path.last().map_or("Body", Text::as_str).to_owned(),
@@ -111,10 +117,20 @@ pub(super) fn figure(fig: Element<'_>) -> Result<Option<BodyRow>, BadReply> {
         references: super::references::ids(caption.0)?,
     }))
 }
-pub(super) fn append(
-    parts: &mut Vec<Part>,
-    group: Group,
-    rows: &mut Rows,
-) -> Result<(), BadReply> {
+pub(super) fn append(parts: &mut Vec<Part>, group: Group, rows: &mut Rows) -> Result<(), BadReply> {
     super::parts::append(parts, group, rows)
+}
+
+pub(super) fn groups(name: &str, node: Element<'_>) -> Result<Vec<Group>, BadReply> {
+    if name == "sec" { return section(node, &[]); }
+    let mut group = Group::section(Vec::new());
+    let rendered = if name == "fig" { figure(node)? } else {
+        let plain = node.text()?;
+        if plain.trim().is_empty() { None } else { Some(BodyRow {
+            plain, markdown: markdown::inline(node.0)?.trim().to_owned(), context: false,
+            references: super::references::ids(node.0)?,
+        }) }
+    };
+    if let Some(row) = rendered { group.rows.push(row); }
+    Ok(vec![group])
 }

@@ -22,6 +22,19 @@
           "section",
           "section",
           "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
+          "section",
           "table",
           "table",
           "table",
@@ -39,7 +52,7 @@
           "1"
         ]
       },
-      "max_bytes": 4500,
+      "max_bytes": 5495,
       "mcp": [
         "get",
         "article",
@@ -69,5 +82,6 @@
       },
       "max_tokens": 4000
     }
-  ]
+  ],
+  "verified": "2026-10-24: Markdown semantic headings yield4778bytes;5495bytes permits measured+15%. No comparable0.9baseline exists because that command returned a file path. The fulltext section remains below500tokens."
 }

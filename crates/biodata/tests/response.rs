@@ -66,3 +66,14 @@ fn constraint_numbers_refuse_non_finite_values_and_empty_sections_omit_record() 
         serde_json::json!({"state":"empty","source":"gnomad"})
     );
 }
+
+#[test]
+fn markdown_preserves_layout_and_rejects_empty_values() -> Result<(), Box<dyn std::error::Error>> {
+    let value = biodata::Markdown::new("  # Heading\n")?;
+    assert_eq!(value.as_str(), "  # Heading\n");
+    let json = serde_json::to_string(&value)?;
+    assert_eq!(serde_json::from_str::<biodata::Markdown>(&json)?, value);
+    assert!(biodata::Markdown::new(" \n").is_err());
+    assert!(serde_json::from_str::<biodata::Markdown>("\" \"").is_err());
+    Ok(())
+}

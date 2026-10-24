@@ -33,11 +33,24 @@ pub(super) fn append(
     originals: &mut Rows,
 ) -> Result<(), BadReply> {
     let source = group;
-    let incoming = source.rows.iter().try_fold(0usize, |n,r|n.checked_add(r.markdown.len()).ok_or(BadReply))?;
-    originals.bytes = originals.bytes.checked_add(incoming).filter(|n|*n <= super::MAX_MARKDOWN_BYTES).ok_or(BadReply)?;
-    let metadata = source.path.iter().map(|v|escaped_bytes(v.as_str())+3).sum::<usize>()
-        + source.context.as_ref().map_or(0, |v|escaped_bytes(v));
-    let budget = TEXT_BYTES.checked_sub(metadata + 256).filter(|n|*n >= 256).ok_or(BadReply)?;
+    let incoming = source.rows.iter().try_fold(0usize, |n, r| {
+        n.checked_add(r.markdown.len()).ok_or(BadReply)
+    })?;
+    originals.bytes = originals
+        .bytes
+        .checked_add(incoming)
+        .filter(|n| *n <= super::MAX_MARKDOWN_BYTES)
+        .ok_or(BadReply)?;
+    let metadata = source
+        .path
+        .iter()
+        .map(|v| escaped_bytes(v.as_str()) + 3)
+        .sum::<usize>()
+        + source.context.as_ref().map_or(0, |v| escaped_bytes(v));
+    let budget = TEXT_BYTES
+        .checked_sub(metadata + 256)
+        .filter(|n| *n >= 256)
+        .ok_or(BadReply)?;
     let start = out.len();
     let mut group = Vec::new();
     let mut bytes = 0;
