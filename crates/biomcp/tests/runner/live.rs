@@ -185,7 +185,15 @@ fn check(
             if registry.validate(&actual, &args.1, true).is_err() {
                 changes.push("output schema failure".into());
             }
-            commands.push(command_report(ordinal, &expected, &actual, &before, &after, &mut changes, sources));
+            commands.push(command_report(
+                ordinal,
+                &expected,
+                &actual,
+                &before,
+                &after,
+                &mut changes,
+                sources,
+            ));
             previous = (Some(expected), Some(actual));
             if step.walk.is_none() {
                 break;
@@ -276,11 +284,21 @@ fn invoke(
     Ok((value, observations))
 }
 
-pub(super) fn command_report(ordinal: usize, expected: &Value, actual: &Value,
-    before: &[Observation], after: &[Observation], changes: &mut Vec<String>,
-    sources: &mut BTreeMap<String, Value>) -> Value {
+pub(super) fn command_report(
+    ordinal: usize,
+    expected: &Value,
+    actual: &Value,
+    before: &[Observation],
+    after: &[Observation],
+    changes: &mut Vec<String>,
+    sources: &mut BTreeMap<String, Value>,
+) -> Value {
     if expected.get("status") != actual.get("status") {
-        changes.push(format!("command {ordinal}: output status changed: {:?} -> {:?}", expected.get("status"), actual.get("status")));
+        changes.push(format!(
+            "command {ordinal}: output status changed: {:?} -> {:?}",
+            expected.get("status"),
+            actual.get("status")
+        ));
     }
     let evidence = compare(before, after, changes, sources);
     json!({"ordinal": ordinal, "before_status": expected.get("status"), "after_status": actual.get("status"), "exchanges": evidence})

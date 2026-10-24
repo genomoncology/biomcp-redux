@@ -239,14 +239,14 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     let original = super::launch::fixtures().join("replies/gene/main");
     let retry = env.root().join("retried");
     response_cases::copy_capture("gene/main", &retry, |source, record| {
-        if source == "mygene" {
-            if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
-                let Some(mut error) = exchanges.first().cloned() else { return };
-                error["status"] = json!(429);
-                error["body"] = json!({"kind": "json", "value": {"error": "retry", "count": 2}});
-                error["retry_after_ms"] = json!(0);
-                exchanges.insert(0, error);
+        if source == "mygene" && let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
+            let Some(mut error) = exchanges.first().cloned() else { return };
+            if let Some(error) = error.as_object_mut() {
+                error.insert("status".into(), json!(429));
+                error.insert("body".into(), json!({"kind": "json", "value": {"error": "retry", "count": 2}}));
+                error.insert("retry_after_ms".into(), json!(0));
             }
+            exchanges.insert(0, error);
         }
     })?;
     let before = observe(&env, &retry, "retry-before", &["get", "gene", "KRAS"])?;
@@ -287,13 +287,17 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     cache_reuse(&env, &original, &after)?;
     Ok(())
 }
-fn cache_reuse(env: &Environment, original: &Path, after: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
+fn cache_reuse(
+    env: &Environment,
+    original: &Path,
+    after: &[Observation],
+) -> Result<(), Box<dyn std::error::Error>> {
     // Reuse the actual warmed checked cache with networking refused.
     let cache = env.root().join("explicit-cache");
     let cache_arg = cache.to_str().ok_or("cache path")?;
     observe(
-        &env,
-        &original,
+        env,
+        original,
         "warm",
         &["get", "gene", "KRAS", "--case-cache", cache_arg],
     )?;
@@ -333,21 +337,51 @@ fn cache_reuse(env: &Environment, original: &Path, after: &[Observation]) -> Res
 
 fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
     let mut changes = Vec::new();
-    let evidence = live::command_report(3, &json!({"status": "found"}), &json!({"status": "not_found"}), observed, observed, &mut changes, &mut BTreeMap::new());
-    if evidence.get("ordinal") != Some(&json!(3)) || evidence.get("before_status") != Some(&json!("found"))
-        || evidence.get("after_status") != Some(&json!("not_found")) || evidence.pointer("/exchanges/items/0/role").and_then(Value::as_str).is_none_or(str::is_empty)
-        || evidence.pointer("/exchanges/items/0/before_statuses/values").is_none() {
+    let evidence = live::command_report(
+        3,
+        &json!({"status": "found"}),
+        &json!({"status": "not_found"}),
+        observed,
+        observed,
+        &mut changes,
+        &mut BTreeMap::new(),
+    );
+    if evidence.get("ordinal") != Some(&json!(3))
+        || evidence.get("before_status") != Some(&json!("found"))
+        || evidence.get("after_status") != Some(&json!("not_found"))
+        || evidence
+            .pointer("/exchanges/items/0/role")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+        || evidence
+            .pointer("/exchanges/items/0/before_statuses/values")
+            .is_none()
+    {
         return Err(format!("bounded command context missing: {evidence}").into());
     }
-    let cases = vec![json!({"case": "changed-status", "result": {"drift": changes, "commands": [evidence]}})];
+    let cases = vec![
+        json!({"case": "changed-status", "result": {"drift": changes, "commands": [evidence]}}),
+    ];
     let report = live::summary(cases, BTreeMap::new(), 0, true);
-    if report.get("drift_cases") != Some(&json!(1)) || report.pointer("/case_sample/0/result/commands/0/ordinal") != Some(&json!(3)) { return Err("full report lost status context".into()); }
+    if report.get("drift_cases") != Some(&json!(1))
+        || report.pointer("/case_sample/0/result/commands/0/ordinal") != Some(&json!(3))
+    {
+        return Err("full report lost status context".into());
+    }
     let first = observed.first().ok_or("missing observation")?;
-    let many: Vec<_> = (0..40).map(|index| {
-        let mut item = first.clone(); item.identity = format!("request-{index}"); item
-    }).collect();
+    let many: Vec<_> = (0..40)
+        .map(|index| {
+            let mut item = first.clone();
+            item.identity = format!("request-{index}");
+            item
+        })
+        .collect();
     changes = Vec::new();
     let evidence = live::compare(&many, &[], &mut changes, &mut BTreeMap::new());
-    if evidence.get("omitted") != Some(&json!(8)) || !changes.last().is_some_and(|item| item.contains("omitted")) { return Err("truncation is hidden".into()); }
+    if evidence.get("omitted") != Some(&json!(8))
+        || !changes.last().is_some_and(|item| item.contains("omitted"))
+    {
+        return Err("truncation is hidden".into());
+    }
     Ok(())
 }

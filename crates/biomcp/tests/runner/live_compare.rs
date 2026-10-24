@@ -12,26 +12,7 @@ pub(crate) fn compare(
     changes: &mut Vec<String>,
     sources: &mut BTreeMap<String, Value>,
 ) -> Value {
-    for item in after.iter().filter(|item| !item.cached) {
-        let name = serde_json::to_value(item.source)
-            .unwrap_or(Value::Null)
-            .as_str()
-            .unwrap_or("unknown")
-            .to_owned();
-        let totals = sources
-            .entry(name)
-            .or_insert(json!({"attempts": 0, "bytes": 0, "elapsed_ms": 0}));
-        for (key, value) in [
-            ("attempts", 1),
-            ("bytes", item.bytes),
-            ("elapsed_ms", item.elapsed_ms),
-        ] {
-            let previous = totals.get(key).and_then(Value::as_u64).unwrap_or(0);
-            if let Some(slot) = totals.get_mut(key) {
-                *slot = json!(previous.saturating_add(value));
-            }
-        }
-    }
+    totals(after, sources);
     let mut evidence = Vec::new();
     let mut used = BTreeSet::new();
     let mut found = Vec::new();
@@ -103,8 +84,8 @@ pub(crate) fn compare(
 fn terminal(items: &[Observation]) -> Vec<&Observation> {
     let mut result: Vec<&Observation> = Vec::new();
     for item in items {
-        if let Some(index) = result.iter().position(|old| old.identity == item.identity) {
-            result[index] = item;
+        if let Some(old) = result.iter_mut().find(|old| old.identity == item.identity) {
+            *old = item;
         } else {
             result.push(item);
         }
@@ -118,4 +99,27 @@ fn statuses(items: &[Observation], identity: &str) -> Value {
         .collect();
     json!({"values": matching.iter().take(16).map(|item| item.status).collect::<Vec<_>>(),
         "omitted": matching.len().saturating_sub(16)})
+}
+
+fn totals(after: &[Observation], sources: &mut BTreeMap<String, Value>) {
+    for item in after.iter().filter(|item| !item.cached) {
+        let name = serde_json::to_value(item.source)
+            .unwrap_or(Value::Null)
+            .as_str()
+            .unwrap_or("unknown")
+            .to_owned();
+        let totals = sources
+            .entry(name)
+            .or_insert(json!({"attempts": 0, "bytes": 0, "elapsed_ms": 0}));
+        for (key, value) in [
+            ("attempts", 1),
+            ("bytes", item.bytes),
+            ("elapsed_ms", item.elapsed_ms),
+        ] {
+            let previous = totals.get(key).and_then(Value::as_u64).unwrap_or(0);
+            if let Some(slot) = totals.get_mut(key) {
+                *slot = json!(previous.saturating_add(value));
+            }
+        }
+    }
 }
