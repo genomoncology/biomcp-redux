@@ -46,6 +46,9 @@
         "civic",
         "oncokb",
         "hotspots",
+        "predict",
+        "conservation",
+        "cosmic",
         "all"
       ],
       "type": "string",
@@ -55,6 +58,9 @@
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",
+        " MyVariant source predictor scores.",
+        " MyVariant conservation scores.",
+        " Historical COSMIC fields carried by MyVariant.",
         " Every implemented variant section."
       ]
     }

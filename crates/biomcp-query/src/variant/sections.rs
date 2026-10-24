@@ -21,14 +21,14 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
-            VariantSection::Predict,
-            VariantSection::Conservation,
-            VariantSection::Cosmic,
             VariantSection::Population,
             VariantSection::Gwas,
             VariantSection::Civic,
             VariantSection::Hotspots,
             VariantSection::Oncokb,
+            VariantSection::Predict,
+            VariantSection::Conservation,
+            VariantSection::Cosmic,
         ] {
             if !query.sections().contains(&section)
                 && !query.sections().contains(&VariantSection::All)
@@ -42,9 +42,18 @@ pub(super) fn apply(
                 };
             }
             match section {
-                VariantSection::Predict => attach!(predict, super::predict::section(cx, query, candidates, deadline)),
-                VariantSection::Conservation => attach!(conservation, super::conservation::section(cx, query, candidates, deadline)),
-                VariantSection::Cosmic => attach!(cosmic, super::cosmic::section(cx, query, candidates, deadline)),
+                VariantSection::Predict => attach!(
+                    predict,
+                    super::predict::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Conservation => attach!(
+                    conservation,
+                    super::conservation::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Cosmic => attach!(
+                    cosmic,
+                    super::cosmic::section(cx, query, candidates, deadline)
+                ),
                 VariantSection::Population => attach!(
                     population,
                     super::population::section(cx, query, candidates, *deadline)

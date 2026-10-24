@@ -629,6 +629,68 @@
         }
       ]
     },
+    "ComponentLabel": {
+      "additionalProperties": false,
+      "description": "Terms attached to a named carried component on a consumer response.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component name."
+        },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Canonical publisher terms."
+        }
+      },
+      "required": [
+        "component",
+        "terms"
+      ],
+      "type": "object"
+    },
+    "ComponentTerms": {
+      "additionalProperties": false,
+      "description": "Terms attached to one independently licensed source component.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms name."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms page."
+        },
+        "usage": {
+          "$ref": "#/$defs/Use",
+          "description": "Publisher use category."
+        }
+      },
+      "required": [
+        "usage",
+        "name",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ComponentUpload": {
+      "additionalProperties": false,
+      "description": "One source-named component upload timestamp.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/Text",
+          "description": "Unchanged source timestamp."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source subcollection name."
+        }
+      },
+      "required": [
+        "name",
+        "date"
+      ],
+      "type": "object"
+    },
     "Concept": {
       "additionalProperties": false,
       "description": "One source concept with its optional ontology identifier.",
@@ -651,6 +713,133 @@
       },
       "required": [
         "label"
+      ],
+      "type": "object"
+    },
+    "CosmicCoordinates": {
+      "additionalProperties": false,
+      "description": "Historical coordinates exactly as carried by the component.",
+      "properties": {
+        "end": {
+          "description": "Source end value, without coordinate conversion.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "description": "Source start value, without coordinate conversion.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "CosmicIdentity": {
+      "description": "Relationship between a carried historical fragment and its aggregator record.",
+      "enum": [
+        "unverified"
+      ],
+      "type": "string"
+    },
+    "CosmicRecord": {
+      "additionalProperties": false,
+      "description": "One source record from MyVariant's historical COSMIC copy.",
+      "properties": {
+        "alternate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unmodified source alternate spelling."
+        },
+        "chromosome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source chromosome label."
+        },
+        "cosmic_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native COSMIC record identifier."
+        },
+        "hg19": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CosmicCoordinates"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source hg19 coordinates, without allele construction."
+        },
+        "identity": {
+          "$ref": "#/$defs/CosmicIdentity",
+          "description": "Fragment identity has not been independently verified."
+        },
+        "mut_freq": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source frequency; units and denominator are not inferred."
+        },
+        "mut_nt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source nucleotide text, without repair or normalization."
+        },
+        "myvariant_record": {
+          "$ref": "#/$defs/Text",
+          "description": "MyVariant parent record association; this does not establish allele equivalence."
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unmodified source reference spelling."
+        },
+        "tumor_site": {
+          "description": "Every source tumor-site label in native order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "myvariant_record",
+        "identity",
+        "cosmic_id"
       ],
       "type": "object"
     },
@@ -1534,6 +1723,68 @@
       ],
       "type": "string"
     },
+    "PredictorContext": {
+      "additionalProperties": false,
+      "description": "Unchanged native context values associated with a source field path.",
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source field path."
+        },
+        "values": {
+          "description": "Every native value in source array order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "values"
+      ],
+      "type": "object"
+    },
+    "PredictorScore": {
+      "additionalProperties": false,
+      "description": "One unmodified source score, never a locally blended assessment.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Source-owned record and dataset release."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label without code expansion or interpretation."
+        },
+        "method": {
+          "$ref": "#/$defs/Text",
+          "description": "Published component field path."
+        },
+        "score": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Source number, including zero."
+        },
+        "subject": {
+          "$ref": "#/$defs/VariantRef",
+          "description": "Exact source-qualified subject."
+        }
+      },
+      "required": [
+        "subject",
+        "method",
+        "score",
+        "attribution"
+      ],
+      "type": "object"
+    },
     "Problem": {
       "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
@@ -1685,7 +1936,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantPopulation",
+              "$ref": "#/$defs/VariantPredictors",
               "description": "Whole section data."
             },
             "source": {
@@ -1806,7 +2057,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantGwas",
+              "$ref": "#/$defs/VariantConservation",
               "description": "Whole section data."
             },
             "source": {
@@ -1927,7 +2178,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantOncokb",
+              "$ref": "#/$defs/VariantCosmic",
               "description": "Whole section data."
             },
             "source": {
@@ -2048,7 +2299,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantCivic",
+              "$ref": "#/$defs/VariantPopulation",
               "description": "Whole section data."
             },
             "source": {
@@ -2162,6 +2413,369 @@
       ]
     },
     "Section5": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantGwas",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section6": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantOncokb",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section7": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantCivic",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section8": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -2314,6 +2928,7 @@
         "hpa",
         "uniprot",
         "gnomad",
+        "clinvar",
         "gwas",
         "clingen",
         "pubmed",
@@ -2343,6 +2958,7 @@
         " Human Protein Atlas.",
         " UniProt.",
         " gnomAD.",
+        " ClinVar component source policy.",
         " GWAS Catalog v2.",
         " ClinGen.",
         " PubMed.",
@@ -2699,6 +3315,13 @@
       ],
       "type": "string"
     },
+    "SubjectQualification": {
+      "description": "Provenance of the subject's accession qualification, without allele normalization.",
+      "enum": [
+        "adapter_derived_reference"
+      ],
+      "type": "string"
+    },
     "Term": {
       "additionalProperties": false,
       "description": "A source label with optional explicitly supported coding.",
@@ -2727,6 +3350,16 @@
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
       "type": "string"
     },
     "Variant": {
@@ -2825,6 +3458,160 @@
       "required": [
         "profiles",
         "page"
+      ],
+      "type": "object"
+    },
+    "VariantComponent": {
+      "additionalProperties": false,
+      "description": "Metadata for a component carried by an aggregator.",
+      "properties": {
+        "aggregator_build": {
+          "$ref": "#/$defs/Text",
+          "description": "Aggregator build version."
+        },
+        "aggregator_built": {
+          "$ref": "#/$defs/Text",
+          "description": "Aggregator build timestamp, distinct from a component release."
+        },
+        "license": {
+          "$ref": "#/$defs/Text",
+          "description": "Component license URL, without any inferred grant."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Component name from aggregator metadata."
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole source snapshot warning."
+        },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Independently reviewed publisher terms; no blanket aggregator grant."
+        },
+        "uploaded": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Component upload timestamp when the source states one."
+        },
+        "uploads": {
+          "description": "Source-named component upload timestamps when the publisher supplies a map.",
+          "items": {
+            "$ref": "#/$defs/ComponentUpload"
+          },
+          "type": "array"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Component version; omitted when the source reports none."
+        }
+      },
+      "required": [
+        "terms",
+        "name",
+        "license",
+        "aggregator_build",
+        "aggregator_built"
+      ],
+      "type": "object"
+    },
+    "VariantConservation": {
+      "additionalProperties": false,
+      "description": "Source conservation measurements; no local pathogenicity inference.",
+      "properties": {
+        "components": {
+          "description": "Independent component versions and licenses.",
+          "items": {
+            "$ref": "#/$defs/VariantComponent"
+          },
+          "type": "array"
+        },
+        "context": {
+          "description": "Original context arrays, without inferred cross-field alignment.",
+          "items": {
+            "$ref": "#/$defs/PredictorContext"
+          },
+          "type": "array"
+        },
+        "scores": {
+          "description": "Every retained source measurement in declared field order.",
+          "items": {
+            "$ref": "#/$defs/PredictorScore"
+          },
+          "type": "array"
+        },
+        "subject_qualification": {
+          "$ref": "#/$defs/SubjectQualification",
+          "description": "How the source chromosome label was reference-qualified."
+        }
+      },
+      "required": [
+        "subject_qualification",
+        "scores",
+        "components"
+      ],
+      "type": "object"
+    },
+    "VariantCosmic": {
+      "additionalProperties": false,
+      "description": "Historical COSMIC fields carried by MyVariant, without direct COSMIC access.",
+      "properties": {
+        "components": {
+          "description": "Snapshot version, dates, warning and terms.",
+          "items": {
+            "$ref": "#/$defs/VariantComponent"
+          },
+          "type": "array"
+        },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Typed next page for the same identity and section selection."
+        },
+        "records": {
+          "description": "Native historical records in source order.",
+          "items": {
+            "$ref": "#/$defs/CosmicRecord"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Number of native historical fragments before paging.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "records",
+        "components"
       ],
       "type": "object"
     },
@@ -2982,6 +3769,13 @@
       "additionalProperties": false,
       "description": "Consumer identity header with an exact source selection and compact annotation entity.",
       "properties": {
+        "component_terms": {
+          "description": "Terms for carried component identifiers on this consumer header.",
+          "items": {
+            "$ref": "#/$defs/ComponentLabel"
+          },
+          "type": "array"
+        },
         "identity": {
           "$ref": "#/$defs/Variant",
           "description": "Source-qualified variant entity."
@@ -3236,6 +4030,43 @@
       ],
       "type": "object"
     },
+    "VariantPredictors": {
+      "additionalProperties": false,
+      "description": "Source prediction scores and the terms of their individual components.",
+      "properties": {
+        "components": {
+          "description": "Independent component versions and licenses.",
+          "items": {
+            "$ref": "#/$defs/VariantComponent"
+          },
+          "type": "array"
+        },
+        "context": {
+          "description": "Original context arrays, without inferred cross-field alignment.",
+          "items": {
+            "$ref": "#/$defs/PredictorContext"
+          },
+          "type": "array"
+        },
+        "scores": {
+          "description": "Every retained source score in declared field order.",
+          "items": {
+            "$ref": "#/$defs/PredictorScore"
+          },
+          "type": "array"
+        },
+        "subject_qualification": {
+          "$ref": "#/$defs/SubjectQualification",
+          "description": "How the source chromosome label was reference-qualified."
+        }
+      },
+      "required": [
+        "subject_qualification",
+        "scores",
+        "components"
+      ],
+      "type": "object"
+    },
     "VariantRef": {
       "description": "Checked source subject reference; at least one source identity or label is required.",
       "oneOf": [
@@ -3378,6 +4209,9 @@
         "civic",
         "oncokb",
         "hotspots",
+        "predict",
+        "conservation",
+        "cosmic",
         "all"
       ],
       "type": "string",
@@ -3387,6 +4221,9 @@
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",
+        " MyVariant source predictor scores.",
+        " MyVariant conservation scores.",
+        " Historical COSMIC fields carried by MyVariant.",
         " Every implemented variant section."
       ]
     },
@@ -3397,7 +4234,7 @@
         "civic": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Section7"
             },
             {
               "type": "null"
@@ -3405,10 +4242,32 @@
           ],
           "description": "Explicit civic source result."
         },
-        "gwas": {
+        "conservation": {
           "anyOf": [
             {
               "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native conservation scores."
+        },
+        "cosmic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Historical MyVariant-associated COSMIC fragments."
+        },
+        "gwas": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -3419,7 +4278,7 @@
         "hotspots": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Section8"
             },
             {
               "type": "null"
@@ -3430,7 +4289,7 @@
         "oncokb": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section6"
             },
             {
               "type": "null"
@@ -3441,13 +4300,24 @@
         "population": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
             }
           ],
           "description": "Explicit population source result."
+        },
+        "predict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native prediction scores."
         }
       },
       "type": "object"

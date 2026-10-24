@@ -131,7 +131,8 @@ fn unrelated_sources() -> Vec<String> {
 fn empty_components(value: &Value) -> Result<(), String> {
     for name in ["predict", "conservation", "cosmic"] {
         if value.pointer(&format!("/result/candidates/0/sections/{name}/state"))
-            != Some(&json!("empty")) {
+            != Some(&json!("empty"))
+        {
             return Err(format!("all did not preserve empty {name}: {value}"));
         }
     }
@@ -143,12 +144,17 @@ fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
         "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way",
         "fields=_id%2Ccosmic",
     ] {
-        let count = requests.iter().filter(|(_, request)| {
-            request.starts_with("GET /v1/variant/chr7%3Ag.140753336A%3ET?")
-                && request.contains(&format!("?{fields}&assembly=hg19 "))
-        }).count();
+        let count = requests
+            .iter()
+            .filter(|(_, request)| {
+                request.starts_with("GET /v1/variant/chr7%3Ag.140753336A%3ET?")
+                    && request.contains(&format!("?{fields}&assembly=hg19 "))
+            })
+            .count();
         if count != 1 {
-            return Err(format!("expected one added component request for {fields}: {requests:?}"));
+            return Err(format!(
+                "expected one added component request for {fields}: {requests:?}"
+            ));
         }
     }
     Ok(3)
