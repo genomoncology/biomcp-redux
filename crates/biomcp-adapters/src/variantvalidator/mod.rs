@@ -54,7 +54,13 @@ struct Locus {
 }
 impl Reply for Response {
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if (200..300).contains(&status) || matches!(status, 400 | 422) && self.flag.as_str() == "warning" { Ok(()) } else { Err(BadReply) }
+        if (200..300).contains(&status)
+            || matches!(status, 400 | 422) && self.flag.as_str() == "warning"
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
     fn check(&self) -> Result<(), BadReply> {
         if self.variants.is_empty() || self.variants.len() > 1000 {

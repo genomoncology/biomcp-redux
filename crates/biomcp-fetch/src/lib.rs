@@ -45,7 +45,11 @@ pub trait Reply: serde::de::DeserializeOwned {
     fn check(&self) -> Result<(), BadReply>;
     /// Refuse a successful-looking body on an error status. Explicit validation-reply types may accept only their checked rejection form.
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if (200..300).contains(&status) { Ok(()) } else { Err(BadReply) }
+        if (200..300).contains(&status) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }
 

@@ -47,7 +47,12 @@ pub(super) struct Coordinate {
 }
 impl Reply for Allele {
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if (200..300).contains(&status) || matches!(status, 400 | 422) && self.error_type.is_some() { Ok(()) } else { Err(BadReply) }
+        if (200..300).contains(&status) || matches!(status, 400 | 422) && self.error_type.is_some()
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
     fn check(&self) -> Result<(), BadReply> {
         if let Some(code) = &self.error_type {
