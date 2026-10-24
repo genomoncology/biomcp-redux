@@ -318,7 +318,7 @@ For KRAS G12C the LitVar2 column uses rs121913530, LitVar2's entry for p.G12C, w
 ### Requests and speed for the design below
 
 - `get article <PMID>`: one EFetch call of about 0.2 s. A DOI adds one ESearch call. A PMCID adds one ESearch call.
-- Each card section adds requests in parallel: `annotations` 0.2 s, `citations` 0.1 s, `fulltext` and `supplements` one OA bucket listing and record of 0.15 s each, plus the JATS download of about 0.2 s for `fulltext` and for the captions in `supplements`. `indexing` reads the card's reply and adds none. `tldr` adds one Semantic Scholar call of 0.1 to 0.2 s, plus any wait for the shared pool. `pdf` adds the same call and the PDF download, 4.8 MB for 41351423, with extraction of about 45 ms for 16 pages.
+- Each card section adds requests in parallel: `annotations` 0.2 s, `citations` 0.1 s, `fulltext` and `supplements` one OA bucket listing and record of 0.15 s each, plus the JATS download of about 0.2 s for `fulltext` and for the captions in `supplements`. `indexing` reads the card's reply and adds none. `tldr` adds one Semantic Scholar call of 0.1 to 0.2 s, plus any wait for the shared pool. `pdf` adds the same call. `article pdf --save` adds the PDF download, 4.8 MB for 41351423.
 - `search article` with the default: one ESearch of 0.2 to 1.0 s for the whole window, then ESummary for the page of ten at 0.25 s. A fold adds each named source in parallel, so a cold first page takes the time of the slowest named source: 0.2 to 0.5 s for LitVar2, 0.5 to 2.2 s for Europe PMC, up to 21 s when LitSense2 stalls. `--sort citations` adds iCite for the whole pool, about 1 s per 1,000 PMIDs at four batches at a time. A warm page reads the store and makes no network request.
 
 ## 4. Delight questions
@@ -512,7 +512,7 @@ Identifier newtypes, each with a checked constructor, `FromStr` and `Display`:
 | `Doi` | `10.1056/NEJMoa1203421` | Prefix `10.`, a registrant, a slash and a suffix. Compares and hashes without ASCII case, prints as given |
 | `EuropePmcId` | `PPR1064174` | Europe PMC source prefix and digits, for records with no PMID |
 
-Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `clinical_trial`, `clinical_trial_phase_1` to `clinical_trial_phase_4`, `meta_analysis`, `systematic_review`, `review`, `practice_guideline`, `guideline`, `case_report`, `observational_study`, `multicenter_study`, `letter`, `comment`, `editorial`, `preprint`, `retracted_publication`, `retraction_notice`, `erratum`). PubMed's funding types such as "Research Support, N.I.H., Extramural" and "Journal Article" map to no value and are dropped without a problem, because they carry no clinical meaning. `CorrectionKind` (`retraction`, `erratum`, `expression_of_concern`). `License` (non-exhaustive: `cc0`, `cc_by`, `cc_by_sa`, `cc_by_nc`, `cc_by_nc_sa`, `cc_by_nd`, `cc_by_nc_nd`, `public_domain`, `tdm`). `FileKind` (non-exhaustive: `xlsx`, `xls`, `csv`, `tsv`, `docx`, `doc`, `pdf`, `zip`, `txt`, `image`, `video`). `ArticleMatchKind` (`pmid`, `pmcid`, `doi`, `europepmc_id`). `Order` (`rank`, `date`, `citations`). `EdgeSource` (`icite`, `semantic-scholar`). `CitationIntent` (non-exhaustive: `background`, `methodology`, `result`), Semantic Scholar's three intents. `TextOrigin` (`jats`, `pdf`). `OpenAccessStatus` (non-exhaustive: `gold`, `green`, `hybrid`, `bronze`, `closed`), as Semantic Scholar reports it.
+Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `clinical_trial`, `clinical_trial_phase_1` to `clinical_trial_phase_4`, `meta_analysis`, `systematic_review`, `review`, `practice_guideline`, `guideline`, `case_report`, `observational_study`, `multicenter_study`, `letter`, `comment`, `editorial`, `preprint`, `retracted_publication`, `retraction_notice`, `erratum`). PubMed's funding types such as "Research Support, N.I.H., Extramural" and "Journal Article" map to no value and are dropped without a problem, because they carry no clinical meaning. `CorrectionKind` (`retraction`, `erratum`, `expression_of_concern`). `License` (non-exhaustive: `cc0`, `cc_by`, `cc_by_sa`, `cc_by_nc`, `cc_by_nc_sa`, `cc_by_nd`, `cc_by_nc_nd`, `public_domain`, `tdm`). `FileKind` (non-exhaustive: `xlsx`, `xls`, `csv`, `tsv`, `docx`, `doc`, `pdf`, `zip`, `txt`, `image`, `video`). `ArticleMatchKind` (`pmid`, `pmcid`, `doi`, `europepmc_id`). `Order` (`rank`, `date`, `citations`). `EdgeSource` (`icite`, `semantic-scholar`). `CitationIntent` (non-exhaustive: `background`, `methodology`, `result`), Semantic Scholar's three intents. `OpenAccessStatus` (non-exhaustive: `gold`, `green`, `hybrid`, `bronze`, `closed`), as Semantic Scholar reports it.
 
 `ArticleInput` is free text that the edge parses into a `Pmid` (digits), a `Pmcid`, a `Doi` (starts `10.`, or a `doi.org` URL) or a `EuropePmcId`.
 
@@ -567,11 +567,14 @@ The pending downloader preserves the public-DNS-host boundary on every redirect,
 
 ### Readers for full text and supplementary files
 
+The save inputs below describe pending 0052 and 0076. They are approved design and do not appear in shipped help before those implementations land.
+
 | Reader | What it does | Limits |
 | --- | --- | --- |
 | `article text <ID> --part N` | Returns one part of the outline as Markdown | A part is split at 4,000 tokens, and a split part carries a step to its continuation. Each table is its own part |
 | `article text <ID> --find TEXT` | Returns the paragraphs and tables that contain the text, as Markdown, each with its part number | 25 hits per call with a page step |
 | `article supplement <ID> <FILE>` | Without `--find`, returns the file's sheet list with each sheet's row count, and pages of rows by range with `--rows A-B` | 200 rows per page |
+| `article supplement <ID> <FILE> --save PATH` | Writes the file's original bytes, including pdf and docx files the reader marks `unsupported` | 50 MB; a folder PATH gets the file's own name |
 | `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256. The header row is the sheet's first row | 25 hits per call. The match is literal and ignores case |
 | `article supplement <ID> <FILE> --variant CHANGE`, `article text <ID> --variant CHANGE` | The same hits for any form of a protein change | `ProteinChange` parses the change, and the reply prints the forms it searched: for P245S, `P245S`, `Pro245Ser`, `p.P245S` and `p.Pro245Ser`. Each form matches literally, ignoring case |
 
@@ -590,7 +593,7 @@ The JATS reader turns each part of the body into Markdown, so the structure an a
 
 On 2026-10-24, PMC9018718 (35440569, CC BY) held nested section titles under Results, 82 numbered citation markers, 58 `sup` and 2 `sub` elements; its first Results subsection writes *AKT1* in italics and cites `<sup>11</sup>`. PMC5606870 (28944238, CC BY) held 9 tables; Table 1, "Sample characteristics", has a header row of sites and a row "Age at diagnosis of cases (range)". None of the open papers checked held a JATS `list`, so lists are proved by a hand-built synthetic JATS file.
 
-The first version of the supplement reader reads xlsx, csv, tsv and txt. A pdf or docx supplement returns `unsupported` with the file's URL. Downloads stop at 50 MB; the largest example file was 2.3 MB. These readers are drill-downs under `get article`, within `decisions/2026-10-23-search-and-get-is-the-1-0-scope.md`.
+The first version of the supplement reader reads xlsx, csv, tsv and txt. A pdf or docx supplement returns `unsupported` with the file's URL, and `--save` still writes it. Downloads stop at 50 MB; the largest example file was 2.3 MB. These readers are drill-downs under `get article`, within `decisions/2026-10-23-search-and-get-is-the-1-0-scope.md`.
 
 New dependencies, added to `architecture.md` section 2.2 by the stage that builds the readers: `calamine` for xlsx and `csv` for csv and tsv. JATS uses the planned `quick-xml`. Both crates are MIT licensed; the stage runs `cargo deny` and brings any transitive license outside the allowlist through the license exception process.
 
@@ -796,7 +799,7 @@ The citations facts are the total and the count source. 0.9 states neither total
 
 ### Budget
 
-Article page cases use the recorded real output plus 15 percent, capped by the recorded 0.9 JSON tokens for the same question (PM m4341). The 1,300-token page figure is a design target. Provisional page maxima in the investigation table are replaced with exact measured case ceilings before handoff; exceptions explain the responsible facts on the owning ticket. Other command ceilings remain as ruled. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80; `tldr` 120; `indexing` 400; `pdf` metadata and download unmeasured until 0052; a Semantic Scholar citations or references page 1,800, under 0.9's 1,811 for `article citations 17611497 --limit 10`; `article citation-evidence` 900, or 4,000 with `--fulltext`; a recommendations page 1,300. 0.9 printed no recorded JSON for citation evidence, recommendations, `tldr` or `--pdf` on these examples, so those budgets make no 0.9 comparison claim until 0047 measures 0.9 on the same inputs.
+Article page cases use the recorded real output plus 15 percent, capped by the recorded 0.9 JSON tokens for the same question (PM m4341). The 1,300-token page figure is a design target. Provisional page maxima in the investigation table are replaced with exact measured case ceilings before handoff; exceptions explain the responsible facts on the owning ticket. Other command ceilings remain as ruled. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80; `tldr` 120; `indexing` 400; `pdf` 120; a save reply 200; a Semantic Scholar citations or references page 1,800, under 0.9's 1,811 for `article citations 17611497 --limit 10`; `article citation-evidence` 900, or 4,000 with `--fulltext`; a recommendations page 1,300. 0.9 printed no recorded JSON for citation evidence, recommendations or `tldr` on these examples, so those budgets make no 0.9 comparison claim until 0047 measures 0.9 on the same inputs.
 
 ## 7. Keyed and optional-key sources
 
@@ -826,7 +829,7 @@ Keyless calls from one machine, 3 or more seconds apart, retrying a 429 after 5,
 
 Every keyless endpoint answered without a key. Search and paper lookups met the shared pool's 429 most of the time, and citation, reference and recommendation calls never did on this day. The design therefore paces keyless calls at 1 every 2 seconds, retries 429 within the leg's deadline as `architecture.md` section 4.6 says, and tells the agent that the optional key raises the limit. No call in this investigation used a key, and none of these facts depends on one.
 
-Cases: no case calls Semantic Scholar live. Its cases replay keyless replies recorded once, with a 429 reply for the failure cases. Contexts are sentences from the citing papers, so recordings in the repo hold contexts only from CC BY citing papers, such as 33123537's references; other context recordings and the TLDR recordings run from outside the repo through `--cases DIR`, as abstracts do. The PDF recording also runs from outside the repo.
+Cases: no case calls Semantic Scholar live. Its cases replay keyless replies recorded once, with a 429 reply for the failure cases. Contexts are sentences from the citing papers, so recordings in the repo hold contexts only from CC BY citing papers, such as 33123537's references; other context recordings and the TLDR recordings run from outside the repo through `--cases DIR`, as abstracts do. The 41351423 PDF recording also runs from outside the repo.
 
 ## 8. Outside-in cases
 
@@ -919,7 +922,7 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 
 Case paths in the last column are relative to `tests/cases/article/`; `runner/` paths are relative to `crates/biomcp/tests/`. A behavioral substitute does not prove the original paper or live source count. Synthetic source bodies prove replay behavior and retain their synthetic label. The budget column retains investigation targets; the cases' `max_bytes` and `max_tokens` fields enforce the reviewed shipped ceilings.
 
-Cases 44, 46 and 47 hold text under the TDM license, so their recordings stay outside the repo and run through `--cases DIR`. Cases 56, 60 and 69 also run from outside the repo: 56 and 60 hold Semantic Scholar text from papers under other licenses, and 69's recording holds a 4.8 MB PDF. Synthetic recordings are marked synthetic. Recordings that hold PubMed abstracts carry publisher text and follow the same rule unless the PM rules otherwise; the cases that need them are the card cases 31 to 35 and 39.
+Cases 44, 46 and 47 hold text under the TDM license, so their recordings stay outside the repo and run through `--cases DIR`. Cases 56, 60 and 69 also run from outside the repo: 56 and 60 hold Semantic Scholar text from papers under other licenses, and 69's recording holds a 4.8 MB PDF under its publisher's terms. Synthetic recordings are marked synthetic. Recordings that hold PubMed abstracts carry publisher text and follow the same rule unless the PM rules otherwise; the cases that need them are the card cases 31 to 35 and 39.
 
 
 
