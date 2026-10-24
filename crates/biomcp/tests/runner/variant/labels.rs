@@ -44,12 +44,14 @@ fn check_case(reply: fn(&str) -> Result<String, String>, count: usize) -> Result
 fn labels_only(request: &str) -> Result<String, String> {
     let mut value: Value = serde_json::from_str(&body(request)?).map_err(|e| e.to_string())?;
     if request.contains("cadd.phred") {
-        value["cadd"]["sift"]
-            .as_object_mut()
+        value
+            .pointer_mut("/cadd/sift")
+            .and_then(Value::as_object_mut)
             .ok_or("synthetic sift object missing")?
             .remove("val");
-        value["dbnsfp"]
-            .as_object_mut()
+        value
+            .get_mut("dbnsfp")
+            .and_then(Value::as_object_mut)
             .ok_or("synthetic dbnsfp object missing")?
             .remove("revel");
     }
