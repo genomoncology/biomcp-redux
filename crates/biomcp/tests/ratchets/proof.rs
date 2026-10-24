@@ -120,3 +120,26 @@ fn rejects(path: &str, content: &str, rule: &str) -> Check {
     );
     Ok(())
 }
+
+#[test]
+fn quirks_require_cases_inside_case_directory() -> Check {
+    let tree = tree()?;
+    put(
+        tree.path(),
+        "tests/cases/gene/example.yaml",
+        "case: example",
+    )?;
+    let source = "crates/biodata/src/lib.rs";
+    put(tree.path(), source, "// Quirk: gene/example.yaml\n")?;
+    check(tree.path())?;
+    put(tree.path(), "tests/outside.yaml", "case: outside")?;
+    for reference in [
+        "../outside.yaml".to_owned(),
+        tree.path().join("tests/outside.yaml").display().to_string(),
+    ] {
+        put(tree.path(), source, &format!("// Quirk: {reference}\n"))?;
+        let failure = check(tree.path()).expect_err("outside case accepted");
+        assert!(failure.to_string().contains("Quirk requires"));
+    }
+    Ok(())
+}

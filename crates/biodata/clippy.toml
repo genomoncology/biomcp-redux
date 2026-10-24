@@ -34,6 +34,14 @@ disallowed-types = [
 ]
 
 disallowed-methods = [
+    { path = "std::env::set_current_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::process::exit", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::process::abort", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::process::id", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::fs::DirBuilder::new", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::fs::DirBuilder::create", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::thread::park", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::thread::park_timeout", reason = "Keep I/O and state at their reviewed boundaries" },
     { path = "std::env::var", reason = "Keep I/O and state at their reviewed boundaries" },
     { path = "std::env::var_os", reason = "Keep I/O and state at their reviewed boundaries" },
     { path = "std::env::vars", reason = "Keep I/O and state at their reviewed boundaries" },

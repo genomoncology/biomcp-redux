@@ -110,7 +110,12 @@ fn references(
             let case = reference
                 .split_whitespace()
                 .find(|part| part.ends_with(".yaml"));
-            if case.is_none_or(|case| !root.join("tests/cases").join(case).is_file()) {
+            if case.is_none_or(|case| {
+                !Path::new(case)
+                    .components()
+                    .all(|part| matches!(part, std::path::Component::Normal(_)))
+                    || !root.join("tests/cases").join(case).is_file()
+            }) {
                 return fail(path, "Quirk requires an existing case path");
             }
         }
