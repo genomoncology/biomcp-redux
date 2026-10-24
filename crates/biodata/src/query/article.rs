@@ -67,7 +67,7 @@ struct Fields {
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
@@ -178,7 +178,7 @@ impl TryFrom<Fields> for ArticleSearch {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
             || v.source.len() > 2
-            || (v.source.len() == 2 && v.source[0] == v.source[1])
+            || (v.source.len() == 2 && v.source.first() == v.source.get(1))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]

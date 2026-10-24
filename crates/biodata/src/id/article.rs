@@ -102,7 +102,7 @@ impl FromStr for EuropePmcId {
         if !(1..=8).contains(&prefix) || value.len() > 64 {
             return Err(Error::ArticleIdInvalid);
         }
-        let digits = &value[prefix..];
+        let digits = value.get(prefix..).ok_or(Error::ArticleIdInvalid)?;
         if digits.is_empty()
             || !digits.bytes().all(|b| b.is_ascii_digit())
             || digits.bytes().all(|b| b == b'0')

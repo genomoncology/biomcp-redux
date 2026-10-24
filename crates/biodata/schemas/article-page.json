@@ -343,13 +343,13 @@
         "sort": {
           "$ref": "#/$defs/ArticleSort",
           "default": "rank",
-          "description": "Native provider order."
+          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\nBoth pubmed and europepmc support rank and date."
         },
         "source": {
           "default": [
             "pubmed"
           ],
-          "description": "Sources in caller order; defaults to PubMed.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
