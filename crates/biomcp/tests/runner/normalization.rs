@@ -105,32 +105,36 @@ fn normalized(_: &str) -> Result<String, String> {
 fn warning() -> Result<(), String> {
     let stub = Stub::for_source("rest.variantvalidator.org", "application/json", rejected)?;
     let environment = environment(&stub)?;
-    let value = run(
-        &environment,
-        &[
-            "variant",
-            "normalize",
-            "--source",
-            "variantvalidator",
-            "--hgvs",
-            "LRG_321p1:p.Arg273His",
-            "--build",
-            "GRCh38",
-        ],
-    )?;
-    if value.pointer("/result/results/0/outcome") != Some(&json!("rejected"))
-        || value.pointer("/result/results/0/messages/0/text")
-            != Some(&json!("  provider warning  "))
-        || value.pointer("/result/results/0/version/0/value") != Some(&json!("synthetic-version"))
-        || value.pointer("/sources/0/reason") != Some(&json!("rejected"))
-    {
-        return Err(format!("warning was resolved or changed: {value}"));
+    for _ in 0..2 {
+        let value = run(
+            &environment,
+            &[
+                "variant",
+                "normalize",
+                "--source",
+                "variantvalidator",
+                "--hgvs",
+                "LRG_321p1:p.Arg273His",
+                "--build",
+                "GRCh38",
+            ],
+        )?;
+        if value.pointer("/result/results/0/outcome") != Some(&json!("rejected"))
+            || value.pointer("/result/results/0/messages/0/text")
+                != Some(&json!("  provider warning  "))
+            || value.pointer("/result/results/0/version/0/value")
+                != Some(&json!("synthetic-version"))
+            || value.pointer("/sources/0/reason") != Some(&json!("rejected"))
+        {
+            return Err(format!("warning was resolved or changed: {value}"));
+        }
     }
-    if stub.finish()?.len() != 1 {
-        return Err("validator made an undeclared fallback".into());
+    if stub.finish()?.len() != 2 {
+        return Err("validator cached a warning or made an undeclared fallback".into());
     }
     Ok(())
 }
+
 fn rejected(_: &str) -> Result<String, String> {
     Ok(json!({"flag":"warning","metadata":{"variantvalidator_version":"synthetic-version"},"validation_warning_1":{"submitted_variant":"LRG_321p1:p.Arg273His","hgvs_transcript_variant":"","validation_warnings":["  provider warning  "]}}).to_string())
 }
