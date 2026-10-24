@@ -121,10 +121,9 @@ pub(crate) fn form(
 ) -> Result<Vec<u8>, InputError> {
     let mut writer = Bounded::new(limit);
     let mut first = true;
-    for (name, value) in params
-        .iter()
-        .filter(|(name, value)| Some(*name) != crate::retry::credential_query(key) && !matches!(value, Arg::Contact(_)))
-    {
+    for (name, value) in params.iter().filter(|(name, value)| {
+        Some(*name) != crate::retry::credential_query(key) && !matches!(value, Arg::Contact(_))
+    }) {
         if !first {
             writer.write_all(b"&").map_err(|_| InputError::BodyLimit)?;
         }

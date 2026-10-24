@@ -1,4 +1,4 @@
-use super::{GeneGet, GeneSearch, ArticleSearch};
+use super::{ArticleSearch, GeneGet, GeneSearch};
 use serde::{Deserialize, Serialize};
 /// One checked query. Housekeeping actions are separate.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

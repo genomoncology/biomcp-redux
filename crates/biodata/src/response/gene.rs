@@ -66,8 +66,10 @@ impl ResponseBody for GenePage {
 #[derive(Clone, Debug)]
 pub enum QueryBody {
     /// Invalid snapshot selector; the interface spells its typed restart.
-    PoolError { /// Whether selectors differ from an existing snapshot.
-        mismatch: bool },
+    PoolError {
+        /// Whether selectors differ from an existing snapshot.
+        mismatch: bool,
+    },
     /// PubMed search page.
     ArticlePage(crate::ArticlePage),
     /// Gene get answers.

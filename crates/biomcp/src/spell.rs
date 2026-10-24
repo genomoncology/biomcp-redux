@@ -51,7 +51,12 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::SearchArticle(_)) {"article"} else {"gene"}.into(),
+        if matches!(request, Request::SearchArticle(_)) {
+            "article"
+        } else {
+            "gene"
+        }
+        .into(),
     ];
     let positional = fields(&schema, &query, &mut args);
     if positional.iter().any(|arg| arg.starts_with('-')) {

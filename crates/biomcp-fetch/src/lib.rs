@@ -19,7 +19,7 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat};
-pub use cache::{VERSION, SchemaOwner, check_owners};
+pub use cache::{SchemaOwner, VERSION, check_owners};
 pub use deadline::Deadline;
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
@@ -131,7 +131,10 @@ impl Fetch {
             .build()
             .new_agent();
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
-            config.replay_cache = Some(ReplayCache::temporary_with_owners(&config.cache_owners).map_err(FetchError::Cache)?);
+            config.replay_cache = Some(
+                ReplayCache::temporary_with_owners(&config.cache_owners)
+                    .map_err(FetchError::Cache)?,
+            );
         }
         let recordings = record::Recordings::open(&config.mode).map_err(FetchError::Recording)?;
         let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline)

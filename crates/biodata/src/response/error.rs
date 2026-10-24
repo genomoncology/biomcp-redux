@@ -68,7 +68,7 @@ pub struct ErrorEnvelope {
     status: ErrorStatus,
     error: ErrorDetail,
     /// Typed restart when a snapshot cannot answer this query.
-    #[serde(default, skip_serializing_if="Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub next: Vec<super::Step>,
 }
 
@@ -129,6 +129,26 @@ impl ErrorEnvelope {
 impl ErrorEnvelope {
     /// Report an unavailable or mismatched pool with its typed restart.
     pub fn pool(mismatch: bool, next: super::Step) -> Self {
-        Self { schema: ErrorSchema::V1, status: if mismatch { ErrorStatus::Usage } else { ErrorStatus::Expired }, error: ErrorDetail { code: if mismatch { ErrorCode::PoolMismatch } else { ErrorCode::PoolExpired }, message: if mismatch { ErrorMessage::PoolMismatch } else { ErrorMessage::PoolExpired } }, next: vec![next] }
+        Self {
+            schema: ErrorSchema::V1,
+            status: if mismatch {
+                ErrorStatus::Usage
+            } else {
+                ErrorStatus::Expired
+            },
+            error: ErrorDetail {
+                code: if mismatch {
+                    ErrorCode::PoolMismatch
+                } else {
+                    ErrorCode::PoolExpired
+                },
+                message: if mismatch {
+                    ErrorMessage::PoolMismatch
+                } else {
+                    ErrorMessage::PoolExpired
+                },
+            },
+            next: vec![next],
+        }
     }
 }

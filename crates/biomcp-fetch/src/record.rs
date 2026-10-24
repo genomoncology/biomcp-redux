@@ -41,7 +41,10 @@ impl ReplayCache {
     /// Allocate a cache while checking all declared schema owners first.
     pub fn temporary_with_owners(owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
         let directory = tempfile::tempdir().map_err(|_| CacheError::Database)?;
-        let cache = Arc::new(Cache::open_with_owners(&directory.path().join("replay.sqlite"), owners)?);
+        let cache = Arc::new(Cache::open_with_owners(
+            &directory.path().join("replay.sqlite"),
+            owners,
+        )?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: Some(directory),
@@ -52,7 +55,10 @@ impl ReplayCache {
         Self::create_case_with_owners(path, &[])
     }
     /// Create a marked case with all schema owners checked before mutation.
-    pub fn create_case_with_owners(path: &Path, owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
+    pub fn create_case_with_owners(
+        path: &Path,
+        owners: &[crate::SchemaOwner],
+    ) -> Result<Self, CacheError> {
         safe_path(path)?;
         fs::create_dir(path).map_err(|_| CacheError::Database)?;
         let result = (|| {
@@ -67,7 +73,10 @@ impl ReplayCache {
             let _ = fs::remove_dir_all(path);
             return Err(CacheError::Database);
         }
-        let cache = Arc::new(Cache::open_with_owners(&path.join("replay.sqlite"), owners)?);
+        let cache = Arc::new(Cache::open_with_owners(
+            &path.join("replay.sqlite"),
+            owners,
+        )?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: None,
@@ -78,7 +87,10 @@ impl ReplayCache {
         Self::open_case_with_owners(path, &[])
     }
     /// Open an owned case after checking every declared schema owner.
-    pub fn open_case_with_owners(path: &Path, owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
+    pub fn open_case_with_owners(
+        path: &Path,
+        owners: &[crate::SchemaOwner],
+    ) -> Result<Self, CacheError> {
         safe_path(path)?;
         if !fs::symlink_metadata(path).is_ok_and(|meta| meta.is_dir()) {
             return Err(CacheError::Version);
@@ -108,7 +120,10 @@ impl ReplayCache {
         {
             return Err(CacheError::Version);
         }
-        let cache = Arc::new(Cache::open_with_owners(&path.join("replay.sqlite"), owners)?);
+        let cache = Arc::new(Cache::open_with_owners(
+            &path.join("replay.sqlite"),
+            owners,
+        )?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: None,

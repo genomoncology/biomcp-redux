@@ -58,10 +58,15 @@ impl Leg<'_> {
             )
         };
         let mut prepared = Prepared::new(url, body, ep.method, ep.idempotent);
-        prepared.outgoing = params.iter().filter_map(|(name,value)| match value {
-            Arg::Contact(secret) => Some(((*name).to_owned(), crate::Secret::new(secret.value()))),
-            _ => None,
-        }).collect();
+        prepared.outgoing = params
+            .iter()
+            .filter_map(|(name, value)| match value {
+                Arg::Contact(secret) => {
+                    Some(((*name).to_owned(), crate::Secret::new(secret.value())))
+                }
+                _ => None,
+            })
+            .collect();
         self.send(ep, prepared, codec)
     }
 
@@ -96,7 +101,11 @@ impl Leg<'_> {
         let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent), codec)
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            codec,
+        )
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {

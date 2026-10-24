@@ -40,4 +40,9 @@ pub(crate) static CLINGEN: Quota =
 pub(crate) static HPA: Quota = Quota::new(SourceKey::declare("hpa"), Rate::per_second(1), None, 1);
 
 // NCBI E-utilities documented shared unkeyed and keyed rates.
-pub(crate) static NCBI: Quota=Quota::new(SourceKey::declare("ncbi-eutils"),Rate::per_second(3),Some(Rate::per_second(10)),3);
+pub(crate) static NCBI: Quota = Quota::new(
+    SourceKey::declare("ncbi-eutils"),
+    Rate::per_second(3),
+    Some(Rate::per_second(10)),
+    3,
+);

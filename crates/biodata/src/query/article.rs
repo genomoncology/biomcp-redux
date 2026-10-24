@@ -5,12 +5,14 @@ use super::gene::{QueryInvalid, present};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all="snake_case")]
 #[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed"])))]
 pub enum ArticleSource { /// PubMed's own result order.
     Pubmed }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all="snake_case")]
 #[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["rank"])))]
 pub enum ArticleSort { /// Native relevance order.
     Rank }
 /// Checked search selectors and pool cursor.
@@ -73,8 +75,8 @@ impl TryFrom<Fields> for ArticleSearch {
     }
 }
 impl ArticleSearch {
-    /// Free text followed by variant, disease and drug selectors in the approved term order.
-    pub fn words(&self) -> String { [&self.0.text,&self.0.variant,&self.0.disease,&self.0.drug].into_iter().flatten().map(Text::as_str).collect::<Vec<_>>().join(" ") }
+    /// Free text followed by variant, drug and disease selectors in the approved term order.
+    pub fn words(&self) -> String { [&self.0.text,&self.0.variant,&self.0.drug,&self.0.disease].into_iter().flatten().map(Text::as_str).collect::<Vec<_>>().join(" ") }
     /// Optional gene identity selector.
     pub fn gene(&self) -> Option<&GeneInput> { self.0.gene.as_ref() }
     /// Page length.

@@ -142,7 +142,11 @@ fn checked_in_schemas_match_types() {
 
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
-    for schema in [generate::<GeneGet>(), generate::<GeneSearch>(), generate::<ArticleSearch>()] {
+    for schema in [
+        generate::<GeneGet>(),
+        generate::<GeneSearch>(),
+        generate::<ArticleSearch>(),
+    ] {
         assert_eq!(schema["type"], "object");
         assert!(schema.get("oneOf").is_none());
         if schema.get("anyOf").is_some() {

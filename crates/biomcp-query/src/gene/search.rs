@@ -39,7 +39,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         .map(|(_, header)| header)
         .collect();
     let page = PageInfo {
-        pool: None, truncated: None,
+        pool: None,
+        truncated: None,
         offset: query.offset(),
         returned: items.len() as u32,
         total,

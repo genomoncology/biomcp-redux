@@ -85,7 +85,8 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
         Action::Run { request, fresh } => {
             let result = biomcp_query::run(
                 &biomcp_query::Ctx {
-                    ncbi_email: crate::config::ncbi_email().map_err(|()|io::Error::other("local configuration failed"))?,
+                    ncbi_email: crate::config::ncbi_email()
+                        .map_err(|()| io::Error::other("local configuration failed"))?,
                     fetch,
                     budget: crate::config::BUDGET,
                     fresh,
@@ -103,14 +104,31 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 .map(|(kind, action)| crate::spell::step(*kind, action))
                 .collect::<Result<Vec<_>, _>>()?;
             match (request, result.body) {
-                (Request::SearchArticle(_), QueryBody::PoolError{mismatch}) => {
-                    let restart=steps.into_iter().next().ok_or_else(||io::Error::other("missing restart"))?;
-                    encode(biodata::ErrorEnvelope::pool(mismatch,restart),if mismatch {crate::exit::Status::Usage}else{crate::exit::Status::Expired})
+                (Request::SearchArticle(_), QueryBody::PoolError { mismatch }) => {
+                    let restart = steps
+                        .into_iter()
+                        .next()
+                        .ok_or_else(|| io::Error::other("missing restart"))?;
+                    encode(
+                        biodata::ErrorEnvelope::pool(mismatch, restart),
+                        if mismatch {
+                            crate::exit::Status::Usage
+                        } else {
+                            crate::exit::Status::Expired
+                        },
+                    )
                 }
                 (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
-                    let mut envelope=Envelope::new(result.status,query,(result.status!=Status::Failed).then_some(body));
-                    envelope.sources=result.sources;envelope.problems=result.problems;envelope.next=steps;envelope.page=result.page;
-                    encode(envelope,status)
+                    let mut envelope = Envelope::new(
+                        result.status,
+                        query,
+                        (result.status != Status::Failed).then_some(body),
+                    );
+                    envelope.sources = result.sources;
+                    envelope.problems = result.problems;
+                    envelope.next = steps;
+                    envelope.page = result.page;
+                    encode(envelope, status)
                 }
                 (Request::GetGene(query), QueryBody::GeneCards(body)) => {
                     let mut envelope = Envelope::new(result.status, query, Some(body));
@@ -174,7 +192,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
                 .and_then(|complete| {
                     let withdrawn = biomcp_adapters::hgnc::sync(
-                    fetch,
+                        fetch,
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
                     Ok(biodata::SyncResult {
@@ -200,7 +218,10 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let mut envelope =
         Envelope::<biodata::SyncResult>::new(status, biodata::SyncQuery { source }, result.ok());
     envelope.sources.push(biodata::SourceOutcome {
-        term: None, count: None, fetched: None, notices: Vec::new(),
+        term: None,
+        count: None,
+        fetched: None,
+        notices: Vec::new(),
         source,
         state: if status == Status::Complete {
             biodata::SourceState::Ok

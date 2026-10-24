@@ -42,7 +42,7 @@ impl fmt::Display for HgncId {
 text_value!(HgncId, "HgncId", format!("^{}[1-9][0-9]*$", Self::PREFIX));
 
 mod article;
-pub use article::{Pmid, Pmcid, Doi};
+pub use article::{Doi, Pmcid, Pmid};
 mod gene;
 mod transcript;
 pub use gene::{Cytoband, EntrezGeneId, GeneSymbol, OmimId, UniProtAcc};
