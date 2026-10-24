@@ -36,7 +36,7 @@ pub struct ArticleItem {
     pub cited_by: Option<u64>,
     /// Citation intents in provider order; absent means not reported.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub intents: Option<Box<[crate::Text]>>,
+    pub intents: Option<Box<[CitationIntent]>>,
     /// Provider's influential flag; absent is distinct from false.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub influential: Option<bool>,
@@ -75,3 +75,15 @@ impl super::ResponseBody for ArticleEdgePage {
 
 /// Stored edge item shares checked identity and hydration with search items.
 pub type ArticleEdgeItem = ArticleItem;
+
+crate::source::canonical_enum! {
+    /// Source-reported reason for citing a paper.
+    CitationIntent, SourceUnknown {
+        /// The source cites background information.
+        Background => "background",
+        /// The source cites a reported result.
+        Result => "result",
+        /// The source cites a method.
+        Methodology => "methodology",
+    }
+}

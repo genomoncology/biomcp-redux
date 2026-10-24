@@ -68,6 +68,6 @@ pub use response::{
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 
 pub use query::{ArticleEdges, EdgeSource};
-pub use response::{ArticleEdgeItem, ArticleEdgePage, Citations};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;

@@ -84,7 +84,7 @@ pub struct Edge {
     /// Present in a references reply.
     pub cited_paper: Option<super::Paper>,
     /// Provider intent labels.
-    pub intents: Option<Box<[Text]>>,
+    pub intents: Option<Box<[biodata::CitationIntent]>>,
     /// Missing is distinct from false.
     pub is_influential: Option<bool>,
     /// Missing is distinct from a reported empty list.

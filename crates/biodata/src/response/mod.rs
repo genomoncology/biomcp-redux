@@ -1,6 +1,8 @@
 mod article;
 mod article_cards;
-pub use article::{ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage};
+pub use article::{
+    ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, CitationIntent,
+};
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
