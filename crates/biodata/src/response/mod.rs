@@ -27,7 +27,7 @@ mod help;
 mod key;
 pub use gene::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 pub use help::{Help, HelpArgument, HelpCommand, HelpWord};
-pub use key::KeyHelp, KeyState, RegisteredKey, RegisteredKeys;
+pub use key::{KeyHelp, KeyState, RegisteredKey, RegisteredKeys};
 mod page;
 mod section;
 mod source;

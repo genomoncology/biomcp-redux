@@ -8,6 +8,7 @@ mod http;
 mod http_limits;
 mod launch;
 mod key_registration;
+mod key_reload;
 mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;

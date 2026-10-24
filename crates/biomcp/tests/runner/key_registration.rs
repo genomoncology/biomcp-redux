@@ -7,9 +7,14 @@ type Check = Result<(), String>;
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("configuration/key-registration", || registration().map_err(Into::into))]
+    vec![
+        Trial::test("configuration/key-registration", || registration().map_err(Into::into)),
+        Trial::test("configuration/key-reload-stdio", || super::key_reload::check(false, false).map_err(Into::into)),
+        Trial::test("configuration/key-reload-stdio-environment", || super::key_reload::check(false, true).map_err(Into::into)),
+        Trial::test("configuration/key-reload-http", || super::key_reload::check(true, true).map_err(Into::into)),
+    ]
 }
-fn invoke(env: &Environment, args: &[&str], input: &str, exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(env: &Environment, args: &[&str], input: &str, exit: i32) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
     let mut child = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
