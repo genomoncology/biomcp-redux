@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-citations",
   "story": "Recorded BRCA1 citation ordering covers the complete141-paper snapshot with non-increasing counts, through CLI and MCP.",
   "replay": "article/citations/live",

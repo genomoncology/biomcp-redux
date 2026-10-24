@@ -141,6 +141,13 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
+        self.observe_bundle(
+            &key,
+            Some(exchange.status),
+            exchange.body.bytes(),
+            b.format,
+            Duration::from_millis(exchange.delay_ms),
+        );
         if exchange.status != 200 {
             return Err(self.failure(Reason::BadReply, Some(exchange.status)).into());
         }
@@ -173,10 +180,12 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
+            t.started = Instant::now();
             let response = self.wire_call(&prepared, b.format.media(), &headers);
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
+                    self.observe_bundle_status(&prepared, status, b.format, t.started.elapsed());
                     if status == 412 && t.part.bytes > 0 {
                         reset(t.file, t.part)?;
                         headers.clear();
@@ -207,6 +216,13 @@ impl Leg<'_> {
                     }
                 }
                 Err(error) => {
+                    self.observe(
+                        &prepared.identity,
+                        None,
+                        &[],
+                        b.format.media(),
+                        t.started.elapsed(),
+                    );
                     drop(permit);
                     if !crate::retry::retry_error(&error) || attempt + 1 == crate::retry::ATTEMPTS {
                         return Err(self
@@ -230,6 +246,23 @@ impl Leg<'_> {
             }
         }
         Err(self.failure(Reason::Syncing, None).into())
+    }
+    fn observe_bundle_status(
+        &self,
+        prepared: &Prepared,
+        status: u16,
+        format: super::RowFormat,
+        elapsed: Duration,
+    ) {
+        if status != 200 && status != 206 {
+            self.observe(
+                &prepared.identity,
+                Some(status),
+                &[],
+                format.media(),
+                elapsed,
+            );
+        }
     }
     fn revalidated<R: Row>(
         &self,
@@ -261,6 +294,14 @@ impl Leg<'_> {
         self.stream(t, response)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
+        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
+        self.observe_bundle(
+            &crate::retry::identity(&url),
+            Some(status),
+            &body,
+            b.format,
+            t.started.elapsed(),
+        );
         let rows = parse::rows::<R>(&body, b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
         if self.budget().expired() {

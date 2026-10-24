@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "CIViC aliases join by checked identity despite reply order and repeated input",
   "replay": "gene/civic/synthetic-mixed",

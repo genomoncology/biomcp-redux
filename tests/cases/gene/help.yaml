@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "generated-help",
   "story": "Generated gene help documents the shipped grammar and executable examples",
   "replay": "gene/main",

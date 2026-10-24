@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-get",
   "story": "synthetic-doi-mismatch",
   "replay": "article/get/synthetic-doi-mismatch",

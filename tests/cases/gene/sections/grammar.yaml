@@ -1,4 +1,5 @@
 {
+  "live_check": "combined keyed/synthetic section fixture",
   "feature": "gene-sections",
   "story": "Parsed suffixes preserve input words, explicit flags and repetitions",
   "replay": "gene/all",

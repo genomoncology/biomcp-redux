@@ -4,6 +4,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/observe.rs",
+        "Serialize bounded opt-in attempt summaries across transport workers",
+    ),
+    (
         "crates/biomcp-query/src/store/mod.rs",
         "Own SQLite connections and wall-clock pool timestamps",
     ),

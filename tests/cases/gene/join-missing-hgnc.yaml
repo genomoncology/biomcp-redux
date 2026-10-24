@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-commands",
   "story": "join missing hgnc",
   "replay": "gene/synthetic-missing-hgnc",
