@@ -25,7 +25,7 @@
     {"run": ["search", "article", "secret-input", "--full", "secret-value"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "dropped in 1.0"}}}, "exit": 2, "max_bytes": 400},
     {"run": ["get", "article", "secret-input", "assets"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: supplements"}}}, "exit": 2, "max_bytes": 400, "mcp": ["get", "article", "secret-input", "assets"], "is_error": true},
     {"run": ["get", "article", "secret-input", "asset"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: article supplement <id> <file>"}}}, "exit": 2, "max_bytes": 400},
-    # Indexing remains a section. Its implementation owner changes this to success and keeps the no-usage.retired boundary.
+    # Indexing remains a section; an invalid article identifier still fails argument validation.
     {"run": ["get", "article", "secret-input", "indexing"], "mcp": ["get", "article", "secret-input", "indexing"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["get", "article", "secret-input", "--outline", "secret-value"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: fulltext"}}}, "exit": 2, "max_bytes": 400},
     {"run": ["get", "article", "secret-input", "--lines", "secret-value"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: article text <id> --part <n>"}}}, "exit": 2, "max_bytes": 400},
@@ -50,8 +50,6 @@
     {"run": ["article", "supplement", "assets", "indexing"], "mcp": ["article", "supplement", "assets", "indexing"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "--", "--query"], "mcp": ["search", "article", "--", "--query"], "expect": {"/schema": "biomcp.article_page/1", "/query/text": "--query", "/status": "failed"}, "exit": 5, "is_error": true},
     {"run": ["get", "article", "secret-input", "--section", "annotations", "assets"], "mcp": ["get", "article", "secret-input", "--section", "annotations", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    # These retained filters await native source mappings. Their owner may replace the argument error with success.
-    # Keep the explicit requirement that their result excludes usage.retired. Equality below enforces that requirement now.
     # PDF remains a capability. Its old flag names the replacement section; retained TLDR, evidence and recommendations stay outside retirement.
     {"run": ["get", "article", "secret-input", "--pdf"], "mcp": ["get", "article", "secret-input", "--pdf"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id> pdf"}}}, "exit": 2, "is_error": true, "max_bytes": 400},
     {"run": ["get", "article", "secret-input", "tldr"], "mcp": ["get", "article", "secret-input", "tldr"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},

@@ -27,7 +27,7 @@
           "europepmc"
         ]
       },
-      "max_bytes": 3900
+      "max_bytes": 4162
     },
     {
       "run": [
@@ -50,7 +50,8 @@
         "/result/items/1/sections/indexing/state": "data",
         "/result/items/1/sections/indexing/data/affiliations/total": 7
       },
-      "max_bytes": 8500
+      "max_bytes": 7881
     }
-  ]
+  ],
+  "verified": "Synthetic PMID added to the recorded core response. Isolated single and batch commands measured3619 and6853 bytes; ceilings add15 percent."
 }

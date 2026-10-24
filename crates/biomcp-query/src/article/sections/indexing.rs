@@ -15,7 +15,9 @@ pub(in crate::article) fn join(
             continue;
         };
         // Europe PMC owns its core cards even when they carry a related PMID.
-        if card.europepmc_id.is_some() { continue; }
+        if card.europepmc_id.is_some() {
+            continue;
+        }
         let Some(section) = &mut item.sections else {
             continue;
         };
