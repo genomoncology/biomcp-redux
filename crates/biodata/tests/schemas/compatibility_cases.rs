@@ -174,6 +174,8 @@ fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
     narrow["anyOf"] = json!([{"required":["query"]}]);
     assert!(check(&base, &narrow).is_err());
     assert!(check(&narrow, &base).is_ok());
+    let referenced = |contract: &Value| json!({"$id":"biodata.example/1", "$defs":{"Search":contract}, "$ref":"#/$defs/Search"});
+    assert!(check(&referenced(&base), &referenced(&narrow)).is_err());
     for branches in [
         json!([]),
         json!([{"required":[]}]),

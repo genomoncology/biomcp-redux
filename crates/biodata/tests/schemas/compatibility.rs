@@ -135,7 +135,9 @@ fn visit(
 
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
-    shape.selectors = selectors(node)?;
+    if let Some(selectors) = selectors(node)? {
+        shape.selectors = Some(selectors);
+    }
     if let Some(kind) = node.get("type") {
         let kinds = kind
             .as_array()
