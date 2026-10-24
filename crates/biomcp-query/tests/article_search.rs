@@ -289,15 +289,27 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         for exchange in value["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = delay.into();
         }
-        std::fs::write(pubmed.join(entry.file_name()), serde_json::to_vec(&value).unwrap()).unwrap();
+        std::fs::write(
+            pubmed.join(entry.file_name()),
+            serde_json::to_vec(&value).unwrap(),
+        )
+        .unwrap();
     }
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: directory.path().to_owned() },
+        mode: Mode::Replay {
+            dir: directory.path().to_owned(),
+        },
         cache_owners: vec![biomcp_query::store::OWNER],
         ..Default::default()
-    }).unwrap();
+    })
+    .unwrap();
     let out = biomcp_query::run(
-        &Ctx { fetch: &fetch, budget: Duration::from_millis(400), fresh: true, ncbi_email: None },
+        &Ctx {
+            fetch: &fetch,
+            budget: Duration::from_millis(400),
+            fresh: true,
+            ncbi_email: None,
+        },
         &Request::SearchArticle(query(None, 0)),
     );
     page(out);

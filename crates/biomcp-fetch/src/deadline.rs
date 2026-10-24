@@ -106,6 +106,14 @@ impl<'a> Deadline<'a> {
             clock: self.clock,
         }
     }
+    /// Move a command's replay origin past one completed stage, retaining its absolute end.
+    /// Real time already advances itself; independent leg deadlines stay unchanged.
+    pub fn after_stage(mut self, spent: Duration) -> Self {
+        self.frozen = self
+            .frozen
+            .map(|origin| origin.checked_add(spent).unwrap_or(self.end).min(self.end));
+        self
+    }
 }
 
 /// A sequential command's fixed replay origin, completed once into shared time.

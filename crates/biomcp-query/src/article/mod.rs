@@ -241,13 +241,5 @@ fn consume<'a>(
     started: std::time::Duration,
     remaining: std::time::Duration,
 ) -> Deadline<'a> {
-    if deadline.virtual_time() {
-        deadline.child(
-            deadline
-                .remaining()
-                .saturating_sub(started.saturating_sub(remaining)),
-        )
-    } else {
-        deadline
-    }
+    deadline.after_stage(started.saturating_sub(remaining))
 }
