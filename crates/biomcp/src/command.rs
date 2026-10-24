@@ -410,7 +410,9 @@ fn run_request(
     };
     Ok(if let Request::ArticlePdf(query) = request {
         crate::save::run(&cx, query, allow_save)
-    } else { biomcp_query::run(&cx, request) })
+    } else {
+        biomcp_query::run(&cx, request)
+    })
 }
 
 fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {
