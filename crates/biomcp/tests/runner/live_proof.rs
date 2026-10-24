@@ -160,7 +160,7 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
     }
     let retries = observe(
         &environment,
-        &root.join("gene/synthetic-429"),
+        &retry_capture(&environment)?,
         "retries",
         &["get", "gene", "BRAF"],
     )?;
@@ -185,4 +185,20 @@ fn formats() -> Result<(), Box<dyn std::error::Error>> {
         return Err("existing observation report was replaced".into());
     }
     Ok(())
+}
+
+fn retry_capture(
+    environment: &Environment,
+) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+    let path = environment.root().join("retry-recordings");
+    response_cases::copy_capture("gene/synthetic-429", &path, |_, record| {
+        if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
+            for exchange in exchanges {
+                if let Some(wait) = exchange.get_mut("retry_after_ms") {
+                    *wait = json!(0);
+                }
+            }
+        }
+    })?;
+    Ok(path)
 }
