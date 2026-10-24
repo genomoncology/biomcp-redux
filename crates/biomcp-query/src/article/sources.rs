@@ -50,13 +50,14 @@ pub(super) fn search<'a>(
             let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
             status::append(&mut out.problems, resolved.problems);
             if let Some(error) = resolved.error {
-                if status::local(error).is_some() { return Err(error); }
+                if status::local(error).is_some() {
+                    return Err(error);
+                }
                 join_failures.push(resolved.source);
             } else if !results_have_pubmed(query) {
                 out.sources.push(resolved.source);
             }
         }
-
     }
     for failure in join_failures {
         if let Some(existing) = results

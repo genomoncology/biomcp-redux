@@ -29,9 +29,17 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
         out.local = status::local(error);
         out.status = Status::Failed;
     }
-    if out.sources.iter().any(|source| source.source == biodata::Source::SemanticScholar
-        && source.reason == Some(biodata::Reason::RateLimited)) {
-        out.next.insert(0, (StepKind::Key, Action::KeyHelp(biodata::Source::SemanticScholar)));
+    if out.sources.iter().any(|source| {
+        source.source == biodata::Source::SemanticScholar
+            && source.reason == Some(biodata::Reason::RateLimited)
+    }) {
+        out.next.insert(
+            0,
+            (
+                StepKind::Key,
+                Action::KeyHelp(biodata::Source::SemanticScholar),
+            ),
+        );
     }
     out
 }

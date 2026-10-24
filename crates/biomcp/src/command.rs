@@ -299,7 +299,9 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
     };
     let data = biodata::KeyHelp {
         guidance: (source == biodata::Source::SemanticScholar)
-            .then(|| biodata::Text::new("a free key raises the request limit").map_err(io::Error::other))
+            .then(|| {
+                biodata::Text::new("a free key raises the request limit").map_err(io::Error::other)
+            })
             .transpose()?,
         source,
         config: biodata::Text::new(config).map_err(io::Error::other)?,

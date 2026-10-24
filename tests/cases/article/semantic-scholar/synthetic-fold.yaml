@@ -1,0 +1,96 @@
+{
+  "feature": "article-search",
+  "story": "Semantic Scholar folds native ranks, resolves case-insensitive DOI matches and retains mismatches",
+  "replay": "article/semantic-scholar/synthetic-fold",
+  "verified": "Response-only synthetic copies of actual --record j9693 (S2 rate limiting), j9708 (PubMed search and exact two-ID summary) and j9753 (literal DOI expression). Successful S2 live capture remains0061. Native requests and IDs remain transport generated.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "pubmed,semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "pubmed,semantic-scholar"
+      ],
+      "max_bytes": 8000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/0/pmid": "27959700",
+        "/result/items/0/found_by": {
+          "equals": {
+            "pubmed": 1,
+            "semantic-scholar": 1
+          }
+        },
+        "/result/items/1/key": {
+          "equals": {
+            "namespace": "pubmed",
+            "id": "17611497"
+          }
+        },
+        "/result/items/1/found_by": {
+          "equals": {
+            "pubmed": 2,
+            "semantic-scholar": 2
+          }
+        },
+        "/result/items/2/key": {
+          "equals": {
+            "namespace": "doi",
+            "id": "10.0000/mismatch"
+          }
+        },
+        "/result/items/2/header/types_unknown": true,
+        "/result/items/*/key/id": {
+          "unique": true
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "max_bytes": 8000,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/pmid": "27959700",
+        "/result/items/1/pmid": "17611497",
+        "/result/items/2/key/id": "10.0000/mismatch"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "pubmed,semantic-scholar"
+      ],
+      "offline": true,
+      "max_bytes": 8000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3
+      }
+    }
+  ]
+}

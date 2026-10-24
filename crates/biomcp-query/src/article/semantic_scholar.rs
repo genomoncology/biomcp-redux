@@ -80,7 +80,12 @@ pub fn resolve_dois<'a>(
         for batch in dois.chunks(100) {
             let term = batch
                 .iter()
-                .map(|doi| format!("\"{}\"[doi]", doi.to_string().replace('\\', "\\\\").replace('"', "\\\"")))
+                .map(|doi| {
+                    format!(
+                        "\"{}\"[doi]",
+                        doi.to_string().to_ascii_lowercase().replace('\\', "\\\\").replace('"', "\\\"")
+                    )
+                })
                 .collect::<Vec<_>>()
                 .join(" OR ");
             let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
@@ -107,5 +112,9 @@ pub fn resolve_dois<'a>(
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let outcome = status::source(Source::PubMed, leg.finish(), error);
-    DoiResolution { source: outcome, error, problems }
+    DoiResolution {
+        source: outcome,
+        error,
+        problems,
+    }
 }
