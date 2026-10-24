@@ -49,3 +49,5 @@ trial-sites: Page original registry sites and their attached contacts, and retri
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 variant-civic: Retrieve exact CIViC molecular-profile evidence and assertions, preserve compound context and native labels, and page independent source streams. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
 variant-hotspots: Show source transcript and residue/alternate recurrence counts with explicit candidate state when no exact transcript join exists. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
+
+variant-assertions: Retrieve source-native ClinVar and ClinGen assertions without merging classification domains or mistaking source absence for unknown allele identity. Cases: `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/variant_assertions.rs`.

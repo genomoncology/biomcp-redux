@@ -39,7 +39,7 @@ impl Stub {
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
     ) -> Result<Self, String> {
-        Self::with_sources(vec![host], content_type, reply, length)
+        Self::with_sources(vec![host], content_type, reply, length, |_| 200)
     }
     pub(super) fn for_sources(
         hosts: &[&'static str],
@@ -51,13 +51,29 @@ impl Stub {
             move |_| content_type,
             reply,
             |_, bytes| bytes,
+            |_| 200,
+        )
+    }
+    pub(super) fn for_source_status(
+        host: &'static str,
+        content_type: &'static str,
+        reply: impl Fn(&str) -> Result<String, String> + Send + 'static,
+        status: impl Fn(&str) -> u16 + Send + 'static,
+    ) -> Result<Self, String> {
+        Self::with_sources(
+            vec![host],
+            move |_| content_type,
+            reply,
+            |_, bytes| bytes,
+            status,
         )
     }
     fn with_sources(
         hosts: Vec<&'static str>,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
-        reply: fn(&str) -> Result<String, String>,
+        reply: impl Fn(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
+        status: impl Fn(&str) -> u16 + Send + 'static,
     ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -91,9 +107,10 @@ impl Stub {
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = source_request(&mut tls) {
+                    let status = status(&request);
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
-                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
+                    write!(tls, "HTTP/1.1 {status} Source\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
