@@ -63,6 +63,8 @@ crate::source::canonical_enum! {
         Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
+        /// MeSH, keywords and author indexing from the citation.
+        Indexing => "indexing",
         /// Every landed article section.
         All => "all",
     }
@@ -80,5 +82,7 @@ crate::source::canonical_enum! {
         Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
+        /// MeSH, keywords and author indexing from the citation.
+        Indexing => "indexing",
     }
 }

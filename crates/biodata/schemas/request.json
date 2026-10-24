@@ -12,6 +12,7 @@
         "supplements",
         "tldr",
         "citations",
+        "indexing",
         "all"
       ],
       "type": "string",
@@ -21,6 +22,7 @@
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
+        " MeSH, keywords and author indexing from the citation.",
         " Every landed article section."
       ]
     },
@@ -118,6 +120,14 @@
     },
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "RetractionFilter": {
+      "description": "Native retraction inclusion policy.",
+      "enum": [
+        "include",
+        "exclude"
+      ],
       "type": "string"
     },
     "SheetRows": {
@@ -552,6 +562,10 @@
           "minimum": 1,
           "type": "integer"
         },
+        "no_preprints": {
+          "description": "Exclude preprints using the source's native filter.",
+          "type": "boolean"
+        },
         "offset": {
           "default": 0,
           "description": "Number of pool items to skip.",
@@ -559,9 +573,21 @@
           "minimum": 0,
           "type": "integer"
         },
+        "open_access": {
+          "description": "Require the source's native open-access filter; Semantic Scholar means a public PDF.",
+          "type": "boolean"
+        },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Stable snapshot from an earlier response."
+        },
+        "retracted": {
+          "$ref": "#/$defs/RetractionFilter",
+          "description": "Include retracted papers by default, or exclude them using a native filter.",
+          "x-cli-flags": {
+            "exclude-retracted": "exclude",
+            "include-retracted": "include"
+          }
         },
         "since": {
           "$ref": "#/$defs/PartialDate",

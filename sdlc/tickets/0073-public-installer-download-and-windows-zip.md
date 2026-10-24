@@ -1,6 +1,7 @@
 # 0073 — Download release archives in the public installer and unpack Windows ZIPs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d0af3b1a18c3341bdd197b9aae346186d7ff1960
 
 Milestone: 5
 
