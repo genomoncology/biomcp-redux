@@ -36,18 +36,23 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
         }))?,
     )?;
     let plan = diagnostic(&env, &root, true)?;
-    let cases = plan.get("cases").and_then(Value::as_array).ok_or("missing inventory")?;
+    let cases = plan
+        .get("cases")
+        .and_then(Value::as_array)
+        .ok_or("missing inventory")?;
     for name in ["checked.yaml", "excluded.yaml"] {
         if !cases.iter().any(|case| {
-            case.get("case") == Some(&json!(name)) && case.get("skipped") == Some(&json!("follow predecessor is ineligible"))
+            case.get("case") == Some(&json!(name))
+                && case.get("skipped") == Some(&json!("follow predecessor is ineligible"))
         }) {
             return Err(format!("dependent case not excluded: {plan}").into());
         }
     }
     if cases.len() != 3
-        || !cases
-            .iter()
-            .any(|case| case.get("case") == Some(&json!("eligible.yaml")) && case.get("eligible") == Some(&json!(true)))
+        || !cases.iter().any(|case| {
+            case.get("case") == Some(&json!("eligible.yaml"))
+                && case.get("eligible") == Some(&json!(true))
+        })
     {
         return Err(format!("eligible follow inventory changed: {plan}").into());
     }
