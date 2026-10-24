@@ -101,7 +101,10 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
 fn command_words(request: &Request) -> Vec<String> {
     vec![
         match request {
-            Request::VariantAssertions(_) | Request::VariantPopulation(_) | Request::VariantRecurrence(_) | Request::VariantNormalize(_) => "variant",
+            Request::VariantAssertions(_)
+            | Request::VariantPopulation(_)
+            | Request::VariantRecurrence(_)
+            | Request::VariantNormalize(_) => "variant",
             Request::TrialDocument(_) => "trial",
             Request::ArticlePdf(_)
             | Request::ArticleEvidence(_)

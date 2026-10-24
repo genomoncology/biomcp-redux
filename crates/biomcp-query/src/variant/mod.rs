@@ -2,10 +2,10 @@
 pub(crate) mod assertions;
 mod continuations;
 mod direct;
-mod sections;
 pub mod normalize;
 pub mod recurrence;
 pub mod search;
+mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
