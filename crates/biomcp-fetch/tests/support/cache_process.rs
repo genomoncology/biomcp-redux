@@ -4,10 +4,7 @@
     clippy::panic,
     reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
 )]
-use super::{
-    config, spec,
-    support::{Answer, Server},
-};
+use super::{Server, config, spec, support::Answer};
 use biomcp_fetch::{Arg, Fetch, Freshness, KeyUse, SourceSpec};
 use rusqlite::Connection;
 #[expect(

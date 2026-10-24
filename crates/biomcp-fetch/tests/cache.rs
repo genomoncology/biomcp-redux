@@ -19,7 +19,8 @@ use biomcp_fetch::{
 };
 use rusqlite::Connection;
 use std::{path::Path, thread, time::Duration};
-use support::{Answer, Server};
+use support::Answer;
+type Server = support::Server<()>;
 
 fn spec(server: &Server, key: KeyUse) -> &'static SourceSpec {
     server.spec(
