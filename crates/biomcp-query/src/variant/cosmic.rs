@@ -1,6 +1,6 @@
 //! Historical COSMIC fragments remain associated with their MyVariant parent record.
 use crate::{Ctx, status};
-use biodata::{Build, Reason, Section, Source, VariantCosmic, VariantGet, VariantHeader};
+use biodata::{Reason, Section, Source, VariantCosmic, VariantGet, VariantHeader};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn section(
     cx: &Ctx<'_>,
@@ -8,22 +8,16 @@ pub(super) fn section(
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
 ) -> super::sections::Result<VariantCosmic> {
-    let [candidate] = candidates else {
+    let Some((id, build)) = super::components::target(candidates) else {
         return (Section::NotApplicable, Vec::new(), Vec::new(), None);
     };
-    let target = if candidate.source == Source::MyVariant {
-        candidate
-            .identity
-            .representations
-            .iter()
-            .find_map(|r| r.build)
-            .map(|build| (candidate.record.id.to_string(), build))
-    } else {
-        super::join_id(candidate).map(|id| (id, Build::Grch37))
-    };
-    let Some((id, build)) = target else {
-        return (Section::NotApplicable, Vec::new(), Vec::new(), None);
-    };
+    if cx.fetch.disabled(Source::MyVariant)
+        || cx
+            .fetch
+            .disabled_use(biomcp_adapters::myvariant::components::COSMIC.terms.usage)
+    {
+        return super::components::skipped();
+    }
     let leg = cx
         .fetch
         .leg(&biomcp_adapters::myvariant::SPEC, deadline)
@@ -54,7 +48,7 @@ pub(super) fn section(
         }
         Ok(_) => Section::Empty {
             source: Source::MyVariant,
-            record: Some(candidate.record.clone()),
+            record: candidates.first().map(|candidate| candidate.record.clone()),
         },
         Err(RequestError::Source(error)) => Section::unavailable(Source::MyVariant, error.reason),
         Err(_) => Section::unavailable(Source::MyVariant, Reason::Unavailable),
