@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "litvar"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "litvar", "semantic-scholar"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
@@ -13,6 +13,9 @@ pub enum ArticleSource {
     Europepmc,
     /// Exact variant publications in LitVar2 native order.
     Litvar,
+    /// Semantic Scholar native relevance order.
+    #[serde(rename = "semantic-scholar")]
+    SemanticScholar,
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -71,6 +74,7 @@ struct Fields {
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
     /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
+    /// semantic-scholar: broad discovery; an optional free key raises the limit.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,

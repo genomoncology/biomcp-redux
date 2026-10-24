@@ -22,6 +22,8 @@ mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod scholar;
+mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
 
@@ -241,6 +243,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(scholar::trials());
     trials.extend(source_controls::trials());
 
     trials.extend(corporate::trials());

@@ -57,8 +57,8 @@ fn dispatch_using(
             crate::exit::Status::Success,
         );
     }
-    if action == Action::KeyHelp {
-        return key_help();
+    if let Action::KeyHelp(source) = action {
+        return key_help(source);
     }
     if let Action::Run {
         request: Request::SearchArticle(query),
@@ -97,7 +97,7 @@ fn dispatch_using(
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
         Action::Health => health(fetch),
-        Action::KeyHelp => key_help(),
+        Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh)?;
@@ -283,11 +283,22 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
     )
 }
-fn key_help() -> io::Result<Outcome> {
+fn key_help(source: biodata::Source) -> io::Result<Outcome> {
+    let (config, environment) = match source {
+        biodata::Source::SemanticScholar => {
+            ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY")
+        }
+        _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
+    };
     let data = biodata::KeyHelp {
-        source: biodata::Source::Oncokb,
-        config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?,
-        environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)?,
+        guidance: (source == biodata::Source::SemanticScholar)
+            .then(|| {
+                biodata::Text::new("a free key raises the request limit").map_err(io::Error::other)
+            })
+            .transpose()?,
+        source,
+        config: biodata::Text::new(config).map_err(io::Error::other)?,
+        environment: biodata::Text::new(environment).map_err(io::Error::other)?,
     };
     encode(
         Envelope::new(Status::Complete, (), Some(data)),

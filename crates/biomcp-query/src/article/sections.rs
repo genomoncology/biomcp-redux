@@ -2,6 +2,7 @@
 mod annotations;
 mod citations;
 pub(crate) mod fulltext;
+mod tldr;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
@@ -19,13 +20,19 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
                 .then_some(Section::NotApplicable),
+                tldr: (selected(query, ArticleSectionWord::Tldr)
+                    && card.pmid.is_none()
+                    && card.doi.is_none())
+                .then_some(Section::NotApplicable),
                 annotations: (selected(query, ArticleSectionWord::Annotations)
                     && card.pmid.is_none())
                 .then_some(Section::NotApplicable),
                 citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none())
                     .then_some(Section::NotApplicable),
-                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none())
-                    .then_some(Section::NotApplicable),
+                fulltext: (selected(query, ArticleSectionWord::Fulltext)
+                    && card.pmcid.is_none()
+                    && card.europepmc_id.is_none())
+                .then_some(Section::NotApplicable),
             });
         }
         item.more = [
@@ -37,7 +44,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             (
                 ArticleSectionWord::Fulltext,
                 ArticleSection::Fulltext,
-                card.pmcid.is_some(),
+                card.pmcid.is_some() || card.europepmc_id.is_some(),
             ),
             (
                 ArticleSectionWord::Supplements,
@@ -48,6 +55,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 ArticleSectionWord::Citations,
                 ArticleSection::Citations,
                 card.pmid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Tldr,
+                ArticleSection::Tldr,
+                card.pmid.is_some() || card.doi.is_some(),
             ),
         ]
         .into_iter()
@@ -67,6 +79,12 @@ pub(super) fn run<'a>(
     let supplements = selected(query, ArticleSectionWord::Supplements);
     if fulltext || supplements {
         fulltext::run(cx, deadline, out, fulltext, supplements);
+        if fulltext {
+            super::preprint::fulltext(cx, deadline, out);
+        }
+    }
+    if selected(query, ArticleSectionWord::Tldr) {
+        tldr::run(cx, deadline, out);
     }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

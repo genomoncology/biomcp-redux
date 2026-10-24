@@ -4,7 +4,10 @@ pub use article::{
     SupplementFile, Supplements,
 };
 mod article_cards;
-pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, LitVarCandidate};
+pub use article::{
+    ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, CitationIntent,
+    LitVarCandidate,
+};
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
@@ -49,7 +52,7 @@ pub use gene::{
 
 mod article_sections;
 pub use article_sections::{
-    AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations,
+    AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations, Tldr,
 };
 
 mod health;

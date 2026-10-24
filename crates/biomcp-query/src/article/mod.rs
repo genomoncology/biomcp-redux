@@ -5,8 +5,11 @@ pub mod get;
 mod next;
 mod order;
 mod page;
+mod preprint;
 mod protein_change;
 mod sections;
+mod semantic_edges;
+pub mod semantic_scholar;
 mod sources;
 pub mod supplement;
 mod term;
@@ -29,6 +32,18 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     if let Err(error) = result {
         out.local = status::local(error);
         out.status = Status::Failed;
+    }
+    if out.sources.iter().any(|source| {
+        source.source == biodata::Source::SemanticScholar
+            && source.reason == Some(biodata::Reason::RateLimited)
+    }) {
+        out.next.insert(
+            0,
+            (
+                StepKind::Key,
+                Action::KeyHelp(biodata::Source::SemanticScholar),
+            ),
+        );
     }
     out
 }
@@ -162,6 +177,11 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
         ]) {
             return Some((biodata::Source::LitVar, option));
         }
+    }
+    if query.sources().contains(&S::SemanticScholar) {
+        return query
+            .rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
+            .map(|filter| (biodata::Source::SemanticScholar, filter));
     }
     None
 }

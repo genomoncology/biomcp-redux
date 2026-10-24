@@ -22,7 +22,7 @@ pub enum Action {
         fresh: bool,
     },
     /// Explain configuration names for a keyed source.
-    KeyHelp,
+    KeyHelp(biodata::Source),
     /// Synchronize one declared file.
     Sync {
         #[doc = "Bundle selector."]

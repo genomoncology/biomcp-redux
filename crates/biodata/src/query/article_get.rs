@@ -59,6 +59,8 @@ crate::source::canonical_enum! {
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
         Supplements => "supplements",
+        /// Machine-written Semantic Scholar summary and counts.
+        Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
         /// Every landed article section.
@@ -74,6 +76,8 @@ crate::source::canonical_enum! {
         Supplements => "supplements",
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
+        /// Machine-written Semantic Scholar summary and counts.
+        Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
     }
