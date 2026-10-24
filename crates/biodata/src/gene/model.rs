@@ -24,8 +24,6 @@ pub struct GeneHeader {
     pub hgnc_id: HgncId,
     /// Source-preserved symbol.
     pub symbol: GeneSymbol,
-    /// Gene name.
-    pub name: Text,
     /// HGNC locus group.
     pub locus_group: LocusGroup,
     /// A single stated band, if available.
@@ -33,6 +31,8 @@ pub struct GeneHeader {
     pub location: Option<Cytoband>,
     /// HGNC record status.
     pub status: GeneStatus,
+    /// Gene name.
+    pub name: Text,
     /// Match information when this header answers an input.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#match: Option<Match>,
@@ -52,8 +52,6 @@ pub struct Gene {
     /// Ensembl gene identifier, if stated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ensembl_id: Option<EnsemblGeneId>,
-    /// Gene name.
-    pub name: Text,
     /// HGNC record status.
     pub status: GeneStatus,
     /// HGNC locus group.
@@ -77,6 +75,8 @@ pub struct Gene {
     pub mane_select: Option<ManeSelect>,
     /// Source intervals with explicit assembly and counting rule.
     pub spans: Box<[GenomicInterval]>,
+    /// Gene name.
+    pub name: Text,
     /// Whole attributed summary, if stated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<Summary>,

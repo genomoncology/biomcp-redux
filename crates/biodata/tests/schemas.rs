@@ -48,6 +48,7 @@ fn registry() -> Vec<Contract> {
         Reason => ("reason", "biodata.reason/1"),
         ProblemCode => ("problem-code", "biodata.problem-code/1"),
         Problem => ("problem", "biodata.problem/1"),
+        GeneInput => ("gene-input", "biodata.gene-input/1"),
         Gene => ("gene", "biodata.gene/1"),
         GeneHeader => ("gene-header", "biomcp.gene_header/1"),
         GeneResolution => ("gene-resolution", "biodata.gene-resolution/1"),

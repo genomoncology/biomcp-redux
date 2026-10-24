@@ -130,6 +130,11 @@ fn gene_inputs_classify_explicit_identifiers_and_keep_alias_text() -> Check {
         "673".parse::<GeneInput>()?,
         GeneInput::EntrezId(_)
     ));
+    values::<GeneInput>(
+        &["HGNC:1097", "ENSG00000157764.2", "673", "HER-2/neu", "MLN 19", "BRAF"],
+        &["", " ", "HGNC:x", "ENSGwrong", "0"],
+    )?;
+    assert_eq!(" HGNC:1097 ".parse::<GeneInput>()?.to_string(), "HGNC:1097");
     for text in ["HER-2/neu", "MLN 19", "BRAF"] {
         assert!(
             matches!(text.parse::<GeneInput>()?, GeneInput::Text(value) if value.as_str() == text)

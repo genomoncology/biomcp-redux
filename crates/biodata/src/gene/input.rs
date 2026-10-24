@@ -1,5 +1,6 @@
 use crate::{EnsemblGeneId, EntrezGeneId, Error, HgncId, Text};
-use std::str::FromStr;
+use crate::macros::text_value;
+use std::{fmt, str::FromStr};
 
 /// An input classified before source resolution; aliases remain free text.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,3 +43,15 @@ impl FromStr for GeneInput {
         Self::new(value)
     }
 }
+
+impl fmt::Display for GeneInput {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::HgncId(value) => value.fmt(formatter),
+            Self::EnsemblId(value) => value.fmt(formatter),
+            Self::EntrezId(value) => value.fmt(formatter),
+            Self::Text(value) => value.fmt(formatter),
+        }
+    }
+}
+text_value!(GeneInput, "GeneInput", r"\S");
