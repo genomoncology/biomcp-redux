@@ -1,0 +1,38 @@
+{
+  "feature": "gene-sections",
+  "story": "BRAF has stable lowest-level human Reactome references",
+  "replay": "gene/pathways",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "pathways"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "BRAF",
+        "pathways"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/pathways/state": "data",
+        "/result/items/0/sections/pathways/data/total": 16,
+        "/result/items/0/sections/pathways/data/items/*/stId": {
+          "includes": "R-HSA-1295596",
+          "unique": true
+        },
+        "/result/items/0/sections/pathways": {
+          "max_tokens": 600
+        },
+        "/sources/*/source": {
+          "includes": "reactome",
+          "excludes": "gnomad"
+        }
+      },
+      "max_bytes": 6000
+    }
+  ]
+}
