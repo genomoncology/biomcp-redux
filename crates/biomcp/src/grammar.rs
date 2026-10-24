@@ -89,7 +89,9 @@ fn root() -> Result<Command, ()> {
         Command::new("help")
             .subcommand(
                 Command::new("network").arg(
-                    Arg::new("setting").required(true).value_parser(["ca_bundle", "proxy"]),
+                    Arg::new("setting")
+                        .required(true)
+                        .value_parser(["ca_bundle", "proxy"]),
                 ),
             )
             .subcommand(
