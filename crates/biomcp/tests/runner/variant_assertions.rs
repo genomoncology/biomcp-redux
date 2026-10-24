@@ -6,7 +6,7 @@ use std::{
     fs,
     sync::{
         Arc,
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicU16, Ordering},
     },
 };
 pub(super) fn trials() -> Vec<Trial> {
@@ -49,26 +49,20 @@ fn body(caid: &str) -> String {
     json!({"status":{"code":200,"name":"OK"},"data":[{"caId":caid,"PCERDocID":"PCER000001171","docVersion":"1.1.0","classification":"Pathogenic","condition":"Li-Fraumeni syndrome","mondoId":"MONDO:0018875","ep":"TP53 VCEP","gene":"TP53","metCodes":["PP4_Moderate","PM2_Supporting","PS2","PS3","PS4","PM1","PP3"],"unMetCodes":["BS1"],"publishedDate":"2024-08-05","approvedDate":"2024-08-05","versionsList":["1.1.0","1.0.0"],"summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]}).to_string()
 }
 fn erepo_absence() -> Result<(), String> {
-    let empty = Arc::new(AtomicBool::new(false));
+    let empty = Arc::new(AtomicU16::new(200));
     let body_empty = empty.clone();
     let status_empty = empty.clone();
     let stub = Stub::for_source_status(
         "erepo.clinicalgenome.org",
         "application/json",
         move |_| {
-            Ok(if body_empty.load(Ordering::SeqCst) {
+            Ok(if body_empty.load(Ordering::SeqCst) == 404 {
                 json!({"status":{"code":404,"name":"Not Found","msg":"No records were found for given query"}}).to_string()
             } else {
                 body("CA000434")
             })
         },
-        move |_| {
-            if status_empty.load(Ordering::SeqCst) {
-                404
-            } else {
-                200
-            }
-        },
+        move |_| status_empty.load(Ordering::SeqCst),
     )?;
     let env = environment(&stub)?;
     let first = call(&env, &[])?;
@@ -78,7 +72,7 @@ fn erepo_absence() -> Result<(), String> {
     {
         return Err(format!("native expert panel statement absent: {first}"));
     }
-    empty.store(true, Ordering::SeqCst);
+    empty.store(404, Ordering::SeqCst);
     for _ in 0..2 {
         let value = call(&env, &["--fresh"])?;
         if value.pointer("/result/candidates/0/sections/erepo/state") != Some(&json!("empty"))
