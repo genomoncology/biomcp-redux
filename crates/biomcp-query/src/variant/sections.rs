@@ -1,8 +1,8 @@
 //! Candidate-specific section disclosure under one shared command deadline.
 use crate::Ctx;
 use biodata::{
-    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
-    VariantHeader, VariantSection, VariantSections,
+    AssertionSource, Problem, Section, SourceOutcome, VariantGet, VariantHeader, VariantSection,
+    VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
@@ -40,6 +40,11 @@ pub(super) fn apply(
     let mut local = None;
     for candidate in candidates {
         let mut sections = VariantSections::default();
+        macro_rules! attach {
+            ($field:ident,$read:expr) => {
+                sections.$field = Some(retain($read, &mut sources, &mut problems, &mut local))
+            };
+        }
         for section in requested(query) {
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
@@ -50,83 +55,47 @@ pub(super) fn apply(
                     } else {
                         AssertionSource::Erepo
                     };
-                    let value = Some(retain(
+                    let result = retain(
                         super::assertions::section(cx, query, candidates, deadline, source),
                         &mut sources,
                         &mut problems,
                         &mut local,
-                    ));
+                    );
                     if section == S::Clinvar {
-                        sections.clinvar = value;
+                        sections.clinvar = Some(result)
                     } else {
-                        sections.erepo = value;
+                        sections.erepo = Some(result)
                     }
                 }
-                S::Population => {
-                    sections.population = Some(retain(
-                        super::population::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Gwas => {
-                    sections.gwas = Some(retain(
-                        super::gwas::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Civic => {
-                    sections.civic = Some(retain(
-                        super::civic::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Hotspots => {
-                    sections.hotspots = Some(retain(
-                        super::hotspots::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Predict => {
-                    sections.predict = Some(retain(
-                        super::predict::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Conservation => {
-                    sections.conservation = Some(retain(
-                        super::conservation::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Cosmic => {
-                    sections.cosmic = Some(retain(
-                        super::cosmic::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Oncokb => {
-                    sections.oncokb = Some(retain(
-                        super::oncokb::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-
+                S::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, deadline)
+                ),
+                S::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
+                S::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                S::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
+                S::Predict => attach!(
+                    predict,
+                    super::predict::section(cx, query, candidates, deadline)
+                ),
+                S::Conservation => attach!(
+                    conservation,
+                    super::conservation::section(cx, query, candidates, deadline)
+                ),
+                S::Cosmic => attach!(
+                    cosmic,
+                    super::cosmic::section(cx, query, candidates, deadline)
+                ),
+                S::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, deadline)
+                ),
                 S::All => {}
                 _ => {}
             }
@@ -136,18 +105,6 @@ pub(super) fn apply(
         }
     }
     (sources, problems, local)
-}
-fn pending<T>(source: Source, sources: &mut Vec<SourceOutcome>) -> Section<T> {
-    sources.push(SourceOutcome {
-        source,
-        state: SourceState::Failed,
-        reason: Some(Reason::Unavailable),
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
-    });
-    Section::unavailable(source, Reason::Unavailable)
 }
 pub(super) fn retain<T>(
     value: Result<T>,

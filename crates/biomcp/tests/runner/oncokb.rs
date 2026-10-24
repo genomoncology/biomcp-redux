@@ -64,6 +64,12 @@ fn wire() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
     env.config(&config).map_err(|e| e.to_string())?;
+    let mut missing_build = args();
+    missing_build.drain(4..6);
+    invoke(&env, &missing_build, 2)?;
+    let mut missing_tumor = args();
+    missing_tumor.drain(6..8);
+    invoke(&env, &missing_tumor, 2)?;
     let skipped = invoke(&env, &args(), 0)?;
     if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
         || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key"))
