@@ -10,6 +10,7 @@ pub(super) struct ResultLeg {
     pub(super) source: ArticleSource,
     pub(super) outcome: SourceOutcome,
     pub(super) items: Vec<ArticleItem>,
+    pub(super) dois: Vec<Option<biodata::Doi>>,
     pub(super) elapsed: Duration,
     pub(super) error: Option<RequestError>,
 }
@@ -89,12 +90,17 @@ fn resolve_rows<'a>(
     let mut join_failures = Vec::new();
     for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
-            && result
-                .items
-                .iter()
-                .any(|item| item.pmid.is_none() && super::semantic_scholar::doi(item).is_some())
+            && (result.dois.iter().zip(&result.items).any(|(doi, item)| item.pmid.is_none() && doi.is_some())
+                || result.items.iter().any(|item| {
+                    item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
+                }))
         {
-            let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
+            let resolved = super::semantic_scholar::resolve_dois_with(
+                cx,
+                &mut result.items,
+                deadline,
+                &result.dois,
+            );
             status::append(&mut out.problems, resolved.problems);
             if let Some(error) = resolved.error {
                 if status::local(error).is_some() {
@@ -155,6 +161,7 @@ fn pubmed_search<'a>(
         source: ArticleSource::Pubmed,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
@@ -184,6 +191,7 @@ fn europe_search<'a>(
         source: ArticleSource::Europepmc,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
@@ -302,6 +310,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         source: ArticleSource::Litvar,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }

@@ -33,10 +33,16 @@ pub(super) fn search<'a>(
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::SemanticScholar, leg.finish(), error);
     outcome.term = Text::new(&term).ok();
+    let mut dois = Vec::new();
     let items = match result {
         Ok(reply) => {
             outcome.count = Some(reply.total);
             outcome.fetched = Some(reply.data.len() as u32);
+            dois = reply
+                .data
+                .iter()
+                .map(|paper| paper.external_ids.as_ref().and_then(|ids| ids.doi.clone()))
+                .collect();
             reply
                 .data
                 .into_iter()
@@ -49,6 +55,7 @@ pub(super) fn search<'a>(
         source: ArticleSource::SemanticScholar,
         outcome,
         items,
+        dois,
         elapsed,
         error,
     }
@@ -70,10 +77,26 @@ pub fn resolve_dois<'a>(
     items: &mut [ArticleItem],
     deadline: &mut Deadline<'a>,
 ) -> DoiResolution {
+    resolve_dois_with(cx, items, deadline, &[])
+}
+// Raw source identities survive conversion even when no title/header exists.
+pub(super) fn resolve_dois_with<'a>(
+    cx: &Ctx<'a>,
+    items: &mut [ArticleItem],
+    deadline: &mut Deadline<'a>,
+    raw_dois: &[Option<Doi>],
+) -> DoiResolution {
     let dois: Vec<_> = items
         .iter()
-        .filter(|item| item.pmid.is_none())
-        .filter_map(|item| doi(item).cloned())
+        .enumerate()
+        .filter(|(_, item)| item.pmid.is_none())
+        .filter_map(|(index, item)| {
+            raw_dois
+                .get(index)
+                .and_then(Option::as_ref)
+                .or_else(|| doi(item))
+                .cloned()
+        })
         .collect();
     let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -97,8 +120,15 @@ pub fn resolve_dois<'a>(
             for chunk in ids.ids.chunks(50) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
                 problems.extend(mapped.problems);
-                for item in items.iter_mut().filter(|item| item.pmid.is_none()) {
-                    let doi = doi(item);
+                for (index, item) in items
+                    .iter_mut()
+                    .enumerate()
+                    .filter(|(_, item)| item.pmid.is_none())
+                {
+                    let doi = raw_dois
+                        .get(index)
+                        .and_then(Option::as_ref)
+                        .or_else(|| doi(item));
                     if let Some(header) = mapped
                         .value
                         .iter()
