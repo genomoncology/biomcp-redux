@@ -9,7 +9,8 @@ macro_rules! singleton {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         $visibility enum $name {
-            $(#[serde(rename = $literal)]
+            $(#[doc = $literal]
+            #[serde(rename = $literal)]
             $variant,)+
         }
 

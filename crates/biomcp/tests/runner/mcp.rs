@@ -15,8 +15,17 @@ pub(super) fn request(id: Value, method: &str, mut params: Value) -> Value {
 }
 
 pub(super) fn exchange(environment: &Environment, frames: &[Value]) -> Result<Vec<Value>, String> {
+    exchange_with_globals(environment, frames, &[])
+}
+fn exchange_with_globals(
+    environment: &Environment,
+    frames: &[Value],
+    globals: &[String],
+) -> Result<Vec<Value>, String> {
+    let mut args = vec!["serve".into()];
+    args.extend_from_slice(globals);
     let child = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -49,13 +58,22 @@ pub(super) fn call(
     args: &[String],
     is_error: bool,
 ) -> Result<Value, String> {
-    let replies = exchange(
+    call_with_globals(environment, args, is_error, &[])
+}
+pub(super) fn call_with_globals(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+) -> Result<Value, String> {
+    let replies = exchange_with_globals(
         environment,
         &[request(
             json!(1),
             "tools/call",
             json!({"name":"biomcp","arguments":{"args":args}}),
         )],
+        globals,
     )?;
     let reply = replies
         .first()
