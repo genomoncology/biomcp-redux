@@ -37,4 +37,4 @@ article-recommendations: Read Semantic Scholar recommendations in source order w
 
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
-- trial-search: Search the registry with explicit native filters, exact totals and opaque pages.
+trial-search: Search the registry with explicit native filters, exact totals and opaque pages. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`.

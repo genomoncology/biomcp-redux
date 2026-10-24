@@ -1,0 +1,63 @@
+//! Registry failure and pre-request boundaries through the isolated real command.
+#![expect(
+    clippy::indexing_slicing,
+    reason = "Checked captures fail directly when a fixture shape changes"
+)]
+use super::response_cases::checked_case;
+use libtest_mimic::Trial;
+use serde_json::json;
+type Check = Result<(), Box<dyn std::error::Error>>;
+pub(super) fn trials() -> Vec<Trial> {
+    vec![Trial::test(
+        "trial/source-failures-never-assert-zero",
+        || failures().map_err(Into::into),
+    )]
+}
+fn failures() -> Check {
+    let args = ["search", "trial", "--condition", "melanoma"];
+    for (kind, reason) in [
+        ("429", "rate_limited"),
+        ("500", "unavailable"),
+        ("cut", "bad_reply"),
+        ("error", "bad_reply"),
+        ("deadline", "deadline_exceeded"),
+    ] {
+        let output = checked_case(
+            "trial/condition",
+            &args,
+            |_, record| {
+                if !record["url"]
+                    .as_str()
+                    .is_some_and(|url| url.contains("/studies?"))
+                {
+                    return;
+                }
+                let mut exchange = record["exchanges"][0].clone();
+                exchange["delay_ms"] = json!(0);
+                match kind {
+                    "429" => exchange["status"] = json!(429),
+                    "500" => exchange["status"] = json!(500),
+                    "cut" => exchange["body"] = json!({"kind":"text","value":"{\"studies\":["}),
+                    "error" => {
+                        exchange["body"] =
+                            json!({"kind":"json","value":{"error":"synthetic provider failure"}})
+                    }
+                    _ => exchange["delay_ms"] = json!(15001),
+                }
+                record["exchanges"] = json!(vec![
+                    exchange;
+                    if matches!(kind, "429" | "500") { 3 } else { 1 }
+                ]);
+            },
+            json!({"/status":"failed","/sources/0/source":"ctgov","/sources/0/reason":reason}),
+            4,
+        )?;
+        if output.get("page").is_some()
+            || output.get("result").is_some()
+            || output["sources"][0].get("count").is_some()
+        {
+            return Err(format!("{kind} invented a count or result").into());
+        }
+    }
+    Ok(())
+}
