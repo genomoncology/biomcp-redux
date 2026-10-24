@@ -19,23 +19,25 @@
       ],
       "expect": {
         "/status": "complete",
-        "/next": {
-          "includes": [
-            {
-              "kind": "section",
-              "args": [
-                "get",
-                "article",
-                "34161051"
-              ]
-            }
-          ]
-        },
         "/result/items/0/sections/references/data/items": {
           "includes": [
             {
               "pmid": "34161051",
               "kind": "RESULT"
+            }
+          ]
+        },
+        "/next": {
+          "includes": [
+            {
+              "kind": "section",
+              "args": {
+                "includes": [
+                  "get",
+                  "article",
+                  "34161051"
+                ]
+              }
             }
           ]
         }

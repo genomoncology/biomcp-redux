@@ -1,4 +1,4 @@
-use super::{Snapshot, advance, records, section};
+use super::{Snapshot, continue_records, advance, records, section};
 use crate::Outcome;
 use biodata::{Text, TrialContactRecord, TrialGet, TrialSection, TrialSections};
 use biomcp_fetch::RequestError;
@@ -15,7 +15,8 @@ pub(super) fn render(
     let d = &snapshot.detail;
     let id = d.card.nct_id;
     if requested(TrialSection::Locations) {
-        let page = records(query, &d.locations, 4500, serde_json::to_vec)?;
+        let mut page = records(query, &d.locations, 4500, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::Locations, pool);
         advance(
             query,
             id,
@@ -40,7 +41,8 @@ pub(super) fn render(
                     .map(TrialContactRecord::Official),
             )
             .collect();
-        let page = records(query, &rows, 4500, serde_json::to_vec)?;
+        let mut page = records(query, &rows, 4500, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::Contacts, pool);
         advance(
             query,
             id,

@@ -1,4 +1,5 @@
 mod sites;
+mod publications;
 use super::snapshot::Snapshot;
 use crate::{Action, Outcome};
 use biodata::{
@@ -6,12 +7,14 @@ use biodata::{
     TrialCardItem, TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
 use biomcp_fetch::{CacheError, RequestError};
-const SECTIONS: [TrialSection; 5] = [
+const SECTIONS: [TrialSection; 7] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,
     TrialSection::Arms,
     TrialSection::Locations,
     TrialSection::Contacts,
+    TrialSection::References,
+    TrialSection::Documents,
 ];
 pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
     let d = &snapshot.detail;
@@ -23,6 +26,8 @@ pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
             .map_or(0, |s| s.as_str().chars().count()),
         Some(TrialSection::Outcomes) => d.outcomes.len(),
         Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
+        Some(TrialSection::References) => d.references.len(),
+        Some(TrialSection::Documents) => d.documents.len(),
         Some(TrialSection::Locations) => d.locations.len(),
         Some(TrialSection::Contacts) => d.contacts.len() + d.officials.len(),
         _ => 0,
@@ -45,6 +50,7 @@ pub(super) fn render(
     }
     records_sections(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
+    publications::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
         out.next.push((
             StepKind::Section,
@@ -97,6 +103,7 @@ fn eligibility(
     Section::Data {
         source: Source::ClinicalTrialsGov,
         data: TrialEligibilityPage {
+            continuation: continuation(query, id, TrialSection::Eligibility, pool, end, total),
             minimum_age: e.minimum_age.clone(),
             maximum_age: e.maximum_age.clone(),
             sex: e.sex,
@@ -128,6 +135,7 @@ fn records<T: Clone>(
         items.push(item.clone());
     }
     Ok(TrialRecords {
+        continuation: None,
         items: items.into(),
         offset: query.offset(),
         total: rows.len() as u32,
@@ -186,7 +194,8 @@ fn records_sections(
     };
     if requested(TrialSection::Outcomes) {
         let items = &snapshot.detail.outcomes;
-        let page = records(query, items, 8000, serde_json::to_vec)?;
+        let mut page = records(query, items, 8000, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::Outcomes, pool);
         advance(
             query,
             id,
@@ -214,7 +223,8 @@ fn records_sections(
                     .map(TrialArmRecord::Intervention),
             )
             .collect();
-        let page = records(query, &rows, 4500, serde_json::to_vec)?;
+        let mut page = records(query, &rows, 4500, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::Arms, pool);
         advance(
             query,
             id,
@@ -227,4 +237,11 @@ fn records_sections(
         sections.arms = Some(section(page, id));
     }
     Ok(())
+}
+
+fn continuation(query: &TrialGet, id: NctId, section: TrialSection, pool: Option<&Text>, end:u32,total:u32)->Option<TrialGet> {
+    pool.filter(|_|end<total).map(|p|query.page(id, section, p.clone(), end))
+}
+fn continue_records<T>(page: &mut TrialRecords<T>, query:&TrialGet,id:NctId,section:TrialSection,pool:Option<&Text>) {
+    page.continuation=continuation(query,id,section,pool,page.offset+page.items.len() as u32,page.total);
 }

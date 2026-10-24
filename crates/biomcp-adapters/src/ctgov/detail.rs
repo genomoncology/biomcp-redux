@@ -1,5 +1,6 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 mod sites;
+mod publications;
 use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
@@ -16,6 +17,10 @@ pub struct Detail {
     pub contacts: Box<[biodata::TrialContact]>,
     /// Overall officials, separate from contacts.
     pub officials: Box<[biodata::TrialOfficial]>,
+    /// Native publication records.
+    pub references: Box<[biodata::TrialReference]>,
+    /// Validated posted document manifest.
+    pub documents: Box<[biodata::TrialDocument]>,
     /// Whole card.
     pub card: TrialCard,
     /// Complete source eligibility module.
@@ -40,12 +45,16 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
             Err(BadReply)
         }
     })?;
-    Ok((raw.protocol_section.detail(), metadata))
+    let id = raw.protocol_section.identification_module.nct_id;
+    let mut detail = raw.protocol_section.detail();
+    detail.documents = raw.document_section.map_or_else(|| Ok(Box::default()), |d| d.mapped(id)).map_err(|_| super::bad())?;
+    Ok((detail, metadata))
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Study {
     protocol_section: Protocol,
+    document_section: Option<publications::Documents>,
 }
 impl Reply for Study {
     fn check(&self) -> Result<(), BadReply> {
@@ -53,12 +62,14 @@ impl Reply for Study {
         if p.identification_module.brief_title.trim().is_empty() {
             return Err(BadReply);
         }
+        if let Some(documents) = &self.document_section { documents.check()?; }
         Ok(())
     }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Protocol {
+    references_module: Option<publications::References>,
     identification_module: Identification,
     status_module: Status,
     design_module: Design,
@@ -219,6 +230,8 @@ impl Protocol {
         let (arm_rows, interventions) =
             arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
         Detail {
+            references: self.references_module.and_then(|m|m.references).unwrap_or_default().into_vec().into_iter().map(publications::Reference::mapped).collect(),
+            documents: Box::default(),
             locations,
             contacts,
             officials,

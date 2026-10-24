@@ -1,0 +1,16 @@
+//! Registry documents reuse the credential-free public download boundary.
+use biodata::{Reason, TrialDocument};
+use biomcp_fetch::{Leg, RequestError, SourceError};
+/// Download only a source manifest entry produced by the checked registry projection.
+pub fn download(leg: &Leg<'_>, document: &TrialDocument) -> Result<Vec<u8>, RequestError> {
+    if !document.url.as_str().starts_with("https://cdn.clinicaltrials.gov/large-docs/") {
+        return Err(bad(Reason::Rejected));
+    }
+    let endpoint=super::SPEC.download(document.url.as_str())?.bytes(crate::pdf::MAX_BYTES);
+    let bytes=leg.bytes(&endpoint,&[])?;
+    if !bytes.starts_with(b"%PDF-") {return Err(bad(Reason::NotPdf));}
+    Ok(bytes)
+}
+fn bad(reason:Reason)->RequestError {
+    SourceError {source:biodata::Source::ClinicalTrialsGov,reason,status:None,retry_after:None}.into()
+}

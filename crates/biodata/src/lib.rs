@@ -117,3 +117,8 @@ pub use trial_sites::{
     TrialContact, TrialContactRole, TrialCoordinates, TrialLocation, TrialOfficial,
     TrialOfficialRole, TrialSiteStatus,
 };
+
+mod trial_publications;
+pub use trial_publications::{TrialDocument, TrialReference};
+pub use query::TrialDocumentGet;
+pub use response::{TrialDocumentResult, TrialDocumentSaved};

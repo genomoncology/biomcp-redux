@@ -112,6 +112,10 @@ crate::macros::wire_enum! {
         Locations => "locations",
         /// Central contacts and overall officials in their original roles.
         Contacts => "contacts",
+        /// Registry publication identities and native reference types.
+        References => "references",
+        /// Posted document metadata and source URLs.
+        Documents => "documents",
         /// Every implemented trial section, each with independent continuations.
         All => "all",
     }

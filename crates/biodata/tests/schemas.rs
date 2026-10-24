@@ -39,6 +39,8 @@ macro_rules! contracts {
 
 fn registry() -> Vec<Contract> {
     let mut result = contracts! {
+        TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
+        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
