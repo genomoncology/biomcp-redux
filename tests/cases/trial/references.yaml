@@ -19,27 +19,10 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/references/data/items": {
-          "includes": [
-            {
-              "pmid": "34161051",
-              "kind": "RESULT"
-            }
-          ]
-        },
-        "/next": {
-          "includes": [
-            {
-              "kind": "section",
-              "args": {
-                "includes": [
-                  "get",
-                  "article",
-                  "34161051"
-                ]
-              }
-            }
-          ]
+        "/result/items/0/sections/references/data/items/5/pmid": "34161051",
+        "/result/items/0/sections/references/data/items/5/kind": "RESULT",
+        "/next/1/args": {
+          "includes": "34161051"
         }
       }
     }

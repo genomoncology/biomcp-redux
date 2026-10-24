@@ -1,0 +1,805 @@
+{
+  "$defs": {
+    "License": {
+      "description": "License reported by the bucket metadata record.",
+      "enum": [
+        "cc_by",
+        "cc_by_nc",
+        "cc_by_sa",
+        "cc_by_nc_sa",
+        "cc_by_nd",
+        "cc_by_nc_nd",
+        "cc0",
+        "public_domain",
+        "tdm",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Creative Commons Attribution.",
+        " Creative Commons Attribution NonCommercial.",
+        " Creative Commons Attribution ShareAlike.",
+        " Creative Commons Attribution NonCommercial ShareAlike.",
+        " Creative Commons Attribution NoDerivatives.",
+        " Creative Commons Attribution NonCommercial NoDerivatives.",
+        " Creative Commons public-domain dedication.",
+        " Public domain.",
+        " Text and data mining manuscript terms.",
+        " The bucket reports another license."
+      ]
+    },
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialDocumentSaved",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "TrialDocument": {
+      "additionalProperties": false,
+      "description": "A posted source document; a URL never comes from caller-supplied filename text.",
+      "properties": {
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source document date."
+        },
+        "filename": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact advertised portable source filename."
+        },
+        "has_icf": {
+          "description": "Source says this contains an informed consent form.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "has_protocol": {
+          "description": "Source says this contains a protocol.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "has_sap": {
+          "description": "Source says this contains a statistical analysis plan.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Native document type abbreviation.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Source label.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "$ref": "#/$defs/License",
+          "description": "No blanket reuse license is inferred from registry availability."
+        },
+        "size": {
+          "description": "Source byte count, when supplied.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "uploaded": {
+          "description": "Original upload timestamp, without guessing a timezone.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Fixed registry CDN URL for this manifest entry."
+        }
+      },
+      "required": [
+        "filename",
+        "url",
+        "kind",
+        "license"
+      ],
+      "type": "object"
+    },
+    "TrialDocumentGet": {
+      "additionalProperties": false,
+      "description": "Save one exact ClinicalTrials.gov manifest entry to the caller's destination.",
+      "properties": {
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "x-positional": 1
+        },
+        "input": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity.",
+          "x-positional": 0
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-owned file or existing folder."
+        }
+      },
+      "required": [
+        "input",
+        "file",
+        "save"
+      ],
+      "type": "object"
+    },
+    "TrialDocumentResult": {
+      "additionalProperties": false,
+      "description": "Original trial PDF download, never document text.",
+      "properties": {
+        "file": {
+          "$ref": "#/$defs/Section",
+          "description": "Saved receipt, confirmed absence, or a source failure."
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "type": "object"
+    },
+    "TrialDocumentSaved": {
+      "additionalProperties": false,
+      "description": "Receipt for exactly the original source bytes written by the caller.",
+      "properties": {
+        "bytes": {
+          "description": "Saved byte count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "document": {
+          "$ref": "#/$defs/TrialDocument",
+          "description": "Original manifest metadata and publisher URL."
+        },
+        "path": {
+          "$ref": "#/$defs/Text",
+          "description": "Absolute caller-owned path."
+        },
+        "sha256": {
+          "$ref": "#/$defs/Text",
+          "description": "SHA-256 of the complete saved bytes."
+        }
+      },
+      "required": [
+        "path",
+        "bytes",
+        "sha256",
+        "document"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "biomcp.trial_document/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/TrialDocumentGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TrialDocumentResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.trial_document/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

@@ -17,7 +17,7 @@ pub fn download(cx:&Ctx<'_>,query:&TrialDocumentGet,allow:bool)->Download {
     let leg=cx.fetch.leg(&ctgov::SPEC,command.deadline()).fresh(cx.fresh);
     let mut out=Outcome {status:Status::Complete,body:QueryBody::TrialDocument(TrialDocumentResult{file:Section::Empty{source:Source::ClinicalTrialsGov,record:None}}),page:None,sources:Vec::new(),problems:Vec::new(),next:Vec::new(),local:None};
     let result=ctgov::detail::get(&leg,query.input).and_then(|(detail,_)| {
-        let Some(document)=detail.documents.into_vec().into_iter().find(|d| d.filename==query.file) else { return Ok(None); };
+        let Some(document)=detail.documents.into_vec().into_iter().find(|d| d.filename==query.file) else { out.body=QueryBody::TextPositionError; return Ok(None); };
         if !allow {
             out.body=QueryBody::ArticleSaveRefused(document.url);
             return Ok(None);
