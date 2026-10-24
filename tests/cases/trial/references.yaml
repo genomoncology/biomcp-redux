@@ -19,8 +19,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/references/data/items/0/pmid": "34161051",
-        "/result/items/0/sections/references/data/items/0/kind": "RESULT",
         "/next": {
           "includes": [
             {
@@ -30,6 +28,14 @@
                 "article",
                 "34161051"
               ]
+            }
+          ]
+        },
+        "/result/items/0/sections/references/data/items": {
+          "includes": [
+            {
+              "pmid": "34161051",
+              "kind": "RESULT"
             }
           ]
         }
