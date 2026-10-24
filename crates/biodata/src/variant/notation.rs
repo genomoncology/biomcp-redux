@@ -15,29 +15,46 @@ impl HgvsText {
             .split_once(':')
             .ok_or(Error::NotationInvalid)?
             .0
-            .split('(').next().ok_or(Error::HgvsReferenceInvalid)?
+            .split('(')
+            .next()
+            .ok_or(Error::HgvsReferenceInvalid)?
             .parse()
     }
 }
 impl FromStr for HgvsText {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {
-        if value.is_empty() { return Err(Error::HgvsTextEmpty); }
+        if value.is_empty() {
+            return Err(Error::HgvsTextEmpty);
+        }
         let (reference, body) = value.split_once(':').ok_or(Error::HgvsReferenceMissing)?;
         let outer = match reference.split_once('(') {
             Some((outer, inner)) => {
-                let inner = inner.strip_suffix(')').ok_or(Error::HgvsInnerReferenceInvalid)?;
-                if inner.parse::<Accession>().is_err() && inner.parse::<crate::GeneSymbol>().is_err() {
+                let inner = inner
+                    .strip_suffix(')')
+                    .ok_or(Error::HgvsInnerReferenceInvalid)?;
+                if inner.parse::<Accession>().is_err()
+                    && inner.parse::<crate::GeneSymbol>().is_err()
+                {
                     return Err(Error::HgvsInnerReferenceInvalid);
                 }
                 outer
-            },
+            }
             None => reference,
         };
-        outer.parse::<Accession>().map_err(|_| Error::HgvsReferenceInvalid)?;
-        if !matches!(body.as_bytes().first(), Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o'))
-            || body.as_bytes().get(1) != Some(&b'.') { return Err(Error::HgvsSyntaxUnknown); }
-        if body.len() < 3 { return Err(Error::HgvsBodyEmpty); }
+        outer
+            .parse::<Accession>()
+            .map_err(|_| Error::HgvsReferenceInvalid)?;
+        if !matches!(
+            body.as_bytes().first(),
+            Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o')
+        ) || body.as_bytes().get(1) != Some(&b'.')
+        {
+            return Err(Error::HgvsSyntaxUnknown);
+        }
+        if body.len() < 3 {
+            return Err(Error::HgvsBodyEmpty);
+        }
         if !body.bytes().all(|b| b.is_ascii() && !b.is_ascii_control()) {
             return Err(Error::HgvsBodyUnprintable);
         }
@@ -56,7 +73,7 @@ text_value!(
 );
 crate::source::canonical_enum! {
     /// Published syntax label for a source-preserved expression.
-    ExpressionSyntax, NotationInvalid {
+    ExpressionSyntax, ExpressionSyntaxUnknown {
         /// HGVS genomic description.
         HgvsG => "hgvs.g",
         /// HGVS coding description.

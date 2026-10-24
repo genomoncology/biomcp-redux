@@ -74,5 +74,10 @@ pub(super) fn locus(value: &str) -> Option<LocusType> {
 }
 pub(super) fn mane(value: &str) -> Option<Mane> {
     let (ensembl, refseq) = value.split_once('|')?;
-    Mane::new(biodata::ManeStatus::Select, refseq.parse().ok()?, ensembl.parse().ok()?).ok()
+    Mane::new(
+        biodata::ManeStatus::Select,
+        refseq.parse().ok()?,
+        ensembl.parse().ok()?,
+    )
+    .ok()
 }

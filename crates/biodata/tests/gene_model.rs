@@ -60,7 +60,8 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         ManeStatus::Select,
         "NM_004333.6".parse()?,
         "ENST00000646891.2".parse()?,
-    )?].into();
+    )?]
+    .into();
     let prose = "Complete source summary. ".repeat(1000);
     entity.summary = Some(Summary {
         text: Text::new(&prose)?,
@@ -120,13 +121,31 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
 }
 #[test]
 fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
-    let valid = Mane::new(ManeStatus::Select, "NM_004333.6".parse()?, "ENST00000646891.2".parse()?)?;
+    let valid = Mane::new(
+        ManeStatus::Select,
+        "NM_004333.6".parse()?,
+        "ENST00000646891.2".parse()?,
+    )?;
     assert_eq!(valid.refseq().to_string(), "NM_004333.6");
     round_trip(&valid)?;
-    for (refseq, ensembl) in [("NM_004333", "ENST00000646891.2"), ("NM_004333.6", "ENST00000646891"), ("XM_004333.6", "ENST00000646891.2")] {
-        assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":refseq,"ensembl":ensembl})).is_err());
+    for (refseq, ensembl) in [
+        ("NM_004333", "ENST00000646891.2"),
+        ("NM_004333.6", "ENST00000646891"),
+        ("XM_004333.6", "ENST00000646891.2"),
+    ] {
+        assert!(
+            serde_json::from_value::<Mane>(
+                json!({"status":"select", "refseq":refseq,"ensembl":ensembl})
+            )
+            .is_err()
+        );
     }
-    assert!(serde_json::from_value::<Mane>(json!({"status":"plus_clinical", "refseq":"NR_123456.1","ensembl":"ENST00000646891.2"})).is_ok());
+    assert!(
+        serde_json::from_value::<Mane>(
+            json!({"status":"plus_clinical", "refseq":"NR_123456.1","ensembl":"ENST00000646891.2"})
+        )
+        .is_ok()
+    );
     assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_err());
     Ok(())
 }

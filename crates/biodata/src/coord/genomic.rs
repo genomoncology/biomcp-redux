@@ -80,8 +80,12 @@ impl GenomicInterval {
         let (Some(build), Some(other_build)) = (self.build, other.build) else {
             return Err(Error::IntervalBuildAbsent);
         };
-        if build != other_build { return Err(Error::IntervalBuildMismatch); }
-        if self.chromosome != other.chromosome { return Err(Error::IntervalChromosomeMismatch); }
+        if build != other_build {
+            return Err(Error::IntervalBuildMismatch);
+        }
+        if self.chromosome != other.chromosome {
+            return Err(Error::IntervalChromosomeMismatch);
+        }
         Ok(self.span.start() <= other.span.start() && self.span.end() >= other.span.end())
     }
 }

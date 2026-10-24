@@ -80,14 +80,19 @@ pub struct CosmicId(Box<str>);
 impl FromStr for CosmicId {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {
-        if !["COSV", "COSM", "COSN"].iter().any(|p| text.strip_prefix(p).is_some_and(positive)) {
+        if !["COSV", "COSM", "COSN"]
+            .iter()
+            .any(|p| text.strip_prefix(p).is_some_and(positive))
+        {
             return Err(Error::CosmicIdInvalid);
         }
         Ok(Self(text.into()))
     }
 }
 impl fmt::Display for CosmicId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 text_value!(CosmicId, "CosmicId", "^COS[VMN][1-9][0-9]*$");
 /// A source-supplied VRS allele identifier; construction never computes a digest.
@@ -96,14 +101,20 @@ pub struct VrsId(Box<str>);
 impl FromStr for VrsId {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {
-        if !text.strip_prefix("ga4gh:VA.").is_some_and(|d| d.len() == 32 && d.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_'))) {
+        if !text.strip_prefix("ga4gh:VA.").is_some_and(|d| {
+            d.len() == 32
+                && d.bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_'))
+        }) {
             return Err(Error::VrsIdInvalid);
         }
         Ok(Self(text.into()))
     }
 }
 impl fmt::Display for VrsId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 text_value!(VrsId, "VrsId", r"^ga4gh:VA\.[A-Za-z0-9_-]{32}$");
 /// Published variant-level identifiers, with each identifier's level retained.
@@ -128,23 +139,45 @@ pub enum VariantId {
 impl FromStr for VariantId {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {
-        if text.starts_with("rs") { return text.parse().map(Self::Rs); }
-        if text.starts_with("CA") { return text.parse().map(Self::Ca); }
-        if text.starts_with("PA") { return text.parse().map(Self::Pa); }
-        if text.starts_with("VCV") { return text.parse().map(Self::Vcv); }
-        if text.starts_with("clinvar:") { return text.parse().map(Self::ClinVarVariation); }
-        if text.starts_with("COS") { return text.parse().map(Self::Cosmic); }
-        if text.starts_with("ga4gh:VA.") { return text.parse().map(Self::Vrs); }
+        if text.starts_with("rs") {
+            return text.parse().map(Self::Rs);
+        }
+        if text.starts_with("CA") {
+            return text.parse().map(Self::Ca);
+        }
+        if text.starts_with("PA") {
+            return text.parse().map(Self::Pa);
+        }
+        if text.starts_with("VCV") {
+            return text.parse().map(Self::Vcv);
+        }
+        if text.starts_with("clinvar:") {
+            return text.parse().map(Self::ClinVarVariation);
+        }
+        if text.starts_with("COS") {
+            return text.parse().map(Self::Cosmic);
+        }
+        if text.starts_with("ga4gh:VA.") {
+            return text.parse().map(Self::Vrs);
+        }
         Err(Error::VariantIdInvalid)
     }
 }
 impl fmt::Display for VariantId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Rs(v) => v.fmt(f), Self::Ca(v) => v.fmt(f), Self::Pa(v) => v.fmt(f),
-            Self::Vcv(v) => v.fmt(f), Self::ClinVarVariation(v) => v.fmt(f),
-            Self::Cosmic(v) => v.fmt(f), Self::Vrs(v) => v.fmt(f),
+            Self::Rs(v) => v.fmt(f),
+            Self::Ca(v) => v.fmt(f),
+            Self::Pa(v) => v.fmt(f),
+            Self::Vcv(v) => v.fmt(f),
+            Self::ClinVarVariation(v) => v.fmt(f),
+            Self::Cosmic(v) => v.fmt(f),
+            Self::Vrs(v) => v.fmt(f),
         }
     }
 }
-text_value!(VariantId, "VariantId", r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$");
+text_value!(
+    VariantId,
+    "VariantId",
+    r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
+);

@@ -1,7 +1,7 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{NcbiGeneId, GeneSymbol, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
+use biodata::{GeneSymbol, NcbiGeneId, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,

@@ -1,6 +1,7 @@
 //! Caller-visible checked gene identifier contracts.
 use biodata::{
-    Cytoband, EnsemblGeneId, Accession, AccessionBase, NcbiGeneId, GeneInput, GeneSymbol, OmimId, UniProtAcc,
+    Accession, AccessionBase, Cytoband, EnsemblGeneId, GeneInput, GeneSymbol, NcbiGeneId, OmimId,
+    UniProtAcc,
 };
 use serde::{Serialize, de::DeserializeOwned};
 use std::{collections::HashSet, fmt::Debug, str::FromStr};
@@ -51,8 +52,14 @@ fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Che
             "ENSG00000157764.x",
         ],
     )?;
-    values::<AccessionBase>(&["NM_004333", "ENST00000646891", "XM_123456789"], &["NM_004333.6", "NM_1234567", "ENST0000064689"])?;
-    values::<Accession>(&["NM_004333.6", "ENST00000646891.2"], &["NM_004333", "NM_004333.04", "NM_1234567.1"])?;
+    values::<AccessionBase>(
+        &["NM_004333", "ENST00000646891", "XM_123456789"],
+        &["NM_004333.6", "NM_1234567", "ENST0000064689"],
+    )?;
+    values::<Accession>(
+        &["NM_004333.6", "ENST00000646891.2"],
+        &["NM_004333", "NM_004333.04", "NM_1234567.1"],
+    )?;
     values::<UniProtAcc>(
         &["P15056", "Q9Y6K9", "A0A024RBG1", "A1B2C3"],
         &[

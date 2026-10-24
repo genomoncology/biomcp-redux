@@ -1,4 +1,4 @@
-use biodata::{Cytoband, EnsemblGeneId, NcbiGeneId, GeneSymbol, HgncId};
+use biodata::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId};
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
 

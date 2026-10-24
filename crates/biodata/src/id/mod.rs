@@ -45,5 +45,5 @@ mod article;
 pub use article::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 mod gene;
 mod transcript;
-pub use gene::{Cytoband, NcbiGeneId, GeneSymbol, OmimId, UniProtAcc};
+pub use gene::{Cytoband, GeneSymbol, NcbiGeneId, OmimId, UniProtAcc};
 pub use transcript::EnsemblGeneId;

@@ -70,6 +70,9 @@ impl fmt::Display for Base {
 impl FromStr for Base {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {
+        if value == "U" {
+            return Err(Error::SequenceRna);
+        }
         let mut letters = value.chars();
         let base = letters
             .next()
@@ -107,7 +110,13 @@ impl FromStr for Sequence {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {
         text.chars()
-            .map(|c| Base::from_letter(c).ok_or(Error::SequenceInvalid))
+            .map(|c| {
+                Base::from_letter(c).ok_or(if c == 'U' {
+                    Error::SequenceRna
+                } else {
+                    Error::SequenceInvalid
+                })
+            })
             .collect::<Result<Vec<_>, _>>()
             .map(|v| Self(v.into()))
     }

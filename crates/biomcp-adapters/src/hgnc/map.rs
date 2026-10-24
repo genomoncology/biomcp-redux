@@ -73,7 +73,14 @@ pub(super) fn withdrawn(rows: Vec<raw::Withdrawn>) -> Mapped<Vec<Withdrawn>> {
             };
             let id = f.required("hgnc_id", f.id);
             let symbol = f.required("symbol", GeneSymbol::new(raw::cell(&row.symbol)).ok());
-            let hgnc_status = f.required("hgnc_status", match raw::cell(&row.status) { "Entry Withdrawn" => Some(biodata::HgncStatus::EntryWithdrawn), "Merged/Split" => Some(biodata::HgncStatus::MergedSplit), _ => None });
+            let hgnc_status = f.required(
+                "hgnc_status",
+                match raw::cell(&row.status) {
+                    "Entry Withdrawn" => Some(biodata::HgncStatus::EntryWithdrawn),
+                    "Merged/Split" => Some(biodata::HgncStatus::MergedSplit),
+                    _ => None,
+                },
+            );
             let merged_into = if raw::cell(&row.merged).is_empty() {
                 Vec::new()
             } else {

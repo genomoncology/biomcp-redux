@@ -10,6 +10,9 @@ mod allele;
 pub use allele::{Allele, SequenceLocation};
 
 mod id;
-pub use id::{RsId, CaId, PaId, VcvId, RcvId, ScvId, ClinVarVariationId, ClinVarAlleleId, CosmicId, VrsId, VariantId};
+pub use id::{
+    CaId, ClinVarAlleleId, ClinVarVariationId, CosmicId, PaId, RcvId, RsId, ScvId, VariantId,
+    VcvId, VrsId,
+};
 mod notation;
 pub use notation::{Expression, ExpressionSyntax, HgvsText};

@@ -2,7 +2,7 @@
 mod raw;
 use crate::{Mapped, quotas, raw::Field};
 use biodata::{
-    CivicGene, NcbiGeneId, GeneSymbol, Problem, ProblemCode, Section, Source, SourceRecord, Text,
+    CivicGene, GeneSymbol, NcbiGeneId, Problem, ProblemCode, Section, Source, SourceRecord, Text,
 };
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use serde::Serialize;

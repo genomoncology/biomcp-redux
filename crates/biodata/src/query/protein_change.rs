@@ -67,7 +67,7 @@ impl FromStr for ProteinQuery {
 }
 impl ProteinQuery {
     /// Literal spellings searched by readers, in stable order.
-    pub fn forms(&self) -> [String; 4] {
+    pub(crate) fn forms(&self) -> [String; 4] {
         let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
         let (to, to_three) = AMINO.get(self.to).copied().unwrap_or(("", ""));
         let one = format!("{from}{}{to}", self.position);
@@ -88,7 +88,7 @@ impl std::fmt::Display for ProteinQuery {
 }
 impl ProteinQuery {
     /// Exact caller spelling, without converting amino-acid notation.
-    pub fn as_str(&self) -> &str {
+    pub(crate) fn as_str(&self) -> &str {
         &self.original
     }
 }

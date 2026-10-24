@@ -2,7 +2,7 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{NcbiGeneId, GenomicInterval, HgncId, Problem, Source, Summary};
+use biodata::{GenomicInterval, HgncId, NcbiGeneId, Problem, Source, Summary};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use std::time::Duration;
 

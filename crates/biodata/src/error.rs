@@ -2,6 +2,21 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// The shared grammar refused the value.
+    AccessionDigitsWidth,
+    /// The shared grammar refused the value.
+    AccessionVersionMissing,
+    /// The shared grammar refused the value.
+    AccessionVersionLeadingZero,
+    /// The shared grammar refused the value.
+    AccessionVersionOverflow,
+    /// The shared grammar refused the value.
+    AccessionLrgInvalid,
+    /// The shared grammar refused the value.
+    SequenceRna,
+    /// The shared grammar refused the value.
+    ExpressionSyntaxUnknown,
+
     /// The common value refused this input.
     IntervalBuildAbsent,
     /// The common value refused this input.
@@ -123,6 +138,14 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::AccessionDigitsWidth => "accession.digits.width",
+            Self::AccessionVersionMissing => "accession.version.missing",
+            Self::AccessionVersionLeadingZero => "accession.version.leading_zero",
+            Self::AccessionVersionOverflow => "accession.version.overflow",
+            Self::AccessionLrgInvalid => "accession.lrg.invalid",
+            Self::SequenceRna => "sequence.base.rna",
+            Self::ExpressionSyntaxUnknown => "expression.syntax.unknown",
+
             Self::IntervalBuildAbsent => "coord.interval.build_absent",
             Self::IntervalBuildMismatch => "coord.interval.build_mismatch",
             Self::IntervalChromosomeMismatch => "coord.interval.chromosome_mismatch",

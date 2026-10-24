@@ -28,16 +28,35 @@ pub struct Mane {
 impl Mane {
     /// Preserve a source-stated transcript pair and its status.
     pub fn new(status: ManeStatus, refseq: Accession, ensembl: Accession) -> Result<Self, Error> {
-        if !matches!(refseq, Accession::RefSeq { prefix: crate::RefSeqPrefix::Nm | crate::RefSeqPrefix::Nr, .. })
-            || !matches!(ensembl, Accession::Ensembl { feature: crate::EnsemblFeature::Transcript, .. }) {
+        if !matches!(
+            refseq,
+            Accession::RefSeq {
+                prefix: crate::RefSeqPrefix::Nm | crate::RefSeqPrefix::Nr,
+                ..
+            }
+        ) || !matches!(
+            ensembl,
+            Accession::Ensembl {
+                feature: crate::EnsemblFeature::Transcript,
+                ..
+            }
+        ) {
             return Err(Error::ManeVersionRequired);
         }
-        Ok(Self { status, refseq, ensembl })
+        Ok(Self {
+            status,
+            refseq,
+            ensembl,
+        })
     }
     /// Borrow the versioned RefSeq accession.
-    pub fn refseq(&self) -> &Accession { &self.refseq }
+    pub fn refseq(&self) -> &Accession {
+        &self.refseq
+    }
     /// Borrow the versioned Ensembl accession.
-    pub fn ensembl(&self) -> &Accession { &self.ensembl }
+    pub fn ensembl(&self) -> &Accession {
+        &self.ensembl
+    }
 }
 /// A whole source-provided summary with attribution and stated date precision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -53,13 +72,18 @@ pub struct Summary {
     pub dated: Option<PartialDate>,
 }
 
-
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ManeFields { status: ManeStatus, refseq: Accession, ensembl: Accession }
+struct ManeFields {
+    status: ManeStatus,
+    refseq: Accession,
+    ensembl: Accession,
+}
 impl TryFrom<ManeFields> for Mane {
     type Error = Error;
-    fn try_from(f: ManeFields) -> Result<Self, Error> { Self::new(f.status, f.refseq, f.ensembl) }
+    fn try_from(f: ManeFields) -> Result<Self, Error> {
+        Self::new(f.status, f.refseq, f.ensembl)
+    }
 }
 #[cfg(feature = "schema")]
 fn mane_refseq_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {

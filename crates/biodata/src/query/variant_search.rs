@@ -1,5 +1,5 @@
-use super::gene::{QueryInvalid, present};
 use super::ProteinQuery;
+use super::gene::{QueryInvalid, present};
 use crate::{Build, Chromosome, GeneSymbol, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
