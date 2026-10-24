@@ -32,7 +32,7 @@ fn shapes() -> Result<(), String> {
         ),
         (
             vec!["get", "article", "33123537"],
-            "article/get/live",
+            "article/get/synthetic-derived",
             vec!["# ", "**status:**", "biomcp"],
         ),
         (

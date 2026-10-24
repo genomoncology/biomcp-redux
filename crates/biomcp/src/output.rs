@@ -5,6 +5,10 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
+    let args = &args[..args
+        .iter()
+        .position(|arg| arg == "--")
+        .unwrap_or(args.len())];
     let format = args
         .windows(2)
         .find_map(|pair| (pair[0] == "--format").then(|| pair[1].to_str()).flatten())
@@ -23,7 +27,9 @@ pub(crate) fn command(
         })
         .or_else(crate::config::format);
     let bytes = match format {
-        Some(crate::grammar::Format::Md) => crate::view::markdown(&outcome.value)?,
+        Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
+            crate::view::markdown(&outcome.value)?
+        }
         _ => outcome.cli_bytes.clone(),
     };
     let mut stdout = io::stdout().lock();
