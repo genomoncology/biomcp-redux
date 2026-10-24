@@ -175,6 +175,16 @@ crate::source::canonical_enum! {
         Population => "population",
         /// GWAS Catalog associations.
         Gwas => "gwas",
+        /// CIViC molecular-profile evidence.
+        Civic => "civic",
+        /// Cancer Hotspots native residues and counts.
+        Hotspots => "hotspots",
+        /// MyVariant source predictor scores.
+        Predict => "predict",
+        /// MyVariant conservation scores.
+        Conservation => "conservation",
+        /// Historical COSMIC fields carried by MyVariant.
+        Cosmic => "cosmic",
         /// Every implemented variant section.
         All => "all",
     }
