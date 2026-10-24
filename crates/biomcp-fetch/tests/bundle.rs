@@ -5,7 +5,7 @@
     clippy::disallowed_types,
     reason = "Fixture failures fail the contract"
 )]
-pub mod support;
+mod support;
 use biomcp_fetch::{
     Bundle, Fetch, FetchConfig, Find, Freshness, KeyKind, KeyUse, Keys, Quota, Rate, Row,
     RowFormat, SourceKey,
@@ -62,6 +62,16 @@ fn indexed_tsv_rows_are_literal_and_offline() {
             "symbol\tband\tname\nBRAF\t9p21.1\t\"B raf kinase\"\nOTHER\t19p21\tOther\n",
         );
         assert_eq!(run.join().unwrap().rows, 2);
+    });
+    // Reply and bundle entries use independent tables even for the same URL.
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(2)))
+                .json::<support::Answer>(&spec.get("/genes").fresh(Freshness::Days(1)), &[])
+        });
+        server.next().ok();
+        assert!(call.join().unwrap().unwrap().answer);
     });
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
     assert_eq!(

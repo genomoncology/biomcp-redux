@@ -110,7 +110,10 @@ impl Leg<'_> {
         if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {
                 Ok(_) => {}
-                Err(RequestError::Source(error)) if old.is_some() => {
+                Err(RequestError::Source(error))
+                    if old.is_some()
+                        && matches!(self.fetch.config.mode, Mode::Live { fresh: false }) =>
+                {
                     let mut report = self
                         .report
                         .lock()
