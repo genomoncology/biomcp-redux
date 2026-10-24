@@ -164,7 +164,6 @@ Sources:
 - [x] MyVariant.info
 - [x] ClinGen Allele Registry
 - [ ] ClinVar through NCBI EFetch (optional key): native assertions landed; actual drug-response capture remains open
-- [ ] dbSNP: identifiers are carried by MyVariant and CAR; no direct adapter is implemented
 - [ ] gnomAD: counts and missing-release handling landed; same-response dataset release proof remains open
 - [ ] CIViC: membership and native paging landed; actual positive joined capture remains open
 - [x] cBioPortal
@@ -174,6 +173,7 @@ Sources:
 - [x] ClinGen evidence repository
 - [x] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro, and AlphaGenome (keyed)
+- Dropped: a direct dbSNP adapter, because rsIDs come through MyVariant and the ClinGen Allele Registry
 
 The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
 
