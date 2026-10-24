@@ -230,3 +230,20 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
         }
     }
 }
+
+#[test]
+fn mane_schema_enforces_its_curated_versioned_transcript_boundary() {
+    let schema = validator::<ManeSelect>();
+    for (refseq, ensembl, valid) in [
+        ("NM_004333.6", "ENST00000646891.2", true),
+        ("NR_123456.1", "ENST00000646891.2", true),
+        ("NM_004333", "ENST00000646891.2", false),
+        ("NM_004333.6", "ENST00000646891", false),
+        ("XM_004333.6", "ENST00000646891.2", false),
+        ("XR_004333.6", "ENST00000646891.2", false),
+    ] {
+        let value = json!({"refseq":refseq,"ensembl":ensembl});
+        assert_eq!(schema.is_valid(&value), valid, "{value}");
+        assert_eq!(serde_json::from_value::<ManeSelect>(value).is_ok(), valid);
+    }
+}
