@@ -15,11 +15,7 @@ pub(super) fn check() -> Result<(), String> {
         json!({"/status":"complete"}),
         0,
     )?;
-    lifetime(&first)?;
-    let old = first
-        .pointer("/page/pool/id")
-        .and_then(Value::as_str)
-        .ok_or("missing pool")?;
+    let old = pool_id(&first)?;
     let second = run(
         &environment,
         &replay,
@@ -87,7 +83,7 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 
-fn lifetime(first: &Value) -> Result<(), String> {
+fn pool_id(first: &Value) -> Result<&str, String> {
     let created = first
         .pointer("/page/pool/created")
         .and_then(Value::as_i64)
@@ -99,7 +95,10 @@ fn lifetime(first: &Value) -> Result<(), String> {
     if expires.checked_sub(created) != Some(86_400) {
         return Err("snapshot did not retain its fixed lifetime".into());
     }
-    Ok(())
+    first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "missing pool".into())
 }
 
 fn run(
