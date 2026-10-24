@@ -12,7 +12,7 @@
       "expect": {
         "/result/items/0/more": [
           "annotations",
-          "fulltext"
+          "fulltext",
           "citations"
         ],
         "/next/0/kind": "section",
@@ -21,7 +21,7 @@
           "article",
           "33123537",
           "annotations",
-          "fulltext"
+          "fulltext",
           "citations"
         ]
       },
@@ -31,7 +31,8 @@
       "follow": "section",
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
       "max_bytes": 8907
     },
@@ -59,7 +60,8 @@
       ],
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
       "mcp": [
         "get",
@@ -79,7 +81,8 @@
       ],
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
       "max_bytes": 8907
     },
