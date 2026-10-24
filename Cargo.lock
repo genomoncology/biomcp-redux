@@ -136,6 +136,8 @@ dependencies = [
 name = "biomcp"
 version = "1.0.0"
 dependencies = [
+ "base64",
+ "httparse",
  "biodata",
  "biomcp-adapters",
  "biomcp-fetch",

@@ -57,7 +57,10 @@ impl Server {
     fn request(&self, method: &str, path: &str, body: &str) -> Result<(u16, Value), String> {
         let mut socket = TcpStream::connect(self.address).map_err(|e| e.to_string())?;
         socket.set_read_timeout(Some(Duration::from_secs(5))).map_err(|e| e.to_string())?;
-        let wire = format!("{method} {path} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}", self.address, body.len());
+        let method_header = serde_json::from_str::<Value>(body).ok()
+            .and_then(|v| v.get("method").and_then(Value::as_str).map(str::to_owned))
+            .map(|method| format!("Mcp-Method: {method}\r\n")).unwrap_or_default();
+        let wire = format!("{method} {path} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n{method_header}Connection: close\r\nContent-Length: {}\r\n\r\n{body}", self.address, body.len());
         socket.write_all(wire.as_bytes()).map_err(|e| e.to_string())?;
         let mut bytes = Vec::new();
         socket.take(1024 * 1024).read_to_end(&mut bytes).map_err(|e| e.to_string())?;
