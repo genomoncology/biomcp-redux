@@ -322,7 +322,6 @@ fn article_input_schema_preserves_preprint_local_identifiers() {
 }
 
 #[test]
-#[expect(clippy::expect_used, reason = "The public contract check requires a valid query fixture")]
 fn article_access_filter_schema_and_serde_share_the_native_policy() {
     let schema = validator::<ArticleSearch>();
     for policy in ["include", "exclude"] {
@@ -332,7 +331,11 @@ fn article_access_filter_schema_and_serde_share_the_native_policy() {
         assert!(query.open_access() && query.no_preprints());
         assert_eq!(query.exclude_retracted(), policy == "exclude");
     }
-    for value in [json!({"text":"AKT1", "retracted":"INCLUDE"}), json!({"text":"AKT1", "retracted":null}), json!({"text":"AKT1", "open_access":"true"})] {
+    for value in [
+        json!({"text":"AKT1", "retracted":"INCLUDE"}),
+        json!({"text":"AKT1", "retracted":null}),
+        json!({"text":"AKT1", "open_access":"true"}),
+    ] {
         assert!(!schema.is_valid(&value));
         assert!(serde_json::from_value::<ArticleSearch>(value).is_err());
     }

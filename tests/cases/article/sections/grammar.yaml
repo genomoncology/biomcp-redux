@@ -12,6 +12,7 @@
       ],
       "expect": {
         "/result/items/0/more": [
+          "indexing",
           "annotations",
           "fulltext",
           "supplements",

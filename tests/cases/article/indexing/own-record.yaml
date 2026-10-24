@@ -70,9 +70,6 @@
         },
         "/result/items/1/sections/indexing/data/orcids": {
           "count": 6
-        },
-        "/result/items/1/sections/indexing": {
-          "max_bytes": 4500
         }
       },
       "max_bytes": 21000
