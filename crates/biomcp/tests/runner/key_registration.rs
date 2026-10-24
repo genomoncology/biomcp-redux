@@ -58,6 +58,15 @@ pub(super) fn invoke(
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
+fn presence(env: &Environment, expected: &str, fallback: bool) -> Check {
+    let mut command=env.command(env!("CARGO_BIN_EXE_biomcp"), &["key".into(),"list".into()]);
+    if fallback { command.env("SEMANTIC_SCHOLAR_API_KEY", SECOND); }
+    let output=command.output().map_err(|e|e.to_string())?;
+    let value:Value=serde_json::from_slice(&output.stdout).map_err(|e|e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() || value.to_string().contains(SECOND)
+        || value.pointer("/result/entries/1/state") != Some(&json!(expected)) { return Err("key presence precedence or secrecy failed".into()); }
+    Ok(())
+}
 fn registration() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"format":"json","disable_sources":["reactome"],"ncbi_email":"synthetic@example.invalid"})).map_err(|e|e.to_string())?;
@@ -67,6 +76,7 @@ fn registration() -> Check {
         &format!("{FIRST}\n"),
         0,
     )?;
+    presence(&env,"stored",true)?;
     let path = env.root().join("config/biomcp/config.json");
     let stored: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
@@ -110,9 +120,15 @@ fn registration() -> Check {
     if value.pointer("/result/entries/0/state") != Some(&json!("none")) {
         return Err("absent remove did not report none".into());
     }
+    presence(&env,"environment",true)?;
+    presence(&env,"none",false)?;
+    verify_preserved(&path)?;
     invoke(&env, &["key", "set", "semantic-scholar"], "\n", 2)?;
     invoke(&env, &["key", "set", "reactome"], "", 2)?;
     invoke(&env, &["key", "set", "semantic-scholar", FIRST], "", 2)?;
+    override_config(&env)
+}
+fn override_config(env: &Environment) -> Check {
     let override_path = env.root().join("override.json");
     invoke(
         &env,
@@ -131,5 +147,12 @@ fn registration() -> Check {
     if value.pointer("/keys/ncbi_api_key") != Some(&json!(FIRST)) {
         return Err("override not used".into());
     }
+    Ok(())
+}
+
+fn verify_preserved(path: &std::path::Path) -> Check {
+    let value:Value=serde_json::from_slice(&fs::read(path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    if value.get("disable_sources") != Some(&json!(["reactome"])) || value.get("ncbi_email") != Some(&json!("synthetic@example.invalid"))
+        || value.pointer("/keys/semantic_scholar_api_key").is_some() { return Err("remove damaged configuration".into()); }
     Ok(())
 }

@@ -48,6 +48,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
+    extra_commands(&mut commands);
+    Ok(commands)
+}
+fn extra_commands(commands: &mut Vec<HelpCommand>) {
     for (command, description) in [
         (
             vec!["health"],
@@ -91,12 +95,18 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             examples: Vec::new(),
         });
     }
-    commands.extend(biomcp_fetch::SecretName::ALL.iter().map(|name| HelpCommand {
-        command:vec!["help".into(),"key".into(),name.source().into()],
-        description:"Show credential registration and environment fallback names.".into(),
-        arguments:Vec::new(), sections:Vec::new(), section_rule:None, examples:Vec::new(),
-    }));
-    Ok(commands)
+    commands.extend(
+        biomcp_fetch::SecretName::ALL
+            .iter()
+            .map(|name| HelpCommand {
+                command: vec!["help".into(), "key".into(), name.source().into()],
+                description: "Show credential registration and environment fallback names.".into(),
+                arguments: Vec::new(),
+                sections: Vec::new(),
+                section_rule: None,
+                examples: Vec::new(),
+            }),
+    );
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {

@@ -82,7 +82,12 @@ fn outgoing() -> Result<(), String> {
         "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),
     }))
     .map_err(|e| e.to_string())?;
-    super::key_registration::invoke(&env, &["key","set","semantic-scholar"], "placeholder-scholar-key\n", 0)?;
+    super::key_registration::invoke(
+        &env,
+        &["key", "set", "semantic-scholar"],
+        "placeholder-scholar-key\n",
+        0,
+    )?;
     let capture = env.root().join("capture");
     let args = vec![
         "search".into(),

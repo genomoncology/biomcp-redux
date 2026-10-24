@@ -67,7 +67,9 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
-    if let Some(outcome) = unsupported(&action) { return outcome; }
+    if let Some(outcome) = unsupported(&action) {
+        return outcome;
+    }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => {
@@ -98,9 +100,16 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if let Action::Run { request: Request::SearchArticle(query), .. } = action
-        && let Some((source, option)) = biomcp_query::article::unsupported(query) {
-        return Some(encode(biodata::ErrorEnvelope::unsupported_filter(source,option),crate::exit::Status::Usage));
+    if let Action::Run {
+        request: Request::SearchArticle(query),
+        ..
+    } = action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return Some(encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        ));
     }
     None
 }
