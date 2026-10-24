@@ -329,7 +329,7 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biodata::KeyHelp {
-        guidance: Some(biodata::Text::new(&format!("Run biomcp key set {} to register a key without echo. The stored key wins over its environment fallback.", name.source())).map_err(io::Error::other)?),
+        guidance: Some(biodata::Text::new(&format!("biomcp key set {}{}", name.source(), if source == biodata::Source::SemanticScholar { "; a free key raises the request limit" } else { "" })).map_err(io::Error::other)?),
         source,
         config: biodata::Text::new(&format!("keys.{}",name.config())).map_err(io::Error::other)?,
         environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
