@@ -166,6 +166,13 @@ impl VariantGet {
         fields.civic_cursor = cursor;
         fields.try_into()
     }
+    /// Pin a source candidate without changing section paging or source selectors.
+    pub fn for_candidate(&self, input: VariantInput) -> Result<Self, super::gene::QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.input = input;
+        fields.offset = 0;
+        fields.try_into()
+    }
     /// Named section rows per page.
     pub fn section_limit(&self) -> u32 {
         self.0.section_limit
