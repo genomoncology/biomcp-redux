@@ -25,7 +25,6 @@ mod page;
 mod section;
 mod source;
 mod status;
-pub(crate) use status::wire_enum;
 mod step;
 pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
