@@ -94,7 +94,7 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: EntrezGeneId
                 reason: biodata::Reason::BadReply,
             }
         }
-        Some(gene) => map(gene, id, &mut problems),
+        Some(gene) => map(gene, &mut problems),
     };
     GeneCivic {
         symbol,
@@ -106,7 +106,7 @@ fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: EntrezGeneId
     }
 }
 
-fn map(gene: &raw::Gene, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Section<CivicGene> {
+fn map(gene: &raw::Gene, problems: &mut Vec<Problem>) -> Section<CivicGene> {
     let Ok(url) = Text::new(&format!("https://civicdb.org{}", gene.link)) else {
         return Section::Unavailable {
             source: Source::Civic,
@@ -118,7 +118,7 @@ fn map(gene: &raw::Gene, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Secti
         Some(Field::Invalid(_)) => {
             problems.push(Problem {
                 source: Source::Civic,
-                record: Text::new(&id.to_string()).ok(),
+                record: Text::new(&gene.id.to_string()).ok(),
                 field: "description".into(),
                 code: ProblemCode::ValueUnknown,
             });
