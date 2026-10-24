@@ -143,3 +143,20 @@ fn quirks_require_cases_inside_case_directory() -> Check {
     }
     Ok(())
 }
+
+#[test]
+fn static_quota_references_are_not_quota_declarations() -> Check {
+    let tree = tree()?;
+    put(
+        tree.path(),
+        "crates/biodata/src/lib.rs",
+        "pub struct SourceSpec { pub quota: &'static Quota }\n",
+    )?;
+    check(tree.path())?;
+    rejects(
+        "crates/biodata/src/lib.rs",
+        "static QUOTA: Quota = todo!();",
+        "quota declarations",
+    )?;
+    Ok(())
+}
