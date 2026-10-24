@@ -168,7 +168,9 @@ fn response(
     };
     match (request, result.body) {
         (_, QueryBody::NciDiseaseError) => usage_envelope(biodata::ErrorEnvelope::nci_disease()),
-        (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => meta.encode(query, Some(body)),
+        (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::SearchTrial(query), QueryBody::NciTrialPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)

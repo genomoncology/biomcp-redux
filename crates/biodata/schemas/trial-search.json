@@ -59,6 +59,14 @@
       ],
       "type": "string"
     },
+    "TrialSource": {
+      "description": "Independent trial providers; results are never folded or used as fallbacks.",
+      "enum": [
+        "ctgov",
+        "nci"
+      ],
+      "type": "string"
+    },
     "TrialStatus": {
       "description": "Source-native registry value.",
       "enum": [
@@ -128,6 +136,10 @@
       "$ref": "#/$defs/Text",
       "description": "Literal source intervention text."
     },
+    "keyword": {
+      "$ref": "#/$defs/Text",
+      "description": "NCI free text; explicit keyword mode never substitutes for a disease identity."
+    },
     "lat": {
       "$ref": "#/$defs/Text",
       "description": "Radius center latitude in degrees."
@@ -160,6 +172,10 @@
     "sex": {
       "$ref": "#/$defs/TrialSex",
       "description": "Registry sex facet."
+    },
+    "source": {
+      "$ref": "#/$defs/TrialSource",
+      "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
     },
     "sponsor": {
       "$ref": "#/$defs/Text",

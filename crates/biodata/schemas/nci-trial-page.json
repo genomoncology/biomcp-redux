@@ -1,0 +1,793 @@
+{
+  "$defs": {
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "NciDisease": {
+      "additionalProperties": false,
+      "description": "One NCI disease concept; names never substitute for an NCIt identity.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source concept name."
+        },
+        "nci_thesaurus_concept_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher NCIt identity."
+        }
+      },
+      "required": [
+        "name",
+        "nci_thesaurus_concept_id"
+      ],
+      "type": "object"
+    },
+    "NciTrial": {
+      "additionalProperties": false,
+      "description": "NCI trial card without registry status or phase coercion.",
+      "properties": {
+        "brief_summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native short summary, only on exact retrieval."
+        },
+        "brief_title": {
+          "$ref": "#/$defs/Text",
+          "description": "Native title."
+        },
+        "current_trial_status": {
+          "$ref": "#/$defs/Text",
+          "description": "Native status, without a registry translation."
+        },
+        "diseases": {
+          "description": "Publisher-provided disease concepts in source order.",
+          "items": {
+            "$ref": "#/$defs/NciDisease"
+          },
+          "type": "array"
+        },
+        "nci_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher NCI identifier."
+        },
+        "nct_id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Registry cross-reference supplied by NCI."
+        },
+        "phase": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native phase."
+        }
+      },
+      "required": [
+        "nci_id",
+        "nct_id",
+        "brief_title",
+        "current_trial_status",
+        "diseases"
+      ],
+      "type": "object"
+    },
+    "NciTrialPage": {
+      "additionalProperties": false,
+      "description": "NCI search page in native order with native count.",
+      "properties": {
+        "attribution": {
+          "description": "Publisher attribution.",
+          "type": "string"
+        },
+        "items": {
+          "description": "Source rows, never merged with another provider.",
+          "items": {
+            "$ref": "#/$defs/NciTrial"
+          },
+          "type": "array"
+        },
+        "request": {
+          "description": "Exact source parameters, excluding credentials.",
+          "items": {
+            "$ref": "#/$defs/TrialParameter"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items",
+        "request",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PhaseFilter": {
+      "description": "Explicit source phase selection, including the registry's combined phases.",
+      "enum": [
+        "early-1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "not-applicable",
+        "1/2",
+        "2/3"
+      ],
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "SponsorType": {
+      "description": "Registry funding category facet.",
+      "enum": [
+        "nih",
+        "fed",
+        "industry",
+        "other"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "StudyType": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "INTERVENTIONAL",
+        "OBSERVATIONAL",
+        "EXPANDED_ACCESS"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "TrialParameter": {
+      "additionalProperties": false,
+      "description": "One exact source request parameter, in canonical name order.",
+      "properties": {
+        "name": {
+          "description": "Native parameter name.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Exact unencoded parameter value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "TrialSearch": {
+      "additionalProperties": false,
+      "description": "Checked registry search with source-native filters.",
+      "properties": {
+        "age": {
+          "description": "Age in years; unstated source bounds count as no limit.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "condition": {
+          "$ref": "#/$defs/Text",
+          "description": "Condition-only source text."
+        },
+        "count_only": {
+          "default": false,
+          "description": "Source total only; no returned study rows.",
+          "type": "boolean"
+        },
+        "criteria": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal eligibility-field discovery text."
+        },
+        "distance": {
+          "$ref": "#/$defs/Text",
+          "description": "Source distance with explicit mi or km units."
+        },
+        "facility": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact registry facility field; cannot combine with radius."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Resolve one checked gene before registry discovery."
+        },
+        "has_results": {
+          "default": false,
+          "description": "Require posted source results.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact NCT identity in a conjunction with other filters."
+        },
+        "intervention": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source intervention text."
+        },
+        "keyword": {
+          "$ref": "#/$defs/Text",
+          "description": "NCI free text; explicit keyword mode never substitutes for a disease identity."
+        },
+        "lat": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center latitude in degrees."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Headers per page; default ten, maximum one hundred.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "lon": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center longitude in degrees."
+        },
+        "next_page": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque registry continuation; keep filters unchanged."
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseFilter",
+          "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "General registry discovery text.",
+          "x-positional": 0
+        },
+        "sex": {
+          "$ref": "#/$defs/TrialSex",
+          "description": "Registry sex facet."
+        },
+        "source": {
+          "$ref": "#/$defs/TrialSource",
+          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
+        },
+        "sponsor": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact lead sponsor field."
+        },
+        "sponsor_type": {
+          "$ref": "#/$defs/SponsorType",
+          "description": "Registry sponsor funding facet."
+        },
+        "status": {
+          "$ref": "#/$defs/TrialStatus",
+          "description": "Exact registry overall status."
+        },
+        "study_type": {
+          "$ref": "#/$defs/StudyType",
+          "description": "Exact registry study type."
+        },
+        "updated_since": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "First included registry update date."
+        },
+        "updated_until": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Last included registry update date."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-supplied variant discovery text; no eligibility inference."
+        }
+      },
+      "type": "object"
+    },
+    "TrialSex": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ALL",
+        "FEMALE",
+        "MALE"
+      ],
+      "type": "string"
+    },
+    "TrialSource": {
+      "description": "Independent trial providers; results are never folded or used as fallbacks.",
+      "enum": [
+        "ctgov",
+        "nci"
+      ],
+      "type": "string"
+    },
+    "TrialStatus": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ACTIVE_NOT_RECRUITING",
+        "COMPLETED",
+        "ENROLLING_BY_INVITATION",
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "WITHDRAWN",
+        "AVAILABLE",
+        "NO_LONGER_AVAILABLE",
+        "APPROVED_FOR_MARKETING",
+        "WITHHELD",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.nci_trial_page/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/TrialSearch",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NciTrialPage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.nci_trial_page/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

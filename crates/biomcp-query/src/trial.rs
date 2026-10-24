@@ -9,8 +9,14 @@ use biodata::{
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
-    if query.source() == biodata::TrialSource::Nci { return nci::search(cx,query); }
-    if query.keyword().is_some() { let mut out=empty(); out.body=QueryBody::TextPositionError; return out; }
+    if query.source() == biodata::TrialSource::Nci {
+        return nci::search(cx, query);
+    }
+    if query.keyword().is_some() {
+        let mut out = empty();
+        out.body = QueryBody::TextPositionError;
+        return out;
+    }
 
     let mut outcome = empty();
     let command = cx.fetch.command_deadline(cx.budget);

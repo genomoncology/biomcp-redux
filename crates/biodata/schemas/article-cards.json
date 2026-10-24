@@ -2019,6 +2019,7 @@
         "icite",
         "pubtator",
         "ctgov",
+        "nci",
         "civic",
         "oncokb"
       ],
@@ -2040,6 +2041,7 @@
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
         " CIViC.",
         " OncoKB."
       ]

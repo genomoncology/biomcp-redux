@@ -58,7 +58,9 @@ impl TryFrom<Fields> for TrialGet {
 }
 impl TrialGet {
     /// Explicit source selected by the caller.
-    pub fn source(&self) -> TrialSource { self.0.source }
+    pub fn source(&self) -> TrialSource {
+        self.0.source
+    }
 
     /// Exact checked selectors.
     pub fn input(&self) -> &[NctId] {

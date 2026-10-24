@@ -22,7 +22,7 @@
       ],
       "exit": 4,
       "is_error": true,
-      "offline": true,
+      "offline": false,
       "expect": {
         "/sources/0/source": "nci",
         "/sources/0/state": "skipped",
@@ -44,7 +44,7 @@
         "melanoma"
       ],
       "exit": 2,
-      "offline": true,
+      "offline": false,
       "expect": {
         "/error/message": "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text"
       }

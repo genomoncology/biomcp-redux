@@ -81,7 +81,7 @@ impl Server {
     pub(super) fn environment(&self) -> &Environment {
         &self._environment
     }
-    pub(super) fn keys(config: Value, key: Option<&str>) -> Result<Self, String> {
+    pub(super) fn keys(config: Value, key: Option<(&str, &str)>) -> Result<Self, String> {
         Self::configured_key("127.0.0.1:0", Some(config), None, key)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
@@ -99,7 +99,7 @@ impl Server {
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,
-        key: Option<&str>,
+        key: Option<(&str, &str)>,
     ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
@@ -111,8 +111,8 @@ impl Server {
             args.extend(environment.globals(Some(&path), false));
         }
         let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
-        if let Some(key) = key {
-            command.env("SEMANTIC_SCHOLAR_API_KEY", key);
+        if let Some((name, key)) = key {
+            command.env(name, key);
         }
         let child = command
             .stdin(Stdio::null())

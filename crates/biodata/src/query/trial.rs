@@ -28,7 +28,11 @@ struct Fields {
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
     /// NCI free text; explicit keyword mode never substitutes for a disease identity.
-    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     keyword: Option<Text>,
     /// General registry discovery text.
@@ -266,9 +270,13 @@ impl TryFrom<Fields> for TrialSearch {
 }
 impl TrialSearch {
     /// Explicit source selected by the caller.
-    pub fn source(&self) -> TrialSource { self.0.source }
+    pub fn source(&self) -> TrialSource {
+        self.0.source
+    }
     /// Explicit NCI free text.
-    pub fn keyword(&self) -> Option<&Text> { self.0.keyword.as_ref() }
+    pub fn keyword(&self) -> Option<&Text> {
+        self.0.keyword.as_ref()
+    }
 
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
@@ -422,10 +430,14 @@ crate::macros::wire_enum! {
     }
 }
 impl Default for TrialSource {
-    fn default() -> Self { Self::Ctgov }
+    fn default() -> Self {
+        Self::Ctgov
+    }
 }
 
 impl TrialSource {
     /// Whether the registry default can be omitted from a serialized query.
-    pub fn is_default(&self) -> bool { *self == Self::Ctgov }
+    pub fn is_default(&self) -> bool {
+        *self == Self::Ctgov
+    }
 }
