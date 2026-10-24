@@ -8,6 +8,13 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/population-source-given-grch38-snv", || {
             population().map_err(Into::into)
         }),
+        Trial::test(
+            "variant/population-mismatched-id-never-enters-cache",
+            || population_mismatch().map_err(Into::into),
+        ),
+        Trial::test("variant/population-unpadded-indel-is-unjoinable", || {
+            unjoinable().map_err(Into::into)
+        }),
         Trial::test("variant/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
@@ -15,11 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn gwas_zero() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", empty_gwas)?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
-        .map_err(|e| e.to_string())?;
+    let env = environment(&stub)?;
     let args = ["get", "variant", "rs113488022", "gwas"].map(Into::into);
     let out = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
@@ -53,11 +56,7 @@ fn population() -> Result<(), String> {
         "application/json",
         population_body,
     )?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
-        .map_err(|e| e.to_string())?;
+    let env = environment(&stub)?;
     let args = [
         "variant",
         "population",
@@ -124,4 +123,84 @@ fn population_body(request: &str) -> Result<String, String> {
         return Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38","referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string());
     }
     Ok(json!({"data":{"variant":{"variant_id":"7-140753336-A-T","exome":{"ac":2,"an":1460618,"filters":[],"populations":[{"id":"nfe","ac":1,"an":1111098},{"id":"sas","ac":1,"an":86244}]},"genome":null}}}).to_string())
+}
+
+fn environment(stub: &Stub) -> Result<Environment, String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let ca = env.root().join("ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
+        .map_err(|e| e.to_string())?;
+    Ok(env)
+}
+fn execute(env: &Environment, args: &[&str]) -> Result<Value, String> {
+    let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
+    let out = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
+}
+fn population_mismatch() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["reg.genome.network", "gnomad.broadinstitute.org"],
+        "application/json",
+        mismatched_body,
+    )?;
+    let env = environment(&stub)?;
+    for _ in 0..2 {
+        let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+        if value.pointer("/result/population/reason") != Some(&json!("bad_reply"))
+            || value.pointer("/result/population/data").is_some()
+        {
+            return Err(format!("wrong source allele leaked observations: {value}"));
+        }
+    }
+    let offline = execute(
+        &env,
+        &["variant", "population", "CA123643", "--detail", "--offline"],
+    )?;
+    if offline.pointer("/result/population/reason") != Some(&json!("offline"))
+        || stub.finish()?.len() != 3
+    {
+        return Err(format!(
+            "mismatched GraphQL allele entered cache: {offline}"
+        ));
+    }
+    Ok(())
+}
+fn mismatched_body(request: &str) -> Result<String, String> {
+    let mut body: Value =
+        serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+    if !request.starts_with("GET /allele/") {
+        body["data"]["variant"]["variant_id"] = json!("7-140753336-A-C");
+    }
+    Ok(body.to_string())
+}
+fn unjoinable() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["reg.genome.network", "gnomad.broadinstitute.org"],
+        "application/json",
+        indel_body,
+    )?;
+    let env = environment(&stub)?;
+    let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+    if value.pointer("/result/population/reason") != Some(&json!("no_join_id"))
+        || value.pointer("/problems/0/field") != Some(&json!("GRCh38_allele"))
+        || stub.finish()?.len() != 1
+    {
+        return Err(format!(
+            "unpadded indel should not produce a gnomAD request: {value}"
+        ));
+    }
+    Ok(())
+}
+fn indel_body(request: &str) -> Result<String, String> {
+    // Synthetic response-only insertion control; it makes no claim about this real CAid.
+    let mut body: Value =
+        serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+    body["genomicAlleles"][0]["hgvs"] = json!(["NC_000007.14:g.140753336_140753337insT"]);
+    body["genomicAlleles"][0]["coordinates"] =
+        json!([{"start":140753336,"end":140753336,"referenceAllele":"","allele":"T"}]);
+    Ok(body.to_string())
 }
