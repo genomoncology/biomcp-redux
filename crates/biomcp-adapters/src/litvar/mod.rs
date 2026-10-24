@@ -81,7 +81,12 @@ pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search
     Ok(Search::Selected {
         rsid: selected.rsid.clone(),
         count: reply.pmids_count,
-        ids: reply.pmids.into_iter().take(9_999).filter_map(|id| Pmid::new(id).ok()).collect(),
+        ids: reply
+            .pmids
+            .into_iter()
+            .take(9_999)
+            .filter_map(|id| Pmid::new(id).ok())
+            .collect(),
     })
 }
 #[derive(Deserialize)]

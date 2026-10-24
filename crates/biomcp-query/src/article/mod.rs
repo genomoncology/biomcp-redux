@@ -141,13 +141,29 @@ pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> O
 pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
     use biodata::{ArticleFilter as F, ArticleSource as S};
     if query.sources().contains(&S::Litvar) {
-        if let Some(option) = query.rejects(&[F::Text, F::Disease, F::Drug, F::Author, F::Journal, F::Since, F::Until, F::Type, F::DateSort]) {
+        if let Some(option) = query.rejects(&[
+            F::Text,
+            F::Disease,
+            F::Drug,
+            F::Author,
+            F::Journal,
+            F::Since,
+            F::Until,
+            F::Type,
+            F::DateSort,
+        ]) {
             return Some((biodata::Source::LitVar, option));
         }
         let variant = query.variant().map_or("", Text::as_str);
-        let rsid = variant.get(..2).is_some_and(|v| v.eq_ignore_ascii_case("rs"))
-            && variant.get(2..).is_some_and(|v| !v.is_empty() && v.bytes().all(|c| c.is_ascii_digit()));
-        if variant.is_empty() || (!rsid && query.gene().is_none()) { return Some((biodata::Source::LitVar, F::Variant)); }
+        let rsid = variant
+            .get(..2)
+            .is_some_and(|v| v.eq_ignore_ascii_case("rs"))
+            && variant
+                .get(2..)
+                .is_some_and(|v| !v.is_empty() && v.bytes().all(|c| c.is_ascii_digit()));
+        if variant.is_empty() || (!rsid && query.gene().is_none()) {
+            return Some((biodata::Source::LitVar, F::Variant));
+        }
     }
     None
 }
