@@ -191,7 +191,7 @@ fn projection_problems(
     let mut problems = Vec::new();
     if let Section::Data { data, .. } = &section {
         problems.push(super::population::release_unknown(&data.variant));
-        for group in &groups {
+        for group in groups {
             if group.group_id.is_some() && group.ancestry_group.is_none() && group.sex.is_none() {
                 problems.push(biodata::Problem {
                     source: Source::Gnomad,
