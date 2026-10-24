@@ -30,6 +30,9 @@ pub mod icite;
 
 /// Exact variant publication lookup.
 pub mod litvar;
+/// Semantic Scholar graph metadata under one shared optional-key quota.
+pub mod semantic_scholar;
 mod xml_element;
 
 pub mod registry;
+pub mod sheet;

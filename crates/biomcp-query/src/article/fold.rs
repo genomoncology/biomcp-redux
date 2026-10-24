@@ -11,7 +11,10 @@ pub(super) fn fold(
             let Some(row) = rows.get(rank) else {
                 continue;
             };
-            if let Some(existing) = items.iter_mut().find(|item| item.key == row.key) {
+            if let Some(existing) = items
+                .iter_mut()
+                .find(|item| row.key.is_some() && item.key == row.key)
+            {
                 if disclose {
                     existing
                         .found_by

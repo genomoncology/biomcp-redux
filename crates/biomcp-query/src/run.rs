@@ -22,7 +22,7 @@ pub enum Action {
         fresh: bool,
     },
     /// Explain configuration names for a keyed source.
-    KeyHelp,
+    KeyHelp(biodata::Source),
     /// Synchronize one declared file.
     Sync {
         #[doc = "Bundle selector."]
@@ -50,6 +50,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::ArticleSupplement(query) => crate::article::supplement::read(cx, query),
         Request::ArticleText(query) => crate::article::text::read(cx, query),
         Request::ArticleCitations(query) => crate::article::edges(cx, query, false),
         Request::ArticleReferences(query) => crate::article::edges(cx, query, true),

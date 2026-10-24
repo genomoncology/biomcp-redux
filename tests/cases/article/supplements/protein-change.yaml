@@ -1,0 +1,85 @@
+{
+  "feature": "article-supplements",
+  "story": "protein-change",
+  "replay": "article/supplements/live",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--variant",
+        "P245S"
+      ],
+      "mcp": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--variant",
+        "P245S"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/forms": [
+          "P245S",
+          "Pro245Ser",
+          "p.P245S",
+          "p.Pro245Ser"
+        ],
+        "/result/content/data/sha256": "74f9b11bff7dfad961c938574f48c2efabaa93af0f428c52d477a0e55eeeed22",
+        "/result/content/data/rows": {
+          "count": 1
+        },
+        "/result/content/data/rows/0/sheet": "ST2",
+        "/result/content/data/rows/0/row": 85,
+        "/result/content/data/rows/0/cells": {
+          "includes": "p.Pro245Ser"
+        }
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "p.Pro245Ser"
+      ],
+      "expect": {
+        "/result/content/data/rows/0/row": 85
+      }
+    },
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "P245S"
+      ],
+      "expect": {
+        "/result/content/data/rows": [],
+        "/page/total": 0
+      }
+    },
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--variant",
+        "P245"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

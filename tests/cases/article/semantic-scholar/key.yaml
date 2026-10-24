@@ -1,0 +1,29 @@
+{
+  "feature": "article-search",
+  "story": "Semantic Scholar key help names the optional free key without requiring configuration",
+  "replay": "article/fold/synthetic-fold",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "key",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "help",
+        "key",
+        "semantic-scholar"
+      ],
+      "max_bytes": 264,
+      "expect": {
+        "/result/source": "semantic-scholar",
+        "/result/config": "keys.semantic_scholar_api_key",
+        "/result/environment": "SEMANTIC_SCHOLAR_API_KEY",
+        "/result/guidance": "a free key raises the request limit"
+      },
+      "max_tokens": 66
+    }
+  ],
+  "verified": "Measured CLI output on Gator at43f22fd: 229 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",
+  "live_check": "synthetic or recorded failure proof; no live refresh"
+}

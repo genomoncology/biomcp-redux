@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct KeyHelp {
+    /// Optional source-specific key guidance.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guidance: Option<crate::Text>,
     /// Source name.
     pub source: crate::Source,
     /// Configuration file key path.

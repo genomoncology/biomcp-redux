@@ -128,6 +128,11 @@
           "required": [
             "doi"
           ]
+        },
+        {
+          "required": [
+            "europepmc_id"
+          ]
         }
       ],
       "description": "Article facts with at least one checked identity.",
@@ -164,6 +169,10 @@
         "doi": {
           "$ref": "#/$defs/Doi",
           "description": "DOI assigned to this article."
+        },
+        "europepmc_id": {
+          "$ref": "#/$defs/EuropePmcId",
+          "description": "Europe PMC identity when this card comes from its core record."
         },
         "journal": {
           "anyOf": [
@@ -299,7 +308,7 @@
       "type": "object"
     },
     "ArticleInput": {
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
     "ArticleMatch": {
@@ -321,13 +330,15 @@
       "enum": [
         "pmid",
         "pmcid",
-        "doi"
+        "doi",
+        "europepmc_id"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " PubMed identifier.",
         " PMC identifier.",
-        " Digital object identifier."
+        " Digital object identifier.",
+        " Europe PMC preprint identifier."
       ]
     },
     "ArticleResolution": {
@@ -384,13 +395,17 @@
       "description": "A landed article section.",
       "enum": [
         "fulltext",
+        "supplements",
         "annotations",
+        "tldr",
         "citations"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Licensed PMC body outline.",
+        " Supplementary files confirmed by PMC metadata.",
         " Normalized text-mined entities from PubTator3.",
+        " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite."
       ]
     },
@@ -399,6 +414,8 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
+        "tldr",
         "citations",
         "all"
       ],
@@ -406,6 +423,8 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files confirmed by PMC metadata.",
+        " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
@@ -417,7 +436,7 @@
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -428,7 +447,7 @@
         "citations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
@@ -439,13 +458,35 @@
         "fulltext": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Licensed PMC body outline."
+        },
+        "supplements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS supplementary files confirmed by the bucket record."
+        },
+        "tldr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Machine-written Semantic Scholar summary."
         }
       },
       "type": "object"
@@ -600,6 +641,10 @@
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+      "type": "string"
+    },
     "FigureCaption": {
       "additionalProperties": false,
       "description": "Figure text in document order.",
@@ -618,6 +663,26 @@
         "caption"
       ],
       "type": "object"
+    },
+    "FileKind": {
+      "description": "Supplement format from an explicit JATS MIME declaration, with suffix fallback.",
+      "enum": [
+        "xlsx",
+        "csv",
+        "tsv",
+        "txt",
+        "pdf",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Excel workbook.",
+        " Comma-separated text.",
+        " Tab-separated text.",
+        " Plain text lines.",
+        " PDF download offered without parsing.",
+        " Other source format."
+      ]
     },
     "FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
@@ -659,8 +724,6 @@
       },
       "required": [
         "license",
-        "processing_version",
-        "manuscript",
         "parts",
         "figures"
       ],
@@ -895,6 +958,8 @@
       "enum": [
         "not_found",
         "not_open",
+        "unsupported",
+        "too_large",
         "rate_limited",
         "unavailable",
         "tls",
@@ -913,6 +978,8 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
@@ -936,7 +1003,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/FullText",
+              "$ref": "#/$defs/Supplements",
               "description": "Whole section data."
             },
             "source": {
@@ -1057,7 +1124,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Citations",
+              "$ref": "#/$defs/FullText",
               "description": "Whole section data."
             },
             "source": {
@@ -1171,6 +1238,248 @@
       ]
     },
     "Section3": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Tldr",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section4": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Citations",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -1336,6 +1645,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",
@@ -1509,6 +1837,69 @@
       ],
       "type": "string"
     },
+    "SupplementFile": {
+      "additionalProperties": false,
+      "description": "A JATS supplement confirmed by the same processing record.",
+      "properties": {
+        "caption": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS caption when present."
+        },
+        "kind": {
+          "$ref": "#/$defs/FileKind",
+          "description": "Checked format."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS label when present."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source filename."
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Supplements": {
+      "additionalProperties": false,
+      "description": "Available supplements with their owning article license.",
+      "properties": {
+        "files": {
+          "description": "Exact JATS/record intersection.",
+          "items": {
+            "$ref": "#/$defs/SupplementFile"
+          },
+          "type": "array"
+        },
+        "license": {
+          "$ref": "#/$defs/License",
+          "description": "Article license from the record."
+        }
+      },
+      "required": [
+        "license",
+        "files"
+      ],
+      "type": "object"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -1558,9 +1949,51 @@
         " Top-level body section.",
         " Table, including caption and rows."
       ]
+    },
+    "Tldr": {
+      "additionalProperties": false,
+      "description": "Machine-written source summary with independently reported counts.",
+      "properties": {
+        "cited_by": {
+          "description": "Total source citation count, when supplied.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "influential_cited_by": {
+          "description": "Source influential citation count, when supplied.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "machine_written": {
+          "description": "Explicitly identifies generated prose.",
+          "type": "boolean"
+        },
+        "model": {
+          "$ref": "#/$defs/Text",
+          "description": "Source model version."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete one-sentence source summary."
+        }
+      },
+      "required": [
+        "text",
+        "model",
+        "machine_written"
+      ],
+      "type": "object"
     }
   },
-  "$id": "biomcp.article_cards/1",
+  "$id": "biomcp.article_cards/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1606,7 +2039,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_cards/1",
+      "const": "biomcp.article_cards/2",
       "type": "string"
     },
     "sources": {

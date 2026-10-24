@@ -12,6 +12,17 @@
           "$ref": "#/$defs/Text",
           "description": "Environment variable name."
         },
+        "guidance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional source-specific key guidance."
+        },
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source name."
@@ -157,6 +168,8 @@
       "enum": [
         "not_found",
         "not_open",
+        "unsupported",
+        "too_large",
         "rate_limited",
         "unavailable",
         "tls",
@@ -175,6 +188,8 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
@@ -235,6 +250,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",

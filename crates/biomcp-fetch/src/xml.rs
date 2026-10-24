@@ -9,6 +9,7 @@ const NESTING: usize = 64;
 pub(crate) enum Codec {
     Json,
     Xml,
+    Bytes,
     Probe,
 }
 impl Codec {
@@ -16,6 +17,7 @@ impl Codec {
         match self {
             Self::Json => "application/json",
             Self::Xml => "application/xml",
+            Self::Bytes => "application/octet-stream",
             Self::Probe => "*/*",
         }
     }
@@ -23,6 +25,7 @@ impl Codec {
         let mut parts = media.split(';');
         let name = parts.next().unwrap_or("").trim().to_ascii_lowercase();
         match self {
+            Self::Bytes => true,
             Self::Probe => true,
             Self::Json => {
                 name == self.name() || name.starts_with("application/") && name.ends_with("+json")
@@ -54,16 +57,21 @@ pub trait XmlReply: Reply {
     }
 }
 
-pub(crate) struct Decoder<T> {
+type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biodata::Reason> + 'a;
+pub(crate) struct Decoder<'a, T> {
+    validate: Option<&'a BodyCheck<'a>>,
     codec: Codec,
+    pub(crate) limit: Option<u64>,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
 }
-impl<T: Reply> Decoder<T> {
+impl<T: Reply> Decoder<'_, T> {
     pub(crate) fn json() -> Self {
         Self {
             codec: Codec::Json,
+            validate: None,
             octet_stream: false,
+            limit: None,
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
@@ -73,7 +81,9 @@ impl<T: Reply> Decoder<T> {
     {
         Self {
             codec: Codec::Xml,
+            validate: None,
             octet_stream: false,
+            limit: None,
             parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
@@ -81,6 +91,12 @@ impl<T: Reply> Decoder<T> {
                 T::decode_xml(text).ok()
             },
         }
+    }
+    pub(crate) fn validate(&self, bytes: &[u8]) -> Result<(), biodata::Reason> {
+        self.validate.map_or(Ok(()), |check| check(bytes))
+    }
+    pub(crate) fn binary(&self) -> bool {
+        matches!(self.codec, Codec::Bytes)
     }
     pub(crate) fn octet_stream(mut self, accepted: bool) -> Self {
         self.octet_stream = accepted;
@@ -251,12 +267,40 @@ impl Reply for Probe {
         Ok(())
     }
 }
-impl Decoder<Probe> {
+impl Decoder<'_, Probe> {
     pub(crate) fn probe() -> Self {
         Self {
             codec: Codec::Probe,
+            validate: None,
+            limit: None,
             octet_stream: false,
             parse: |_| Some(Probe),
+        }
+    }
+}
+#[derive(serde::Deserialize)]
+pub(crate) struct Bytes(pub(crate) Vec<u8>);
+impl Reply for Bytes {
+    fn check(&self) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
+}
+impl<'a> Decoder<'a, Bytes> {
+    pub(crate) fn checked_bytes(
+        limit: u64,
+        check: &'a dyn Fn(&[u8]) -> Result<(), biodata::Reason>,
+    ) -> Self {
+        let mut codec = Self::bytes(limit);
+        codec.validate = Some(check);
+        codec
+    }
+    pub(crate) fn bytes(limit: u64) -> Self {
+        Self {
+            codec: Codec::Bytes,
+            validate: None,
+            octet_stream: false,
+            limit: Some(limit),
+            parse: |body| Some(Bytes(body.to_vec())),
         }
     }
 }
