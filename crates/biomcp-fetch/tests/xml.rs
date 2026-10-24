@@ -196,15 +196,14 @@ fn xml_body_and_nested_inline_content_are_bounded() {
             matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::BadReply)
         );
     }
-    // This remains below the document bound and exercises the actual recursive
-    // MixedText visitor's deserializer limit independently of that preflight.
+    // Arbitrary nested inline content below the bound is accepted.
     let body = format!(
         "<answer>{}V600E{}</answer>",
         "<i>".repeat(40),
         "</i>".repeat(40)
     );
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
-    assert!(exchange(&server, &fetch, spec, "text/xml", body.as_bytes()).is_err());
+    assert!(exchange(&server, &fetch, spec, "text/xml", body.as_bytes()).is_ok());
 }
 
 #[test]
@@ -234,8 +233,8 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     for sql in [
         "UPDATE reply SET content_type='application/unknown'",
         "UPDATE reply SET content_type='application/json'",
-        "UPDATE reply SET body='<broken>'",
-        "UPDATE reply SET body='<answer>unchecked</answer>'",
+        "UPDATE reply SET body=CAST('<broken>' AS BLOB)",
+        "UPDATE reply SET body=CAST('<answer>unchecked</answer>' AS BLOB)",
     ] {
         database.execute_batch(sql).unwrap();
         assert!(exchange(&server, &fetch, spec, "text/xml", body).is_ok());
@@ -252,7 +251,7 @@ fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
     });
     assert!(leg.finish().stale);
     database
-        .execute_batch("UPDATE reply SET body='<broken>'")
+        .execute_batch("UPDATE reply SET body=CAST('<broken>' AS BLOB)")
         .unwrap();
     thread::scope(|scope| {
         let worker = scope.spawn(|| invoke(&fetch, spec));

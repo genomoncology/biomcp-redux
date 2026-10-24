@@ -25,5 +25,11 @@ fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), qui
         let raw: Raw = quick_xml::de::from_str(xml)?;
         assert_eq!(raw.text.as_str(), expected, "{xml}");
     }
+    let mut de = quick_xml::de::Deserializer::from_str("<raw><i><b>text</b></i></raw>");
+    de.recursion_limit(2);
+    assert!(matches!(
+        Raw::deserialize(&mut de),
+        Err(quick_xml::DeError::TooDeeplyNested(2))
+    ));
     Ok(())
 }
