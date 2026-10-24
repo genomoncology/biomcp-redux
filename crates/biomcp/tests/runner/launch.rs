@@ -1,5 +1,12 @@
 use std::{fs, io, path::Path, process::Command};
 
+pub(super) const ENV_PATHS: &[(&str, &str)] = &[
+    ("HOME", "home"),
+    ("USERPROFILE", "home"),
+    ("XDG_CONFIG_HOME", "config"),
+    ("XDG_CACHE_HOME", "cache"),
+];
+
 #[derive(Debug)]
 pub(super) struct Environment {
     root: tempfile::TempDir,
@@ -20,10 +27,11 @@ impl Environment {
         command
             .args(args)
             .env_clear()
-            .env("HOME", self.root.path().join("home"))
-            .env("USERPROFILE", self.root.path().join("home"))
-            .env("XDG_CONFIG_HOME", self.root.path().join("config"))
-            .env("XDG_CACHE_HOME", self.root.path().join("cache"))
+            .envs(
+                ENV_PATHS
+                    .iter()
+                    .map(|(key, path)| (key, self.root.path().join(path))),
+            )
             .current_dir(self.root.path());
         command
     }

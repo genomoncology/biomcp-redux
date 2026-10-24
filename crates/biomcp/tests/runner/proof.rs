@@ -1,4 +1,4 @@
-use super::launch::Environment;
+use super::launch::{ENV_PATHS, Environment};
 use libtest_mimic::Trial;
 use std::{env, fs, path::Path};
 
@@ -103,7 +103,11 @@ fn negatives() -> Check {
         let output = invoke(directory.path(), &[&filename, "--exact"])?;
         let stdout = String::from_utf8_lossy(&output.stdout);
         if output.status.success()
-            || !stdout.contains(&format!("test {filename} ... FAILED"))
+            || !stdout
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .contains(&format!("test {filename} ... FAILED"))
             || !stdout.contains(diagnostic)
             || !stdout.contains("1 failed")
         {
@@ -164,27 +168,30 @@ fn isolation() -> Check {
     let before: Vec<_> = env::vars_os().collect();
     let first = Environment::new().map_err(|error| error.to_string())?;
     let second = Environment::new().map_err(|error| error.to_string())?;
-    let read = |environment: &Environment| -> Result<String, String> {
+    let read = |environment: &Environment| -> Result<serde_json::Value, String> {
         let output = environment
-            .command("/usr/bin/env", &[])
+            .command(
+                env::current_exe().map_err(|error| error.to_string())?,
+                &["--runner-environment-probe".into()],
+            )
             .output()
             .map_err(|error| error.to_string())?;
         if !output.status.success() {
             return Err("environment child failed".into());
         }
-        String::from_utf8(output.stdout).map_err(|error| error.to_string())
+        serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())
     };
     let first_step = read(&first)?;
     let next_step = read(&first)?;
     let other_case = read(&second)?;
-    for key in ["HOME", "USERPROFILE", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"] {
-        let field = |text: &str| {
-            text.lines()
-                .find(|line| line.starts_with(&format!("{key}=")))
-                .map(str::to_owned)
-        };
-        let first = field(&first_step).ok_or_else(|| format!("child lacks {key}"))?;
-        if Some(first.clone()) != field(&next_step) || Some(first) == field(&other_case) {
+    for (key, _) in ENV_PATHS {
+        let first = first_step
+            .get(key)
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| format!("child lacks {key}"))?;
+        if next_step.get(key).and_then(serde_json::Value::as_str) != Some(first)
+            || other_case.get(key).and_then(serde_json::Value::as_str) == Some(first)
+        {
             return Err(format!(
                 "{key}: case steps must share environment; cases must differ"
             ));
@@ -197,16 +204,16 @@ fn isolation() -> Check {
 }
 
 fn output_failure() -> Check {
-    // A read-only stdout handle fails every write without a pipe scheduling race.
-    let file = tempfile::NamedTempFile::new().map_err(|error| error.to_string())?;
-    let read_only = fs::File::open(file.path()).map_err(|error| error.to_string())?;
+    // Close the reader before spawning so the first write must hit a broken pipe.
+    let (reader, writer) = std::io::pipe().map_err(|error| error.to_string())?;
+    drop(reader);
     let output = Environment::new()
         .map_err(|error| error.to_string())?
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["schema".into(), "biodata.source/1".into()],
         )
-        .stdout(read_only)
+        .stdout(writer)
         .output()
         .map_err(|error| error.to_string())?;
     if output.status.code() != Some(5) || output.stderr != b"biomcp: output failed\n" {
@@ -217,4 +224,17 @@ fn output_failure() -> Check {
         ));
     }
     Ok(())
+}
+
+// This probe belongs only to the test executable. It observes the same child
+// launch boundary as case steps without adding any command to the product.
+pub(crate) fn environment_probe() -> std::process::ExitCode {
+    let values: std::collections::BTreeMap<_, _> = ENV_PATHS
+        .iter()
+        .map(|(key, _)| (*key, env::var(key).ok()))
+        .collect();
+    match serde_json::to_writer(std::io::stdout().lock(), &values) {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(_) => std::process::ExitCode::FAILURE,
+    }
 }
