@@ -682,8 +682,6 @@
       },
       "required": [
         "license",
-        "processing_version",
-        "manuscript",
         "scope"
       ],
       "type": "object"

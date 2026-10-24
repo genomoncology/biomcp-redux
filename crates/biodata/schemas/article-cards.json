@@ -674,8 +674,6 @@
       },
       "required": [
         "license",
-        "processing_version",
-        "manuscript",
         "parts",
         "figures"
       ],
