@@ -47,4 +47,3 @@ pub(super) fn case(
     super::run_case(&path, &super::schema::Registry::embedded()?)?;
     Ok(())
 }
-

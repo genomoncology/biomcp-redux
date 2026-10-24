@@ -67,3 +67,18 @@ fn synthetic_chunk_failure_does_not_hide_a_successful_chunk() {
         biodata::EntrezGeneId::new(201).unwrap()
     );
 }
+
+#[test]
+fn indexed_lookups_keep_literal_band_and_xref_namespaces() {
+    use biomcp_adapters::hgnc;
+    use biomcp_fetch::{Find, KeyKind};
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/hgnc") },
+        ..Default::default()
+    }).unwrap();
+    let leg = fetch.leg(&hgnc::SPEC, fetch.deadline(Duration::from_secs(120)));
+    for key in ["673", "ensembl:673", "entrez:ENSG00000157764"] {
+        assert!(hgnc::lookup(&leg, Find::Exact(KeyKind::Xref, key)).unwrap().value.is_empty());
+    }
+    assert!(hgnc::in_band(&leg, "%_").unwrap().value.is_empty());
+}

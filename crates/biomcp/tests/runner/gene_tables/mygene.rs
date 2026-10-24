@@ -26,6 +26,7 @@ fn run(change: impl Fn(&mut Value), expect: Value) -> Check {
 
 pub(super) fn check() -> Check {
     positions()?;
+    multicontig()?;
     identities()?;
     summaries()
 }
@@ -72,6 +73,12 @@ fn positions() -> Check {
             "/result/items/0/answer/gene/spans/1/span/start": 29,
             "/problems/*/field": ["genomic_pos"]}),
     )
+}
+
+fn multicontig() -> Check {
+    run(|body| body[0]["genomic_pos"] = json!([
+        {"chr":"X","start":10,"end":20}, {"chr":"Y","start":30,"end":40}]),
+        json!({"/result/items/0/answer/gene/spans/*/contig": ["X", "Y", "7"]}))
 }
 
 fn identities() -> Check {

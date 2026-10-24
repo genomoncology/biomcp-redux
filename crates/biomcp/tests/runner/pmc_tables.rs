@@ -2,18 +2,40 @@ use super::response_cases::case;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 
-fn run(front: &str, body: &str, change: impl Fn(&mut Value), args: &[&str], expect: Value) -> Check {
-    let xml = format!("<article><front><article-meta>{front}</article-meta></front><body>{body}</body></article>");
-    case("article/fulltext/live-introduction", args, |source, record| {
-        if source != "pmc-oa" { return; }
-        let url = record.get("url").and_then(Value::as_str).unwrap_or_default();
-        let metadata = url.ends_with(".json");
-        let text = url.contains(".xml?");
-        if let Some(value) = record.pointer_mut("/exchanges/0/body/value") {
-            if metadata { change(value); }
-            else if text { *value = xml.clone().into(); }
-        }
-    }, expect, 0)
+fn run(
+    front: &str,
+    body: &str,
+    change: impl Fn(&mut Value),
+    args: &[&str],
+    expect: Value,
+) -> Check {
+    let xml = format!(
+        "<article><front><article-meta>{front}</article-meta></front><body>{body}</body></article>"
+    );
+    case(
+        "article/fulltext/live-introduction",
+        args,
+        |source, record| {
+            if source != "pmc-oa" {
+                return;
+            }
+            let url = record
+                .get("url")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let metadata = url.ends_with(".json");
+            let text = url.contains(".xml?");
+            if let Some(value) = record.pointer_mut("/exchanges/0/body/value") {
+                if metadata {
+                    change(value);
+                } else if text {
+                    *value = xml.clone().into();
+                }
+            }
+        },
+        expect,
+        0,
+    )
 }
 
 pub(super) fn check() -> Check {
@@ -24,59 +46,111 @@ pub(super) fn check() -> Check {
 
 fn licenses() -> Check {
     for (source, expected) in [
-        ("CC BY", "cc_by"), ("cc-by-nc", "cc_by_nc"), ("CC BY SA", "cc_by_sa"),
-        ("CC BY NC SA", "cc_by_nc_sa"), ("CC BY ND", "cc_by_nd"),
-        ("CC BY NC ND", "cc_by_nc_nd"), ("CC0", "cc0"), ("PUBLIC DOMAIN", "public_domain"),
-        ("TDM", "tdm"), ("source-specific", "other"),
+        ("CC BY", "cc_by"),
+        ("cc-by-nc", "cc_by_nc"),
+        ("CC BY SA", "cc_by_sa"),
+        ("CC BY NC SA", "cc_by_nc_sa"),
+        ("CC BY ND", "cc_by_nd"),
+        ("CC BY NC ND", "cc_by_nc_nd"),
+        ("CC0", "cc0"),
+        ("PUBLIC DOMAIN", "public_domain"),
+        ("TDM", "tdm"),
+        ("source-specific", "other"),
     ] {
-        run("", "<p>Invented source text.</p>", |record| record["license_code"] = source.into(),
+        run(
+            "",
+            "<p>Invented source text.</p>",
+            |record| record["license_code"] = source.into(),
             &["article", "text", "PMC5606870", "--part", "1"],
-            json!({"/result/content/data/license": expected}))?;
+            json!({"/result/content/data/license": expected}),
+        )?;
     }
     Ok(())
 }
 
 fn identities() -> Check {
-    for (field, value) in [("pmcid", json!("PMC1")), ("pmid", json!(1)),
-        ("pmid", json!(0)), ("license_code", json!(" "))] {
-        run("", "<p>Invented source.</p>", |record| record[field] = value.clone(),
+    for (field, value) in [
+        ("pmcid", json!("PMC1")),
+        ("pmid", json!(1)),
+        ("pmid", json!(0)),
+        ("license_code", json!(" ")),
+    ] {
+        run(
+            "",
+            "<p>Invented source.</p>",
+            |record| record[field] = value.clone(),
             &["get", "article", "28944238", "fulltext"],
-            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}))?;
+            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+        )?;
     }
-    for front in ["<article-id pub-id-type=\"pmc\">1</article-id>",
+    for front in [
+        "<article-id pub-id-type=\"pmc\">1</article-id>",
         "<article-id pub-id-type=\"pmc\">5606870</article-id><article-id pub-id-type=\"pmcid\">PMC1</article-id>",
-        "<article-id pub-id-type=\"pmc\">not-an-id</article-id>"] {
-        run(front, "<p>Invented source.</p>", |_| {},
+        "<article-id pub-id-type=\"pmc\">not-an-id</article-id>",
+    ] {
+        run(
+            front,
+            "<p>Invented source.</p>",
+            |_| {},
             &["get", "article", "28944238", "fulltext"],
-            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}))?;
+            json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+        )?;
     }
     Ok(())
 }
 
 fn markup() -> Check {
     for (xml, expected) in [
-        ("<p>A<sup>2<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>2[11]</sup>."),
-        ("<p>A<sup>&#945;<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>α[11]</sup>."),
-        ("<p>A<sup><xref ref-type=\"bibr\" rid=\"B1\">11</xref>,<xref ref-type=\"bibr\" rid=\"B2\">12</xref></sup>.</p>", "A[11,12]."),
+        (
+            "<p>A<sup>2<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>",
+            "A<sup>2[11]</sup>.",
+        ),
+        (
+            "<p>A<sup>&#945;<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>",
+            "A<sup>α[11]</sup>.",
+        ),
+        (
+            "<p>A<sup><xref ref-type=\"bibr\" rid=\"B1\">11</xref>,<xref ref-type=\"bibr\" rid=\"B2\">12</xref></sup>.</p>",
+            "A[11,12].",
+        ),
     ] {
-        run("", xml, |_| {}, &["article", "text", "PMC5606870", "--part", "1"],
-            json!({"/result/content/data/markdown": {"regex": regex_literal(expected)}}))?;
+        run(
+            "",
+            xml,
+            |_| {},
+            &["article", "text", "PMC5606870", "--part", "1"],
+            json!({"/result/content/data/markdown": expected}),
+        )?;
     }
-    run("", "<p>&undefined;</p>", |_| {}, &["get", "article", "28944238", "fulltext"],
-        json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}))?;
+    run(
+        "",
+        "<p>&undefined;</p>",
+        |_| {},
+        &["get", "article", "28944238", "fulltext"],
+        json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
+    )?;
     let body = "<sec><title>Results</title><p><xref ref-type=\"table\" rid=\"T2 T1\">2, 1</xref></p><table-wrap id=\"T1\"><label>Table 1</label></table-wrap><table-wrap id=\"T2\"><label>Table 2</label></table-wrap></sec>";
-    run("", body, |_| {}, &["get", "article", "28944238", "fulltext"],
-        json!({"/result/items/0/sections/fulltext/data/parts/*/title": ["Results", "Table 2", "Table 1"]}))?;
+    run(
+        "",
+        body,
+        |_| {},
+        &["get", "article", "28944238", "fulltext"],
+        json!({"/result/items/0/sections/fulltext/data/parts/*/title": ["Results", "Table 2", "Table 1"]}),
+    )?;
     let body = "<sec><title>Results</title><sec><title>First</title><p>A &amp; B &#945; <![CDATA[<sample>]]> <xref ref-type=\"table\" rid=\"T1\">1</xref>.</p></sec><sec><title>Second</title><p>Again <xref ref-type=\"table-wrap\" rid=\"T1\">1</xref>.</p></sec><table-wrap id=\"T1\"><label>Table 1</label><caption><p>Invented caption.</p></caption><table><tr><th colspan=\"2\">Header</th></tr><tr><td>Left</td><td/></tr></table></table-wrap></sec>";
-    run("", body, |_| {}, &["article", "text", "PMC5606870", "--part", "1"],
-        json!({"/result/content/data/markdown": {"regex": "A & B α &lt;sample&gt;"}}))?;
-    run("", body, |_| {}, &["article", "text", "PMC5606870", "--part", "2"],
+    run(
+        "",
+        body,
+        |_| {},
+        &["article", "text", "PMC5606870", "--part", "2"],
+        json!({"/result/content/data/markdown": "### First\n\nA & B α &lt;sample&gt; [1]."}),
+    )?;
+    run(
+        "",
+        body,
+        |_| {},
+        &["article", "text", "PMC5606870", "--part", "3"],
         json!({"/result/content/data/heading_path": ["Results", "First"],
-            "/result/content/data/markdown": {"regex": "\\| Header \\| Header \\|[\\s\\S]*\\| Left \\|  \\|"}}))
-}
-
-fn regex_literal(text: &str) -> String {
-    text.chars().flat_map(|ch| {
-        if ".+*?()|[]{}^$\\".contains(ch) { vec!['\\', ch] } else { vec![ch] }
-    }).collect()
+            "/result/content/data/markdown": "**Table 1.** Invented caption.\n| Header | Header |\n| --- | --- |\n| Left |  |"}),
+    )
 }
