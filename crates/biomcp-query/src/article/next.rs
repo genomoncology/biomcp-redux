@@ -93,13 +93,7 @@ fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
 }
 
 /// A short complete pool offers caller-controlled alternatives without running them.
-pub(super) fn search(
-    query: &biodata::ArticleSearch,
-    total: u64,
-    partial: bool,
-    out: &mut Outcome,
-) {
-    variant_step(query, out);
+pub(super) fn search(query: &biodata::ArticleSearch, total: u64, partial: bool, out: &mut Outcome) {
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (
@@ -111,6 +105,7 @@ pub(super) fn search(
             )
         }));
     }
+    variant_step(query, out);
 }
 
 fn variant_step(search: &biodata::ArticleSearch, out: &mut Outcome) {
