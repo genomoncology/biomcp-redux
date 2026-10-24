@@ -255,3 +255,13 @@ pub fn outcome(
         notices: Vec::new(),
     }
 }
+
+/// Reapply current publisher labels when an outcome is restored from a snapshot.
+pub fn restore_outcome(saved: biomcp_types::SourceOutcome) -> biomcp_types::SourceOutcome {
+    let mut current = outcome(saved.source, saved.state, saved.reason);
+    current.term = saved.term;
+    current.count = saved.count;
+    current.fetched = saved.fetched;
+    current.notices = saved.notices;
+    current
+}

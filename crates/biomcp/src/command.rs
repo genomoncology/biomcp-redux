@@ -174,7 +174,7 @@ impl ResponseMeta {
         body: Option<B>,
     ) -> io::Result<Outcome> {
         let mut envelope = Envelope::new(self.status, query, body);
-        envelope.sources = self.sources;
+        envelope.sources = self.sources.into_iter().map(biomcp_adapters::registry::restore_outcome).collect();
         envelope.problems = self.problems;
         envelope.next = self.next;
         envelope.page = self.page;
