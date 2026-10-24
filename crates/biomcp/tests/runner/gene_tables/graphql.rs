@@ -127,17 +127,10 @@ fn mappings() -> Check {
         let mut expect = json!({
             "/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
             "/result/items/0/sections/constraint/data/flags": []});
-        let pointer = if flags.is_null() {
-            "/problems"
-        } else {
-            "/problems/*/field"
-        };
-        expect[pointer] = if flags.is_null() {
-            json!([])
-        } else {
-            json!(["flags"])
-        };
-        graphql(
+        if !flags.is_null() {
+            expect["/problems/*/field"] = json!(["flags"]);
+        }
+        let answer = checked_graphql(
             "gnomad",
             |body| {
                 body["value"]["data"]["g0"]["mane_select_transcript"] = Value::Null;
@@ -145,6 +138,13 @@ fn mappings() -> Check {
             },
             expect,
         )?;
+        if flags.is_null()
+            && answer
+                .get("problems")
+                .is_some_and(|v| !v.as_array().is_some_and(Vec::is_empty))
+        {
+            return Err("absent source flags produced a mapping problem".into());
+        }
     }
     for mode in 0..2 {
         graphql(
