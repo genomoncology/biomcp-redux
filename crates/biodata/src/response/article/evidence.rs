@@ -1,4 +1,4 @@
-use crate::{Capped, CitationIntent, License, Markdown, Section};
+use crate::{Capped, CitationIntent, License, Section};
 use serde::{Deserialize, Serialize};
 /// One advancing piece of an original source citation context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -25,7 +25,8 @@ pub struct EvidenceParagraph {
     /// Unicode character position within the original paragraph.
     pub character_offset: u32,
     /// Preserved source Markdown.
-    pub markdown: Markdown,
+    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("format" = "markdown")))]
+    pub markdown: Box<str>,
 }
 crate::macros::wire_enum! {
     /// Explicit successful empty outcomes, never inferred from a source failure.

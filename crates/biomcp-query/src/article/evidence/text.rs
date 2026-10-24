@@ -98,7 +98,7 @@ fn paragraphs(
                     position,
                     part: part.meta.number,
                     character_offset: offset,
-                    markdown: biodata::Markdown::new(&text).map_err(|_| super::bad())?,
+                    markdown: text.into(),
                 });
             }
         }
