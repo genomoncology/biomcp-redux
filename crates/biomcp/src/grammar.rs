@@ -7,6 +7,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Globals {
+    pub(crate) config: Option<PathBuf>,
     pub(crate) replay: Option<PathBuf>,
     pub(crate) observe: Option<PathBuf>,
     pub(crate) record: Option<PathBuf>,
@@ -24,6 +25,7 @@ pub(crate) enum Format {
 }
 #[derive(Debug)]
 pub(crate) struct Parsed {
+    pub(crate) key: Option<crate::keys::Command>,
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
@@ -77,7 +79,7 @@ fn root() -> Result<Command, ()> {
             .value_delimiter(',')
             .action(ArgAction::Append),
     );
-    for name in ["replay", "record", "case-cache", "observe"] {
+    for name in ["config", "replay", "record", "case-cache", "observe"] {
         root = root.arg(
             Arg::new(name)
                 .long(name)
@@ -106,6 +108,7 @@ fn root() -> Result<Command, ()> {
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     root = root.subcommand(Command::new("health"));
+    root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
     Ok(root.subcommand(serve_command()))
 }
@@ -122,7 +125,7 @@ fn help_command() -> Command {
             Command::new("key").arg(
                 Arg::new("source")
                     .required(true)
-                    .value_parser(["oncokb", "semantic-scholar"]),
+                    .value_parser(crate::keys::names()),
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
@@ -162,6 +165,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
+            key: None,
             http: matches.get_one::<String>("http").map(|address| {
                 (
                     address.clone(),
@@ -178,21 +182,16 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             help: None,
         });
     }
-    let help = if verb == "help" {
-        match matches.subcommand() {
-            Some(("key", _)) => None,
-            Some(("network", matches)) => Some(vec![
-                "network".into(),
-                matches.get_one::<String>("setting").ok_or(())?.clone(),
-            ]),
-            Some((verb, matches)) => {
-                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
-            }
-            None => Some(Vec::new()),
-        }
-    } else {
-        None
-    };
+    if verb == "key" {
+        return Ok(Parsed {
+            key: Some(crate::keys::parse(matches)?),
+            http: None,
+            action: None,
+            globals,
+            help: None,
+        });
+    }
+    let help = help_path(verb, matches)?;
     let action = if verb == "health" {
         Action::Health
     } else if verb == "help" {
@@ -200,7 +199,13 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             .subcommand()
             .filter(|(name, _)| *name == "key")
             .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biodata::Source::Oncokb), |s| s.parse())
+            .map_or(Ok(biodata::Source::Oncokb), |s| {
+                if s == "ncbi" {
+                    Ok(biodata::Source::PubMed)
+                } else {
+                    s.parse()
+                }
+            })
             .map_err(|_| ())?;
         Action::KeyHelp(source)
     } else if verb == "sync" {
@@ -223,14 +228,33 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     };
     Ok(Parsed {
+        key: None,
         http: None,
         action: Some(action),
         globals,
         help,
     })
 }
+fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
+    Ok(if verb == "help" {
+        match matches.subcommand() {
+            Some(("key", _)) => None,
+            Some(("network", matches)) => Some(vec![
+                "network".into(),
+                matches.get_one::<String>("setting").ok_or(())?.clone(),
+            ]),
+            Some((verb, matches)) => {
+                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
+            }
+            None => Some(Vec::new()),
+        }
+    } else {
+        None
+    })
+}
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
+        config: matches.get_one::<PathBuf>("config").cloned(),
         disable_sources: matches
             .get_many::<String>("disable-sources")
             .into_iter()
@@ -347,6 +371,10 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 
 impl Globals {
     pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
+        if self.config.is_some() {
+            return Err(());
+        }
+        self.config = process.config.clone();
         self.disable_sources.extend(process.disable_sources.clone());
         self.disable_sources.sort();
         self.disable_sources.dedup();

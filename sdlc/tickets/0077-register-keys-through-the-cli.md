@@ -1,6 +1,7 @@
 # 0077 — Register API keys through the CLI
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0e13329dc7ea0d2d86f7e6d9207dd9d4041d5205
 
 Milestone: 1
 

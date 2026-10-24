@@ -65,6 +65,7 @@ fn registry() -> Vec<Contract> {
         Doi => ("doi", "biodata.doi/1"),
         Envelope<Help> => ("help", "biomcp.help/1"),
         Envelope<KeyHelp> => ("key", "biomcp.key/1"),
+        Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/1"),
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),

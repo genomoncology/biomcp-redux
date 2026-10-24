@@ -44,3 +44,36 @@ impl Secrets {
             .filter(|v| !v.is_empty())
     }
 }
+
+impl SecretName {
+    /// Every supported credential identity, shared by configuration and CLI discovery.
+    pub const ALL: &[Self] = &[
+        Self::NcbiApiKey,
+        Self::SemanticScholarApiKey,
+        Self::OncokbApiKey,
+    ];
+    /// Source name accepted by key registration.
+    pub const fn source(self) -> &'static str {
+        match self {
+            Self::NcbiApiKey => "ncbi",
+            Self::SemanticScholarApiKey => "semantic-scholar",
+            Self::OncokbApiKey => "oncokb",
+        }
+    }
+    /// Field within the configuration's keys object.
+    pub const fn config(self) -> &'static str {
+        match self {
+            Self::NcbiApiKey => "ncbi_api_key",
+            Self::SemanticScholarApiKey => "semantic_scholar_api_key",
+            Self::OncokbApiKey => "oncokb_api_key",
+        }
+    }
+    /// Optional environment fallback.
+    pub const fn environment(self) -> &'static str {
+        match self {
+            Self::NcbiApiKey => "NCBI_API_KEY",
+            Self::SemanticScholarApiKey => "SEMANTIC_SCHOLAR_API_KEY",
+            Self::OncokbApiKey => "ONCOKB_API_KEY",
+        }
+    }
+}

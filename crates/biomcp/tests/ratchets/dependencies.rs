@@ -61,6 +61,8 @@ const LAYERS: &[(&str, &[&str])] = &[
             "tempfile",
             "httparse",
             "ctrlc",
+            "rpassword",
+            "tempfile",
             "base64",
             "serde",
             "serde_json",

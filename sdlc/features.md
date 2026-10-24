@@ -36,3 +36,4 @@ article-evidence: Read all source citation contexts and explicit full-text refer
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
 
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
+key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
