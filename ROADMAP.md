@@ -177,7 +177,7 @@ Sources:
 
 ### Trial
 
-- [ ] Investigation
+- [x] Investigation
 - [ ] Questions answered by Ian
 - [ ] Biodata types and schema
 - [ ] Search
