@@ -133,22 +133,6 @@ fn header(input: &mut impl Read) -> Result<String, String> {
         input.read_exact(&mut byte).map_err(|e| e.to_string())?;
         bytes.extend(byte);
     }
-    let headers = String::from_utf8(bytes.clone()).map_err(|e| e.to_string())?;
-    let length = headers
-        .lines()
-        .find_map(|line| {
-            let (name, value) = line.split_once(':')?;
-            name.eq_ignore_ascii_case("content-length")
-                .then(|| value.trim().parse::<usize>().ok())
-                .flatten()
-        })
-        .unwrap_or(0);
-    if length > 1024 * 1024 {
-        return Err("local request exceeded the test body limit".into());
-    }
-    let mut body = vec![0; length];
-    input.read_exact(&mut body).map_err(|e| e.to_string())?;
-    bytes.extend(body);
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
 fn body(withdrawn: bool) -> Result<String, String> {
