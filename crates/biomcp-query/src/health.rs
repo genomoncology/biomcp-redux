@@ -4,7 +4,7 @@ use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
 use std::time::Duration;
 /// Probe every implemented source with one shared command deadline and short source caps.
-pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, biodata::Error> {
+pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
     let deadline = fetch.deadline(budget);
     let sources = crate::fan_out::run(
         registry::SOURCES
@@ -29,6 +29,11 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, biodata::Error> {
                         let start = leg.remaining();
                         let result = registry::probe(spec, &leg);
                         let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;
+                        if let Err(error) = result
+                            && crate::status::local(error).is_some()
+                        {
+                            return Err(error);
+                        }
                         let reason = result.err().map(|e| match e {
                             RequestError::Source(e) => e.reason,
                             _ => Reason::Unavailable,
@@ -45,16 +50,17 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, biodata::Error> {
                     };
                     Ok(SourceHealth {
                         source: spec.source,
-                        terms: Text::new(spec.terms.name)?,
-                        terms_url: Text::new(spec.terms.url)?,
+                        terms: Text::new(spec.terms.name)
+                            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+                        terms_url: Text::new(spec.terms.url)
+                            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
                         usage: spec.terms.usage,
                         disabled,
                         state,
                         reason,
                         latency_ms,
                     })
-                })
-                    as Box<dyn FnOnce() -> Result<SourceHealth, biodata::Error> + Send>
+                }) as Box<dyn FnOnce() -> Result<SourceHealth, RequestError> + Send>
             })
             .collect(),
     );

@@ -24,7 +24,8 @@ impl Leg<'_> {
     /// Probe declared reachability through the same bounded transport, quota and replay policy.
     /// Probe replies never enter the checked data cache.
     pub fn probe(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<(), RequestError> {
-        self.parameters(ep, params, Decoder::probe()).map(|_| ())
+        let ep = ep.clone().fresh(crate::Freshness::Never);
+        self.parameters(&ep, params, Decoder::probe()).map(|_| ())
     }
     /// Probe a declared read-only JSON endpoint with a bounded request body.
     pub fn probe_json<B: serde::Serialize>(
@@ -32,11 +33,12 @@ impl Leg<'_> {
         ep: &Endpoint,
         body: &B,
     ) -> Result<(), RequestError> {
-        self.validate(ep, true)?;
+        let ep = ep.clone().fresh(crate::Freshness::Never);
+        self.validate(&ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         self.send(
-            ep,
+            &ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
             Decoder::probe(),
         )
