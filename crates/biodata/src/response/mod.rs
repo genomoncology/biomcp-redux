@@ -97,3 +97,9 @@ pub use variant_population::{
     GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
     VariantPopulation, VariantPopulationDetail,
 };
+
+mod variant_assertions;
+pub use variant_assertions::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};

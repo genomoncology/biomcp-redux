@@ -37,3 +37,6 @@ pub use trial_get::{TrialGet, TrialSection};
 
 mod trial_document;
 pub use trial_document::TrialDocumentGet;
+
+mod variant_assertions;
+pub use variant_assertions::{AssertionSource, VariantAssertionsGet};

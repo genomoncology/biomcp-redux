@@ -164,3 +164,9 @@ pub use response::{
 };
 
 pub use variant::CivicEvidenceLevelCode;
+
+pub use query::{AssertionSource, VariantAssertionsGet};
+pub use response::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};
