@@ -114,6 +114,12 @@ impl Shape {
 pub struct Observation {
     /// Transport's prepared credential-free identity.
     pub identity: String,
+    /// Checked reply type, identifying the endpoint role without request values.
+    #[serde(default)]
+    pub role: String,
+    /// Reused checked local data rather than a transport attempt.
+    #[serde(default)]
+    pub cached: bool,
     /// Provider source.
     pub source: biodata::Source,
     /// HTTP status, absent on transport failure.
@@ -179,6 +185,7 @@ impl crate::Leg<'_> {
                 body.len() as u64,
                 Shape::inspect(body, media),
                 elapsed,
+                ("bundle", false),
             );
         }
     }
@@ -211,19 +218,23 @@ impl crate::Leg<'_> {
             body.len() as u64,
             Shape::inspect(header, media),
             elapsed,
+            ("bundle", false),
         );
     }
-    fn observed(
+    pub(crate) fn observed(
         &self,
         identity: &[u8; 32],
         status: Option<u16>,
         bytes: u64,
         shape: Shape,
         elapsed: std::time::Duration,
+        context: (&str, bool),
     ) {
         if let Some(sink) = &self.fetch.config.observations {
             sink.push(&Observation {
                 identity: identity.iter().map(|byte| format!("{byte:02x}")).collect(),
+                role: context.0.to_owned(),
+                cached: context.1,
                 source: self.spec.source,
                 status,
                 bytes,
