@@ -36,8 +36,20 @@ pub(super) fn section(
         });
     let mut rows = Vec::new();
     let mut problems = Vec::new();
-    let mut error = None;
+    let disabled = cx.fetch.disabled(Source::CancerHotspots);
+    let mut error = disabled.then_some(
+        biomcp_fetch::SourceError {
+            source: Source::CancerHotspots,
+            reason: Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into(),
+    );
     for gene in &genes {
+        if disabled {
+            break;
+        }
         match biomcp_adapters::hotspots::gene(&leg, gene) {
             Ok(mapped) => {
                 rows.extend(mapped.value);
@@ -49,7 +61,7 @@ pub(super) fn section(
             }
         }
     }
-    if genes.is_empty() {
+    if genes.is_empty() && !disabled {
         error = Some(
             biomcp_fetch::SourceError {
                 source: Source::CancerHotspots,
