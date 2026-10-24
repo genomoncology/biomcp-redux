@@ -194,7 +194,12 @@ fn inline_markup_preserves_non_citation_superscripts() -> Result<(), Error> {
             "A[11,12].",
         ),
     ] {
-        assert_eq!(biomcp_adapters::jats::markdown(xml).map_err(|_| "invalid source markup")?.as_str(), expected);
+        assert_eq!(
+            biomcp_adapters::jats::markdown(xml)
+                .map_err(|_| "invalid source markup")?
+                .as_str(),
+            expected
+        );
     }
     assert!(biomcp_adapters::jats::markdown("<p>&undefined;</p>").is_err());
     Ok(())

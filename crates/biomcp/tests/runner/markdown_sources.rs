@@ -17,6 +17,9 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn run(replay: &str, args: &[&str], max_bytes: usize) -> Result<Value, String> {
+    serde_json::from_slice(&output(replay, args, max_bytes)?).map_err(|e| e.to_string())
+}
+fn output(replay: &str, args: &[&str], max_bytes: usize) -> Result<Vec<u8>, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies")
@@ -34,7 +37,7 @@ fn run(replay: &str, args: &[&str], max_bytes: usize) -> Result<Value, String> {
             output.stdout.len()
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    Ok(output.stdout)
 }
 fn contains(value: &Value, pointer: &str, required: &[&str]) -> Result<(), String> {
     let text = value
@@ -133,6 +136,12 @@ fn abstract_part() -> Result<(), String> {
             .is_some_and(|text| text.contains("metabolism<sup>1-8</sup>"))
     }) {
         return Err("abstract superscript was stripped".into());
+    }
+    let view = output("article/get/synthetic-derived", &["get", "article", "35440569", "--format", "md"], 4000)?;
+    let view = String::from_utf8(view).map_err(|e| e.to_string())?;
+    for part in parts {
+        let text = part.get("text").and_then(Value::as_str).ok_or("missing part text")?;
+        if view.matches(text).count() != 1 { return Err("abstract Markdown was escaped or duplicated".into()); }
     }
     Ok(())
 }
