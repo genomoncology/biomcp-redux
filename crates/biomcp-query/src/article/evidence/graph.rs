@@ -7,6 +7,7 @@ use biodata::{
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 /// A target's independently checked native identities, never a rendered citation match.
+#[derive(Clone,serde::Serialize,serde::Deserialize)]
 pub(super) struct Target {
     pub pmid: Option<Pmid>,
     pub doi: Option<Doi>,
@@ -18,6 +19,7 @@ pub(super) fn target<'a>(
     snapshot: &mut Snapshot,
     out: &mut Outcome,
 ) -> Result<Target, RequestError> {
+    if let Some(target)=&snapshot.target {return Ok(target.clone())}
     if let ArticleInput::Doi(doi) = query.cited() {
         return Ok(Target {
             pmid: None,
@@ -51,6 +53,7 @@ pub(super) fn target<'a>(
         snapshot,
         status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied()),
     );
+    if let Ok(target)=&result {snapshot.target=Some(target.clone());}
     result
 }
 pub(super) fn read<'a>(

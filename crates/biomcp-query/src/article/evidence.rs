@@ -13,6 +13,7 @@ use sha2::{Digest, Sha256};
 #[derive(Serialize, Deserialize)]
 pub(super) struct Snapshot {
     graph: Section<CitationContexts>,
+    target: Option<graph::Target>,
     fulltext: Option<Section<CitationParagraphs>>,
     terminal: bool,
     cursor: Option<u32>,
@@ -26,6 +27,7 @@ impl Snapshot {
                 source: Source::SemanticScholar,
                 record: None,
             },
+            target: None,
             fulltext: None,
             terminal: false,
             cursor: None,
