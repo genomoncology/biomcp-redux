@@ -383,7 +383,8 @@ fn graphql_errors() -> Result<(), String> {
     let (environment, source) = source_environment(error_body)?;
     for _ in 0..2 {
         let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
-        if value.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership") != Some(&json!("exact"))
+        if value.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership")
+            != Some(&json!("exact"))
             || value.get("status") != Some(&json!("partial"))
             || value.pointer("/problems/0/field") != Some(&json!("graphql.errors"))
         {
@@ -409,9 +410,26 @@ fn error_body(request: &str) -> Result<String, String> {
 fn stalled_cursor() -> Result<(), String> {
     let (environment, source) = source_environment(stalled_body)?;
     for cursor in ["synthetic-e1", "empty"] {
-        let value = run(&environment, &["get", "variant", "CA123643", "civic", "--civic-profile", "12", "--civic-kind", "evidence", "--civic-cursor", cursor])?;
-        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply")) {
-            return Err(format!("nonprogressing native stream emitted evidence or a repeating action: {value}"));
+        let value = run(
+            &environment,
+            &[
+                "get",
+                "variant",
+                "CA123643",
+                "civic",
+                "--civic-profile",
+                "12",
+                "--civic-kind",
+                "evidence",
+                "--civic-cursor",
+                cursor,
+            ],
+        )?;
+        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply"))
+        {
+            return Err(format!(
+                "nonprogressing native stream emitted evidence or a repeating action: {value}"
+            ));
         }
     }
     source.finish()?;
@@ -420,10 +438,12 @@ fn stalled_cursor() -> Result<(), String> {
 fn stalled_body(request: &str) -> Result<String, String> {
     let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
     let base = "/data/molecularProfiles/nodes/0/evidenceItems";
-    *raw.pointer_mut(&format!("{base}/pageInfo/hasNextPage")).ok_or("page flag")? = json!(true);
+    *raw.pointer_mut(&format!("{base}/pageInfo/hasNextPage"))
+        .ok_or("page flag")? = json!(true);
     if request.contains("\"evidence_after\":\"empty\"") {
         *raw.pointer_mut(&format!("{base}/nodes")).ok_or("nodes")? = json!([]);
-        *raw.pointer_mut(&format!("{base}/pageInfo/endCursor")).ok_or("cursor")? = Value::Null;
+        *raw.pointer_mut(&format!("{base}/pageInfo/endCursor"))
+            .ok_or("cursor")? = Value::Null;
     }
     Ok(raw.to_string())
 }

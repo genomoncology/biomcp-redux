@@ -41,18 +41,34 @@ pub fn variant(
     let query = &exact_query;
     let mut after = None;
     let mut offset = 0;
+    let mut partial = false;
     loop {
         let body = request(query, &allele, after.as_ref());
         let reply: raw::Profiles =
             leg.post_json_checked_cache(&GENES, &body, |page: &raw::Profiles| {
-                page.matches(&allele, query.civic_profile())
+                !page.has_errors()
+                    && page.matches(&allele, query.civic_profile())
+                    && page.progresses(query, after.as_ref())
             })?;
+        if !reply.progresses(query, after.as_ref()) {
+            return Err(failure(Reason::BadReply));
+        }
+        partial |= reply.has_errors();
         let connection = reply.data.molecular_profiles;
         if query.civic_profile().is_some()
             || offset >= query.section_offset()
             || !connection.page_info.has_next_page
         {
-            return map::page(connection, query, &allele);
+            let mut mapped = map::page(connection, query, &allele)?;
+            if partial {
+                mapped.problems.push(biodata::Problem {
+                    source: Source::Civic,
+                    record: None,
+                    field: "graphql.errors".into(),
+                    code: biodata::ProblemCode::ValueUnknown,
+                });
+            }
+            return Ok(mapped);
         }
         if connection.nodes.is_empty() || connection.page_info.end_cursor == after {
             return Err(failure(Reason::BadReply));

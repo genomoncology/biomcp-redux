@@ -5,7 +5,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct Profiles {
     pub data: Data,
-    pub errors: Option<serde::de::IgnoredAny>,
+    pub errors: Option<Vec<serde::de::IgnoredAny>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -92,6 +92,15 @@ pub(super) struct Citation {
     pub source_type: Text,
 }
 impl<T> Connection<T> {
+    fn progresses(&self, previous: Option<&Text>) -> bool {
+        !self.page_info.has_next_page
+            || !self.nodes.is_empty()
+                && self
+                    .page_info
+                    .end_cursor
+                    .as_ref()
+                    .is_some_and(|cursor| Some(cursor) != previous)
+    }
     fn check(&self) -> Result<(), BadReply> {
         if self.nodes.len() as u64 > self.total_count
             || self.page_info.has_next_page
@@ -104,6 +113,21 @@ impl<T> Connection<T> {
     }
 }
 impl Profiles {
+    pub(super) fn has_errors(&self) -> bool {
+        self.errors
+            .as_ref()
+            .is_some_and(|errors| !errors.is_empty())
+    }
+    pub(super) fn progresses(&self, query: &biodata::VariantGet, after: Option<&Text>) -> bool {
+        use biodata::CivicClaimKind;
+        self.data.molecular_profiles.progresses(after)
+            && self.data.molecular_profiles.nodes.iter().all(|profile| {
+                (query.civic_kind() == Some(CivicClaimKind::Assertions)
+                    || profile.evidence_items.progresses(query.civic_cursor()))
+                    && (query.civic_kind() == Some(CivicClaimKind::Evidence)
+                        || profile.assertions.progresses(query.civic_cursor()))
+            })
+    }
     pub(super) fn matches(&self, allele: &str, profile: Option<u64>) -> bool {
         self.data.molecular_profiles.nodes.iter().all(|p| {
             profile.is_none_or(|id| p.id == id)
@@ -117,9 +141,6 @@ impl Profiles {
 }
 impl Reply for Profiles {
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors.is_some() {
-            return Err(BadReply);
-        }
         self.data.molecular_profiles.check()?;
         for profile in &self.data.molecular_profiles.nodes {
             if !id(profile.id)
