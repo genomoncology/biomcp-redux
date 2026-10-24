@@ -1,6 +1,6 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
-mod sites;
 mod publications;
+mod sites;
 use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
@@ -47,7 +47,10 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
     })?;
     let id = raw.protocol_section.identification_module.nct_id;
     let mut detail = raw.protocol_section.detail();
-    detail.documents = raw.document_section.map_or_else(|| Ok(Box::default()), |d| d.mapped(id)).map_err(|_| super::bad())?;
+    detail.documents = raw
+        .document_section
+        .map_or_else(|| Ok(Box::default()), |d| d.mapped(id))
+        .map_err(|_| super::bad())?;
     Ok((detail, metadata))
 }
 #[derive(Deserialize)]
@@ -62,7 +65,9 @@ impl Reply for Study {
         if p.identification_module.brief_title.trim().is_empty() {
             return Err(BadReply);
         }
-        if let Some(documents) = &self.document_section { documents.check()?; }
+        if let Some(documents) = &self.document_section {
+            documents.check()?;
+        }
         Ok(())
     }
 }
@@ -230,7 +235,14 @@ impl Protocol {
         let (arm_rows, interventions) =
             arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
         Detail {
-            references: self.references_module.and_then(|m|m.references).unwrap_or_default().into_vec().into_iter().map(publications::Reference::mapped).collect(),
+            references: self
+                .references_module
+                .and_then(|m| m.references)
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(publications::Reference::mapped)
+                .collect(),
             documents: Box::default(),
             locations,
             contacts,

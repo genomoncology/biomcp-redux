@@ -119,6 +119,6 @@ pub use trial_sites::{
 };
 
 mod trial_publications;
-pub use trial_publications::{TrialDocument, TrialReference};
 pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
+pub use trial_publications::{TrialDocument, TrialReference};

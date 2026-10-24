@@ -1,5 +1,5 @@
-mod sites;
 mod publications;
+mod sites;
 use super::snapshot::Snapshot;
 use crate::{Action, Outcome};
 use biodata::{
@@ -239,9 +239,30 @@ fn records_sections(
     Ok(())
 }
 
-fn continuation(query: &TrialGet, id: NctId, section: TrialSection, pool: Option<&Text>, end:u32,total:u32)->Option<TrialGet> {
-    pool.filter(|_|end<total).map(|p|query.page(id, section, p.clone(), end))
+fn continuation(
+    query: &TrialGet,
+    id: NctId,
+    section: TrialSection,
+    pool: Option<&Text>,
+    end: u32,
+    total: u32,
+) -> Option<TrialGet> {
+    pool.filter(|_| end < total)
+        .map(|p| query.page(id, section, p.clone(), end))
 }
-fn continue_records<T>(page: &mut TrialRecords<T>, query:&TrialGet,id:NctId,section:TrialSection,pool:Option<&Text>) {
-    page.continuation=continuation(query,id,section,pool,page.offset+page.items.len() as u32,page.total);
+fn continue_records<T>(
+    page: &mut TrialRecords<T>,
+    query: &TrialGet,
+    id: NctId,
+    section: TrialSection,
+    pool: Option<&Text>,
+) {
+    page.continuation = continuation(
+        query,
+        id,
+        section,
+        pool,
+        page.offset + page.items.len() as u32,
+        page.total,
+    );
 }

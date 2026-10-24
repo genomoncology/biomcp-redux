@@ -458,7 +458,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             .map_err(|_| ()),
         ("trial", "document") => serde_json::from_value::<biodata::TrialDocumentGet>(value)
             .map(Request::TrialDocument)
-            .map_err(|_|()),
+            .map_err(|_| ()),
         ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
             .map(Request::ArticlePdf)
             .map_err(|_| ()),

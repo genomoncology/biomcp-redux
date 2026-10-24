@@ -1,30 +1,67 @@
 use super::{Snapshot, advance, continue_records, records, section};
 use crate::{Action, Outcome};
-use biodata::{ArticleGet, ArticleInput, Request, StepKind, Text, TrialGet, TrialSection, TrialSections};
+use biodata::{
+    ArticleGet, ArticleInput, Request, StepKind, Text, TrialGet, TrialSection, TrialSections,
+};
 use biomcp_fetch::RequestError;
-pub(super) fn render(query:&TrialGet,snapshot:&Snapshot,pool:Option<&Text>,sections:&mut TrialSections,out:&mut Outcome)->Result<(),RequestError> {
-    let requested=|s|query.sections().contains(&s)||query.sections().contains(&TrialSection::All);
-    let d=&snapshot.detail;
-    let id=d.card.nct_id;
+pub(super) fn render(
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    pool: Option<&Text>,
+    sections: &mut TrialSections,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let requested =
+        |s| query.sections().contains(&s) || query.sections().contains(&TrialSection::All);
+    let d = &snapshot.detail;
+    let id = d.card.nct_id;
     if requested(TrialSection::References) {
-        let mut page=records(query,&d.references,8000,serde_json::to_vec)?;
-        continue_records(&mut page,query,id,TrialSection::References,pool);
-        advance(query,id,TrialSection::References,pool,page.offset+page.items.len() as u32,page.total,out);
-        let inputs:Vec<_>=page.items.iter().filter_map(|r|r.pmid).map(ArticleInput::Pmid).collect();
+        let mut page = records(query, &d.references, 8000, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::References, pool);
+        advance(
+            query,
+            id,
+            TrialSection::References,
+            pool,
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        let inputs: Vec<_> = page
+            .items
+            .iter()
+            .filter_map(|r| r.pmid)
+            .map(ArticleInput::Pmid)
+            .collect();
         for chunk in inputs.chunks(20) {
-            if let Ok(request)=ArticleGet::new(chunk.into()) {
-                out.next.push((StepKind::Section,Action::Run{request:Request::GetArticle(request),fresh:false}));
+            if let Ok(request) = ArticleGet::new(chunk.into()) {
+                out.next.push((
+                    StepKind::Section,
+                    Action::Run {
+                        request: Request::GetArticle(request),
+                        fresh: false,
+                    },
+                ));
             }
         }
-        sections.references=Some(section(page,id));
+        sections.references = Some(section(page, id));
     }
     if requested(TrialSection::Documents) {
-        let mut page=records(query,&d.documents,2000,serde_json::to_vec)?;
-        continue_records(&mut page,query,id,TrialSection::Documents,pool);
-        advance(query,id,TrialSection::Documents,pool,page.offset+page.items.len() as u32,page.total,out);
-        sections.documents=Some(section(page,id));
+        let mut page = records(query, &d.documents, 2000, serde_json::to_vec)?;
+        continue_records(&mut page, query, id, TrialSection::Documents, pool);
+        advance(
+            query,
+            id,
+            TrialSection::Documents,
+            pool,
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        sections.documents = Some(section(page, id));
     }
     // All checked section continuations precede optional discovery actions under the shared next budget.
-    out.next.sort_by_key(|(kind,_)|if *kind==StepKind::Page {0}else {1});
+    out.next
+        .sort_by_key(|(kind, _)| if *kind == StepKind::Page { 0 } else { 1 });
     Ok(())
 }
