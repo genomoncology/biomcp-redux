@@ -14,6 +14,7 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/documents/linked-reference-article", || reference().map_err(|e|e.to_string().into())),
         Trial::test("trial/documents/explicit-save-and-receipt", || {
             saves().map_err(|e| e.to_string().into())
         }),
@@ -136,7 +137,7 @@ fn failures() -> Check {
     fs::write(&path, b"caller original")?;
     let mut replace = args(&path);
     replace.push("--replace".into());
-    command(&env, &replay, &replace, 4)?;
+    command(&env, &replay, &replace, 5)?;
     assert_eq!(fs::read(&path)?, b"caller original");
     let malformed = env.root().join("malformed-manifest");
     copy_capture("trial/get/NCT04303780", &malformed, |_, r| {
@@ -307,5 +308,27 @@ fn continuations() -> Check {
             assert_eq!(text, " Ω source whitespace \n".repeat(800));
         }
     }
+    Ok(())
+}
+
+fn reference()->Check {
+    let env=Environment::new()?;
+    let replay=env.root().join("reference-link");
+    copy_capture("trial/get/NCT03511664",&replay,|_,_|{})?;
+    copy_capture("trial/references-article",&replay,|_,_|{})?;
+    let args=["get","trial","NCT03511664","references"].map(str::to_owned);
+    let out=command(&env,&replay,&args,0)?;
+    let row=&out["result"]["items"][0]["sections"]["references"]["data"]["items"][5];
+    assert_eq!(row["pmid"],json!("34161051"));
+    assert_eq!(row["kind"],json!("RESULT"));
+    let step=out["next"].as_array().ok_or("next")?.iter().find(|s|s["args"].as_array().is_some_and(|a|a.get(1)==Some(&json!("article")))).ok_or("linked article step")?;
+    let args=step["args"].as_array().ok_or("args")?;
+    assert!(args.contains(&row["pmid"]));
+    // Select this source PMID from the current-page batch; no reference is reclassified as primary.
+    let selected=vec![args[0].as_str().ok_or("verb")?.to_owned(),args[1].as_str().ok_or("entity")?.to_owned(),row["pmid"].as_str().ok_or("pmid")?.to_owned()];
+    let article=command(&env,&replay,&selected,0)?;
+    assert_eq!(article.pointer("/result/items/0/answer/card/pmid"),Some(&row["pmid"]));
+    assert_eq!(article.pointer("/result/items/0/answer/card/doi"),Some(&json!("10.1056/NEJMoa2107322")));
+    assert_eq!(article,super::mcp::call_with_globals(&env,&selected,false,&env.globals(Some(&replay),false))?);
     Ok(())
 }
