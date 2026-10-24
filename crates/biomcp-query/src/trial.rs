@@ -16,8 +16,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     };
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
+    eprintln!("trial review registry start {started:?}");
     let params = ctgov::parameters(query, gene.as_deref());
     let result = ctgov::search(&leg, &params);
+    eprintln!("trial review after search {:?}", leg.remaining());
     let rejected = matches!(
         &result,
         Err(biomcp_fetch::RequestError::Source(
@@ -31,6 +33,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
     };
+    eprintln!("trial review after version {:?}", leg.remaining());
     let error = result
         .as_ref()
         .err()
