@@ -172,13 +172,13 @@ impl Output {
                 path.strip_suffix(".score")
                     .map(|prefix| format!("{prefix}.pred"))
             });
-        if let Some(label_path) = label_path {
-            if matches!(
+        if let Some(label_path) = label_path
+            && matches!(
                 &labels,
                 Some(Field::Value(OneOrMany::Many(_))) | Some(Field::Invalid(_))
-            ) {
-                self.context(&label_path, labels)?;
-            }
+            )
+        {
+            self.context(&label_path, labels)?;
         }
         let Some(values) = values else { return Ok(()) };
         let Field::Value(values) = values else {
