@@ -28,7 +28,7 @@
         "Carcinoma of colon (CRC)"
       ],
       "expect": {
-        "/schema": "biomcp.variant_page/2",
+        "/schema": "biomcp.variant_page/3",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -58,7 +58,9 @@
                   }
                 ],
                 "genes": [
-                  "BRAF"
+                  {
+                    "label": "BRAF"
+                  }
                 ]
               },
               "source": "myvariant",
@@ -138,7 +140,9 @@
                   }
                 ],
                 "genes": [
-                  "BRAF"
+                  {
+                    "label": "BRAF"
+                  }
                 ]
               },
               "source": "myvariant",
@@ -222,7 +226,9 @@
                   }
                 ],
                 "genes": [
-                  "BRAF"
+                  {
+                    "label": "BRAF"
+                  }
                 ]
               },
               "source": "myvariant",
