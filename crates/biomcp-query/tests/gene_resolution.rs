@@ -28,19 +28,17 @@ fn resolve(fetch: &Fetch, text: &str) -> GeneResolution {
 #[test]
 fn captured_ambiguity_orders_every_distinct_identity_without_selection() {
     let fetch = replay(captured());
-    for (text, want) in [(
-        "100874204",
-        vec![(40244, MatchKind::EntrezId), (55559, MatchKind::EntrezId)],
-    )] {
-        let GeneResolution::Ambiguous { candidates } = resolve(&fetch, text) else {
-            panic!("expected ambiguous {text}")
-        };
-        let got: Vec<_> = candidates
-            .iter()
-            .map(|v| (v.hgnc_id.get(), v.r#match.as_ref().unwrap().kind))
-            .collect();
-        assert_eq!(got, want);
-    }
+    let GeneResolution::Ambiguous { candidates } = resolve(&fetch, "100874204") else {
+        panic!("expected ambiguous Entrez ID");
+    };
+    let got: Vec<_> = candidates
+        .iter()
+        .map(|v| (v.hgnc_id.get(), v.r#match.as_ref().unwrap().kind))
+        .collect();
+    assert_eq!(
+        got,
+        [(40244, MatchKind::EntrezId), (55559, MatchKind::EntrezId)]
+    );
 }
 #[test]
 fn captured_withdrawn_identity_preserves_all_stated_successors() {
