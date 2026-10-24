@@ -23,7 +23,7 @@ pub struct ArticleItem {
     /// Stable checked pool key.
     pub key: ArticleKey,
     /// The selected PMID, retained when summary mapping fails.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pub pmid: Option<Pmid>,
     /// Native one-based source positions, disclosed only for multiple sources.

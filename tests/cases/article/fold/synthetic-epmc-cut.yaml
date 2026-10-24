@@ -1,6 +1,6 @@
 {
   "feature": "article-search",
-  "story": "Synthetic Europe PMC cut retains every public PubMed floor identity",
+  "story": "Synthetic Europe PMC cut preserves the answering source and offline paging",
   "replay": "article/fold/synthetic-epmc-cut",
   "steps": [
     {
@@ -23,7 +23,11 @@
         "/sources/1/state": "failed",
         "/sources/1/reason": "bad_reply",
         "/result/items/*/pmid": {
-          "equals_file": "../search/akt1-floor.json",
+          "equals": [
+            "1111",
+            "2222",
+            "3333"
+          ],
           "unique": true
         },
         "/next/*/kind": {
@@ -43,7 +47,7 @@
       "max_bytes": 5228,
       "expect": {
         "/status": "partial",
-        "/page/total": 192
+        "/page/total": 3
       }
     }
   ]

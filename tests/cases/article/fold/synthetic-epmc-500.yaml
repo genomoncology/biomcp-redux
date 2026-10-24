@@ -23,7 +23,7 @@
         "/sources/1/state": "failed",
         "/sources/1/reason": "unavailable",
         "/result/items/*/pmid": {
-          "equals_file": "../search/akt1-floor.json",
+          "equals_file": "akt1-floor.json",
           "unique": true
         },
         "/next/*/kind": {

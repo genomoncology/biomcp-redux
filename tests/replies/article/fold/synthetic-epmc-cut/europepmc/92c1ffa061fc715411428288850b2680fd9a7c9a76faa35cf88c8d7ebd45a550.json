@@ -9,10 +9,8 @@
       "delay_ms": 0,
       "retry_after_ms": null,
       "body": {
-        "kind": "json",
-        "value": {
-          "hitCount": 2
-        }
+        "kind": "text",
+        "value": "{\"hitCount\":2"
       }
     }
   ]
