@@ -124,7 +124,11 @@ pub struct Correction {
     /// Whether the related record is a notice or original.
     pub relation: CorrectionRelation,
     /// Related PMID, when supplied.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pub pmid: Option<Pmid>,
 }

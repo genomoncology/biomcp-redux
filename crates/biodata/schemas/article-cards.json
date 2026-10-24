@@ -27,7 +27,24 @@
     },
     "Article": {
       "additionalProperties": false,
-      "description": "Complete PubMed article facts; card disclosure caps authors without dropping their total.",
+      "anyOf": [
+        {
+          "required": [
+            "pmid"
+          ]
+        },
+        {
+          "required": [
+            "pmcid"
+          ]
+        },
+        {
+          "required": [
+            "doi"
+          ]
+        }
+      ],
+      "description": "Article facts with at least one checked identity.",
       "properties": {
         "abstract_parts": {
           "description": "Whole abstract, preserving labels and source order.",
@@ -59,14 +76,7 @@
           "description": "Publication date at source precision."
         },
         "doi": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Doi"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Doi",
           "description": "DOI assigned to this article."
         },
         "journal": {
@@ -81,14 +91,7 @@
           "description": "Journal name."
         },
         "pmcid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Pmcid"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Pmcid",
           "description": "PMC identity assigned to this article."
         },
         "pmid": {
@@ -108,7 +111,6 @@
         }
       },
       "required": [
-        "pmid",
         "title",
         "types",
         "corrections",
@@ -299,14 +301,7 @@
           "description": "Correction category."
         },
         "pmid": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Pmid"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Pmid",
           "description": "Related PMID, when supplied."
         },
         "relation": {

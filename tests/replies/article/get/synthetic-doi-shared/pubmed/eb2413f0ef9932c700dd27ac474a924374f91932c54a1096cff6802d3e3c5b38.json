@@ -17,12 +17,13 @@
             "version": "0.3"
           },
           "esearchresult": {
-            "count": "2",
-            "retmax": "1",
+            "count": "3",
+            "retmax": "3",
             "retstart": "0",
             "idlist": [
               "28944238",
-              "28944239"
+              "28944239",
+              "28944238"
             ],
             "translationset": [],
             "querytranslation": "\"10 1002 mgg3 317\"[Publisher ID]"
