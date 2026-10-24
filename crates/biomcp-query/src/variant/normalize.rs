@@ -16,7 +16,7 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         let result = match spec.source {
             biodata::Source::AlleleRegistry => allele_registry::normalize(&leg, query.hgvs().as_str()),
             biodata::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs().as_str()),
-            _ => variantvalidator::normalize(&leg, query.hgvs().as_str(), query.build().unwrap_or(biodata::Build::Grch38)),
+            _ => query.build().ok_or(biomcp_fetch::SourceError { source: spec.source, reason: biodata::Reason::Rejected, status: None, retry_after: None }.into()).and_then(|build| variantvalidator::normalize(&leg, query.hgvs().as_str(), build)),
         };
         let error = result.as_ref().err().copied();
         let mut source = status::source(spec.source, leg.finish(), error);
@@ -31,6 +31,9 @@ pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     let mut states = Vec::new();
     for (mut result, source, error) in rows {
         states.push(if matches!(result.outcome, VariantResolution::Rejected | VariantResolution::Unavailable) { Status::Failed } else { Status::Complete });
+        result.total_messages = result.messages.len() as u32;
+        more |= result.total_messages as u64 > query.offset() as u64 + query.limit() as u64;
+        result.messages = result.messages.into_vec().into_iter().skip(query.offset() as usize).take(query.limit() as usize).collect();
         more |= result.total_mappings as u64 > query.offset() as u64 + query.limit() as u64;
         result.mappings = result.mappings.into_vec().into_iter().skip(query.offset() as usize).take(query.limit() as usize).collect();
         results.push(result); sources.push(source); local = local.or(error);

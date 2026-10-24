@@ -26,8 +26,8 @@ pub use article_recommend::ArticleRecommend;
 
 mod variant;
 mod variant_normalize;
-pub use variant_normalize::{VariantNormalize, NormalizationSource};
 pub use variant::{VariantGet, VariantResolver};
+pub use variant_normalize::{NormalizationSource, VariantNormalize};
 
 mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};

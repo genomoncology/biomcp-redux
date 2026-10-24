@@ -49,9 +49,13 @@ struct Message {
     details: Option<String>,
 }
 #[derive(Deserialize)]
-struct Description { description: String }
+struct Description {
+    description: String,
+}
 impl Normalized {
-    fn payload(&self) -> &Self { self.custom.as_deref().unwrap_or(self) }
+    fn payload(&self) -> &Self {
+        self.custom.as_deref().unwrap_or(self)
+    }
     fn errors(&self) -> &[Message] {
         self.payload().errors.as_deref().unwrap_or(&[])
     }
@@ -95,7 +99,11 @@ fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
             Err(BadReply)
         }
     })?;
-    Ok(if let Some(custom) = raw.custom.take() { *custom } else { raw })
+    Ok(if let Some(custom) = raw.custom.take() {
+        *custom
+    } else {
+        raw
+    })
 }
 /// Route only the explicitly selected service, preserving the supplied description.
 pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {

@@ -76,14 +76,29 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<biodata::NormalizationRes
     let raw = hgvs_reply(leg, input)?;
     if let Some(code) = raw.error_type {
         result.outcome = biodata::VariantResolution::Rejected;
-        result.messages = vec![biodata::NormalizationMessage { category: "errorType".into(), code: Some(code.to_string()), text: raw.error_description.unwrap_or_default() }].into();
+        let mut messages = vec![biodata::NormalizationMessage {
+            category: "description".into(),
+            code: Some(code.to_string()),
+            text: raw.error_description.unwrap_or_default(),
+        }];
+        if let Some(text) = raw.message {
+            messages.push(biodata::NormalizationMessage {
+                category: "message".into(),
+                code: None,
+                text,
+            });
+        }
+        result.messages = messages.into();
     } else {
         result.outcome = biodata::VariantResolution::Resolved;
         let mut mappings = Vec::new();
         for row in raw.genomic.into_iter().flatten() {
             for value in row.hgvs {
                 mappings.push(biodata::NormalizationField {
-                    field: row.assembly.as_ref().map_or_else(|| "genomicAlleles.hgvs".into(), |b| format!("genomicAlleles.{}.hgvs", b.as_str())),
+                    field: row.assembly.as_ref().map_or_else(
+                        || "genomicAlleles.hgvs".into(),
+                        |b| format!("genomicAlleles.{}.hgvs", b.as_str()),
+                    ),
                     value: value.to_string(),
                 });
             }
@@ -92,7 +107,10 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<biodata::NormalizationRes
             if let Some(mane) = row.mane {
                 for forms in [mane.nucleotide, mane.protein].into_iter().flatten() {
                     for hgvs in [forms.ensembl, forms.refseq].into_iter().flatten() {
-                        mappings.push(biodata::NormalizationField { field: "transcriptAlleles.MANE.hgvs".into(), value: hgvs.hgvs.to_string() });
+                        mappings.push(biodata::NormalizationField {
+                            field: "transcriptAlleles.MANE.hgvs".into(),
+                            value: hgvs.hgvs.to_string(),
+                        });
                     }
                 }
             }

@@ -66,8 +66,10 @@ pub use article::{
 
 mod variant;
 mod variant_normalize;
-pub use variant_normalize::{VariantNormalization, NormalizationResult, NormalizationField, NormalizationMessage};
 pub use variant::{VariantCard, VariantHeader, VariantResolution};
+pub use variant_normalize::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
 

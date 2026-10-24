@@ -33,6 +33,8 @@ pub struct NormalizationResult {
     pub total_mappings: u32,
     /// Provider messages with original codes, text and category.
     pub messages: Box<[NormalizationMessage]>,
+    /// Count before provider message pagination.
+    pub total_messages: u32,
     /// Version fields exactly as returned; absent when the service states none.
     pub version: Box<[NormalizationField]>,
 }
@@ -62,7 +64,16 @@ pub struct NormalizationMessage {
 impl NormalizationResult {
     /// An unavailable service has no fabricated descriptions or version.
     pub fn unavailable(source: Source) -> Self {
-        Self { source, outcome: VariantResolution::Unavailable, normalized: None, corrected: None,
-            mappings: Box::default(), total_mappings: 0, messages: Box::default(), version: Box::default() }
+        Self {
+            source,
+            outcome: VariantResolution::Unavailable,
+            normalized: None,
+            corrected: None,
+            mappings: Box::default(),
+            total_mappings: 0,
+            messages: Box::default(),
+            total_messages: 0,
+            version: Box::default(),
+        }
     }
 }

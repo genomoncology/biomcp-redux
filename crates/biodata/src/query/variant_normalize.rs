@@ -25,13 +25,21 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
-fn limit() -> u32 { 10 }
+fn limit() -> u32 {
+    10
+}
 impl TryFrom<Fields> for VariantNormalize {
     type Error = super::gene::QueryInvalid;
     fn try_from(f: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&f.limit) || f.hgvs.as_str().len() > 2048
-            || matches!(f.source, NormalizationSource::All | NormalizationSource::Variantvalidator) && f.build.is_none()
-            || f.build.is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38)) {
+        if !(1..=50).contains(&f.limit)
+            || f.hgvs.as_str().len() > 2048
+            || matches!(
+                f.source,
+                NormalizationSource::All | NormalizationSource::Variantvalidator
+            ) && f.build.is_none()
+            || f.build
+                .is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38))
+        {
             return Err(super::gene::QueryInvalid);
         }
         Ok(Self(f))
@@ -39,17 +47,31 @@ impl TryFrom<Fields> for VariantNormalize {
 }
 impl VariantNormalize {
     /// Selected service set.
-    pub fn source(&self) -> NormalizationSource { self.0.source }
+    pub fn source(&self) -> NormalizationSource {
+        self.0.source
+    }
     /// Unchanged caller description.
-    pub fn hgvs(&self) -> &HgvsText { &self.0.hgvs }
+    pub fn hgvs(&self) -> &HgvsText {
+        &self.0.hgvs
+    }
     /// Explicit caller assembly.
-    pub fn build(&self) -> Option<Build> { self.0.build }
+    pub fn build(&self) -> Option<Build> {
+        self.0.build
+    }
     /// Mapping page size.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Mapping page offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Preserve selectors for another native mapping page.
-    pub fn at_offset(&self, offset: u32) -> Self { let mut q = self.clone(); q.0.offset = offset; q }
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
+    }
 }
 crate::macros::wire_enum! {
     /// Explicit normalization service selection.

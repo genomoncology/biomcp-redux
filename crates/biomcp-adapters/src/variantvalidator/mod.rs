@@ -64,8 +64,10 @@ impl Reply for Response {
         }
     }
     fn check(&self) -> Result<(), BadReply> {
-        if self.variants.is_empty() || self.variants.len() > 1000
-            || !self.metadata.contains_key("variantvalidator_version") {
+        if self.variants.is_empty()
+            || self.variants.len() > 1000
+            || !self.metadata.contains_key("variantvalidator_version")
+        {
             return Err(BadReply);
         }
         if self.flag.as_str() == "warning"
