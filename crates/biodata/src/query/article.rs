@@ -72,7 +72,7 @@ struct Fields {
     /// europepmc: words in open full text, and preprints.
     /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true, "uniqueItems"=true)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
