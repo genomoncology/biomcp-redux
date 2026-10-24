@@ -15,7 +15,13 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                supplements: (query.sections().iter().any(|s| matches!(s,biodata::ArticleSectionWord::Supplements|biodata::ArticleSectionWord::All)) && card.pmcid.is_none()).then_some(Section::NotApplicable),
+                supplements: (query.sections().iter().any(|s| {
+                    matches!(
+                        s,
+                        biodata::ArticleSectionWord::Supplements | biodata::ArticleSectionWord::All
+                    )
+                }) && card.pmcid.is_none())
+                .then_some(Section::NotApplicable),
                 annotations: (query.sections().iter().any(|s| {
                     matches!(
                         s,
@@ -67,7 +73,14 @@ pub(super) fn run<'a>(
     }) {
         fulltext::run(cx, deadline, out);
     }
-    if query.sections().iter().any(|s|matches!(s,biodata::ArticleSectionWord::Supplements|biodata::ArticleSectionWord::All)) { supplements::run(cx,deadline,out); }
+    if query.sections().iter().any(|s| {
+        matches!(
+            s,
+            biodata::ArticleSectionWord::Supplements | biodata::ArticleSectionWord::All
+        )
+    }) {
+        supplements::run(cx, deadline, out);
+    }
 }
 fn annotations<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {

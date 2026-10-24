@@ -16,6 +16,11 @@
           "required": [
             "find"
           ]
+        },
+        {
+          "required": [
+            "variant"
+          ]
         }
       ],
       "description": "Read one bounded body part or a page of matching paragraphs and table rows.",
@@ -41,6 +46,10 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "variant": {
+          "$ref": "#/$defs/ProteinChange",
+          "description": "Explicit checked protein substitution."
         }
       },
       "required": [
@@ -238,6 +247,10 @@
       "x-enum-descriptions": [
         " The field value was not recognized."
       ]
+    },
+    "ProteinChange": {
+      "pattern": "^(p\\.)?([A-Z*]|[A-Z][a-z]{2})[1-9][0-9]*([A-Z*]|[A-Z][a-z]{2})$",
+      "type": "string"
     },
     "Reason": {
       "description": "Why a source could not supply data.",
@@ -613,6 +626,18 @@
       "additionalProperties": false,
       "description": "One bounded part or matching rows with the bucket license.",
       "properties": {
+        "forms": {
+          "description": "Literal protein change spellings searched by an explicit variant selector.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "heading_path": {
           "description": "Section ancestry for a selected part.",
           "items": {

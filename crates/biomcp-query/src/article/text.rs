@@ -175,12 +175,20 @@ fn find(
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<Box<[TextHit]>> {
-    let needles: Vec<_> = query.needles().into_iter().map(|v| v.to_lowercase()).collect();
+    let needles: Vec<_> = query
+        .needles()
+        .into_iter()
+        .map(|v| v.to_lowercase())
+        .collect();
     let matching: Vec<_> = document
         .body
         .rows
         .iter()
-        .map(|r| needles.iter().any(|needle| r.plain.to_lowercase().contains(needle)))
+        .map(|r| {
+            needles
+                .iter()
+                .any(|needle| r.plain.to_lowercase().contains(needle))
+        })
         .collect();
     let hits = matches(document, &matching);
     let offset = usize::try_from(query.offset()).ok()?;

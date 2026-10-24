@@ -117,7 +117,12 @@ impl Leg<'_> {
         key: &[u8; 32],
         codec: &Decoder<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
-        let Some(entry) = cache.read(key, codec.limit.unwrap_or(self.fetch.config.max_body), self.budget())? else {
+        let Some(entry) = cache.read(
+            key,
+            codec.limit.unwrap_or(self.fetch.config.max_body),
+            self.budget(),
+        )?
+        else {
             return Ok(None);
         };
         let fresh = entry.fresh_until > now();

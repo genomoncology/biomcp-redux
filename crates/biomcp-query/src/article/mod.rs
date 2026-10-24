@@ -2,9 +2,9 @@
 pub mod get;
 mod next;
 mod sections;
+pub mod supplement;
 mod term;
 pub mod text;
-pub mod supplement;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},

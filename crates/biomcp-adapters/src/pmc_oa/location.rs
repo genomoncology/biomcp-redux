@@ -17,7 +17,6 @@ impl Location {
         let file = path.strip_prefix(prefix).ok_or(BadReply)?;
         if file.is_empty()
             || file.contains('/')
-
             || !path
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b"/.-_".contains(&b))

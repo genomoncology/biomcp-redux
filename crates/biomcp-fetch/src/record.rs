@@ -414,7 +414,11 @@ impl Recordings {
         }
         let mut exchange = exchange;
         if let Body::Bytes(bytes) = &exchange.body {
-            let name = sidecar::publish(&path(&capture.dir, source, key), recording.exchanges.len(), bytes)?;
+            let name = sidecar::publish(
+                &path(&capture.dir, source, key),
+                recording.exchanges.len(),
+                bytes,
+            )?;
             exchange.body = Body::Sidecar(name);
         }
         recording.exchanges.push(exchange);

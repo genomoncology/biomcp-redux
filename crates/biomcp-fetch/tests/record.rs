@@ -448,3 +448,6 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
     );
     assert!(server.requests.try_recv().is_err());
 }
+
+#[path = "record/bytes.rs"]
+mod bytes;

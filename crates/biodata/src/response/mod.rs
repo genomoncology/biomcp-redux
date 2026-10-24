@@ -1,8 +1,11 @@
 mod article;
 mod article_cards;
 mod article_text;
-pub use article::{CellFragment, ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
 pub use article::{ArticleItem, ArticleKey, ArticlePage};
+pub use article::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,

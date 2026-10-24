@@ -1,7 +1,10 @@
 mod supplement;
-pub use supplement::{CellFragment, ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
 use crate::{ArticleHeader, ArticleSearch, Pmid};
 use serde::{Deserialize, Serialize};
+pub use supplement::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 /// Stable identity independent of whether citation metadata was accepted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "namespace", content = "id", rename_all = "snake_case")]

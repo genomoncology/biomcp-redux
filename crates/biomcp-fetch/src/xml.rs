@@ -85,7 +85,9 @@ impl<T: Reply> Decoder<T> {
             },
         }
     }
-    pub(crate) fn binary(&self) -> bool { matches!(self.codec, Codec::Bytes) }
+    pub(crate) fn binary(&self) -> bool {
+        matches!(self.codec, Codec::Bytes)
+    }
     pub(crate) fn octet_stream(mut self, accepted: bool) -> Self {
         self.octet_stream = accepted;
         self
@@ -251,10 +253,17 @@ mod tests;
 #[derive(serde::Deserialize)]
 pub(crate) struct Bytes(pub(crate) Vec<u8>);
 impl Reply for Bytes {
-    fn check(&self) -> Result<(), crate::BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
 }
 impl Decoder<Bytes> {
     pub(crate) fn bytes(limit: u64) -> Self {
-        Self { codec: Codec::Bytes, octet_stream: false, limit: Some(limit), parse: |body| Some(Bytes(body.to_vec())) }
+        Self {
+            codec: Codec::Bytes,
+            octet_stream: false,
+            limit: Some(limit),
+            parse: |body| Some(Bytes(body.to_vec())),
+        }
     }
 }

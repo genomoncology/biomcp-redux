@@ -384,11 +384,13 @@
       "description": "A landed article section.",
       "enum": [
         "fulltext",
+        "supplements",
         "annotations"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Licensed PMC body outline.",
+        " Supplementary files.",
         " Normalized text-mined entities from PubTator3."
       ]
     },
@@ -397,12 +399,14 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files.",
         " Every landed article section."
       ]
     },
@@ -413,7 +417,7 @@
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section3"
             },
             {
               "type": "null"
@@ -424,13 +428,24 @@
         "fulltext": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Licensed PMC body outline."
+        },
+        "supplements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS supplementary files confirmed by the bucket record."
         }
       },
       "type": "object"
@@ -558,6 +573,26 @@
         "caption"
       ],
       "type": "object"
+    },
+    "FileKind": {
+      "description": "Supplement format determined by the exact source filename suffix.",
+      "enum": [
+        "xlsx",
+        "csv",
+        "tsv",
+        "txt",
+        "pdf",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Excel workbook.",
+        " Comma-separated text.",
+        " Tab-separated text.",
+        " Plain text lines.",
+        " PDF download offered without parsing.",
+        " Other source format."
+      ]
     },
     "FullText": {
       "additionalProperties": false,
@@ -867,7 +902,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/FullText",
+              "$ref": "#/$defs/Supplements",
               "description": "Whole section data."
             },
             "source": {
@@ -981,6 +1016,127 @@
       ]
     },
     "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/FullText",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section3": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -1310,6 +1466,69 @@
         "key"
       ],
       "type": "string"
+    },
+    "SupplementFile": {
+      "additionalProperties": false,
+      "description": "A JATS supplement confirmed by the same processing record.",
+      "properties": {
+        "caption": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS caption when present."
+        },
+        "kind": {
+          "$ref": "#/$defs/FileKind",
+          "description": "Checked format."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "JATS label when present."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source filename."
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Supplements": {
+      "additionalProperties": false,
+      "description": "Available supplements with their owning article license.",
+      "properties": {
+        "files": {
+          "description": "Exact JATS/record intersection.",
+          "items": {
+            "$ref": "#/$defs/SupplementFile"
+          },
+          "type": "array"
+        },
+        "license": {
+          "$ref": "#/$defs/License",
+          "description": "Article license from the record."
+        }
+      },
+      "required": [
+        "license",
+        "files"
+      ],
+      "type": "object"
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

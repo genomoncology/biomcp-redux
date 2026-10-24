@@ -9,12 +9,14 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files.",
         " Every landed article section."
       ]
     }

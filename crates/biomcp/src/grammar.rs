@@ -294,7 +294,9 @@ fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     let request = if verb == "article" && entity == "supplement" {
-        Request::ArticleSupplement(serde_json::from_value::<biodata::ArticleSupplement>(value).map_err(|_| ())?)
+        Request::ArticleSupplement(
+            serde_json::from_value::<biodata::ArticleSupplement>(value).map_err(|_| ())?,
+        )
     } else if verb == "article" && entity == "text" {
         Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
     } else if entity == "article" && verb == "get" {

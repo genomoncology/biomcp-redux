@@ -99,7 +99,8 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 .map(|(kind, action)| crate::spell::step(*kind, action))
                 .collect::<Result<Vec<_>, _>>()?;
             match (request, result.body) {
-                (Request::ArticleSupplement(_), QueryBody::TextPositionError) | (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
+                (Request::ArticleSupplement(_), QueryBody::TextPositionError)
+                | (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
                     biodata::ErrorEnvelope::arguments(),
                     crate::exit::Status::Usage,
                 ),

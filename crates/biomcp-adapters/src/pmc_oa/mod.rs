@@ -2,13 +2,13 @@
 mod location;
 mod raw;
 mod supplement;
-pub use supplement::{Supplement, download};
 use crate::{jats, quotas};
 use biodata::{License, Pmcid, Pmid, Reason, Source};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };
 use std::time::Duration;
+pub use supplement::{Supplement, download};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::PmcOa,

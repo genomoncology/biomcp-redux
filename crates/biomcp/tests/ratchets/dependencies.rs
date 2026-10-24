@@ -23,7 +23,16 @@ const LAYERS: &[(&str, &[&str])] = &[
     ),
     (
         "biomcp-adapters",
-        &["biodata", "biomcp-fetch", "serde", "quick-xml", "thiserror", "calamine", "csv", "zip"],
+        &[
+            "biodata",
+            "biomcp-fetch",
+            "serde",
+            "quick-xml",
+            "thiserror",
+            "calamine",
+            "csv",
+            "zip",
+        ],
     ),
     (
         "biomcp-query",
