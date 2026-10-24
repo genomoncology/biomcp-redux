@@ -26,6 +26,37 @@
         }
       },
       "max_bytes": 4100
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PPR1064174",
+        "--part",
+        "1"
+      ],
+      "exit": 4,
+      "mcp": [
+        "article",
+        "text",
+        "PPR1064174",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/result/content/state": "unavailable",
+        "/result/content/source": "europepmc",
+        "/result/content/reason": "unavailable",
+        "/next/0/args": [
+          "article",
+          "text",
+          "PPR1064174",
+          "--part",
+          "1",
+          "--fresh"
+        ]
+      }
     }
   ],
   "verified": "2026-10-24 actual command captured three source HTTP500 responses; these do not prove that the article is not open."
