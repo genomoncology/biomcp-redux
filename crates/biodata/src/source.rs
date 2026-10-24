@@ -59,14 +59,12 @@ canonical_enum! {
         Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
-        /// GWAS Catalog v2.
-        Gwas => "gwas",
         /// gnomAD.
         Gnomad => "gnomad",
         /// ClinVar assertions.
-        ClinVar => "clinvar",
+        ClinVar=>"clinvar",
         /// ClinGen Evidence Repository.
-        Erepo => "erepo",
+        Erepo=>"erepo",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.
@@ -91,8 +89,6 @@ canonical_enum! {
         Nci => "nci",
         /// CIViC.
         Civic => "civic",
-        /// Cancer Hotspots residue recurrence.
-        CancerHotspots => "hotspots",
         /// OncoKB.
         Oncokb => "oncokb",
         /// MyVariant.info aggregation.
@@ -139,8 +135,6 @@ canonical_enum! {
         Offline => "offline",
         /// A required credential was absent.
         NoKey => "no_key",
-        /// Component terms do not permit this application to offer its values.
-        RestrictedTerms => "restricted_terms",
         /// The source was disabled.
         Disabled => "disabled",
         /// No recording matched the request.

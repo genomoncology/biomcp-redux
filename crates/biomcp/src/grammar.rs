@@ -34,7 +34,6 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
-        Request::VariantPopulation(_) => "biodata.variant-population/1",
         Request::VariantNormalize(_) => "biodata.variant-normalize/1",
         Request::SearchVariant(_) => "biodata.variant-search/1",
         Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/1",
@@ -71,7 +70,6 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("trial", "document", "biodata.trial-document/1"),
     ("get", "variant", "biodata.variant-get/1"),
     ("variant", "assertions", "biodata.variant-assertions/1"),
-    ("variant", "population", "biodata.variant-population/1"),
     ("search", "variant", "biodata.variant-search/1"),
     (
         "variant",
@@ -343,7 +341,7 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         {
             argument = argument.required(true);
         }
-        if property_type(property) == Some("array") {
+        if property.get("type").and_then(Value::as_str) == Some("array") {
             argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
                 argument
                     .num_args(1)
@@ -355,11 +353,13 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
                 argument.num_args(1..).action(ArgAction::Append)
             };
         }
-        command = command.arg(if property_type(property) == Some("boolean") {
-            argument.action(ArgAction::SetTrue)
-        } else {
-            argument.value_parser(clap::builder::StringValueParser::new())
-        });
+        command = command.arg(
+            if property.get("type").and_then(Value::as_str) == Some("boolean") {
+                argument.action(ArgAction::SetTrue)
+            } else {
+                argument.value_parser(clap::builder::StringValueParser::new())
+            },
+        );
     }
     Ok(command)
 }
@@ -374,7 +374,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
             }
             continue;
         }
-        if property_type(property) == Some("boolean") {
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
             if matches.get_flag(name) {
                 result.insert(name.clone(), Value::Bool(true));
             }
@@ -384,12 +384,12 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
             continue;
         };
         let values: Vec<_> = values.cloned().collect();
-        let value = if property_type(property) == Some("array") {
+        let value = if property.get("type").and_then(Value::as_str) == Some("array") {
             Value::Array(values.into_iter().map(Value::String).collect())
         } else {
             let value = values.into_iter().next().ok_or(())?;
-            if property_type(property) == Some("integer") {
-                Value::Number(value.parse::<u64>().map_err(|_| ())?.into())
+            if property.get("type").and_then(Value::as_str) == Some("integer") {
+                Value::Number(value.parse::<u32>().map_err(|_| ())?.into())
             } else {
                 Value::String(value)
             }
@@ -474,11 +474,6 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("variant", "assertions") => serde_json::from_value::<biodata::VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),
-        ("variant", "population") => {
-            serde_json::from_value::<biodata::VariantPopulationQuery>(value)
-                .map(Request::VariantPopulation)
-                .map_err(|_| ())
-        }
         ("variant", "normalize") => serde_json::from_value::<biodata::VariantNormalize>(value)
             .map(Request::VariantNormalize)
             .map_err(|_| ()),
@@ -541,20 +536,4 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             .map_err(|_| ()),
         _ => Err(()),
     }
-}
-
-fn property_type(property: &Value) -> Option<&str> {
-    let kind = property.get("type")?;
-    if let Some(kind) = kind.as_str() {
-        return Some(kind);
-    }
-    let kinds = kind.as_array()?;
-    let kind = kinds
-        .iter()
-        .filter_map(Value::as_str)
-        .find(|s| *s != "null")?;
-    kinds
-        .iter()
-        .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
-        .then_some(kind)
 }

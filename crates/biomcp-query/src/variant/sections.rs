@@ -1,4 +1,4 @@
-//! Candidate-specific section disclosure under one shared command deadline.
+//! Explicit source assertion selection under the command's shared deadline.
 use crate::Ctx;
 use biodata::{
     AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
@@ -11,23 +11,12 @@ pub(super) type Result<T> = (
     Vec<Problem>,
     Option<RequestError>,
 );
-pub(super) fn requested(query: &VariantGet) -> Vec<VariantSection> {
-    use VariantSection as S;
-    [
-        S::Clinvar,
-        S::Erepo,
-        S::Population,
-        S::Gwas,
-        S::Civic,
-        S::Hotspots,
-        S::Predict,
-        S::Conservation,
-        S::Cosmic,
-        S::Oncokb,
-    ]
-    .into_iter()
-    .filter(|s| query.sections().contains(s) || query.sections().contains(&S::All))
-    .collect()
+pub(super) fn source(section: VariantSection) -> Option<Source> {
+    match section {
+        VariantSection::Clinvar => Some(Source::ClinVar),
+        VariantSection::Erepo => Some(Source::Erepo),
+        _ => None,
+    }
 }
 pub(super) fn apply(
     cx: &Ctx<'_>,
@@ -38,112 +27,53 @@ pub(super) fn apply(
     let mut sources = Vec::new();
     let mut problems = Vec::new();
     let mut local = None;
+    if query.sections().is_empty() {
+        return (sources, problems, local);
+    }
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in requested(query) {
-            macro_rules! attach {
-                ($field:ident,$read:expr) => {
-                    sections.$field = Some(retain(
-                        permitted(cx, section, || $read),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                };
+        for (selector, assertion_source) in [
+            (VariantSection::Clinvar, AssertionSource::Clinvar),
+            (VariantSection::Erepo, AssertionSource::Erepo),
+        ] {
+            if !query.sections().contains(&selector)
+                && !query.sections().contains(&VariantSection::All)
+            {
+                continue;
             }
-            let candidates = std::slice::from_ref(&*candidate);
-            use VariantSection as S;
-            match section {
-                S::Clinvar | S::Erepo => {
-                    let source = if section == S::Clinvar {
-                        AssertionSource::Clinvar
-                    } else {
-                        AssertionSource::Erepo
-                    };
-                    let result = retain(
-                        permitted(cx, section, || {
-                            super::assertions::section(cx, query, candidates, deadline, source)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    );
-                    if section == S::Clinvar {
-                        sections.clinvar = Some(result)
-                    } else {
-                        sections.erepo = Some(result)
-                    }
-                }
-                S::Population => attach!(
-                    population,
-                    super::population::section(cx, query, candidates, deadline)
-                ),
-                S::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
-                S::Civic => attach!(
-                    civic,
-                    super::civic::section(cx, query, candidates, deadline)
-                ),
-                S::Hotspots => attach!(
-                    hotspots,
-                    super::hotspots::section(cx, query, candidates, deadline)
-                ),
-                S::Predict => attach!(
-                    predict,
-                    super::predict::section(cx, query, candidates, deadline)
-                ),
-                S::Conservation => attach!(
-                    conservation,
-                    super::conservation::section(cx, query, candidates, deadline)
-                ),
-                S::Cosmic => attach!(
-                    cosmic,
-                    super::cosmic::section(cx, query, candidates, deadline)
-                ),
-                S::Oncokb => attach!(
-                    oncokb,
-                    super::oncokb::section(cx, query, candidates, deadline)
-                ),
-                S::All => {}
-                _ => {}
+            let value = permitted(cx, assertion_source.source(), || {
+                super::assertions::section(
+                    cx,
+                    query,
+                    std::slice::from_ref(candidate),
+                    deadline,
+                    assertion_source,
+                )
+            });
+            let section = retain(value, &mut sources, &mut problems, &mut local);
+            if selector == VariantSection::Clinvar {
+                sections.clinvar = Some(section)
+            } else {
+                sections.erepo = Some(section)
             }
         }
-        if !query.sections().is_empty() {
-            candidate.sections = Some(Box::new(sections));
-        }
+        candidate.sections = Some(Box::new(sections));
     }
     (sources, problems, local)
 }
-pub(super) fn source(section: VariantSection) -> Option<Source> {
-    use VariantSection as S;
-    Some(match section {
-        S::Clinvar => Source::ClinVar,
-        S::Erepo => Source::Erepo,
-        S::Population => Source::Gnomad,
-        S::Gwas => Source::Gwas,
-        S::Civic => Source::Civic,
-        S::Hotspots => Source::CancerHotspots,
-        S::Predict | S::Conservation | S::Cosmic => Source::MyVariant,
-        S::Oncokb => Source::Oncokb,
-        _ => return None,
-    })
-}
-fn permitted<T>(
-    cx: &Ctx<'_>,
-    section: VariantSection,
-    read: impl FnOnce() -> Result<T>,
-) -> Result<T> {
-    if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
-        return unavailable(source, Reason::Disabled, SourceState::Skipped);
+fn permitted<T>(cx: &Ctx<'_>, source: Source, read: impl FnOnce() -> Result<T>) -> Result<T> {
+    if !cx.fetch.disabled(source) {
+        return read();
     }
-    read()
-}
-fn unavailable<T>(source: Source, reason: Reason, state: SourceState) -> Result<T> {
     (
-        Section::unavailable(source, reason),
+        Section::Skipped {
+            source,
+            reason: Reason::Disabled,
+        },
         vec![SourceOutcome {
             source,
-            state,
-            reason: Some(reason),
+            state: SourceState::Skipped,
+            reason: Some(Reason::Disabled),
             term: None,
             count: None,
             fetched: None,

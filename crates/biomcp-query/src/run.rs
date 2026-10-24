@@ -51,7 +51,6 @@ pub struct Outcome {
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::VariantAssertions(query) => crate::variant::assertions::get(cx, query),
-        Request::VariantPopulation(query) => crate::variant::population_detail::get(cx, query),
         Request::VariantNormalize(query) => crate::variant::normalize::normalize(cx, query),
         Request::SearchVariant(query) => crate::variant::search::search(cx, query),
         Request::VariantRecurrence(query) => crate::variant::recurrence::run(cx, query),

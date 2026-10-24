@@ -1,7 +1,5 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
 mod raw;
-pub mod variant;
-pub mod variant_map;
 use crate::{Mapped, quotas};
 use biodata::{EntrezGeneId, GeneSymbol, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
 use biomcp_fetch::{

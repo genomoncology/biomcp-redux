@@ -12,7 +12,7 @@ const ENV: &str = "synthetic-registration-environment";
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 type Check = Result<(), String>;
-pub(super) enum Client {
+enum Client {
     Stdio {
         environment: Environment,
         process: super::process::Process,
@@ -23,13 +23,13 @@ pub(super) enum Client {
     Http(super::http::Server),
 }
 impl Client {
-    pub(super) fn environment(&self) -> &Environment {
+    fn environment(&self) -> &Environment {
         match self {
             Self::Stdio { environment, .. } => environment,
             Self::Http(server) => server.environment(),
         }
     }
-    pub(super) fn call(&mut self, id: usize, args: &[&str]) -> Result<Value, String> {
+    fn call(&mut self, id: usize, args: &[&str]) -> Result<Value, String> {
         let frame = mcp::request(
             json!(id),
             "tools/call",
@@ -60,7 +60,7 @@ impl Client {
             .cloned()
             .ok_or("missing key reload tool result".into())
     }
-    pub(super) fn finish(self) -> Check {
+    fn finish(self) -> Check {
         match self {
             Self::Http(mut server) => server.stop(),
             Self::Stdio {
@@ -80,12 +80,7 @@ impl Client {
         }
     }
 }
-pub(super) fn start(
-    http: bool,
-    fallback: bool,
-    config: Value,
-    variable: &str,
-) -> Result<Client, String> {
+fn start(http: bool, fallback: bool, config: Value, variable: &str) -> Result<Client, String> {
     if http {
         return Ok(Client::Http(super::http::Server::keys(
             config,

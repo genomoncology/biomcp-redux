@@ -56,7 +56,6 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::VariantAssertions(query) => serde_json::to_value(query),
-        Request::VariantPopulation(query) => serde_json::to_value(query),
         Request::VariantRecurrence(query) => serde_json::to_value(query),
         Request::SearchVariant(query) => serde_json::to_value(query),
         Request::VariantNormalize(query) => serde_json::to_value(query),
@@ -102,7 +101,6 @@ fn command_words(request: &Request) -> Vec<String> {
     vec![
         match request {
             Request::VariantAssertions(_)
-            | Request::VariantPopulation(_)
             | Request::VariantRecurrence(_)
             | Request::VariantNormalize(_) => "variant",
             Request::TrialDocument(_) => "trial",
@@ -125,8 +123,6 @@ fn command_words(request: &Request) -> Vec<String> {
         .into(),
         if matches!(request, Request::VariantAssertions(_)) {
             "assertions"
-        } else if matches!(request, Request::VariantPopulation(_)) {
-            "population"
         } else if matches!(request, Request::VariantRecurrence(_)) {
             "recurrence"
         } else if matches!(request, Request::VariantNormalize(_)) {

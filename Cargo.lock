@@ -160,7 +160,6 @@ dependencies = [
  "nix",
  "rcgen",
  "rpassword",
- "rusqlite",
  "rustls",
  "serde",
  "serde-saphyr",

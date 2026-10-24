@@ -1,8 +1,5 @@
 //! MyVariant exact source identities and compact component-attributed facts.
-/// MyVariant-carried historical COSMIC fragments.
-pub mod cosmic;
 mod map;
-mod metadata;
 mod raw;
 mod search;
 use crate::{Mapped, quotas};

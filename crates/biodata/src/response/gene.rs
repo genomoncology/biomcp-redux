@@ -65,7 +65,7 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
-    /// Native variant assertions.
+    /// Source-native variant assertions.
     VariantAssertions(crate::VariantAssertions),
     /// Independent provider normalization results.
     VariantNormalization(crate::VariantNormalization),
@@ -85,8 +85,6 @@ pub enum QueryBody {
 
     /// Source-qualified variant identity.
     VariantCard(crate::VariantCard),
-    /// Source population observations.
-    VariantPopulation(crate::VariantPopulationResult),
     /// Bounded cohort sample observations.
     VariantRecurrence(crate::VariantRecurrence),
     /// Native MyVariant candidate page.

@@ -1,15 +1,8 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
-mod civic;
-mod components;
-mod conservation;
 mod continuations;
-mod cosmic;
 mod direct;
-mod hotspots;
 pub mod normalize;
-mod oncokb;
-mod predict;
 pub mod recurrence;
 pub mod search;
 mod sections;
@@ -72,13 +65,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let mut next = next(query, resolution, &candidates, page.as_ref());
-    if sources
-        .iter()
-        .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
-    {
-        next.push((StepKind::Key, Action::KeyHelp(Source::Oncokb)));
-    }
+    let next = next(query, resolution, &candidates, page.as_ref());
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
@@ -297,7 +284,3 @@ fn candidate_page(
         truncated: None,
     })
 }
-
-mod gwas;
-mod population;
-pub(crate) mod population_detail;

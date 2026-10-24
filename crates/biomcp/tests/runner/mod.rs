@@ -25,7 +25,6 @@ mod nci_walk;
 mod negative_cases;
 mod network_stub;
 mod normalization;
-mod oncokb;
 mod pdf;
 mod pmc_tables;
 mod pool_tables;
@@ -48,10 +47,6 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
-mod variant_assertions;
-mod variant_civic;
-mod variant_hotspots;
-mod variant_population;
 mod variant_search;
 
 use libtest_mimic::Trial;
@@ -294,10 +289,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(variant_assertions::trials());
-    trials.extend(oncokb::trials());
-    trials.extend(variant_population::trials());
-    trials.extend(variant_civic::trials());
-    trials.extend(variant_hotspots::trials());
     trials.extend(recurrence::trials());
     trials.extend(recurrence_errors::trials());
     trials.extend(recurrence_metadata::trials());
@@ -445,3 +436,5 @@ pub(super) fn installed_process_proof() -> Result<(), String> {
 pub(super) fn installed_http_trials() -> Vec<Trial> {
     http::trials()
 }
+
+mod variant_assertions;
