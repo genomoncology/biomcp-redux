@@ -8,8 +8,13 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant-recurrence/unsupported-identity-stops-before-cohort", || unsupported().map_err(Into::into)),
-        Trial::test("variant-recurrence/empty-page-is-an-observed-zero", || empty().map_err(Into::into)),
+        Trial::test(
+            "variant-recurrence/unsupported-identity-stops-before-cohort",
+            || unsupported().map_err(Into::into),
+        ),
+        Trial::test("variant-recurrence/empty-page-is-an-observed-zero", || {
+            empty().map_err(Into::into)
+        }),
         Trial::test(
             "variant-recurrence/missing-fields-never-become-denominators",
             || missing().map_err(Into::into),
@@ -139,39 +144,60 @@ fn rejected_reply(_: &str) -> Result<String, String> {
     Ok(json!({"errorType":"IncorrectReferenceAllele"}).to_string())
 }
 
-fn unsupported() -> Result<(),String> {
-    for reply in [insertion as fn(&str)->Result<String,String>, deletion, nonchromosomal] {
+fn unsupported() -> Result<(), String> {
+    for reply in [
+        insertion as fn(&str) -> Result<String, String>,
+        deletion,
+        nonchromosomal,
+    ] {
         let (env, stub) = peer(reply)?;
-        let value = call(&env,&args(),4)?;
-        if value.pointer("/sources/0/reason") != Some(&json!("rejected")) || value.pointer("/result/observed_sample_count").is_some() || stub.finish()?.len()!=1 {
-            return Err(format!("unsupported identity reached dependent sources: {value}"));
+        let value = call(&env, &args(), 4)?;
+        if value.pointer("/sources/0/reason") != Some(&json!("rejected"))
+            || value.pointer("/result/observed_sample_count").is_some()
+            || stub.finish()?.len() != 1
+        {
+            return Err(format!(
+                "unsupported identity reached dependent sources: {value}"
+            ));
         }
     }
     Ok(())
 }
-fn insertion(_: &str) -> Result<String,String> {
+fn insertion(_: &str) -> Result<String, String> {
     Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37","hgvs":["NC_000007.13:g.140453135_140453136insT"],"coordinates":[{"start":140453135,"end":140453135,"referenceAllele":"","allele":"T"}]}]}).to_string())
 }
-fn deletion(_: &str) -> Result<String,String> {
+fn deletion(_: &str) -> Result<String, String> {
     Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37","hgvs":["NC_000007.13:g.140453136del"],"coordinates":[{"start":140453135,"end":140453136,"referenceAllele":"A","allele":""}]}]}).to_string())
 }
 
-fn nonchromosomal(_: &str) -> Result<String,String> {
+fn nonchromosomal(_: &str) -> Result<String, String> {
     Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37","hgvs":["NG_007873.3:g.2A>T"],"coordinates":[{"start":1,"end":2,"referenceAllele":"A","allele":"T"}]}]}).to_string())
 }
-fn empty() -> Result<(),String> {
-    let (env,stub)=peer(empty_reply)?;
-    let value=call(&env,&args(),0)?;
-    if value.pointer("/result/observed_sample_count")!=Some(&json!(0)) || value.pointer("/result/all_pages_read")!=Some(&json!(true)) || value.pointer("/result/more")!=Some(&json!(false)) {
-        return Err(format!("valid empty page became failure or incomplete: {value}"));
+fn empty() -> Result<(), String> {
+    let (env, stub) = peer(empty_reply)?;
+    let value = call(&env, &args(), 0)?;
+    if value.pointer("/result/observed_sample_count") != Some(&json!(0))
+        || value.pointer("/result/all_pages_read") != Some(&json!(true))
+        || value.pointer("/result/more") != Some(&json!(false))
+    {
+        return Err(format!(
+            "valid empty page became failure or incomplete: {value}"
+        ));
     }
-    let mut next=args();next.extend(["--page".into(),"1".into()]);
-    let value=call(&env,&next,0)?;
-    if value.pointer("/result/observed_sample_count")!=Some(&json!(0)) || value.pointer("/result/all_pages_read")!=Some(&json!(false)) { return Err("later empty page incorrectly claims the whole query was read".into()); }
+    let mut next = args();
+    next.extend(["--page".into(), "1".into()]);
+    let value = call(&env, &next, 0)?;
+    if value.pointer("/result/observed_sample_count") != Some(&json!(0))
+        || value.pointer("/result/all_pages_read") != Some(&json!(false))
+    {
+        return Err("later empty page incorrectly claims the whole query was read".into());
+    }
     stub.finish()?;
     Ok(())
 }
-fn empty_reply(request:&str)->Result<String,String> {
-    if request.contains("/mutations?") { return Ok("[]".into()); }
+fn empty_reply(request: &str) -> Result<String, String> {
+    if request.contains("/mutations?") {
+        return Ok("[]".into());
+    }
     cbio(request)
 }

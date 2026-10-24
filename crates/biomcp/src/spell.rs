@@ -107,9 +107,10 @@ fn command_words(request: &Request) -> Vec<String> {
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchVariant(_) | Request::SearchTrial(_) | Request::SearchGene(_) | Request::SearchArticle(_) => {
-                "search"
-            }
+            Request::SearchVariant(_)
+            | Request::SearchTrial(_)
+            | Request::SearchGene(_)
+            | Request::SearchArticle(_) => "search",
         }
         .into(),
         if matches!(request, Request::VariantRecurrence(_)) {
