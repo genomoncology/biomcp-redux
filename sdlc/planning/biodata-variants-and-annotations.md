@@ -64,7 +64,7 @@ Conflicts 1, 2, 3 and 6 change public JSON or public Rust names, so each one cos
 
 ## 3. The common model
 
-The model follows GA4GH VRS 2.x for alleles, GA4GH Cat-VRS 1.x for protein-level and compound subjects, and GA4GH VA-Spec 1.x for statements. It follows HGVS 21.1 for notation and NCBI SPDI for the interbase allele form. It keeps the existing crates' conventions for Rust names, snake_case JSON, checked newtypes and versioned schemas. Section 6 asks Ian about one choice here, the native wire spelling.
+The model follows GA4GH VRS 2.x for alleles, GA4GH Cat-VRS 1.x for protein-level and compound subjects, and GA4GH VA-Spec 1.x for statements. It follows HGVS 21.1 for notation and NCBI SPDI for the interbase allele form. It keeps the existing crates' conventions for Rust names, snake_case JSON, checked newtypes and versioned schemas. Ian chose snake_case as the native wire spelling (section 5).
 
 ### 3.1 Sequence references and coordinates
 
@@ -245,40 +245,9 @@ BioMCP's variant identity branch changes before it lands: the allele strings bec
 13. **Legacy writers.** A writer that must reproduce an existing product's output byte for byte, including its nulls, empty rows and chromosome prefixes, is outside rules 2, 5 and 8 of this list and outside section 3.8. The shared types feed it; its output keeps the legacy shape.
 14. **Lenient chromosome input.** A crate may accept provider spellings such as `chr7`, `M` or `23` in one adapter helper that returns a `Chromosome`. The `Chromosome` type itself parses only its canonical spellings.
 
-## 5. Merge path
+## 5. Merge and wire style
 
-**Triggers.** The merge starts when all of these hold:
+Ian ruled on 2026-10-24:
 
-- Both crates pass the shared fixtures with the types in section 3.
-- BioMCP 1.0 has shipped, so its wire contract is fixed.
-- One team needs a part the other owns as a dependency rather than a copy, or Ian asks.
-
-**Steps.**
-
-1. The two PMs compare the copied modules file by file and settle each difference against this plan.
-2. The shared core moves into the merge home as one change: identifiers, coordinates, alleles, notation, statements, the fixtures and their schemas. The merge home is section 6's first question.
-3. Each project replaces its copy with a dependency on the merged crate at an exact version and deletes the copy in the same change.
-4. Consumer contracts stay with their consumers. BioMCP's `query` and `response` modules stay in BioMCP. The projecting crate's projection views stay with it.
-5. VRS digest computation and VA-Spec export land in the merged crate after the move, behind features, with VRS and VA-Spec example files as fixtures.
-
-## 6. Questions only Ian can answer
-
-**1. Where the merged crate lives.**
-- (a) The standalone public `biodata` repository. Its rules change to allow serde derives on core types, generated schemas and schema versions. Its opaque variant values are replaced.
-- (b) A new public crate. The standalone repository stays as it is or retires.
-- (c) One of the two working crates becomes the public crate.
-
-Recommendation: (a). The repository is public, already carries the name, and already holds HGVS and source work. The cost is a rule change in that repository, which is a ruling conflict with its "nothing we own is versioned" rule, and replacing its variant values with this model.
-
-**2. The native wire spelling.**
-- (a) snake_case fields as in section 3, with VRS and VA-Spec camelCase JSON as an export after the merge.
-- (b) VRS and VA-Spec camelCase JSON as the native form now.
-
-Recommendation: (a). Both crates and every BioMCP schema already use snake_case. VA-Spec renamed fields between 1.0 and 1.1 in October 2026, so a native GA4GH wire would break when the standard moves. The model keeps the GA4GH structure, so the export is a fixed field map. The cost is one export module after the merge.
-
-**3. What starts the merge.**
-- (a) The triggers in section 5.
-- (b) A fixed point now, before either crate ships more variant types.
-- (c) Only when Ian asks.
-
-Recommendation: (a). Merging before BioMCP 1.0 ships would move a wire contract that is still changing. Merging much later lets the copies drift. The shared fixtures and the rules in section 4 keep the cost of waiting small. The cost of (a) is keeping the copies aligned until then.
+- **Merge.** Ian decides when and where the crates merge, after both projects are done. Neither team plans or proposes the merge. The likely home is a new public crate without commit history. Until then each team keeps its own crate and follows this plan.
+- **Wire style.** JSON field names stay snake_case as in section 3. A GA4GH VRS and VA-Spec export, which uses camelCase, can be added later as a fixed field map.
