@@ -15,6 +15,7 @@ static HGNC: SourceSpec = SourceSpec { source: Source::Hgnc, base: "https://rest
 #[ignore = "Record each missing public identity once"]
 fn capture() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/expression/live");
+    std::fs::create_dir_all(dir.parent().unwrap()).unwrap();
     let fetch = Fetch::open(FetchConfig { mode: Mode::Record { dir }, ..Default::default() }).unwrap();
     let leg = fetch.leg(&HPA, fetch.deadline(Duration::from_secs(120)));
     for path in ["/ENSG00000066405.json", "/ENSG00000284190.json", "/ENSG00000141510.json"] {
