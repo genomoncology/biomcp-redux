@@ -245,9 +245,7 @@ impl VariantSearch {
 }
 impl Fields {
     fn filtered(&self) -> bool {
-        self.review_status.is_some()
-            || self.condition.is_some()
-            || self.has.is_some()
+        self.review_status.is_some() || self.condition.is_some() || self.has.is_some()
     }
     fn append_filters(&self, term: &mut String) {
         for (field, value) in [
