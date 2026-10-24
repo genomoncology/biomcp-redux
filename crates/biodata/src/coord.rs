@@ -35,10 +35,9 @@ impl From<Position1> for u32 {
 }
 
 /// A zero-based half-open span with ordered bounds; empty spans are valid.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(try_from = "SpanBounds")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields))]
+#[cfg_attr(feature = "schema", schemars(deny_unknown_fields))]
 pub struct Span0 {
     #[cfg_attr(feature = "schema", schemars(range(max = u32::MAX)))]
     start: u32,
@@ -77,5 +76,24 @@ impl TryFrom<SpanBounds> for Span0 {
     type Error = Error;
     fn try_from(value: SpanBounds) -> Result<Self, Error> {
         Self::new(value.start, value.end)
+    }
+}
+
+impl<'de> Deserialize<'de> for Span0 {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct Visitor;
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = Span0;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("a span object with start and end bounds")
+            }
+
+            fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Span0, A::Error> {
+                let bounds = SpanBounds::deserialize(serde::de::value::MapAccessDeserializer::new(map))?;
+                Span0::try_from(bounds).map_err(serde::de::Error::custom)
+            }
+        }
+        deserializer.deserialize_map(Visitor)
     }
 }
