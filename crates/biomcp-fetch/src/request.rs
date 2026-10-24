@@ -27,11 +27,20 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::probe()).map(|_| ())
     }
     /// Probe a declared read-only JSON endpoint with a bounded request body.
-    pub fn probe_json<B: serde::Serialize>(&self, ep: &Endpoint, body: &B) -> Result<(), RequestError> {
+    pub fn probe_json<B: serde::Serialize>(
+        &self,
+        ep: &Endpoint,
+        body: &B,
+    ) -> Result<(), RequestError> {
         self.validate(ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent), Decoder::probe()).map(|_| ())
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            Decoder::probe(),
+        )
+        .map(|_| ())
     }
 
     /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.

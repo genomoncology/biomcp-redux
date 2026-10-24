@@ -28,10 +28,13 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
-            body.content = Section::unavailable(Source::PmcOa, match error {
+            body.content = Section::unavailable(
+                Source::PmcOa,
+                match error {
                     RequestError::Source(e) => e.reason,
                     _ => Reason::Unavailable,
-                });
+                },
+            );
         }
         out.next.push((
             StepKind::Fresh,

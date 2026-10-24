@@ -58,8 +58,14 @@ fn root() -> Result<Command, ()> {
             .global(true)
             .value_parser(["json", "md"]),
     );
-    root = root.arg(Arg::new("disable-sources").long("disable-sources").global(true)
-        .num_args(1).value_delimiter(',').action(ArgAction::Append));
+    root = root.arg(
+        Arg::new("disable-sources")
+            .long("disable-sources")
+            .global(true)
+            .num_args(1)
+            .value_delimiter(',')
+            .action(ArgAction::Append),
+    );
     for name in ["replay", "record", "case-cache"] {
         root = root.arg(
             Arg::new(name)
@@ -115,7 +121,12 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
     let globals = Globals {
-        disable_sources: matches.get_many::<String>("disable-sources").into_iter().flatten().cloned().collect(),
+        disable_sources: matches
+            .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
         replay: matches.get_one::<PathBuf>("replay").cloned(),
         record: matches.get_one::<PathBuf>("record").cloned(),
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),

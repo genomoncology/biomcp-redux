@@ -582,7 +582,11 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
     let records = directory.path().join("pubmed");
     std::fs::create_dir(&records).unwrap();
     let spec: &'static SourceSpec = Box::leak(Box::new(SourceSpec {
-    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
+        terms: biomcp_fetch::Terms {
+            name: "Synthetic test data",
+            url: "https://example.test/terms",
+            usage: biodata::Use::Open,
+        },
         source: biodata::Source::PubMed,
         base: "https://example.invalid",
         key: KeyUse::None,

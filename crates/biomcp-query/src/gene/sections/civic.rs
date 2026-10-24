@@ -32,10 +32,13 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         }
                         None => Section::unavailable(Source::Civic, Reason::BadReply),
                     },
-                    Err(error) => Section::unavailable(Source::Civic, match error {
+                    Err(error) => Section::unavailable(
+                        Source::Civic,
+                        match error {
                             RequestError::Source(error) => error.reason,
                             _ => Reason::Unavailable,
-                        }),
+                        },
+                    ),
                 }
             } else {
                 problems.push(Problem {

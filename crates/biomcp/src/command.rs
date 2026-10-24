@@ -62,7 +62,16 @@ fn dispatch_using(
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch)) if !parsed.globals.offline && parsed.globals.disable_sources.iter().all(|s| shared.is_some_and(|(g, _)| g.disable_sources.contains(s))) => fetch.as_ref(),
+        Some(Ok(fetch))
+            if !parsed.globals.offline
+                && parsed
+                    .globals
+                    .disable_sources
+                    .iter()
+                    .all(|s| shared.is_some_and(|(g, _)| g.disable_sources.contains(s))) =>
+        {
+            fetch.as_ref()
+        }
         Some(Err(())) if !parsed.globals.offline => {
             return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
         }
@@ -84,7 +93,17 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
-        Action::Health => encode(Envelope::new(Status::Complete, (), Some(biomcp_query::health::run(fetch, crate::config::BUDGET).map_err(io::Error::other)?)), crate::exit::Status::Success),
+        Action::Health => encode(
+            Envelope::new(
+                Status::Complete,
+                (),
+                Some(
+                    biomcp_query::health::run(fetch, crate::config::BUDGET)
+                        .map_err(io::Error::other)?,
+                ),
+            ),
+            crate::exit::Status::Success,
+        ),
         Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {

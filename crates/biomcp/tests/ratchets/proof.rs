@@ -190,5 +190,9 @@ fn rejects_conditional_integration_test_attributes() -> Check {
 
 #[test]
 fn source_without_publisher_terms_is_rejected() -> Check {
-    rejects("crates/biomcp-adapters/src/planted.rs", "pub static SPEC: SourceSpec = SourceSpec { source: Source::Hgnc };", "publisher terms")
+    rejects(
+        "crates/biomcp-adapters/src/planted.rs",
+        "pub static SPEC: SourceSpec = SourceSpec { source: Source::Hgnc };",
+        "publisher terms",
+    )
 }

@@ -123,7 +123,11 @@ fn fetch_using(
         secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
     }
     let mut disabled = globals.disable_sources.clone();
-    disabled.extend(file.as_ref().and_then(|f| f.disable_sources.clone()).unwrap_or_default());
+    disabled.extend(
+        file.as_ref()
+            .and_then(|f| f.disable_sources.clone())
+            .unwrap_or_default(),
+    );
     let disabled_sources = biomcp_adapters::registry::disabled(&disabled)?;
     Fetch::open(FetchConfig {
         disabled_sources,

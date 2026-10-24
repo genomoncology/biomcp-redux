@@ -54,12 +54,11 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -
                     RequestError::Source(e) => e.reason,
                     _ => Reason::Unavailable,
                 };
-                values.extend(chunk.iter().map(|id| {
-                    (
-                        *id,
-                        Section::unavailable(Source::PubTator, reason),
-                    )
-                }));
+                values.extend(
+                    chunk
+                        .iter()
+                        .map(|id| (*id, Section::unavailable(Source::PubTator, reason))),
+                );
             }
         }
     }

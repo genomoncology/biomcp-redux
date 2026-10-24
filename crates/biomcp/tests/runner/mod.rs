@@ -15,6 +15,7 @@ mod protocol;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod source_controls;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -226,6 +227,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(source_controls::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {

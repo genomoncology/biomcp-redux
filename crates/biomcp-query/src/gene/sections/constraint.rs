@@ -52,10 +52,13 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     None => Section::unavailable(Source::Gnomad, Reason::BadReply),
                 }
             }
-            Err(error) => Section::unavailable(Source::Gnomad, match error {
+            Err(error) => Section::unavailable(
+                Source::Gnomad,
+                match error {
                     RequestError::Source(error) => error.reason,
                     _ => Reason::Unavailable,
-                }),
+                },
+            ),
         };
         sections.push((*id, super::SectionValue::Constraint(section)));
     }

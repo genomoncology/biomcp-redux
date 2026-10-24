@@ -48,10 +48,13 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         }
                     }
                 }
-                Err(error) => Section::unavailable(Source::UniProt, match error {
+                Err(error) => Section::unavailable(
+                    Source::UniProt,
+                    match error {
                         RequestError::Source(error) => error.reason,
                         _ => Reason::Unavailable,
-                    }),
+                    },
+                ),
             };
             (*id, SectionValue::Protein(section))
         })

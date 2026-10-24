@@ -256,16 +256,26 @@ pub(super) fn tokens(text: &str) -> Vec<String> {
 }
 
 fn source_terms(path: &str, tokens: &[String]) -> Check {
-    if !path.starts_with("crates/biomcp-adapters/src/") { return Ok(()); }
+    if !path.starts_with("crates/biomcp-adapters/src/") {
+        return Ok(());
+    }
     for (i, word) in tokens.iter().enumerate() {
-        if word != "SourceSpec" || tokens.get(i + 1).is_none_or(|s| s != "{") { continue; }
+        if word != "SourceSpec" || tokens.get(i + 1).is_none_or(|s| s != "{") {
+            continue;
+        }
         let rest = tokens.get(i + 2..).unwrap_or_default();
-        if !rest.iter().take_while(|s| s.as_str() != "source").any(|s| s == "terms") {
+        if !rest
+            .iter()
+            .take_while(|s| s.as_str() != "source")
+            .any(|s| s == "terms")
+        {
             return fail(path, "source declaration requires publisher terms");
         }
         let terms: Vec<_> = rest.iter().take_while(|s| s.as_str() != "source").collect();
         for name in ["name", "url", "usage"] {
-            let Some(pos) = terms.iter().position(|s| s.as_str() == name) else { return fail(path, "source declaration requires publisher terms"); };
+            let Some(pos) = terms.iter().position(|s| s.as_str() == name) else {
+                return fail(path, "source declaration requires publisher terms");
+            };
             if name != "usage" && terms.get(pos + 2).is_none_or(|s| s.as_str() == "\"\"") {
                 return fail(path, "source declaration requires publisher terms");
             }

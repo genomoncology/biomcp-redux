@@ -4,11 +4,20 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
-    &crate::hgnc::SPEC, &crate::mygene::SPEC, &crate::oncokb::SPEC,
-    &crate::gnomad::SPEC, &crate::uniprot::SPEC, &crate::reactome::SPEC,
-    &crate::civic::SPEC, &crate::clingen::SPEC, &crate::hpa::SPEC,
-    &crate::pubmed::SPEC, &crate::europepmc::SPEC, &crate::pubtator::SPEC,
-    &crate::pmc_oa::SPEC, &crate::icite::SPEC,
+    &crate::hgnc::SPEC,
+    &crate::mygene::SPEC,
+    &crate::oncokb::SPEC,
+    &crate::gnomad::SPEC,
+    &crate::uniprot::SPEC,
+    &crate::reactome::SPEC,
+    &crate::civic::SPEC,
+    &crate::clingen::SPEC,
+    &crate::hpa::SPEC,
+    &crate::pubmed::SPEC,
+    &crate::europepmc::SPEC,
+    &crate::pubtator::SPEC,
+    &crate::pmc_oa::SPEC,
+    &crate::icite::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
@@ -20,9 +29,17 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
             _ => None,
         };
         if let Some(group) = group {
-            disabled.extend(SOURCES.iter().filter(|s| s.terms.usage == group).map(|s| s.source));
+            disabled.extend(
+                SOURCES
+                    .iter()
+                    .filter(|s| s.terms.usage == group)
+                    .map(|s| s.source),
+            );
         } else {
-            let source = SOURCES.iter().find(|s| s.source.to_string() == *name).ok_or(())?;
+            let source = SOURCES
+                .iter()
+                .find(|s| s.source.to_string() == *name)
+                .ok_or(())?;
             disabled.insert(source.source);
         }
     }
@@ -31,26 +48,70 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
 
 /// One bounded read-only endpoint for each implemented source; never a data synchronization.
 /// Paths stay relative to the source declaration, and replies bypass the data cache.
-pub fn probe(spec: &'static SourceSpec, leg: &biomcp_fetch::Leg<'_>) -> Result<(), biomcp_fetch::RequestError> {
+pub fn probe(
+    spec: &'static SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<(), biomcp_fetch::RequestError> {
     use biomcp_fetch::Arg;
     let (path, params) = match spec.source {
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::Oncokb => ("/info", vec![]),
-        Source::UniProt => ("/uniprotkb/P15056.json", vec![("fields", Arg::Text("accession"))]),
+        Source::UniProt => (
+            "/uniprotkb/P15056.json",
+            vec![("fields", Arg::Text("accession"))],
+        ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
-        Source::PubMed => ("/einfo.fcgi", vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))]),
-        Source::EuropePmc => ("/search", vec![("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")), ("format", Arg::Text("json")), ("pageSize", Arg::Num(1))]),
-        Source::PubTator => ("/publications/export/biocjson", vec![("pmids", Arg::Text("17611497"))]),
-        Source::PmcOa => ("/", vec![("list-type", Arg::Num(2)), ("prefix", Arg::Text("PMC5606870.")), ("max-keys", Arg::Num(1))]),
-        Source::Icite => ("/pubs", vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))]),
+        Source::PubMed => (
+            "/einfo.fcgi",
+            vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))],
+        ),
+        Source::EuropePmc => (
+            "/search",
+            vec![
+                ("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")),
+                ("format", Arg::Text("json")),
+                ("pageSize", Arg::Num(1)),
+            ],
+        ),
+        Source::PubTator => (
+            "/publications/export/biocjson",
+            vec![("pmids", Arg::Text("17611497"))],
+        ),
+        Source::PmcOa => (
+            "/",
+            vec![
+                ("list-type", Arg::Num(2)),
+                ("prefix", Arg::Text("PMC5606870.")),
+                ("max-keys", Arg::Num(1)),
+            ],
+        ),
+        Source::Icite => (
+            "/pubs",
+            vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
+        ),
         Source::Gnomad | Source::Civic => {
-            let path = if spec.source == Source::Gnomad { "/api" } else { "/api/graphql" };
-            return leg.probe_json(&spec.post_json(path).idempotent(), &serde_json::json!({"query":"{ __typename }"}));
+            let path = if spec.source == Source::Gnomad {
+                "/api"
+            } else {
+                "/api/graphql"
+            };
+            return leg.probe_json(
+                &spec.post_json(path).idempotent(),
+                &serde_json::json!({"query":"{ __typename }"}),
+            );
         }
-        _ => return Err(biomcp_fetch::SourceError { source: spec.source, reason: biodata::Reason::Rejected, status: None, retry_after: None }.into()),
+        _ => {
+            return Err(biomcp_fetch::SourceError {
+                source: spec.source,
+                reason: biodata::Reason::Rejected,
+                status: None,
+                retry_after: None,
+            }
+            .into());
+        }
     };
     leg.probe(&spec.get(path), &params)
 }

@@ -7,10 +7,10 @@ use std::{
     path::{Path, PathBuf},
 };
 type Check = Result<(), String>;
-fn root() -> PathBuf {
+pub(super) fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main")
 }
-fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
@@ -24,7 +24,7 @@ fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, Stri
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
-fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
+pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
     let mut args: Vec<String> = args.iter().map(|arg| (*arg).into()).collect();
     if let Some(recording) = recording {
         args.extend(["--replay".into(), recording.to_string_lossy().into()]);
@@ -36,8 +36,6 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("sources/health-terms-disable-union-and-unknown-refusal", || { source_health().map_err(Into::into) }),
-        Trial::test("sources/disabled-before-warm-cache-and-sync", || { disabled().map_err(Into::into) }),
         Trial::test("article/concurrent-process-pool-publication", || {
             article_processes().map_err(Into::into)
         }),
@@ -461,44 +459,5 @@ fn article_processes() -> Check {
             return Err("published snapshot changed".into());
         }
     }
-    Ok(())
-}
-
-fn disabled() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let case = env.root().join("disabled-case");
-    invoke(&env, cached(&["get", "gene", "BRAF"], &case, Some(&root())), 0)?;
-    env.config(&json!({"disable_sources":["hgnc"]})).map_err(|e| e.to_string())?;
-    let result = invoke(&env, cached(&["get", "gene", "BRAF"], &case, None), 4)?;
-    if result.pointer("/sources/0/state") != Some(&json!("skipped"))
-        || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
-        || result.pointer("/result/items/0/answer").is_some()
-    { return Err("disabled HGNC restored a cached gene".into()); }
-    let result = invoke(&env, cached(&["sync", "hgnc"], &case, None), 4)?;
-    if result.pointer("/sources/0/state") != Some(&json!("skipped"))
-        || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
-    { return Err("sync ignored disabled source".into()); }
-    Ok(())
-}
-
-fn source_health() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    env.config(&json!({"disable_sources":["hgnc"]})).map_err(|e| e.to_string())?;
-    let health = invoke(&env, vec!["health".into(), "--offline".into(), "--disable-sources".into(), "restricted,hpa".into()], 0)?;
-    let rows = health.pointer("/result/sources").and_then(Value::as_array).ok_or("missing health rows")?;
-    let names = rows.iter().filter_map(|r| r.get("source").and_then(Value::as_str)).collect::<std::collections::BTreeSet<_>>();
-    if rows.len() != biomcp_adapters::registry::SOURCES.len() || names.len() != rows.len() { return Err("health omitted or duplicated registered sources".into()); }
-    for spec in biomcp_adapters::registry::SOURCES {
-        let row = rows.iter().find(|r| r.get("source") == Some(&json!(spec.source))).ok_or("source missing")?;
-        if row.get("terms") != Some(&json!(spec.terms.name)) || row.get("terms_url") != Some(&json!(spec.terms.url)) { return Err("health lost publisher terms".into()); }
-        if spec.source == biodata::Source::Hgnc || spec.source == biodata::Source::Hpa || spec.terms.usage == biodata::Use::Restricted {
-            if row.get("state") != Some(&json!("skipped")) || row.get("reason") != Some(&json!("disabled")) || row.get("latency_ms").is_some() { return Err(format!("disabled source probed: {row}")); }
-        }
-    }
-    invoke(&env, vec!["health".into(), "--disable-sources".into(), "not-implemented".into(), "--offline".into()], 5)?;
-    env.config(&json!({})).map_err(|e| e.to_string())?;
-    let health = invoke(&env, vec!["health".into(), "--offline".into()], 0)?;
-    let oncokb = health.pointer("/result/sources").and_then(Value::as_array).and_then(|r| r.iter().find(|v| v.get("source") == Some(&json!("oncokb")))).ok_or("OncoKB absent")?;
-    if oncokb.get("reason") != Some(&json!("no_key")) || oncokb.get("state") != Some(&json!("skipped")) { return Err("missing key did not skip health".into()); }
     Ok(())
 }

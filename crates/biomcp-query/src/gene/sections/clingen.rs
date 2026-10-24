@@ -22,10 +22,13 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 Err(failure) => {
                     error = Some(failure);
                     local = local.or(status::local(failure));
-                    Section::unavailable(Source::ClinGen, match failure {
+                    Section::unavailable(
+                        Source::ClinGen,
+                        match failure {
                             RequestError::Source(failure) => failure.reason,
                             _ => Reason::Unavailable,
-                        })
+                        },
+                    )
                 }
             };
             (*id, SectionValue::ClinGen(section))

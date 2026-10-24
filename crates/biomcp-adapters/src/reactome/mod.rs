@@ -6,7 +6,11 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
-    terms: biomcp_fetch::Terms { name: "CC BY 4.0; CC0 annotation exports", url: "https://reactome.org/license", usage: biodata::Use::Attribution },
+    terms: biomcp_fetch::Terms {
+        name: "CC BY 4.0; CC0 annotation exports",
+        url: "https://reactome.org/license",
+        usage: biodata::Use::Attribution,
+    },
     source: Source::Reactome,
     base: "https://reactome.org/ContentService",
     key: KeyUse::None,

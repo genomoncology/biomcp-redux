@@ -9,7 +9,11 @@ use std::time::Duration;
 pub const BATCH_LIMIT: usize = 20;
 /// Public export policy; its quota is local policy, not a claimed provider limit.
 pub static SPEC: SourceSpec = SourceSpec {
-    terms: biomcp_fetch::Terms { name: "NCBI policies; publisher rights in input text", url: "https://www.ncbi.nlm.nih.gov/home/about/policies/", usage: biodata::Use::Restricted },
+    terms: biomcp_fetch::Terms {
+        name: "NCBI policies; publisher rights in input text",
+        url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+        usage: biodata::Use::Restricted,
+    },
     source: Source::PubTator,
     base: "https://www.ncbi.nlm.nih.gov/research/pubtator3-api",
     key: KeyUse::None,

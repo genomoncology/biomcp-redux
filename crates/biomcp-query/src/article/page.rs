@@ -53,10 +53,20 @@ pub(super) fn read<'a>(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     if pool.sources.iter().any(|s| cx.fetch.disabled(s.source)) {
-        out.sources = pool.sources.iter().cloned().map(|mut s| {
-            if cx.fetch.disabled(s.source) { s.state = biodata::SourceState::Skipped; s.reason = Some(biodata::Reason::Disabled); s.count = None; s.fetched = None; }
-            s
-        }).collect();
+        out.sources = pool
+            .sources
+            .iter()
+            .cloned()
+            .map(|mut s| {
+                if cx.fetch.disabled(s.source) {
+                    s.state = biodata::SourceState::Skipped;
+                    s.reason = Some(biodata::Reason::Disabled);
+                    s.count = None;
+                    s.fetched = None;
+                }
+                s
+            })
+            .collect();
         out.status = Status::Failed;
         return Ok(());
     }

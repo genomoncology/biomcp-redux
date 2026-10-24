@@ -31,7 +31,10 @@ pub(crate) fn source(
         fetched: None,
         notices: Vec::new(),
         source,
-        state: if matches!(reason, Some(biodata::Reason::Disabled | biodata::Reason::NoKey)) {
+        state: if matches!(
+            reason,
+            Some(biodata::Reason::Disabled | biodata::Reason::NoKey)
+        ) {
             SourceState::Skipped
         } else if report.stale {
             SourceState::Stale
