@@ -9,6 +9,7 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
         "citations",
         "all"
       ],
@@ -16,6 +17,7 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files confirmed by PMC metadata.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]

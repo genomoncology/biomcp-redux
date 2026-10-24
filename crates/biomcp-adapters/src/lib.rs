@@ -33,3 +33,4 @@ pub mod litvar;
 mod xml_element;
 
 pub mod registry;
+pub mod sheet;

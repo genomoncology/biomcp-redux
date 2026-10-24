@@ -1,12 +1,14 @@
 //! PMC OA bucket listing, checked metadata and confined JATS reads.
 mod location;
 mod raw;
+mod supplement;
 use crate::{jats, quotas};
 use biodata::{License, Pmcid, Pmid, Reason, Source};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };
 use std::time::Duration;
+pub use supplement::{Download, Supplement, download};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
@@ -33,6 +35,8 @@ pub struct Document {
     pub manuscript: bool,
     /// Parsed source body.
     pub body: jats::Body,
+    /// JATS supplements confirmed against the record media list.
+    pub supplements: Vec<Supplement>,
 }
 fn bad(_: impl std::fmt::Debug) -> RequestError {
     SourceError {
@@ -72,6 +76,9 @@ pub fn read(
         return Err(bad(BadReply));
     }
     let loc = location::Location::checked(&record.xml_url, &directory).map_err(bad)?;
+    if !loc.path.ends_with(".xml") {
+        return Err(bad(BadReply));
+    }
     let params: Vec<_> = loc
         .md5
         .as_ref()
@@ -82,7 +89,13 @@ pub fn read(
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
     }
+    let supplements = supplement::select(
+        &body.supplements,
+        record.media_urls.as_deref().unwrap_or(&[]),
+        &directory,
+    )?;
     Ok(Some(Document {
+        supplements,
         license: license(&record.license_code),
         version,
         manuscript: record.is_manuscript,
