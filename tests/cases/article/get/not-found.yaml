@@ -1,0 +1,19 @@
+{
+  "feature": "article-get",
+  "story": "An unknown PMID produces an absent card without repeating the input in a message.",
+  "replay": "article/get/empty",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "99999999"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/data/items/0/answer/status": "not_found"
+      }
+    }
+  ]
+}
