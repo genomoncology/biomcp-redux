@@ -96,7 +96,7 @@ disallowed_types = "deny"
 
 Lints are `deny`, never `forbid`, so a rare exception can carry `#[expect(lint, reason = "...")]` where a reviewer sees it. `allow_attributes_without_reason` makes every such exception state its reason, and the ratchet test lists the files allowed to carry one.
 
-`ureq` uses rustls with the ring provider and the platform's trust roots, so corporate roots installed on the machine work without a CA bundle. Its proxy comes only from the config file. The client never reads proxy environment variables, because only `config.rs` reads the environment. `clap`'s `string` feature lets the grammar build arguments from owned names read out of the schemas.
+`ureq` uses rustls with the ring provider and platform certificate verification. `ca_bundle` adds checked PEM roots through rustls-platform-verifier without replacing platform trust. The transport keeps ureq's TCP and CONNECT connectors and a narrow TLS connector because ureq's root selector cannot express additive platform roots. `config.rs` owns PEM I/O and proxy environment reads; the transport receives checked, owned settings. `clap`'s `string` feature lets the grammar build arguments from owned names read out of the schemas.
 
 The version numbers above are the stage 1 starting point. The stage that adds each dependency confirms its current release and feature names and records the code it saves, as `planning/rust-standards.md` says.
 
@@ -812,7 +812,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. A proxy comes only from the config file's `proxy` key.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
 
 ### 4.11 Bundles
 
@@ -1586,6 +1586,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
   "format": "json",
   "disable_sources": ["semanticscholar"],
   "proxy": "http://proxy.example:3128",
+  "ca_bundle": "/etc/company/root-certificates.pem",
   "cache": { "folder": "/home/user/.cache/biomcp", "max_mb": 1024 },
   "bundles": { "sync_budget_ms": 120000, "auto_sync_max_mb": 32 },
   "keys": { "ncbi_api_key": "...", "oncokb_api_key": "..." },
@@ -1596,7 +1597,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 ```rust
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ConfigFile { proxy: Option<String> } // the first gene slice consumes only proxy; unknown keys refuse
+struct ConfigFile { proxy: Option<String>, ca_bundle: Option<PathBuf>, /* source settings */ } // unknown keys refuse
 
 pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub format: Format, pub disabled: BTreeSet<Source>, pub explain: bool }
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
@@ -1605,6 +1606,10 @@ pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 - Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `S2_API_KEY`. `biomcp help key <source>` names both for each source that takes a key.
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
+
+Corporate routing uses the config file's `proxy` for both schemes when present. Otherwise `HTTP_PROXY` serves HTTP and `HTTPS_PROXY` serves HTTPS; no scheme falls back to the other. Only uppercase names are read. `NO_PROXY` is a comma-separated list: a bare host or IP matches exactly, `.domain` matches that domain and its subdomains, `*.domain` matches subdomains only, and `*` bypasses every proxy. Rules may specify a numeric port, including bracketed IPv6 literals. CIDR, malformed ports and credentials in bypass rules refuse as local configuration failures. Host matching ignores ASCII case and uses label boundaries.
+
+`ca_bundle` names a PEM file read at the settings boundary. Its certificate anchors add to platform trust for every source and each request codec. Missing, unreadable, malformed, empty or oversized bundles fail locally before provider requests. The configured path is relative to the process directory unless absolute. Client certificates remain deferred. Fetch owns immutable trust settings and separate connection pools for direct, HTTP-proxy and HTTPS-proxy routes, so trust and route changes cannot reuse a previous Fetch's connections. A target TLS failure remains `tls` after a successful CONNECT; only proxy connection or negotiation failures become `proxy`. Envelope fix steps follow `help network ca_bundle` and `help network proxy`.
 
 ### 9.2 Observability
 

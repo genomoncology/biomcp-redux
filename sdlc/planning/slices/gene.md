@@ -38,6 +38,24 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 | `gene cspec <symbol>` | `--version`, `--capture-id`, `--files`, `--offset`, `--limit`, `document <capture-id>` | ClinGen CSpec registry | Variant interpretation criteria specifications | Variant slice, including `--version`, `--capture-id`, `--files`, `--offset`, `--limit` and `document`. `moved to the variant entity`. |
 | MCP | the shared `search` and `get` tools and a separate `gene_cspec` tool | | | One `biomcp` tool takes the same argument array as the CLI. Separate `search`, `get` and `gene_cspec` tools are replaced. |
 
+### Leaf-command parity accounting
+
+The historical inventory in the architecture investigation, section 6.1, counts leaf commands and command-specific option slots. Short aliases share the long option's slot. Command aliases, the external-symbol fallback, positional arguments, section names, MCP tools and global flags are outside that denominator. `gene cspec document` is the leaf; its parent's five options are outside the historical leaf inventory. This table owns `gene articles`, so article accounting does not count that command again. Moved capabilities awaiting their slice remain undecided here.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search gene` | Ported or renamed | `--type`, `--chromosome`, `--limit`, `--offset` | `--query`, `--region`, `--pathway`, `--go` | — | Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters. |
+| `get gene` | Ported or renamed | — | — | — | Section 1 preserves the gene card; section values do not count as option slots. |
+| `gene definition` | Ported or renamed | — | — | — | Section 1 replaces this leaf and its get alias with get gene. |
+| `gene trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Section 1 moves the capability and its options to the trial slice. |
+| `gene drugs` | Not yet decided | — | — | `--limit`, `--offset` | Section 1 moves the capability and its options to the drug slice. |
+| `gene articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 maps this capability to search article --gene; article search preserves paging. |
+| `gene pathways` | Ported or renamed | — | — | `--limit`, `--offset` | Section 1 maps the command to the pathways section and moves old paging to the pathway slice. |
+| `gene cell-lines` | Not yet decided | — | — | `--group`, `--limit`, `--offset` | Section 1 moves the capability and its options to the cell line slice. |
+| `gene cspec document` | Not yet decided | — | — | — | Section 1 moves CSpec and its document leaf to the variant slice. |
+<!-- /parity-accounting -->
+
 ### Speed and size
 
 Commands ran with `--no-cache` for cold timings, then again warm.
