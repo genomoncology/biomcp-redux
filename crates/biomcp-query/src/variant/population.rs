@@ -1,8 +1,8 @@
 //! Exact GRCh38 source joins and bounded population observations.
 use crate::{Ctx, status};
 use biodata::{
-    Build, Chromosome, GnomadCounts, PopulationDataType, PopulationSex, Problem, Reason, Section,
-    Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation,
+    Build, Chromosome, GnomadCounts, PopulationDataType, PopulationSex, Problem, ProblemCode,
+    Reason, Section, Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation,
 };
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};

@@ -1,4 +1,6 @@
 //! Source-native gnomAD population subsets; no frequency inference.
+//! VA release/count/cohort fields: https://github.com/broadinstitute/gnomad-browser/blob/main/graphql-api/src/graphql/types/va.graphql
+//! The resolver supplies an ALL cohort alongside ancestry rows; its constants are not observed releases.
 use super::{Query, SPEC};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};

@@ -89,7 +89,7 @@ fn population() -> Result<(), String> {
         || value.pointer("/result/population/data/exome/an") != Some(&json!(1460618))
         || value.pointer("/problems/0/field") != Some(&json!("dataset_version"))
         || value
-            .pointer("/result/population/data/exome/subject")
+            .pointer("/result/population/data/exome/frequency")
             .is_some()
         || value.pointer("/result/population/data/genome").is_some()
         || value
