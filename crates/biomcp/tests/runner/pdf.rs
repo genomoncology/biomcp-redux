@@ -7,7 +7,9 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("article/pdf/size-cut-and-proxy-boundaries", || boundaries().map_err(|e| e.to_string().into())),
+        Trial::test("article/pdf/size-cut-and-proxy-boundaries", || {
+            boundaries().map_err(|e| e.to_string().into())
+        }),
         Trial::test("article/pdf/http-save-refused-with-link", || {
             http_refusal().map_err(|e| e.to_string().into())
         }),
@@ -158,27 +160,50 @@ fn boundaries() -> Check {
         let env = Environment::new()?;
         let replay = env.root().join("recordings");
         super::response_cases::copy_capture("article/pdf/synthetic", &replay, |_, record| {
-            if mode == "cut-api" && record["url"].as_str().is_some_and(|s| s.contains("api.semanticscholar.org")) {
-                record["exchanges"][0]["body"] = json!({"kind":"text","value":"{\"openAccessPdf\":"});
+            if mode == "cut-api"
+                && record["url"]
+                    .as_str()
+                    .is_some_and(|s| s.contains("api.semanticscholar.org"))
+            {
+                record["exchanges"][0]["body"] =
+                    json!({"kind":"text","value":"{\"openAccessPdf\":"});
             }
         })?;
         let publisher = replay.join("semantic-scholar/0e4c6627e9a47ffe7aa8ad4caee7846838977da402ca279d1d34fbe2b02efcaf.json");
         if mode == "oversize" {
             let record: Value = serde_json::from_slice(&fs::read(&publisher)?)?;
-            let sidecar = record.pointer("/exchanges/0/body/value").and_then(Value::as_str).ok_or("sidecar")?;
-            fs::OpenOptions::new().write(true).open(publisher.parent().ok_or("parent")?.join(sidecar))?.set_len(25 * 1024 * 1024 + 1)?;
+            let sidecar = record
+                .pointer("/exchanges/0/body/value")
+                .and_then(Value::as_str)
+                .ok_or("sidecar")?;
+            fs::OpenOptions::new()
+                .write(true)
+                .open(publisher.parent().ok_or("parent")?.join(sidecar))?
+                .set_len(25 * 1024 * 1024 + 1)?;
         }
         let target = env.root().join("saved.pdf");
         if mode == "link-only" {
             fs::remove_file(publisher)?;
-            let args: Vec<String> = ["get", "article", "41351423", "pdf"].map(str::to_owned).into();
+            let args: Vec<String> = ["get", "article", "41351423", "pdf"]
+                .map(str::to_owned)
+                .into();
             let result = command(&env, &replay, &args, 0)?;
-            assert_eq!(result.pointer("/result/items/0/sections/pdf/data/status"), Some(&json!("gold")));
-            let expected = json!(["article","pdf","41351423","--save","41351423.pdf"]);
-            assert!(result["next"].as_array().is_some_and(|next| next.iter().any(|step| step["args"] == expected)));
+            assert_eq!(
+                result.pointer("/result/items/0/sections/pdf/data/status"),
+                Some(&json!("gold"))
+            );
+            let expected = json!(["article", "pdf", "41351423", "--save", "41351423.pdf"]);
+            assert!(
+                result["next"]
+                    .as_array()
+                    .is_some_and(|next| next.iter().any(|step| step["args"] == expected))
+            );
         } else {
             let result = command(&env, &replay, &save_args(&target), 4)?;
-            assert_eq!(result.pointer("/result/file/reason"), Some(&json!("bad_reply")));
+            assert_eq!(
+                result.pointer("/result/file/reason"),
+                Some(&json!("bad_reply"))
+            );
         }
         assert!(!target.exists());
     }
@@ -190,19 +215,35 @@ fn proxy_paths() -> Check {
     for bypass in [false, true] {
         let env = Environment::new()?;
         let target = env.root().join("proxy.pdf");
-        let mut args = env.globals(Some(&fixtures().join("replies/article/pdf/synthetic")), false);
+        let mut args = env.globals(
+            Some(&fixtures().join("replies/article/pdf/synthetic")),
+            false,
+        );
         args.extend(save_args(&target));
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .env("HTTPS_PROXY", format!("http://user:private-proxy-secret@{}", listener.local_addr()?))
-            .env("NO_PROXY", if bypass {"storage.imrpress.com"} else {""}).output()?;
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .env(
+                "HTTPS_PROXY",
+                format!(
+                    "http://user:private-proxy-secret@{}",
+                    listener.local_addr()?
+                ),
+            )
+            .env("NO_PROXY", if bypass { "storage.imrpress.com" } else { "" })
+            .output()?;
         let result: Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(output.status.code(), Some(if bypass {0} else {4}));
+        assert_eq!(output.status.code(), Some(if bypass { 0 } else { 4 }));
         assert!(!String::from_utf8_lossy(&output.stdout).contains("private-proxy-secret"));
-        if bypass { assert!(fs::read(&target)?.starts_with(b"%PDF-")); } else {
+        if bypass {
+            assert!(fs::read(&target)?.starts_with(b"%PDF-"));
+        } else {
             assert_eq!(result.pointer("/result/file/reason"), Some(&json!("proxy")));
             assert!(!target.exists());
         }
-        assert!(listener.accept().is_err(), "refused publisher request reached proxy");
+        assert!(
+            listener.accept().is_err(),
+            "refused publisher request reached proxy"
+        );
     }
     Ok(())
 }

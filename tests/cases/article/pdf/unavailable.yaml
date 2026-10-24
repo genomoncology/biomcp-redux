@@ -16,7 +16,7 @@
       "is_error": true,
       "expect": {
         "/result/file/state": "unavailable",
-        "/result/file/reason": "bad_reply"
+        "/result/file/reason": "unavailable"
       }
     }
   ]
