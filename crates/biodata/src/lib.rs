@@ -72,4 +72,4 @@ pub use markdown::Markdown;
 pub use query::ArticleEdges;
 pub use response::{ArticleEdgePage, Citations};
 
-pub use response::{Health, SourceHealth};
+pub use response::{Health, HttpHealth, SourceHealth};

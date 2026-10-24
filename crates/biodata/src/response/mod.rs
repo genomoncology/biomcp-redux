@@ -49,4 +49,4 @@ pub use article_sections::{
 };
 
 mod health;
-pub use health::{Health, SourceHealth};
+pub use health::{Health, HttpHealth, SourceHealth};

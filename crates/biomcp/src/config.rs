@@ -8,10 +8,19 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    http: Option<Http>,
     disable_sources: Option<Vec<String>>,
     ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
     keys: Option<Keys>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Http {
+    allowed_hosts: Vec<String>,
+}
+pub(crate) fn http_hosts() -> Result<Vec<String>, ()> {
+    Ok(read_file()?.and_then(|file| file.http).map(|http| http.allowed_hosts).unwrap_or_default())
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

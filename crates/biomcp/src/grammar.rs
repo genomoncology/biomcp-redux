@@ -26,6 +26,7 @@ pub(crate) struct Parsed {
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
+    pub(crate) http: Option<(String, Vec<String>)>,
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
@@ -121,7 +122,9 @@ fn root() -> Result<Command, ()> {
                     .subcommand(Command::new("article")),
             ),
     );
-    Ok(root.subcommand(Command::new("serve")))
+    Ok(root.subcommand(Command::new("serve")
+        .arg(Arg::new("http").long("http").num_args(0..=1).default_missing_value("127.0.0.1:8080"))
+        .arg(Arg::new("allow-host").long("allow-host").action(ArgAction::Append).requires("http"))))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;
@@ -149,6 +152,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
+            http: matches.get_one::<String>("http").map(|address| (address.clone(),
+                matches.get_many::<String>("allow-host").into_iter().flatten().cloned().collect())),
             action: None,
             globals,
             help: None,
@@ -193,6 +198,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     };
     Ok(Parsed {
+        http: None,
         action: Some(action),
         globals,
         help,

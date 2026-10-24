@@ -36,3 +36,14 @@ pub struct SourceHealth {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub latency_ms: Option<u64>,
 }
+
+/// Local HTTP service health, independent of every upstream source.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct HttpHealth {
+    /// Executable version.
+    pub version: Text,
+    /// Whether the owned transport and query store opened within the health budget.
+    pub store: bool,
+}
