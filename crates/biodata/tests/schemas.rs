@@ -129,8 +129,8 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
         Contig => ("contig", "biodata.contig/1"),
     };
-    contracts.extend(variant_contracts());
     contracts.extend(common_registry());
+    contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts
 }
@@ -141,6 +141,12 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/1"),
         VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
+        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
+        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
+        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
     }

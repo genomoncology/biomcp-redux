@@ -35,6 +35,9 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/1",
+        Request::VariantNormalize(_) => "biodata.variant-normalize/1",
+        Request::SearchVariant(_) => "biodata.variant-search/1",
+        Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/1",
         Request::GetVariant(_) => "biodata.variant-get/1",
         Request::TrialDocument(_) => "biodata.trial-document/1",
         Request::GetTrial(_) => "biodata.trial-get/1",
@@ -69,6 +72,13 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "variant", "biodata.variant-get/1"),
     ("variant", "assertions", "biodata.variant-assertions/1"),
     ("variant", "population", "biodata.variant-population/1"),
+    ("search", "variant", "biodata.variant-search/1"),
+    (
+        "variant",
+        "recurrence",
+        "biodata.variant-recurrence-query/1",
+    ),
+    ("variant", "normalize", "biodata.variant-normalize/1"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
@@ -469,6 +479,17 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("variant", "population") => {
             serde_json::from_value::<biodata::VariantPopulationQuery>(value)
                 .map(Request::VariantPopulation)
+                .map_err(|_| ())
+        }
+        ("variant", "normalize") => serde_json::from_value::<biodata::VariantNormalize>(value)
+            .map(Request::VariantNormalize)
+            .map_err(|_| ()),
+        ("search", "variant") => serde_json::from_value::<biodata::VariantSearch>(value)
+            .map(Request::SearchVariant)
+            .map_err(|_| ()),
+        ("variant", "recurrence") => {
+            serde_json::from_value::<biodata::VariantRecurrenceQuery>(value)
+                .map(Request::VariantRecurrence)
                 .map_err(|_| ())
         }
         ("get", "variant") => serde_json::from_value::<biodata::VariantGet>(value)

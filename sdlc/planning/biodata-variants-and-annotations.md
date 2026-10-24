@@ -6,7 +6,7 @@ The plan covers three crates:
 
 - **BioMCP biodata**, this repo's `crates/biodata`, including the variant identity work on its open ticket branch.
 - **The projecting crate**, the other consumer's `biodata`. It holds the HGVS grammar and its parsed form, alteration and cytogenetic notation, coordinates and an allele key. Its sibling crate holds normalization, projection and the annotation readers.
-- **The standalone crate**, the public `biodata` repository. It is the likely merge home.
+- **The standalone crate**, the public `biodata` repository.
 
 ## 1. What each crate has today
 
@@ -64,7 +64,7 @@ Conflicts 1, 2, 3 and 6 change public JSON or public Rust names, so each one cos
 
 ## 3. The common model
 
-The model follows GA4GH VRS 2.x for alleles, GA4GH Cat-VRS 1.x for protein-level and compound subjects, and GA4GH VA-Spec 1.x for statements. It follows HGVS 21.1 for notation and NCBI SPDI for the interbase allele form. It keeps the existing crates' conventions for Rust names, snake_case JSON, checked newtypes and versioned schemas. Section 6 asks Ian about one choice here, the native wire spelling.
+The model follows GA4GH VRS 2.x for alleles, GA4GH Cat-VRS 1.x for protein-level and compound subjects, and GA4GH VA-Spec 1.x for statements. It follows HGVS 21.1 for notation and NCBI SPDI for the interbase allele form. It keeps the existing crates' conventions for Rust names, snake_case JSON, checked newtypes and versioned schemas. Ian chose snake_case as the native wire spelling (section 5).
 
 ### 3.1 Sequence references and coordinates
 
@@ -139,7 +139,7 @@ The projecting crate's normalized view extends this with `AlleleKey` and its pro
 
 ### 3.6 Annotations as statements
 
-Every variant assertion whose source classification belongs to a proposition this model defines becomes one `Statement`. A statement never merges two sources and never maps one framework onto another. A source classification outside those propositions, such as ClinVar's drug response, risk factor, protective, affects, association, association not found, confers sensitivity, other or not provided, stays in the consumer's native source record with its label, IDs, domain, condition, review status, dates and provenance, and carries `statement_unmapped: true` instead of a `Statement`. A new proposition for such labels needs both PMs' agreement before either crate builds it.
+Every variant assertion whose source classification belongs to a proposition this model defines becomes one `Statement`. A statement never merges two sources and never maps one framework onto another. A source classification outside those propositions, such as ClinVar's drug response, risk factor, protective, affects, association, association not found, confers sensitivity, other or not provided, stays in the consumer's native source record with its label, IDs, domain, condition, review status, dates and provenance, and carries `statement_unmapped: true` instead of a `Statement`. The same holds for a source row whose subject the model cannot reference without inventing an identifier, such as an OncoKB implication's alteration group, which carries no source profile record. A new proposition or subject kind for such rows needs both PMs' agreement before either crate builds it.
 
 ```text
 Statement {
@@ -161,7 +161,7 @@ Statement {
 
 | Type | Fields and wire form | Rule | Standard |
 | --- | --- | --- | --- |
-| `VariantRef` | Internally tagged by `"level"`: `allele` with `id` or `hgvs`; `protein` with `gene` and `hgvs` or `label`; `profile` with `record`, `label` and member refs | A reference by ID and label, never an embedded entity. A protein-level claim such as BRAF V600E never becomes a genomic allele. A compound profile stays a profile | Cat-VRS `CategoricalVariant`, its protein-consequence recipe, and CIViC molecular profiles |
+| `VariantRef` | Internally tagged by `"level"`: `allele` with `id` or `hgvs`; `protein` with `gene` and `hgvs` or `label`; `profile` with `record`, `label` and member refs, each an `allele` or `protein` ref; a profile never contains a profile | A reference by ID and label, never an embedded entity. A protein-level claim such as BRAF V600E never becomes a genomic allele. A compound profile stays a profile | Cat-VRS `CategoricalVariant`, its protein-consequence recipe, and CIViC molecular profiles |
 | `Proposition` | `pathogenicity`, `oncogenicity`, `clinical_significance`, `therapeutic_response`, `diagnostic`, `prognostic`, `functional_impact` | `#[non_exhaustive]` | VA-Spec proposition classes |
 | `Predicate` | snake_case forms of the VA-Spec predicates, such as `is_causal_for`, `predicts_sensitivity_to`, `predicts_resistance_to` | Confirm the full list against VA-Spec 1.1 when coded | VA-Spec |
 | `Direction` | `supports`, `disputes`, `neutral` | CIViC `DOES_NOT_SUPPORT` maps to `disputes` | VA-Spec `direction` |
@@ -244,41 +244,14 @@ BioMCP's variant identity branch changes before it lands: the allele strings bec
 12. **Public text.** Shared types and docs name no consumer project.
 13. **Legacy writers.** A writer that must reproduce an existing product's output byte for byte, including its nulls, empty rows and chromosome prefixes, is outside rules 2, 5 and 8 of this list and outside section 3.8. The shared types feed it; its output keeps the legacy shape.
 14. **Lenient chromosome input.** A crate may accept provider spellings such as `chr7`, `M` or `23` in one adapter helper that returns a `Chromosome`. The `Chromosome` type itself parses only its canonical spellings.
+15. **Biodata holds every reusable value type.** Identifiers, coordinates, transcripts, exons, alignments, edit kinds, MANE status, liftover results, VCF sites, consequence kinds, gene identity, population frequency, source records such as a ClinVar record, protein features, protein changes and fixed standards such as the genetic code live in biodata. Biodata does no I/O and no data lookup.
+16. **Neutral shapes.** No biodata type is shaped by an index file format, a database or ORM layout, or one API's response. Each adapter, index codec or product writer translates between its format and the neutral type, and product-specific spellings live in that application as tables over neutral values.
+17. **One name per concept.** When both crates have a concept, they share one name and the union of fields, and any difference in meaning is settled in this plan before code lands, never by a second type. The crate that introduces a concept first names it: BioMCP's `HgncId`, `EntrezGeneId`, `OmimId`, `EnsemblGeneId`, `RefSeqTranscript`, `EnsemblTranscript`, `ManeSelect`, `PopulationFrequency`, `VariantId` and `Statement`; the projecting crate's ISCN and alteration grammar, `Transcript`, `Exon`, CIGAR alignment, consequence kind, `ProteinChange`, and the typed `RsId`, `CaId`, `VcvId`, `RcvId`, `ScvId` and `CosmicId`. `VariantId` is the enum over those typed identifiers, each variant wrapping its newtype.
+18. **Entity versus reference.** A full entity record and a reference to it are different types: `Gene` is the full gene record and `GeneRef` carries only identifiers and a label, as `VariantRef` does for variants. Consequence kinds use Sequence Ontology terms and IDs.
 
-## 5. Merge path
+## 5. Merge and wire style
 
-**Triggers.** The merge starts when all of these hold:
+Ian ruled on 2026-10-24:
 
-- Both crates pass the shared fixtures with the types in section 3.
-- BioMCP 1.0 has shipped, so its wire contract is fixed.
-- One team needs a part the other owns as a dependency rather than a copy, or Ian asks.
-
-**Steps.**
-
-1. The two PMs compare the copied modules file by file and settle each difference against this plan.
-2. The shared core moves into the merge home as one change: identifiers, coordinates, alleles, notation, statements, the fixtures and their schemas. The merge home is section 6's first question.
-3. Each project replaces its copy with a dependency on the merged crate at an exact version and deletes the copy in the same change.
-4. Consumer contracts stay with their consumers. BioMCP's `query` and `response` modules stay in BioMCP. The projecting crate's projection views stay with it.
-5. VRS digest computation and VA-Spec export land in the merged crate after the move, behind features, with VRS and VA-Spec example files as fixtures.
-
-## 6. Questions only Ian can answer
-
-**1. Where the merged crate lives.**
-- (a) The standalone public `biodata` repository. Its rules change to allow serde derives on core types, generated schemas and schema versions. Its opaque variant values are replaced.
-- (b) A new public crate. The standalone repository stays as it is or retires.
-- (c) One of the two working crates becomes the public crate.
-
-Recommendation: (a). The repository is public, already carries the name, and already holds HGVS and source work. The cost is a rule change in that repository, which is a ruling conflict with its "nothing we own is versioned" rule, and replacing its variant values with this model.
-
-**2. The native wire spelling.**
-- (a) snake_case fields as in section 3, with VRS and VA-Spec camelCase JSON as an export after the merge.
-- (b) VRS and VA-Spec camelCase JSON as the native form now.
-
-Recommendation: (a). Both crates and every BioMCP schema already use snake_case. VA-Spec renamed fields between 1.0 and 1.1 in October 2026, so a native GA4GH wire would break when the standard moves. The model keeps the GA4GH structure, so the export is a fixed field map. The cost is one export module after the merge.
-
-**3. What starts the merge.**
-- (a) The triggers in section 5.
-- (b) A fixed point now, before either crate ships more variant types.
-- (c) Only when Ian asks.
-
-Recommendation: (a). Merging before BioMCP 1.0 ships would move a wire contract that is still changing. Merging much later lets the copies drift. The shared fixtures and the rules in section 4 keep the cost of waiting small. The cost of (a) is keeping the copies aligned until then.
+- **Merge.** Ian decides when and where the crates merge, after both projects are done. Neither team plans or proposes the merge. The likely home is a new public crate without commit history. Until then each team keeps its own crate and follows this plan.
+- **Wire style.** JSON field names stay snake_case as in section 3. A GA4GH VRS and VA-Spec export, which uses camelCase, can be added later as a fixed field map.

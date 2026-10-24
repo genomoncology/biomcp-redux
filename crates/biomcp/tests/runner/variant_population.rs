@@ -57,7 +57,7 @@ fn empty_gwas(_: &str) -> Result<String, String> {
 fn population() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
-        "application/json",
+        |_| "application/json",
         population_body,
     )?;
     let env = environment(&stub)?;
@@ -152,7 +152,7 @@ fn execute(env: &Environment, args: &[&str]) -> Result<Value, String> {
 fn population_mismatch() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
-        "application/json",
+        |_| "application/json",
         mismatched_body,
     )?;
     let env = environment(&stub)?;
@@ -190,7 +190,7 @@ fn mismatched_body(request: &str) -> Result<String, String> {
 fn unjoinable() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
-        "application/json",
+        |_| "application/json",
         indel_body,
     )?;
     let env = environment(&stub)?;

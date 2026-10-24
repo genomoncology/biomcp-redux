@@ -41,12 +41,68 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
-    let query = request_query(request)?;
-    let mut args = vec![
+    let query = query_value(request)?;
+    let mut args = command_words(request);
+    let positional = fields(&schema, &query, &mut args);
+    if positional.iter().any(|arg| arg.starts_with('-')) {
+        args.push("--".into());
+        args.extend(positional);
+    } else {
+        args.splice(2..2, positional);
+    }
+    Ok(args)
+}
+
+fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
+    match request {
+        Request::VariantAssertions(query) => serde_json::to_value(query),
+        Request::VariantPopulation(query) => serde_json::to_value(query),
+        Request::VariantRecurrence(query) => serde_json::to_value(query),
+        Request::SearchVariant(query) => serde_json::to_value(query),
+        Request::VariantNormalize(query) => serde_json::to_value(query),
+        Request::GetVariant(query) => serde_json::to_value(query),
+        Request::TrialDocument(query) => serde_json::to_value(query),
+        Request::GetTrial(query) => serde_json::to_value(query),
+        Request::SearchTrial(query) => serde_json::to_value(query),
+        Request::ArticlePdf(query) => serde_json::to_value(query),
+        Request::ArticleEvidence(query) => serde_json::to_value(query),
+        Request::ArticleRecommend(query) => serde_json::to_value(query),
+        Request::ArticleSupplement(query) => serde_json::to_value(query),
+        Request::ArticleText(query) => serde_json::to_value(query),
+        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
+            serde_json::to_value(query)
+        }
+        Request::GetArticle(query) => serde_json::to_value(query),
+        Request::SearchArticle(query) => serde_json::to_value(query),
+        Request::GetGene(query) => serde_json::to_value(query),
+        Request::SearchGene(query) => serde_json::to_value(query),
+    }
+}
+
+fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
+    let item = property.get("items").unwrap_or(&Value::Null);
+    let item = item
+        .get("$ref")
+        .and_then(Value::as_str)
+        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
+        .unwrap_or(item);
+    query
+        .get("input")
+        .and_then(Value::as_array)
+        .is_some_and(|inputs| {
+            inputs.iter().any(|input| {
+                item.get("enum")
+                    .and_then(Value::as_array)
+                    .is_some_and(|words| words.contains(input))
+            })
+        })
+}
+
+fn command_words(request: &Request) -> Vec<String> {
+    vec![
         match request {
-            Request::VariantAssertions(_) => "variant",
+            Request::VariantAssertions(_) | Request::VariantPopulation(_) | Request::VariantRecurrence(_) | Request::VariantNormalize(_) => "variant",
             Request::TrialDocument(_) => "trial",
-            Request::VariantPopulation(_) => "variant",
             Request::ArticlePdf(_)
             | Request::ArticleEvidence(_)
             | Request::ArticleRecommend(_)
@@ -58,18 +114,25 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchTrial(_) | Request::SearchGene(_) | Request::SearchArticle(_) => {
-                "search"
-            }
+            Request::SearchVariant(_)
+            | Request::SearchTrial(_)
+            | Request::SearchGene(_)
+            | Request::SearchArticle(_) => "search",
         }
         .into(),
         if matches!(request, Request::VariantPopulation(_)) {
             "population"
+        } else if matches!(request, Request::VariantAssertions(_)) {
+            "assertions"
+        } else if matches!(request, Request::VariantRecurrence(_)) {
+            "recurrence"
+        } else if matches!(request, Request::VariantNormalize(_)) {
+            "normalize"
         } else if matches!(request, Request::TrialDocument(_)) {
             "document"
         } else if matches!(request, Request::SearchTrial(_)) {
             "trial"
-        } else if matches!(request, Request::GetVariant(_)) {
+        } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
             "variant"
         } else if matches!(request, Request::ArticlePdf(_)) {
             "pdf"
@@ -93,34 +156,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             "gene"
         }
         .into(),
-    ];
-    let positional = fields(&schema, &query, &mut args);
-    if positional.iter().any(|arg| arg.starts_with('-')) {
-        args.push("--".into());
-        args.extend(positional);
-    } else {
-        args.splice(2..2, positional);
-    }
-    Ok(args)
-}
-
-fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
-    let item = property.get("items").unwrap_or(&Value::Null);
-    let item = item
-        .get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
-        .unwrap_or(item);
-    query
-        .get("input")
-        .and_then(Value::as_array)
-        .is_some_and(|inputs| {
-            inputs.iter().any(|input| {
-                item.get("enum")
-                    .and_then(Value::as_array)
-                    .is_some_and(|words| words.contains(input))
-            })
-        })
+    ]
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {
@@ -189,27 +225,4 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     }
     positional.extend(trailing);
     positional
-}
-
-fn request_query(request: &Request) -> Result<Value, serde_json::Error> {
-    Ok(match request {
-        Request::VariantAssertions(query) => serde_json::to_value(query)?,
-        Request::VariantPopulation(query) => serde_json::to_value(query)?,
-        Request::GetVariant(query) => serde_json::to_value(query)?,
-        Request::TrialDocument(query) => serde_json::to_value(query)?,
-        Request::GetTrial(query) => serde_json::to_value(query)?,
-        Request::SearchTrial(query) => serde_json::to_value(query)?,
-        Request::ArticlePdf(query) => serde_json::to_value(query)?,
-        Request::ArticleEvidence(query) => serde_json::to_value(query)?,
-        Request::ArticleRecommend(query) => serde_json::to_value(query)?,
-        Request::ArticleSupplement(query) => serde_json::to_value(query)?,
-        Request::ArticleText(query) => serde_json::to_value(query)?,
-        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
-            serde_json::to_value(query)?
-        }
-        Request::GetArticle(query) => serde_json::to_value(query)?,
-        Request::SearchArticle(query) => serde_json::to_value(query)?,
-        Request::GetGene(query) => serde_json::to_value(query)?,
-        Request::SearchGene(query) => serde_json::to_value(query)?,
-    })
 }
