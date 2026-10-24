@@ -27,6 +27,9 @@ impl super::ResponseBody for VariantCard {
 pub struct VariantHeader {
     /// Source-qualified variant entity.
     pub identity: Variant,
+    /// Checked caller ID used by a source-only section, without asserting resolved identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requested: Option<crate::VariantId>,
     /// Source responsible for this identity.
     pub source: Source,
     /// Exact source record, including source keys that are expressions rather than identifiers.
@@ -36,11 +39,13 @@ pub struct VariantHeader {
     pub myvariant: Option<Variant>,
     /// Explicitly requested source sections for this exact candidate.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sections: Option<VariantSections>,
+    pub sections: Option<Box<VariantSections>>,
 }
 crate::macros::wire_enum! {
     /// Identity resolution preserves candidates and source validation outcomes.
     VariantResolution {
+        /// Checked source selector whose allele identity was not requested.
+        Unresolved=>"unresolved",
         /// One checked provider identity.
         Resolved => "resolved",
         /// Several provider identities; none was selected.
@@ -59,6 +64,9 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
+    /// Explicit keyed OncoKB source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
     /// Explicit clinvar source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clinvar: Option<crate::Section<crate::VariantAssertions>>,

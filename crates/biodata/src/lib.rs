@@ -12,11 +12,12 @@ pub use query::{
 };
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
+pub use response::HotspotMembership;
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
-    HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice, VariantCivic,
-    VariantHotspots,
+    CivicStatement, HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice,
+    VariantCivic, VariantHotspots,
 };
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
@@ -26,6 +27,7 @@ pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
 };
+pub use response::{CivicClaimPage, CivicMember};
 mod response;
 mod source;
 mod text;
@@ -92,7 +94,7 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver, VariantSection};
+pub use query::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
@@ -172,8 +174,13 @@ pub use response::{
     VariantAssertion, VariantAssertions,
 };
 pub use variant::{
-    CosmicRecord, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
-    VariantPredictors,
+    CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorScore, VariantComponent,
+    VariantConservation, VariantCosmic, VariantPredictors,
 };
 
 pub use response::{OncokbVariantRecord, VariantOncokb};
+pub use variant::PopulationFrequency;
+
+pub use response::VariantPopulationResult;
+
+pub use response::GwasTrait;
