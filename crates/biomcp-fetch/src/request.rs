@@ -362,20 +362,45 @@ impl Leg<'_> {
             recording,
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
-        let wire = Wire { fetched,status,content_type,body,retry_after };
-        if recording { self.record_wire(prepared,codec,&wire,started).map_err(local)?; }
+        let wire = Wire {
+            fetched,
+            status,
+            content_type,
+            body,
+            retry_after,
+        };
+        if recording {
+            self.record_wire(prepared, codec, &wire, started)
+                .map_err(local)?;
+        }
         Ok(wire)
     }
-    fn record_wire<T: Reply>(&self, prepared: &Prepared, codec: &Decoder<T>, wire: &Wire, started: Instant) -> Result<(), crate::RecordError> {
+    fn record_wire<T: Reply>(
+        &self,
+        prepared: &Prepared,
+        codec: &Decoder<T>,
+        wire: &Wire,
+        started: Instant,
+    ) -> Result<(), crate::RecordError> {
         let exchange = Exchange {
             fetched: wire.fetched,
             status: wire.status,
             content_type: wire.content_type.clone(),
-            body: if codec.binary() { Body::Bytes(wire.body.clone()) } else { Body::capture(wire.body.clone())? },
+            body: if codec.binary() {
+                Body::Bytes(wire.body.clone())
+            } else {
+                Body::capture(wire.body.clone())?
+            },
             delay_ms: crate::record::millis(started.elapsed())?,
             retry_after_ms: wire.retry_after.map(crate::record::millis).transpose()?,
         };
-        self.fetch.recordings.append(self.spec.source,&prepared.identity,&prepared.url,prepared.post.as_ref(),exchange)
+        self.fetch.recordings.append(
+            self.spec.source,
+            &prepared.identity,
+            &prepared.url,
+            prepared.post.as_ref(),
+            exchange,
+        )
     }
 
     fn read_body(

@@ -153,5 +153,7 @@ impl<'a> CommandDeadline<'a> {
 pub struct LocalDeadline(Instant);
 impl LocalDeadline {
     /// Whether the parsing budget has been exhausted.
-    pub fn expired(self) -> bool { Instant::now() >= self.0 }
+    pub fn expired(self) -> bool {
+        Instant::now() >= self.0
+    }
 }

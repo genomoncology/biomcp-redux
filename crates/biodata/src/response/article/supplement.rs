@@ -62,7 +62,7 @@ pub struct SheetRow {
     pub header: Box<[String]>,
     /// This row's cells, including empty cells before populated columns.
     pub cells: Box<[String]>,
-    /// Character offset of this row fragment in flattened cell text.
+    /// Sparse source cell fragment when the complete row exceeds the output bound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fragment: Option<CellFragment>,
 }

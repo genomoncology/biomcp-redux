@@ -4,11 +4,12 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Inclusive original one-based row range, at most one page.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct SheetRows(pub u32, pub u32);
+pub struct SheetRows(u32, u32);
 impl FromStr for SheetRows {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Error> {
         let (a, b) = s.split_once('-').ok_or(Error::ArticleIdInvalid)?;
+        if [a,b].iter().any(|v| v.starts_with('0') || !v.bytes().all(|c| c.is_ascii_digit())) { return Err(Error::ArticleIdInvalid); }
         let a: u32 = a.parse().map_err(|_| Error::ArticleIdInvalid)?;
         let b: u32 = b.parse().map_err(|_| Error::ArticleIdInvalid)?;
         if a == 0 || b < a || b - a >= 200 {
@@ -16,6 +17,12 @@ impl FromStr for SheetRows {
         }
         Ok(Self(a, b))
     }
+}
+impl SheetRows {
+    /// Inclusive first original row number.
+    pub fn start(&self) -> u32 { self.0 }
+    /// Inclusive last original row number.
+    pub fn end(&self) -> u32 { self.1 }
 }
 impl fmt::Display for SheetRows {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

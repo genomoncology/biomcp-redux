@@ -453,4 +453,6 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
 mod bytes;
 
 #[test]
-fn binary_sidecars_are_ordered_and_confined() { bytes::ordered_binary_sidecars_round_trip_and_refuse_hostile_paths(); }
+fn binary_sidecars_are_ordered_and_confined() {
+    bytes::ordered_binary_sidecars_round_trip_and_refuse_hostile_paths();
+}

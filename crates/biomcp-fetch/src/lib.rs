@@ -280,7 +280,9 @@ impl Leg<'_> {
         self.deadline.bind(self.clock.as_ref())
     }
     /// Bind the source leg's remaining budget for cooperative local parsing.
-    pub fn local_deadline(&self) -> LocalDeadline { self.budget().local() }
+    pub fn local_deadline(&self) -> LocalDeadline {
+        self.budget().local()
+    }
     /// Return this source leg's remaining real or virtual budget.
     pub fn remaining(&self) -> Duration {
         self.budget().remaining()

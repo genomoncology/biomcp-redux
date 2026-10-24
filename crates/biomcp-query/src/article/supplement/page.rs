@@ -45,30 +45,7 @@ pub(super) fn select(
     end: LocalDeadline,
 ) -> Result<bool, Reason> {
     if query.rows().is_none() && selected.is_empty() {
-        content.sheets = Some(
-            sheets
-                .iter()
-                .filter_map(|s| {
-                    Some(SheetInfo {
-                        name: Text::new(&s.name).ok()?,
-                        rows: s.rows.last().map_or(0, |r| r.number),
-                    })
-                })
-                .collect(),
-        );
-        if let Some(first) = sheets.first()
-            && let Ok(name) = Text::new(&first.name)
-        {
-            out.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::ArticleSupplement(
-                        query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
-                    ),
-                    fresh: false,
-                },
-            ));
-        }
+        overview(query,sheets,content,out);
         return Ok(true);
     }
     if query.rows().is_some()
@@ -103,7 +80,7 @@ pub(super) fn select(
                 return Err(Reason::DeadlineExceeded);
             }
             let included = if let Some(range) = query.rows() {
-                row.number >= range.0 && row.number <= range.1
+                row.number >= range.start() && row.number <= range.end()
             } else {
                 row.cells
                     .iter()
@@ -202,4 +179,31 @@ fn chunks(value: &str) -> Vec<String> {
         chunks.push(chunk);
     }
     chunks
+}
+
+fn overview(query:&ArticleSupplement,sheets:&[sheet::Sheet],content:&mut SupplementContent,out:&mut Outcome) {
+        content.sheets = Some(
+            sheets
+                .iter()
+                .filter_map(|s| {
+                    Some(SheetInfo {
+                        name: Text::new(&s.name).ok()?,
+                        rows: s.rows.last().map_or(0, |r| r.number),
+                    })
+                })
+                .collect(),
+        );
+        if let Some(first) = sheets.first()
+            && let Ok(name) = Text::new(&first.name)
+        {
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::ArticleSupplement(
+                        query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
+                    ),
+                    fresh: false,
+                },
+            ));
+        }
 }

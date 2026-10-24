@@ -69,7 +69,10 @@ pub(super) fn select(
     Ok(out)
 }
 /// Download only a previously intersected readable bucket file.
-#[expect(clippy::disallowed_types, reason = "Retain one parsed binary reply across its checked cache admission callback")]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Retain one parsed binary reply across its checked cache admission callback"
+)]
 pub fn download(
     leg: &Leg<'_>,
     file: &Supplement,

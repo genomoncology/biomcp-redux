@@ -15,7 +15,14 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let spec = spec(&server);
-    let capture = Fetch::open(FetchConfig {mode:Mode::Record {dir:dir.path().to_owned()},max_body:2,..FetchConfig::default()}).unwrap();
+    let capture = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: dir.path().to_owned(),
+        },
+        max_body: 2,
+        ..FetchConfig::default()
+    })
+    .unwrap();
     thread::scope(|scope| {
         let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
         for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
@@ -37,7 +44,9 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     let path = json_file(dir.path());
     let original = std::fs::read(&path).unwrap();
     let original_value: serde_json::Value = serde_json::from_slice(&original).unwrap();
-    let name = original_value.pointer("/exchanges/0/body/value").unwrap()
+    let name = original_value
+        .pointer("/exchanges/0/body/value")
+        .unwrap()
         .as_str()
         .unwrap();
     for hostile in [

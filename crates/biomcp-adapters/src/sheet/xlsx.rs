@@ -2,9 +2,7 @@ use super::{LIMITS, Row, Sheet, check};
 use biodata::Reason;
 use biomcp_fetch::LocalDeadline;
 use calamine::Reader;
-use std::{
-    io::{Cursor, Read, Seek, SeekFrom},
-};
+use std::io::{Cursor, Read, Seek, SeekFrom};
 struct Guarded<'a> {
     cursor: Cursor<&'a [u8]>,
     end: LocalDeadline,

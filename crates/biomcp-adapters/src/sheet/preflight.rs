@@ -2,9 +2,7 @@
 use super::{LIMITS, check};
 use biodata::Reason;
 use biomcp_fetch::LocalDeadline;
-use std::{
-    io::{Cursor, Read},
-};
+use std::io::{Cursor, Read};
 fn number(bytes: &[u8], at: usize, len: usize) -> Result<usize, Reason> {
     let mut n = 0usize;
     for (shift, b) in bytes
