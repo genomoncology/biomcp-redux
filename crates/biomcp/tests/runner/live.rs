@@ -10,7 +10,6 @@ use std::{
 };
 const MAX_CASES: usize = 1024;
 const RUN_BUDGET: Duration = Duration::from_secs(3600);
-const PACE: Duration = Duration::from_secs(2);
 
 pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
     let mut changes = Vec::new();
@@ -67,9 +66,6 @@ pub(crate) fn run() -> Result<Value, String> {
             Ok(changes) => json!({"case": name, "drift": changes}),
             Err(error) => json!({"case": name, "error": error}),
         });
-        // The existing limiter handles requests within a command. No new child
-        // starts until a full keyless interval follows the preceding child's exit.
-        std::thread::sleep(PACE);
     }
     Ok(
         json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "cases": results}),
@@ -121,7 +117,9 @@ fn check(
             }
             let (expected, before) = invoke(&baseline, &args.0, Some(&replay), ordinal)?;
             let (actual, after) = invoke(&live, &args.1, None, ordinal)?;
-            std::thread::sleep(PACE);
+            std::thread::sleep(Duration::from_millis(
+                after.iter().map(|o| o.interval_ms).max().unwrap_or(0),
+            ));
             if expected.get("status") != actual.get("status") {
                 changes.push("status changed from recorded result".into());
             }

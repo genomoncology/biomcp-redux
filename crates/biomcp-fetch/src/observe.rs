@@ -92,6 +92,8 @@ pub struct Observation {
     pub status: Option<u16>,
     /// Received bytes.
     pub bytes: u64,
+    /// Nominal keyless interval from the same shared quota declaration.
+    pub interval_ms: u64,
     /// Wire duration in milliseconds.
     pub elapsed_ms: u64,
     /// Bounded raw response shape.
@@ -148,6 +150,8 @@ impl crate::Leg<'_> {
                 source: self.spec.source,
                 status,
                 bytes: body.len() as u64,
+                interval_ms: u64::try_from(self.spec.quota.interval(false).as_millis())
+                    .unwrap_or(u64::MAX),
                 elapsed_ms: u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX),
                 shape: Shape::inspect(body, media),
             });
