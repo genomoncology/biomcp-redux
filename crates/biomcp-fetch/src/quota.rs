@@ -58,10 +58,6 @@ impl Rate {
         assert!(per_second > 0 && burst > 0, "zero rate or burst");
         Self { per_second, burst }
     }
-
-    fn interval(self) -> Duration {
-        Duration::from_nanos(1_000_000_000u64.div_ceil(u64::from(self.per_second)))
-    }
 }
 
 /// One provider limit shared by every source declaring its key.
@@ -121,7 +117,28 @@ struct Limiter {
 struct State {
     queue: VecDeque<Arc<()>>,
     in_flight: u8,
-    next: Option<Instant>,
+    updated: Option<Instant>,
+    credit: u128,
+}
+
+// Nanosecond token units retain exact rates across credential changes.
+const TOKEN: u128 = 1_000_000_000;
+
+impl State {
+    fn available(&self, rate: Rate, now: Instant) -> u128 {
+        let capacity = u128::from(rate.burst) * TOKEN;
+        self.updated
+            .map(|last| {
+                self.credit
+                    .saturating_add(
+                        now.duration_since(last)
+                            .as_nanos()
+                            .saturating_mul(u128::from(rate.per_second)),
+                    )
+                    .min(capacity)
+            })
+            .unwrap_or(capacity)
+    }
 }
 
 impl Limiter {
@@ -139,8 +156,6 @@ impl Limiter {
         } else {
             self.quota.rate
         };
-        let interval = rate.interval();
-        let burst = interval * u32::from(rate.burst - 1);
         let ticket = Arc::new(());
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
         state.queue.push_back(ticket.clone());
@@ -151,15 +166,18 @@ impl Limiter {
                 return None;
             }
             let now = Instant::now();
-            let delay = state
-                .next
-                .map(|next| next.saturating_duration_since(now).saturating_sub(burst))
-                .unwrap_or_default();
+            let available = state.available(rate, now);
+            // Missing credit is at most one token, so this fits in a u64.
+            let nanos = TOKEN
+                .saturating_sub(available)
+                .div_ceil(u128::from(rate.per_second));
+            let delay = Duration::from_nanos(nanos as u64);
             let head = state.queue.front().is_some_and(|v| Arc::ptr_eq(v, &ticket));
             if head && state.in_flight < self.quota.in_flight && delay.is_zero() {
                 state.queue.pop_front();
                 state.in_flight += 1;
-                state.next = Some(state.next.unwrap_or(now).max(now) + interval);
+                state.credit = available - TOKEN;
+                state.updated = Some(now);
                 self.wake.notify_all();
                 drop(state);
                 return Some(Permit(self));
