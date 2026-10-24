@@ -6,6 +6,9 @@ type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("runner/null-and-empty-boundaries", || {
+            boundaries().map_err(Into::into)
+        }),
         Trial::test("runner/rejects-bad-cases", || {
             negatives().map_err(Into::into)
         }),
@@ -257,4 +260,33 @@ pub(crate) fn environment_probe() -> std::process::ExitCode {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(_) => std::process::ExitCode::FAILURE,
     }
+}
+
+// Schemas have no null-valued fields or empty arrays, so these traversal states
+// need one direct boundary table. All other assertion proof uses schema commands.
+fn boundaries() -> Check {
+    let rows = [
+        ("null", "{'': null}", None),
+        ("null", "{'/missing': null}", Some("<missing>")),
+        ("null", "{'/*': []}", Some("wildcard requires an array")),
+        ("[]", "{'': {equals: [], count: 0}}", None),
+        ("[]", "{'': {includes: null}}", Some("expected member null")),
+        ("[]", "{'/*': {equals: [], count: 0}}", Some("empty wildcard selection")),
+        ("[null]", "{'/*': [null]}", None),
+        ("[[]]", "{'/*/*': []}", Some("empty wildcard selection")),
+        ("[{\"x\":null},{}]", "{'/*/x': [null]}", Some("<missing>")),
+        ("[{\"x\":null},{\"x\":[]}]", "{'/*/x/*': []}", Some("wildcard requires an array")),
+    ];
+    for (stdout, expect, error) in rows {
+        let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
+            .map_err(|error| error.to_string())?;
+        let assertions = super::assertions::prepare(&step)?;
+        let result = super::assertions::check(stdout.as_bytes(), &step, &assertions);
+        match (result, error) {
+            (Ok(()), None) => (),
+            (Err(actual), Some(expected)) if actual.contains(expected) => (),
+            (actual, expected) => return Err(format!("{stdout}, {expect}: expected {expected:?}, actual {actual:?}")),
+        }
+    }
+    Ok(())
 }

@@ -83,15 +83,22 @@ fn run_case(path: &Path) -> Result<(), String> {
     if case.story.trim().is_empty() || case.steps.is_empty() {
         return Err("case requires a story and at least one step".into());
     }
+    let expectations = case.steps.iter().enumerate().map(|(index, step)| {
+        assertions::prepare(step).map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
+    }).collect::<Result<Vec<_>, _>>()?;
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
-    for (index, step) in case.steps.iter().enumerate() {
-        run_step(step, &environment)
+    for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
+        run_step(step, &environment, expectations)
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
     }
     Ok(())
 }
 
-fn run_step(step: &Step, environment: &launch::Environment) -> Result<(), String> {
+fn run_step(
+    step: &Step,
+    environment: &launch::Environment,
+    expectations: &assertions::Expectations<'_>,
+) -> Result<(), String> {
     let output = environment
         .command(env!("CARGO_BIN_EXE_biomcp"), &step.run)
         .output()
@@ -110,5 +117,5 @@ fn run_step(step: &Step, environment: &launch::Environment) -> Result<(), String
     {
         return Err("error output: expected empty stdout and fixed diagnostic".into());
     }
-    assertions::check(&output.stdout, step)
+    assertions::check(&output.stdout, step, expectations)
 }

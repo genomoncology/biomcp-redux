@@ -2,6 +2,10 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
         ("unknown", "    expect: {'/type': {equal: string}}", "unknown assertion operator equal"),
         ("empty-operators", "    expect: {'/type': {}}", "assertion object requires an operator"),
+        ("object-equality-explicit", "    expect: {'/type': {type: string}}", "unknown assertion operator type"),
+        ("nested-wildcard-missing", "  - run: [schema, biodata.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': []}", "actual <missing>"),
+        ("count-fraction", "    expect: {'/enum': {count: 1.5}}", "count requires a nonnegative integer"),
+        ("rank-negative", "    expect: {'/enum': {rank_of: {hgnc: -1}}}", "rank_of requires positive integer ranks"),
         ("count-negative", "    expect: {'/enum': {count: -1}}", "count requires a nonnegative integer"),
         ("count-range", "    expect: {'/enum': {count: {min: 1}}}", "count requires a nonnegative integer"),
         ("rank-shape", "    expect: {'/enum': {rank_of: [hgnc]}}", "rank_of requires a nonempty object"),
