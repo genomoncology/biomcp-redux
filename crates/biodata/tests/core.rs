@@ -3,31 +3,36 @@ use biodata::{Error, Problem, ProblemCode, Reason, Source, Text};
 use serde::{Serialize, de::DeserializeOwned};
 use std::{fmt::Debug, str::FromStr};
 
-fn canonical_names<T>(rows: &[(T, &str)], error: Error)
+type Check = Result<(), Box<dyn std::error::Error>>;
+
+fn canonical_names<T>(rows: &[(T, &str)], error: Error) -> Check
 where
     T: Copy + Debug + Eq + FromStr<Err = Error> + ToString + Serialize + DeserializeOwned,
 {
     for &(value, name) in rows {
         assert_eq!(value.to_string(), name);
-        assert_eq!(name.parse::<T>().unwrap(), value);
-        let json = serde_json::to_string(&value).unwrap();
+        assert_eq!(name.parse::<T>()?, value);
+        let json = serde_json::to_string(&value)?;
         assert_eq!(json, format!("\"{name}\""));
-        assert_eq!(serde_json::from_str::<T>(&json).unwrap(), value);
+        assert_eq!(serde_json::from_str::<T>(&json)?, value);
     }
     for input in ["", " ", "distinctive-rejected-input", "HGNC", " hgnc "] {
-        let parsed = input.parse::<T>().unwrap_err();
+        let parsed = input.parse::<T>().err().ok_or("accepted an unknown name")?;
         assert_eq!(parsed, error);
         assert!(!parsed.to_string().contains("distinctive-rejected-input"));
         assert!(!format!("{parsed:?}").contains("distinctive-rejected-input"));
-        let json = serde_json::to_string(input).unwrap();
-        let decoded = serde_json::from_str::<T>(&json).unwrap_err();
+        let json = serde_json::to_string(input)?;
+        let decoded = serde_json::from_str::<T>(&json)
+            .err()
+            .ok_or("decoded an unknown name")?;
         assert!(decoded.to_string().contains(error.code()));
         assert!(!decoded.to_string().contains("distinctive-rejected-input"));
     }
+    Ok(())
 }
 
 #[test]
-fn source_names_round_trip_and_reject_unknown_names() {
+fn source_names_round_trip_and_reject_unknown_names() -> Check {
     canonical_names(
         &[
             (Source::Hgnc, "hgnc"),
@@ -39,12 +44,13 @@ fn source_names_round_trip_and_reject_unknown_names() {
             (Source::Civic, "civic"),
         ],
         Error::SourceUnknown,
-    );
+    )?;
     assert_eq!(Error::SourceUnknown.code(), "source.unknown");
+    Ok(())
 }
 
 #[test]
-fn reason_names_round_trip_and_reject_unknown_names() {
+fn reason_names_round_trip_and_reject_unknown_names() -> Check {
     canonical_names(
         &[
             (Reason::NotFound, "not_found"),
@@ -60,17 +66,19 @@ fn reason_names_round_trip_and_reject_unknown_names() {
             (Reason::Syncing, "syncing"),
         ],
         Error::ReasonUnknown,
-    );
+    )?;
     assert_eq!(Error::ReasonUnknown.code(), "reason.unknown");
+    Ok(())
 }
 
 #[test]
-fn problem_codes_round_trip_and_reject_unknown_codes() {
+fn problem_codes_round_trip_and_reject_unknown_codes() -> Check {
     canonical_names(
         &[(ProblemCode::ValueUnknown, "value.unknown")],
         Error::ProblemCodeUnknown,
-    );
+    )?;
     assert_eq!(Error::ProblemCodeUnknown.code(), "problem_code.unknown");
+    Ok(())
 }
 
 #[test]
