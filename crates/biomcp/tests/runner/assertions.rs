@@ -29,15 +29,26 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                 match operator.as_str() {
                     "equals" => assertions.push(Assertion::Equals(expected)),
                     "includes" => assertions.push(Assertion::Includes(expected)),
-                    "count" => assertions.push(Assertion::Count(integer(pointer, operator, expected)?)),
-                    "max_bytes" => assertions.push(Assertion::MaxBytes(integer(pointer, operator, expected)?)),
-                    "max_tokens" => assertions.push(Assertion::MaxTokens(integer(pointer, operator, expected)?)),
+                    "count" => {
+                        assertions.push(Assertion::Count(integer(pointer, operator, expected)?))
+                    }
+                    "max_bytes" => {
+                        assertions.push(Assertion::MaxBytes(integer(pointer, operator, expected)?))
+                    }
+                    "max_tokens" => {
+                        assertions.push(Assertion::MaxTokens(integer(pointer, operator, expected)?))
+                    }
                     "rank_of" => {
-                        let ranks = expected.as_object().filter(|ranks| !ranks.is_empty())
-                            .ok_or_else(|| format!("{pointer}: rank_of requires a nonempty object"))?;
+                        let ranks = expected
+                            .as_object()
+                            .filter(|ranks| !ranks.is_empty())
+                            .ok_or_else(|| {
+                                format!("{pointer}: rank_of requires a nonempty object")
+                            })?;
                         for (member, rank) in ranks {
-                            let rank = rank.as_u64().filter(|rank| *rank > 0)
-                                .ok_or_else(|| format!("{pointer}: rank_of requires positive integer ranks"))?;
+                            let rank = rank.as_u64().filter(|rank| *rank > 0).ok_or_else(|| {
+                                format!("{pointer}: rank_of requires positive integer ranks")
+                            })?;
                             assertions.push(Assertion::RankOf(member, rank));
                         }
                     }
@@ -50,7 +61,9 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
 }
 
 fn integer(pointer: &str, operator: &str, value: &Value) -> Result<u64, String> {
-    value.as_u64().ok_or_else(|| format!("{pointer}: {operator} requires a nonnegative integer"))
+    value
+        .as_u64()
+        .ok_or_else(|| format!("{pointer}: {operator} requires a nonnegative integer"))
 }
 
 fn validate_pointer(pointer: &str) -> Result<(), String> {
@@ -66,17 +79,31 @@ fn validate_pointer(pointer: &str) -> Result<(), String> {
     Ok(())
 }
 
-pub(super) fn check(stdout: &[u8], step: &Step, expectations: &Expectations<'_>) -> Result<(), String> {
-    ceiling("stdout", "max_bytes", stdout.len(), step.max_bytes.map(|v| v as u64))?;
+pub(super) fn check(
+    stdout: &[u8],
+    step: &Step,
+    expectations: &Expectations<'_>,
+) -> Result<(), String> {
+    ceiling(
+        "stdout",
+        "max_bytes",
+        stdout.len(),
+        step.max_bytes.map(|v| v as u64),
+    )?;
     if expectations.is_empty() && step.max_tokens.is_none() {
         return Ok(());
     }
-    let value: Value = serde_json::from_slice(stdout).map_err(|error| format!("stdout JSON: {error}"))?;
-    ceiling("stdout", "max_tokens", size(&value)?.div_ceil(4), step.max_tokens.map(|v| v as u64))?;
+    let value: Value =
+        serde_json::from_slice(stdout).map_err(|error| format!("stdout JSON: {error}"))?;
+    ceiling(
+        "stdout",
+        "max_tokens",
+        size(&value)?.div_ceil(4),
+        step.max_tokens.map(|v| v as u64),
+    )?;
     for (pointer, expected, assertions) in expectations {
-        let actual = select(&value, pointer).map_err(|error| {
-            format!("{pointer}: expected {expected}, actual {error}")
-        })?;
+        let actual = select(&value, pointer)
+            .map_err(|error| format!("{pointer}: expected {expected}, actual {error}"))?;
         for assertion in assertions {
             assertion.check(pointer, &actual)?;
         }
@@ -92,7 +119,10 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
         for node in nodes {
             if token == "*" {
                 wildcard = true;
-                next.extend(node.as_array().ok_or_else(|| format!("{node}; wildcard requires an array"))?);
+                next.extend(
+                    node.as_array()
+                        .ok_or_else(|| format!("{node}; wildcard requires an array"))?,
+                );
             } else {
                 next.push(node.pointer(&format!("/{token}")).ok_or("<missing>")?);
             }
@@ -105,7 +135,10 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
     if wildcard {
         Ok(Value::Array(nodes.into_iter().cloned().collect()))
     } else {
-        nodes.first().map(|node| (*node).clone()).ok_or_else(|| "<missing>".into())
+        nodes
+            .first()
+            .map(|node| (*node).clone())
+            .ok_or_else(|| "<missing>".into())
     }
 }
 
@@ -117,7 +150,9 @@ impl Assertion<'_> {
                 if array(pointer, "includes", actual)?.contains(expected) {
                     Ok(())
                 } else {
-                    Err(format!("{pointer} includes: expected member {expected}, actual {actual}"))
+                    Err(format!(
+                        "{pointer} includes: expected member {expected}, actual {actual}"
+                    ))
                 }
             }
             Self::Count(expected) => equal(
@@ -126,25 +161,42 @@ impl Assertion<'_> {
                 &Value::from(array(pointer, "count", actual)?.len()),
             ),
             Self::RankOf(member, expected) => {
-                let rank = array(pointer, "rank_of", actual)?.iter()
-                    .position(|value| value.as_str() == Some(member)).map(|index| index + 1);
+                let rank = array(pointer, "rank_of", actual)?
+                    .iter()
+                    .position(|value| value.as_str() == Some(member))
+                    .map(|index| index + 1);
                 match rank {
-                    Some(rank) => equal(&format!("{pointer} rank_of {member}"), &Value::from(*expected), &Value::from(rank)),
-                    None => Err(format!("{pointer} rank_of {member}: expected {expected}, actual <missing> in {actual}")),
+                    Some(rank) => equal(
+                        &format!("{pointer} rank_of {member}"),
+                        &Value::from(*expected),
+                        &Value::from(rank),
+                    ),
+                    None => Err(format!(
+                        "{pointer} rank_of {member}: expected {expected}, actual <missing> in {actual}"
+                    )),
                 }
             }
             Self::MaxBytes(limit) => ceiling(pointer, "max_bytes", size(actual)?, Some(*limit)),
-            Self::MaxTokens(limit) => ceiling(pointer, "max_tokens", size(actual)?.div_ceil(4), Some(*limit)),
+            Self::MaxTokens(limit) => ceiling(
+                pointer,
+                "max_tokens",
+                size(actual)?.div_ceil(4),
+                Some(*limit),
+            ),
         }
     }
 }
 
 fn array<'a>(pointer: &str, operator: &str, actual: &'a Value) -> Result<&'a Vec<Value>, String> {
-    actual.as_array().ok_or_else(|| format!("{pointer} {operator}: expected an array, actual {actual}"))
+    actual
+        .as_array()
+        .ok_or_else(|| format!("{pointer} {operator}: expected an array, actual {actual}"))
 }
 
 fn size(value: &Value) -> Result<usize, String> {
-    serde_json::to_vec(value).map(|bytes| bytes.len()).map_err(|error| error.to_string())
+    serde_json::to_vec(value)
+        .map(|bytes| bytes.len())
+        .map_err(|error| error.to_string())
 }
 
 fn equal(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> {
@@ -157,7 +209,9 @@ fn equal(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> 
 
 fn ceiling(pointer: &str, key: &str, actual: usize, limit: Option<u64>) -> Result<(), String> {
     if let Some(limit) = limit.filter(|limit| actual as u64 > *limit) {
-        return Err(format!("{pointer} {key}: expected <= {limit}, actual {actual}"));
+        return Err(format!(
+            "{pointer} {key}: expected <= {limit}, actual {actual}"
+        ));
     }
     Ok(())
 }

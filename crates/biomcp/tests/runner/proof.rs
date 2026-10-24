@@ -271,11 +271,19 @@ fn boundaries() -> Check {
         ("null", "{'/*': []}", Some("wildcard requires an array")),
         ("[]", "{'': {equals: [], count: 0}}", None),
         ("[]", "{'': {includes: null}}", Some("expected member null")),
-        ("[]", "{'/*': {equals: [], count: 0}}", Some("empty wildcard selection")),
+        (
+            "[]",
+            "{'/*': {equals: [], count: 0}}",
+            Some("empty wildcard selection"),
+        ),
         ("[null]", "{'/*': [null]}", None),
         ("[[]]", "{'/*/*': []}", Some("empty wildcard selection")),
         ("[{\"x\":null},{}]", "{'/*/x': [null]}", Some("<missing>")),
-        ("[{\"x\":null},{\"x\":[]}]", "{'/*/x/*': []}", Some("wildcard requires an array")),
+        (
+            "[{\"x\":null},{\"x\":[]}]",
+            "{'/*/x/*': []}",
+            Some("wildcard requires an array"),
+        ),
     ];
     for (stdout, expect, error) in rows {
         let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
@@ -285,7 +293,11 @@ fn boundaries() -> Check {
         match (result, error) {
             (Ok(()), None) => (),
             (Err(actual), Some(expected)) if actual.contains(expected) => (),
-            (actual, expected) => return Err(format!("{stdout}, {expect}: expected {expected:?}, actual {actual:?}")),
+            (actual, expected) => {
+                return Err(format!(
+                    "{stdout}, {expect}: expected {expected:?}, actual {actual:?}"
+                ));
+            }
         }
     }
     Ok(())

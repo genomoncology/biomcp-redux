@@ -83,9 +83,15 @@ fn run_case(path: &Path) -> Result<(), String> {
     if case.story.trim().is_empty() || case.steps.is_empty() {
         return Err("case requires a story and at least one step".into());
     }
-    let expectations = case.steps.iter().enumerate().map(|(index, step)| {
-        assertions::prepare(step).map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
-    }).collect::<Result<Vec<_>, _>>()?;
+    let expectations = case
+        .steps
+        .iter()
+        .enumerate()
+        .map(|(index, step)| {
+            assertions::prepare(step)
+                .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         run_step(step, &environment, expectations)
