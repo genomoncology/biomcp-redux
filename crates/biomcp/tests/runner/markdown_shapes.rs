@@ -20,7 +20,7 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene", "BRAF"],
         replies: "gene/main",
-        required: &["# BRAF", "**status:**", "biomcp get gene BRAF"],
+        required: &["# BRAF", "**status:**", "biomcp get gene HGNC:1097"],
         max_bytes: 2382,
     },
     Shape {
@@ -35,7 +35,7 @@ const SHAPES: &[Shape] = &[
         required: &[
             "| Symbol | Name | Hgnc id | Location | Status |",
             "KRAS",
-            "biomcp get gene KRAS",
+            "biomcp get gene HGNC:6407",
         ],
         max_bytes: 592,
     },
