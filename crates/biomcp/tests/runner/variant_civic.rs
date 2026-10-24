@@ -16,9 +16,12 @@ pub(super) fn trials() -> Vec<Trial> {
             poisoned().map_err(Into::into)
         }),
         Trial::test(
-            "variant/civic-graphql-errors-with-data-stay-unavailable",
+            "variant/civic-graphql-errors-retain-valid-uncached-facts",
             || graphql_errors().map_err(Into::into),
         ),
+        Trial::test("variant/civic-native-cursor-must-progress", || {
+            stalled_cursor().map_err(Into::into)
+        }),
         Trial::test(
             "variant/civic-compound-profile-retains-all-native-members",
             || compound().map_err(Into::into),
@@ -380,10 +383,12 @@ fn graphql_errors() -> Result<(), String> {
     let (environment, source) = source_environment(error_body)?;
     for _ in 0..2 {
         let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
-        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply"))
+        if value.pointer("/result/candidates/0/sections/civic/data/profiles/0/membership") != Some(&json!("exact"))
+            || value.get("status") != Some(&json!("partial"))
+            || value.pointer("/problems/0/field") != Some(&json!("graphql.errors"))
         {
             return Err(format!(
-                "GraphQL partial error data was presented as complete evidence: {value}"
+                "GraphQL partial error lost valid facts or its partial notice: {value}"
             ));
         }
     }
@@ -398,5 +403,27 @@ fn error_body(request: &str) -> Result<String, String> {
         "errors".into(),
         json!([{"message":"synthetic source error"}]),
     );
+    Ok(raw.to_string())
+}
+
+fn stalled_cursor() -> Result<(), String> {
+    let (environment, source) = source_environment(stalled_body)?;
+    for cursor in ["synthetic-e1", "empty"] {
+        let value = run(&environment, &["get", "variant", "CA123643", "civic", "--civic-profile", "12", "--civic-kind", "evidence", "--civic-cursor", cursor])?;
+        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply")) {
+            return Err(format!("nonprogressing native stream emitted evidence or a repeating action: {value}"));
+        }
+    }
+    source.finish()?;
+    Ok(())
+}
+fn stalled_body(request: &str) -> Result<String, String> {
+    let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
+    let base = "/data/molecularProfiles/nodes/0/evidenceItems";
+    *raw.pointer_mut(&format!("{base}/pageInfo/hasNextPage")).ok_or("page flag")? = json!(true);
+    if request.contains("\"evidence_after\":\"empty\"") {
+        *raw.pointer_mut(&format!("{base}/nodes")).ok_or("nodes")? = json!([]);
+        *raw.pointer_mut(&format!("{base}/pageInfo/endCursor")).ok_or("cursor")? = Value::Null;
+    }
     Ok(raw.to_string())
 }
