@@ -206,7 +206,7 @@ fn next(query: &VariantGet, resolution: VariantResolution, candidates: &[Variant
         for row in candidates {
             if let Ok(input) = row.identity.key.as_str().parse()
                 && let Ok(q) =
-                    VariantGet::new(input, query.resolver(), Some(biodata::Build::Grch37))
+                    VariantGet::new(input, query.resolver(), row.identity.representations.iter().find_map(|r| r.assembly.as_ref().and_then(|a| a.as_str().parse().ok())).or(query.build()))
             {
                 next.push((
                     StepKind::Disambiguate,

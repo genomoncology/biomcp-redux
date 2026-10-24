@@ -48,8 +48,8 @@ pub(super) struct Coordinate {
 }
 impl Reply for Allele {
     fn check(&self) -> Result<(), BadReply> {
-        if self.error_type.is_some() && self.id.is_none() {
-            return Ok(());
+        if let Some(code) = &self.error_type {
+            return if self.id.is_none() && code.as_str().len() <= 128 && code.as_str().bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_') { Ok(()) } else { Err(BadReply) };
         }
         let key = self
             .id
