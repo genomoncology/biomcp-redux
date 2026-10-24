@@ -123,8 +123,14 @@ impl Leg<'_> {
         let fresh = entry.fresh_until > now();
         if entry.status == 404 {
             if fresh {
-                self.observed(key, Some(404), 0, crate::Shape::default(), std::time::Duration::ZERO,
-                    std::any::type_name::<T>(), true);
+                self.observed(
+                    key,
+                    Some(404),
+                    0,
+                    crate::Shape::default(),
+                    std::time::Duration::ZERO,
+                    (std::any::type_name::<T>(), true),
+                );
             }
             return Ok(fresh.then_some(Checked::Absent));
         }
@@ -143,9 +149,14 @@ impl Leg<'_> {
                 .into());
         }
         if self.fetch.config.observations.is_some() {
-            self.observed(key, Some(entry.status), 0,
-                crate::Shape::inspect(&entry.body, codec.name()), std::time::Duration::ZERO,
-                std::any::type_name::<T>(), true);
+            self.observed(
+                key,
+                Some(entry.status),
+                0,
+                crate::Shape::inspect(&entry.body, codec.name()),
+                std::time::Duration::ZERO,
+                (std::any::type_name::<T>(), true),
+            );
         }
         Ok(Some(Checked::Positive(reply, fresh, entry.fetched_at)))
     }

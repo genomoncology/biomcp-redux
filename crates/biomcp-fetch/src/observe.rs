@@ -185,8 +185,7 @@ impl crate::Leg<'_> {
                 body.len() as u64,
                 Shape::inspect(body, media),
                 elapsed,
-                "bundle",
-                false,
+                ("bundle", false),
             );
         }
     }
@@ -219,8 +218,7 @@ impl crate::Leg<'_> {
             body.len() as u64,
             Shape::inspect(header, media),
             elapsed,
-            "bundle",
-            false,
+            ("bundle", false),
         );
     }
     pub(crate) fn observed(
@@ -230,14 +228,13 @@ impl crate::Leg<'_> {
         bytes: u64,
         shape: Shape,
         elapsed: std::time::Duration,
-        role: &str,
-        cached: bool,
+        context: (&str, bool),
     ) {
         if let Some(sink) = &self.fetch.config.observations {
             sink.push(&Observation {
                 identity: identity.iter().map(|byte| format!("{byte:02x}")).collect(),
-                role: role.to_owned(),
-                cached,
+                role: context.0.to_owned(),
+                cached: context.1,
                 source: self.spec.source,
                 status,
                 bytes,

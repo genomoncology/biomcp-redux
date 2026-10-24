@@ -269,13 +269,23 @@ impl Leg<'_> {
         elapsed: Duration,
     ) {
         let (status, body, media) = match exchange {
-            Ok(response) => (Some(response.status), response.body.as_slice(), response.content_type.as_str()),
+            Ok(response) => (
+                Some(response.status),
+                response.body.as_slice(),
+                response.content_type.as_str(),
+            ),
             Err(Failure::Local(RequestError::Source(error))) => (error.status, &[][..], ""),
             Err(_) => (None, &[][..], ""),
         };
         if self.fetch.config.observations.is_some() {
-            self.observed(&prepared.identity, status, body.len() as u64,
-                crate::Shape::inspect(body, media), elapsed, std::any::type_name::<T>(), false);
+            self.observed(
+                &prepared.identity,
+                status,
+                body.len() as u64,
+                crate::Shape::inspect(body, media),
+                elapsed,
+                (std::any::type_name::<T>(), false),
+            );
         }
     }
 

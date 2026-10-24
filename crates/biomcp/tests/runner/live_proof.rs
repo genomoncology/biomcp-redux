@@ -241,7 +241,7 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     response_cases::copy_capture("gene/main", &retry, |source, record| {
         if source == "mygene" {
             if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
-                let mut error = exchanges[0].clone();
+                let Some(mut error) = exchanges.first().cloned() else { return };
                 error["status"] = json!(429);
                 error["body"] = json!({"kind": "json", "value": {"error": "retry", "count": 2}});
                 error["retry_after_ms"] = json!(0);
@@ -251,37 +251,103 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     })?;
     let before = observe(&env, &retry, "retry-before", &["get", "gene", "KRAS"])?;
     let after = observe(&env, &original, "retry-after", &["get", "gene", "KRAS"])?;
-    if !before.iter().any(|item| item.status == Some(429)) { return Err("retry witness absent".into()); }
+    if !before.iter().any(|item| item.status == Some(429)) {
+        return Err("retry witness absent".into());
+    }
     let mut changes = Vec::new();
     let mut sources = BTreeMap::new();
     live::compare(&before, &after, &mut changes, &mut sources);
-    if !changes.is_empty() { return Err(format!("successful retry caused false drift: {changes:?}").into()); }
+    if !changes.is_empty() {
+        return Err(format!("successful retry caused false drift: {changes:?}").into());
+    }
     // Changed result pools alter identities without removing the endpoint contract.
     let mut dynamic = after.clone();
-    for item in &mut dynamic { item.identity = format!("different-{}", item.identity); }
+    for item in &mut dynamic {
+        item.identity = format!("different-{}", item.identity);
+    }
     live::compare(&after, &dynamic, &mut changes, &mut BTreeMap::new());
-    if !changes.iter().all(|item| item.contains("request-plan-changed")) || changes.is_empty() {
+    if !changes
+        .iter()
+        .all(|item| item.contains("request-plan-changed"))
+        || changes.is_empty()
+    {
         return Err(format!("request plan mislabeled: {changes:?}").into());
     }
     changes.clear();
     let mut failed = after.clone();
-    failed[0].status = Some(503);
+    failed.first_mut().ok_or("missing real observation")?.status = Some(503);
     live::compare(&after, &failed, &mut changes, &mut BTreeMap::new());
-    if !changes.iter().any(|item| item.contains("Some(200) -> Some(503)")) { return Err("real HTTP status drift hidden".into()); }
+    if !changes
+        .iter()
+        .any(|item| item.contains("Some(200) -> Some(503)"))
+    {
+        return Err("real HTTP status drift hidden".into());
+    }
+    report_context(&after)?;
+    cache_reuse(&env, &original, &after)?;
+    Ok(())
+}
+fn cache_reuse(env: &Environment, original: &Path, after: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
     // Reuse the actual warmed checked cache with networking refused.
     let cache = env.root().join("explicit-cache");
     let cache_arg = cache.to_str().ok_or("cache path")?;
-    observe(&env, &original, "warm", &["get", "gene", "KRAS", "--case-cache", cache_arg])?;
+    observe(
+        &env,
+        &original,
+        "warm",
+        &["get", "gene", "KRAS", "--case-cache", cache_arg],
+    )?;
     let report = env.root().join("cached.jsonl");
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &[
-        "get".into(), "gene".into(), "KRAS".into(), "--offline".into(),
-        "--case-cache".into(), cache_arg.into(), "--observe".into(), report.display().to_string(),
-    ]).output()?;
-    if !output.status.success() { return Err("warm offline cache failed".into()); }
-    let cached: Vec<Observation> = fs::read_to_string(report)?.lines().map(serde_json::from_str).collect::<Result<_, _>>()?;
-    if cached.is_empty() || !cached.iter().all(|item| item.cached) { return Err("cache reuse not observed".into()); }
-    changes.clear();
-    live::compare(&after, &cached, &mut changes, &mut BTreeMap::new());
-    if !changes.is_empty() { return Err(format!("cache reuse caused false drift: {changes:?}").into()); }
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &[
+                "get".into(),
+                "gene".into(),
+                "KRAS".into(),
+                "--offline".into(),
+                "--case-cache".into(),
+                cache_arg.into(),
+                "--observe".into(),
+                report.display().to_string(),
+            ],
+        )
+        .output()?;
+    if !output.status.success() {
+        return Err("warm offline cache failed".into());
+    }
+    let cached: Vec<Observation> = fs::read_to_string(report)?
+        .lines()
+        .map(serde_json::from_str)
+        .collect::<Result<_, _>>()?;
+    if cached.is_empty() || !cached.iter().all(|item| item.cached) {
+        return Err("cache reuse not observed".into());
+    }
+    let mut changes = Vec::new();
+    live::compare(after, &cached, &mut changes, &mut BTreeMap::new());
+    if !changes.is_empty() {
+        return Err(format!("cache reuse caused false drift: {changes:?}").into());
+    }
+    Ok(())
+}
+
+fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
+    let mut changes = Vec::new();
+    let evidence = live::command_report(3, &json!({"status": "found"}), &json!({"status": "not_found"}), observed, observed, &mut changes, &mut BTreeMap::new());
+    if evidence.get("ordinal") != Some(&json!(3)) || evidence.get("before_status") != Some(&json!("found"))
+        || evidence.get("after_status") != Some(&json!("not_found")) || evidence.pointer("/exchanges/items/0/role").and_then(Value::as_str).is_none_or(str::is_empty)
+        || evidence.pointer("/exchanges/items/0/before_statuses/values").is_none() {
+        return Err(format!("bounded command context missing: {evidence}").into());
+    }
+    let cases = vec![json!({"case": "changed-status", "result": {"drift": changes, "commands": [evidence]}})];
+    let report = live::summary(cases, BTreeMap::new(), 0, true);
+    if report.get("drift_cases") != Some(&json!(1)) || report.pointer("/case_sample/0/result/commands/0/ordinal") != Some(&json!(3)) { return Err("full report lost status context".into()); }
+    let first = observed.first().ok_or("missing observation")?;
+    let many: Vec<_> = (0..40).map(|index| {
+        let mut item = first.clone(); item.identity = format!("request-{index}"); item
+    }).collect();
+    changes = Vec::new();
+    let evidence = live::compare(&many, &[], &mut changes, &mut BTreeMap::new());
+    if evidence.get("omitted") != Some(&json!(8)) || !changes.last().is_some_and(|item| item.contains("omitted")) { return Err("truncation is hidden".into()); }
     Ok(())
 }
