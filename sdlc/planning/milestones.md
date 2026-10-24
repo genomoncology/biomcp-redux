@@ -38,7 +38,7 @@ Done when: every command and option in these entities has a harvested case, and 
 
 ## 5. Parity and history
 
-Delivers: the parity run over both binaries, generated reference docs, a short hand-written guide, the recipes drawn from harvested cases, the release pipeline reused from 0.9, and the history replacement.
+Delivers: the parity run over both binaries, generated reference docs, a short hand-written guide, the recipes drawn from harvested cases, the release pipeline reused from 0.9, a release gate that compares schemas with the last released copy, and the history replacement.
 
 Serves: users move from 0.9 to 1.0 without losing an answer they rely on.
 
