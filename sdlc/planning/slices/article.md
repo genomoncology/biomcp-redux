@@ -391,8 +391,8 @@ A source applies a filter itself or not at all. BioMCP never filters a source's 
 | `--sort date` | most recently added | newest first | no | no | no | no |
 | `--open-access` | `"pubmed pmc open access"[filter]` | `OPEN_ACCESS:y` | no | no | no | `openAccessPdf`, which means a public PDF |
 | `--no-preprints` | `NOT preprint[pt]` | `NOT SRC:PPR` | no | no | no | no |
-| `--exclude-retracted` (default) | `NOT retracted publication[pt]` | `NOT PUB_TYPE:"retracted publication"` | no | no | no | no |
-| `--include-retracted` | no clause | no clause | yes | yes | yes | yes |
+| `--exclude-retracted` | `NOT retracted publication[pt]` | `NOT PUB_TYPE:"retracted publication"` | no | no | no | no |
+| `--include-retracted` (the default) | no clause | no clause | yes | yes | yes | yes |
 
 Semantic Scholar documents `publicationTypes`, `venue` and `publicationDateOrYear` filters. Ticket 0042 maps only the year range and refuses the rest until a recorded reply shows each one's behavior.
 
@@ -402,12 +402,12 @@ Semantic Scholar documents `publicationTypes`, `venue` and `publicationDateOrYea
 
 - `--open-access` keeps papers that a source marks open. PubMed's filter `"pubmed pmc open access"[filter]` keeps papers in the PMC open access subset: "AKT1 E17K" gave 66 of 192 on 2026-10-24, where `free full text[sb]` gave 123. Europe PMC's field is `OPEN_ACCESS:y`. Semantic Scholar's `openAccessPdf` keeps papers with a public PDF, and help says so.
 - `--no-preprints` drops preprints. PubMed types them `preprint[pt]`: "AKT1 E17K" gave 189 with `NOT preprint[pt]`, leaving out 41415395, 40585122 and 38328122. Europe PMC marks preprints with source `PPR`.
-- `--exclude-retracted` is the default, as it was in 0.9 (0.9 `src/cli/article/dispatch.rs:187` sets `exclude_retracted` unless `--include-retracted` is given). PubMed types a retracted paper `retracted publication[pt]`: "AKT1 E17K" gave 190 with `NOT retracted publication[pt]`, leaving out 22505016 and 20068047. A retraction notice carries another type and stays.
-- `--include-retracted` sends no clause, so the term is the plain words.
+- `--exclude-retracted` leaves out retracted papers. It is an explicit filter like the others. PubMed types a retracted paper `retracted publication[pt]`: "AKT1 E17K" gave 190 with `NOT retracted publication[pt]`, leaving out 22505016 and 20068047. A retraction notice carries another type and stays.
+- `--include-retracted` is accepted and does nothing, because search includes retracted papers by default.
 
-The default exclusion changes the default term. A default search sends `<words> NOT retracted publication[pt]`, echoes that term, and its floor is PubMed's relevance list for that echoed term. So that the agent still learns what was left out, PubMed's outcome carries a notice `retracted_excluded` with the count of retracted papers that match the words, from one ESearch with `retmax=0` of about 0.2 s, and `next` holds the same search with `--include-retracted` when that count is above zero. A card still flags a retracted paper and names its notice.
+Search includes retracted papers by default and sends no retraction clause, so the default term stays the plain words and the floor stays plain PubMed. 0.9 left them out by default (0.9 `src/cli/article/dispatch.rs:187` sets `exclude_retracted` unless `--include-retracted` is given). That default hid from the agent that a paper it holds was retracted, and it moved the default away from the plain PubMed floor. 1.0 keeps retracted papers visible instead: each header and card types a retracted paper `retracted_publication`, and the card names its retraction notice in `corrections`.
 
-An explicit filter that a named source cannot apply is `unsupported_filter`, as for every filter. The default exclusion is not an explicit filter: a named source that cannot apply it runs unfiltered, and its outcome carries the notice `retracted_not_excluded`. Europe PMC's fields were not checked live on 2026-10-24, because its search answered 503 all day; ticket 0053 checks them before landing.
+An explicit filter that a named source cannot apply is `unsupported_filter`, as for every filter, and `--exclude-retracted` follows the same rule. Europe PMC's fields were not checked live on 2026-10-24, because its search answered 503 all day; ticket 0053 checks them before landing.
 
 #### Pools and pages
 
@@ -450,8 +450,8 @@ The query echo holds the ordered sources, the sort and the exact term each sourc
 --open-access   only papers a source marks open; pubmed: PMC open access subset;
                 europepmc: OPEN_ACCESS; semantic-scholar: has a public PDF
 --no-preprints  leave out preprints; pubmed and europepmc only
---exclude-retracted  the default; leave out retracted papers where the source can
---include-retracted  keep retracted papers; cards still flag them
+--exclude-retracted  leave out retracted papers; sources that cannot are a usage error
+--include-retracted  the default; headers and cards flag retracted papers
 ```
 
 #### How the design prevents each 0.9 retrieval failure
@@ -475,7 +475,7 @@ The query echo holds the ordered sources, the sort and the exact term each sourc
 | A variant named only in a supplementary table (31) | `article supplement --find` and `article text --find` search the open full text and its supplementary files |
 | PubTator autocomplete picks another species (17), LitVar2's first hit is another change | LitVar2 hits must match gene and protein change; PubTator3 entity IDs come from human gene resolution |
 | A source failure looks empty (20) | Every named source reports its own state, and the status is partial or failed |
-| Search hides retracted papers by default (11) | The default still leaves them out, as 0.9 did, but through each source's own filter. PubMed's outcome counts what it left out, and `next` names the same search with `--include-retracted` |
+| Search hides retracted papers by default (11) | Search includes retracted papers by default, and headers and cards flag them with the retraction notice. `--exclude-retracted` leaves them out only when the agent asks |
 
 ### biodata types
 
@@ -553,7 +553,7 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 | `article text <ID> --find TEXT` | Returns the paragraphs and tables that contain the text, as Markdown, each with its part number | 25 hits per call with a page step |
 | `article text <ID> --pdf (--part N \| --find TEXT)` | The same over the `pdf` section's parts, as plain text marked `origin: pdf` | Same limits; hits name the page |
 | `article supplement <ID> <FILE>` | Without `--find`, returns the file's sheet list with each sheet's row count, and pages of rows by range with `--rows A-B` | 200 rows per page |
-| `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256 | 25 hits per call. The match is literal and ignores case |
+| `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256. The header row is the sheet's first row | 25 hits per call. The match is literal and ignores case |
 | `article supplement <ID> <FILE> --variant CHANGE`, `article text <ID> --variant CHANGE` | The same hits for any form of a protein change | `ProteinChange` parses the change, and the reply prints the forms it searched: for P245S, `P245S`, `Pro245Ser`, `p.P245S` and `p.Pro245Ser`. Each form matches literally, ignoring case |
 
 #### Body text as Markdown
@@ -599,7 +599,7 @@ On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 
 | `--disease TEXT`, `--drug TEXT` | Words | PubMed maps words to MeSH itself |
 | `--author TEXT`, `--journal TEXT` | Native field filters | Usage error for a named source that cannot apply them |
 | `--since DATE`, `--until DATE` | Native date filters | PubMed, Europe PMC and Semantic Scholar only |
-| `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted` | Native access, preprint and retraction filters | Retracted papers are excluded by default where the source can apply it |
+| `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted` | Native access, preprint and retraction filters | Retracted papers are included by default and flagged. `--exclude-retracted` leaves them out where the source can |
 | `--type TYPE` | Native publication type filters | `trial`, `randomized`, `review`, `systematic_review`, `meta_analysis`, `guideline`, `case_report` |
 | `--limit N`, `--offset N`, `--pool ID` | The shared cursor | Limit 1 to 50, default 10 |
 | `biomcp get article <INPUT>... [SECTION]...` | One card per input, in input order | PMIDs, PMCIDs, DOIs and Europe PMC IDs, up to 20. Sections `fulltext`, `supplements`, `annotations`, `citations`, `indexing`, `tldr`, `pdf`, `all`. `all` leaves out `pdf`, because `pdf` downloads up to 25 MB |
@@ -632,8 +632,8 @@ On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 
 | `--type` | Keep, change | Values from `PublicationType`, including `guideline` and `trial`. Example 16 |
 | `--open-access` | Keep, change | Native filters only: PubMed's PMC open access subset, Europe PMC `OPEN_ACCESS:y`, Semantic Scholar's public PDF. Other sources refuse it |
 | `--no-preprints` | Keep, change | Native filters only: PubMed `NOT preprint[pt]`, Europe PMC `NOT SRC:PPR` |
-| `--exclude-retracted` | Keep, change | The default, as in 0.9, applied natively. PubMed's outcome counts the papers it left out |
-| `--include-retracted` | Keep | Sends no retraction clause |
+| `--exclude-retracted` | Keep, change | No longer the default. An explicit filter, applied natively, and `unsupported_filter` where a source cannot apply it |
+| `--include-retracted` | Keep, change | The default. Accepted and does nothing |
 | `--sort` | Keep, change | `rank`, `date` and `citations`. Issue 69 |
 | `--ranking-mode` | Retired usage error | It maps to no blend: 1.0 has no score blends, as `decisions/2026-10-24-no-text-heuristics.md` rules. Each source keeps its own order |
 | `--weight-semantic` | Retired usage error | Maps to no blend. The weight was always zero |
@@ -803,7 +803,7 @@ Keyless calls from one machine, 3 or more seconds apart, retrying a 429 after 5,
 
 Every keyless endpoint answered without a key. Search and paper lookups met the shared pool's 429 most of the time, and citation, reference and recommendation calls never did on this day. The design therefore paces keyless calls at 1 every 2 seconds, retries 429 within the leg's deadline as `architecture.md` section 4.6 says, and tells the agent that the optional key raises the limit. No call in this investigation used a key, and none of these facts depends on one.
 
-Cases: no case calls Semantic Scholar live. Its cases replay keyless replies recorded once, with a 429 reply for the failure cases. Contexts are sentences from the citing papers, so recordings in the repo hold contexts only from CC BY citing papers, such as 33123537's references; other context recordings and the TLDR recordings run from outside the repo through `--cases DIR`, as abstracts do, unless the PM rules otherwise.
+Cases: no case calls Semantic Scholar live. Its cases replay keyless replies recorded once, with a 429 reply for the failure cases. Contexts are sentences from the citing papers, so recordings in the repo hold contexts only from CC BY citing papers, such as 33123537's references; other context recordings and the TLDR recordings run from outside the repo through `--cases DIR`, as abstracts do. The PDF recording also runs from outside the repo.
 
 ## 8. Outside-in cases
 
@@ -811,7 +811,7 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 
 | # | Story | Run | Expect | Ceiling |
 | --- | --- | --- | --- | --- |
-| 1 | The default is plain PubMed (PMID 33123537) | `search article "AKT1 E17K"`, walked to the end | `term` is `AKT1 E17K NOT retracted publication[pt]`; the walk equals the recorded PubMed relevance list for that echoed term, 190 PMIDs on 2026-10-24, in order, with no duplicates; `sources` is pubmed and `order` is rank; no item carries `found_by`; 33123537 in the first 10; PubMed's outcome carries `retracted_excluded` with count 2 and `next` holds the `--include-retracted` step | 7,000 bytes per page of 10 |
+| 1 | The default is plain PubMed (PMID 33123537) | `search article "AKT1 E17K"`, walked to the end | `term` is `AKT1 E17K`; the walk equals the recorded PubMed relevance list for that term, 192 PMIDs on 2026-10-24, in order, with no duplicates; `sources` is pubmed and `order` is rank; no item carries `found_by`; 33123537 in the first 10 | 7,000 bytes per page of 10 |
 | 2 | PubMed is asked the right way | the recorded requests of case 1 | one ESearch with `sort=relevance`, `retmax=9999` and `tool=biomcp`, and no `email` when none is configured; one ESummary per page read; no second ESearch | none |
 | 3 | PubMed's window | `search article "EGFR lung cancer"` | `page.truncated` true; PubMed's outcome total above 30,000; 9,999 items in the pool; status complete | 7,000 bytes |
 | 4 | Dropped words (issue 4) | `search article "xqzvw zzyzxq kinase"` | PubMed's outcome state ok with a notice naming xqzvw and zzyzxq as dropped; status complete | 7,000 bytes |
@@ -887,11 +887,11 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 74 | A find inside a table (PMID 28944238) | `article text 28944238 --find "Age at diagnosis"` | the hit names Table 1's part number and quotes its caption, its header row and the matching row as a small Markdown table | 2,000 bytes |
 | 75 | Lists, superscripts and `--format md` | `article text <ID> --part 1` on a synthetic JATS file with a list, `IC<sub>50</sub>` and a figure caption, once as JSON and once with `--format md` | list items print as `- ` lines; `IC<sub>50</sub>` survives; the caption prints as `**Figure 1.** …`; the Markdown view prints the `markdown` field unescaped | 3,000 bytes |
 | 76 | An abstract in Markdown (PMID 35440569) | `get article 35440569` | an abstract part's text holds `metabolism<sup>1-8</sup>` | 4,000 bytes |
-| 77 | Open access only | `search article "AKT1 E17K" --open-access` | `term` is `AKT1 E17K AND "pubmed pmc open access"[filter] NOT retracted publication[pt]`; total 66 on 2026-10-24; 33123537 in the first 10 | 7,000 bytes |
-| 78 | No preprints | `search article "AKT1 E17K" --no-preprints` | `term` is `AKT1 E17K NOT preprint[pt] NOT retracted publication[pt]`; total 187; 41415395, 40585122 and 38328122 absent from the walk | 7,000 bytes per page |
-| 79 | Retracted papers included | `search article "AKT1 E17K" --include-retracted` | `term` is `AKT1 E17K`; total 192; the walk holds 22505016 and 20068047, each typed retracted_publication; no `retracted_excluded` notice | 7,000 bytes per page |
-| 80 | Filters a source cannot apply | `search article --gene AKT1 --variant E17K --source pubmed,litvar --open-access`, then the same without `--open-access` | the first is a usage error with code unsupported_filter naming litvar and `--open-access`, with no request; the second runs, and LitVar2's outcome carries the notice retracted_not_excluded | 400 bytes, then 7,500 bytes |
-| 81 | Europe PMC filters, checked before landing | `search article "AKT1 E17K" --source europepmc --open-access --no-preprints` | Europe PMC's `term` holds `OPEN_ACCESS:y`, `NOT SRC:PPR` and `NOT PUB_TYPE:"retracted publication"`; the recorded total matches a live check | 7,000 bytes |
+| 77 | Open access only | `search article "AKT1 E17K" --open-access` | `term` is `AKT1 E17K AND "pubmed pmc open access"[filter]`; total 66 on 2026-10-24; 33123537 in the first 10 | 7,000 bytes |
+| 78 | No preprints | `search article "AKT1 E17K" --no-preprints` | `term` is `AKT1 E17K NOT preprint[pt]`; total 189 on 2026-10-24; 41415395, 40585122 and 38328122 absent from the walk | 7,000 bytes per page |
+| 79 | Retracted papers excluded on request | `search article "AKT1 E17K" --exclude-retracted`, then `search article "AKT1 E17K" --include-retracted` | the first has `term` `AKT1 E17K NOT retracted publication[pt]`, total 190 on 2026-10-24, and 22505016 and 20068047 absent from the walk; the second has `term` `AKT1 E17K`, total 192, and holds both, each typed retracted_publication | 7,000 bytes per page |
+| 80 | Filters a source cannot apply | `search article --gene AKT1 --variant E17K --source pubmed,litvar --open-access`, then the same with `--exclude-retracted` in place of `--open-access` | each is a usage error with code unsupported_filter naming litvar and the filter, with no request | 400 bytes each |
+| 81 | Europe PMC filters, checked before landing | `search article "AKT1 E17K" --source europepmc --open-access --no-preprints --exclude-retracted` | Europe PMC's `term` holds `OPEN_ACCESS:y`, `NOT SRC:PPR` and `NOT PUB_TYPE:"retracted publication"`; the recorded total matches a live check | 7,000 bytes |
 | 82 | A protein change that does not parse | `article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245` | usage error naming the expected form; no download | 400 bytes |
 
 Cases 44, 46 and 47 hold text under the TDM license, so their recordings stay outside the repo and run through `--cases DIR`. Cases 56, 60 and 69 also run from outside the repo: 56 and 60 hold Semantic Scholar text from papers under other licenses, and 69's recording holds a 4.8 MB PDF. Synthetic recordings are marked synthetic. Recordings that hold PubMed abstracts carry publisher text and follow the same rule unless the PM rules otherwise; the cases that need them are the card cases 31 to 35 and 39.
