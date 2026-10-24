@@ -37,3 +37,8 @@ pub use trial_get::{TrialGet, TrialSection};
 
 mod trial_document;
 pub use trial_document::TrialDocumentGet;
+
+mod protein_change;
+pub use protein_change::ProteinChange;
+mod variant_search;
+pub use variant_search::{VariantSearch, VariantSearchSource, VariantRegion};

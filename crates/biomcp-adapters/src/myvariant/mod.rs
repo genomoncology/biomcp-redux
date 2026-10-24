@@ -1,6 +1,8 @@
 //! MyVariant exact source identities and compact component-attributed facts.
 mod map;
 mod raw;
+mod search;
+pub use search::{search, SearchPage};
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};

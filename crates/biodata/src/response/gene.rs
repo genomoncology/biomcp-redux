@@ -81,6 +81,8 @@ pub enum QueryBody {
 
     /// Source-qualified variant identity.
     VariantCard(crate::VariantCard),
+    /// Native MyVariant candidate page.
+    VariantPage(crate::VariantPage),
     /// Source trial document receipt.
     TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.

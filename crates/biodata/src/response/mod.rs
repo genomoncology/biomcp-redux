@@ -65,7 +65,7 @@ pub use article::{
 };
 
 mod variant;
-pub use variant::{VariantCard, VariantHeader, VariantResolution};
+pub use variant::{VariantCard, VariantHeader, VariantResolution, VariantPage};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
 

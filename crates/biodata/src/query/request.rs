@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Read a published variant identifier.
     GetVariant(crate::VariantGet),
+    /// Discover source-native variant candidates.
+    SearchVariant(crate::VariantSearch),
     /// Save an exact registry document to an explicit destination.
     TrialDocument(crate::TrialDocumentGet),
     /// Retrieve exact trial cards and source protocol sections.
