@@ -1,14 +1,50 @@
+use super::Check;
 use std::{fs, path::Path};
 use toml::Value;
-use super::Check;
 
 // Runtime dependencies only. Test tooling has no product dependency edge.
 const LAYERS: &[(&str, &[&str])] = &[
     ("biodata", &["serde", "winnow", "schemars"]),
-    ("biomcp-fetch", &["biodata", "ureq", "rusqlite", "serde", "serde_json", "quick-xml", "sha2", "thiserror"]),
-    ("biomcp-adapters", &["biodata", "biomcp-fetch", "serde", "thiserror"]),
-    ("biomcp-query", &["biodata", "biomcp-fetch", "biomcp-adapters", "rusqlite", "serde_json", "sha2", "thiserror"]),
-    ("biomcp", &["biodata", "biomcp-fetch", "biomcp-adapters", "biomcp-query", "clap", "serde_json"]),
+    (
+        "biomcp-fetch",
+        &[
+            "biodata",
+            "ureq",
+            "rusqlite",
+            "serde",
+            "serde_json",
+            "quick-xml",
+            "sha2",
+            "thiserror",
+        ],
+    ),
+    (
+        "biomcp-adapters",
+        &["biodata", "biomcp-fetch", "serde", "thiserror"],
+    ),
+    (
+        "biomcp-query",
+        &[
+            "biodata",
+            "biomcp-fetch",
+            "biomcp-adapters",
+            "rusqlite",
+            "serde_json",
+            "sha2",
+            "thiserror",
+        ],
+    ),
+    (
+        "biomcp",
+        &[
+            "biodata",
+            "biomcp-fetch",
+            "biomcp-adapters",
+            "biomcp-query",
+            "clap",
+            "serde_json",
+        ],
+    ),
 ];
 
 fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
@@ -19,9 +55,16 @@ pub(super) fn check(root: &Path) -> Check {
     let workspace = read(&root.join("Cargo.toml"))?;
     for (name, allowed) in LAYERS {
         let path = root.join("crates").join(name).join("Cargo.toml");
-        if !path.exists() { continue; }
+        if !path.exists() {
+            continue;
+        }
         let manifest = read(&path)?;
-        if manifest.get("lints").and_then(|v| v.get("workspace")).and_then(Value::as_bool) != Some(true) {
+        if manifest
+            .get("lints")
+            .and_then(|v| v.get("workspace"))
+            .and_then(Value::as_bool)
+            != Some(true)
+        {
             return Err(format!("{}: workspace lint inheritance required", path.display()).into());
         }
         check_tables(&manifest, &workspace, allowed, &path)?;
@@ -40,7 +83,11 @@ fn check_tables(manifest: &Value, workspace: &Value, allowed: &[&str], path: &Pa
             for (alias, spec) in deps {
                 let package = package(alias, spec, workspace)?;
                 if !allowed.contains(&package) {
-                    return Err(format!("{}: forbidden {kind} dependency {alias} ({package})", path.display()).into());
+                    return Err(format!(
+                        "{}: forbidden {kind} dependency {alias} ({package})",
+                        path.display()
+                    )
+                    .into());
                 }
             }
         }
@@ -48,11 +95,20 @@ fn check_tables(manifest: &Value, workspace: &Value, allowed: &[&str], path: &Pa
     Ok(())
 }
 
-pub(super) fn package<'a>(alias: &'a str, spec: &'a Value, workspace: &'a Value) -> Result<&'a str, Box<dyn std::error::Error>> {
+pub(super) fn package<'a>(
+    alias: &'a str,
+    spec: &'a Value,
+    workspace: &'a Value,
+) -> Result<&'a str, Box<dyn std::error::Error>> {
     let spec = if spec.get("workspace").and_then(Value::as_bool) == Some(true) {
-        workspace.get("workspace").and_then(|v| v.get("dependencies")).and_then(|v| v.get(alias))
+        workspace
+            .get("workspace")
+            .and_then(|v| v.get("dependencies"))
+            .and_then(|v| v.get(alias))
             .ok_or_else(|| format!("workspace dependency {alias} is missing"))?
-    } else { spec };
+    } else {
+        spec
+    };
     Ok(spec.get("package").and_then(Value::as_str).unwrap_or(alias))
 }
 
@@ -64,7 +120,9 @@ pub(super) fn sqlite_aliases(root: &Path) -> Result<Vec<String>, Box<dyn std::er
         let manifest = read(&path)?;
         collect_sqlite(&manifest, &workspace, &mut aliases)?;
         if let Some(targets) = manifest.get("target").and_then(Value::as_table) {
-            for target in targets.values() { collect_sqlite(target, &workspace, &mut aliases)?; }
+            for target in targets.values() {
+                collect_sqlite(target, &workspace, &mut aliases)?;
+            }
         }
     }
     Ok(aliases)

@@ -1,10 +1,10 @@
 //! Repository structure is part of the build contract.
 #[path = "ratchets/dependencies.rs"]
 mod dependencies;
-#[path = "ratchets/source.rs"]
-mod source;
 #[path = "ratchets/proof.rs"]
 mod proof;
+#[path = "ratchets/source.rs"]
+mod source;
 
 use std::{fs, path::Path};
 
@@ -33,5 +33,9 @@ fn rust_files(path: &Path) -> Result<Vec<std::path::PathBuf>, std::io::Error> {
 
 #[test]
 fn repository_obeys_structural_contract() -> Check {
-    check(Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").as_path())
+    check(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .as_path(),
+    )
 }
