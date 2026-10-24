@@ -171,14 +171,12 @@ fn titleless_dois() -> Check {
                 .and_then(Value::as_array_mut)
             {
                 for edge in rows {
-                    if let Some(paper) = edge.get_mut("citedPaper") {
-                        if paper.pointer("/externalIds/DOI").is_some()
-                            && paper.pointer("/externalIds/PubMed").is_none()
-                        {
-                            if let Some(fields) = paper.as_object_mut() {
-                                fields.insert("title".into(), Value::Null);
-                            }
-                        }
+                    if let Some(paper) = edge.get_mut("citedPaper")
+                        && paper.pointer("/externalIds/DOI").is_some()
+                        && paper.pointer("/externalIds/PubMed").is_none()
+                        && let Some(fields) = paper.as_object_mut()
+                    {
+                        fields.insert("title".into(), Value::Null);
                     }
                 }
             }
