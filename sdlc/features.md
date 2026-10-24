@@ -53,4 +53,4 @@ trial-help: Discover trial commands through schema-generated help and executable
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
 
-variant-myvariant-sections: A caller sees historical MyVariant-carried COSMIC fragments with unverified associations and receives explicit restrictions for components whose terms do not permit use. Cases: `tests/cases/variant/components.yaml`, `crates/biomcp/tests/runner/variant.rs`.
+variant-myvariant-sections: A caller sees native prediction and conservation values, labeled component terms and historical COSMIC fragments with unverified associations; matching source groups suppress component fields. Cases: `tests/cases/variant/components.yaml`, `crates/biomcp/tests/runner/variant.rs`.

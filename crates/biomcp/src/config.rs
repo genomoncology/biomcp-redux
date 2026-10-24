@@ -234,3 +234,14 @@ fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
 pub(crate) fn has_environment_key(name: SecretName) -> bool {
     variable(name.environment()).is_some()
 }
+
+/// Apply per-call policy as a union with the already configured transport policy.
+pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch> {
+    let disabled = biomcp_adapters::registry::disabled(&globals.disable_sources)
+        .map_err(|_| std::io::Error::other("unchecked source policy"))?;
+    Ok(fetch
+        .restrict_sources(disabled)
+        .restrict_uses(biomcp_adapters::registry::disabled_uses(
+            &globals.disable_sources,
+        )))
+}
