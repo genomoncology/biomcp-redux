@@ -6,10 +6,13 @@ pub fn download(
     leg: &biomcp_fetch::Leg<'_>,
     url: &str,
 ) -> Result<Vec<u8>, biomcp_fetch::RequestError> {
-    let endpoint = crate::semantic_scholar::PUBLISHER.download(url)?.bytes(MAX_BYTES);
+    let endpoint = crate::semantic_scholar::PUBLISHER
+        .download(url)?
+        .bytes(MAX_BYTES);
     leg.bytes(&endpoint, &[]).map_err(|error| match error {
         biomcp_fetch::RequestError::Source(mut source)
-            if source.status.is_some_and(|s| (400..500).contains(&s)) => {
+            if source.status.is_some_and(|s| (400..500).contains(&s)) =>
+        {
             source.reason = biodata::Reason::Rejected;
             source.into()
         }

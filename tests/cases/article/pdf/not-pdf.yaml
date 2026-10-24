@@ -12,7 +12,7 @@
         "--save",
         "failed.pdf"
       ],
-      "exit": 1,
+      "exit": 4,
       "is_error": true,
       "expect": {
         "/result/file/state": "unavailable",

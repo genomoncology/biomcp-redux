@@ -19,7 +19,10 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                pdf: (selected(query, ArticleSectionWord::Pdf) && card.pmid.is_none() && card.doi.is_none()).then_some(Section::NotApplicable),
+                pdf: (selected(query, ArticleSectionWord::Pdf)
+                    && card.pmid.is_none()
+                    && card.doi.is_none())
+                .then_some(Section::NotApplicable),
                 indexing: selected(query, ArticleSectionWord::Indexing)
                     .then_some(Section::NotApplicable),
                 supplements: (selected(query, ArticleSectionWord::Supplements)
@@ -41,7 +44,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             });
         }
         item.more = [
-            (ArticleSectionWord::Pdf, ArticleSection::Pdf, card.pmid.is_some() || card.doi.is_some()),
+            (
+                ArticleSectionWord::Pdf,
+                ArticleSection::Pdf,
+                card.pmid.is_some() || card.doi.is_some(),
+            ),
             (
                 ArticleSectionWord::Indexing,
                 ArticleSection::Indexing,
@@ -97,7 +104,9 @@ pub(super) fn run<'a>(
     if selected(query, ArticleSectionWord::Tldr) {
         tldr::run(cx, deadline, out);
     }
-    if selected(query, ArticleSectionWord::Pdf) { pdf::run(cx, deadline, out); }
+    if selected(query, ArticleSectionWord::Pdf) {
+        pdf::run(cx, deadline, out);
+    }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };

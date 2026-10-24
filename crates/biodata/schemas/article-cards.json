@@ -399,7 +399,8 @@
         "annotations",
         "tldr",
         "citations",
-        "indexing"
+        "indexing",
+        "pdf"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -408,7 +409,8 @@
         " Normalized text-mined entities from PubTator3.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
-        " MeSH, keywords and author indexing from the citation."
+        " MeSH, keywords and author indexing from the citation.",
+        " Publisher PDF link without downloading."
       ]
     },
     "ArticleSectionWord": {
@@ -420,6 +422,7 @@
         "tldr",
         "citations",
         "indexing",
+        "pdf",
         "all"
       ],
       "type": "string",
@@ -430,6 +433,7 @@
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
+        " Publisher PDF link without downloading.",
         " Every landed article section."
       ]
     },
@@ -440,7 +444,7 @@
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section6"
+              "$ref": "#/$defs/Section7"
             },
             {
               "type": "null"
@@ -451,7 +455,7 @@
         "citations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section5"
+              "$ref": "#/$defs/Section6"
             },
             {
               "type": "null"
@@ -462,7 +466,7 @@
         "fulltext": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
@@ -473,7 +477,7 @@
         "indexing": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
@@ -481,10 +485,21 @@
           ],
           "description": "Index terms from the card's own EFetch citation."
         },
+        "pdf": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher PDF link; no file is downloaded."
+        },
         "supplements": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section3"
             },
             {
               "type": "null"
@@ -495,7 +510,7 @@
         "tldr": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -862,6 +877,24 @@
       ],
       "type": "object"
     },
+    "OpenAccessStatus": {
+      "description": "Open-access status supplied by the paper-link provider.",
+      "enum": [
+        "gold",
+        "hybrid",
+        "bronze",
+        "green",
+        "closed"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Publisher open access.",
+        " Open article in a subscription journal.",
+        " Free publisher copy without an open license claim.",
+        " Repository copy.",
+        " No open copy."
+      ]
+    },
     "PageInfo": {
       "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
@@ -913,6 +946,30 @@
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
+    },
+    "PdfLink": {
+      "additionalProperties": false,
+      "description": "Source-reported PDF link. Reading this section never downloads the file.",
+      "properties": {
+        "license": {
+          "$ref": "#/$defs/License",
+          "description": "Normalized license; other grants no reuse rights."
+        },
+        "status": {
+          "$ref": "#/$defs/OpenAccessStatus",
+          "description": "Source access status."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Source publisher URL."
+        }
+      },
+      "required": [
+        "url",
+        "status",
+        "license"
+      ],
+      "type": "object"
     },
     "Pmcid": {
       "pattern": "^PMC[1-9][0-9]*$",
@@ -1057,6 +1114,7 @@
       "enum": [
         "not_found",
         "not_open",
+        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -1077,6 +1135,7 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
@@ -1102,7 +1161,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Indexing",
+              "$ref": "#/$defs/PdfLink",
               "description": "Whole section data."
             },
             "source": {
@@ -1223,7 +1282,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Supplements",
+              "$ref": "#/$defs/Indexing",
               "description": "Whole section data."
             },
             "source": {
@@ -1344,7 +1403,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/FullText",
+              "$ref": "#/$defs/Supplements",
               "description": "Whole section data."
             },
             "source": {
@@ -1465,7 +1524,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Tldr",
+              "$ref": "#/$defs/FullText",
               "description": "Whole section data."
             },
             "source": {
@@ -1586,7 +1645,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Citations",
+              "$ref": "#/$defs/Tldr",
               "description": "Whole section data."
             },
             "source": {
@@ -1700,6 +1759,127 @@
       ]
     },
     "Section6": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Citations",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section7": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {

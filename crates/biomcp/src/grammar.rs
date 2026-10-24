@@ -412,7 +412,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
-        ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value).map(Request::ArticlePdf).map_err(|_| ()),
+        ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
+            .map(Request::ArticlePdf)
+            .map_err(|_| ()),
         ("article", "citation-evidence") => {
             serde_json::from_value::<biodata::ArticleEvidence>(value)
                 .map(Request::ArticleEvidence)

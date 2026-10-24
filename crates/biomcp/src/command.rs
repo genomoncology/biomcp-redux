@@ -143,7 +143,9 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
-        (_, QueryBody::PdfSaveRefused(link)) => usage_envelope(biodata::ErrorEnvelope::pdf_save_refused(link.url)),
+        (_, QueryBody::PdfSaveRefused(link)) => {
+            usage_envelope(biodata::ErrorEnvelope::pdf_save_refused(link.url))
+        }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
         (_, QueryBody::UnsupportedFilter { source, option }) => {
             usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
@@ -194,12 +196,16 @@ pub(crate) fn tool(
     args: &[OsString],
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
-) -> io::Result<Outcome> { tool_using(args, globals, fetch, true) }
+) -> io::Result<Outcome> {
+    tool_using(args, globals, fetch, true)
+}
 pub(crate) fn tool_http(
     args: &[OsString],
     globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
-) -> io::Result<Outcome> { tool_using(args, globals, fetch, false) }
+) -> io::Result<Outcome> {
+    tool_using(args, globals, fetch, false)
+}
 fn tool_using(
     args: &[OsString],
     globals: &crate::grammar::Globals,
@@ -343,15 +349,17 @@ fn run_request(
     allow_save: bool,
 ) -> io::Result<biomcp_query::Outcome> {
     let cx = biomcp_query::Ctx {
-            ncbi_email: crate::config::ncbi_email()
-                .map_err(|()| io::Error::other("local configuration failed"))?,
-            fetch,
-            budget: crate::config::BUDGET,
-            fresh,
-        };
+        ncbi_email: crate::config::ncbi_email()
+            .map_err(|()| io::Error::other("local configuration failed"))?,
+        fetch,
+        budget: crate::config::BUDGET,
+        fresh,
+    };
     Ok(if let Request::ArticlePdf(query) = request {
         crate::save::run(&cx, query, allow_save)
-    } else { biomcp_query::run(&cx, request) })
+    } else {
+        biomcp_query::run(&cx, request)
+    })
 }
 
 fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {

@@ -1,6 +1,6 @@
 //! Explicit PDF download orchestration; the binary owns atomic file I/O.
-use crate::{Ctx, Outcome, status};
 use super::sections::pdf::{bad, load, reason};
+use crate::{Ctx, Outcome, status};
 use biodata::{ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status};
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
@@ -8,32 +8,79 @@ use biomcp_fetch::{Deadline, RequestError};
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut out = Outcome { status: Status::Complete, body: QueryBody::ArticlePdf(ArticlePdfResult {file: Section::NotApplicable}), page: None, sources: Vec::new(), problems: Vec::new(), next: Vec::new(), local: None };
+    let mut out = Outcome {
+        status: Status::Complete,
+        body: QueryBody::ArticlePdf(ArticlePdfResult {
+            file: Section::NotApplicable,
+        }),
+        page: None,
+        sources: Vec::new(),
+        problems: Vec::new(),
+        next: Vec::new(),
+        local: None,
+    };
     let mut file = None;
     if let Err(error) = execute(cx, query, allow_save, &mut deadline, &mut out, &mut file) {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
-        out.body = QueryBody::ArticlePdf(ArticlePdfResult {file: Section::unavailable(Source::SemanticScholar, reason(error))});
+        out.body = QueryBody::ArticlePdf(ArticlePdfResult {
+            file: Section::unavailable(Source::SemanticScholar, reason(error)),
+        });
     }
     command.finish(deadline.remaining());
-    Download {out, file}
+    Download { out, file }
 }
-fn execute<'a>(cx: &Ctx<'a>, query: &ArticlePdf, allow_save: bool, deadline: &mut Deadline<'a>, out: &mut Outcome, file: &mut Option<(PdfLink, Vec<u8>)>) -> Result<(), RequestError> {
+fn execute<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticlePdf,
+    allow_save: bool,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+    file: &mut Option<(PdfLink, Vec<u8>)>,
+) -> Result<(), RequestError> {
     let section = load(cx, &query.input, deadline, out)?;
-    let Section::Data {data: link, ..} = section else {
+    let Section::Data { data: link, .. } = section else {
         out.status = Status::Failed;
-        out.body = QueryBody::ArticlePdf(ArticlePdfResult {file: Section::unavailable(Source::SemanticScholar, Reason::NotOpen)});
+        out.body = QueryBody::ArticlePdf(ArticlePdfResult {
+            file: Section::unavailable(Source::SemanticScholar, Reason::NotOpen),
+        });
         return Ok(());
     };
-    if !allow_save {out.body = QueryBody::PdfSaveRefused(link); return Ok(());}
-    let leg = cx.fetch.leg(&semantic_scholar::PUBLISHER, *deadline).fresh(true);
+    if !allow_save {
+        out.body = QueryBody::PdfSaveRefused(link);
+        return Ok(());
+    }
+    let leg = cx
+        .fetch
+        .leg(&semantic_scholar::PUBLISHER, *deadline)
+        .fresh(true);
     let started = leg.remaining();
-    let result = pdf::download(&leg, link.url.as_str()).map_err(|error| if matches!(error, RequestError::Input(_)) {bad(Reason::Rejected)} else {error});
+    let result = pdf::download(&leg, link.url.as_str()).map_err(|error| {
+        if matches!(error, RequestError::Input(_)) {
+            bad(Reason::Rejected)
+        } else {
+            error
+        }
+    });
     *deadline = super::consume(*deadline, started, leg.remaining());
-    let source = status::source(Source::SemanticScholar, leg.finish(), result.as_ref().err().copied());
-    if let Some(existing) = out.sources.iter_mut().find(|s| s.source == Source::SemanticScholar) {status::retain_source_state(existing, &source);} else {out.sources.push(source);}
+    let source = status::source(
+        Source::SemanticScholar,
+        leg.finish(),
+        result.as_ref().err().copied(),
+    );
+    if let Some(existing) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::SemanticScholar)
+    {
+        status::retain_source_state(existing, &source);
+    } else {
+        out.sources.push(source);
+    }
     let bytes = result?;
-    if !bytes.starts_with(b"%PDF-") {return Err(bad(Reason::NotPdf));}
+    if !bytes.starts_with(b"%PDF-") {
+        return Err(bad(Reason::NotPdf));
+    }
     *file = Some((link, bytes));
     Ok(())
 }
