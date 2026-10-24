@@ -83,7 +83,10 @@ pub fn resolve_dois<'a>(
                 .map(|doi| {
                     format!(
                         "\"{}\"[doi]",
-                        doi.to_string().replace('\\', "\\\\").replace('"', "\\\"")
+                        doi.to_string()
+                            .to_ascii_lowercase()
+                            .replace('\\', "\\\\")
+                            .replace('"', "\\\"")
                     )
                 })
                 .collect::<Vec<_>>()
