@@ -394,6 +394,10 @@ fn capture_credentials(
                 );
                 assert_eq!(request.body, b"q=user-text");
             }
+            KeyPlace::Bearer => {
+                assert!(wire.contains("authorization: bearer configured-secret\r\n"));
+                assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
+            }
             KeyPlace::Header(_) => {
                 assert!(wire.contains("x-api-key: configured-secret\r\n"));
                 assert_eq!(request.body, b"q=user-text&api_key=caller-secret");

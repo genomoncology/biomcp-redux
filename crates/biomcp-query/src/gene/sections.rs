@@ -102,7 +102,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
                 if matches!(section, Section::Unavailable { .. }) || result.source.state == SourceState::Stale || result.problems.iter().any(|problem| problem.record.as_ref().is_some_and(|record| gene.ensembl_id.as_ref().is_some_and(|id| record.as_str() == id.base()))) {
                     item.status = Status::Partial;
                 }
-                if let Some(sections) = &mut item.sections { sections.constraint = Some(section.clone()); }
+                if let Some(sections) = &mut item.sections && result.section == GeneSection::Constraint { sections.constraint = Some(section.clone()); }
             }
         }
     }
