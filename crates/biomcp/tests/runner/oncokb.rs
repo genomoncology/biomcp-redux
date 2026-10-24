@@ -94,7 +94,7 @@ fn wire() -> Result<(), String> {
     recorded.extend(["--record".into(), directory.to_string_lossy().into()]);
     let data = invoke(&env, &recorded, 0)?;
     let size = data.to_string().len();
-    if size > 0 {
+    if size > 2098 {
         return Err(format!(
             "annotation complete envelope exceeds measured ceiling: {size} bytes"
         ));
@@ -191,6 +191,7 @@ fn replay_proof(env: &Environment, dir: &Path) -> Result<(), String> {
     if baseline.get("result") != mcp.get("result") {
         return Err("annotation CLI/MCP parity".into());
     }
+    walk(env, &baseline)?;
     failures(env, dir)?;
     let mut disabled = replay_args(dir);
     disabled.extend(["--disable-sources".into(), "oncokb".into()]);
@@ -339,6 +340,50 @@ fn reload() -> Result<(), String> {
                 return Err("persistent OncoKB used stale key snapshot".into());
             }
         }
+    }
+    Ok(())
+}
+
+fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
+    let expected = baseline
+        .pointer(&format!("{SECTION}/data/records"))
+        .and_then(Value::as_array)
+        .ok_or("complete records")?;
+    let mut rows = Vec::new();
+    let mut offset = 0;
+    loop {
+        let mut page = args();
+        *page.last_mut().ok_or("section limit")? = "1".into();
+        page.extend(["--section-offset".into(), offset.to_string()]);
+        let value = invoke(env, &page, 0)?;
+        let data = value
+            .pointer(&format!("{SECTION}/data"))
+            .ok_or("warm annotation data")?;
+        let items = data
+            .get("records")
+            .and_then(Value::as_array)
+            .ok_or("warm annotation rows")?;
+        if items.len() != 1 || data.pointer("/page/total") != Some(&json!(expected.len())) {
+            return Err("annotation warm row bounds".into());
+        }
+        rows.extend(items.iter().cloned());
+        if let Some(next) = data.get("next") {
+            offset += 1;
+            if next.get("section_offset") != Some(&json!(offset))
+                || next.get("build") != Some(&json!("GRCh38"))
+                || next.get("tumor_type") != Some(&json!("Synthetic tumor"))
+                || next.get("section") != Some(&json!(["oncokb"]))
+                || next.get("input") != Some(&json!(INPUT))
+                || rows.len() >= expected.len()
+            {
+                return Err("annotation continuation changed context or repeated a page".into());
+            }
+        } else {
+            break;
+        }
+    }
+    if &rows != expected {
+        return Err("annotation warm walk changed native order or lost records".into());
     }
     Ok(())
 }
