@@ -1,6 +1,7 @@
 # 0120 — Prove the Markdown view for variant and trial commands
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 315093fc63535c042e3da164ed18ffe121d42902
 
 Milestone: 2
 

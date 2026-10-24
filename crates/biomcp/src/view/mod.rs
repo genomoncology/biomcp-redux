@@ -77,7 +77,10 @@ impl View<'_> {
                 out.push_str(&format!("# {}\n\n", title.map_or_else(String::new, scalar)));
                 self.object(item, item_schema, depth, out);
             }
-        } else if items.iter().all(Value::is_object) && !contains_markdown(item_schema, self.root) {
+        } else if items.iter().all(Value::is_object)
+            && !items.iter().any(nested_records)
+            && !contains_markdown(item_schema, self.root)
+        {
             table(items, self.hint.map_or(&[], |h| h.columns), out);
         } else {
             for item in items {
@@ -138,6 +141,15 @@ fn leaf_paths(value: &Value, prefix: &str, fields: &mut BTreeSet<String>) {
         }
     } else {
         fields.insert(prefix.to_owned());
+    }
+}
+// Nested record collections need their own headings and tables, rather than
+// escaped JSON inside one cell of their parent's table.
+fn nested_records(value: &Value) -> bool {
+    match value {
+        Value::Object(fields) => fields.values().any(nested_records),
+        Value::Array(items) => items.iter().any(|item| item.is_object() || item.is_array()),
+        _ => false,
     }
 }
 fn table(items: &[Value], preferred: &[&str], out: &mut String) {

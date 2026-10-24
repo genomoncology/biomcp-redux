@@ -7,11 +7,11 @@ pub(super) fn trials() -> Vec<Trial> {
         shapes().map_err(Into::into)
     })]
 }
-struct Shape {
-    args: &'static [&'static str],
-    replies: &'static str,
-    required: &'static [&'static str],
-    max_bytes: usize,
+pub(super) struct Shape {
+    pub(super) args: &'static [&'static str],
+    pub(super) replies: &'static str,
+    pub(super) required: &'static [&'static str],
+    pub(super) max_bytes: usize,
 }
 // Measured Markdown plus 15%; the protein ceiling also respects the matching
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
@@ -106,71 +106,82 @@ const SHAPES: &[Shape] = &[
 ];
 fn shapes() -> Result<(), String> {
     for shape in SHAPES {
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let replay = super::launch::fixtures()
-            .join("replies")
-            .join(shape.replies);
-        let globals = env.globals(Some(&replay), false);
-        let mut command = globals.clone();
-        command.extend(shape.args.iter().map(|arg| (*arg).to_owned()));
-        let json_output = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &command)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value =
-            serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
-        env.config(&json!({"format":"md"}))
-            .map_err(|e| e.to_string())?;
-        let output = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &command)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-        for required in shape.required {
-            if !text.contains(required) {
-                return Err(format!("{command:?} lacks {required}: {text}"));
-            }
+        check(shape)?;
+    }
+    Ok(())
+}
+pub(super) fn check(shape: &Shape) -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::launch::fixtures()
+        .join("replies")
+        .join(shape.replies);
+    let globals = env.globals(Some(&replay), false);
+    check_environment(shape, &env, &globals, json!({}))
+}
+pub(super) fn check_environment(
+    shape: &Shape,
+    env: &Environment,
+    globals: &[String],
+    mut config: Value,
+) -> Result<(), String> {
+    env.config(&config).map_err(|e| e.to_string())?;
+    let mut command = globals.to_vec();
+    command.extend(shape.args.iter().map(|arg| (*arg).to_owned()));
+    let json_output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
+    config
+        .as_object_mut()
+        .ok_or("Markdown configuration must be an object")?
+        .insert("format".into(), json!("md"));
+    env.config(&config).map_err(|e| e.to_string())?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    for required in shape.required {
+        if !text.contains(required) {
+            return Err(format!("{command:?} lacks {required}: {text}"));
         }
-        let terms_bytes = super::source_terms::markdown_bytes(&text, &value)?;
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "{:?}: Markdown actual={}, new_terms={terms_bytes}, comparable={}",
+    }
+    let terms_bytes = super::source_terms::markdown_bytes(&text, &value)?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "{:?}: Markdown actual={}, new_terms={terms_bytes}, comparable={}",
+        shape.args,
+        text.len(),
+        text.len() - terms_bytes
+    )
+    .map_err(|e| e.to_string())?;
+    if text.len() - terms_bytes > shape.max_bytes {
+        return Err(format!(
+            "{:?}: {} Markdown bytes exceed {}",
             shape.args,
             text.len(),
-            text.len() - terms_bytes
-        )
+            shape.max_bytes
+        ));
+    }
+    if output.status != json_output.status || !output.stderr.is_empty() {
+        return Err("Markdown changed command status or emitted diagnostics".into());
+    }
+    let mut tool_args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
+    tool_args.extend(["--format".into(), "md".into()]);
+    let tool =
+        super::mcp::call_with_globals(env, &tool_args, !json_output.status.success(), globals)?;
+    if tool != value {
+        return Err("MCP changed JSON under Markdown configuration".into());
+    }
+    command.extend(["--format".into(), "json".into()]);
+    let explicit = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+        .output()
         .map_err(|e| e.to_string())?;
-        if text.len() - terms_bytes > shape.max_bytes {
-            return Err(format!(
-                "{:?}: {} Markdown bytes exceed {}",
-                shape.args,
-                text.len(),
-                shape.max_bytes
-            ));
-        }
-        if output.status != json_output.status || !output.stderr.is_empty() {
-            return Err("Markdown changed command status or emitted diagnostics".into());
-        }
-        let mut tool_args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
-        tool_args.extend(["--format".into(), "md".into()]);
-        let tool = super::mcp::call_with_globals(
-            &env,
-            &tool_args,
-            !json_output.status.success(),
-            &globals,
-        )?;
-        if tool != value {
-            return Err("MCP changed JSON under Markdown configuration".into());
-        }
-        command.extend(["--format".into(), "json".into()]);
-        let explicit = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &command)
-            .output()
-            .map_err(|e| e.to_string())?;
-        if explicit.stdout != json_output.stdout {
-            return Err("explicit JSON changed under Markdown configuration".into());
-        }
+    if explicit.stdout != json_output.stdout {
+        return Err("explicit JSON changed under Markdown configuration".into());
     }
     Ok(())
 }
