@@ -62,7 +62,7 @@ fn dispatch_using(
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch)) if !parsed.globals.offline => fetch.as_ref(),
+        Some(Ok(fetch)) if !parsed.globals.offline && parsed.globals.disable_sources.iter().all(|s| shared.is_some_and(|(g, _)| g.disable_sources.contains(s))) => fetch.as_ref(),
         Some(Err(())) if !parsed.globals.offline => {
             return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
         }
@@ -199,7 +199,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
     let root = loop {
         match words.next() {
-            Some("--replay" | "--record" | "--case-cache") => {
+            Some("--replay" | "--record" | "--case-cache" | "--disable-sources") => {
                 words.next();
             }
             Some("--fresh" | "--offline") => {}
@@ -259,7 +259,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         fetched: None,
         notices: Vec::new(),
         source,
-        state: if status == Status::Complete {
+        state: if reason == Some(biodata::Reason::Disabled) {
+            biodata::SourceState::Skipped
+        } else if status == Status::Complete {
             biodata::SourceState::Ok
         } else {
             biodata::SourceState::Failed

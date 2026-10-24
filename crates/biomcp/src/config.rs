@@ -8,6 +8,7 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    disable_sources: Option<Vec<String>>,
     ncbi_email: Option<String>,
     keys: Option<Keys>,
 }
@@ -121,7 +122,11 @@ fn fetch_using(
     if let Some(key) = ncbi {
         secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
     }
+    let mut disabled = globals.disable_sources.clone();
+    disabled.extend(file.as_ref().and_then(|f| f.disable_sources.clone()).unwrap_or_default());
+    let disabled_sources = biomcp_adapters::registry::disabled(&disabled)?;
     Fetch::open(FetchConfig {
+        disabled_sources,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         cache,
