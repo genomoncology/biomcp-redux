@@ -1,6 +1,6 @@
 # Variant slice
 
-This investigation proposes the variant slice through steps 1 to 4 of [the slice method](../slices.md). The starting revision is `7a7ce2a0f09b5981353753e2f1c94bb39484b06c`. Product code is unchanged. Recommendations below require PM review and the listed product rulings. They do not declare capabilities ported.
+This investigation defines the variant slice through steps 1 to 4 of [the slice method](../slices.md). The starting revision is `7a7ce2a0f09b5981353753e2f1c94bb39484b06c`. Product code is unchanged. The PM accepted the design with the [variant slice rulings](../../decisions/2026-10-24-variant-slice-rulings.md). Those rulings govern the command forms and ownership below. Design acceptance does not declare capabilities ported.
 
 ## Evidence and limits
 
@@ -82,7 +82,7 @@ For each question, the matrix records CAR/Mutalyzer/VariantValidator as unsuppor
 
 ## 3. What would delight the agent
 
-1. **First question.** “What does this source call the reported variant?” `get variant --hgvs TEXT --resolver car` resolves explicit reference-qualified notation. `search variant --gene EGFR --protein L858R` returns candidates for protein shorthand. No guess hides between them.
+1. **First question.** “What does this source call the reported variant?” `get variant NM_004333.6:c.1799T>A` sends unchanged reference-qualified notation to CAR by default. `search variant --gene EGFR --protein L858R` returns candidates for protein shorthand. No guess hides between them.
 2. **Smallest header.** Echoed input/form/build, resolved or ambiguous state, exact source record IDs, source-given gene/transcript/protein spellings, one selected source-qualified coordinate, and concise source assertion labels with condition, framework and date. The header never substitutes a computed classification.
 3. **Next steps.** `next` names candidate selection, ClinVar assertions, population, CIViC evidence, hotspots, cohort recurrence, GWAS, ERepo, keyed OncoKB and normalization. It includes the exact source IDs needed by each command.
 4. **Exact identifiers.** Preserve CAid, ClinVar Variation/VCV/RCV/SCV, rsID plus allele, reference accession with version, HGVS source text, gene ID and provider coordinate/build. rs113488022's three alternate alleles demonstrate why a bare rsID cannot be the sole variant key.
@@ -95,9 +95,9 @@ For each question, the matrix records CAR/Mutalyzer/VariantValidator as unsuppor
 
 ## 4. Types, schema and request boundaries
 
-These are proposed types, not implemented contracts. Reuse the existing envelope, checked strings, IDs, `Source`, section states, provenance, paging, source policy and generated schema pattern. `wire_enum!` remains the single source of enum spelling. No generic variant interpretation framework is introduced.
+These are reviewed design types, not implemented contracts. Reuse the existing envelope, checked strings, IDs, `Source`, section states, provenance, paging, source policy and generated schema pattern. `wire_enum!` remains the single source of enum spelling. No generic variant interpretation framework is introduced.
 
-- `VariantInput` is a closed tagged request: source record ID; checked HGVS text plus explicit resolver; declared gene plus checked protein text for search; or genomic interval/allele plus explicit assembly. The edge rejects empty/control-containing or oversized text. The HGVS text remains opaque. A source record ID type checks its published identifier grammar, not molecular meaning.
+- `VariantInput` is a closed tagged request: source record ID; checked reference-qualified HGVS text with CAR as the default resolver; declared gene plus checked protein text for search; or genomic interval/allele plus explicit assembly. The edge rejects empty/control-containing or oversized text. The HGVS text remains opaque. A source record ID type checks its published identifier grammar, not molecular meaning. Get distinguishes rsIDs, CAids, ClinVar Variation IDs and reference-qualified HGVS by those published grammars. Chromosome HGVS requires `--build`. Gene/protein shorthand is refused with a usage error naming its declared search command.
 - `VariantIdentity` contains one source record key, source-returned aliases and source-qualified representations. `VariantRepresentation` pairs original notation with reference accession/version and optional provider-stated assembly. Coordinates use the existing explicit build and counting types. CAR zero-based start/end and HGVS one-based text are never mixed under an unqualified integer.
 - `VariantResolution` is resolved, candidates, absent, rejected or unavailable with the responsible source. Candidates have bounded pages, source identity and exact selection actions. No most-likely candidate is selected.
 - `VariantHeader` carries input, resolution, exact key, source gene/transcript/protein text, selected coordinate and concise assertions. Fields absent from the source are optional. Reference/build uncertainty is explicit.
@@ -110,24 +110,23 @@ The existing article reader's small protein-change parser stays private unless a
 
 Identity checks compare exact source-qualified records and returned reference/allele identities. They do not compare only a gene symbol, source score or protein label. Joins use provider IDs. The transport owns TLS, retries, deadlines, quotas, source restrictions and cache admission. Adapters own raw schemas and source checks. Query owns source composition and disclosure. No adapter builds a client or local ranking rule.
 
-## 5. Proposed command tree and disclosure
+## 5. Reviewed command tree and disclosure
 
 | Command | Default output | Deeper action |
 | --- | --- | --- |
 | `search variant --gene G --protein TEXT [--source myvariant] [--limit N --offset N]` | Candidate header and source-native ordered bounded page. Echo exact query and assembly policy. | Select source ID for get. No local protein guess or silent first hit. |
 | `search variant --query TEXT --source myvariant` | Explicit advanced source query and native candidates. | Typed source-supported filters, only after known-positive public-tier cases. Never claim source query syntax portable. |
 | `search variant --build B --region REGION --source myvariant` | Region search with echoed assembly/counting and bounded results. | Exact selected allele get. Missing build is usage error. |
-| `get variant ID [--source SOURCE] [SECTIONS]` | Exact source ID resolution and compact header/card. | `clinvar`, `population`, `civic`, `hotspots`, `cbioportal`, `gwas`, `erepo`, `oncokb`, `predict`, `conservation`, `cosmic`; `all` remains bounded and obeys source policy. |
-| `get variant --hgvs TEXT --resolver car [SECTIONS]` | Resolver outcome, identity and compact annotation if a checked join exists. | Choose a candidate or ask a named normalization service. |
+| `get variant INPUT [--resolver mutalyzer\|variantvalidator] [--build B] [SECTIONS]` | Published-grammar rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; CAR resolves HGVS by default. Every alternate-allele candidate returns with selection steps. Gene/protein shorthand produces a usage error naming search. | `clinvar`, `population`, `civic`, `hotspots`, `cbioportal`, `gwas`, `erepo`, `oncokb`, `predict`, `conservation`, `cosmic`; `all` remains bounded and obeys source policy. |
 | `variant normalize --source car\|mutalyzer\|variantvalidator --hgvs TEXT [--build B]` | Source's result and warnings. | Source-returned representations, paged when needed. `--source all` returns independent labeled results; no consensus. |
 | `variant assertions ID --source clinvar\|erepo [--assertion ID --version V]` | One page of source assertions, totals and exact identities. | Selected submission/assertion/version and original evidence details. |
 | `variant recurrence ID --source cbioportal --study ID --profile ID --sample-set ID` | Exact source match and cohort bounds; source counts. | More rows by bounded paging, without downloading whole cohorts. |
 | `variant population ID --detail [--limit N --offset N]` | Deeper ancestry groups, counts and source filters. | Page or source link. |
-| `variant cspec --gene G [--version V --capture-id ID --files --limit N --offset N]` | Source guideline/version manifest and bounded criteria. | Exact captured document download; no interpretation of criteria. |
+| `variant cspec` | Deferred until a harvested question needs it. | No new command or document selection is approved by this investigation. |
 
 All routes use the same request types and one MCP tool argument array. Section names and action variants come from generated schemas. CLI validation, MCP and Markdown views consume the same response. A multi-input get may reuse the established bounded batching design; a separate custom variant batch framework is not justified.
 
-The card defaults to identity and concise, source-attributed facts. It does not fan out to every source. CAR is requested only for a chosen supported form; direct source IDs avoid an unnecessary resolver. MyVariant is the compact annotation source where a checked join exists. Named sections fetch only their named sources. The default does not call cohort data, protein structure, GWAS, OncoKB or predictors. Source skips occur before cache and replay. A source's unsupported field never appears as a meaningful empty section.
+The card defaults to identity and MyVariant’s compact, source-attributed facts. It does not fan out to every source. CAR resolves reference-qualified HGVS by default. `--resolver mutalyzer` and `--resolver variantvalidator` select the other services explicitly. Direct source IDs avoid an unnecessary resolver. MyVariant is the compact annotation source where a checked join exists. Named sections fetch only their named sources. The default does not call cohort data, protein structure, GWAS, OncoKB or predictors. Source skips occur before cache and replay. A source's unsupported field never appears as a meaningful empty section.
 
 ### Structural risks
 
@@ -135,45 +134,43 @@ One identity representation owns build and counting rules. One request definitio
 
 ## 6. Historical surface accounting
 
-The historical baseline has 112 leaf commands and 375 command-specific option slots. Global flags, aliases, positional section values and options on non-leaf parents are outside that denominator. The authoritative generator is [scripts/parity.py](../../../scripts/parity.py); it remains unchanged. Proposed outcomes below remain `Not yet decided` until the PM accepts a ruling. This prevents design recommendations from incrementing shipped parity.
+The historical baseline has 112 leaf commands and 375 command-specific option slots. Global flags, aliases, positional section values and options on non-leaf parents are outside that denominator. The authoritative generator is [scripts/parity.py](../../../scripts/parity.py); it remains unchanged. The [accepted rulings](../../decisions/2026-10-24-variant-slice-rulings.md) define the target behavior. Ledger outcomes remain `Not yet decided` until implementation proves the corresponding capability. Advanced filters require known-positive source cases. Design approval does not increment shipped parity.
 
 | Historical capability | Proposed treatment | Reason and unresolved proof |
 | --- | --- | --- |
 | `search variant` | Keep declared gene/protein, source query and paging. Keep provider filters one named source away, only after captured known positives. | Preserve discovery without free-text guessing. Every filter must show a source field and a positive case. |
 | `get variant`; `--assembly` | Keep source-qualified get, explicit build and section selection. | Gene/protein is search unless a source resolves it; rsID may return alternate-allele candidates. |
-| `predict`, `predictions` | One predictors section, old alias has a migration action. | Public predictor fields are source data, not BioMCP interpretation; no synthetic score blend. |
+| `predict`, `predictions` | One `predict` section; `predictions` returns a retirement message naming `predict`. | Public predictor fields are source data, not BioMCP interpretation; no synthetic score blend. |
 | `clinvar` | Keep direct source records and framework-specific assertions. | The aggregate MyVariant label cannot replace VCV/RCV/SCV details. |
-| `population`, `population-details` | Keep summary and deeper source ancestry detail. | Both honor dataset and build; preserve missing versus zero. |
+| `population`, `population-details` | Keep `population`; retire `population-details` with a message naming `variant population <ID> --detail`. | Both honor dataset and build; preserve missing versus zero. |
 | `conservation` | Keep named source-carried scores if public-tier captures prove fields. | Optional scientific context, absent from default. |
 | `cosmic` | Keep only MyVariant's historical snapshot. | No direct COSMIC integration. Preserve version/age/license. |
 | `cgi` | Defer source-carried field mapping until a harvested cancer-care question and current public field are captured. | No ROADMAP direct CGI source. No unproved section. |
 | `civic` | Keep exact variant/molecular-profile evidence. | Name matches alone include compound profiles and need exact membership checks. |
 | `cbioportal` | Keep explicit cohort recurrence. | Historical hidden cohort is not an accepted default. |
-| `gwas` and `search gwas` | Keep v2 named retrieval, proposal for search options requires source-positive examples. | Historical v1 has retired; no outage masquerades as empty. |
+| `gwas` and `search gwas` | The variant `gwas` section stays here; `search gwas` belongs to the GWAS slice. | Historical v1 has retired; no outage masquerades as empty. |
 | `all` | Keep bounded composition of available sections. | It cannot enable disabled/keyed sources or silently suppress errors. |
-| `variant structure` | Defer. | No accepted answer requires structure/domain/PDB/AlphaFold aggregation. UniProt/InterPro remain gene/protein context, not new variant clinical evidence. |
+| `variant structure` | Defer; return a retirement message naming `get gene <SYMBOL> protein`. | No accepted answer requires structure/domain/PDB/AlphaFold aggregation. UniProt/InterPro remain gene/protein context, not new variant clinical evidence. |
 | `variant oncokb` | Keep as keyed section, migration action for old spelling. | No execution without user's key; current tier proof waits for user-provided configuration. |
 | `variant normalize` | Keep explicit service passthrough and independent source results. | No local full parser, correction or transcript selection. |
 | `variant erepo` | Keep CAid assertions and version detail; gene search explicit if retained. | No implicit gene-wide scan on missing allele assertions. |
 | `variant trials` | Move to trial slice's declared variant filter. | Trial wording and identity behavior belong to trial investigation. |
 | `variant articles` | Article slice owns migration to `search article --variant`. | Count once in that slice, including structured input and routing/strategy flags. |
-| `gene cspec document` and parent selection flags | Gene accounting owns the leaf; this slice proposes variant cspec selection/download. | No duplicate ledger row. Parent `--version`, `--capture-id`, `--files`, `--limit`, `--offset` remain listed here outside the denominator. |
+| `gene cspec document` and parent selection flags | Gene accounting owns the leaf; variant cspec is deferred until a harvested question needs it. | No duplicate ledger row. Parent `--version`, `--capture-id`, `--files`, `--limit`, `--offset` remain listed here outside the denominator. |
 | Generic `batch variant` and global `--json`, `--no-cache`, `--disable-sources` | Shared command/global accounting owns them. | Same existing envelope, source policy and bounded multi-input path. No duplicate command count. |
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search variant` | Not yet decided | — | — | `--gene`, `--hgvsp`, `--significance`, `--max-frequency`, `--min-cadd`, `--consequence`, `--review-status`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--condition`, `--impact`, `--lof`, `--has`, `--missing`, `--therapy`, `--limit`, `--offset` | Proposed source-supported filters and declared search in sections 5 and 6; PM review required. |
-| `get variant` | Not yet decided | — | — | `--assembly` | Proposed exact identity and explicit build in sections 4 and 5; PM review required. |
-| `variant trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Trial slice owns the proposed replacement; no shipped decision here. |
-| `variant structure` | Not yet decided | — | — | — | Proposed deferral in section 6; no accepted ruling yet. |
-| `variant oncokb` | Not yet decided | — | — | — | Proposed keyed section in section 5; no executed-tier proof. |
-| `variant erepo` | Not yet decided | — | — | `--input`, `--gene`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | Proposed assertions and selected version; batch and gene search need PM ruling. |
-| `variant normalize` | Not yet decided | — | — | `--input` | Proposed explicit service passthrough; no parser implementation. |
-| `search gwas` | Not yet decided | — | — | `--gene`, `--trait`, `--p-value`, `--limit`, `--offset` | Proposed v2 source path needs accepted positive search cases. |
+| `search variant` | Not yet decided | — | — | `--gene`, `--hgvsp`, `--significance`, `--max-frequency`, `--min-cadd`, `--consequence`, `--review-status`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--condition`, `--impact`, `--lof`, `--has`, `--missing`, `--therapy`, `--limit`, `--offset` | Accepted declared search; each advanced filter remains undecided until a known-positive capture proves it. |
+| `get variant` | Not yet decided | — | — | `--assembly` | Accepted published-grammar identity, CAR default and explicit chromosome build; implementation proof remains. |
+| `variant structure` | Not yet decided | — | — | — | Accepted deferral and retirement message to gene protein; implementation proof remains. |
+| `variant oncokb` | Not yet decided | — | — | — | Accepted keyed section; no executed-tier proof. |
+| `variant erepo` | Not yet decided | — | — | `--input`, `--gene`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | Accepted CAid assertions and selected version; implementation proof remains. |
+| `variant normalize` | Not yet decided | — | — | `--input` | Accepted explicit service passthrough; no parser implementation. |
 <!-- /parity-accounting -->
 
-The 36 option slots above account for the variant-owned leaves plus GWAS. The generated ledger supplies counts; do not copy a new total into ROADMAP by hand. `variant articles` remains the article accounting owner's responsibility. Unclosed cross-slice decisions stay undecided, even when migration behavior is proposed.
+The 28 option slots above account for the six variant-owned leaves. Trial and GWAS slices own `variant trials` and `search gwas`, including their three and five option slots. The generated ledger supplies counts; do not copy a new total into ROADMAP by hand. `variant articles` remains the article accounting owner's responsibility. Unclosed cross-slice decisions stay undecided, even when migration behavior is proposed.
 
 ## 7. Proposed harvested cases
 
@@ -181,17 +178,19 @@ Each Q01–Q20 becomes an outside-in case using the exact paper input and the ca
 
 Additional mechanical cases: rs113488022's three alternate alleles; exact candidate selection; explicit build refusal; returned identity mismatch; CAR zero-based start versus source HGVS position; source-stated build absent; transcript version warning; HTTP 200 validation rejection; ERepo no assertion versus no allele; CIViC compound-profile candidate; gnomAD null genome versus zero ac; disabled and missing-key sources before replay/cache; exact study/sample-set recurrence and missing denominator; valid zero on GWAS v2; 429/500/timeout/malformed bodies per adapter; stable native paging, no duplicates/gaps and a warm no-network page; CLI/MCP parity; default and per-section output ceilings.
 
-No ordinary case contacts live providers. Public captures are retained only after their terms permit repository storage; other cases use external `--cases` and recording roots. Failures are response-only edits over actual request identities. Source paths, canonical request IDs and checksums are never reconstructed. The PM files implementation tickets from the accepted design, not this proposed case inventory.
+No ordinary case contacts live providers. Public captures are retained only after their terms permit repository storage; other cases use external `--cases` and recording roots. Failures are response-only edits over actual request identities. Source paths, canonical request IDs and checksums are never reconstructed. The PM owns the implementation tickets filed from the accepted design. This case inventory creates no additional work authorization.
 
-## 8. Product questions for Ian
+## 8. Reviewed product choices
 
-These are product and scope choices, not clinical questions. The clinical reviewer has already supplied the source-handling rulings.
+The PM accepted the five recommendations and settled their command forms in the [canonical variant slice rulings](../../decisions/2026-10-24-variant-slice-rulings.md). The clinical reviewer supplied the source-handling findings above. No clinical decision is delegated to the caller.
 
-1. **Default and notation resolution.** Recommend declared source forms: direct source ID get, reference-qualified HGVS through explicit CAR, and declared gene/protein search. This spends one resolver request before requested annotations. A single universal free-text get is shorter to type but needs guessing or a full parser, both outside the accepted scope. Letting a user pick Mutalyzer or VariantValidator remains one option away.
-2. **Default source fanout.** Recommend compact identity plus one annotation source, with named sections for all other retained sources. This bounds latency and default bytes. Calling all sources first supplies more context but pays for failures and large replies even when an identity answer suffices. The proposed card budget below retains IDs and attributed labels, not bulk evidence.
-3. **Cohort recurrence.** Recommend explicit study/profile/sample-set for cBioPortal. It costs the caller a cohort selection but preserves the denominator and terms. A fixed hidden cohort is convenient and can be mistaken for global prevalence. No claim that one cohort is clinically preferred is proposed.
-4. **Investigate sources.** Recommend keeping CAR, Mutalyzer and VariantValidator as explicit resolver services; defer variant-specific UniProt/InterPro structure and AlphaGenome. This preserves every needed source resolution and avoids extra prediction/domain calls. Adding them now expands source/version/rights proof without an accepted retrieval answer that needs them.
-5. **Historical advanced filters.** Recommend retain as explicit MyVariant-source filters only after public known-positive cases, and defer CGI/structure plus unsupported filters until those cases exist. Immediate parity of every flag preserves familiar syntax but risks source-field zero bugs and unverified public tiers. Dropping all advanced filters removes useful agent exploration. No filter is called ported merely because its option parses.
+| Design question | Accepted choice | Published ruling |
+| --- | --- | --- |
+| Default and notation resolution | Get accepts published-grammar rsID, CAid, ClinVar Variation ID and reference-qualified HGVS. CAR is the default HGVS resolver; the other two services are one option away. Chromosome HGVS needs `--build`. Gene/protein shorthand is refused with the declared search step. Every candidate returns. | Rulings 1, 2 and 4. |
+| Default source fanout | Identity and MyVariant's compact facts form the card. Other sources are named sections and call only their own source. | Ruling 3. |
+| Cohort recurrence | Require explicit study, profile and sample set; show denominator and study terms. There is no default cohort. | Ruling 5. |
+| Investigate sources | Keep explicit CAR, Mutalyzer and VariantValidator services. Defer variant structure, variant-specific UniProt/InterPro and AlphaGenome. The retired structure command names gene protein. | Ruling 6. |
+| Advanced filters and ownership | Port each filter only with a known-positive source case. CGI and variant cspec are deferred. GWAS search, trial search and article search retain their owning slices. Canonical section spellings and retirement messages follow the decision. | Rulings 7, 8 and 9. |
 
 ## 9. Measurement appendix
 
@@ -305,10 +304,10 @@ OncoKB has no public-tier execution measurement. Its budget remains unmeasured u
 | `search gwas --gene CHEK2 --limit 3` | 4.186 | 1749 | exit 0 |
 | `batch variant NM_004333.4:c.1799T>A,NM_007194.4:c.470T>C` | 1.944 | 3159 | exit 1 |
 
-The 21 historical search examples include 9 usage errors because the transcript/genomic text is treated as a gene filter and rejected by its gene-symbol validation, 2 other errors, and 10 successful searches. Exact stderr/stdout are retained. This is behavior of the released argument surface, not evidence those variants are absent. The direct resolver results show why explicit `--hgvs` is useful. Search outputs retain source-native candidates rather than locally declaring the most familiar result exact.
+The 21 historical search examples include 9 usage errors because the transcript/genomic text is treated as a gene filter and rejected by its gene-symbol validation, 2 other errors, and 10 successful searches. Exact stderr/stdout are retained. This is behavior of the released argument surface, not evidence those variants are absent. The direct resolver results support the accepted reference-qualified positional HGVS form. Search outputs retain source-native candidates rather than locally declaring the most familiar result exact.
 
 The initial historical section run used Q09's transcript input and failed before sections. The corrected positive rsID section run succeeded for all 12 section words. `predict` and `predictions` differ in output byte size and should share one canonical capability in the new schema. The 0.9.4 source inventory contains `gwas`; the 0.9.3 runtime's same word explicitly reports `unavailable`, permanent legacy-endpoint retirement, and a v2 migration gap in the positive run. Do not call that current v2 coverage. `variant structure` and generic batch were executed and failed at the transcript-resolution prerequisite; their source joins remain unmeasured, and deferral rests on the absence of a harvested need, not a claim that those endpoints fail.
 
-### Remaining proof limits for PM review
+### Remaining implementation proof limits
 
-The corpus does not establish an exact same-allele germline-versus-somatic conflict. It does establish a source-paper/reference inconsistency, source name-search ambiguity and multiple alternate alleles for one rsID. cBioPortal exact allele recurrence and its denominators need a selected-cohort case. A field from the public tier is retained only after a valid untruncated source capture shows it; source docs alone cannot enable a section. Several publishers' output redistribution terms remain unverified, so captures stay outside Git. The proposed source limits, final schema, page sizes and full-envelope ceilings are implementation decisions after design approval. No new parser, clinical interpretation, ticket or release is authorized by this file.
+The corpus does not establish an exact same-allele germline-versus-somatic conflict. It does establish a source-paper/reference inconsistency, source name-search ambiguity and multiple alternate alleles for one rsID. cBioPortal exact allele recurrence and its denominators need a selected-cohort case. A field from the public tier is retained only after a valid untruncated source capture shows it; source docs alone cannot enable a section. Several publishers' output redistribution terms remain unverified, so captures stay outside Git. The proposed source limits, final schema, page sizes and full-envelope ceilings are implementation decisions within the accepted design. No new parser, clinical interpretation, ticket or release is authorized by this file.
