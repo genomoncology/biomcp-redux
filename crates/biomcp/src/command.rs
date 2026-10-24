@@ -425,7 +425,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     });
-    network_steps(&mut envelope.next, &envelope.sources);
+    steps::network_steps(&mut envelope.next, &envelope.sources);
     encode(
         envelope,
         if local {

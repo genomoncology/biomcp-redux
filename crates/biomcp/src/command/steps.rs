@@ -46,7 +46,7 @@ fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<b
         .collect()
 }
 
-fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
+pub(super) fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
     for (reason, setting) in [
         (biodata::Reason::Tls, "ca_bundle"),
         (biodata::Reason::Proxy, "proxy"),
