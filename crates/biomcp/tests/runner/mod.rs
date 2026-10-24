@@ -1,6 +1,6 @@
-pub(super) mod proof;
 mod assertions;
 mod launch;
+pub(super) mod proof;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -44,10 +44,19 @@ pub(super) fn discover(root: &Path) -> Result<Vec<Trial>, String> {
     if paths.is_empty() {
         return Err(format!("{}: no YAML cases", root.display()));
     }
-    paths.into_iter().map(|path| {
-        let name = path.strip_prefix(root).map_err(|error| error.to_string())?.to_string_lossy().replace('\\', "/");
-        Ok(Trial::test(name, move || run_case(&path).map_err(Into::into)))
-    }).collect()
+    paths
+        .into_iter()
+        .map(|path| {
+            let name = path
+                .strip_prefix(root)
+                .map_err(|error| error.to_string())?
+                .to_string_lossy()
+                .replace('\\', "/");
+            Ok(Trial::test(name, move || {
+                run_case(&path).map_err(Into::into)
+            }))
+        })
+        .collect()
 }
 
 fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<()> {
@@ -55,7 +64,10 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
         let path = entry?.path();
         if path.is_dir() {
             collect(&path, paths)?;
-        } else if path.extension().is_some_and(|ext| ext == "yaml" || ext == "yml") {
+        } else if path
+            .extension()
+            .is_some_and(|ext| ext == "yaml" || ext == "yml")
+        {
             paths.push(path);
         }
     }
@@ -70,17 +82,29 @@ fn run_case(path: &Path) -> Result<(), String> {
     }
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
     for (index, step) in case.steps.iter().enumerate() {
-        run_step(step, &environment).map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
+        run_step(step, &environment)
+            .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
     }
     Ok(())
 }
 
 fn run_step(step: &Step, environment: &launch::Environment) -> Result<(), String> {
-    let output = environment.run(env!("CARGO_BIN_EXE_biomcp"), &step.run).map_err(|error| error.to_string())?;
+    let output = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &step.run)
+        .output()
+        .map_err(|error| error.to_string())?;
     if output.status.code() != Some(step.exit) {
-        return Err(format!("exit: expected {}, actual {:?}; stderr: {}", step.exit, output.status.code(), String::from_utf8_lossy(&output.stderr)));
+        return Err(format!(
+            "exit: expected {}, actual {:?}; stderr: {}",
+            step.exit,
+            output.status.code(),
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
-    if step.exit != 0 && (!output.stdout.is_empty() || output.stderr != b"biomcp: expected schema <known artifact id>\n") {
+    if step.exit != 0
+        && (!output.stdout.is_empty()
+            || output.stderr != b"biomcp: expected schema <known artifact id>\n")
+    {
         return Err("error output: expected empty stdout and fixed diagnostic".into());
     }
     assertions::check(&output.stdout, step)
