@@ -274,3 +274,120 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
     }
     assert!(server.requests.try_recv().is_err());
 }
+
+#[test]
+fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_consumption() {
+    use biomcp_fetch::{Credential, KeyPlace, Mode, RecordError, RequestError, Secret, SecretName};
+    for place in [KeyPlace::Query("api_key"), KeyPlace::Header("x-api-key")] {
+        let dir = tempfile::tempdir().unwrap();
+        let server = Server::new();
+        let spec = server.spec(
+            spec(&server).quota,
+            KeyUse::Required(Credential {
+                secret: SecretName::NcbiApiKey,
+                place,
+            }),
+        );
+        let mut config = FetchConfig {
+            mode: Mode::Record {
+                dir: dir.path().to_owned(),
+            },
+            ..FetchConfig::default()
+        };
+        config
+            .secrets
+            .insert(SecretName::NcbiApiKey, Secret::new("configured-secret"));
+        let recording = Fetch::open(config).unwrap();
+        thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                recording
+                    .leg(spec, recording.deadline(Duration::from_secs(10)))
+                    .json::<Answer>(
+                        &spec.post_form("/answer"),
+                        &[
+                            ("q", Arg::Text("user-text")),
+                            ("api_key", Arg::Text("caller-secret")),
+                        ],
+                    )
+            });
+            let request = server.next();
+            let wire = request.text.to_ascii_lowercase();
+            assert!(wire.contains("configured-secret"));
+            match place {
+                KeyPlace::Query(_) => {
+                    assert!(
+                        request
+                            .text
+                            .starts_with("POST /answer?api_key=configured-secret ")
+                    );
+                    assert_eq!(request.body, b"q=user-text");
+                }
+                KeyPlace::Header(_) => {
+                    assert!(wire.contains("x-api-key: configured-secret\r\n"));
+                    assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
+                }
+            }
+            request.ok();
+            assert!(worker.join().unwrap().unwrap().answer);
+        });
+        drop(recording);
+        let path = std::fs::read_dir(dir.path().join("pubmed"))
+            .unwrap()
+            .next()
+            .unwrap()
+            .unwrap()
+            .path();
+        let original = std::fs::read(&path).unwrap();
+        let text = std::str::from_utf8(&original).unwrap();
+        for secret in ["configured-secret", "caller-secret", "user-text"] {
+            assert!(!text.contains(secret));
+        }
+        let value: serde_json::Value = serde_json::from_slice(&original).unwrap();
+        assert_eq!(value["method"], "POST");
+        assert_eq!(
+            value["post"]["request_content_type"],
+            "application/x-www-form-urlencoded"
+        );
+        assert_eq!(
+            value["post"]["request_body_sha256"].as_str().unwrap().len(),
+            64
+        );
+        let mut config = FetchConfig {
+            mode: Mode::Replay {
+                dir: dir.path().to_owned(),
+            },
+            ..FetchConfig::default()
+        };
+        config
+            .secrets
+            .insert(SecretName::NcbiApiKey, Secret::new("different-secret"));
+        let replay = Fetch::open(config).unwrap();
+        let get = || {
+            replay
+                .leg(spec, replay.deadline(Duration::from_secs(10)))
+                .json::<Answer>(
+                    &spec.post_form("/answer"),
+                    &[
+                        ("q", Arg::Text("user-text")),
+                        ("api_key", Arg::Text("caller-secret")),
+                    ],
+                )
+        };
+        for field in ["request_content_type", "request_body_sha256"] {
+            let mut changed = value.clone();
+            changed["post"][field] = "wrong".into();
+            std::fs::write(&path, serde_json::to_vec(&changed).unwrap()).unwrap();
+            assert_eq!(
+                get().unwrap_err(),
+                RequestError::Recording(RecordError::Malformed)
+            );
+        }
+        std::fs::write(&path, original).unwrap();
+        assert!(get().unwrap().answer);
+        assert_eq!(
+            get().unwrap_err(),
+            RequestError::Recording(RecordError::Exhausted)
+        );
+        assert!(server.requests.try_recv().is_err());
+    }
+}

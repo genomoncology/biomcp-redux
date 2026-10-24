@@ -135,7 +135,11 @@ impl<T: Default + Send + 'static> Server<T> {
     }
     pub(super) fn next(&self) -> Request<T> {
         let request = self.requests.recv_timeout(Duration::from_secs(10)).unwrap();
-        assert!(request.text.starts_with("GET ") || request.text.starts_with("POST "));
+        if request.text.starts_with("GET ") {
+            assert!(request.body.is_empty(), "GET body must stay empty");
+        } else {
+            assert!(request.text.starts_with("POST "));
+        }
         request
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
