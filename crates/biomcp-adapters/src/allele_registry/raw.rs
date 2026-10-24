@@ -7,19 +7,19 @@ pub(super) struct Allele {
     pub id: Option<Text>,
     #[serde(rename = "errorType")]
     pub error_type: Option<Text>,
-    #[serde(default, rename = "genomicAlleles")]
-    pub genomic: Vec<Genomic>,
-    #[serde(default, rename = "transcriptAlleles")]
-    pub transcripts: Vec<Transcript>,
-    #[serde(default, rename = "externalRecords")]
-    pub external: External,
+    #[serde(rename = "genomicAlleles")]
+    pub genomic: Option<Vec<Genomic>>,
+    #[serde(rename = "transcriptAlleles")]
+    pub transcripts: Option<Vec<Transcript>>,
+    #[serde(rename = "externalRecords")]
+    pub external: Option<External>,
 }
-#[derive(Default, Deserialize)]
+#[derive(Deserialize)]
 pub(super) struct External {
-    #[serde(default, rename = "dbSNP")]
-    pub rs: Vec<Rs>,
-    #[serde(default, rename = "ClinVarVariations")]
-    pub clinvar: Vec<Clinvar>,
+    #[serde(rename = "dbSNP")]
+    pub rs: Option<Vec<Rs>>,
+    #[serde(rename = "ClinVarVariations")]
+    pub clinvar: Option<Vec<Clinvar>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Rs {
@@ -68,6 +68,7 @@ impl Reply for Allele {
                 Err(BadReply)
             };
         }
+        let genomic = self.genomic.as_deref().ok_or(BadReply)?;
         let key = self
             .id
             .as_ref()
@@ -75,12 +76,12 @@ impl Reply for Allele {
         if !key.is_some_and(|k| {
             k.parse::<biodata::VariantInput>()
                 .is_ok_and(|v| v.namespace().ok() == Some(biodata::VariantNamespace::Ca))
-        }) || self.genomic.is_empty()
-            || self.genomic.len() > 1000
+        }) || genomic.is_empty()
+            || genomic.len() > 1000
         {
             return Err(BadReply);
         }
-        if self.genomic.iter().any(|g| {
+        if genomic.iter().any(|g| {
             g.hgvs.is_empty()
                 || g.coordinates.is_empty()
                 || g.coordinates.iter().any(|c| c.start > c.end)

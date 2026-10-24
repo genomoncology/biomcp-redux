@@ -45,8 +45,7 @@ struct Metadata {
 struct RawVariant {
     submitted_variant: Text,
     hgvs_transcript_variant: String,
-    #[serde(default)]
-    primary_assembly_loci: BTreeMap<String, Locus>,
+    primary_assembly_loci: Option<BTreeMap<String, Locus>>,
 }
 #[derive(Deserialize)]
 struct Locus {
@@ -118,7 +117,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             build: None,
             allele: None,
         }];
-        for (assembly, locus) in v.primary_assembly_loci {
+        for (assembly, locus) in v.primary_assembly_loci.into_iter().flatten() {
             let expression =
                 biodata::Expression::hgvs(locus.hgvs_genomic_description).map_err(|_| bad())?;
             let source_build = match assembly.as_str() {

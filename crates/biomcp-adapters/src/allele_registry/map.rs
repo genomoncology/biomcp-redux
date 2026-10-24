@@ -22,22 +22,24 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
         .map_err(|_| biomcp_fetch::BadReply)?;
     let record = Text::new(key).map_err(|_| biomcp_fetch::BadReply)?;
     let mut ids = vec![id];
-    for rs in raw.external.rs {
+    if let Some(external) = raw.external {
+    for rs in external.rs.into_iter().flatten() {
         if rs.rs > 0 {
             ids.push(VariantId::Rs(rs.rs));
         }
     }
-    for cv in raw.external.clinvar {
+    for cv in external.clinvar.into_iter().flatten() {
         if cv.id > 0 {
             ids.push(VariantId::ClinVarVariation(cv.id));
         }
     }
+    }
     let mut problems = Vec::new();
     let mut representations = Vec::new();
-    for g in raw.genomic {
+    for g in raw.genomic.into_iter().flatten() {
         genomic(g, &record, &mut representations, &mut problems);
     }
-    for t in raw.transcripts {
+    for t in raw.transcripts.into_iter().flatten() {
         if let Some(m) = t.mane {
             for forms in [m.nucleotide, m.protein].into_iter().flatten() {
                 for form in [forms.ensembl, forms.refseq].into_iter().flatten() {

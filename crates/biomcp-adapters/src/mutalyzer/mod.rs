@@ -30,31 +30,33 @@ pub enum Resolution {
 struct Normalized {
     input_description: Option<Text>,
     normalized_description: Option<Text>,
-    #[serde(default)]
-    errors: Vec<Message>,
+    errors: Option<Vec<Message>>,
 }
 #[derive(Deserialize)]
 struct Message {
     code: Text,
 }
+impl Normalized {
+    fn errors(&self) -> &[Message] { self.errors.as_deref().unwrap_or(&[]) }
+}
 impl Reply for Normalized {
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if (200..300).contains(&status) || matches!(status, 400 | 422) && !self.errors.is_empty() {
+        if (200..300).contains(&status) || matches!(status, 400 | 422) && !self.errors().is_empty() {
             Ok(())
         } else {
             Err(BadReply)
         }
     }
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors.len() > 1000
-            || self.errors.iter().any(|error| {
+        if self.errors().len() > 1000
+            || self.errors().iter().any(|error| {
                 let code = error.code.as_str();
                 code.len() > 128 || !code.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
             })
         {
             return Err(BadReply);
         }
-        if !self.errors.is_empty()
+        if !self.errors().is_empty()
             || self.input_description.is_some() && self.normalized_description.is_some()
         {
             Ok(())
@@ -67,7 +69,7 @@ impl Reply for Normalized {
 pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
     let (raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
-        if !reply.errors.is_empty()
+        if !reply.errors().is_empty()
             || reply.input_description.as_ref().map(Text::as_str) == Some(input)
         {
             Ok(())
@@ -75,9 +77,9 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             Err(BadReply)
         }
     })?;
-    if !raw.errors.is_empty() {
+    if !raw.errors().is_empty() {
         return Ok(Resolution::Rejected(
-            raw.errors.into_iter().map(|e| e.code).collect(),
+            raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
     let notation = raw.normalized_description.ok_or_else(bad)?;
