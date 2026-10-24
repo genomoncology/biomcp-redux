@@ -1,5 +1,6 @@
 //! Selected SEPIO documents supply their own facts; summary rows supply routing only.
 use biodata::{Attribution, VariantRef};
+
 use biomcp_fetch::{BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::{
     AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,

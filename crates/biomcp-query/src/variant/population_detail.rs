@@ -130,7 +130,7 @@ fn load(
     query: &VariantPopulationQuery,
     id: &str,
     candidates: &[biomcp_types::VariantHeader],
-    problems: &mut Vec<biodata::Problem>,
+    problems: &mut Vec<biomcp_types::Problem>,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> (
     Section<biomcp_types::VariantPopulation>,

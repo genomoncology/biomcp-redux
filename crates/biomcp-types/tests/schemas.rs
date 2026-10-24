@@ -151,7 +151,7 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/2"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/3"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/2"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/2"),
+        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/3"),
         Statement => ("statement", "biodata.statement/3"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/3"),

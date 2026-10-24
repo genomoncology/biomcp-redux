@@ -1,10 +1,8 @@
 //! Release projection requires a matching total in the same source response.
-use biodata::{
-    Attribution, Build, PopulationDataType, PopulationFrequency, Problem, ProblemCode, Text,
-    VariantRef,
-};
+use biodata::{Attribution, Build, PopulationDataType, PopulationFrequency, Text, VariantRef};
 use biomcp_adapters::gnomad::variant::{CohortFrequency, Subset, Variant};
 use biomcp_types::Source;
+use biomcp_types::{Problem, ProblemCode};
 
 pub(super) fn frequency(
     raw: &Variant,

@@ -1,4 +1,5 @@
 use biodata::{Attribution, Coding, Proposition, Statement, Term, Text, VariantRef};
+
 use biomcp_types::{
     AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
 };

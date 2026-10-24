@@ -1,5 +1,6 @@
 use crate::xml_element::Element;
 use biodata::{Attribution, Text, VariantRef};
+
 use biomcp_fetch::BadReply;
 use biomcp_types::{
     AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,

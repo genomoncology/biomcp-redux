@@ -1,4 +1,5 @@
 use biodata::{Attribution, Text, VariantRef};
+
 use biomcp_fetch::{BadReply, Reply, RequestError};
 use biomcp_types::{
     AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
