@@ -1,7 +1,7 @@
 {
   "feature": "article-preprints",
   "live_check": "public",
-  "story": "Preprint sections without a PMID make no requests to PubMed annotation or citation sources",
+  "story": "Preprint all keeps annotation, citation and supplement sections inapplicable without PMID or PMCID, and disabled Semantic Scholar makes no request",
   "replay": "article/preprint/live",
   "steps": [
     {
@@ -9,25 +9,33 @@
         "get",
         "article",
         "PPR1295425",
-        "all"
+        "all",
+        "--disable-sources",
+        "semantic-scholar"
       ],
       "mcp": [
         "get",
         "article",
         "PPR1295425",
-        "all"
+        "all",
+        "--disable-sources",
+        "semantic-scholar"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items/0/sections/annotations/state": "not_applicable",
         "/result/items/0/sections/citations/state": "not_applicable",
         "/result/items/0/sections/supplements/state": "not_applicable",
         "/sources/*/source": [
-          "europepmc"
-        ]
+          "europepmc",
+          "semantic-scholar"
+        ],
+        "/sources/1/state": "skipped",
+        "/sources/1/reason": "disabled",
+        "/result/items/0/sections/tldr/reason": "disabled"
       },
       "max_bytes": 5123
     }
   ],
-  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists."
+  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists. Combined-source integration disables Semantic Scholar explicitly; its skipped notice preserves DOI-based TLDR support without another public request."
 }
