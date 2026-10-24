@@ -162,7 +162,7 @@ pub use variant::{
 
 pub use response::{
     GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
-    VariantPopulation, VariantPopulationDetail,
+    VariantPopulation,
 };
 
 pub use variant::CivicEvidenceLevelCode;

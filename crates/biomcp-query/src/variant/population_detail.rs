@@ -118,21 +118,36 @@ fn read(
             local,
         );
     };
+    let (section, groups, source, error) = load(cx, query, &id, &subject, deadline);
+    sources.push(source);
+    (section, groups, sources, problems, local.or(error))
+}
+fn load(
+    cx: &Ctx<'_>,
+    query: &VariantPopulationQuery,
+    id: &str,
+    subject: &biodata::VariantRef,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> (
+    Section<biodata::VariantPopulation>,
+    Vec<PopulationGroup>,
+    biodata::SourceOutcome,
+    Option<RequestError>,
+) {
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut groups = Vec::new();
-    let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
+    let result = gnomad::variant::population(&leg, id).and_then(|raw| {
         raw.map(|raw| {
-            let summary = super::population::summary(&raw, &subject)?;
+            let summary = super::population::summary(&raw, subject)?;
             if query.detail() {
-                groups = ancestry(&raw, &subject)?;
+                groups = ancestry(&raw, subject)?;
             }
             Ok(summary)
         })
         .transpose()
     });
     let error = result.as_ref().err().copied();
-    sources.push(status::source(Source::Gnomad, leg.finish(), error));
-    local = local.or(error.and_then(status::local));
+    let source = status::source(Source::Gnomad, leg.finish(), error);
     let section = match result {
         Ok(Some(data)) => Section::Data {
             source: Source::Gnomad,
@@ -150,7 +165,7 @@ fn read(
             },
         ),
     };
-    (section, groups, sources, problems, local)
+    (section, groups, source, error.and_then(status::local))
 }
 
 fn ancestry(

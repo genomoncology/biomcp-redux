@@ -44,39 +44,55 @@ pub(super) fn apply(
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
-                S::Clinvar => {
-                    sections.clinvar = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Clinvar,
-                        ),
+                S::Clinvar | S::Erepo => {
+                    let source = if section == S::Clinvar {
+                        AssertionSource::Clinvar
+                    } else {
+                        AssertionSource::Erepo
+                    };
+                    let value = Some(retain(
+                        super::assertions::section(cx, query, candidates, deadline, source),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ));
+                    if section == S::Clinvar {
+                        sections.clinvar = value;
+                    } else {
+                        sections.erepo = value;
+                    }
+                }
+                S::Population => {
+                    sections.population = Some(retain(
+                        super::population::section(cx, query, candidates, deadline),
                         &mut sources,
                         &mut problems,
                         &mut local,
                     ))
                 }
-                S::Erepo => {
-                    sections.erepo = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Erepo,
-                        ),
+                S::Gwas => {
+                    sections.gwas = Some(retain(
+                        super::gwas::section(cx, query, candidates, deadline),
                         &mut sources,
                         &mut problems,
                         &mut local,
                     ))
                 }
-                S::Population => sections.population = Some(pending(Source::Gnomad, &mut sources)),
-                S::Gwas => sections.gwas = Some(pending(Source::Gwas, &mut sources)),
-                S::Civic => sections.civic = Some(pending(Source::Civic, &mut sources)),
+                S::Civic => {
+                    sections.civic = Some(retain(
+                        super::civic::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 S::Hotspots => {
-                    sections.hotspots = Some(pending(Source::CancerHotspots, &mut sources))
+                    sections.hotspots = Some(retain(
+                        super::hotspots::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
                 }
                 S::Predict => {
                     sections.predict = Some(retain(

@@ -31,9 +31,14 @@ pub fn variant(
         .identity
         .ids
         .iter()
+        .chain(candidate.requested.iter())
         .find(|id| matches!(id, VariantId::Ca(_)))
         .map(ToString::to_string)
         .ok_or_else(|| failure(Reason::NoJoinId))?;
+    let exact_query = query
+        .for_candidate(allele.parse().map_err(|_| failure(Reason::BadReply))?)
+        .map_err(|_| failure(Reason::BadReply))?;
+    let query = &exact_query;
     let mut after = None;
     let mut offset = 0;
     loop {
