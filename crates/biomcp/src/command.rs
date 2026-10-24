@@ -281,9 +281,19 @@ fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Resu
     })
 }
 
-fn run_request(fetch: &biomcp_fetch::Fetch, request: &Request, fresh: bool) -> io::Result<biomcp_query::Outcome> {
-    Ok(biomcp_query::run(&biomcp_query::Ctx {
-        ncbi_email: crate::config::ncbi_email().map_err(|()| io::Error::other("local configuration failed"))?,
-        fetch, budget: crate::config::BUDGET, fresh,
-    }, request))
+fn run_request(
+    fetch: &biomcp_fetch::Fetch,
+    request: &Request,
+    fresh: bool,
+) -> io::Result<biomcp_query::Outcome> {
+    Ok(biomcp_query::run(
+        &biomcp_query::Ctx {
+            ncbi_email: crate::config::ncbi_email()
+                .map_err(|()| io::Error::other("local configuration failed"))?,
+            fetch,
+            budget: crate::config::BUDGET,
+            fresh,
+        },
+        request,
+    ))
 }

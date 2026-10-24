@@ -44,7 +44,10 @@ pub(super) fn append(
                 bytes += 2;
             }
             bytes += size;
-            group.push(Row { source_row, text: piece });
+            group.push(Row {
+                source_row,
+                text: piece,
+            });
         }
     }
     if !group.is_empty() {

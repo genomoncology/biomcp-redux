@@ -124,17 +124,23 @@ fn own_id(metadata: Option<Element<'_>>) -> Result<Option<Pmcid>, BadReply> {
 }
 fn cited(sec: Element<'_>, id: &str) -> Result<bool, BadReply> {
     for node in blocks::descendants(sec.0, "xref")? {
-        if matches!(node.attr("ref-type")?.as_deref(), Some("table" | "table-wrap"))
-            && node
-                .attr("rid")?
-                .is_some_and(|v| v.split_whitespace().any(|v| v == id))
+        if matches!(
+            node.attr("ref-type")?.as_deref(),
+            Some("table" | "table-wrap")
+        ) && node
+            .attr("rid")?
+            .is_some_and(|v| v.split_whitespace().any(|v| v == id))
         {
             return Ok(true);
         }
     }
     Ok(false)
 }
-fn append_table(parts: &mut Vec<Part>, table: Element<'_>, rows: &mut Vec<String>) -> Result<(), BadReply> {
+fn append_table(
+    parts: &mut Vec<Part>,
+    table: Element<'_>,
+    rows: &mut Vec<String>,
+) -> Result<(), BadReply> {
     let title = table
         .value(&["label"])?
         .filter(|v| !v.trim().is_empty())

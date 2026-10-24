@@ -1,0 +1,18 @@
+{
+  "feature": "article-fulltext",
+  "story": "no-pmcid",
+  "replay": "article/fulltext/live-no-pmcid",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "21217686",
+        "fulltext"
+      ],
+      "expect": {
+        "/result/items/0/sections/fulltext/state": "not_applicable"
+      }
+    }
+  ]
+}

@@ -88,7 +88,9 @@ fn cells(xml: &str) -> Result<String, BadReply> {
                 reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
                 cells.push(Element(&xml[begin..reader.buffer_position() as usize]).text()?);
             }
-            Event::Empty(tag) if matches!(tag.name().as_ref(), "td" | "th") => cells.push(String::new()),
+            Event::Empty(tag) if matches!(tag.name().as_ref(), "td" | "th") => {
+                cells.push(String::new())
+            }
             Event::Eof => return Ok(cells.join("\t")),
             _ => {}
         }
