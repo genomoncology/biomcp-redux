@@ -284,7 +284,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
         outcome
             .sources
             .iter()
-            .find(|source| source.source == Source::ClinGen)
+            .find(|source| source.source == biodata::Source::ClinGen)
             .unwrap()
             .reason,
         Some(biodata::Reason::Syncing)
