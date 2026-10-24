@@ -1,10 +1,13 @@
 //! Independent NCI source: never a registry fallback or local disease matcher.
+mod get;
+mod page;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     NciTrialCards, NciTrialItem, NciTrialPage, QueryBody, Reason, Request, Source, Status,
-    StepKind, Text, TrialGet, TrialSearch,
+    StepKind, Text, TrialSearch,
 };
 use biomcp_adapters::nci;
+pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
 /// An NCIt code is an explicit identifier, never a disease name guess.
@@ -16,7 +19,7 @@ fn ncit(value: &Text) -> bool {
 }
 /// Reject unsupported registry filters without contacting either provider.
 fn valid(q: &TrialSearch) -> bool {
-    q.limit() <= 50
+    q.limit() <= nci::PAGE_LIMIT
         && q.query().is_none()
         && q.gene().is_none()
         && q.variant().is_none()
@@ -112,65 +115,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-pub(super) fn get(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
-    let mut out = empty(QueryBody::NciTrialCards(NciTrialCards {
-        items: Box::default(),
-        attribution: ATTRIBUTION.into(),
-    }));
-    if q.pool().is_some() || q.offset() != 0 {
-        out.body = QueryBody::TextPositionError;
-        return out;
-    }
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
-    let mut items = Vec::new();
-    let mut error = None;
-    for id in q.input() {
-        let result = nci::get(&leg, *id);
-        let (state, card, fetched) = match result {
-            Ok((card, meta)) => (
-                Status::Complete,
-                Some(card),
-                u64::try_from(meta.fetched).ok(),
-            ),
-            Err(e) => {
-                let absent =
-                    matches!(e,biomcp_fetch::RequestError::Source(s) if s.reason==Reason::NotFound);
-                if !absent {
-                    error = error.or(Some(e));
-                }
-                (
-                    if absent {
-                        Status::Absent
-                    } else {
-                        Status::Failed
-                    },
-                    None,
-                    None,
-                )
-            }
-        };
-        items.push(NciTrialItem {
-            input: *id,
-            status: state,
-            card,
-            fetched,
-            unsupported_sections: q.sections().into(),
-        });
-    }
-    out.status = status::status(items.iter().map(|i| i.status));
-    if let QueryBody::NciTrialCards(body) = &mut out.body {
-        body.items = items.into();
-    }
-    finish(
-        &mut out,
-        status::source(Source::Nci, leg.finish(), error),
-        error,
-    );
-    command.finish(deadline.remaining());
-    out
-}
+
 fn finish(
     out: &mut Outcome,
     source: biodata::SourceOutcome,

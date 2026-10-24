@@ -1,5 +1,5 @@
 //! Exact trial cards and immutable source section continuations.
-mod page;
+pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
 use crate::{Action, Ctx, Outcome, status, store::Store};

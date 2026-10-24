@@ -43,7 +43,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// Condition-only source text.
+    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -209,7 +209,7 @@ struct Fields {
     /// Require posted source results.
     #[serde(default)]
     has_results: bool,
-    /// Headers per page; default ten, maximum one hundred.
+    /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
     limit: u32,
@@ -282,7 +282,7 @@ impl TrialSearch {
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
     }
-    /// Condition-only source text.
+    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
     pub fn condition(&self) -> Option<&Text> {
         self.0.condition.as_ref()
     }

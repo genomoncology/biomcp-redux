@@ -1,10 +1,10 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
-use biodata::{NciDisease, NciTrial, NctId, Reason, Text, TrialSearch};
+use biodata::{NciDisease, NciTrial, NctId, Text, TrialSearch};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, Reply, RequestError,
     SecretName, SourceSpec,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 /// NCI requires the user's own API key for every request, including health probes.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -23,6 +23,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
 };
 /// Native trial search, also used for one bounded health request.
+pub const PAGE_LIMIT: u32 = 50;
+/// Compact card sample; the diseases section returns every original concept.
+pub const CARD_DISEASES: usize = 3;
+/// Native endpoint with shared transport policy.
 pub const SEARCH: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 const DETAIL: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 /// Native page, preserving provider counts and order.
@@ -35,7 +39,7 @@ pub struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 50 || self.data.len() as u64 > self.total {
+        if self.data.len() > PAGE_LIMIT as usize || self.data.len() as u64 > self.total {
             return Err(BadReply);
         }
         self.data.iter().try_for_each(Reply::check)
@@ -49,14 +53,36 @@ pub struct Trial {
     brief_title: Text,
     current_trial_status: Text,
     phase: Option<Text>,
-    brief_summary: Option<Text>,
+    brief_summary: Option<Box<str>>,
     #[serde(default)]
-    diseases: Vec<Disease>,
+    diseases: Vec<NciDisease>,
+    eligibility: Option<biodata::NciEligibility>,
+    #[serde(default)]
+    arms: Vec<Arm>,
+    #[serde(default)]
+    outcome_measures: Vec<biodata::NciOutcome>,
 }
 #[derive(Debug, Deserialize)]
-struct Disease {
-    name: Text,
-    nci_thesaurus_concept_id: Text,
+struct Arm {
+    name: Option<Box<str>>,
+    description: Option<Box<str>>,
+    r#type: Option<Text>,
+    #[serde(default)]
+    interventions: Vec<biodata::NciIntervention>,
+}
+/// Native sections and compact card from one validated source record.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Detail {
+    /// Compact source-native card.
+    pub card: NciTrial,
+    /// Original disease concepts, without deduplication or inferred ranking.
+    pub diseases: Box<[NciDisease]>,
+    /// Original criteria and native structured fields.
+    pub eligibility: Option<biodata::NciEligibility>,
+    /// Original outcomes in source order.
+    pub outcomes: Box<[biodata::NciOutcome]>,
+    /// Original arm and intervention records with preserved relationships.
+    pub arms: Box<[biodata::NciArmRecord]>,
 }
 impl Reply for Trial {
     fn check(&self) -> Result<(), BadReply> {
@@ -68,29 +94,61 @@ impl Reply for Trial {
 }
 impl Trial {
     /// Native publisher card, with no clinical interpretation or inferred fields.
-    pub fn card(self, summary: bool) -> NciTrial {
+    pub fn card(&self, summary: bool) -> NciTrial {
         NciTrial {
-            nci_id: self.nci_id,
+            nci_id: self.nci_id.clone(),
             nct_id: self.nct_id,
-            brief_title: self.brief_title,
-            current_trial_status: self.current_trial_status,
-            phase: self.phase,
-            brief_summary: if summary { self.brief_summary } else { None },
-            diseases: self
-                .diseases
-                .into_iter()
-                .map(|d| NciDisease {
-                    name: d.name,
-                    nci_thesaurus_concept_id: d.nci_thesaurus_concept_id,
-                })
-                .collect(),
+            brief_title: self.brief_title.clone(),
+            current_trial_status: self.current_trial_status.clone(),
+            phase: self.phase.clone(),
+            brief_summary: if summary {
+                self.brief_summary.clone()
+            } else {
+                None
+            },
+            diseases: biodata::TrialRecords {
+                offset: 0,
+                total: self.diseases.len() as u32,
+                items: self.diseases.iter().take(CARD_DISEASES).cloned().collect(),
+            },
+        }
+    }
+    fn detail(self) -> Detail {
+        let card = self.card(true);
+        let mut arms = Vec::new();
+        for (arm_index, arm) in self.arms.into_iter().enumerate() {
+            arms.push(biodata::NciArmRecord::Arm {
+                arm_index: arm_index as u32,
+                data: biodata::NciArm {
+                    name: arm.name,
+                    description: arm.description,
+                    r#type: arm.r#type,
+                },
+            });
+            arms.extend(
+                arm.interventions
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, data)| biodata::NciArmRecord::Intervention {
+                        arm_index: arm_index as u32,
+                        index: index as u32,
+                        data,
+                    }),
+            );
+        }
+        Detail {
+            card,
+            diseases: self.diseases.into(),
+            eligibility: self.eligibility,
+            outcomes: self.outcome_measures.into(),
+            arms: arms.into(),
         }
     }
 }
 /// Exact native parameters. Repeated includes remain separate parameters.
 pub fn parameters(query: &TrialSearch) -> Vec<(String, String)> {
     let mut params = vec![
-        ("size".into(), query.limit().min(50).to_string()),
+        ("size".into(), query.limit().to_string()),
         (
             "from".into(),
             query.next_page().map_or("0", Text::as_str).into(),
@@ -128,7 +186,7 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
 pub fn get(
     leg: &Leg<'_>,
     id: NctId,
-) -> Result<(NciTrial, biomcp_fetch::ReplyMetadata), RequestError> {
+) -> Result<(Detail, biomcp_fetch::ReplyMetadata), RequestError> {
     let endpoint = DETAIL.clone().with_path(format!("/trials/{id}"))?;
     let (raw, metadata) = leg.json_received_checked::<Trial>(&endpoint, &[], |r| {
         if r.nct_id == id {
@@ -137,15 +195,5 @@ pub fn get(
             Err(BadReply)
         }
     })?;
-    Ok((raw.card(true), metadata))
-}
-/// Source-native missing-data failures stay distinct from confirmed empty results.
-pub fn failure(reason: Reason) -> RequestError {
-    biomcp_fetch::SourceError {
-        source: biodata::Source::Nci,
-        reason,
-        status: None,
-        retry_after: None,
-    }
-    .into()
+    Ok((raw.detail(), metadata))
 }

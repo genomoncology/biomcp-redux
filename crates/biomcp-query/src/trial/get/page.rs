@@ -142,7 +142,7 @@ fn eligibility(
         },
     }
 }
-fn records<T: Clone>(
+pub(in crate::trial) fn records<T: Clone>(
     query: &TrialGet,
     rows: &[T],
     budget: usize,
@@ -186,7 +186,7 @@ fn record(id: NctId) -> Option<SourceRecord> {
         .ok()
         .map(|id| SourceRecord { id, url: None })
 }
-fn advance(
+pub(in crate::trial) fn advance(
     query: &TrialGet,
     id: NctId,
     section: TrialSection,

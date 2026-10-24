@@ -112,3 +112,8 @@ pub use trial_detail::{TrialDate, TrialDateKind};
 pub use trial_detail::{TrialArmKind, TrialInterventionKind};
 
 pub use response::{NciDisease, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage};
+
+pub use response::{
+    NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
+    NciEligibilityStructured, NciIntervention, NciOutcome, NciTrialSections,
+};

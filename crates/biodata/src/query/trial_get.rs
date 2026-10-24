@@ -43,7 +43,8 @@ fn default_limit() -> u32 {
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=20).contains(&v.input.len())
+        if v.source == TrialSource::Ctgov && v.section.contains(&TrialSection::Diseases)
+            || !(1..=20).contains(&v.input.len())
             || !(1..=50).contains(&v.limit)
             || (v.pool.is_some() || v.offset != 0)
                 && (v.input.len() != 1
@@ -62,6 +63,11 @@ impl TrialGet {
         self.0.source
     }
 
+    /// Select one independent provider for a generated section action.
+    pub fn with_source(mut self, source: TrialSource) -> Self {
+        self.0.source = source;
+        self
+    }
     /// Exact checked selectors.
     pub fn input(&self) -> &[NctId] {
         &self.0.input
@@ -120,5 +126,7 @@ crate::macros::wire_enum! {
         Arms => "arms",
         /// Every implemented trial section, each with independent continuations.
         All => "all",
+        /// Native NCI disease concepts, including source enrichment metadata.
+        Diseases => "diseases",
     }
 }

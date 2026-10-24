@@ -2,7 +2,7 @@
 use crate::{NctId, Text, TrialGet, TrialSearch};
 use serde::{Deserialize, Serialize};
 /// NCI trial card without registry status or phase coercion.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrial {
@@ -18,12 +18,12 @@ pub struct NciTrial {
     pub phase: Option<Text>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub brief_summary: Option<Text>,
+    pub brief_summary: Option<Box<str>>,
     /// Publisher-provided disease concepts in source order.
-    pub diseases: Box<[NciDisease]>,
+    pub diseases: crate::TrialRecords<NciDisease>,
 }
 /// One NCI disease concept; names never substitute for an NCIt identity.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciDisease {
@@ -31,9 +31,22 @@ pub struct NciDisease {
     pub name: Text,
     /// Publisher NCIt identity.
     pub nci_thesaurus_concept_id: Text,
+    /// Publisher coding provenance, without local interpretation.
+    pub inclusion_indicator: Option<Text>,
+    /// Native lead-disease marker.
+    pub is_lead_disease: Option<bool>,
+    /// Original concept categories.
+    #[serde(rename = "type", default)]
+    pub kind: Box<[Text]>,
+    /// Original immediate ancestors.
+    #[serde(default)]
+    pub parents: Box<[Text]>,
+    /// Original alternative labels.
+    #[serde(default)]
+    pub synonyms: Box<[Text]>,
 }
 /// NCI search page in native order with native count.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialPage {
@@ -49,7 +62,7 @@ impl super::ResponseBody for NciTrialPage {
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialCards {
@@ -63,7 +76,7 @@ impl super::ResponseBody for NciTrialCards {
     type Query = TrialGet;
 }
 /// An exact NCI card and its source state.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialItem {
@@ -77,6 +90,12 @@ pub struct NciTrialItem {
     /// Original reply retrieval time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u64>,
+    /// Explicitly requested, source-native sections.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sections: Option<crate::NciTrialSections>,
+    /// Proven sections omitted from this request.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub more: Box<[crate::TrialSection]>,
     /// Requested sections without proven public-tier support.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub unsupported_sections: Box<[crate::TrialSection]>,
