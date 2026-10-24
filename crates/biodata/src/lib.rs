@@ -88,8 +88,8 @@ pub use response::{
 };
 
 mod trial;
-pub use trial::{NctId, TrialHeader, TrialPhase, TrialStatus, StudyType, TrialSex};
+pub use query::PhaseFilter;
+pub use query::SponsorType;
 pub use query::TrialSearch;
 pub use response::TrialPage;
-pub use query::SponsorType;
-pub use query::PhaseFilter;
+pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};

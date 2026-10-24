@@ -81,4 +81,5 @@ pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
 );
 
 // Conservative serial registry policy; no published numeric quota was established.
-pub(crate) static CTGOV: Quota = Quota::new(SourceKey::declare("ctgov"), Rate::per_second(1), None, 1);
+pub(crate) static CTGOV: Quota =
+    Quota::new(SourceKey::declare("ctgov"), Rate::per_second(1), None, 1);

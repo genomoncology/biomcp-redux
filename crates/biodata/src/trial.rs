@@ -1,23 +1,29 @@
 //! Registry identities and source-native trial values.
-use crate::{Text, PartialDate};
-use serde::{Serialize, Deserialize};
+use crate::{PartialDate, Text};
+use serde::{Deserialize, Serialize};
 /// Canonical ClinicalTrials.gov identifier.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NctId(u32);
 impl std::str::FromStr for NctId {
     type Err = crate::Error;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let digits = value.strip_prefix("NCT").ok_or(crate::Error::TrialIdInvalid)?;
+        let digits = value
+            .strip_prefix("NCT")
+            .ok_or(crate::Error::TrialIdInvalid)?;
         if digits.len() != 8 || !digits.bytes().all(|c| c.is_ascii_digit()) {
             return Err(crate::Error::TrialIdInvalid);
         }
         let number = digits.parse().map_err(|_| crate::Error::TrialIdInvalid)?;
-        if number == 0 { return Err(crate::Error::TrialIdInvalid); }
+        if number == 0 {
+            return Err(crate::Error::TrialIdInvalid);
+        }
         Ok(Self(number))
     }
 }
 impl std::fmt::Display for NctId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "NCT{:08}", self.0) }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NCT{:08}", self.0)
+    }
 }
 crate::macros::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
 crate::macros::wire_enum! {

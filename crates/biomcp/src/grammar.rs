@@ -440,7 +440,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
-        ("search", "trial") => serde_json::from_value::<biodata::TrialSearch>(value).map(Request::SearchTrial).map_err(|_| ()),
+        ("search", "trial") => serde_json::from_value::<biodata::TrialSearch>(value)
+            .map(Request::SearchTrial)
+            .map_err(|_| ()),
         ("article", "citation-evidence") => {
             serde_json::from_value::<biodata::ArticleEvidence>(value)
                 .map(Request::ArticleEvidence)

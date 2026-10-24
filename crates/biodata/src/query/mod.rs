@@ -23,4 +23,4 @@ pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
 
 mod trial;
-pub use trial::{TrialSearch, SponsorType, PhaseFilter};
+pub use trial::{PhaseFilter, SponsorType, TrialSearch};
