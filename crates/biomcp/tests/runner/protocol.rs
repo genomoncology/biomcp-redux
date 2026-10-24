@@ -331,6 +331,14 @@ fn discovery() -> Check {
         "all",
         "--band",
         "--locus-group",
+        "search article",
+        "get article",
+        "article text",
+        "article supplement",
+        "article citations",
+        "article references",
+        "article citation-evidence",
+        "article recommendations",
     ] {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));

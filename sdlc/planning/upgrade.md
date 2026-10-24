@@ -9,6 +9,18 @@ The generated table below lists decided leaf commands and their dropped options 
 <!-- upgrade-commands -->
 | 0.9 command | Outcome | Dropped options | Migration ruling |
 | --- | --- | --- | --- |
+| `search article` | Ported or renamed | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | [Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling.](slices/article.md) |
+| `get article` | Ported or renamed | `--asset-view`, `--asset-limit`, `--asset-offset` | [Section 5 moves parts into the reader. Explicit-path text and supplement saves remain pending 0076; PDF remains pending 0052 under the download-only ruling.](slices/article.md) |
+| `article authors` | Ported or renamed | — | [Section 1 maps author disclosure to the article card.](slices/article.md) |
+| `article entities` | Ported or renamed | `--limit`, `--full` | [Section 5 maps normalized entities to the annotations section with one bounded shape.](slices/article.md) |
+| `article batch` | Ported or renamed | — | [Section 1 maps repeated inputs to get article.](slices/article.md) |
+| `article citations` | Ported or renamed | — | [Section 5 keeps the Semantic Scholar graph one source option away and adds iCite as the default.](slices/article.md) |
+| `article references` | Ported or renamed | — | [Section 5 keeps contexts and intents through the explicit graph source.](slices/article.md) |
+| `article citation-evidence` | Ported or renamed | — | [Section 5 preserves the pair reader and optional citing paragraphs.](slices/article.md) |
+| `article supplement-search` | Ported or renamed | — | [Section 5 replaces the asset selector with the exact file positional input of article supplement.](slices/article.md) |
+| `article recommendations` | Ported or renamed | — | [Section 5 preserves native positive and negative seed recommendations.](slices/article.md) |
+| `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | [The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice.](slices/article.md) |
+| `disease articles` | Ported or renamed | — | [Section 1 moves the capability to search article --disease.](slices/article.md) |
 | `search gene` | Ported or renamed | `--query`, `--region`, `--pathway`, `--go` | [Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters.](slices/gene.md) |
 | `get gene` | Ported or renamed | — | [Section 1 preserves the gene card; section values do not count as option slots.](slices/gene.md) |
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |
@@ -32,7 +44,7 @@ Create `biomcp/config.json` under `$XDG_CONFIG_HOME`, or under `$HOME/.config` w
 }
 ```
 
-Register each key with `biomcp key set <source>`, which prompts for the key, keeps it out of shell history and writes it to this file. Omit unused keys. The corresponding environment variables are `ONCOKB_API_KEY`, `NCBI_API_KEY` and `SEMANTIC_SCHOLAR_API_KEY`; nonempty environment values override file values. Replace the old desktop `ONCOKB_TOKEN` and `S2_API_KEY` settings with those names. The 0.9 DisGeNET credential has no 1.0 gene section; the gene slice ruling drops that section. Keep credentials local and outside version control.
+Register each key with `biomcp key set <source>`, which prompts for the key, keeps it out of shell history and writes it to this file. Omit unused keys. The corresponding environment variables are `ONCOKB_API_KEY`, `NCBI_API_KEY` and `SEMANTIC_SCHOLAR_API_KEY`; stored file values override environment values. Replace the old desktop `ONCOKB_TOKEN` and `S2_API_KEY` settings with those names. The 0.9 DisGeNET credential has no 1.0 gene section; the gene slice ruling drops that section. Keep credentials local and outside version control.
 
 Optional `ncbi_email` identifies NCBI requests. Optional `ca_bundle` names a PEM file that adds company certificates to platform trust. Optional `proxy` names an HTTP or HTTPS proxy and overrides `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Without it, routing uses those environment variables. `disable_sources` accepts individual sources and the `restricted` and `noncommercial` groups; CLI exclusions add to file exclusions. Run `biomcp health` to inspect enabled sources and reachability.
 

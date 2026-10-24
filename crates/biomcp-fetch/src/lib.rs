@@ -102,6 +102,7 @@ impl Default for FetchConfig {
 )]
 #[derive(Clone)]
 pub struct Fetch {
+    secrets: std::sync::Arc<Secrets>,
     agents: std::sync::Arc<network::Agents>,
     limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
@@ -152,6 +153,7 @@ impl Fetch {
         let clock =
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
+            secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
             agents: std::sync::Arc::new(agents),
             cache,
             recordings: std::sync::Arc::new(recordings),
@@ -176,9 +178,17 @@ impl Fetch {
         restricted
     }
 
+    /// Replace this command's credentials while retaining every shared transport resource.
+    /// Other concurrent calls keep their own immutable credential snapshot.
+    pub fn with_secrets(&self, secrets: Secrets) -> Self {
+        let mut fetch = self.clone();
+        fetch.secrets = std::sync::Arc::new(secrets);
+        fetch
+    }
+
     /// Report whether a configured credential is nonempty without exposing it.
     pub fn has_key(&self, name: SecretName) -> bool {
-        self.config.secrets.get(name).is_some()
+        self.secrets.get(name).is_some()
     }
 
     /// Create a real deadline or an initial replay budget for independent legs.
@@ -207,9 +217,7 @@ impl Fetch {
             .unwrap_or(spec.deadline);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
-                KeyUse::Required(credential) => {
-                    self.config.secrets.get(credential.secret).is_none()
-                }
+                KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),
                 _ => false,
             };
         Leg {

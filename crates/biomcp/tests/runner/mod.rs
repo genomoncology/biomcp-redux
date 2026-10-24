@@ -4,8 +4,11 @@ mod corporate;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
+mod help_examples;
 mod http;
 mod http_limits;
+mod key_registration;
+mod key_reload;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
@@ -234,6 +237,9 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.push(Trial::test("article-help/executable-examples", || {
+        help_examples::check().map_err(Into::into)
+    }));
     trials.push(Trial::test(
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
@@ -250,6 +256,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(source_controls::trials());
