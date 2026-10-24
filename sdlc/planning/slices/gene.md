@@ -298,7 +298,7 @@ Keyed: OncoKB runs only with the user's key, as section 7 says.
 
 ### How it was measured
 
-Tokens are estimated as bytes divided by 4. Redux does not exist yet, so a scratch script built each Redux output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-24: the HGNC bundle and withdrawn file, MyGene.info, UniProt, CIViC, the ClinGen files, gnomAD, HPA and Reactome. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown. 0.9 `pathways` and `all` were not run, because they call KEGG. OncoKB was not called, because no key is configured.
+Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a scratch script built each 1.0 output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-24: the HGNC bundle and withdrawn file, MyGene.info, UniProt, CIViC, the ClinGen files, gnomAD, HPA and Reactome. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown. 0.9 `pathways` and `all` were not run, because they call KEGG. OncoKB was not called, because no key is configured.
 
 "Facts" counts the facts a careful answer to the case needs, checked as exact text in each output: for KRAS these are the HGNC ID, band, Entrez ID, Ensembl ID, previous symbol KRAS2, MANE RefSeq, UniProt accession, GRCh38 start, GRCh37 start and the RefSeq summary date.
 
@@ -318,9 +318,9 @@ Tokens are estimated as bytes divided by 4. Redux does not exist yet, so a scrat
 | 9. `oncokb` section, with a key | OncoKB gene summary and background, OncoKB transcript | about 400, estimated from the 1.9 MB curated-gene list across 1,144 genes | Long licensed prose, so it stays behind a named section even when the key is present |
 | Options | `--band`, `--locus-group`, several inputs, cursor | per header or per card | Each option narrows or batches; none adds fields |
 
-### Token table, Redux against 0.9.3
+### Token table, 1.0 against 0.9.3
 
-| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | Redux tokens | Redux facts |
+| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | 1.0 tokens | 1.0 facts |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `get gene KRAS` | 10 | 1056 | 4 | 406 | 4 | 392 | 10 |
 | `get gene HER2` | 6 | 1060 | 2 | 406 | 2 | 521 | 6 |
@@ -345,7 +345,7 @@ Tokens are estimated as bytes divided by 4. Redux does not exist yet, so a scrat
 
 Section cost on BRAF, as tokens added to the default card:
 
-| Section | Redux | 0.9 JSON added | 0.9 Markdown section |
+| Section | 1.0 | 0.9 JSON added | 0.9 Markdown section |
 | --- | --- | --- | --- |
 | `constraint` | 48 | 110 | 249 |
 | `expression` (0.9 `hpa`) | 83 | 1081 | 590 |
@@ -357,13 +357,13 @@ Section cost on BRAF, as tokens added to the default card:
 
 BRAF default card by part: summary 845 bytes, identifiers and names 520, spans on two builds 213, the `next` step 118, envelope 79, MANE 54. Two trims are already in: NCBI-only aliases are used for matching and not printed (saves 85 tokens on KRAS), and `next` is one step with a section list instead of six commands (saves about 45 tokens per card).
 
-### Where Redux costs more, and why
+### Where 1.0 costs more, and why
 
-- **Against 0.9 Markdown on HER2, MLL and BRAF cards** (521, 503 and 457 against about 406). Redux carries every needed fact (6, 5 and 7) where 0.9 carries 2, 1 and 1. The extra cost is the full summary Ian ruled in, both builds, the MANE pair and the match kind. JSON is the default output, and against 0.9 JSON every Redux card is 50 to 70% smaller.
-- **`get gene HGNC:1097`** (460 against 54). 0.9 refuses the ID with an error; Redux returns the card.
-- **Ambiguous and withdrawn inputs against 0.9 Markdown** (150 against 66 for p16). 0.9 returns UMLS concept labels; Redux returns each HGNC candidate with ID, band, locus group and match kind, which lets the agent pick without another search.
-- **`civic` against 0.9 Markdown** (468 against 310 on BRAF, 735 against 280 on ERBB2). 0.9 Markdown prints an assertion table without the gene description; Redux prints CIViC's description, which names the gene's cancer role. Against 0.9 JSON, Redux `civic` is 4 times smaller.
-- **Lynch panel against 0.9 Markdown** (2901 against 1965). Redux returns all five validity tables with MONDO IDs and dates; 0.9 Markdown carries 2 of 7 facts.
+- **Against 0.9 Markdown on HER2, MLL and BRAF cards** (521, 503 and 457 against about 406). 1.0 carries every needed fact (6, 5 and 7) where 0.9 carries 2, 1 and 1. The extra cost is the full summary Ian ruled in, both builds, the MANE pair and the match kind. JSON is the default output, and against 0.9 JSON every 1.0 card is 50 to 70% smaller.
+- **`get gene HGNC:1097`** (460 against 54). 0.9 refuses the ID with an error; 1.0 returns the card.
+- **Ambiguous and withdrawn inputs against 0.9 Markdown** (150 against 66 for p16). 0.9 returns UMLS concept labels; 1.0 returns each HGNC candidate with ID, band, locus group and match kind, which lets the agent pick without another search.
+- **`civic` against 0.9 Markdown** (468 against 310 on BRAF, 735 against 280 on ERBB2). 0.9 Markdown prints an assertion table without the gene description; 1.0 prints CIViC's description, which names the gene's cancer role. Against 0.9 JSON, 1.0 `civic` is 4 times smaller.
+- **Lynch panel against 0.9 Markdown** (2901 against 1965). 1.0 returns all five validity tables with MONDO IDs and dates; 0.9 Markdown carries 2 of 7 facts.
 
 ### Budget
 

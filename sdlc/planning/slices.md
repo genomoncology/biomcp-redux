@@ -53,7 +53,7 @@ The slice writes `planning/slices/<entity>.md`. It holds the examples' summary, 
 
 Every slice design states its progressive disclosure strategy. The densest, highest-priority facts for a clinician's question sit at the top of the command and option tree: the search header and the default card answer the common question alone, and each drill-down section or option adds the next most useful layer. Rarely needed or bulky data lives deepest, behind a named section or option, never in the default output.
 
-Every slice design gives a token budget for each command's default JSON output and for each section, measured on the slice's harvested cases, and compares it with 0.9's output for the same questions in tokens and in facts carried. A Redux default output that costs more tokens than 0.9 for the same question needs a stated reason. The cases assert the budget with a byte or token ceiling, so growth fails a check instead of drifting.
+Every slice design gives a token budget for each command's default JSON output and for each section, measured on the slice's harvested cases, and compares it with 0.9's output for the same questions in tokens and in facts carried. A 1.0 default output that costs more tokens than 0.9 for the same question needs a stated reason. The cases assert the budget with a byte or token ceiling, so growth fails a check instead of drifting.
 
 ### 5. Build outside-in
 
