@@ -13,10 +13,10 @@ pub struct VariantPopulation {
     pub build: Build,
     /// Exome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub exome: Option<PopulationFrequency>,
+    pub exome: Option<Box<PopulationFrequency>>,
     /// Genome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub genome: Option<PopulationFrequency>,
+    pub genome: Option<Box<PopulationFrequency>>,
 }
 /// One native ancestry row qualified by its sequencing subset.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

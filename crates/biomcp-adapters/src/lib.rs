@@ -50,3 +50,6 @@ pub mod myvariant;
 /// Explicit keyed NCI native trials.
 pub mod nci;
 pub mod variantvalidator;
+
+mod assertion;
+pub mod erepo;
