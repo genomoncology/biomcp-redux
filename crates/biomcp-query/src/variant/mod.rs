@@ -243,22 +243,6 @@ fn next(
             }
         }
     }
-    for row in candidates {
-        if let Some(biodata::Section::Data { data, .. }) = row
-            .sections
-            .as_ref()
-            .and_then(|sections| sections.gwas.as_ref())
-            && let Some(query) = &data.continuation
-        {
-            next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::GetVariant(query.clone()),
-                    fresh: false,
-                },
-            ));
-        }
-    }
     if let Some(page) = page
         && (page.offset as u64 + page.returned as u64) < page.total
     {
