@@ -130,8 +130,13 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
             "NCI {section} changed original records or relationships"
         ));
     }
-    // A saved NCI protocol must require its key and source policy before reading any content.
-    let mut disabled = args.clone();
+    if section == "diseases" {
+        snapshot_policy(env, &args)?;
+    }
+    Ok(())
+}
+fn snapshot_policy(env: &Environment, args: &[String]) -> Check {
+    let mut disabled = args.to_vec();
     disabled.extend(["--disable-sources".into(), "nci".into()]);
     disabled.extend(env.globals(None, true));
     let output = invoke(env, &disabled, 4)?;
@@ -140,8 +145,22 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
     {
         return Err("disabled NCI restored saved protocol content".into());
     }
+    let mut bare = args.to_vec();
+    bare.extend(env.globals(None, true));
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &bare)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if output.status.code() != Some(4)
+        || value.pointer("/sources/0/reason") != Some(&json!("no_key"))
+        || value.pointer("/result/items/0/card").is_some()
+    {
+        return Err("saved NCI content bypassed its required key".into());
+    }
     Ok(())
 }
+
 fn expected(raw: &Value, section: &str) -> Result<Vec<Value>, String> {
     let array = |v: &Value| {
         v.as_array()

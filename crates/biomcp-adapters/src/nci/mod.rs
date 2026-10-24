@@ -199,7 +199,22 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
         .iter()
         .map(|(k, v)| (k.as_str(), Arg::Text(v)))
         .collect();
-    leg.json(&SEARCH, &args)
+    let limit = params
+        .iter()
+        .find_map(|(name, value)| {
+            (name == "size")
+                .then(|| value.parse::<usize>().ok())
+                .flatten()
+        })
+        .unwrap_or(PAGE_LIMIT as usize);
+    leg.json_received_checked::<Page>(&SEARCH, &args, |page| {
+        if page.data.len() <= limit {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    })
+    .map(|(page, _)| page)
 }
 /// Exact identity check runs before cache admission and on replay or cache hits.
 pub fn get(

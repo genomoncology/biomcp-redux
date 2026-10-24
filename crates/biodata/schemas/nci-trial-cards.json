@@ -463,6 +463,17 @@
       "additionalProperties": false,
       "description": "Exact source text fragment with an honest original character count.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next original characters, absent when complete."
+        },
         "offset": {
           "description": "Original Unicode scalar position.",
           "format": "uint32",
