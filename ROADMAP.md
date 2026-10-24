@@ -167,7 +167,7 @@ Sources:
 - [ ] gnomAD: counts and missing-release handling landed; same-response dataset release proof remains open
 - [ ] CIViC: membership and native paging landed; actual positive joined capture remains open
 - [x] cBioPortal
-- [ ] Cancer Hotspots: candidate residue counts only; no established exact allele join
+- [x] Cancer Hotspots: captured and replayed candidate residue counts only; no established exact allele or transcript join
 - [x] OncoKB (keyed)
 - [x] GWAS Catalog
 - [x] ClinGen evidence repository
