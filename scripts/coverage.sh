@@ -11,7 +11,7 @@ threshold=$(awk '
     END {
         if (NR != 1 || bad) exit 1
         floor = $0 - 0.2
-        printf "%.4f\n", floor > 0 ? floor : 0
+        printf "%.4f\n", (floor > 0 ? floor : 0)
     }
 ' coverage.floor) || { echo 'coverage: invalid coverage.floor' >&2; exit 1; }
 
