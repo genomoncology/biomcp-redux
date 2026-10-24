@@ -130,7 +130,10 @@ fn problems_round_trip_with_optional_record_and_reject_unknown_fields() {
         } else {
             assert!(json.get("record").is_none());
         }
-        assert_eq!(serde_json::from_value::<Problem>(json.clone()).unwrap(), problem);
+        assert_eq!(
+            serde_json::from_value::<Problem>(json.clone()).unwrap(),
+            problem
+        );
         let mut extra = json;
         extra["unexpected"] = true.into();
         assert!(serde_json::from_value::<Problem>(extra).is_err());
