@@ -1,18 +1,18 @@
 {
   "feature": "gene-sections",
   "story": "An identity without Entrez cannot request a CIViC join",
-  "replay": "gene/civic",
+  "replay": "gene/civic/synthetic-no-join",
   "steps": [
     {
       "run": [
         "get",
         "gene",
-        "AAVS1",
+        "AKAP2",
         "civic"
       ],
       "expect": {
         "/status": "partial",
-        "/result/items/0/answer/gene/symbol": "AAVS1",
+        "/result/items/0/answer/gene/symbol": "AKAP2",
         "/result/items/0/sections/civic/state": "unavailable",
         "/result/items/0/sections/civic/reason": "no_join_id",
         "/problems/0/field": "entrez_id",
@@ -25,7 +25,7 @@
       "mcp": [
         "get",
         "gene",
-        "AAVS1",
+        "AKAP2",
         "civic"
       ]
     }
