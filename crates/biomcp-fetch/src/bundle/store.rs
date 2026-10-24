@@ -79,14 +79,14 @@ impl Cache {
             Find::Exact(k, v) => (
                 "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key=?2) ORDER BY n",
                 v.to_ascii_lowercase(),
-                String::new(),
+                None,
                 kind(k),
             ),
             Find::Prefix(k, v) => {
                 let v = v.to_ascii_lowercase();
                 let end = prefix_end(&v);
                 (
-                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key>=?2 AND key<?3) ORDER BY n",
+                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key>=?2 AND (?3 IS NULL OR key<?3)) ORDER BY n",
                     v,
                     end,
                     kind(k),
@@ -104,7 +104,7 @@ impl Cache {
                 (
                     "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_words WHERE bundle=?1 AND words MATCH ?2) ORDER BY n",
                     words.join(" AND "),
-                    String::new(),
+                    None,
                     0,
                 )
             }
@@ -177,13 +177,17 @@ impl Cache {
         })
     }
 }
-fn prefix_end(s: &str) -> String {
+fn prefix_end(s: &str) -> Option<String> {
     let mut chars: Vec<_> = s.chars().collect();
     while let Some(c) = chars.pop() {
-        if let Some(next) = char::from_u32(u32::from(c) + 1) {
+        if let Some(next) = char::from_u32(if c == '\u{d7ff}' {
+            0xe000
+        } else {
+            u32::from(c) + 1
+        }) {
             chars.push(next);
-            return chars.into_iter().collect();
+            return Some(chars.into_iter().collect());
         }
     }
-    "\u{10ffff}".into()
+    None
 }

@@ -185,14 +185,7 @@ impl Leg<'_> {
                     if !crate::retry::retry_status(status) || attempt + 1 == crate::retry::ATTEMPTS
                     {
                         return Err(self
-                            .failure(
-                                if status == 429 {
-                                    Reason::RateLimited
-                                } else {
-                                    Reason::Unavailable
-                                },
-                                Some(status),
-                            )
+                            .failure(crate::retry::status_reason(status), Some(status))
                             .into());
                     }
                     if !crate::retry::wait(

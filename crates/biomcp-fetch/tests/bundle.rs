@@ -267,7 +267,25 @@ fn recording_replay_replaces_warm_case_rows_once_and_ignores_user_cache() {
     });
     drop(record);
     let case = biomcp_fetch::ReplayCache::temporary().unwrap();
-    for _ in 0..2 {
+    let source_dir = std::fs::read_dir(&capture)
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    let recording = std::fs::read_dir(source_dir)
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    for round in 0..2 {
+        if round == 1 {
+            let mut value: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(&recording).unwrap()).unwrap();
+            value["exchanges"][0]["body"]["value"] = TSV.into();
+            std::fs::write(&recording, serde_json::to_vec(&value).unwrap()).unwrap();
+        }
         let replay = Fetch::open(FetchConfig {
             cache: Some(dir.path().join("must-not-exist.sqlite")),
             mode: biomcp_fetch::Mode::Replay {
@@ -278,14 +296,19 @@ fn recording_replay_replaces_warm_case_rows_once_and_ignores_user_cache() {
         })
         .unwrap();
         let leg = replay.leg(b.spec, replay.deadline(Duration::from_secs(5)));
+        let (present, absent) = if round == 0 {
+            ("NEW", "BRAF")
+        } else {
+            ("BRAF", "NEW")
+        };
         assert_eq!(
-            leg.rows(&b, Find::Exact(KeyKind::Symbol, "NEW"))
+            leg.rows(&b, Find::Exact(KeyKind::Symbol, present))
                 .unwrap()
                 .len(),
             1
         );
         assert!(
-            leg.rows(&b, Find::Exact(KeyKind::Symbol, "BRAF"))
+            leg.rows(&b, Find::Exact(KeyKind::Symbol, absent))
                 .unwrap()
                 .is_empty()
         );

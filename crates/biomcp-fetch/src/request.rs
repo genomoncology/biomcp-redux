@@ -161,15 +161,7 @@ impl Leg<'_> {
                     }
                     let delay = response.retry_after;
                     (
-                        self.failure(
-                            match status {
-                                404 => Reason::NotFound,
-                                429 => Reason::RateLimited,
-                                500..=599 => Reason::Unavailable,
-                                _ => Reason::Rejected,
-                            },
-                            Some(status),
-                        ),
+                        self.failure(crate::retry::status_reason(status), Some(status)),
                         crate::retry::retry_status(status),
                         delay,
                     )
