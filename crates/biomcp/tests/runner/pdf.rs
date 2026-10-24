@@ -19,6 +19,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/pdf/atomic-explicit-saves", || {
             saves().map_err(|e| e.to_string().into())
         }),
+        Trial::test("article/pdf/hostile-existing-paths", || {
+            existing_paths().map_err(|e| e.to_string().into())
+        }),
         Trial::test("article/pdf/failed-download-leaves-nothing", || {
             failures().map_err(|e| e.to_string().into())
         }),
@@ -121,6 +124,38 @@ fn failures() -> Check {
         assert_eq!(fs::read(&target)?, b"preserve on failure");
         assert_eq!(fs::read_dir(&folder)?.count(), 1);
     }
+    Ok(())
+}
+
+fn existing_paths() -> Check {
+    let env = Environment::new()?;
+    let replay = fixtures().join("replies/article/pdf/synthetic");
+    let original = env.root().join("original.pdf");
+    let target = env.root().join("target.pdf");
+    fs::write(&original, b"caller-owned bytes")?;
+    fs::hard_link(&original, &target)?;
+    command(&env, &replay, &save_args(&target), 2)?;
+    let mut args = save_args(&target);
+    args.push("--replace".into());
+    command(&env, &replay, &args, 0)?;
+    assert!(fs::read(&target)?.starts_with(b"%PDF-"));
+    assert_eq!(fs::read(&original)?, b"caller-owned bytes");
+    fs::remove_file(&target)?;
+    #[cfg(unix)]
+    {
+        for destination in [&original, &env.root().join("missing.pdf")] {
+            std::os::unix::fs::symlink(destination, &target)?;
+            command(&env, &replay, &save_args(&target), 2)?;
+            command(&env, &replay, &args, 2)?;
+            assert!(fs::symlink_metadata(&target)?.file_type().is_symlink());
+            fs::remove_file(&target)?;
+        }
+    }
+    assert_eq!(fs::read(&original)?, b"caller-owned bytes");
+    assert!(!env.root().join("missing.pdf").exists());
+    assert!(fs::read_dir(env.root())?.all(|entry| {
+        entry.is_ok_and(|entry| !entry.file_name().to_string_lossy().starts_with(".tmp"))
+    }));
     Ok(())
 }
 
