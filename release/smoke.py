@@ -14,7 +14,7 @@ def environment(root):
             "APPDATA": str(root / "config"), "LOCALAPPDATA": str(root / "cache")}
 
 
-def smoke(binary, runner, fixtures, version):
+def smoke(binary, runner, fixtures, version, server_args=("serve",)):
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         env = environment(root)
@@ -30,12 +30,13 @@ def smoke(binary, runner, fixtures, version):
         assert command(["help"])["result"]["commands"]
         # The first tool call creates the ordinary cache; every emitted line,
         # including shutdown, must be a correlated JSON-RPC response.
-        mcp_probe([str(binary), "serve"], env, root, version)
+        tools = mcp_probe([str(binary)] + list(server_args), env, root, version)
         assert any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache"
         env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures))
         subprocess.run([str(runner), "--cases", str(fixtures / "cases"), "--test-threads", "1"], env=env, cwd=root, check=True, timeout=120)
         # The existing process publication test uses the very same selector.
         subprocess.run([str(runner), "--installed-process-proof"], env=env, cwd=root, check=True, timeout=120)
+        return tools
 
 def mcp_probe(command, env, root, version):
     frames = [

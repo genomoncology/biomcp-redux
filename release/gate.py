@@ -11,10 +11,10 @@ import tempfile
 import zipfile
 
 from artifacts import cargo, inspect
-from smoke import environment, smoke, mcp_probe
+from smoke import environment, smoke
 
 
-def install_wheel(wheel, venv, root, host_python):
+def install_wheel(wheel, venv, root, host_python, name="biomcp"):
     subprocess.run([host_python, "-m", "venv", "--without-pip", str(venv)], check=True)
     python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     install_env = {**environment(root), "PATH": os.defpath, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1", "UV_CACHE_DIR": str(root / "uv-cache")}
@@ -25,7 +25,7 @@ def install_wheel(wheel, venv, root, host_python):
         subprocess.run([str(python), "-m", "ensurepip"], check=True, env=install_env)
         installer = [str(python), "-m", "pip", "install"]
     subprocess.run(installer + ["--no-index", "--no-deps", str(wheel)], check=True, env=install_env)
-    return venv / ("Scripts/biomcp.exe" if os.name == "nt" else "bin/biomcp")
+    return venv / (("Scripts/" + name + ".exe") if os.name == "nt" else ("bin/" + name))
 
 
 def installed(args):
@@ -50,10 +50,12 @@ def installed(args):
     if args.prepare_only:
         return
     results = []
-    def check(kind, binary):
+    def check(kind, binary, server_args=("serve",), declared_tools=None):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
             raise ValueError(kind + " installed bytes differ from the candidate")
-        smoke(binary, executable, fixtures, record["version"])
+        tools = smoke(binary, executable, fixtures, record["version"], server_args)
+        if declared_tools is not None and sorted(tools) != sorted(declared_tools):
+            raise ValueError("desktop manifest tools differ from installed server")
         results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
         print(json.dumps(results[-1]), flush=True)
     check("wheel", install_wheel(wheel, root / "venv", root, args.python))
@@ -73,11 +75,7 @@ def installed(args):
     config = manifest["server"]["mcp_config"]
     if manifest["name"] != "biomcp" or manifest["version"] != record["version"] or config["command"] != "${__dirname}/" + entry or config["args"] != ["serve"]:
         raise ValueError("desktop manifest launch contract differs")
-    check("desktop-extension", binary)
-    with tempfile.TemporaryDirectory() as directory:
-        tools = mcp_probe([str(binary)] + config["args"], environment(Path(directory)), Path(directory), record["version"])
-        if sorted(tools) != sorted(tool["name"] for tool in manifest["tools"]):
-            raise ValueError("desktop manifest tools differ from installed server")
+    check("desktop-extension", binary, config["args"], [tool["name"] for tool in manifest["tools"]])
     registry = json.loads((output / "server.json").read_text())
     package, = registry["packages"]
     if registry["name"] != "io.github.genomoncology/biomcp" or registry["version"] != record["version"] or package["registryType"] != "pypi" or package["identifier"] != record["distribution"] or package["version"] != record["version"] or package["transport"] != {"type": "stdio"}:
@@ -85,10 +83,8 @@ def installed(args):
     arguments = [argument["value"] for argument in package["packageArguments"] if argument["type"] == "positional"]
     if arguments != ["serve"]:
         raise ValueError("registry package launch contract differs")
-    registry_binary = install_wheel(wheel, root / "registry-venv", root, args.python)
-    check("mcp-registry", registry_binary)
-    with tempfile.TemporaryDirectory() as directory:
-        mcp_probe([str(registry_binary)] + arguments, environment(Path(directory)), Path(directory), record["version"])
+    registry_binary = install_wheel(wheel, root / "registry-venv", root, args.python, package["identifier"])
+    check("mcp-registry", registry_binary, arguments)
     archive = next(output.glob("*.tar.gz"))
     destination = root / "installer-bin"
     subprocess.run(["/bin/bash", str(source / "release/install.sh"), str(archive), hashlib.sha256(archive.read_bytes()).hexdigest(), str(destination)], check=True)

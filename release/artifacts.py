@@ -67,8 +67,10 @@ def wheel(output, binary, provenance):
     version, tag = provenance["version"], provenance["platform"]
     stem = provenance["distribution"].replace("-", "_") + "-" + version
     metadata = stem + ".dist-info"
+    suffix = ".exe" if tag.startswith("win_") else ""
     files = {
-        stem + ".data/scripts/biomcp" + (".exe" if tag.startswith("win_") else ""): binary.read_bytes(),
+        stem + ".data/scripts/biomcp" + suffix: binary.read_bytes(),
+        stem + ".data/scripts/" + provenance["distribution"] + suffix: binary.read_bytes(),
         metadata + "/METADATA": ("Metadata-Version: 2.1\nName: " + provenance["distribution"] + "\nVersion: " + version + "\nSummary: BioMCP CLI and MCP server\nRequires-Python: >=3.9\n").encode(),
         metadata + "/WHEEL": ("Wheel-Version: 1.0\nGenerator: biomcp-local-producer\nRoot-Is-Purelib: false\nTag: py3-none-" + tag + "\n").encode(),
         metadata + "/release.json": json.dumps(provenance, sort_keys=True).encode(),
@@ -84,6 +86,7 @@ def wheel(output, binary, provenance):
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
         for name, data in files.items():
             entry = zipfile.ZipInfo(name)
+            entry.compress_type = zipfile.ZIP_DEFLATED
             entry.external_attr = (0o100755 if ".data/scripts/" in name else 0o100644) << 16
             archive.writestr(entry, data)
     return path
@@ -93,8 +96,8 @@ def inspect(path):
     with zipfile.ZipFile(path) as archive:
         manifests = [n for n in archive.namelist() if n.endswith(".dist-info/release.json")]
         binaries = [n for n in archive.namelist() if ".data/scripts/" in n]
-        if len(manifests) != 1 or len(binaries) != 1:
-            raise ValueError("wheel must contain one producer record and one binary")
+        if len(manifests) != 1:
+            raise ValueError("wheel must contain one producer record")
         record = json.loads(archive.read(manifests[0]))
         metadata = Parser().parsestr(archive.read(manifests[0].replace("release.json", "METADATA")).decode())
         if metadata["Name"] != record["distribution"] or metadata["Version"] != record["version"]:
@@ -105,7 +108,11 @@ def inspect(path):
         profile = record["cargo_profile"]
         if record["profile"] != "release" or profile["debug_assertions"] or profile["opt_level"] != "3":
             raise ValueError("release profile required")
-        if digest(archive.read(binaries[0])) != record["binary_sha256"]:
+        suffix = ".exe" if record["platform"].startswith("win_") else ""
+        prefix = manifests[0].split(".dist-info/")[0] + ".data/scripts/"
+        if set(binaries) != {prefix + "biomcp" + suffix, prefix + record["distribution"] + suffix}:
+            raise ValueError("wheel executable entry points differ")
+        if any(digest(archive.read(name)) != record["binary_sha256"] for name in binaries):
             raise ValueError("wheel binary differs from Cargo's candidate bytes")
         return record
 
