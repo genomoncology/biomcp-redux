@@ -119,15 +119,14 @@ fn validate(text: &str) -> Option<()> {
                 }
                 doctype = true;
             }
-            Event::Text(value) => {
+            Event::Text(value)
                 if depth == 0
                     && !value
                         .as_ref()
                         .chars()
-                        .all(|c| matches!(c, ' ' | '\n' | '\r' | '\t'))
-                {
-                    return None;
-                }
+                        .all(|c| matches!(c, ' ' | '\n' | '\r' | '\t')) =>
+            {
+                return None;
             }
             Event::GeneralRef(value) => {
                 if depth == 0 {
