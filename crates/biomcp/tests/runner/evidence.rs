@@ -19,7 +19,41 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/evidence/overflow-and-reference-identity", || {
             overflow().map_err(|e| e.to_string().into())
         }),
+        Trial::test("article/evidence/resolver-policy-before-stored-text", || {
+            resolver_policy().map_err(|e| e.to_string().into())
+        }),
     ]
+}
+fn resolver_policy() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let recording = env.root().join("recordings");
+    super::response_cases::copy_capture("article/evidence/source", &recording, |source, record| {
+        if source == "semantic-scholar" {
+            for row in record["exchanges"][0]["body"]["value"]["data"]
+                .as_array_mut()
+                .unwrap()
+            {
+                if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
+                    row["contexts"] = json!(["a".repeat(10000)]);
+                }
+            }
+        }
+    })?;
+    let globals = env.globals(Some(&recording), false);
+    let first = command(&env, &[
+        "article".into(), "citation-evidence".into(), "33123537".into(),
+        "10.1038/nature05933".into(), "--fulltext".into(),
+    ], &globals)?;
+    if first.pointer("/result/fulltext/data/paragraphs/total") != Some(&json!(7)) {
+        return Err(format!("initial resolver-backed evidence failed: {first}").into());
+    }
+    let mut next = super::action(&first, "page")?;
+    next.extend(["--disable-sources".into(), "pubmed".into()]);
+    let blocked = command(&env, &next, &globals)?;
+    if blocked.pointer("/result/fulltext/state") == Some(&json!("data")) {
+        return Err(format!("disabled resolver restored its stored text: {blocked}").into());
+    }
+    Ok(())
 }
 fn cursor() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
