@@ -90,7 +90,8 @@ impl<'de> Deserialize<'de> for Span0 {
             }
 
             fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Span0, A::Error> {
-                let bounds = SpanBounds::deserialize(serde::de::value::MapAccessDeserializer::new(map))?;
+                let bounds =
+                    SpanBounds::deserialize(serde::de::value::MapAccessDeserializer::new(map))?;
                 Span0::try_from(bounds).map_err(serde::de::Error::custom)
             }
         }
