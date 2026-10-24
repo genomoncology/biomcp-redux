@@ -15,7 +15,7 @@ pub struct TrialPage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gene_resolution: Option<crate::GeneResolution>,
     /// Publisher attribution.
-    pub attribution: crate::Text,
+    pub attribution: String,
 }
 impl super::ResponseBody for TrialPage {
     const SCHEMA: &'static str = "biomcp.trial_page/1";

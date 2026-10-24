@@ -1,5 +1,5 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
-use biodata::{NctId, Text, TrialHeader, TrialSearch, TrialPhase, TrialStatus, StudyType, PartialDate};
+use biodata::{NctId, Text, TrialHeader, TrialSearch, TrialPhase, TrialStatus, PartialDate};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
 use serde::Deserialize;
 use std::{collections::BTreeMap, time::Duration};
@@ -31,9 +31,9 @@ pub struct SearchPage {
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String,String> {
     let mut p = BTreeMap::from([
-        ("format".into(),"json".into()), ("countTotal".into(),"true".into()),
+        ("countTotal".into(),"true".into()),
         ("pageSize".into(),if query.count_only() { "1".into() } else { query.limit().to_string() }),
-        ("fields".into(),"NCTId,BriefTitle,OverallStatus,Phase,StudyType,Condition,InterventionName,LastUpdatePostDate".into()),
+        ("fields".into(),"NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults".into()),
     ]);
     for (name,value) in [("query.cond",query.condition()),("query.intr",query.intervention()),("pageToken",query.next_page())] {
         if let Some(value) = value { p.insert(name.into(),value.as_str().into()); }
@@ -81,7 +81,7 @@ fn wire(value: &impl serde::Serialize) -> String {
 pub fn search(leg: &Leg<'_>, params: &BTreeMap<String,String>) -> Result<SearchPage,RequestError> {
     let args: Vec<_> = params.iter().map(|(k,v)| (k.as_str(),Arg::Text(v))).collect();
     let raw = leg.json::<RawPage>(&SEARCH,&args)?;
-    Ok(SearchPage { items: raw.studies.into_iter().map(|row| row.protocol_section.header()).collect(), total: raw.total_count, next: raw.next_page_token })
+    Ok(SearchPage { items: raw.studies.into_iter().map(|row| row.protocol_section.header()).collect::<Result<Vec<_>,_>>().map_err(|_| bad())?, total: raw.total_count, next: raw.next_page_token })
 }
 /// Source processing timestamp, distinct from request time and record update dates.
 pub fn version(leg: &Leg<'_>) -> Result<Text,RequestError> { Ok(leg.json::<Version>(&VERSION,&[])?.data_timestamp) }
@@ -121,7 +121,7 @@ struct Status { overall_status: TrialStatus, last_update_post_date_struct: Updat
 struct Updated { date: PartialDate }
 #[derive(Deserialize)]
 #[serde(rename_all="camelCase")]
-struct Design { study_type: StudyType, #[serde(default)] phases: Box<[TrialPhase]> }
+struct Design { #[serde(default)] phases: Box<[TrialPhase]> }
 #[derive(Deserialize)]
 struct Conditions { #[serde(default)] conditions: Box<[Text]> }
 #[derive(Deserialize)]
@@ -129,13 +129,15 @@ struct Interventions { #[serde(default)] interventions: Vec<Intervention> }
 #[derive(Deserialize)]
 struct Intervention { name: Text }
 impl Protocol {
-    fn header(self) -> TrialHeader {
-        TrialHeader { nct_id: self.identification_module.nct_id,
-            url: Text::new(&format!("https://clinicaltrials.gov/study/{}",self.identification_module.nct_id)).unwrap_or_else(|_| self.identification_module.brief_title.clone()),
+    fn header(self) -> Result<TrialHeader,BadReply> {
+        Ok(TrialHeader { nct_id: self.identification_module.nct_id,
+            url: Text::new(&format!("https://clinicaltrials.gov/study/{}",self.identification_module.nct_id)).map_err(|_| BadReply)?,
             title: self.identification_module.brief_title, status: self.status_module.overall_status,
-            phases: self.design_module.phases, study_type: self.design_module.study_type,
+            phases: self.design_module.phases,
             conditions: self.conditions_module.map_or_else(Box::default,|v|v.conditions),
             interventions: self.arms_interventions_module.map_or_else(Vec::new,|v|v.interventions.into_iter().map(|i|i.name).collect()).into(),
-            updated: self.status_module.last_update_post_date_struct.date }
+            updated: self.status_module.last_update_post_date_struct.date })
     }
 }
+
+fn bad() -> RequestError { biomcp_fetch::SourceError { source: biodata::Source::ClinicalTrialsGov, reason: biodata::Reason::BadReply, status: Some(200), retry_after: None }.into() }

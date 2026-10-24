@@ -103,8 +103,6 @@ pub struct TrialHeader {
     pub status: TrialStatus,
     /// Source phases; absent phases remain absent.
     pub phases: Box<[TrialPhase]>,
-    /// Source study type.
-    pub study_type: StudyType,
     /// Source condition names.
     pub conditions: Box<[Text]>,
     /// Source intervention names.

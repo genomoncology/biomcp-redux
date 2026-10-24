@@ -124,7 +124,7 @@ impl TryFrom<Fields> for TrialSearch {
     type Error = QueryInvalid;
     fn try_from(f: Fields) -> Result<Self, Self::Error> {
         if !(1..=100).contains(&f.limit) || f.age.is_some_and(|v| v > 150)
-            || f.updated_since.zip(f.updated_until).is_some_and(|(a,b)| a > b)
+            || f.updated_since.zip(f.updated_until).is_some_and(|(a,b)| a.to_string() > b.to_string())
             || (f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()))
             || [f.lat.is_some(),f.lon.is_some(),f.distance.is_some()].iter().filter(|v| **v).count() % 3 != 0
         { return Err(QueryInvalid); }

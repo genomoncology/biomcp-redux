@@ -1,19 +1,19 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
 use crate::{Ctx, Outcome, Action, status};
-use biodata::{TrialSearch, TrialPage, QueryBody, Source, Status, SourceState, Text, Request, StepKind, GeneResolution};
+use biodata::{TrialSearch, TrialPage, QueryBody, Source, Status, SourceState, Request, StepKind, GeneResolution};
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = Outcome {
         status: Status::Failed,
-        body: QueryBody::TrialPage(TrialPage { items: Box::default(), request: Default::default(), source_updated: None, attribution: Text::new("ClinicalTrials.gov; source-native discovery, no eligibility assessment").unwrap_or_else(|_| unreachable!()), gene_resolution: None }),
+        body: QueryBody::TrialPage(TrialPage { items: Box::default(), request: Default::default(), source_updated: None, attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(), gene_resolution: None }),
         page: None, sources: Vec::new(), problems: Vec::new(), next: Vec::new(), local: None,
     };
     let Some(gene) = gene(cx,query,&mut outcome) else { return outcome; };
     let leg = cx.fetch.leg(&ctgov::SPEC,cx.fetch.deadline(cx.budget)).fresh(cx.fresh);
     let params = ctgov::parameters(query,gene.as_deref());
     let result = ctgov::search(&leg,&params);
-    let version = if result.is_ok() { ctgov::version(&leg) } else { Err(*result.as_ref().err().unwrap_or_else(|| unreachable!())) };
+    let version = match &result { Ok(_) => ctgov::version(&leg), Err(error) => Err(*error) };
     let error = result.as_ref().err().or(version.as_ref().err()).copied();
     let mut source = status::source(Source::ClinicalTrialsGov,leg.finish(),error);
     outcome.status = if result.is_err() { Status::Failed } else if version.is_err() || source.state == SourceState::Stale { Status::Partial } else { Status::Complete };
