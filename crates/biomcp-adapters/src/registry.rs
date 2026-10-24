@@ -61,7 +61,16 @@ pub fn probe(
         );
     }
     if spec.source == Source::LitSense {
-        return leg.probe(&crate::litsense::SENTENCES, &[("query", biomcp_fetch::Arg::Text("AKT1 E17K capivasertib breast cancer")), ("rerank", biomcp_fetch::Arg::Text("true"))]);
+        return leg.probe(
+            &crate::litsense::SENTENCES,
+            &[
+                (
+                    "query",
+                    biomcp_fetch::Arg::Text("AKT1 E17K capivasertib breast cancer"),
+                ),
+                ("rerank", biomcp_fetch::Arg::Text("true")),
+            ],
+        );
     }
     if spec.source == Source::Oncokb {
         return leg.probe(&crate::oncokb::INFO, &[]);

@@ -16,33 +16,60 @@ pub struct Search {
 }
 /// Fetch until the local paper bound, terminal pagination, repeated page or typed failure.
 pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
-    let mut result = Search { ids: Vec::new(), count: 0, error: None };
+    let mut result = Search {
+        ids: Vec::new(),
+        count: 0,
+        error: None,
+    };
     let mut previous = Vec::new();
     for page in 1..=LIMIT as u64 {
-        let reply = leg.json::<Page>(&SEARCH, &[("text", Arg::Text(term)), ("page", Arg::Num(page))]);
+        let reply = leg.json::<Page>(
+            &SEARCH,
+            &[("text", Arg::Text(term)), ("page", Arg::Num(page))],
+        );
         let reply = match reply {
             Ok(reply) => reply,
             Err(error) if page == 1 => return Err(error),
-            Err(error) => { result.error = Some(error); break; }
+            Err(error) => {
+                result.error = Some(error);
+                break;
+            }
         };
-        if page == 1 { result.count = reply.count; }
+        if page == 1 {
+            result.count = reply.count;
+        }
         let ids: Vec<_> = reply.results.into_iter().map(|r| r.pmid.0).collect();
-        if reply.current != page || !ids.is_empty() && ids == previous || reply.count != result.count {
+        if reply.current != page
+            || !ids.is_empty() && ids == previous
+            || reply.count != result.count
+        {
             result.error = Some(bad_reply());
             break;
         }
         let terminal = ids.is_empty() || page >= reply.total_pages;
         for id in &ids {
-            if !result.ids.contains(id) && result.ids.len() < LIMIT { result.ids.push(*id); }
+            if !result.ids.contains(id) && result.ids.len() < LIMIT {
+                result.ids.push(*id);
+            }
         }
         previous = ids;
-        if terminal || result.ids.len() >= LIMIT { break; }
-        if page == LIMIT as u64 { result.error = Some(bad_reply()); }
+        if terminal || result.ids.len() >= LIMIT {
+            break;
+        }
+        if page == LIMIT as u64 {
+            result.error = Some(bad_reply());
+        }
     }
     Ok(result)
 }
 fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError { source: Source::PubTator, reason: Reason::BadReply, status: None, retry_after: None }.into()
+    biomcp_fetch::SourceError {
+        source: Source::PubTator,
+        reason: Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
 #[derive(Deserialize)]
 struct Page {
@@ -53,11 +80,17 @@ struct Page {
     page_size: u64,
 }
 #[derive(Deserialize)]
-struct Row { pmid: crate::raw::NumericPmid }
+struct Row {
+    pmid: crate::raw::NumericPmid,
+}
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.page_size == 0 || self.page_size > 100 || self.results.len() as u64 > self.page_size
-            || self.current == 0 || self.results.len() as u64 > self.count {
+        if self.page_size == 0
+            || self.page_size > 100
+            || self.results.len() as u64 > self.page_size
+            || self.current == 0
+            || self.results.len() as u64 > self.count
+        {
             return Err(BadReply);
         }
         Ok(())

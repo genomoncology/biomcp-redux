@@ -1,6 +1,8 @@
 mod article;
 mod article_cards;
-pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate};
+pub use article::{
+    ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate,
+};
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{

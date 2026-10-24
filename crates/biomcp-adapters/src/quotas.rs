@@ -70,4 +70,5 @@ pub(crate) static LITVAR: Quota =
     Quota::new(SourceKey::declare("litvar"), Rate::per_second(3), None, 3);
 
 // Conservative local LitSense2 policy; no published numeric rate verified.
-pub(crate) static LITSENSE: Quota = Quota::new(SourceKey::declare("litsense"), Rate::per_second(3), None, 3);
+pub(crate) static LITSENSE: Quota =
+    Quota::new(SourceKey::declare("litsense"), Rate::per_second(3), None, 3);

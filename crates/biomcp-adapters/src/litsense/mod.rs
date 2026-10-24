@@ -1,7 +1,9 @@
 //! LitSense2 sentence resemblance in the provider's original order.
 use crate::quotas;
 use biodata::{ArticleItem, ArticleKey, ArticleSentence, ArticleSource, Source, Text};
-use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
+use biomcp_fetch::{
+    Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
+};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public access does not grant rights in the sentences returned from publishers.
@@ -20,7 +22,10 @@ pub static SPEC: SourceSpec = SourceSpec {
 pub(crate) const SENTENCES: Endpoint = SPEC.get("/api/sentences/").fresh(Freshness::Days(1));
 /// Read one bounded provider reply and keep each paper's first sentence, without score sorting.
 pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestError> {
-    let reply = leg.json::<Sentences>(&SENTENCES, &[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))])?;
+    let reply = leg.json::<Sentences>(
+        &SENTENCES,
+        &[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))],
+    )?;
     let mut items: Vec<ArticleItem> = Vec::new();
     for (index, sentence) in reply.0.into_iter().enumerate() {
         if items.iter().any(|item| item.pmid == Some(sentence.pmid.0)) {
@@ -32,7 +37,10 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestErro
             found_by: [(ArticleSource::Litsense, (index + 1) as u32)].into(),
             cited_by: None,
             header: None,
-            sentence: Some(ArticleSentence { section: sentence.section, text: sentence.text }),
+            sentence: Some(ArticleSentence {
+                section: sentence.section,
+                text: sentence.text,
+            }),
         });
     }
     Ok(items)
@@ -47,7 +55,9 @@ struct Sentence {
 }
 impl Reply for Sentences {
     fn check(&self) -> Result<(), BadReply> {
-        if self.0.len() > 100 { return Err(BadReply); }
+        if self.0.len() > 100 {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }

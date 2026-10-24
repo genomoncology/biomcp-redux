@@ -38,8 +38,12 @@ pub(super) fn search<'a>(
                     let term = &epmc_term;
                     Box::new(move || europe_search(cx, query, term, start))
                 }
-                ArticleSource::Litsense => Box::new(move || super::named::litsense(cx, query, start)),
-                ArticleSource::Pubtator => Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start)),
+                ArticleSource::Litsense => {
+                    Box::new(move || super::named::litsense(cx, query, start))
+                }
+                ArticleSource::Pubtator => {
+                    Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start))
+                }
                 ArticleSource::Litvar => {
                     let prepared = prepared.take()?;
                     Box::new(move || litvar_search(prepared))
@@ -56,7 +60,9 @@ pub(super) fn search<'a>(
             && r.error.is_some()
             && r.outcome.reason != Some(biodata::Reason::Disabled)
     });
-    let answered = results.iter().any(|r| r.error.is_none() || !r.items.is_empty());
+    let answered = results
+        .iter()
+        .any(|r| r.error.is_none() || !r.items.is_empty());
     let error = results
         .iter()
         .filter_map(|r| r.error)

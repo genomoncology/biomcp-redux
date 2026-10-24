@@ -17,7 +17,11 @@ pub(super) fn resolve<'a>(
 ) -> Result<Option<Resolved>, RequestError> {
     let words = query.words();
     let Some(input) = query.gene() else {
-        return Ok(Some(Resolved { term: filters(query, words), symbol: None, entrez: None }));
+        return Ok(Some(Resolved {
+            term: filters(query, words),
+            symbol: None,
+            entrez: None,
+        }));
     };
     let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
