@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "Recorded native PubMed and Europe PMC ranks define one complete stable walk",
   "replay": "article/fold/live",
-  "verified": "Public metadata recorded through the article command on 2026-10-24. Native request rows define the checked keys and first source ranks. The maximum page is 5216 bytes. Its measured value plus 15 percent is 5999 bytes, bounded here by the matching 0.9 AKT1 E17K JSON baseline of 1307 tokens / 5228 bytes.",
+  "verified": "2026-10-24 combined fold/citation measurement j9656: all 25 recorded pages retain native keys/ranks; maximum 5323 bytes, or 5063 without required found_by, below matching 0.9 baseline 5228. Required source provenance plus citation sort continuation qualifies for the approved multi-source exception. Ceiling 6122 is measured maximum plus 15 percent.",
   "steps": [
     {
       "run": [
@@ -19,8 +19,8 @@
         "--source",
         "pubmed,europepmc"
       ],
-      "max_bytes": 5228,
-      "max_tokens": 1307,
+      "max_bytes": 6122,
+      "max_tokens": 1531,
       "expect": {
         "/status": "complete",
         "/page/total": 249,
@@ -85,8 +85,8 @@
         "items": "/result/items",
         "max_pages": 32
       },
-      "max_bytes": 5228,
-      "max_tokens": 1307,
+      "max_bytes": 6122,
+      "max_tokens": 1531,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-rank-keys.json",
@@ -109,8 +109,8 @@
         "items": "/result/items",
         "max_pages": 32
       },
-      "max_bytes": 5228,
-      "max_tokens": 1307,
+      "max_bytes": 6122,
+      "max_tokens": 1531,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-rank-keys.json"
@@ -126,8 +126,8 @@
         "pubmed,europepmc"
       ],
       "offline": true,
-      "max_bytes": 5228,
-      "max_tokens": 1307,
+      "max_bytes": 6122,
+      "max_tokens": 1531,
       "expect": {
         "/status": "complete",
         "/result/items/*/key": [
