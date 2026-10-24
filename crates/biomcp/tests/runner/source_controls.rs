@@ -277,10 +277,17 @@ fn enabled_fold() -> Check {
     ];
     for recording in [Some(fixture.as_path()), None] {
         let result = invoke(&env, cached(&args, &case, recording), 0)?;
-        let sources = result.get("sources").and_then(Value::as_array).ok_or("missing sources")?;
-        let pubmed = sources.iter().find(|s| s.get("source") == Some(&json!("pubmed")))
+        let sources = result
+            .get("sources")
+            .and_then(Value::as_array)
+            .ok_or("missing sources")?;
+        let pubmed = sources
+            .iter()
+            .find(|s| s.get("source") == Some(&json!("pubmed")))
             .ok_or("missing disabled source")?;
-        let europe = sources.iter().find(|s| s.get("source") == Some(&json!("europepmc")))
+        let europe = sources
+            .iter()
+            .find(|s| s.get("source") == Some(&json!("europepmc")))
             .ok_or("missing enabled source")?;
         if pubmed.get("state") != Some(&json!("skipped"))
             || pubmed.get("reason") != Some(&json!("disabled"))

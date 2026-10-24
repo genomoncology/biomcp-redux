@@ -93,14 +93,26 @@ fn prove(
     if replies.try_recv().is_ok() {
         return Err("tool completed before held CONNECT was released".into());
     }
-    send(stdin, request(json!("disabled"), "tools/call", json!({
-        "name":"biomcp", "arguments":{"args":["get","gene","BRAF","--disable-sources","hgnc"]}
-    })))?;
-    let disabled = replies.recv_timeout(WATCHDOG).map_err(|_| "disabled call watchdog")??;
+    send(
+        stdin,
+        request(
+            json!("disabled"),
+            "tools/call",
+            json!({
+                "name":"biomcp", "arguments":{"args":["get","gene","BRAF","--disable-sources","hgnc"]}
+            }),
+        ),
+    )?;
+    let disabled = replies
+        .recv_timeout(WATCHDOG)
+        .map_err(|_| "disabled call watchdog")??;
     if disabled.get("id") != Some(&json!("disabled"))
-        || disabled.pointer("/result/structuredContent/sources/0/reason") != Some(&json!("disabled"))
+        || disabled.pointer("/result/structuredContent/sources/0/reason")
+            != Some(&json!("disabled"))
     {
-        return Err(format!("call source policy escaped its request: {disabled}"));
+        return Err(format!(
+            "call source policy escaped its request: {disabled}"
+        ));
     }
     send(stdin, request(json!("ping"), "ping", json!({})))?;
     let reply = replies

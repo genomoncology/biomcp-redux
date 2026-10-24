@@ -52,9 +52,11 @@ pub(super) fn read<'a>(
     pool: &Pool,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    if pool.sources.iter().any(|s| {
-        cx.fetch.disabled(s.source) && s.reason != Some(biodata::Reason::Disabled)
-    }) {
+    if pool
+        .sources
+        .iter()
+        .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biodata::Reason::Disabled))
+    {
         out.sources = pool
             .sources
             .iter()
@@ -105,7 +107,8 @@ pub(super) fn read<'a>(
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
                 out.sources.push(source);
-                if !matches!(error, RequestError::Source(e) if e.reason == biodata::Reason::Disabled) {
+                if !matches!(error, RequestError::Source(e) if e.reason == biodata::Reason::Disabled)
+                {
                     out.status = Status::Failed;
                     query.retry(Some(pool.info.id.clone()), out);
                     return Err(error);
