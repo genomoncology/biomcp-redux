@@ -62,7 +62,7 @@ pub fn get(
     .into_iter()
     .filter_map(|(enabled, component)| enabled.then_some(component))
     .collect::<Vec<_>>();
-    if !mapped.value.scores.is_empty() {
+    if !mapped.value.scores.is_empty() || !mapped.value.context.is_empty() {
         mapped.value.components = super::metadata::components(leg, &selected)?.into();
     }
     for score in &mut mapped.value.scores {

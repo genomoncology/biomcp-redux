@@ -173,10 +173,11 @@ impl Output {
                     .map(|prefix| format!("{prefix}.pred"))
             });
         if let Some(label_path) = label_path
-            && matches!(
-                &labels,
-                Some(Field::Value(OneOrMany::Many(_))) | Some(Field::Invalid(_))
-            )
+            && (!matches!(&values, Some(Field::Value(OneOrMany::One(_))))
+                || matches!(
+                    &labels,
+                    Some(Field::Value(OneOrMany::Many(_))) | Some(Field::Invalid(_))
+                ))
         {
             self.context(&label_path, labels)?;
         }
