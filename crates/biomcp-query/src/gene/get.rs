@@ -15,29 +15,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let mut items: Vec<_> = query
         .input()
         .iter()
-        .map(|input| {
-            let (answer, state) = match resolve(&leg, input) {
-                Ok(mapped) => {
-                    status::append(&mut problems, mapped.problems);
-                    let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
-                        Status::Absent
-                    } else {
-                        Status::Complete
-                    };
-                    (Some(mapped.value), state)
-                }
-                Err(error) => {
-                    hgnc_error = Some(error);
-                    local = local.or(status::local(error));
-                    (None, Status::Failed)
-                }
-            };
-            GeneItem {
-                input: input.clone(),
-                status: state,
-                answer,
-            }
-        })
+        .map(|input| resolve_item(&leg, input, &mut problems, &mut hgnc_error, &mut local))
         .collect();
     let hgnc = status::source(Source::Hgnc, leg.finish(), hgnc_error);
     if hgnc.state == SourceState::Stale {
@@ -138,5 +116,35 @@ fn join(
                 code: ProblemCode::ValueUnknown,
             }],
         );
+    }
+}
+
+fn resolve_item(
+    leg: &biomcp_fetch::Leg<'_>,
+    input: &biodata::GeneInput,
+    problems: &mut Vec<Problem>,
+    error: &mut Option<biomcp_fetch::RequestError>,
+    local: &mut Option<biomcp_fetch::RequestError>,
+) -> GeneItem {
+    let (answer, state) = match resolve(leg, input) {
+        Ok(mapped) => {
+            status::append(problems, mapped.problems);
+            let state = if matches!(mapped.value, GeneResolution::NotFound {}) {
+                Status::Absent
+            } else {
+                Status::Complete
+            };
+            (Some(mapped.value), state)
+        }
+        Err(failure) => {
+            *error = Some(failure);
+            *local = local.or(status::local(failure));
+            (None, Status::Failed)
+        }
+    };
+    GeneItem {
+        input: input.clone(),
+        status: state,
+        answer,
     }
 }

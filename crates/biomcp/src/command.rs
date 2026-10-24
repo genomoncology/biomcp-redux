@@ -46,7 +46,10 @@ fn dispatch_using(
             &owned
         }
     };
-    match parsed.action {
+    execute(fetch, parsed.action)
+}
+fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
+    match action {
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = biomcp_query::run(
@@ -88,7 +91,11 @@ fn dispatch_using(
         }
     }
 }
-pub(crate) fn tool(args: &[OsString], globals: &[OsString]) -> io::Result<Outcome> {
+pub(crate) fn tool(
+    args: &[OsString],
+    globals: &[OsString],
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
         ["--record", "--replay", "--case-cache"]
             .iter()

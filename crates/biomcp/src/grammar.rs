@@ -24,7 +24,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
-pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
+fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_version_flag(true)
@@ -61,6 +61,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     root = root.subcommand(
         Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "hgnc-withdrawn"])),
     );
+    Ok(root)
+}
+pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
+    let root = root()?;
     let matches = root
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
