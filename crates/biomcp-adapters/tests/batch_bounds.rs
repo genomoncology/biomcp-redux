@@ -1,9 +1,5 @@
 //! Adapter call shapes that command validation cannot construct.
-#![expect(
-    clippy::unwrap_used,
-    clippy::indexing_slicing,
-    reason = "Checked boundary inputs must fail immediately on invalid setup"
-)]
+
 use biomcp_adapters::{civic, gnomad, mygene};
 use biomcp_fetch::{Fetch, FetchConfig, Mode, RequestError};
 use std::time::Duration;

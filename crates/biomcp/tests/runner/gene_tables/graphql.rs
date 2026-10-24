@@ -112,7 +112,7 @@ fn mappings() -> Check {
                 json!(["source flag", 17, ""]);
         },
         json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000311936",
-        "/result/items/0/sections/constraint/data/flags": ["source flag"], "/problems": {"count": 2}}),
+        "/result/items/0/sections/constraint/data/flags": ["source flag"], "/problems/*/field": ["flags"]}),
     )?;
     for flags in [Value::Null, json!({"unexpected":"value"})] {
         graphql(

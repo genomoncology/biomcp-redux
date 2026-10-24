@@ -152,23 +152,55 @@ fn withdrawn() -> Check {
 fn vocabulary() -> Check {
     let rows = [
         ("gene with protein product", "gene_with_protein_product"),
-        ("RNA, cluster", "rna_cluster"), ("RNA, long non-coding", "long_non_coding_rna"),
-        ("RNA, micro", "micro_rna"), ("RNA, misc", "misc_rna"), ("RNA, ribosomal", "ribosomal_rna"),
-        ("RNA, small nuclear", "small_nuclear_rna"), ("RNA, small nucleolar", "small_nucleolar_rna"),
-        ("RNA, transfer", "transfer_rna"), ("RNA, vault", "vault_rna"), ("RNA, Y", "y_rna"),
-        ("pseudogene", "pseudogene"), ("complex locus constituent", "complex_locus_constituent"),
-        ("endogenous retrovirus", "endogenous_retrovirus"), ("fragile site", "fragile_site"),
-        ("immunoglobulin gene", "immunoglobulin_gene"), ("immunoglobulin pseudogene", "immunoglobulin_pseudogene"),
-        ("readthrough", "readthrough"), ("region", "region"), ("T cell receptor gene", "t_cell_receptor_gene"),
-        ("T cell receptor pseudogene", "t_cell_receptor_pseudogene"), ("unknown", "unknown"),
+        ("RNA, cluster", "rna_cluster"),
+        ("RNA, long non-coding", "long_non_coding_rna"),
+        ("RNA, micro", "micro_rna"),
+        ("RNA, misc", "misc_rna"),
+        ("RNA, ribosomal", "ribosomal_rna"),
+        ("RNA, small nuclear", "small_nuclear_rna"),
+        ("RNA, small nucleolar", "small_nucleolar_rna"),
+        ("RNA, transfer", "transfer_rna"),
+        ("RNA, vault", "vault_rna"),
+        ("RNA, Y", "y_rna"),
+        ("pseudogene", "pseudogene"),
+        ("complex locus constituent", "complex_locus_constituent"),
+        ("endogenous retrovirus", "endogenous_retrovirus"),
+        ("fragile site", "fragile_site"),
+        ("immunoglobulin gene", "immunoglobulin_gene"),
+        ("immunoglobulin pseudogene", "immunoglobulin_pseudogene"),
+        ("readthrough", "readthrough"),
+        ("region", "region"),
+        ("T cell receptor gene", "t_cell_receptor_gene"),
+        ("T cell receptor pseudogene", "t_cell_receptor_pseudogene"),
+        ("unknown", "unknown"),
         ("virus integration site", "virus_integration_site"),
     ];
     for (raw, mapped) in rows {
-        case("gene/main", &["get", "gene", "BRAF"], |source, record| {
-            if source == "hgnc" { tsv(record, "BRAF", &[("locus_type", raw)]); }
-        }, json!({"/result/items/0/answer/gene/locus_type": mapped}), 0)?;
+        case(
+            "gene/main",
+            &["get", "gene", "BRAF"],
+            |source, record| {
+                if source == "hgnc" {
+                    tsv(record, "BRAF", &[("locus_type", raw)]);
+                }
+            },
+            json!({"/result/items/0/answer/gene/locus_type": mapped}),
+            0,
+        )?;
     }
-    case("gene/main", &["get", "gene", "BRAF"], |source, record| {
-        if source == "hgnc" { tsv(record, "BRAF", &[("mane_select", "ENST00000646891.2|NR_186305.1")]); }
-    }, json!({"/result/items/0/answer/gene/mane_select/refseq": "NR_186305.1"}), 0)
+    case(
+        "gene/main",
+        &["get", "gene", "BRAF"],
+        |source, record| {
+            if source == "hgnc" {
+                tsv(
+                    record,
+                    "BRAF",
+                    &[("mane_select", "ENST00000646891.2|NR_186305.1")],
+                );
+            }
+        },
+        json!({"/result/items/0/answer/gene/mane_select/refseq": "NR_186305.1"}),
+        0,
+    )
 }
