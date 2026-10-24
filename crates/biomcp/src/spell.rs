@@ -61,16 +61,16 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 }
 
 fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
-    let item = &property["items"];
+    let item = property.get("items").unwrap_or(&Value::Null);
     let item = item
         .get("$ref")
         .and_then(Value::as_str)
         .and_then(|s| schema.pointer(s.trim_start_matches('#')))
         .unwrap_or(item);
-    query["input"].as_array().is_some_and(|inputs| {
+    query.get("input").and_then(Value::as_array).is_some_and(|inputs| {
         inputs.iter().any(|input| {
-            item["enum"]
-                .as_array()
+            item.get("enum")
+                .and_then(Value::as_array)
                 .is_some_and(|words| words.contains(input))
         })
     })
@@ -109,7 +109,7 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
                 } else if property.get("x-positional").is_some() {
                     &mut positional
                 } else {
-                    &mut args
+                    &mut *args
                 };
                 if explicit {
                     target.push(format!("--{name}"));

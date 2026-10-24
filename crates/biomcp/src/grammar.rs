@@ -197,13 +197,13 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
         {
             continue;
         }
-        let item = &property["items"];
+        let item = property.get("items").ok_or(())?;
         let item = item
             .get("$ref")
             .and_then(Value::as_str)
             .and_then(|s| schema.pointer(s.trim_start_matches('#')))
             .unwrap_or(item);
-        let words = item["enum"].as_array().ok_or(())?;
+        let words = item.get("enum").and_then(Value::as_array).ok_or(())?;
         let Some(input) = result.get_mut("input").and_then(Value::as_array_mut) else {
             return Err(());
         };

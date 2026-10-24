@@ -13,11 +13,16 @@ pub(super) struct SectionResult {
     pub local: Option<RequestError>,
 }
 pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
-    [GeneSection::Constraint].into_iter().filter(|section| query.sections().iter().any(|word| match word {
-        GeneSectionWord::All => true,
-        GeneSectionWord::Constraint => *section == GeneSection::Constraint,
-        _ => false,
-    })).collect()
+    [GeneSection::Constraint]
+        .into_iter()
+        .filter(|section| {
+            query.sections().iter().any(|word| match word {
+                GeneSectionWord::All => true,
+                GeneSectionWord::Constraint => *section == GeneSection::Constraint,
+                _ => false,
+            })
+        })
+        .collect()
 }
 
 fn applicable(section: GeneSection, gene: &Gene) -> bool {
@@ -86,7 +91,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         {
             item.status = Status::Partial;
         }
-        if let Some(sections) = &mut item.sections && result.section == GeneSection::Constraint {
+        if let Some(sections) = &mut item.sections
+            && result.section == GeneSection::Constraint
+        {
             sections.constraint = Some(section.clone());
         }
     }

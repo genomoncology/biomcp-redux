@@ -385,10 +385,20 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-enum Bound { Integer(u64), Decimal(f64) }
+enum Bound {
+    Integer(u64),
+    Decimal(f64),
+}
 fn bound(node: &Value, value: &Value) -> Check<Bound> {
     if node["type"] == "integer" {
-        return value.as_u64().map(Bound::Integer).ok_or_else(|| "unsupported integer bound".into());
+        return value
+            .as_u64()
+            .map(Bound::Integer)
+            .ok_or_else(|| "unsupported integer bound".into());
     }
-    value.as_f64().filter(|value| value.is_finite()).map(Bound::Decimal).ok_or_else(|| "unsupported decimal bound".into())
+    value
+        .as_f64()
+        .filter(|value| value.is_finite())
+        .map(Bound::Decimal)
+        .ok_or_else(|| "unsupported decimal bound".into())
 }
