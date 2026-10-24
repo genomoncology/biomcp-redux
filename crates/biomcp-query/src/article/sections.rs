@@ -18,7 +18,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                indexing: (selected(query, ArticleSectionWord::Indexing) && card.pmid.is_none())
+                indexing: selected(query, ArticleSectionWord::Indexing)
                     .then_some(Section::NotApplicable),
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
@@ -42,7 +42,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             (
                 ArticleSectionWord::Indexing,
                 ArticleSection::Indexing,
-                card.pmid.is_some(),
+                card.pmid.is_some() && card.europepmc_id.is_none(),
             ),
             (
                 ArticleSectionWord::Annotations,

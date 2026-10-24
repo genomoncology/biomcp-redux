@@ -28,6 +28,29 @@
         ]
       },
       "max_bytes": 3900
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1064174",
+        "33123537",
+        "indexing"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "PPR1064174",
+        "33123537",
+        "indexing"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/indexing/state": "not_applicable",
+        "/result/items/1/sections/indexing/state": "data",
+        "/result/items/1/sections/indexing/data/affiliations/total": 7
+      },
+      "max_bytes": 8500
     }
   ]
 }
