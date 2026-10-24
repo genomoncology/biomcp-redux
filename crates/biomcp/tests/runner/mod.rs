@@ -1,4 +1,5 @@
 mod assertions;
+mod configuration;
 mod held_proxy;
 mod launch;
 mod mcp;
@@ -185,6 +186,7 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(configuration::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
     }));

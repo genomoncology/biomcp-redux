@@ -544,3 +544,33 @@ fn local_write_busy_respects_deadline_and_never_uses_stale_fallback() {
     assert!(report.failures.is_empty());
     connection.execute_batch("ROLLBACK").unwrap();
 }
+
+#[test]
+fn per_leg_freshness_reaches_batch_children_without_leaking_to_siblings() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    let fresh = fetch
+        .leg(spec, fetch.deadline(Duration::from_secs(10)))
+        .fresh(true);
+    exchange(&server, 200, r#"{"answer":true,"fresh":true}"#, || {
+        let results = fresh.batch(&[()], |leg, ()| leg.json::<Answer>(&endpoint, &[]));
+        assert!(results.into_iter().all(|result| result.unwrap().answer));
+    });
+    assert!(get(&fetch, spec, &endpoint, &[]).unwrap().answer);
+    assert!(server.requests.try_recv().is_err());
+    expire(&path);
+    let failure = exchange(&server, 400, "rejected", || {
+        fresh.json::<Answer>(&endpoint, &[])
+    })
+    .unwrap_err();
+    assert_eq!(source(failure).reason, Reason::Rejected);
+    assert!(!fresh.finish().stale);
+}
