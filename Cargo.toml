@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/biodata", "crates/biomcp-fetch", "crates/biomcp"]
+members = ["crates/biodata", "crates/biomcp-adapters", "crates/biomcp-fetch", "crates/biomcp"]
 resolver = "3"
 
 [workspace.package]
