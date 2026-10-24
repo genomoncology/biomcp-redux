@@ -29,6 +29,7 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
     let mut sheets = Vec::new();
     let mut visited = 0usize;
     let mut assembled = 0usize;
+    let mut materialized = 0usize;
     for name in workbook.sheet_names() {
         check(end)?;
         let mut rows = Vec::<Row>::new();
@@ -42,7 +43,7 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
                 return Err(Reason::TooLarge);
             }
             let (row, column) = cell.get_position();
-            let value = calamine::Data::from(cell.get_value().clone()).to_string();
+            let value = text(cell.get_value(), &mut materialized)?;
             if value.len() > LIMITS.text || column >= 16384 {
                 return Err(Reason::TooLarge);
             }
@@ -70,4 +71,23 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
         sheets.push(Sheet { name, rows });
     }
     Ok(sheets)
+}
+
+// Shared strings can fan out far beyond their compressed or expanded XML size.
+fn text(value: &calamine::DataRef<'_>, total: &mut usize) -> Result<String, Reason> {
+    use calamine::DataRef;
+    let borrowed = match value {
+        DataRef::String(v) | DataRef::DateTimeIso(v) | DataRef::DurationIso(v) => Some(v.as_str()),
+        DataRef::SharedString(v) => Some(*v),
+        _ => None,
+    };
+    let size = borrowed.map_or(64, str::len);
+    *total = total.checked_add(size).ok_or(Reason::TooLarge)?;
+    if size > LIMITS.text || *total > LIMITS.expanded {
+        return Err(Reason::TooLarge);
+    }
+    Ok(match borrowed {
+        Some(text) => text.to_owned(),
+        None => calamine::Data::from(value.clone()).to_string(),
+    })
 }
