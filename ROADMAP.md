@@ -9,7 +9,7 @@ Source tags: **bundle** is a local data file queried like an API. **keyed** runs
 Each key is read from the config file's `keys` or its environment variable, sent only to its own source, and never printed or recorded. With an optional key, BioMCP uses the source's higher limit; without it, the source runs at its public limit. A keyed source sends nothing without its key and says which key to set. A box is ticked when a landed case proves both the keyless and the keyed behavior.
 
 - [x] `ncbi_api_key` (optional): PubMed search and summaries, NCBI EFetch
-- [ ] `ncbi_api_key` (optional): ClinVar
+- [x] `ncbi_api_key` (optional): ClinVar
 - [x] `oncokb_api_key` (keyed): OncoKB gene
 - [x] `oncokb_api_key` (keyed): OncoKB variant
 - [x] `semantic_scholar_api_key` (optional): Semantic Scholar
