@@ -63,7 +63,7 @@ command launches.
 `cargo test --locked -p biomcp --test cases -- --live-check` runs the distinct
 keyless diagnostic mode. Ordinary tests and landing gates never select this mode.
 Run it from landed main through `pm job run 0055 REV -- cargo test --locked -p
-biomcp --test cases -- --live-check`. The coordinator reads its JSON drift summary.
+biomcp --test cases -- --live-check`. The coordinator reads its bounded JSON drift summary. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline.
 The PM asks Jarvis to register this recipe after landing; this command installs no
 schedule. It never records or refreshes a fixture.
 
@@ -73,7 +73,7 @@ are skipped explicitly. Configuration, offline and injected failure cases remain
 ineligible even with the public marker. Review source evidence before adding the
 marker. Licensed, keyed, synthetic and external cases never receive it.
 
-Each command runs in an empty environment with cold isolated caches. The shared
+Each case runs in an empty environment with cold isolated caches. Its commands retain only their own case state for continuation. The shared
 transport enforces within-command quotas. Commands run serially with a keyless
 interval between them. The run has a discovery limit and a total time budget;
 child watchdogs kill and reap hung commands. The optional `--observe PATH` creates

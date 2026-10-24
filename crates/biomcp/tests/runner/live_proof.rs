@@ -5,9 +5,14 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("live-check/offline-planted-drift", || {
-        check().map_err(|e| e.to_string().into())
-    })]
+    vec![
+        Trial::test("live-check/offline-planted-drift", || {
+            check().map_err(|e| e.to_string().into())
+        }),
+        Trial::test("live-source-checks/offline-eligibility", || {
+            plan().map_err(|e| e.to_string().into())
+        }),
+    ]
 }
 fn check() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
@@ -89,4 +94,31 @@ fn observe(
         .lines()
         .map(serde_json::from_str)
         .collect::<Result<_, _>>()?)
+}
+
+fn plan() -> Result<(), Box<dyn std::error::Error>> {
+    let environment = Environment::new()?;
+    let output = environment
+        .command(
+            std::env::current_exe()?,
+            &["--live-check".into(), "--list".into()],
+        )
+        .output()?;
+    if !output.status.success() {
+        return Err("offline eligibility listing failed".into());
+    }
+    let report: Value = serde_json::from_slice(&output.stdout)?;
+    let cases = report
+        .get("cases")
+        .and_then(Value::as_array)
+        .ok_or("case list missing")?;
+    if !cases.iter().any(|c| {
+        c.get("case") == Some(&json!("article/get/live-capture.yaml"))
+            && c.get("eligible") == Some(&json!(true))
+    }) || !cases.iter().any(|c| {
+        c.get("case") == Some(&json!("gene/failure-429.yaml")) && c.get("skipped").is_some()
+    }) {
+        return Err("eligibility list omitted public capture or failure skip".into());
+    }
+    Ok(())
 }

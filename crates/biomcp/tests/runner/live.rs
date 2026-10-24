@@ -9,6 +9,8 @@ use std::{
     time::{Duration, Instant},
 };
 const MAX_CASES: usize = 1024;
+const MAX_CHANGES: usize = 16;
+const CASE_SAMPLE: usize = 20;
 const RUN_BUDGET: Duration = Duration::from_secs(3600);
 
 pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
@@ -85,7 +87,7 @@ pub(crate) fn run(list: bool) -> Result<Value, String> {
         .filter(|r| r.get("skipped").is_none())
         .collect();
     Ok(
-        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(20).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(20)}),
+        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(CASE_SAMPLE).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(CASE_SAMPLE)}),
     )
 }
 fn eligibility(case: &Case) -> Option<&str> {
@@ -222,6 +224,7 @@ pub(super) fn compare(
     changes: &mut Vec<String>,
     sources: &mut BTreeMap<String, Value>,
 ) {
+    let mut omitted = 0;
     for item in after {
         let name = serde_json::to_value(item.source)
             .unwrap_or(Value::Null)
@@ -259,10 +262,21 @@ pub(super) fn compare(
         } else {
             changes.push(format!("{}: new request", item.identity));
         }
+        if changes.len() > MAX_CHANGES {
+            omitted += changes.len() - MAX_CHANGES;
+            changes.truncate(MAX_CHANGES);
+        }
     }
     for old in before {
         if !after.iter().any(|item| item.identity == old.identity) {
-            changes.push(format!("{}: request absent", old.identity));
+            if changes.len() < MAX_CHANGES {
+                changes.push(format!("{}: request absent", old.identity));
+            } else {
+                omitted += 1;
+            }
         }
+    }
+    if omitted > 0 {
+        changes.push(format!("{omitted} more drift details omitted"));
     }
 }
