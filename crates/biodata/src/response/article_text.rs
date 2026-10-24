@@ -66,11 +66,11 @@ pub struct FullText {
     /// Selected bucket license.
     pub license: License,
     /// Highest numeric processing version.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     pub processing_version: Option<u32>,
     /// Whether this selected version is an author manuscript.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "bool"))]
     pub manuscript: Option<bool>,
     /// Bounded body parts in reading order.
@@ -109,11 +109,11 @@ pub struct TextContent {
     /// Bucket license.
     pub license: License,
     /// Selected processing version.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     pub processing_version: Option<u32>,
     /// Author manuscript flag.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "bool"))]
     pub manuscript: Option<bool>,
     /// Scope of returned source text.
