@@ -16,7 +16,10 @@ pub(super) fn fold(
                 .get(source)
                 .copied()
                 .unwrap_or((rank + 1) as u32);
-            if let Some(existing) = items.iter_mut().find(|item| row.key.is_some() && item.key == row.key) {
+            if let Some(existing) = items
+                .iter_mut()
+                .find(|item| row.key.is_some() && item.key == row.key)
+            {
                 if existing.sentence.is_none() {
                     existing.sentence = row.sentence.clone();
                 }
