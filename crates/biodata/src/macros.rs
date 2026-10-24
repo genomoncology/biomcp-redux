@@ -38,10 +38,18 @@ macro_rules! text_value {
 pub(crate) use text_value;
 
 macro_rules! wire_enum {
+    (described $(#[$doc:meta])* $name:ident { $($(#[doc = $vdoc:literal])* $variant:ident => $literal:literal),+ $(,)? }) => {
+        $crate::macros::wire_enum! {
+            $(#[$doc])*
+            #[cfg_attr(feature = "schema", schemars(extend("x-enum-descriptions" = [$(concat!($($vdoc),*)),+])))]
+            $name { $($(#[doc = $vdoc])* $variant => $literal),+ }
+        }
+    };
+
     ($(#[$doc:meta])* $name:ident { $($(#[$vdoc:meta])* $variant:ident => $literal:literal),+ $(,)? }) => {
-        $(#[$doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        $(#[$doc])*
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         pub enum $name { $($(#[$vdoc])* #[serde(rename = $literal)] $variant,)+ }
         impl $name {

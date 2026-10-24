@@ -21,7 +21,10 @@ pub(super) fn check() -> Result<(), String> {
     let mut printed = BTreeSet::new();
     for command in commands.iter().filter(|c| {
         c["command"].as_array().is_some_and(|words| {
-            words.len() == 2 && words.iter().any(|v| v == "article" || v == "gene")
+            words.len() == 2
+                && words
+                    .iter()
+                    .any(|v| v == "article" || v == "gene" || v == "trial")
         })
     }) {
         let examples = command["examples"]
@@ -43,9 +46,10 @@ pub(super) fn check() -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     let registry = schema::Registry::embedded()?;
     for (file, index) in witnesses {
-        let text = fs::read_to_string(launch::fixtures().join("cases").join(file))
-            .map_err(|e| e.to_string())?;
-        let case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
+        let path = launch::fixtures().join("cases").join(file);
+        let text = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        let mut case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
+        super::load_floors(&mut case, &path)?;
         let step = case.steps.get(index).ok_or("example step missing")?;
         let args = step.run.as_ref().ok_or("example must be a run step")?;
         if step.exit != 0 || !printed.remove(args) {

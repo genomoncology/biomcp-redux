@@ -24,8 +24,15 @@ The generated table below lists decided leaf commands and their dropped options 
 | `search gene` | Ported or renamed | `--query`, `--region`, `--pathway`, `--go` | [Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters.](slices/gene.md) |
 | `get gene` | Ported or renamed | — | [Section 1 preserves the gene card; section values do not count as option slots.](slices/gene.md) |
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |
+| `gene trials` | Ported or renamed | — | [The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page.](slices/gene.md) |
 | `gene articles` | Ported or renamed | — | [Section 1 maps this capability to search article --gene; article search preserves paging.](slices/gene.md) |
 | `gene pathways` | Ported or renamed | — | [Section 1 maps the command to the pathways section and moves old paging to the pathway slice.](slices/gene.md) |
+| `search trial` | Ported or renamed | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `get trial` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `batch trial` | Ported or renamed | `--mode`, `--pdf` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `variant trials` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `disease trials` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
+| `drug trials` | Ported or renamed | `--no-alias-expand` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
 <!-- /upgrade-commands -->
 
 ## Configuration and keys
@@ -51,3 +58,11 @@ Optional `ncbi_email` identifies NCBI requests. Optional `ca_bundle` names a PEM
 ## Hosted clients
 
 The approved HTTP interface is `biomcp serve --http [ADDR]`, with MCP at `/mcp` and store health at `/health`. The default bind is `127.0.0.1:8080`. A non-loopback listener requires repeatable `--allow-host HOST` arguments or `http.allowed_hosts` in configuration. Foreign hosts and browser origins are refused. Keep public TLS and authentication at your reverse proxy. Source reachability uses `biomcp health`; the HTTP health endpoint makes no source request. The [HTTP decision](../decisions/2026-10-24-1-0-serves-mcp-over-http.md) owns this contract. Complete installed HTTP proof before publishing 1.0.
+
+## Trial discovery and documents
+
+`search trial TEXT` sends general registry text; `--condition TEXT` searches conditions only. `--gene`, `--variant` and `--criteria` support discovery and never determine clinical eligibility. `--mutation` and `--biomarker` retire in favor of literal `--variant` text. The semantic therapy-line filters retire with `--criteria` guidance. Registry update dates use `--updated-since` and `--updated-until`. Search offset paging becomes the opaque `--next-page` action; keep the same filters.
+
+ClinicalTrials.gov is the default. Explicit `--source nci` requires the user's NCI key and preserves NCI's own counts and statuses without fallback. NCI condition filters require an NCIt identifier; use `--keyword` for explicit free text. Unsupported registry-only filters return guidance before any request. Automatic disease resolution is not shipped.
+
+Use multiple NCT inputs on `get trial` instead of `batch trial`, and trailing section words instead of batch `--sections`. Cards precede requested sections. Every truncated section has its own continuation. A registry reference's type and position do not identify a primary publication. List `get trial NCT documents`, then save one exact manifest filename with `trial document NCT FILE --save PATH`. Documents are downloaded without text extraction. CLI and stdio MCP support saves; HTTP refuses and returns the source URL.

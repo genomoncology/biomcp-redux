@@ -263,49 +263,62 @@ Keep complete eligibility text recoverable when it exceeds one page. Preserve ch
 
 ## 0.9 command, option and section accounting
 
-The PM accepted the design dispositions in [the accepted trial slice rulings](../../decisions/2026-10-24-trial-slice-rulings.md). The machine-readable table leaves runtime units undecided until implementation proves their port, rename or retirement. It does not claim that trial commands are implemented. Global flags and aliases are not command-specific option slots. Positional section values are accounted below separately. The existing gene design owns the `gene trials` ledger row; this design accounts for its destination without duplicating that row.
+The accepted [trial rulings](../../decisions/2026-10-24-trial-slice-rulings.md) define these migration answers. Generated `help search trial`, `help get trial` and `help trial document` describe the shipped schemas. Their examples come from executable replay steps. Global flags and aliases lie outside the historical command-specific option denominator. Section values are accounted separately below. The gene slice owns the `gene trials` ledger row.
 
-| Legacy surface | Proposed disposition | Reason |
+| 0.9 surface | 1.0 answer | Owning proof |
 | --- | --- | --- |
-| `search trial` | Keep | Direct source search with echoed parameters and native total |
-| `get trial` | Keep, bounded sections | Exact NCT identity with progressive disclosure |
-| `batch trial` | Rename to multiple inputs on `get trial` | One retrieval path, independent per-input state |
-| `gene trials` | Rename to `search trial --gene` | Gene resolution is explicit discovery text; the gene ledger retains ownership of this row |
-| `variant trials` | Rename to `search trial --variant` | Shared checked variant input when explicitly requested; no free-text guessing |
-| `disease trials` | Rename to `search trial --condition` | Explicit source condition or explicitly resolved disease ID |
-| `drug trials` | Rename to `search trial --intervention` | Literal source intervention; no guessed chemical alias fanout |
-| `--condition`, positional query | Keep with explicit scope | Positional text becomes general registry text; `--condition` remains condition-only. This change needs clear migration help |
-| `--intervention` | Keep literal | Source-owned matching; no chemical-name heuristics |
-| `--no-alias-expand` | Drop as unnecessary | The new default never invents an alias expansion |
-| `--facility` | Keep as exact facility-field restriction | Separate it from general `--location` text and from trial-wide radius |
-| `--phase`, `--study-type`, `--status`, `--sex` | Keep source-native checked enums | Derive choices from reviewed provider fields, retain distinctions |
-| `--age` | Keep only with native source expression after review | No post-filtering and no count mismatch; no full eligibility claim |
-| `--mutation`, `--biomarker` | Rename to explicit discovery `--variant` or text input | Preserve the question without hiding a field-scope difference or local clinical decision |
-| `--criteria` | Keep literal eligibility-field search | No inclusion/exclusion verification after the source answers |
-| `--prior-therapies`, `--progression-on`, `--line-of-therapy` | Drop semantic filters | Literal criteria search preserves discovery without phrase lists |
-| `--sponsor`, `--sponsor-type` | Keep native field/facet | Exact source totals, no local classification |
-| `--date-from`, `--date-to` | Rename to `--updated-since`, `--updated-until` | Ruling 8: one spelling per option; old spellings return retirement messages. No `--since`/`--until` aliases |
-| `--lat`, `--lon`, `--distance` | Keep trial-wide native radius | Explicit units and no same-site promise without source proof |
-| `--has-results` | Keep | Posted results flag, not proof that registered outcomes have been measured; ruling 8 retires `--results-available` with a message naming `--has-results` |
-| `--count-only` | Keep exact source count | No detail fetches or local screening |
-| `--source` | Keep explicit named source | Default CTGov; NCI requires the user's key; no silent provider fallback |
-| `--limit`, `--next-page` | Keep bounded opaque paging | Echo unchanged query parameters across pages |
-| `--offset` | Rename where a native cursor exists | Avoid rescanning prior pages; section offsets remain mechanical within one captured record |
-| Get `--source`, `--offset`, `--limit` | Keep with declared section capability | Reject unsupported source/section combinations before calls |
-| Batch `--sections`, `--source` | Preserve on multi-input get | No duplicate implementation |
-| Batch `--mode`, `--pdf` | Reject for trials as before | These generic batch flags are article-only and are not trial capabilities |
+| `search trial` | Search one provider with native counts and order; default ClinicalTrials.gov | `tests/cases/trial/condition.yaml`, `walk.yaml` |
+| `get trial` | Exact NCT cards, then requested bounded sections | `tests/cases/trial/get/*.yaml` |
+| `batch trial`; `--sections`, `--source` | Multiple NCT inputs and trailing section words on `get trial`; explicit source remains | Multi-input get in `crates/biomcp/tests/runner/trial_get.rs`; retirement in `input-boundaries.yaml` |
+| Batch `--mode`, `--pdf` | Dropped for trials; migration message explains these were article-only | `input-boundaries.yaml` |
+| `gene trials`; `--limit`, `--offset`, `--source` | `search trial --gene`; bounded limit, opaque `--next-page`, explicit source; NCI refuses this unsupported gene filter | `gene.yaml`, `input-boundaries.yaml`, `nci-boundaries.yaml` |
+| `variant trials`; `--limit`, `--offset`, `--source` | `search trial --variant` accepts literal discovery text; no variant identity or eligibility inference; bounded limit and opaque next page; NCI refuses this unsupported filter | `biomarker.yaml`, `input-boundaries.yaml`, `nci-boundaries.yaml` |
+| `disease trials`; `--limit`, `--offset`, `--source` | `search trial --condition` searches registry condition text; NCI requires an explicit NCIt identifier; no automatic disease resolution | `condition.yaml`, `nci-search.yaml`, `nci-boundaries.yaml`, `input-boundaries.yaml` |
+| `drug trials`; `--limit`, `--offset`, `--source`, `--no-alias-expand` | `search trial --intervention` sends literal source text without inferred aliases; paging uses `--next-page`; NCI refuses this unsupported filter; alias flag retires | `intervention.yaml`, `input-boundaries.yaml`, `nci-boundaries.yaml` |
+| Positional query; `--condition` | Positional text searches general registry text; condition filters only conditions. NCI free text requires explicit `--keyword` | `trial_tables.rs`, `condition.yaml`, `nci-boundaries.yaml` |
+| `--intervention`, `--no-alias-expand` | Literal intervention filter; no inferred chemical aliases; retired flag explains the default | `intervention.yaml`, `input-boundaries.yaml` |
+| `--facility` | Native facility restriction; combining facility and radius refuses because the source cannot bind them to the same site | `facility.yaml`, `input-boundaries.yaml` |
+| `--phase`, `--study-type`, `--status`, `--sex` | Checked native registry vocabulary, including combined phases | `phase.yaml`, `combined-phase.yaml`, `study-type.yaml`, `status.yaml`, `sex.yaml` |
+| `--age` | Native source range with unstated bounds treated as no registered limit; no eligibility judgment | `age-missing.yaml` |
+| `--mutation`, `--biomarker` | Retired spellings name `--variant` for literal discovery | `biomarker.yaml`, `input-boundaries.yaml` |
+| `--criteria` | Literal eligibility-field search for discovery; no inclusion or exclusion classification | `eligibility.yaml`, `help.yaml` |
+| `--prior-therapies`, `--progression-on`, `--line-of-therapy` | Dropped semantic filters; each message names literal `--criteria` search | `input-boundaries.yaml` |
+| `--sponsor`, `--sponsor-type` | Native sponsor field and funding facet | `sponsor.yaml`, `funder.yaml` |
+| `--date-from`, `--date-to` | Retired spellings name `--updated-since`, `--updated-until` | `updated.yaml`, `until.yaml`, `input-boundaries.yaml` |
+| `--lat`, `--lon`, `--distance` | Native trial-wide radius with explicit units; no same-site facility promise | `distance.yaml`, `input-boundaries.yaml` |
+| `--has-results`; alias `--results-available` | Posted-results restriction; alias retires with `--has-results` guidance | `results.yaml`, `input-boundaries.yaml` |
+| `--count-only` | Exact source count without detail rows | `count-only.yaml`, `nci-search.yaml` |
+| `--source` | ClinicalTrials.gov default; explicit NCI needs the user's key; no fallback or merged statuses/counts | `nci-search.yaml`, `nci-boundaries.yaml`, `runner/nci.rs` |
+| Search `--limit`, `--next-page`, `--offset` | Bounded source pages; offset spelling retires with opaque cursor guidance | `walk.yaml`, `input-boundaries.yaml` |
+| Get `--source`, `--offset`, `--limit` | Explicit provider and bounded sections; continuations own the checked stored record and mechanical offset | `runner/trial_get.rs`, `runner/trial_sites.rs`, `runner/trial_documents.rs`, `runner/nci_walk.rs` |
 
-Every legacy ordinary section is kept: `eligibility`, `contacts`, `locations`, `outcomes`, `arms`, `references` and explicit `all`. Keep `documents` as a bounded manifest and rename `document FILE` to an explicit save command. Do not drop source intervention aliases in a returned record; dropping guessed search expansion does not remove source-provided other names. MCP uses the same request and schema as the CLI, including section capabilities; it no longer has a smaller, independently maintained trial filter subset.
+Proof paths without a prefix are under `tests/cases/trial/`; `runner/` means `crates/biomcp/tests/runner/`. Trial search and get share the CLI grammar with MCP. Unsupported source filters return typed guidance before source or cache access. NCI accepts condition identities and explicit keyword searches; it does not pretend to implement the registry's other filters.
+
+| 0.9 section | 1.0 answer | Owning proof |
+| --- | --- | --- |
+| `eligibility` | Intact source text and structured age/sex metadata; ClinicalTrials.gov character continuations preserve every character, while NCI pages whole unclassified source criterion records | `runner/trial_get.rs`, `runner/nci_walk.rs` |
+| `outcomes` | Whole native outcome records with measures, descriptions and time frames | Get cases and both source walkers |
+| `arms` | Whole native arms and intervention relationships; source-provided intervention names remain intact | Get cases and both source walkers |
+| `locations` | Whole original registry sites with attached contacts and coordinates when supplied. NCI reports unsupported | `sites/*.yaml`, `runner/trial_sites.rs`, `nci-get.yaml` |
+| `contacts` | Registry central contacts and officials with original roles; independent from site contacts. NCI reports unsupported | `sites/*.yaml`, `runner/trial_sites.rs`, `nci-get.yaml` |
+| `references` | Registry publication identities, native types and citation order; article action fetches the page's PMIDs without inferring a primary paper. NCI reports unsupported | `references.yaml`, `runner/trial_documents.rs`, `nci-get.yaml` |
+| `documents` | Registry manifest, source URLs and document metadata. NCI reports unsupported | `documents.yaml`, `nci-get.yaml` |
+| `document FILE` | `trial document NCT FILE --save PATH` saves only an exact manifest member; never extracts text. CLI and stdio MCP save; HTTP refuses with the URL | `document-examples.yaml`, `runner/trial_documents.rs`, `input-boundaries.yaml` |
+| `all` | Every implemented section for the selected source; each truncated section owns its continuation. No section becomes supported merely because all was requested | Get cases and both source walkers |
+
+NCI additionally exposes its native disease concepts and complete source summary through `diseases` and `summary`. These sections refuse ClinicalTrials.gov. NCI biomarker interpretation is not a shipped section. Synthetic keyed wire cases prove that missing keys skip before any request and that configuration reload reaches the next stdio and HTTP call. Public-tier NCI captures prove one NCIt query and its exact get; their recorded count is not keyword-search parity.
+
+Case ceilings enforce measured compact output plus headroom under the accepted budget rule. Comparable released outputs remain the upper bound unless added required provenance has an approved exception. Existing cases retain their source and baseline qualifications. No matching released NCI card or section comparator was established. Complete source walkers compare every omitted record or character to its original capture. Generated help has no comparable 0.9 schema-help baseline; its case ceilings use measured output plus headroom. The MCP discovery case keeps its existing ceiling.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search trial` | Not yet decided | — | — | `--condition`, `--intervention`, `--no-alias-expand`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--prior-therapies`, `--progression-on`, `--line-of-therapy`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
-| `get trial` | Not yet decided | — | — | `--source`, `--offset`, `--limit` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
-| `batch trial` | Not yet decided | — | — | `--mode`, `--sections`, `--source`, `--pdf` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
-| `variant trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
-| `disease trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
-| `drug trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source`, `--no-alias-expand` | [Accepted design; implementation proof deferred](../../decisions/2026-10-24-trial-slice-rulings.md) |
+| `search trial` | Ported or renamed | `--condition`, `--intervention`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `get trial` | Ported or renamed | `--source`, `--offset`, `--limit` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `batch trial` | Ported or renamed | `--sections`, `--source` | `--mode`, `--pdf` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `variant trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `disease trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `drug trials` | Ported or renamed | `--limit`, `--offset`, `--source` | `--no-alias-expand` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
 <!-- /parity-accounting -->
 
 
@@ -315,4 +328,4 @@ Raw responses, exact request manifests, released-product outputs, official speci
 
 The clinical review covered all 24 questions and the bounded age-metadata clarification. It confirmed publication facts and the no-limit convention, kept recruitment and count claims tied to captured registry data, and rejected clinical eligibility conclusions from text search or a structured age match. The investigator read both results before using them.
 
-Product compilation, release artifact builds, production changes, scheduled source refreshes, new implementation tickets and landing are outside this investigation. The PM accepted the user-visible choices in [the accepted trial slice rulings](../../decisions/2026-10-24-trial-slice-rulings.md) and filed the implementation tickets. In particular, NCI disease-filter/detail/section parity, same-site facility-plus-radius semantics, exact shipped token ceilings and warm installed-command measurements remain implementation proof obligations rather than claims of completed runtime support.
+The investigation did not compile product code, build release artifacts, change production or schedule source refreshes. The implementation proof above covers the accepted trial capabilities. A same-site facility-plus-radius filter remains unsupported by ruling. Automatic MyDisease.info resolution and interpretation of NCI biomarker fields remain outside these shipped capabilities.
