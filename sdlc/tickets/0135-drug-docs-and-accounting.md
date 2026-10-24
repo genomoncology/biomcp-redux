@@ -1,0 +1,19 @@
+# 0135 — Document the drug commands and close the drug accounting
+
+Status: OPEN.
+
+Milestone: 3
+
+Depends on: 0133
+
+Depends on: 0134
+
+## Outcome
+
+Generated help and the MCP tool description cover `search drug`, `get drug` with its sections and options, and `biomcp sync ema` and `biomcp sync ddinter`, with examples taken from case run steps. The 0.9 parity ledger has a row for every drug command, option and section in drug.md's accounting, naming the 1.0 spelling, the owning slice or the retirement. Every drug case asserts a measured `max_bytes` from its CLI and MCP output under the existing headroom rule, and drug.md's budget table gains the measured sizes. The landing commit ticks the drug roadmap boxes this work completes.
+
+- Why: the slice delivers docs, cases with ceilings and full 0.9 accounting, as `planning/slices.md` says.
+- Starts from: 0034's gene docs ticket as the pattern; drug.md section 4's case list, budget tables and 0.9 accounting; the generated help and MCP description code; ROADMAP.md's drug block.
+- Rules: O01 to O04 are recorded as owned by the trial, adverse event, disease, pathway and shared batch owners, with no drug case added for them. A measured size over its design allocation is fixed or raised to the PM before landing. The contained 0.9 comparison stays a separate ticket, so the token budget box stays open until it lands. WHO, FDA orphan, DGIdb, PharmacoDB and CVX move to the dropped line with drug.md's reasons. `identity_level` comes from the endpoint or record type, never from a field's shape.
+- Proof: a help case asserts each drug command lists its sections, options and two parsed examples; an MCP `tools/list` case asserts the drug tree within the existing description ceiling. A reviewer checks that every accounting row has a ledger row, every design case ID has a case file or an outside-repo case, and every case has a measured `max_bytes`. The landing commit ticks Biodata types and schema, Search, Get and sections, Outside-in cases, MCP parity, Docs and 0.9 accounting, and the kept source boxes, each only after its check passes. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
+- Defers: the contained 0.9 comparison and the token budget tick.
