@@ -1,0 +1,87 @@
+{
+  "feature": "article-supplements",
+  "story": "A literal match in a wide row precedes header and unrelated cell fragments; original coordinates and continuation preserve all context. A different spelling stays absent.",
+  "replay": "article/supplements/synthetic-match-first",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "F1761I"
+      ],
+      "mcp": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "F1761I"
+      ],
+      "expect": {
+        "/result/content/data/rows/0/row": 2,
+        "/result/content/data/rows/0/fragment": {
+          "equals": {
+            "header": false,
+            "column": 40,
+            "offset": 0,
+            "text": "F1761I"
+          }
+        },
+        "/result/content/data/rows/1/row": 3,
+        "/result/content/data/rows/1/fragment/text": "literal F1761I",
+        "/page/returned": 3,
+        "/page/total": 241,
+        "/result/content/data/rows/2/row": 4,
+        "/result/content/data/rows/2/fragment": {
+          "equals": {
+            "header": false,
+            "column": 40,
+            "offset": 998,
+            "text": "F1761I"
+          }
+        }
+      },
+      "max_tokens": 649
+    },
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "F1761I",
+        "--offset",
+        "3"
+      ],
+      "walk": {
+        "items": "/result/content/data/rows",
+        "max_pages": 15
+      },
+      "expect": {
+        "/result/content/data/rows": {
+          "count": 238
+        }
+      },
+      "max_bytes": 5500
+    },
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--find",
+        "Phe1761Ile"
+      ],
+      "expect": {
+        "/result/content/data/rows": [],
+        "/result/content/data/search_message": "No row contains the search term."
+      },
+      "max_tokens": 649
+    }
+  ]
+}
