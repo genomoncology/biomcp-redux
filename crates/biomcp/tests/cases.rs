@@ -1,5 +1,8 @@
 //! YAML cases run the binary Cargo built, one independently named test per file.
-#![expect(clippy::disallowed_methods, reason = "The test entry point reads arguments and locates its own executable")]
+#![expect(
+    clippy::disallowed_methods,
+    reason = "The test entry point reads arguments and locates its own executable"
+)]
 mod runner;
 
 use libtest_mimic::{Arguments, Trial};
@@ -25,13 +28,16 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
             if directory.is_some() {
                 return Err("--cases may appear only once".into());
             }
-            directory = Some(PathBuf::from(args.next().ok_or("--cases requires a directory")?));
+            directory = Some(PathBuf::from(
+                args.next().ok_or("--cases requires a directory")?,
+            ));
         } else {
             cargo_args.push(argument);
         }
     }
     let default = directory.is_none();
-    let directory = directory.unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases"));
+    let directory = directory
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases"));
     let mut trials = runner::discover(&directory)?;
     if default {
         trials.extend(runner::proof::trials());

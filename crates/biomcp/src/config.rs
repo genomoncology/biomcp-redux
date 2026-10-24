@@ -1,7 +1,10 @@
 //! The process argument boundary.
 use std::ffi::OsString;
 
-#[expect(clippy::disallowed_methods, reason = "Arguments enter only at the command boundary")]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Arguments enter only at the command boundary"
+)]
 pub(crate) fn schema_name() -> Option<OsString> {
     let mut arguments = std::env::args_os().skip(1);
     let command = arguments.next()?;
