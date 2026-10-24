@@ -13,7 +13,7 @@ BioMCP 1.0 keeps every 0.9 distribution name. GenomOncology owns publication for
 
 ## Production and qualification
 
-The 0.9 sources are `genomoncology/biomcp`'s `install.sh`, `Formula/biomcp.rb`, `Dockerfile`, `manifest.json`, `server.json`, and `.github/workflows/release.yml`. They establish the channel names and platform families above. The 1.0 local producers live in [release/](../../../release/), [manifest.json](../../../manifest.json) and [server.json](../../../server.json). They derive versions from Cargo. They do not publish or reproduce the entire 0.9 publisher workflow.
+The 0.9 sources are `genomoncology/biomcp`'s `install.sh`, `Formula/biomcp.rb`, `Dockerfile`, `manifest.json`, `server.json`, and `.github/workflows/release.yml`. They establish the channel names and platform families above. The 1.0 local producers live in [release/](../../release/), [manifest.json](../../manifest.json) and [server.json](../../server.json). They derive versions from Cargo. They do not publish or reproduce the entire 0.9 publisher workflow.
 
 Run `make release-artifacts` through the job service on the release candidate. The install gate exercises the wheel, supplied-archive installer, local formula where Homebrew exists, container, desktop manifest command and registry-selected package command outside the checkout. It checks the installed executable, MCP lifecycle, replay and concurrent ordinary-cache use. Preserve explicit deferred results when a native platform or Homebrew is unavailable. Native platform execution and installed HTTP checks belong to the installed-platform rehearsal; a generated manifest or cross-build cannot replace them.
 
