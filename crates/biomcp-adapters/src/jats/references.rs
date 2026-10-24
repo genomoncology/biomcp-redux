@@ -44,7 +44,10 @@ pub(super) fn table_ids(xml: &str) -> Result<Box<[Text]>, BadReply> {
 fn typed_ids(xml: &str, kinds: &[&str]) -> Result<Box<[Text]>, BadReply> {
     let mut out = Vec::new();
     for node in blocks::descendants(xml, "xref")? {
-        if !node.attr("ref-type")?.is_some_and(|kind| kinds.contains(&kind.as_str())) {
+        if !node
+            .attr("ref-type")?
+            .is_some_and(|kind| kinds.contains(&kind.as_str()))
+        {
             continue;
         }
         if let Some(ids) = node.attr("rid")? {

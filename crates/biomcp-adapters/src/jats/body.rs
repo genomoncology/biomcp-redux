@@ -68,7 +68,9 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
     let mut out = Vec::new();
     for (name, child) in blocks::body_nodes(node.0)? {
         if !matches!(name.as_str(), "sec" | "table-wrap" | "table-wrap-group") {
-            group.table_refs.extend(super::references::table_ids(child.0)?);
+            group
+                .table_refs
+                .extend(super::references::table_ids(child.0)?);
         }
         match name.as_str() {
             "title" | "table-wrap" | "table-wrap-group" => {}
