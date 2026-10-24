@@ -87,10 +87,7 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
         .abstract_text
         .as_ref()
         .filter(|s| !s.trim().is_empty())
-        .map(|xml| {
-            jats::markdown(&fragment(xml))
-                .map(|text| AbstractPart { label: None, text })
-        })
+        .map(|xml| jats::markdown(&fragment(xml)).map(|text| AbstractPart { label: None, text }))
         .transpose()
         .map_err(bad)?
         .into_iter()
@@ -145,7 +142,11 @@ fn fragment(html: &str) -> String {
     let mut xml = String::from("<abstract>");
     let mut chars = html.chars().peekable();
     while let Some(ch) = chars.next() {
-        if ch == '<' && !chars.peek().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, '/' | '!' | '?')) {
+        if ch == '<'
+            && !chars
+                .peek()
+                .is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, '/' | '!' | '?'))
+        {
             xml.push_str("&lt;");
         } else {
             xml.push(ch);

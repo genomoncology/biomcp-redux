@@ -162,7 +162,11 @@ fn append(
 }
 
 fn sources(query: &ArticleGet, source: biodata::SourceOutcome) -> Vec<biodata::SourceOutcome> {
-    if query.input().iter().any(|i| !matches!(i, ArticleInput::EuropePmc(_))) {
+    if query
+        .input()
+        .iter()
+        .any(|i| !matches!(i, ArticleInput::EuropePmc(_)))
+    {
         vec![source]
     } else {
         Vec::new()
