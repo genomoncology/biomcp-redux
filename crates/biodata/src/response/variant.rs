@@ -77,6 +77,12 @@ pub struct VariantSections {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 
+    /// Explicit population source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub population: Option<crate::Section<crate::VariantPopulation>>,
+    /// Explicit GWAS Catalog source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gwas: Option<crate::Section<crate::VariantGwas>>,
     /// Explicit keyed OncoKB source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub oncokb: Option<crate::Section<crate::VariantOncokb>>,

@@ -176,3 +176,9 @@ pub use variant::{
     CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent,
     VariantConservation, VariantCosmic, VariantPredictors,
 };
+pub use query::VariantPopulationQuery;
+pub use response::{
+    GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    VariantPopulationResult,
+};
+pub use variant::{PopulationDataType, PopulationFrequency, PopulationSex};

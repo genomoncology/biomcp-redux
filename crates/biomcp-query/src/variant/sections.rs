@@ -21,12 +21,14 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
-            VariantSection::Civic,
-            VariantSection::Hotspots,
-            VariantSection::Oncokb,
             VariantSection::Predict,
             VariantSection::Conservation,
             VariantSection::Cosmic,
+            VariantSection::Population,
+            VariantSection::Gwas,
+            VariantSection::Civic,
+            VariantSection::Hotspots,
+            VariantSection::Oncokb,
         ] {
             if !query.sections().contains(&section)
                 && !query.sections().contains(&VariantSection::All)
@@ -34,37 +36,34 @@ pub(super) fn apply(
                 continue;
             }
             let candidates = std::slice::from_ref(&*candidate);
+            macro_rules! attach {
+                ($field:ident, $read:expr) => {
+                    sections.$field = Some(collected.keep(permitted(cx, section, || $read)))
+                };
+            }
             match section {
-                VariantSection::Civic => {
-                    sections.civic = Some(collected.keep(permitted(cx, section, || {
-                        super::civic::section(cx, query, candidates, *deadline)
-                    })))
+                VariantSection::Predict => attach!(predict, super::predict::section(cx, query, candidates, deadline)),
+                VariantSection::Conservation => attach!(conservation, super::conservation::section(cx, query, candidates, deadline)),
+                VariantSection::Cosmic => attach!(cosmic, super::cosmic::section(cx, query, candidates, deadline)),
+                VariantSection::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, *deadline)
+                ),
+                VariantSection::Gwas => {
+                    attach!(gwas, super::gwas::section(cx, query, candidates, *deadline))
                 }
-                VariantSection::Hotspots => {
-                    sections.hotspots = Some(collected.keep(permitted(cx, section, || {
-                        super::hotspots::section(cx, query, candidates, *deadline)
-                    })))
-                }
-                VariantSection::Oncokb => {
-                    sections.oncokb = Some(collected.keep(permitted(cx, section, || {
-                        super::oncokb::section(cx, query, candidates, *deadline)
-                    })));
-                }
-                VariantSection::Predict => {
-                    sections.predict = Some(
-                        collected.keep(super::predict::section(cx, query, candidates, deadline)),
-                    );
-                }
-                VariantSection::Conservation => {
-                    sections.conservation = Some(collected.keep(super::conservation::section(
-                        cx, query, candidates, deadline,
-                    )));
-                }
-                VariantSection::Cosmic => {
-                    sections.cosmic = Some(
-                        collected.keep(super::cosmic::section(cx, query, candidates, deadline)),
-                    );
-                }
+                VariantSection::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, *deadline)
+                ),
+                VariantSection::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, *deadline)
+                ),
+                VariantSection::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, *deadline)
+                ),
                 _ => {}
             }
         }
@@ -92,6 +91,8 @@ impl Collected {
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
+        VariantSection::Population => Some(Source::Gnomad),
+        VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
         VariantSection::Oncokb => Some(Source::Oncokb),
         VariantSection::Hotspots => Some(Source::CancerHotspots),

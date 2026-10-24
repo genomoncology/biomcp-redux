@@ -206,6 +206,70 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
 }
 
 #[test]
+fn population_strata_enforce_counts_and_frequencies() -> Check {
+    let attribution = Attribution {
+        source: Source::Gnomad,
+        record: None,
+        version: None,
+        release: None,
+        submitter: None,
+        evaluated: None,
+        url: None,
+    };
+    let base = PopulationFrequency::new(
+        VariantRef::allele("CA123643".parse()?),
+        Build::Grch38,
+        Text::new("gnomad")?,
+        Text::new("synthetic-release")?,
+        attribution,
+    );
+    let value = base
+        .clone()
+        .with_stratum(
+            Some(PopulationDataType::Exomes),
+            Some(Text::new("synthetic-group")?),
+            Some(PopulationSex::Xy),
+            Some(Text::new("synthetic-subset")?),
+        )
+        .with_counts(Some(2), Some(4), Some(0), Some(0))?
+        .with_frequencies(Some(0.5.try_into()?), Some(0.25.try_into()?))?;
+    let serialized = serde_json::to_value(&value)?;
+    assert_eq!(serialized.get("hemizygote_count"), Some(&json!(0)));
+    assert_eq!(serialized.get("allele_frequency"), Some(&json!(0.5)));
+    assert_eq!(
+        serde_json::from_value::<PopulationFrequency>(serialized.clone())?,
+        value
+    );
+    assert!(
+        base.clone()
+            .with_counts(Some(3), Some(2), None, None)
+            .is_err()
+    );
+    assert!(
+        base.clone()
+            .with_frequencies(Some(1.01.try_into()?), None)
+            .is_err()
+    );
+    assert!(
+        base.with_frequencies(None, Some((-0.01).try_into()?))
+            .is_err()
+    );
+    for (field, invalid) in [
+        ("allele_count", json!(5)),
+        ("allele_frequency", json!(-0.01)),
+        ("faf95", json!(1.01)),
+    ] {
+        let mut changed = serialized.clone();
+        changed
+            .as_object_mut()
+            .ok_or("population object required")?
+            .insert(field.into(), invalid);
+        assert!(serde_json::from_value::<PopulationFrequency>(changed).is_err());
+    }
+    Ok(())
+}
+
+#[test]
 fn source_predictor_contract_keeps_zero_and_native_labels() {
     let source = json!({"subject":{"level":"allele","hgvs":"NC_000007.13:g.140453136A>T"},"method":"cadd.sift.val","score":0.0,"label":"deleterious","attribution":{"source":"myvariant","record":"chr7:g.140453136A>T"}});
     let score: PredictorScore = serde_json::from_value(source.clone()).expect("valid source score");

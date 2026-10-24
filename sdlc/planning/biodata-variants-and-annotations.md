@@ -264,7 +264,7 @@ These shapes were settled in the 2026-10-24 crate comparison. The four joint add
 | `AlignedExon` | `{"transcript": Span0, "reference": Span0, "cigar": Cigar}` | The CIGAR ops' lengths sum to both spans | UTA |
 | `Cigar` | Text such as `"120M2I30M"` | Parsed SAM ops, serialized as text, with the genome as the reference side | SAM |
 | `TranscriptPosition` | `{"anchor": Anchor, "offset"?: integer}` | `offset` is the signed intron offset, nonzero, negative before the anchor and positive after it | HGVS |
-| `Anchor` | Internally tagged by `"region"`: `upstream` with `distance: Position1` for `c.-N`; `coding` with `position: Position1` for `c.N`; `downstream` with `distance: Position1` for `c.*N`; `noncoding` with `position: Position1` for `n.N` | `c.0` and `n.0` cannot be written | HGVS |
+| `Anchor` | Internally tagged by `"kind"`: `upstream` with `distance: Position1` for `c.-N`; `coding` with `position: Position1` for `c.N`; `downstream` with `distance: Position1` for `c.*N`; `noncoding` with `position: Position1` for `n.N` | `c.0` and `n.0` cannot be written. This is the only Anchor type in either crate; the HGVS grammar uses it too. An unknown position such as `c.?` is an unknown position in the grammar, not an Anchor case | HGVS |
 | `Region` | `{"kind": "exon" \| "intron", "number": Position1, "total": Position1}` | `number` is at most `total` | VEP and HGVS exon numbering |
 | `EditKind` | A `Coding` in system `so`, such as `SO:1000002` substitution | Only exact SO variant-class terms | Sequence Ontology |
 | `NaEdit` | The projecting crate's parsed nucleotide edit | Built only by its grammar | HGVS |

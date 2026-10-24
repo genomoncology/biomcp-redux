@@ -63,6 +63,8 @@ canonical_enum! {
         Gnomad => "gnomad",
         /// ClinVar component source policy.
         ClinVar => "clinvar",
+        /// GWAS Catalog v2.
+        Gwas => "gwas",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.

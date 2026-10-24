@@ -13,8 +13,8 @@ steps:
       /enum:
         includes: pubmed
         rank_of: {hgnc: 1}
-        max_bytes: 256
-        max_tokens: 64
+        max_bytes: 302
+        max_tokens: 76
       /enum/*: {includes: gnomad}
   - run: [schema, biodata.problem/1]
     expect:

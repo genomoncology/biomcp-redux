@@ -47,13 +47,13 @@ trial-nci: Explicit NCI trial search and exact retrieval require the user key an
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path. Cases: `tests/cases/trial/references.yaml`, `tests/cases/trial/documents.yaml`, `crates/biomcp/tests/runner/trial_documents.rs`.
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
 
+variant-population: A caller reads source-given population counts and current catalog associations, keeps missing datasets distinct from zero, and pages ancestry without inferred frequencies or clinical meaning. Cases: `tests/cases/variant/population/*.yaml`, `crates/biomcp/tests/runner/variant_population.rs`.
 variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates and pages, and honor component terms switches. Cases: `tests/cases/variant/search*.yaml`, `tests/cases/variant/filters/*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`, `crates/biomcp/tests/runner/variant_filters.rs`.
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
 
-variant-myvariant-sections: A caller sees native prediction and conservation values, labeled component terms and historical COSMIC fragments with unverified associations; matching source groups suppress component fields. Cases: `tests/cases/variant/components.yaml`, `crates/biomcp/tests/runner/variant.rs`.
 variant-civic: Preserve CIViC exact profile membership and separate native claim pages. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
 

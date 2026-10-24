@@ -18,3 +18,6 @@ mod predictor;
 pub use predictor::*;
 mod statement;
 pub use statement::*;
+
+mod population;
+pub use population::{PopulationDataType, PopulationFrequency, PopulationSex};

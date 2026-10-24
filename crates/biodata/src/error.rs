@@ -2,6 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A population count or frequency violates its bounds.
+    PopulationFrequencyInvalid,
     /// A subject reference has neither its source ID nor notation.
     VariantRefInvalid,
     /// A concept identifier lacks its checked prefix or local part.
@@ -84,6 +86,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::PopulationFrequencyInvalid => "population.frequency.invalid",
             Self::VariantRefInvalid => "variant.reference.invalid",
             Self::CurieInvalid => "concept.curie.invalid",
             Self::VariantIdInvalid => "id.variant.invalid",
