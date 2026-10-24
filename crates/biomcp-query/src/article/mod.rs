@@ -15,6 +15,10 @@ use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty();
+    if let Some((source, option)) = unsupported(query) {
+        out.body = QueryBody::UnsupportedFilter { source, option };
+        return out;
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let result = execute(cx, query, &mut deadline, &mut out);
@@ -131,4 +135,19 @@ pub(super) fn consume<'a>(
 /// Page one citation graph direction.
 pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> Outcome {
     edges::run(cx, query, references)
+}
+
+/// Check source capabilities before resolving inputs or opening a store.
+pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
+    use biodata::{ArticleFilter as F, ArticleSource as S};
+    if query.sources().contains(&S::Litvar) {
+        if let Some(option) = query.rejects(&[F::Text, F::Disease, F::Drug, F::Author, F::Journal, F::Since, F::Until, F::Type, F::DateSort]) {
+            return Some((biodata::Source::LitVar, option));
+        }
+        let variant = query.variant().map_or("", Text::as_str);
+        let rsid = variant.get(..2).is_some_and(|v| v.eq_ignore_ascii_case("rs"))
+            && variant.get(2..).is_some_and(|v| !v.is_empty() && v.bytes().all(|c| c.is_ascii_digit()));
+        if variant.is_empty() || (!rsid && query.gene().is_none()) { return Some((biodata::Source::LitVar, F::Variant)); }
+    }
+    None
 }

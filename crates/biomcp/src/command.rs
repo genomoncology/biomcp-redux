@@ -60,6 +60,11 @@ fn dispatch_using(
     if action == Action::KeyHelp {
         return key_help();
     }
+    if let Action::Run { request: Request::SearchArticle(query), .. } = &action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return encode(biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage);
+    }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => fetch.as_ref(),
@@ -109,6 +114,7 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
     match (request, result.body) {
+        (_, QueryBody::UnsupportedFilter { source, option }) => encode(biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage),
         (_, QueryBody::TooManyPmids { count }) => encode(
             biodata::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,

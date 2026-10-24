@@ -69,6 +69,8 @@ canonical_enum! {
         EuropePmc => "europepmc",
         /// NCBI LitVar2.
         LitVar => "litvar",
+        /// Semantic Scholar.
+        SemanticScholar => "semantic-scholar",
         /// NIH iCite.
         Icite => "icite",
         /// PubTator.
