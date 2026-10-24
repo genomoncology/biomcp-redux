@@ -65,7 +65,7 @@ pub use response::{
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
-pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
+pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 
 pub use query::{ArticleEdges, EdgeSource};
 pub use response::{ArticleEdgeItem, ArticleEdgePage, Citations};

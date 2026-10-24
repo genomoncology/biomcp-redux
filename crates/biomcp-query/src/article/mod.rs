@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod edges;
+mod semantic_edges;
 mod fold;
 pub mod get;
 mod next;

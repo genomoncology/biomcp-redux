@@ -93,6 +93,9 @@ fn create<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
+    if query.source() == biodata::EdgeSource::SemanticScholar {
+        return super::semantic_edges::create(cx, query, references, deadline, out);
+    }
     let Some(pmid) = query.pmid() else { return Ok(None); };
     let parent = order::fetch(cx, deadline, &[pmid]);
     out.sources.push(parent.source);

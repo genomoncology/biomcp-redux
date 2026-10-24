@@ -45,5 +45,5 @@ pub use gene::{
 
 mod article_sections;
 pub use article_sections::{
-    AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations,
+    AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr, Citations,
 };

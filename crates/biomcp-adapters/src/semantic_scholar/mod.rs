@@ -16,3 +16,6 @@ pub static SPEC: SourceSpec = SourceSpec {
 
 mod search;
 pub use search::{Paper, Search, search};
+
+mod graph;
+pub use graph::{Edges, Edge, PaperSummary, edges, summary};

@@ -46,6 +46,11 @@ pub struct SourceOutcome {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
+    /// The source still has graph pages after the bounded fetch window.
+    GraphTruncated {
+        /// Default-source command offering another graph view.
+        fallback: crate::Text,
+    },
     /// PubMed did not index these words.
     NotFoundWords {
         /// Whole source words.

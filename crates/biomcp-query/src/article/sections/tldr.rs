@@ -1,0 +1,34 @@
+//! Independent machine-written summaries leave accepted article cards intact.
+use crate::{Action, Ctx, Outcome, status};
+use biodata::{ArticleInput, ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind};
+use biomcp_adapters::semantic_scholar;
+use biomcp_fetch::Deadline;
+pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
+    let QueryBody::ArticleCards(cards) = &mut out.body else { return; };
+    let leg = cx.fetch.leg(&semantic_scholar::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let mut error = None;
+    for item in &mut cards.items {
+        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else { continue; };
+        let input = card.pmid.map(ArticleInput::Pmid).or_else(|| card.doi.clone().map(ArticleInput::Doi));
+        let Some(input) = input else { continue; };
+        let section = match semantic_scholar::summary(&leg, &input) {
+            Ok(reply) => reply.section(),
+            Err(e) => {
+                error.get_or_insert(e);
+                out.local = out.local.or(status::local(e));
+                item.status = Status::Partial;
+                let reason = if let biomcp_fetch::RequestError::Source(e) = e { e.reason } else { Reason::Unavailable };
+                Section::Unavailable { source: Source::SemanticScholar, reason }
+            }
+        };
+        if let Some(sections) = &mut item.sections { sections.tldr = Some(section); }
+    }
+    *deadline = super::super::consume(*deadline, started, leg.remaining());
+    let source = status::source(Source::SemanticScholar, leg.finish(), error);
+    if source.reason == Some(Reason::RateLimited) {
+        out.next.push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
+    }
+    out.sources.push(source);
+    out.status = status::status(cards.items.iter().map(|i| i.status));
+}

@@ -57,6 +57,8 @@ crate::source::canonical_enum! {
         Annotations => "annotations",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
+        /// Machine-written Semantic Scholar summary and counts.
+        Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
         /// Every landed article section.
@@ -70,6 +72,8 @@ crate::source::canonical_enum! {
         Fulltext => "fulltext",
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
+        /// Machine-written Semantic Scholar summary and counts.
+        Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
     }

@@ -134,7 +134,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         truncated: Some(pool.sources.iter().any(|s| {
             s.count
                 .zip(s.fetched)
-                .is_some_and(|(count, fetched)| count > u64::from(fetched))
+                .is_some_and(|(count, fetched)| count > u64::from(fetched)) || s.notices.iter().any(|n|matches!(n,biodata::SourceNotice::GraphTruncated { .. }))
         })),
     });
     let items = rows.into_iter().map(|r| r.item).collect();
