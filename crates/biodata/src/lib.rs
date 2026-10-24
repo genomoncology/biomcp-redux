@@ -97,3 +97,59 @@ pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolv
 pub use response::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
+pub use response::{VariantCard, VariantHeader, VariantResolution};
+
+pub use coord::Chromosome;
+
+pub use variant::{
+    Accession, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence, SequenceLocation,
+};
+
+pub use variant::{Expression, ExpressionSyntax, HgvsText, VariantId};
+
+pub use query::{VariantInput, VariantNamespace};
+mod trial;
+pub use query::PhaseFilter;
+pub use query::SponsorType;
+pub use query::{TrialFilter, TrialSearch, TrialSource};
+pub use response::TrialPage;
+pub use response::TrialParameter;
+pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
+
+mod trial_detail;
+pub use trial_detail::{
+    TrialAgeBound, TrialArm, TrialCard, TrialEligibility, TrialIntervention, TrialOutcome,
+    TrialOutcomeKind,
+};
+
+pub use query::{TrialGet, TrialSection};
+pub use response::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
+    TrialRecords, TrialSections,
+};
+
+pub use trial_detail::{TrialDate, TrialDateKind};
+
+pub use trial_detail::{TrialArmKind, TrialInterventionKind};
+
+pub use response::{
+    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+};
+
+pub use response::{
+    NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
+    NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
+};
+mod trial_sites;
+pub use trial_sites::{
+    TrialContact, TrialContactRole, TrialCoordinates, TrialLocation, TrialOfficial,
+    TrialOfficialRole, TrialSiteStatus,
+};
+
+mod trial_publications;
+pub use query::TrialDocumentGet;
+pub use response::{TrialDocumentResult, TrialDocumentSaved};
+pub use trial_publications::{TrialDocument, TrialReference};
+
+pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
+pub use response::VariantPage;

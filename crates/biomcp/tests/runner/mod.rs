@@ -292,3 +292,146 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(recurrence_errors::trials());
     trials.extend(recurrence_metadata::trials());
     trials.extend(normalization::trials());
+    trials.extend(variant_search::trials());
+    trials.extend(markdown::trials());
+    trials.extend(markdown_shapes::trials());
+    trials.extend(markdown_sources::trials());
+    trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
+        held_proxy::check().map_err(Into::into)
+    }));
+    trials
+}
+
+fn load_floors(case: &mut Case, path: &Path) -> Result<(), String> {
+    for step in &mut case.steps {
+        for expected in step.expect.values_mut().filter_map(Value::as_object_mut) {
+            for (key, value) in expected.iter_mut() {
+                if !matches!(key.as_str(), "includes_all_of" | "equals_file") {
+                    continue;
+                }
+                let Some(file) = value.as_str() else {
+                    continue;
+                };
+                if !Path::new(file)
+                    .components()
+                    .all(|p| matches!(p, std::path::Component::Normal(_)))
+                {
+                    return Err("floor must be beside its case".into());
+                }
+                let floor = path.parent().ok_or("case has no parent")?.join(file);
+                *value = serde_json::from_slice(&fs::read(floor).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+    Ok(())
+}
+fn action(previous: &Value, kind: &str) -> Result<Vec<String>, String> {
+    let steps = previous
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("follow action absent")?;
+    let action = steps
+        .iter()
+        .find(|s| s.get("kind").and_then(Value::as_str) == Some(kind))
+        .ok_or("follow action absent")?;
+    action
+        .get("args")
+        .and_then(Value::as_array)
+        .ok_or("follow requires typed arguments")?
+        .iter()
+        .map(|a| {
+            a.as_str()
+                .map(str::to_owned)
+                .ok_or_else(|| "follow requires typed arguments".into())
+        })
+        .collect()
+}
+fn run_sequence(
+    step: &Step,
+    environment: &launch::Environment,
+    expectations: &assertions::Expectations<'_>,
+    registry: &schema::Registry,
+    replay: Option<&Path>,
+    previous: Option<&Value>,
+) -> Result<Value, String> {
+    let mut current = step.clone();
+    if let Some(kind) = &step.follow {
+        current.run = Some(action(
+            previous.ok_or("follow requires previous output")?,
+            kind,
+        )?);
+        current.mcp = None;
+    }
+    let Some(walk) = &step.walk else {
+        return run_step(&current, environment, expectations, registry, replay);
+    };
+    if walk.max_pages == 0 || walk.max_pages > 1000 {
+        return Err("walk requires a bounded page count".into());
+    }
+    let mut actions = std::collections::BTreeSet::new();
+    let mut offsets = std::collections::BTreeSet::new();
+    let mut items = Vec::new();
+    let mut aggregate = None;
+    for _ in 0..walk.max_pages {
+        if !actions.insert(current.run.clone().ok_or("walk requires run")?) {
+            return Err("walk repeated action".into());
+        }
+        let value = run_step(&current, environment, &Vec::new(), registry, replay)?;
+        let offset = value
+            .pointer("/page/offset")
+            .and_then(Value::as_u64)
+            .ok_or("walk requires page offset")?;
+        if !offsets.insert(offset) {
+            return Err("walk repeated offset".into());
+        }
+        items.extend(
+            value
+                .pointer(&walk.items)
+                .and_then(Value::as_array)
+                .ok_or("walk items must select an array")?
+                .iter()
+                .cloned(),
+        );
+        if aggregate.is_none() {
+            aggregate = Some(value.clone());
+        }
+        let next = action(&value, "page");
+        if let Ok(args) = next {
+            current.run = Some(args);
+            current.mcp = None;
+        } else {
+            let mut result = aggregate.ok_or("walk empty")?;
+            *result
+                .pointer_mut(&walk.items)
+                .ok_or("walk missing aggregate pointer")? = Value::Array(items);
+            let next = value
+                .get("next")
+                .cloned()
+                .unwrap_or_else(|| Value::Array(Vec::new()));
+            result
+                .as_object_mut()
+                .ok_or("walk result must be object")?
+                .insert("next".into(), next);
+            let mut checked = step.clone();
+            checked.max_bytes = None;
+            checked.max_tokens = None;
+            assertions::check(
+                &serde_json::to_vec(&result).map_err(|e| e.to_string())?,
+                &checked,
+                expectations,
+            )?;
+            return Ok(result);
+        }
+    }
+    Err("walk exceeded max_pages".into())
+}
+
+pub(super) fn installed_process_proof() -> Result<(), String> {
+    configuration::article_processes()
+}
+
+// Run installed HTTP ownership checks without resolving a build-checkout case directory.
+pub(super) fn installed_http_trials() -> Vec<Trial> {
+    http::trials()
+}
