@@ -5,6 +5,9 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/malformed-score-is-not-missing-identity", || {
+            malformed_score().map_err(Into::into)
+        }),
         Trial::test("variant/disabled-clinvar-identity-never-queries", || {
             disabled_clinvar_identity().map_err(Into::into)
         }),
@@ -542,6 +545,40 @@ fn configured_component_groups(
                 "stored and command component policy did not combine: {value}"
             ));
         }
+    }
+    Ok(())
+}
+
+fn malformed_score() -> Result<(), String> {
+    fn body(request: &str) -> Result<String, String> {
+        if request.contains("cadd.phred") {
+            Ok(
+                json!({"_id":"chr7:g.140453136A>T","cadd":{"phred":"invalid_source_number"}})
+                    .to_string(),
+            )
+        } else {
+            myvariant_body37(request)
+        }
+    }
+    let (value, requests) = call(
+        "myvariant.info",
+        body,
+        &[
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "predict",
+            "--build",
+            "GRCh37",
+        ],
+    )?;
+    if value.pointer("/result/candidates/0/sections/predict/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/problems/0/field") != Some(&json!("cadd.phred"))
+        || requests.len() != 2
+    {
+        return Err(format!(
+            "invalid source number was treated as missing identity: {value}"
+        ));
     }
     Ok(())
 }

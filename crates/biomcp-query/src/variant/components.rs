@@ -66,7 +66,11 @@ pub(super) fn measurements(
             if mapped.value.scores.is_empty() && !problems.is_empty() {
                 Section::Unavailable {
                     source: Source::MyVariant,
-                    reason: Reason::NoJoinId,
+                    reason: if problems.iter().any(|p| p.field == "subject_qualification") {
+                        Reason::NoJoinId
+                    } else {
+                        Reason::BadReply
+                    },
                 }
             } else if mapped.value.scores.is_empty() {
                 Section::Empty {
