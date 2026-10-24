@@ -20,14 +20,26 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene", "BRAF"],
         replies: "gene/main",
-        required: &["# BRAF", "**status:**", "biomcp get gene HGNC:1097"],
+        required: &[
+            "# BRAF",
+            "**status:**",
+            "| Build | Contig | End | Start | Strand |",
+            "biomcp get gene HGNC:1097",
+        ],
         max_bytes: 2382,
     },
     Shape {
         args: &["get", "gene", "CDKN2A", "protein"],
         replies: "gene/protein",
-        required: &["# CDKN2A", "Protein", "**state:** data", "P42771", "Q8N726"],
-        max_bytes: 5328,
+        required: &[
+            "# CDKN2A",
+            "Protein",
+            "**state:** data",
+            "| Accession | Function | Length | Name | Subcellular locations |",
+            "P42771",
+            "Q8N726",
+        ],
+        max_bytes: 5325,
     },
     Shape {
         args: &["search", "gene", "KRAS"],
