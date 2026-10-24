@@ -24,6 +24,17 @@ pub struct TrialSearch(Box<Fields>);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
+    /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+    #[serde(default, skip_serializing_if = "TrialSource::is_default")]
+    source: TrialSource,
+    /// NCI free text; explicit keyword mode never substitutes for a disease identity.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    keyword: Option<Text>,
     /// General registry discovery text.
     #[serde(
         default,
@@ -32,7 +43,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// Condition-only source text.
+    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -198,7 +209,7 @@ struct Fields {
     /// Require posted source results.
     #[serde(default)]
     has_results: bool,
-    /// Headers per page; default ten, maximum one hundred.
+    /// Headers per page; NCI applies its own lower publisher limit.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
     limit: u32,
@@ -258,11 +269,20 @@ impl TryFrom<Fields> for TrialSearch {
     }
 }
 impl TrialSearch {
+    /// Explicit source selected by the caller.
+    pub fn source(&self) -> TrialSource {
+        self.0.source
+    }
+    /// Explicit NCI free text.
+    pub fn keyword(&self) -> Option<&Text> {
+        self.0.keyword.as_ref()
+    }
+
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
     }
-    /// Condition-only source text.
+    /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
     pub fn condition(&self) -> Option<&Text> {
         self.0.condition.as_ref()
     }
@@ -397,5 +417,108 @@ impl PhaseFilter {
             Self::OneTwo => &[P::Phase1, P::Phase2],
             Self::TwoThree => &[P::Phase2, P::Phase3],
         }
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Independent trial providers; results are never folded or used as fallbacks.
+    #[derive(Default)]
+    TrialSource {
+        /// ClinicalTrials.gov registry.
+        #[default]
+        Ctgov => "ctgov",
+        /// NCI requires the user key; accepts NCIt condition or explicit keyword, not registry filters.
+        Nci => "nci",
+    }
+}
+
+impl TrialSource {
+    /// Whether the registry default can be omitted from a serialized query.
+    pub fn is_default(&self) -> bool {
+        *self == Self::Ctgov
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Checked trial capability names, never caller-supplied values.
+    TrialFilter {
+        /// Registry general text.
+        Text => "TEXT",
+        /// Registry gene discovery.
+        Gene => "--gene",
+        /// Registry variant discovery.
+        Variant => "--variant",
+        /// Registry criteria text.
+        Criteria => "--criteria",
+        /// Registry intervention text.
+        Intervention => "--intervention",
+        /// Registry status vocabulary.
+        Status => "--status",
+        /// Registry phase vocabulary.
+        Phase => "--phase",
+        /// Registry study type.
+        StudyType => "--study-type",
+        /// Registry sex vocabulary.
+        Sex => "--sex",
+        /// Registry age range.
+        Age => "--age",
+        /// Registry facility text.
+        Facility => "--facility",
+        /// Registry radius.
+        Latitude => "--lat",
+        /// Registry sponsor text.
+        Sponsor => "--sponsor",
+        /// Registry funding vocabulary.
+        SponsorType => "--sponsor-type",
+        /// Registry lower update bound.
+        UpdatedSince => "--updated-since",
+        /// Registry upper update bound.
+        UpdatedUntil => "--updated-until",
+        /// Registry ID conjunction.
+        Id => "--id",
+        /// Registry results restriction.
+        HasResults => "--has-results",
+        /// Explicit NCI keyword mode.
+        Keyword => "--keyword",
+    }
+}
+impl TrialSearch {
+    /// Reject a source disease name instead of silently degrading to free text.
+    pub fn nci_disease_invalid(&self) -> bool {
+        self.source() == TrialSource::Nci
+            && self.condition().is_some_and(|v| {
+                !v.as_str()
+                    .strip_prefix('C')
+                    .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
+            })
+    }
+    /// Name the first unsupported capability before any source, key, or cache access.
+    pub fn unsupported(&self) -> Option<TrialFilter> {
+        if self.source() == TrialSource::Ctgov {
+            return self.keyword().map(|_| TrialFilter::Keyword);
+        }
+        use TrialFilter as F;
+        [
+            (self.query().is_some(), F::Text),
+            (self.gene().is_some(), F::Gene),
+            (self.variant().is_some(), F::Variant),
+            (self.criteria().is_some(), F::Criteria),
+            (self.intervention().is_some(), F::Intervention),
+            (self.status().is_some(), F::Status),
+            (self.phase().is_some(), F::Phase),
+            (self.study_type().is_some(), F::StudyType),
+            (self.sex().is_some(), F::Sex),
+            (self.age().is_some(), F::Age),
+            (self.facility().is_some(), F::Facility),
+            (self.lat().is_some(), F::Latitude),
+            (self.sponsor().is_some(), F::Sponsor),
+            (self.sponsor_type().is_some(), F::SponsorType),
+            (self.updated_since().is_some(), F::UpdatedSince),
+            (self.updated_until().is_some(), F::UpdatedUntil),
+            (self.id().is_some(), F::Id),
+            (self.has_results(), F::HasResults),
+        ]
+        .into_iter()
+        .find_map(|(present, option)| present.then_some(option))
     }
 }

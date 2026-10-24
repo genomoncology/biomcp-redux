@@ -65,6 +65,20 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native NCI discovery page.
+    NciTrialPage(crate::NciTrialPage),
+    /// Native NCI exact cards.
+    NciTrialCards(crate::NciTrialCards),
+    /// A selected trial provider cannot apply a checked capability.
+    UnsupportedTrialFilter {
+        /// Explicit source that cannot apply the option.
+        source: crate::Source,
+        /// Checked trial selector, without caller values.
+        option: crate::TrialFilter,
+    },
+    /// Fixed NCI disease identity guidance.
+    NciDiseaseError,
+
     /// Source trial document receipt.
     TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.

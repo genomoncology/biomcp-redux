@@ -1,5 +1,5 @@
 use super::gene::{QueryInvalid, present};
-use crate::{NctId, Text};
+use crate::{NctId, Text, TrialSource};
 use serde::{Deserialize, Serialize};
 /// Retrieve exact trial cards and bounded source sections in input order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -33,6 +33,9 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
+    /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+    #[serde(default, skip_serializing_if = "TrialSource::is_default")]
+    source: TrialSource,
 }
 fn default_limit() -> u32 {
     10
@@ -40,7 +43,11 @@ fn default_limit() -> u32 {
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=20).contains(&v.input.len())
+        if v.source == TrialSource::Ctgov
+            && v.section
+                .iter()
+                .any(|s| matches!(s, TrialSection::Diseases | TrialSection::Summary))
+            || !(1..=20).contains(&v.input.len())
             || !(1..=50).contains(&v.limit)
             || (v.pool.is_some() || v.offset != 0)
                 && (v.input.len() != 1
@@ -54,6 +61,16 @@ impl TryFrom<Fields> for TrialGet {
     }
 }
 impl TrialGet {
+    /// Explicit source selected by the caller.
+    pub fn source(&self) -> TrialSource {
+        self.0.source
+    }
+
+    /// Select one independent provider for a generated section action.
+    pub fn with_source(mut self, source: TrialSource) -> Self {
+        self.0.source = source;
+        self
+    }
     /// Exact checked selectors.
     pub fn input(&self) -> &[NctId] {
         &self.0.input
@@ -82,11 +99,13 @@ impl TrialGet {
             limit,
             offset: 0,
             pool: None,
+            source: TrialSource::Ctgov,
         })
     }
     /// Continue one immutable source record at a checked position.
     pub fn page(&self, input: NctId, section: TrialSection, pool: Text, offset: u32) -> Self {
         let mut next = Self::single(input, Some(section), self.limit());
+        next.0.source = self.source();
         next.0.pool = Some(pool);
         next.0.offset = offset;
         next
@@ -118,5 +137,9 @@ crate::macros::wire_enum! {
         Documents => "documents",
         /// Every implemented trial section, each with independent continuations.
         All => "all",
+        /// Native NCI disease concepts, including source enrichment metadata.
+        Diseases => "diseases",
+        /// Complete NCI summary, paged by original character offsets.
+        Summary => "summary",
     }
 }

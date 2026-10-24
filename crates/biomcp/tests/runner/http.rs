@@ -81,7 +81,7 @@ impl Server {
     pub(super) fn environment(&self) -> &Environment {
         &self._environment
     }
-    pub(super) fn keys(config: Value, key: Option<&str>) -> Result<Self, String> {
+    pub(super) fn keys(config: Value, key: Option<(&str, &str)>) -> Result<Self, String> {
         Self::configured_key("127.0.0.1:0", Some(config), None, key)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
@@ -99,7 +99,7 @@ impl Server {
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,
-        key: Option<&str>,
+        key: Option<(&str, &str)>,
     ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
@@ -118,8 +118,8 @@ impl Server {
             const CREATE_NO_WINDOW: u32 = 0x0800_0000;
             command.creation_flags(CREATE_NO_WINDOW);
         }
-        if let Some(key) = key {
-            command.env("SEMANTIC_SCHOLAR_API_KEY", key);
+        if let Some((name, key)) = key {
+            command.env(name, key);
         }
         let child = command
             .stdin(Stdio::null())

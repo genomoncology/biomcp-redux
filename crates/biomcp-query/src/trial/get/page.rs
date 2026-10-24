@@ -114,7 +114,7 @@ fn eligibility(
         },
     }
 }
-fn records<T: Clone>(
+pub(in crate::trial) fn records<T: Clone>(
     query: &TrialGet,
     rows: &[T],
     budget: usize,
@@ -159,7 +159,7 @@ fn record(id: NctId) -> Option<SourceRecord> {
         .ok()
         .map(|id| SourceRecord { id, url: None })
 }
-fn advance(
+pub(in crate::trial) fn advance(
     query: &TrialGet,
     id: NctId,
     section: TrialSection,
@@ -239,7 +239,7 @@ fn records_sections(
     Ok(())
 }
 
-fn continuation(
+pub(in crate::trial) fn continuation(
     query: &TrialGet,
     id: NctId,
     section: TrialSection,
@@ -250,7 +250,7 @@ fn continuation(
     pool.filter(|_| end < total)
         .map(|p| query.page(id, section, p.clone(), end))
 }
-fn continue_records<T>(
+pub(in crate::trial) fn continue_records<T>(
     page: &mut TrialRecords<T>,
     query: &TrialGet,
     id: NctId,

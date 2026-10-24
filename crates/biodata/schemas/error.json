@@ -1,25 +1,5 @@
 {
   "$defs": {
-    "ArticleFilter": {
-      "description": "Source capability selectors checked before any lookup or transport request.",
-      "enum": [
-        "TEXT",
-        "--gene",
-        "--variant",
-        "--disease",
-        "--drug",
-        "--author",
-        "--journal",
-        "--since",
-        "--until",
-        "--type",
-        "--sort date",
-        "--open-access",
-        "--no-preprints",
-        "--exclude-retracted"
-      ],
-      "type": "string"
-    },
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
       "enum": [
@@ -54,7 +34,7 @@
         "option": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArticleFilter"
+              "$ref": "#/$defs/FilterOption"
             },
             {
               "type": "null"
@@ -96,6 +76,7 @@
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
+        "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
         "the registry cannot bind --facility and radius to one site; choose one filter",
         "retired; use: --criteria for literal registry eligibility text",
         "retired; use: --variant for explicit discovery text",
@@ -158,6 +139,41 @@
       ],
       "type": "string"
     },
+    "FilterOption": {
+      "enum": [
+        "TEXT",
+        "--gene",
+        "--variant",
+        "--disease",
+        "--drug",
+        "--author",
+        "--journal",
+        "--since",
+        "--until",
+        "--type",
+        "--sort date",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted",
+        "--criteria",
+        "--intervention",
+        "--status",
+        "--phase",
+        "--study-type",
+        "--sex",
+        "--age",
+        "--facility",
+        "--lat",
+        "--sponsor",
+        "--sponsor-type",
+        "--updated-since",
+        "--updated-until",
+        "--id",
+        "--has-results",
+        "--keyword"
+      ],
+      "type": "string"
+    },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
@@ -177,6 +193,7 @@
         "icite",
         "pubtator",
         "ctgov",
+        "nci",
         "civic",
         "oncokb"
       ],
@@ -198,6 +215,7 @@
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
         " CIViC.",
         " OncoKB."
       ]

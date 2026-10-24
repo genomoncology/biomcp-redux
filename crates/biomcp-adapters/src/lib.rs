@@ -43,3 +43,6 @@ pub mod sheet;
 
 /// ClinicalTrials.gov native search.
 pub mod ctgov;
+
+/// Explicit keyed NCI native trials.
+pub mod nci;
