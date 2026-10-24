@@ -67,13 +67,16 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
         .and_then(Value::as_str)
         .and_then(|s| schema.pointer(s.trim_start_matches('#')))
         .unwrap_or(item);
-    query.get("input").and_then(Value::as_array).is_some_and(|inputs| {
-        inputs.iter().any(|input| {
-            item.get("enum")
-                .and_then(Value::as_array)
-                .is_some_and(|words| words.contains(input))
+    query
+        .get("input")
+        .and_then(Value::as_array)
+        .is_some_and(|inputs| {
+            inputs.iter().any(|input| {
+                item.get("enum")
+                    .and_then(Value::as_array)
+                    .is_some_and(|words| words.contains(input))
+            })
         })
-    })
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {
