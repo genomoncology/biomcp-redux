@@ -102,7 +102,13 @@ fn walk(id: &str, section: &str, raw: &Value, count: usize) -> Check {
         (_, "locations") => 3411,
         _ => 3561,
     };
-    if max_bytes + 1 > ceiling {return Err(format!("{id} {section} page exceeded {ceiling} byte budget: {}",max_bytes+1).into())}
+    if max_bytes + 1 > ceiling {
+        return Err(format!(
+            "{id} {section} page exceeded {ceiling} byte budget: {}",
+            max_bytes + 1
+        )
+        .into());
+    }
     let expected = expected_records(raw, section);
     if rows != expected || section == "locations" && rows.len() != count {
         return Err(format!("{id} {section} lost original fields or order").into());
