@@ -1,6 +1,6 @@
 //! Recent-pool recommendations under the shared source key and quota.
 use super::{Paper, SPEC};
-use biodata::ArticleInput;
+use biomcp_types::ArticleInput;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };

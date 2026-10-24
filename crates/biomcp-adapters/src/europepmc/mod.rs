@@ -1,7 +1,8 @@
 //! Europe PMC's bounded metadata-only search window.
 mod core;
 use crate::quotas;
-use biodata::{ArticleHeader, Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
+use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
+use biomcp_types::{ArticleHeader};
 use biomcp_types::{ArticleItem, ArticleKey, ArticleSort, Source};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,

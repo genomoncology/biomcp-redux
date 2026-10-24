@@ -136,10 +136,8 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 name = "biodata"
 version = "1.0.0"
 dependencies = [
- "jsonschema",
  "schemars",
  "serde",
- "serde_json",
  "winnow",
 ]
 
@@ -152,6 +150,7 @@ dependencies = [
  "biomcp-adapters",
  "biomcp-fetch",
  "biomcp-query",
+ "biomcp-types",
  "clap",
  "ctrlc",
  "httparse",
@@ -177,6 +176,7 @@ version = "1.0.0"
 dependencies = [
  "biodata",
  "biomcp-fetch",
+ "biomcp-types",
  "calamine",
  "csv",
  "quick-xml",
@@ -191,6 +191,7 @@ name = "biomcp-fetch"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "biomcp-types",
  "httpdate",
  "quick-xml",
  "rusqlite",
@@ -211,10 +212,22 @@ dependencies = [
  "biodata",
  "biomcp-adapters",
  "biomcp-fetch",
+ "biomcp-types",
  "rusqlite",
  "serde_json",
  "sha2",
  "tempfile",
+]
+
+[[package]]
+name = "biomcp-types"
+version = "1.0.0"
+dependencies = [
+ "biodata",
+ "jsonschema",
+ "schemars",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

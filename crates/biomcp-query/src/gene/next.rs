@@ -1,5 +1,6 @@
 use crate::{Action, Bundle};
-use biodata::{GeneHeader, GeneResolution};
+
+use biomcp_types::{GeneHeader, GeneResolution};
 use biomcp_types::{GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind};
 fn retry(request: Request) -> (StepKind, Action) {
     (
@@ -19,7 +20,7 @@ fn sync() -> (StepKind, Action) {
     )
 }
 fn get_id(id: biodata::HgncId) -> Option<(StepKind, Action)> {
-    let query = GeneGet::new(vec![biodata::GeneInput::HgncId(id)].into()).ok()?;
+    let query = GeneGet::new(vec![biomcp_types::GeneInput::HgncId(id)].into()).ok()?;
     Some((
         StepKind::Disambiguate,
         Action::Run {
@@ -91,7 +92,7 @@ pub(crate) fn get(
                 .filter_map(|section| section.to_string().parse().ok())
                 .collect();
             if let Ok(query) =
-                GeneGet::with_sections(vec![biodata::GeneInput::HgncId(gene.hgnc_id)].into(), words)
+                GeneGet::with_sections(vec![biomcp_types::GeneInput::HgncId(gene.hgnc_id)].into(), words)
             {
                 let step = (
                     StepKind::Section,

@@ -1,0 +1,66 @@
+use biodata::*;
+use serde::{Deserialize, Serialize};
+/// A source-stated match, preserving the text that matched.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Match {
+    /// The match category.
+    pub kind: MatchKind,
+    /// The source text that matched the input.
+    pub text: Text,
+}
+/// Enough gene identity to choose a search result.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GeneHeader {
+    /// HGNC identifier.
+    pub hgnc_id: HgncId,
+    /// Source-preserved symbol.
+    pub symbol: GeneSymbol,
+    /// HGNC locus group.
+    pub locus_group: LocusGroup,
+    /// A single stated band, if available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub location: Option<Cytoband>,
+    /// HGNC record status.
+    pub status: GeneStatus,
+    /// Gene name.
+    pub name: Text,
+    /// Match information when this header answers an input.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#match: Option<Match>,
+}
+/// Resolution outcomes preserve ambiguity and withdrawn identity.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "resolution", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[non_exhaustive]
+pub enum GeneResolution {
+    /// One resolved identity and its source match.
+    Resolved {
+        /// The whole gene entity.
+        gene: Box<Gene>,
+        /// How the source matched the input.
+        r#match: Match,
+    },
+    /// Every candidate, with no silent selection.
+    Ambiguous {
+        /// Ordered candidates supplied by the resolver.
+        candidates: Box<[GeneHeader]>,
+    },
+    /// The original withdrawn identity and stated successors.
+    Withdrawn {
+        /// Original HGNC identifier.
+        hgnc_id: HgncId,
+        /// Original symbol.
+        symbol: GeneSymbol,
+        /// Stated HGNC withdrawn-file status.
+        hgnc_status: HgncStatus,
+        /// All stated merge destinations.
+        merged_into: Box<[HgncId]>,
+    },
+    /// No source identity matched.
+    NotFound {},
+}

@@ -3,7 +3,8 @@ pub mod document;
 pub(crate) mod get;
 mod nci;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{GeneResolution};
+
+use biomcp_types::{GeneResolution};
 use biomcp_types::{QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch};
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.

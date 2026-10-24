@@ -52,3 +52,6 @@ pub use variant_search::{
 
 mod variant_population;
 pub use variant_population::VariantPopulationQuery;
+
+mod gene_input;
+pub use gene_input::GeneInput;

@@ -86,7 +86,7 @@ struct Window {
 }
 fn collect(
     leg: &biomcp_fetch::Leg<'_>,
-    input: &biodata::ArticleInput,
+    input: &biomcp_types::ArticleInput,
     references: bool,
 ) -> Result<Window, RequestError> {
     let mut offset = None;
@@ -168,8 +168,8 @@ fn resolve_input<'a>(
     references: bool,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Option<biodata::ArticleInput>, RequestError> {
-    if !matches!(query.input(), biodata::ArticleInput::Pmcid(_)) {
+) -> Result<Option<biomcp_types::ArticleInput>, RequestError> {
+    if !matches!(query.input(), biomcp_types::ArticleInput::Pmcid(_)) {
         return Ok(Some(query.input().clone()));
     }
     let leg = cx
@@ -182,7 +182,7 @@ fn resolve_input<'a>(
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::PubMed, leg.finish(), error);
     let input = match result {
-        Ok(ids) if ids.len() == 1 => ids.first().copied().map(biodata::ArticleInput::Pmid),
+        Ok(ids) if ids.len() == 1 => ids.first().copied().map(biomcp_types::ArticleInput::Pmid),
         Ok(ids) => {
             source.state = biomcp_types::SourceState::Failed;
             source.reason = Some(if ids.is_empty() {

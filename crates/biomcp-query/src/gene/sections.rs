@@ -6,7 +6,8 @@ mod oncokb;
 mod pathways;
 mod protein;
 use crate::Ctx;
-use biodata::{Gene, GeneResolution, HgncId};
+use biodata::{Gene, HgncId};
+use biomcp_types::{GeneResolution};
 use biomcp_types::{GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome, SourceState, Status};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) struct SectionResult {

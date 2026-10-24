@@ -1,4 +1,5 @@
-use biodata::{ArticleHeader, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biodata::{Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biomcp_types::{ArticleHeader};
 use biomcp_types::{ArticleItem, ArticleKey};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;

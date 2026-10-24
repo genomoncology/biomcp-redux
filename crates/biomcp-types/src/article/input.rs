@@ -45,7 +45,7 @@ text_value!(
     "ArticleInput",
     r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
 );
-crate::canonical_enum! {
+biodata::canonical_enum! {
     /// Identifier used to resolve this article.
     ArticleMatchKind, SourceUnknown {
         /// PubMed identifier.

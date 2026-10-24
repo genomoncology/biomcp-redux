@@ -1,6 +1,7 @@
 use super::next;
 use crate::{Ctx, Outcome, status};
-use biodata::{Gene, GeneHeader, LocusGroup, Match, MatchKind, Text};
+use biodata::{Gene, LocusGroup, MatchKind, Text};
+use biomcp_types::{GeneHeader, Match};
 use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};

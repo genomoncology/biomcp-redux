@@ -1,6 +1,7 @@
 //! PubMed card resolution under one command deadline.
 use crate::{Ctx, Outcome, status};
-use biodata::{Article, ArticleInput, Pmid};
+use biodata::{Pmid};
+use biomcp_types::{Article, ArticleInput};
 use biomcp_types::{ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Leg, RequestError};

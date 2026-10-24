@@ -1,5 +1,6 @@
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{ArticleInput, Pmcid};
+use biodata::{Pmcid};
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source, Status, StepKind, Supplements};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};

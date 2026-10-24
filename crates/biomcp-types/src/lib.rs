@@ -16,7 +16,7 @@ pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
 };
 pub use response::{
-    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit,
     TextPart, TextPartKind,
 };
 pub use response::{
@@ -98,3 +98,16 @@ pub use predictor::{
     CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent,
     VariantConservation, VariantCosmic, VariantPredictors,
 };
+
+mod article;
+
+pub use article::{
+    AbstractPart, Article, ArticleInput, ArticleMatchKind, Correction, CorrectionKind,
+    CorrectionRelation,
+};
+pub use article::{ArticleHeader, Indexing, MeshHeading, MeshQualifier, PublicationType};
+
+pub use query::GeneInput;
+pub use response::{GeneHeader, GeneResolution, Match};
+
+pub use response::TrialHeader;

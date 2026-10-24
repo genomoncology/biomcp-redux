@@ -1,4 +1,4 @@
-use crate::{Text, macros::text_value};
+use crate::{Text, text_value};
 use serde::{Deserialize, Serialize};
 /// A checked human Reactome stable pathway identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

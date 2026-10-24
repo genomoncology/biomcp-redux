@@ -1,6 +1,7 @@
 //! Independent machine-written summaries leave accepted article cards intact.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{ArticleInput};
+
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::Deadline;

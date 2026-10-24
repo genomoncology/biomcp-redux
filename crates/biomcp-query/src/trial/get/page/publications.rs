@@ -1,6 +1,7 @@
 use super::{Snapshot, advance, continue_records, records, section};
 use crate::{Action, Outcome};
-use biodata::{ArticleInput, Text};
+use biodata::{Text};
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleGet, Request, StepKind, TrialGet, TrialSection, TrialSections};
 use biomcp_fetch::RequestError;
 pub(super) fn render(

@@ -1,5 +1,6 @@
 use crate::xml_element::Element;
-use biodata::{Indexing, MeshHeading, MeshQualifier, Text};
+use biodata::{Text};
+use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
 use biomcp_types::{Capped};
 use biomcp_fetch::BadReply;
 pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing, BadReply> {

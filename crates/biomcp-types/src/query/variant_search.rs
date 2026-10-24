@@ -1,6 +1,6 @@
 use super::ProteinQuery;
 use super::gene::{QueryInvalid, present};
-use crate::{Build, Chromosome, GeneSymbol, Text, macros::text_value};
+use crate::{Build, Chromosome, GeneSymbol, Text, text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 const MAX_FILTER_CHARS: usize = 256;

@@ -12,7 +12,7 @@ pub use article::{
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
-    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit,
     TextPart, TextPartKind,
 };
 mod error;
@@ -110,3 +110,9 @@ pub use variant_population::{
     GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
     VariantPopulationResult,
 };
+
+mod gene_discovery;
+pub use gene_discovery::{GeneHeader, GeneResolution, Match};
+
+mod trial_header;
+pub use trial_header::TrialHeader;

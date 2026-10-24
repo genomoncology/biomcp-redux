@@ -1,6 +1,8 @@
 //! The paper record supplies a link, never credentials for the publisher.
-use biodata::{ArticleInput};
-use biomcp_types::{License, OpenAccessStatus};
+
+use biomcp_types::{ArticleInput};
+use biomcp_types::{OpenAccessStatus};
+use biodata::License;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use serde::Deserialize;
 /// Source PDF-link fields with absence preserved.

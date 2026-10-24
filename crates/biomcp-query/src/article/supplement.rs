@@ -1,7 +1,8 @@
 //! Confined supplement download, local parsing and bounded row selection.
 mod page;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{ArticleInput, Text};
+use biodata::{Text};
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source, Status, StepKind, SupplementContent};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -109,7 +110,7 @@ fn execute<'a>(
     Ok(())
 }
 
-fn empty(license: biomcp_types::License, forms: Option<[String; 4]>) -> SupplementContent {
+fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementContent {
     SupplementContent {
         saved: None,
         license,

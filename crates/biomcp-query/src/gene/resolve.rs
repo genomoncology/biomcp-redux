@@ -1,4 +1,5 @@
-use biodata::{Gene, GeneHeader, GeneInput, GeneResolution, LocusGroup, Match, MatchKind, Text};
+use biodata::{Gene, LocusGroup, MatchKind, Text};
+use biomcp_types::{GeneHeader, GeneInput, GeneResolution, Match};
 use biomcp_types::{Problem};
 use biomcp_adapters::{Mapped, hgnc};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};

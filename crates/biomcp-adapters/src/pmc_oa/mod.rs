@@ -4,7 +4,8 @@ mod raw;
 mod supplement;
 use crate::{jats, quotas};
 use biodata::{Pmcid, Pmid};
-use biomcp_types::{License, Reason, Source};
+use biomcp_types::{Reason, Source};
+use biodata::License;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };

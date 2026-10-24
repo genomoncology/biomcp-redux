@@ -1,5 +1,6 @@
 use crate::{Action, Ctx, Outcome, gene, status};
-use biodata::{GeneInput, GeneResolution};
+
+use biomcp_types::{GeneInput, GeneResolution};
 use biomcp_types::{ArticleSearch, ArticleType, Request, Source, Status, StepKind};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};

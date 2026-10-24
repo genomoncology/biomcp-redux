@@ -1,5 +1,6 @@
 //! Bounded paper sections and native citation graph windows.
-use biodata::{ArticleInput, Text};
+use biodata::{Text};
+use biomcp_types::{ArticleInput};
 use biomcp_types::{Capped, Tldr};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError};
 use serde::Deserialize;

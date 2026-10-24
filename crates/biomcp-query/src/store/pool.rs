@@ -1,5 +1,6 @@
 use super::{CacheError, Store, db};
-use biodata::{ArticleHeader, Pmid, Text};
+use biodata::{Pmid, Text};
+use biomcp_types::{ArticleHeader};
 use biomcp_types::{ArticleItem, PoolInfo, Problem, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
 /// Immutable pool metadata and original provider outcomes.

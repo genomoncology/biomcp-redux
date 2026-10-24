@@ -2,7 +2,8 @@
 pub mod detail;
 pub mod document;
 mod raw;
-use biodata::{Text, TrialHeader};
+use biodata::{Text};
+use biomcp_types::{TrialHeader};
 use biomcp_types::{TrialSearch};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use raw::{FirstPage, RawPage, Version};

@@ -1,5 +1,6 @@
 use crate::{Action, Outcome};
-use biodata::{ArticleInput};
+
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, StepKind};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
     if matches!(out.status, Status::Failed | Status::Partial) {

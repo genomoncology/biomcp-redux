@@ -1,7 +1,8 @@
 //! Checked Europe PMC core records and their JATS document boundary.
 use super::SPEC;
 use crate::{jats, pmc_oa};
-use biodata::{AbstractPart, Article, Doi, EuropePmcId, PartialDate, Pmid, Text};
+use biodata::{Doi, EuropePmcId, PartialDate, Pmid, Text};
+use biomcp_types::{AbstractPart, Article};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::Deserialize;
 const CORE: Endpoint = SPEC.get("/").fresh(Freshness::Days(1));

@@ -1,5 +1,5 @@
 use super::gene::{QueryInvalid, present};
-use crate::{ArticleInput, Error, Text, macros::text_value};
+use crate::{ArticleInput, Error, Text, text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Inclusive original one-based row range, at most one page.

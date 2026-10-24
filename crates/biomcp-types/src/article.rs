@@ -6,7 +6,7 @@ use crate::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
 pub use card::{AbstractPart, Article, Correction, CorrectionKind, CorrectionRelation};
 pub use input::{ArticleInput, ArticleMatchKind};
 use serde::{Deserialize, Serialize};
-crate::canonical_enum! {
+biodata::canonical_enum! {
     /// Clinically meaningful PubMed publication types.
     PublicationType, SourceUnknown {
         /// Randomized controlled trial.

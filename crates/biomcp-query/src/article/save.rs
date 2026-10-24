@@ -1,6 +1,7 @@
 //! Source bytes for explicit saves; the binary owns paths and filesystem writes.
 use crate::Outcome;
-use biodata::{ArticleInput, Text};
+use biodata::{Text};
+use biomcp_types::{ArticleInput};
 use biomcp_adapters::pmc_oa::Document;
 /// Result before the binary installs a file.
 #[derive(Debug)]

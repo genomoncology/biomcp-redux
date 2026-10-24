@@ -1,11 +1,5 @@
 #![doc = include_str!("../README.md")]
 
-mod article;
-pub use article::{
-    AbstractPart, Article, ArticleInput, ArticleMatchKind, Correction, CorrectionKind,
-    CorrectionRelation,
-};
-pub use article::{ArticleHeader, Indexing, MeshHeading, MeshQualifier, PublicationType};
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 
 mod text;
@@ -25,8 +19,8 @@ pub use id::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, OmimId, Un
 
 mod gene;
 pub use gene::{
-    Gene, GeneHeader, GeneInput, GeneRef, GeneResolution, GeneStatus, HgncStatus, LocusGroup,
-    LocusType, Mane, ManeStatus, Match, MatchKind, Summary, SummarySource,
+    Gene, GeneRef, GeneStatus, HgncStatus, LocusGroup,
+    LocusType, Mane, ManeStatus, MatchKind, Summary, SummarySource,
 };
 
 pub use coord::{Build, Contig, GenomicInterval, Strand};
@@ -51,7 +45,7 @@ pub use variant::{
 
 mod trial;
 
-pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
+pub use trial::{NctId, StudyType, TrialPhase, TrialSex, TrialStatus};
 
 mod trial_detail;
 pub use trial_detail::{
@@ -86,3 +80,6 @@ mod number;
 pub use number::{FiniteNumber, FiniteNumberError};
 
 pub use variant::PredictorScore;
+
+mod license;
+pub use license::License;

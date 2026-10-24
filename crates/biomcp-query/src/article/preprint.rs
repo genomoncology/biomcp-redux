@@ -1,6 +1,7 @@
 //! Europe PMC owns preprint cards and document fetching; section dispatch stays shared.
 use crate::{Ctx, Outcome, status};
-use biodata::{ArticleInput};
+
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status};
 use biomcp_adapters::europepmc;
 use biomcp_fetch::Deadline;

@@ -230,12 +230,12 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
     {
         let input =
             item.pmid
-                .map(biodata::ArticleInput::Pmid)
+                .map(biomcp_types::ArticleInput::Pmid)
                 .or_else(|| match item.key.as_ref() {
                     Some(biomcp_types::ArticleKey::Doi(id)) => {
-                        Some(biodata::ArticleInput::Doi(id.clone()))
+                        Some(biomcp_types::ArticleInput::Doi(id.clone()))
                     }
-                    Some(biomcp_types::ArticleKey::Pmc(id)) => Some(biodata::ArticleInput::Pmcid(*id)),
+                    Some(biomcp_types::ArticleKey::Pmc(id)) => Some(biomcp_types::ArticleInput::Pmcid(*id)),
                     _ => None,
                 });
         if let Some(input) = input {
@@ -255,7 +255,7 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) = biomcp_types::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
+        && let Ok(query) = biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
     {
         out.next.push((
             StepKind::Disambiguate,

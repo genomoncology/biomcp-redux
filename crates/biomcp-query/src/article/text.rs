@@ -1,6 +1,7 @@
 //! Bounded body selection under one command budget, including PMID resolution.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{ArticleInput, Pmcid, Text};
+use biodata::{Pmcid, Text};
+use biomcp_types::{ArticleInput};
 use biomcp_types::{ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, TextContent, TextHit};
 use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
