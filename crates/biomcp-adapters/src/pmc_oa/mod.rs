@@ -71,6 +71,9 @@ pub fn read(
         return Err(bad(BadReply));
     }
     let loc = location::Location::checked(&record.xml_url, &directory).map_err(bad)?;
+    if !loc.path.ends_with(".xml") {
+        return Err(bad(BadReply));
+    }
     let params: Vec<_> = loc
         .md5
         .as_ref()

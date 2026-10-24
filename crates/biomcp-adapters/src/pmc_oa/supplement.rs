@@ -18,7 +18,9 @@ pub(super) fn select(
     for item in jats {
         // Matching the exact href is intentional; no path basename or URL guessing.
         for url in urls {
-            let location = super::location::Location::checked(url, prefix).map_err(super::bad)?;
+            let Ok(location) = super::location::Location::checked(url, prefix) else {
+                continue;
+            };
             let Some(name) = location.path.strip_prefix(&format!("/{prefix}")) else {
                 return Err(super::bad(BadReply));
             };
