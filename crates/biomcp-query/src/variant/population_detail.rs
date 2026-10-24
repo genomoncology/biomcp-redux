@@ -184,6 +184,10 @@ fn ancestry(
                     observation: super::population::observation(
                         &raw.variant_id,
                         subject,
+                        match subset {
+                            PopulationSubset::Exome => biodata::PopulationDataType::Exomes,
+                            PopulationSubset::Genome => biodata::PopulationDataType::Genomes,
+                        },
                         Some(group.id.clone()),
                         group.ac,
                         group.an,

@@ -159,4 +159,6 @@ pub use response::{
     GwasAssociation, GwasEffectAllele, GwasTrait, PopulationGroup, PopulationSubset, VariantGwas,
     VariantPopulation, VariantPopulationResult, VariantSections,
 };
-pub use variant::{Attribution, PopulationFrequency, VariantRef};
+pub use variant::{
+    Attribution, PopulationDataType, PopulationFrequency, PopulationSex, VariantRef,
+};

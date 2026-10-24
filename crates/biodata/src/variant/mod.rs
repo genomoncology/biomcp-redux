@@ -17,4 +17,4 @@ pub use notation::{Expression, ExpressionSyntax, HgvsText};
 mod statement;
 pub use statement::{Attribution, VariantRef};
 mod population;
-pub use population::PopulationFrequency;
+pub use population::{PopulationDataType, PopulationFrequency, PopulationSex};

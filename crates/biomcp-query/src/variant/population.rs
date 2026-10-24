@@ -1,8 +1,9 @@
 //! Exact GRCh38 source joins and bounded population observations.
 use crate::{Ctx, status};
 use biodata::{
-    Attribution, Build, Chromosome, PopulationFrequency, Problem, ProblemCode, Reason, Section,
-    Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation, VariantRef,
+    Attribution, Build, Chromosome, PopulationDataType, PopulationFrequency, Problem, ProblemCode,
+    Reason, Section, Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation,
+    VariantRef,
 };
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
@@ -106,13 +107,33 @@ pub(super) fn summary(
         exome: raw
             .exome
             .as_ref()
-            .map(|s| observation(&raw.variant_id, subject, None, s.ac, s.an, &s.filters))
+            .map(|s| {
+                observation(
+                    &raw.variant_id,
+                    subject,
+                    PopulationDataType::Exomes,
+                    None,
+                    s.ac,
+                    s.an,
+                    &s.filters,
+                )
+            })
             .transpose()?
             .map(Box::new),
         genome: raw
             .genome
             .as_ref()
-            .map(|s| observation(&raw.variant_id, subject, None, s.ac, s.an, &s.filters))
+            .map(|s| {
+                observation(
+                    &raw.variant_id,
+                    subject,
+                    PopulationDataType::Genomes,
+                    None,
+                    s.ac,
+                    s.an,
+                    &s.filters,
+                )
+            })
             .transpose()?
             .map(Box::new),
     })
@@ -120,33 +141,42 @@ pub(super) fn summary(
 pub(super) fn observation(
     id: &Text,
     subject: &VariantRef,
+    data_type: PopulationDataType,
     group: Option<Text>,
     ac: u64,
     an: u64,
     filters: &[Text],
 ) -> Result<PopulationFrequency, RequestError> {
-    Ok(PopulationFrequency {
-        subject: subject.clone(),
-        dataset: text(gnomad::variant::DATASET)?,
-        build: Build::Grch38,
-        group,
-        allele_count: Some(ac),
-        allele_number: Some(an),
-        homozygotes: None,
-        frequency: None,
-        filters: filters.into(),
-        attribution: Attribution {
+    let attribution = Attribution {
+        source: Source::Gnomad,
+        record: Some(id.clone()),
+        version: None,
+        release: None,
+        submitter: None,
+        evaluated: None,
+        url: Some(text(&format!(
+            "https://gnomad.broadinstitute.org/variant/{id}?dataset={}",
+            gnomad::variant::DATASET
+        ))?),
+    };
+    PopulationFrequency::new(
+        subject.clone(),
+        Build::Grch38,
+        text("gnomad")?,
+        text(gnomad::variant::DATASET)?,
+        attribution,
+    )
+    .with_stratum(Some(data_type), group, None, None)
+    .with_filters(filters.into())
+    .with_counts(Some(ac), Some(an), None, None)
+    .map_err(|_| {
+        biomcp_fetch::SourceError {
             source: Source::Gnomad,
-            record: Some(id.clone()),
-            version: None,
-            release: None,
-            submitter: None,
-            evaluated: None,
-            url: Some(text(&format!(
-                "https://gnomad.broadinstitute.org/variant/{id}?dataset={}",
-                gnomad::variant::DATASET
-            ))?),
-        },
+            reason: Reason::BadReply,
+            status: None,
+            retry_after: None,
+        }
+        .into()
     })
 }
 fn missing() -> (
