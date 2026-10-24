@@ -33,6 +33,7 @@ struct Stub {
     release: Option<mpsc::Sender<()>>,
     worker: Option<thread::JoinHandle<()>>,
 }
+#[expect(clippy::unwrap_used, reason = "Fixture setup and worker failures must abort the contract test")]
 impl Stub {
     fn new(status: u16, content_type: &str, body: &str, blocked: bool) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -100,6 +101,7 @@ impl Drop for Stub {
     }
 }
 
+#[expect(clippy::unwrap_used, reason = "Default fixture configuration must open successfully")]
 fn fetch() -> Fetch {
     Fetch::open(FetchConfig::default()).unwrap()
 }
