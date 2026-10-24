@@ -50,5 +50,5 @@ pub struct Capped<T> {
     /// References in stable source order.
     pub items: Box<[T]>,
     /// Distinct references before capping.
-    pub total: usize,
+    pub total: u64,
 }

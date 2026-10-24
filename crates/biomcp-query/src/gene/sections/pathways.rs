@@ -45,7 +45,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         } else if pathways.is_empty() {
             Section::Empty { source: Source::Reactome, record: None }
         } else {
-            let total = pathways.len();
+            let total = u64::try_from(pathways.len()).unwrap_or(u64::MAX);
             pathways.truncate(LIMIT);
             Section::Data { source: Source::Reactome, data: Capped { items: pathways.into(), total } }
         };

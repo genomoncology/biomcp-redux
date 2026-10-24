@@ -11,14 +11,16 @@
       ],
       "expect": {
         "/result/items/0/more": [
-          "constraint"
+          "constraint",
+          "pathways"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
           "get",
           "gene",
           "HGNC:11998",
-          "constraint"
+          "constraint",
+          "pathways"
         ]
       },
       "max_bytes": 3600
