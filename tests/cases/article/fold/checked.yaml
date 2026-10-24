@@ -1,0 +1,22 @@
+{
+  "feature": "article-search",
+  "story": "named sources accept Europe PMC and reject duplicate selectors",
+  "replay": "article/search/synthetic-search-500",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "exit": 4,
+      "max_bytes": 2000,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "pubmed"
+      }
+    }
+  ]
+}
