@@ -73,5 +73,6 @@
       "max_bytes": 6419,
       "max_tokens": 1605
     }
-  ]
+  ],
+  "live_check": "public"
 }

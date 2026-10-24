@@ -64,5 +64,6 @@
         "/problems/0/field": "summary"
       }
     }
-  ]
+  ],
+  "live_check": "public"
 }
