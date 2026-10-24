@@ -10,7 +10,7 @@ use biomcp_fetch::{
 };
 use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct FetchedArticle {
     /// Full article for the default card.
     pub article: Article,
