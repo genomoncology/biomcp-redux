@@ -57,8 +57,8 @@ impl Stub {
     pub(super) fn for_source_status(
         host: &'static str,
         content_type: &'static str,
-        reply: impl Fn(&str) -> Result<String, String> + Send + 'static,
-        status: impl Fn(&str) -> u16 + Send + 'static,
+        reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
+        status: impl FnMut(&str) -> u16 + Send + 'static,
     ) -> Result<Self, String> {
         Self::with_sources(
             vec![host],
@@ -71,9 +71,9 @@ impl Stub {
     fn with_sources(
         hosts: Vec<&'static str>,
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
-        reply: impl Fn(&str) -> Result<String, String> + Send + 'static,
+        mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
-        status: impl Fn(&str) -> u16 + Send + 'static,
+        mut status: impl FnMut(&str) -> u16 + Send + 'static,
     ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;

@@ -102,8 +102,8 @@ pub use variant_population::{
 
 mod variant_assertions;
 pub use variant_assertions::{
-    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
-    VariantAssertion, VariantAssertions,
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
 };
 
 mod variant_oncokb;

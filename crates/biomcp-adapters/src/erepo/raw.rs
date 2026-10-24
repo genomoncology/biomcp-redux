@@ -50,11 +50,11 @@ pub(super) struct Record {
     #[serde(rename = "caId")]
     pub ca_id: String,
     #[serde(rename = "PCERDocID")]
-    id: String,
+    pub id: String,
     #[serde(rename = "docVersion")]
     version: String,
     classification: String,
-    uuid: Option<String>,
+    pub uuid: Option<String>,
     condition: Option<String>,
     #[serde(rename = "mondoId")]
     mondo: Option<String>,
@@ -71,7 +71,7 @@ pub(super) struct Record {
     #[serde(rename = "publishedDate")]
     published: Option<String>,
     #[serde(rename = "versionsList")]
-    versions: Option<Vec<String>>,
+    pub versions: Option<Vec<String>>,
 }
 impl Record {
     pub(super) fn map(self) -> Result<VariantAssertion, RequestError> {
@@ -131,7 +131,7 @@ impl Record {
         Ok(row)
     }
 }
-fn text(value: &str) -> Result<Text, RequestError> {
+pub(super) fn text(value: &str) -> Result<Text, RequestError> {
     Text::new(value).map_err(|_| super::bad())
 }
 fn strings(values: Vec<String>) -> Result<Box<[Text]>, RequestError> {

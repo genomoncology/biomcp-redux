@@ -95,6 +95,9 @@ pub struct AssertionDetail {
     /// Source approval date, distinct from evaluation and publication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub approved: Option<PartialDate>,
+    /// Source document facts for an explicitly selected historical version.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub document: Option<AssertionDocument>,
     /// Native document versions offered by the source.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub versions: Box<[Text]>,
@@ -153,4 +156,45 @@ crate::macros::wire_enum! {
 
 fn is_false(value: &bool) -> bool {
     !*value
+}
+
+/// Native SEPIO facts kept separate from common interpretation fields.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AssertionDocument {
+    /// Source UUID checked against the selected summary link.
+    pub uuid: Text,
+    /// Native interpretation identifier, separate from the summary PCER identifier.
+    pub native_id: Text,
+    /// Native interpretation type.
+    pub document_type: Text,
+    /// Native outcome identifier without assigning a common coding system.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outcome_id: Option<Text>,
+    /// Native outcome IRI.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outcome_iri: Option<Text>,
+    /// Assessments directly supporting the interpretation.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub assessments: Box<[AssertionAssessment]>,
+}
+/// Source assessment labels and identifiers remain independent.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AssertionAssessment {
+    /// Native criterion code.
+    pub criterion: Text,
+    /// Native default strength, distinct from an applied evidence strength.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_strength: Option<Text>,
+    /// Source outcome label.
+    pub outcome: Text,
+    /// Source outcome identifier, including known conflicting ID/label pairs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outcome_id: Option<Text>,
+    /// Source outcome IRI.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outcome_iri: Option<Text>,
 }

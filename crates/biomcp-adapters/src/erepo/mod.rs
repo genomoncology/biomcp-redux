@@ -1,4 +1,5 @@
 //! ClinGen evidence documents by exact CAid, without gene-wide fallback.
+mod history;
 mod raw;
 use crate::quotas;
 use biodata::{Source, VariantAssertion};
@@ -22,7 +23,27 @@ const FETCH: Endpoint = SPEC
     .json_absence()
     .fresh(Freshness::Days(1));
 /// Read native pages until completion, retaining source order and checked request identity.
-pub fn assertions(leg: &Leg<'_>, caid: &str) -> Result<Vec<VariantAssertion>, RequestError> {
+pub fn assertions(
+    leg: &Leg<'_>,
+    caid: &str,
+    selection: Option<(&str, Option<&str>)>,
+) -> Result<Vec<VariantAssertion>, RequestError> {
+    let records = records(leg, caid)?;
+    if let Some((id, Some(version))) = selection {
+        let record = records.iter().find(|r| r.id == id).ok_or_else(bad)?;
+        let uuid = record.uuid.as_deref().ok_or_else(bad)?;
+        if !record
+            .versions
+            .as_ref()
+            .is_some_and(|v| v.iter().any(|v| v == version))
+        {
+            return Err(bad());
+        }
+        return history::fetch(leg, caid, id, uuid, version).map(|r| vec![r]);
+    }
+    records.into_iter().map(raw::Record::map).collect()
+}
+fn records(leg: &Leg<'_>, caid: &str) -> Result<Vec<raw::Record>, RequestError> {
     let mut rows = Vec::new();
     let mut page = 1;
     loop {
@@ -46,7 +67,7 @@ pub fn assertions(leg: &Leg<'_>, caid: &str) -> Result<Vec<VariantAssertion>, Re
         let data = reply.data.unwrap_or_default();
         let complete = data.len() < 3;
         for row in data {
-            rows.push(row.map()?);
+            rows.push(row);
         }
         if complete {
             return Ok(rows);

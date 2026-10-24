@@ -170,8 +170,8 @@ pub use variant::CivicEvidenceLevelCode;
 pub use query::VariantPopulationQuery;
 pub use query::{AssertionSource, VariantAssertionsGet};
 pub use response::{
-    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
-    VariantAssertion, VariantAssertions,
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
 };
 pub use variant::{
     CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorScore, VariantComponent,

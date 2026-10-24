@@ -104,7 +104,13 @@ fn read(
                 .assertion()
                 .map(|id| (id.as_str(), query.version().map(|v| v.as_str()))),
         ),
-        AssertionSource::Erepo => biomcp_adapters::erepo::assertions(&leg, input),
+        AssertionSource::Erepo => biomcp_adapters::erepo::assertions(
+            &leg,
+            input,
+            query
+                .assertion()
+                .map(|id| (id.as_str(), query.version().map(|v| v.as_str()))),
+        ),
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);
