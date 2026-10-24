@@ -115,19 +115,19 @@ fn candidate_walk() -> Result<(), String> {
                 .cloned()
                 .ok_or("candidate ID absent")?,
         );
-        let next = value["next"]
-            .as_array()
+        let next = value.get("next")
+            .and_then(Value::as_array)
             .ok_or("candidate selection absent")?;
-        if !next.iter().any(|n| n["kind"] == "disambiguate") {
+        if !next.iter().any(|n| n.get("kind").and_then(Value::as_str) == Some("disambiguate")) {
             return Err("candidate selection action absent".into());
         }
         if offset < 2 {
             let page = next
                 .iter()
-                .find(|n| n["kind"] == "page")
+                .find(|n| n.get("kind").and_then(Value::as_str) == Some("page"))
                 .ok_or("next candidate page absent")?;
-            args = serde_json::from_value(page["args"].clone()).map_err(|e| e.to_string())?;
-        } else if next.iter().any(|n| n["kind"] == "page") {
+            args = serde_json::from_value(page.get("args").cloned().ok_or("page args absent")?).map_err(|e| e.to_string())?;
+        } else if next.iter().any(|n| n.get("kind").and_then(Value::as_str) == Some("page")) {
             return Err("unexpected fourth page".into());
         }
     }
