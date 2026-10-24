@@ -8,7 +8,7 @@ pub(super) fn cosmic(leg: &Leg<'_>) -> Result<VariantComponent, RequestError> {
     let raw = leg.json::<Metadata>(&METADATA, &[])?;
     let component = raw.src.cosmic;
     Ok(VariantComponent {
-        name: "cosmic".into(),
+        name: Text::new("cosmic").map_err(|_| super::leg_bad())?,
         version: component.version,
         license: component.license_url,
         aggregator_build: raw.build_version,

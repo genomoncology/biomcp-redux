@@ -17,6 +17,13 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[VariantSection]>,
+    /// Rows per named source section page.
+    #[serde(default = "default_section_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    section_limit: u32,
+    /// Source rows to skip independently of identity candidate paging.
+    #[serde(default)]
+    section_offset: u32,
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
@@ -35,6 +42,9 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
+fn default_section_limit() -> u32 {
+    3
+}
 fn default_limit() -> u32 {
     10
 }
@@ -44,10 +54,12 @@ fn resolver() -> VariantResolver {
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) {
+        if !(1..=50).contains(&fields.limit) || !(1..=50).contains(&fields.section_limit) {
             return Err(super::gene::QueryInvalid);
         }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.section_limit = fields.section_limit;
+        query.0.section_offset = fields.section_offset;
         query.0.section = fields.section;
         query.0.limit = fields.limit;
         query.0.offset = fields.offset;
@@ -71,6 +83,8 @@ impl VariantGet {
         Ok(Self(Fields {
             input,
             section: Box::default(),
+            section_limit: default_section_limit(),
+            section_offset: 0,
             resolver,
             build,
             limit: default_limit(),
@@ -85,6 +99,20 @@ impl VariantGet {
     pub fn with_sections(mut self, sections: Box<[VariantSection]>) -> Self {
         self.0.section = sections;
         self
+    }
+    /// Named section rows per page.
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit
+    }
+    /// Named section rows to skip.
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
+    /// Page source rows without changing the selected identity candidate page.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
     }
     /// Candidate rows per page.
     pub fn limit(&self) -> u32 {
@@ -147,6 +175,16 @@ crate::source::canonical_enum! {
         Population => "population",
         /// GWAS Catalog associations.
         Gwas => "gwas",
+        /// CIViC molecular-profile evidence.
+        Civic => "civic",
+        /// Cancer Hotspots native residues and counts.
+        Hotspots => "hotspots",
+        /// MyVariant source predictor scores.
+        Predict => "predict",
+        /// MyVariant conservation scores.
+        Conservation => "conservation",
+        /// Historical COSMIC fields carried by MyVariant.
+        Cosmic => "cosmic",
         /// Every implemented variant section.
         All => "all",
     }

@@ -14,7 +14,9 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
+    HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice, VariantCivic,
+    VariantHotspots,
 };
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
@@ -92,7 +94,7 @@ pub use variant::{Representation, Variant};
 
 pub use query::{VariantGet, VariantResolver, VariantSection};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
 pub use coord::Chromosome;
 
@@ -156,6 +158,19 @@ pub use variant::{
     ClingenLowPenetrance2024Code,
 };
 
+pub use response::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
+
+pub use variant::CivicEvidenceLevelCode;
+
+pub use query::VariantPopulationQuery;
+pub use query::{AssertionSource, VariantAssertionsGet};
+pub use response::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};
 pub use variant::{
     CosmicRecord, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
     VariantPredictors,

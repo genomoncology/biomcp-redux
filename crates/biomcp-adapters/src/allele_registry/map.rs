@@ -68,6 +68,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
             url: Some(url),
         },
         myvariant: None,
+        sections: None,
     };
     Ok(Resolution::Found(Mapped { value, problems }))
 }
