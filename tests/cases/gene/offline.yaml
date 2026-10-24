@@ -9,3 +9,8 @@ steps:
       /sources/0/reason: offline
       /next/0/kind: fresh
       /next/1/kind: sync
+  - run: [get, gene, serve, --offline]
+    exit: 4
+    expect:
+      /status: failed
+      /query/input: [serve]
