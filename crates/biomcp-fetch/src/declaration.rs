@@ -25,6 +25,7 @@ impl SourceSpec {
             fresh: Freshness::Never,
             method: Method::Get,
             idempotent: true,
+            identity_encoding: false,
         }
     }
     /// Declare a form POST endpoint. Retries require explicit idempotence.
@@ -60,6 +61,7 @@ pub struct Endpoint {
     pub(crate) fresh: Freshness,
     pub(crate) method: Method,
     pub(crate) idempotent: bool,
+    pub(crate) identity_encoding: bool,
 }
 
 /// Whether a source requires a credential before sending.
@@ -148,6 +150,11 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Request an uncompressed representation from a source with broken compression.
+    pub const fn identity_encoding(mut self) -> Self {
+        self.identity_encoding = true;
+        self
+    }
     /// Permit retries for a POST that only reads provider data.
     pub const fn idempotent(mut self) -> Self {
         self.idempotent = true;

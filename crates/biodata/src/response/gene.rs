@@ -1,8 +1,10 @@
 mod constraint;
+mod protein;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
+pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -84,6 +86,9 @@ impl ResponseBody for SyncResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
+    /// Reviewed human proteins listed by HGNC.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protein: Option<Section<Box<[Protein]>>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

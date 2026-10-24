@@ -16,6 +16,7 @@ pub(crate) struct Prepared {
     pub(crate) body: Vec<u8>,
     pub(crate) post: Option<PostMetadata>,
     pub(crate) idempotent: bool,
+    pub(crate) identity_encoding: bool,
 }
 impl Prepared {
     pub(crate) fn new(url: String, body: Vec<u8>, method: Method, idempotent: bool) -> Self {
@@ -54,6 +55,7 @@ impl Prepared {
             body,
             post,
             idempotent,
+            identity_encoding: false,
         }
     }
 }

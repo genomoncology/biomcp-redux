@@ -1,0 +1,36 @@
+//! Reviewed human proteins fetched only by HGNC-listed accessions.
+mod map;
+mod raw;
+use crate::{Mapped, quotas};
+use biodata::{Protein, Source, UniProtAcc};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use std::time::Duration;
+/// Source policy for UniProt's accession endpoint.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::UniProt,
+    base: "https://rest.uniprot.org",
+    key: KeyUse::None,
+    quota: &quotas::UNIPROT,
+    deadline: Duration::from_secs(8),
+};
+const PROTEINS: Endpoint = SPEC
+    .get("/uniprotkb/accessions")
+    .identity_encoding()
+    .fresh(Freshness::Days(7));
+const FIELDS: &str = "accession,protein_name,length,cc_function,cc_subcellular_location,reviewed,gene_primary,organism_id";
+/// Fetch distinct accessions once, correlating checked replies by identity.
+pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>>, RequestError> {
+    let mut ids = ids.to_vec();
+    ids.sort_unstable();
+    ids.dedup();
+    let text: Vec<Box<str>> = ids.iter().map(|id| id.to_string().into()).collect();
+    let raw = leg.json::<raw::Proteins>(
+        &PROTEINS,
+        &[
+            ("accessions", Arg::Ids(&text)),
+            ("fields", Arg::Text(FIELDS)),
+            ("format", Arg::Text("json")),
+        ],
+    )?;
+    Ok(map::proteins(raw, &ids))
+}

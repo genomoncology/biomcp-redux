@@ -94,6 +94,7 @@
       "enum": [
         "hgnc",
         "mygene",
+        "uniprot",
         "gnomad",
         "pubmed",
         "europepmc",

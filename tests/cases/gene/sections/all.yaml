@@ -16,8 +16,11 @@
         ],
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
-          "includes": "gnomad"
-        }
+          "includes": "gnomad",
+          "excludes": "reactome"
+        },
+        "/result/items/0/sections/protein/state": "data",
+        "/result/items/0/sections/protein/source": "uniprot"
       },
       "max_bytes": 14200,
       "mcp": [

@@ -22,4 +22,4 @@ pub use step::{Step, StepKind};
 
 pub use gene::{SyncQuery, SyncResult};
 
-pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};
+pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
