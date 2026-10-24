@@ -7,9 +7,8 @@ steps:
     exit: 3
     expect:
       /error/code: pool.expired
-      /query/since: '2024-02'
-      /query/until: '2024'
-      /query/sort: date
+      /next/0/args:
+        includes_all_of: ['--since', '2024-02', '--until', '2024', '--author', Carpten, '--journal', Nature, '--type', trial, '--sort', date]
   - run: [search, article, --since, '2025', --until, '2024-12-31']
     exit: 2
     expect:

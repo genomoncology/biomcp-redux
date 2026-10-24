@@ -185,10 +185,39 @@
           "required": [
             "drug"
           ]
+        },
+        {
+          "required": [
+            "author"
+          ]
+        },
+        {
+          "required": [
+            "journal"
+          ]
+        },
+        {
+          "required": [
+            "since"
+          ]
+        },
+        {
+          "required": [
+            "until"
+          ]
+        },
+        {
+          "required": [
+            "type"
+          ]
         }
       ],
       "description": "Checked search selectors and pool cursor.",
       "properties": {
+        "author": {
+          "$ref": "#/$defs/Text",
+          "description": "Author words sent to PubMed's author field."
+        },
         "disease": {
           "$ref": "#/$defs/Text",
           "description": "Disease words."
@@ -200,6 +229,10 @@
         "gene": {
           "$ref": "#/$defs/GeneInput",
           "description": "Gene input resolved through HGNC."
+        },
+        "journal": {
+          "$ref": "#/$defs/Text",
+          "description": "Journal words sent to PubMed's journal field."
         },
         "limit": {
           "default": 10,
@@ -219,6 +252,10 @@
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Stable snapshot from an earlier response."
+        },
+        "since": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Inclusive lower publication-date bound at the stated precision."
         },
         "sort": {
           "$ref": "#/$defs/ArticleSort",
@@ -242,6 +279,14 @@
           "description": "Words sent to PubMed in its default fields.",
           "x-positional": 0
         },
+        "type": {
+          "$ref": "#/$defs/ArticleType",
+          "description": "Publication-type filter."
+        },
+        "until": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Inclusive upper publication-date bound at the stated precision."
+        },
         "variant": {
           "$ref": "#/$defs/Text",
           "description": "Variant words."
@@ -252,7 +297,8 @@
     "ArticleSort": {
       "description": "Article ordering supported by this command.",
       "enum": [
-        "rank"
+        "rank",
+        "date"
       ],
       "type": "string"
     },
@@ -260,6 +306,19 @@
       "description": "Source selectors supported by article search.",
       "enum": [
         "pubmed"
+      ],
+      "type": "string"
+    },
+    "ArticleType": {
+      "description": "Publication-type selectors sent to PubMed.",
+      "enum": [
+        "trial",
+        "randomized",
+        "review",
+        "systematic_review",
+        "meta_analysis",
+        "guideline",
+        "case_report"
       ],
       "type": "string"
     },
