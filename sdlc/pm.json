@@ -9,5 +9,36 @@
   "mailroom": {
     "repo": "agents",
     "name": "biomcp-redux"
-  }
+  },
+  "milestones": {
+    "file": "planning/milestones.md"
+  },
+  "flow": "light",
+  "releaseMilestones": [
+    {
+      "name": "1",
+      "targetRef": "origin/main",
+      "state": "active"
+    },
+    {
+      "name": "2",
+      "targetRef": "origin/main",
+      "state": "planned"
+    },
+    {
+      "name": "3",
+      "targetRef": "origin/main",
+      "state": "planned"
+    },
+    {
+      "name": "4",
+      "targetRef": "origin/main",
+      "state": "planned"
+    },
+    {
+      "name": "5",
+      "targetRef": "origin/main",
+      "state": "planned"
+    }
+  ]
 }
