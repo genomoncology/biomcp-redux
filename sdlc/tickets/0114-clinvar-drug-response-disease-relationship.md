@@ -15,6 +15,6 @@ Changes: crates/biomcp/src/source/clinvar, crates/biomcp-types, cases/variant
 
 ## Witness
 
-- Clinical review of the bounded 0110 capture confirmed the defect. External evidence is on Yellow at data/biomcp-redux/0110-source-proofs/biomcp-redux-0110-clinvar-0tmxuwon. The recorded XML body SHA256 is 1b82ed1a73d1eddd3c2e796e488ba3e5008508adef2ce445dfc3a1ab816339ba. Keep the raw source body outside Git; write a synthetic case.
+- Clinical review of the bounded 0110 capture confirmed the defect. The capture is kept outside the repo with the 0110 evidence. The recorded XML body SHA256 is 1b82ed1a73d1eddd3c2e796e488ba3e5008508adef2ce445dfc3a1ab816339ba. Keep the raw source body outside Git; write a synthetic case.
 - Native path: ClinicalAssertion[@ID='1893254']/TraitSet[@Type='DrugResponse']/Trait/TraitRelationship[@Type='DrugResponseAndDisease']/Name/ElementValue[@Type='Preferred'].
 - Contract: sdlc/planning/slices/variant.md requires source condition and separate clinical context. This bug does not invalidate the narrower real drug-response label proof.

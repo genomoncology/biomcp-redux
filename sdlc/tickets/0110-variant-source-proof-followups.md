@@ -1,6 +1,6 @@
 # 0110 — Capture positive CIViC, Cancer Hotspots and gnomAD release proof
 
-Status: OPEN.
+Status: COMPLETE.
 
 Milestone: 2
 
@@ -21,3 +21,4 @@ Three bounded captures from landed main close the variant source-proof gaps that
 
 - ClinVar: a real SCV whose classification is drug response, such as Variation 666267 with SCV000965609.1 (drug response to dabrafenib), after 0089 lands. The version in the future reply controls. It is recorded and replayed to show the label kept native with `statement_unmapped: true`. 0089 lands on a synthetic row.
 - Proof: one pm job per source from landed main, keyless, with existing retries only; each success becomes a replay case (from outside the repo where terms bar storage) and ticks its roadmap box; each failure is recorded through pm progress with the box left unchecked. No refresh loops.
+- Closed 2026-10-24 by PM: CIViC, gnomAD and ClinVar captures were accepted with clinical review. The Hotspots attempt stopped with `no_join_id` before any request, because CA123643's identity carried no gene; 0115 makes one candidate capture instead.
