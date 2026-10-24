@@ -261,7 +261,9 @@ fn record_metadata() -> Check {
         |_| Ok("{\"openAccessPdf\":null}".into()),
     )?;
     let env = Environment::new()?;
-    env.config(&json!({"ca_bundle":stub.certificate}))?;
+    let certificate = env.root().join("ca.pem");
+    fs::write(&certificate, &stub.certificate)?;
+    env.config(&json!({"ca_bundle":certificate}))?;
     let capture = env.root().join("recording");
     let args = vec![
         "--record".into(),
