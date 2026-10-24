@@ -113,7 +113,10 @@ pub(in crate::article) fn load<'a>(
             Reason::NotOpen,
         ));
     };
-    let leg = cx.fetch.leg(&pdf::SPEC, *deadline).fresh(cx.fresh);
+    let leg = cx
+        .fetch
+        .leg(&semantic_scholar::PUBLISHER, *deadline)
+        .fresh(cx.fresh);
     let started = leg.remaining();
     let result = download(&leg, &link);
     *deadline = super::super::consume(*deadline, started, leg.remaining());

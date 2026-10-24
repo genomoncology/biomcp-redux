@@ -170,6 +170,7 @@ dependencies = [
  "biomcp-adapters",
  "biomcp-fetch",
  "biomcp-query",
+ "cap",
  "clap",
  "jsonschema",
  "libtest-mimic",
@@ -212,7 +213,6 @@ dependencies = [
  "rustls-platform-verifier",
  "serde",
  "serde_json",
- "sha2",
  "sha2 0.11.1",
  "tempfile",
  "ureq",
@@ -227,8 +227,8 @@ dependencies = [
  "biomcp-adapters",
  "biomcp-fetch",
  "rusqlite",
+ "serde",
  "serde_json",
- "sha2",
  "sha2 0.11.1",
  "tempfile",
 ]
@@ -327,6 +327,12 @@ dependencies = [
  "serde",
  "zip",
 ]
+
+[[package]]
+name = "cap"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f125eb85b84a24c36b02ed1d22c9dd8632f53b3cde6e4d23512f94021030003"
 
 [[package]]
 name = "cbc"
@@ -603,9 +609,7 @@ version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2"
 dependencies = [
- "block-buffer",
  "block-buffer 0.12.1",
- "crypto-common",
  "crypto-common 0.2.2",
 ]
 
@@ -1959,9 +1963,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
 dependencies = [
  "cfg-if",
- "cpufeatures",
  "cpufeatures 0.3.1",
- "digest",
  "digest 0.11.3",
 ]
 

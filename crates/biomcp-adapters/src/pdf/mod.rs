@@ -100,24 +100,13 @@ impl Write for BoundedText {
     }
 }
 
-/// Credential-free publisher declaration, distinct from the optional-key API.
-pub static SPEC: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
-    source: biodata::Source::SemanticScholar,
-    terms: biomcp_fetch::Terms {
-        name: "Publisher PDF; article-specific source license",
-        url: "https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data",
-        usage: biodata::Use::Restricted,
-    },
-    base: "",
-    key: biomcp_fetch::KeyUse::None,
-    quota: &crate::quotas::PUBLISHER_PDF,
-    deadline: std::time::Duration::from_secs(15),
-};
 /// Read a publisher PDF without caching its bytes or forwarding an API credential.
 pub fn download(
     leg: &biomcp_fetch::Leg<'_>,
     url: &str,
 ) -> Result<Vec<u8>, biomcp_fetch::RequestError> {
-    let endpoint = SPEC.download(url)?.bytes(MAX_BYTES);
+    let endpoint = crate::semantic_scholar::PUBLISHER
+        .download(url)?
+        .bytes(MAX_BYTES);
     leg.bytes(&endpoint, &[])
 }

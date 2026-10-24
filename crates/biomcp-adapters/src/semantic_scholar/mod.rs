@@ -26,4 +26,4 @@ pub use graph::{Edge, Edges, PaperSummary, edges, paper_endpoint, summary};
 pub use search::{Author, ExternalIds, Paper, Search, search};
 
 mod pdf;
-pub use pdf::{PdfLink, PdfRecord, pdf};
+pub use pdf::{PUBLISHER, PdfLink, PdfRecord, pdf};
