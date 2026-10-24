@@ -1,6 +1,8 @@
 # Gene slice
 
-This file holds the gene slice's investigation and design, as `planning/slices.md` says. It covers the 0.9 accounting, the harvested examples, the source findings, the delight questions, the types, the command tree, the cases and the open product questions. Every fact below was observed live on 2026-10-23 unless it says otherwise.
+This file holds the gene slice's investigation and design, as `planning/slices.md` says. It covers the 0.9 accounting, the harvested examples, the source findings, the delight questions, the types, the command tree, the progressive disclosure layers and token budget, the keyed sources, the cases and Ian's rulings. Every fact below was observed live on 2026-10-23 or 2026-10-24 unless it says otherwise.
+
+Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-gene-slice-rulings.md` records. He then allowed OncoKB as a keyed source, as `decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` says, and section 7 adds it.
 
 ## 1. How BioMCP 0.9.3 does genes
 
@@ -65,7 +67,7 @@ Each finding names the exact command and the observed result.
 5. **Aliases are cut to five and filtered.** `get gene HER2` lists CD340, HER2, MLN 19, NEU, NGL. MyGene.info has 13 aliases, and 0.9 drops HER-2, HER-2/neu, c-ERB2 and TKR1 by rule. Previous symbols and aliases are mixed.
 6. **Alias resolution is silent.** `get gene HER2`, `get gene SUR1`, `get gene MLL` and `get gene C10orf54` return ERBB2, ABCC8, KMT2A and VSIR with no field saying the input was an alias or a previous symbol. Alias inputs take two round trips (0.9 s against 0.5 s).
 7. **The "clinical" drugs and diseases are unlabeled and arbitrary.** The default card's five drugs come from Open Targets, but `section_sources` credits only NCBI Gene and MyGene.info. BRAF lists belvarafenib, plixorafenib, sorafenib, regorafenib and tovorafenib and omits vemurafenib, dabrafenib and encorafenib. ERBB2 lists MM-111 and KBP5209 and omits trastuzumab.
-8. **Ambiguous inputs fail without the HGNC candidates.** `get gene p16` and `get gene CAP` return not found. `get gene MLL2` returns not found with discover candidates KMT2B, KMT2D and "KMT2B gene", and does not say that MLL2 is the previous symbol of KMT2D and an alias of KMT2B.
+8. **Ambiguous inputs fail without the HGNC candidates.** `get gene p16` and `get gene CAP` returned a bare not found with `--no-cache`. A later warm `get gene p16` returned not found with three UMLS candidates ("CDKN2A gene", "CDKN2A wt Allele", "H3P10 gene"), so the answer depends on cache state. `get gene MLL2` returns not found with discover candidates KMT2B, KMT2D and "KMT2B gene", and does not say that MLL2 is the previous symbol of KMT2D and an alias of KMT2B.
 9. **Withdrawn symbols look ambiguous.** `get gene BRCA3` returns "No exact gene match" with UMLS and NCIt candidates. HGNC says HGNC:18617 is an "Entry Withdrawn" phenotype-only record.
 10. **Identifiers are refused or misread.** `get gene HGNC:1097` fails validation. `get gene ENSG00000157764` returns not found. `get gene 673` returns not found with an "ambiguous" list that includes RNU6-673P. `search gene 673` returns BRAF, so search and get disagree.
 11. **Single-gene enrichment is noise.** `get gene BRAF diseases` lists "Reduced factor XIII activity" and "Benign Struma Ovarii" first, with p-values from enriching a one-gene set. `ontology` does the same with GO terms.
@@ -100,7 +102,7 @@ Twenty examples, each from a public source. Gene identity facts were checked liv
 | 11 | A urologic oncologist asks which genes select for olaparib | Which HRR genes were used in PROfound? | PMID 32343890 | BRCA1, BRCA2 and ATM in cohort A, each with its HGNC ID. The cohort B list comes from the full text and needs a check before use as a case | HGNC batch get |
 | 12 | A colorectal tumor is MMR-deficient | Which genes cause Lynch syndrome, and how strong is the evidence? | PMID 25070057 | MLH1, MSH2, MSH6, PMS2, EPCAM with ClinGen validity rows | HGNC, ClinGen |
 | 13 | A young woman has early breast cancer and a germline TP53 finding | Which syndrome is TP53 linked to, and how constrained is it? | PMID 32457520, PMID 32461654 | ClinGen validity rows for TP53, gnomAD v4 pLI and LOEUF with version | ClinGen, gnomAD |
-| 14 | An agent must say whether NOTCH1 loss or gain matters | Is NOTCH1 an oncogene or a tumor suppressor? | PMID 30293088, PMID 28890946 | The roles as a source states them, without a pick. Only OncoKB and COSMIC carry a role field, and both have license terms | OncoKB list (license question), CIViC description |
+| 14 | An agent must say whether NOTCH1 loss or gain matters | Is NOTCH1 an oncogene or a tumor suppressor? | PMID 30293088, PMID 28890946 | The roles as a source states them, without a pick. Only OncoKB and COSMIC carry a role field, and both have license terms | OncoKB with the user's key, CIViC description |
 | 15 | A pediatric sarcoma shows a possible TRK fusion | Which genes are the NTRK fusion targets? | PMID 31268127, PMID 29466156 | NTRK1, NTRK2, NTRK3 with HGNC IDs and CIViC counts | HGNC, CIViC |
 | 16 | A cholangiocarcinoma has an FGFR2 fusion | Which approved drugs target FGFR2? | PMID 32203698, PMID 37953380 | Drug list with interaction type and source. This belongs to the drug slice | DGIdb (drug slice) |
 | 17 | A gastric cancer is CLDN18.2-positive | What is CLDN18.2, and where is CLDN18 expressed? | PMID 37068504, PMID 25613900 | CLDN18.2 is an isoform. The gene is CLDN18, HGNC:2039, 3q22.3. Normal tissue expression from HPA | HGNC, HPA, UniProt |
@@ -119,7 +121,7 @@ Gaps no free gene API fills: fusion partner lists for KMT2A, NTRK and ALK, gene-
 | Source | Call | Cold, warm | What matters | Quirks | Terms |
 | --- | --- | --- | --- | --- | --- |
 | HGNC REST | `/fetch/symbol/X`, `/fetch/alias_symbol/X`, `/fetch/prev_symbol/X`, `/search/symbol:X+OR+alias_symbol:X+OR+prev_symbol:X` | 0.2 to 0.5 s | hgnc_id, symbol, name, status, locus group and type, location band, alias_symbol, prev_symbol, entrez_id, ensembl_gene_id, uniprot_ids, omim_id, mane_select, gene_group | Separates aliases from previous symbols. Case-insensitive and human only, so mouse Braf maps to human BRAF. Exact fetch returns withdrawn records, so the caller checks `status`. No successor pointer on withdrawn records. 10 requests per second | CC0 |
-| HGNC bulk file | `hgnc_complete_set.txt` | one download | Every field above for 47,077 records | 17 MB TSV or 33 MB JSON, last modified 2026-10-16, ETag present | CC0 |
+| HGNC bulk files | `hgnc_complete_set.txt` and `withdrawn.txt` | one download each | Every field above for approved records; withdrawn symbols with their successors | The complete set is 17 MB TSV or 33 MB JSON, last modified 2026-10-16, ETag present. It leaves out withdrawn records, so BRCA3 is missing from it. `withdrawn.txt` (259 KB) lists 1,802 "Entry Withdrawn" and 3,489 "Merged/Split" symbols, the latter with the HGNC ID and symbol they merged into (A2MR into HGNC:6692 LRP1). HGNC REST cannot filter by band, and the file can | CC0 |
 | MyGene.info | `POST /v3/query` with `scopes=symbol,alias,retired&species=human`; `GET /v3/gene/<entrez>` | 0.3 s for 11 terms; 0.34 to 0.5 s per gene | summary (RefSeq text with date), map_location, genomic_pos (GRCh38), genomic_pos_hg19, HGNC, MIM, uniprot, type_of_gene | `GET /query?q=HER2` ignores scopes and ranks PTPN18 above ERBB2. `q=symbol:HER2` returns nothing. Always pass `species=human`. `genomic_pos` can be a list. Full TTN reply is 151 KB, 12 KB with chosen fields. Serves replaced Entrez ID 6248 without a flag. `pathway.kegg` must be dropped | Per-field source terms |
 | NCBI E-utilities | `esearch db=gene term=X[sym] AND human[orgn]`, `esummary` | 0.15 to 0.21 s | summary, maplocation, otheraliases, status and currentid, genomicinfo | `[sym]` also searches aliases. Free text returns 629 IDs for HER2. Status 1 is replaced (with currentid), 2 is discontinued. Without a key, 8 parallel calls drew 7 HTTP 429s | Public domain |
 | Ensembl REST | `/lookup/symbol/homo_sapiens/X`, `/lookup/id/ENSG` | 2.0 s cold, 0.4 s warm | GRCh38 span and strand, biotype, canonical transcript | Official symbols only (HER2 is a 400). `expand=1` takes 2 to 6 s and 818 KB for TTN. `xrefs/symbol` takes up to 12 s. The GRCh37 server gives a different canonical transcript | Open |
@@ -131,7 +133,7 @@ Gaps no free gene API fills: fusion partner lists for KMT2A, NTRK and ALK, gene-
 | gnomAD GraphQL | `gene(gene_symbol, reference_genome: GRCh38){gnomad_constraint{...}}` | 1.1 s cold, 0.13 s warm | pLI, LOEUF (oe_lof_upper), mis_z, flags, transcript | Official symbol only. GRCh37 serves v2 constraint with different values (BRCA2 LOEUF 0.635 against 0.824) | CC0 |
 | Human Protein Atlas | `/ENSG….json` | 0.5 s | tissue and cancer specificity, subcellular location, protein class | Text search is fuzzy (BRAF also returns HMG20B), so fetch by Ensembl ID | CC BY-SA 4.0 |
 | Reactome | `/ContentService/data/mapping/UniProt/<acc>/pathways?species=9606` | 0.8 s | lowest-level pathway IDs and names | Needs the UniProt accession first | CC BY 4.0 |
-| OncoKB | `/api/v1/utils/cancerGeneList` without a token | 0.26 s, 1247 rows | geneType, panel flags, chosen transcript per build | Public endpoint, but OncoKB terms allow free academic research use only. `allCuratedGenes` also carries summary text | Restricted |
+| OncoKB | Keyed source; see section 7 | not measured | gene type, highest sensitivity and resistance levels, gene summary and background, OncoKB transcript per build | The investigation fetched the public gene list once on 2026-10-23, before Ian's keyed-source ruling. From now on BioMCP and its developers call OncoKB only with a user's key | Restricted; user's license |
 | DGIdb GraphQL | `genes(names:[...])`, `geneMatches` | 0.5 s | drug interactions and sources; ambiguity labels | Mixed source licenses inside the aggregate. Belongs to the drug slice | Mixed |
 
 ### Where sources disagree
@@ -161,10 +163,12 @@ Gaps no free gene API fills: fusion partner lists for KMT2A, NTRK and ALK, gene-
 | Loss-of-function constraint | gnomAD v4, GRCh38 | Current release. Version is stated |
 | Normal tissue expression and location | HPA by Ensembl ID | CLDN18 case needs it |
 | Pathway membership | Reactome by UniProt accession | Open. KEGG excluded |
+| Gene role in cancer, highest OncoKB levels, OncoKB gene summary | OncoKB, with the user's key only | The only source with a curated oncogene or tumor suppressor call in the examples. Example 14 needs it |
+| Withdrawn and merged symbols with successors | HGNC `withdrawn.txt` | The complete set leaves them out |
 
 ### Requests and speed for the design below
 
-- Default card: one HGNC lookup and one MyGene.info gene call, in parallel once the HGNC record gives the Entrez ID. With a local HGNC bundle the HGNC part takes no request, and the card is one MyGene.info call of about 0.35 s cold.
+- Default card: the HGNC bundle resolves the input with no request, and one MyGene.info gene call of about 0.35 s cold adds the summary and spans. With an OncoKB key, one OncoKB call runs beside it.
 - Each section adds one request that runs in parallel: UniProt 0.5 s, CIViC 0.3 s, gnomAD 1.1 s cold, HPA 0.5 s, Reactome 0.8 s after UniProt. ClinGen reads a local bundle.
 - `get gene X all` should finish in about 1.5 s cold, set by gnomAD and Reactome, against 2.3 to 3.0 s in 0.9.
 
@@ -174,7 +178,7 @@ Gaps no free gene API fills: fusion partner lists for KMT2A, NTRK and ALK, gene-
 2. **What is the smallest header that lets the agent choose its next step?** HGNC ID, symbol, name, locus group, cytoband, status, and how the input matched: symbol, previous symbol, alias, or ambiguous. These come from one HGNC record.
 3. **Which drill-downs does the agent need next, and does `next` name each one?** The card's `next` names the sections with data behind them, chosen from the identity record: `protein` only when HGNC lists UniProt accessions, `civic` only when CIViC has the gene. Pivots to trials, articles, variants and drugs appear in `next` once those slices land, as `search trial --gene ERBB2` and similar.
 4. **Which identifiers must come back exact?** The HGNC ID and approved symbol for every later command. The Entrez ID for PubMed and ClinVar. The Ensembl gene ID for HPA and gnomAD. The UniProt accessions for Reactome and the protein slice. The MANE Select RefSeq and Ensembl transcripts with versions for variant naming.
-5. **Where do sources disagree, and how does the output show it?** Aliases keep their source: HGNC aliases and previous symbols as the main lists, NCBI-only aliases in a separate list. Transcripts carry versions. Coordinates carry their build and counting rule. The output never merges or picks between two sources' values.
+5. **Where do sources disagree, and how does the output show it?** HGNC aliases and previous symbols are the printed lists. NCBI-only aliases serve resolution and say so in `match.kind` (`ncbi_alias`), and the card does not print them. OncoKB's transcript sits in the OncoKB block beside HGNC's MANE pair, each with its version. Transcripts carry versions. Coordinates carry their build and counting rule. The output never merges or picks between two sources' values.
 6. **What can fail or come back empty, and how does the status tell them apart?** Input: resolved, ambiguous, withdrawn, or not found. Section: data, confirmed empty (CIViC has VSIR with no variants), not applicable (no protein for MIR21), or unavailable (source error, with the reason). A source error never becomes an empty list.
 7. **How fast is a cold and a warm call?** Cold default card about 0.35 s with a bundle and 0.5 s without, set by MyGene.info. Warm card under 50 ms, with no request.
 8. **What does 0.9 return that no example needs, and what does it miss?** It returns Enrichr p-values, GO terms, STRING partners, NIH grants, GTR tests, unlabeled Open Targets drugs and diseases, and repeated next commands. It misses the HGNC ID, the cytoband, previous symbols, the MANE transcript, the full summary, every protein of a gene, how an alias matched, and withdrawn status.
@@ -199,7 +203,7 @@ Identifier newtypes, each with a checked constructor, `FromStr` and `Display`:
 | `EnsemblTranscript` | `ENST00000646891.2` | Number and version |
 | `Cytoband` | `7q34`, `9p21.3` | Chromosome, arm and band |
 
-Closed sets: `GeneStatus` (approved, withdrawn), `LocusGroup` (protein coding, non-coding RNA, pseudogene, other, phenotype; non-exhaustive), `MatchKind` (symbol, previous symbol, alias, HGNC ID, Entrez ID, Ensembl ID).
+Closed sets: `GeneStatus` (approved, withdrawn), `LocusGroup` (protein coding, non-coding RNA, pseudogene, other, phenotype; non-exhaustive), `MatchKind` (symbol, previous symbol, alias, NCBI alias, HGNC ID, Entrez ID, Ensembl ID, band).
 
 `GeneInput` is free text that the edge parses into one of: an `HgncId`, an `EnsemblGeneId`, an `EntrezGeneId` (digits only), or a symbol-like text. Alias text stays text because aliases hold spaces, slashes and parentheses ("HER-2/neu", "MLN 19").
 
@@ -207,7 +211,7 @@ Closed sets: `GeneStatus` (approved, withdrawn), `LocusGroup` (protein coding, n
 
 - `hgnc_id: HgncId`, `symbol: GeneSymbol`, `name`, `status: GeneStatus`, `locus_group: LocusGroup`, `locus_type`
 - `location: Cytoband` (absent for genes with no band)
-- `previous_symbols: [GeneSymbol]`, `aliases: [text]`, `ncbi_aliases: [text]` (the NCBI aliases HGNC lacks)
+- `previous_symbols: [GeneSymbol]`, `aliases: [text]`. NCBI-only aliases feed resolution and are not printed; for KRAS they are 17 entries and about 85 tokens
 - `entrez_id`, `ensembl_id`, `uniprot: [UniProtAcc]`, `omim: [OmimId]`
 - `mane_select: { refseq: RefSeqTranscript, ensembl: EnsemblTranscript }`
 - `spans: [GenomicInterval]`, one per build, each with strand
@@ -215,11 +219,11 @@ Closed sets: `GeneStatus` (approved, withdrawn), `LocusGroup` (protein coding, n
 
 `GeneHeader` (schema `biomcp.gene_header/1`): `hgnc_id`, `symbol`, `name`, `locus_group`, `location`, `status`, and `match: { kind, text }`.
 
-`GeneResolution`: `resolved { gene, match }`, `ambiguous { candidates: [GeneHeader] }`, `withdrawn { hgnc_id, symbol, locus_type }`, or `not_found`.
+`GeneResolution`: `resolved { gene, match }`, `ambiguous { candidates: [GeneHeader] }`, `withdrawn { hgnc_id, symbol, hgnc_status, merged_into: [HgncId] }`, or `not_found`. `hgnc_status` is "Entry Withdrawn" or "Merged/Split", from HGNC `withdrawn.txt`.
 
 ### Summary and sections
 
-The default card is the identity record, the spans, the MANE Select pair and the full RefSeq summary. It is about 1.5 KB of JSON for BRAF.
+The default card is the identity record, the spans, the MANE Select pair and the full RefSeq summary. It measured 1.8 KB of JSON for BRAF (section 6). With an OncoKB key, the card adds a short `oncokb` block: gene type and the highest sensitivity and resistance levels. Without a key, the envelope names OncoKB as skipped once, as section 7 says.
 
 Sections, a closed enum:
 
@@ -231,8 +235,9 @@ Sections, a closed enum:
 | `constraint` | gnomAD v4 GRCh38 | pLI, LOEUF, mis_z, transcript, version | locus group is not protein coding |
 | `expression` | HPA | RNA tissue specificity, top tissues, subcellular location, release | HPA has no record for the Ensembl ID |
 | `pathways` | Reactome | pathway ID and name | no UniProt accession |
+| `oncokb` | OncoKB, user's key only | OncoKB gene summary and background text, OncoKB transcript per build, data version | OncoKB does not curate the gene (state confirmed empty); no key (state skipped) |
 
-`all` requests every section. Requested sections report one of the four states. Unrequested sections are absent.
+`all` requests every section. Requested sections report one of the four states, or `skipped` for a keyed source with no key. Unrequested sections are absent.
 
 ### Command tree
 
@@ -242,9 +247,9 @@ Sections, a closed enum:
 | `search gene --band 9p21.3` | Headers for genes in a cytoband | From HGNC `location` in the bundle; no live API filters by band. Answers "what else sits in this deleted band" (CDKN2A, CDKN2B, MTAP) |
 | `search gene --locus-group protein-coding` | Filter | Replaces 0.9 `--type` |
 | `biomcp get gene <input>...` | One card per input, with its `GeneResolution` | Accepts symbols, previous symbols, aliases, `HGNC:` IDs, Entrez IDs and Ensembl IDs. Several inputs at once (HRR and Lynch panels) |
-| `get gene <input> <section>...` | Card plus sections | `protein`, `civic`, `clingen`, `constraint`, `expression`, `pathways`, `all` |
+| `get gene <input> <section>...` | Card plus sections | `protein`, `civic`, `clingen`, `constraint`, `expression`, `pathways`, `oncokb`, `all` |
 
-`next` on a resolved card names each section with data behind it. On an ambiguous result, it names `get gene <hgnc_id>` for each candidate. On a header page, it names `get gene` for the first header.
+`next` on a resolved card is one step, `get gene <hgnc_id>`, with the list of sections that have data behind it, so the gene ID is not repeated for each section. On an ambiguous result, it names `get gene <hgnc_id>` for each candidate. On a header page, it names `get gene` for the first header.
 
 ### Keep, change or drop each 0.9 feature
 
@@ -283,42 +288,158 @@ Sections, a closed enum:
 
 ### Sources kept and dropped
 
-Kept: HGNC (bundle or REST), MyGene.info, UniProt, CIViC, ClinGen bundle, gnomAD, HPA, Reactome. NCBI E-utilities stays as the check for replaced Entrez IDs.
+Kept: HGNC bundle (complete set and withdrawn file), MyGene.info, UniProt, CIViC, ClinGen bundle, gnomAD, HPA, Reactome. NCBI E-utilities stays as the check for replaced Entrez IDs.
 
-Dropped from the gene slice: Open Targets, Enrichr, QuickGO, STRING, GTEx, DisGeNET, NIH RePORTER, GTR, KEGG, CSpec, DGIdb (to the drug slice), GenCC (deferred), OncoKB (pending Ian's license ruling).
+Dropped from the gene slice: Open Targets, Enrichr, QuickGO, STRING, GTEx, DisGeNET, NIH RePORTER, GTR, KEGG, CSpec, DGIdb (to the drug slice), GenCC (deferred).
 
-## 6. Outside-in cases
+Keyed: OncoKB runs only with the user's key, as section 7 says.
 
-Each case was verified on 2026-10-23 against live HGNC REST, MyGene.info or CIViC. Each asserts stable identity facts, ordering rules and states, not free text that drifts.
+## 6. Progressive disclosure and token budget
 
-| # | Story | Run | Expect |
+### How it was measured
+
+Tokens are estimated as bytes divided by 4. Redux does not exist yet, so a scratch script built each Redux output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-24: the HGNC bundle and withdrawn file, MyGene.info, UniProt, CIViC, the ClinGen files, gnomAD, HPA and Reactome. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown. 0.9 `pathways` and `all` were not run, because they call KEGG. OncoKB was not called, because no key is configured.
+
+"Facts" counts the facts a careful answer to the case needs, checked as exact text in each output: for KRAS these are the HGNC ID, band, Entrez ID, Ensembl ID, previous symbol KRAS2, MANE RefSeq, UniProt accession, GRCh38 start, GRCh37 start and the RefSeq summary date.
+
+### Layers, densest and highest priority first
+
+| Layer | What it holds | Tokens | Why it sits here |
 | --- | --- | --- | --- |
-| 1 | KRAS G12C lung tumor, gene card first (PMID 34096690) | `get gene KRAS` | `/status` complete; `hgnc_id` HGNC:6407; `entrez_id` 3845; `ensembl_id` ENSG00000133703; `location` 12p12.1; `previous_symbols` includes KRAS2; `mane_select.refseq` starts NM_004985.; `match.kind` symbol |
-| 2 | Oncologist types HER2 (PMID 29846122) | `get gene HER2` | `symbol` ERBB2; `hgnc_id` HGNC:3430; `location` 17q12; `match.kind` alias; `match.text` HER2 |
-| 3 | MLL-rearranged leukemia (PMID 18022353) | `get gene MLL` | `symbol` KMT2A; `hgnc_id` HGNC:7132; `match.kind` previous_symbol |
-| 4 | Myeloma panel says FAM46C (PMID 28931820) | `get gene FAM46C` | `symbol` TENT5C; `hgnc_id` HGNC:24712; `location` 1p12; `match.kind` previous_symbol |
-| 5 | Old paper says MLL2 (PMID 18022353) | `get gene MLL2` | resolution ambiguous; candidates exactly {HGNC:7133, HGNC:15840}; KMT2D (previous symbol) ranks before KMT2B (alias); `next` holds `get gene HGNC:7133` and `get gene HGNC:15840` |
-| 6 | Pathology says p16 loss (PMID 32747822) | `get gene p16` | resolution ambiguous; candidates include HGNC:1787 and HGNC:43802; CDKN2A (protein coding) ranks first |
-| 7 | Family asks about BRCA3 (PMID 16614877) | `get gene BRCA3` | resolution withdrawn; `hgnc_id` HGNC:18617; no card; never BRCA1 or BRCA2 |
-| 8 | Nonsense input | `get gene NOTAGENE` | resolution not_found; error code `not_found`; the input text never appears in the message |
-| 9 | Agent holds an ID from another tool | `get gene HGNC:1097`, `get gene 673`, `get gene ENSG00000157764` | each returns `symbol` BRAF with `match.kind` hgnc_id, entrez_id, ensembl_id |
-| 10 | BRAF summary keeps the cancer sentence (0.9 finding 1) | `get gene BRAF` | `summary.text` includes "V600E"; `summary.dated` present |
-| 11 | CDKN2A encodes two proteins (0.9 finding 3) | `get gene CDKN2A protein` | `protein` state data; accessions exactly {P42771, Q8N726} |
-| 12 | MIR21 has no protein (0.9 finding 2) | `get gene MIR21 protein constraint` | `locus_group` non_coding_rna; `protein` state not_applicable; `constraint` state not_applicable; no accession anywhere |
-| 13 | VISTA in trial text (PMID 24691993) | `get gene VISTA civic` | `symbol` VSIR; `civic` state confirmed empty with CIViC gene ID 14308 |
-| 14 | Lynch panel (PMID 25070057) | `get gene MLH1 MSH2 MSH6 PMS2 EPCAM clingen` | five cards in input order; each `clingen` state data |
-| 15 | 9p21 deletion, which genes go with CDKN2A | `search gene --band 9p21.3` | headers include CDKN2A, CDKN2B and MTAP |
-| 16 | CIViC fails during a card | `get gene ERBB2 civic` with a recorded HTTP 500 | `/status` partial; `civic` state unavailable with reason; identity fields still present |
+| 1. `search gene` header | HGNC ID, symbol, name, locus group, band, match kind | about 45 per header | Answers "which gene is this" and settles ambiguity before any card is fetched. Every field is an exact identifier or a closed value |
+| 2. `get gene` default card | Identity, previous symbols and aliases, cross IDs, MANE Select pair, spans on both builds, full dated RefSeq summary, one `next` step listing sections | 300 to 520 per gene | Answers the common question alone: what the gene is, where it sits, which transcript names its variants, and what RefSeq says it does in cancer. The summary is 46% of the BRAF card and is the only prose; Ian ruled it stays whole |
+| 2a. OncoKB block in the card, with a key | Gene type, highest sensitivity level, highest resistance level | about 30, estimated | The densest clinical fact the gene card can carry: oncogene or tumor suppressor, and whether any level 1 therapy exists for the gene. Without a key, one `skipped` note of about 30 tokens per response |
+| 3. `constraint` | pLI, LOEUF, missense Z, transcript, version | about 50 | Smallest section; answers germline questions such as example 13 |
+| 4. `expression` | HPA tissue and cancer specificity, top tissues, location | about 80 | Small and answers target-toxicity questions such as example 17 |
+| 5. `protein` | Each reviewed protein: name, length, function text, location | 155 for BRAF, 1,130 for CDKN2A | Function text is long and two-protein genes double it, so it stays behind a section |
+| 6. `clingen` | Validity rows and dosage | 230 for BRAF, 120 to 170 per Lynch gene | Germline questions only; rows grow with curated diseases |
+| 7. `pathways` | Reactome pathway IDs and names | 305 for BRAF (16 pathways) | Long lists that serve grouping questions, not the common question |
+| 8. `civic` | CIViC gene ID, description, variant count, link | 470 for BRAF, 735 for ERBB2 | Densest cancer evidence prose but long; variant-level evidence belongs to the variant slice |
+| 9. `oncokb` section, with a key | OncoKB gene summary and background, OncoKB transcript | about 400, estimated from the 1.9 MB curated-gene list across 1,144 genes | Long licensed prose, so it stays behind a named section even when the key is present |
+| Options | `--band`, `--locus-group`, several inputs, cursor | per header or per card | Each option narrows or batches; none adds fields |
 
-Cases 5, 6 and 15 assert sets and order rules that BioMCP owns, so upstream additions do not break them. HGNC REST fetch gives CDKN2A, CDKN2B and MTAP each the location 9p21.3. Neither HGNC REST search nor MyGene.info can query by band (MyGene.info answers "map_location is not indexed"), so case 15 and `--band` need the HGNC bundle from question 1.
+### Token table, Redux against 0.9.3
 
-## 7. Questions for Ian
+| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | Redux tokens | Redux facts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `get gene KRAS` | 10 | 1056 | 4 | 406 | 4 | 392 | 10 |
+| `get gene HER2` | 6 | 1060 | 2 | 406 | 2 | 521 | 6 |
+| `get gene MLL` | 5 | 1055 | 1 | 405 | 1 | 503 | 5 |
+| `get gene FAM46C` | 4 | 990 | 1 | 354 | 1 | 303 | 4 |
+| `get gene BRAF` | 7 | 1062 | 1 | 411 | 1 | 457 | 7 |
+| `get gene HGNC:1097` | 3 | 54 (error) | 1 | 28 (error) | 1 | 460 | 3 |
+| `get gene MLL2` (ambiguous) | 5 | 238 | 4 | 61 | 4 | 154 | 5 |
+| `get gene p16` (ambiguous) | 4 | 241 | 2 | 66 | 2 | 150 | 4 |
+| `get gene BRCA3` (withdrawn) | 2 | 194 | 0 | 57 | 0 | 58 | 2 |
+| `get gene NOTAGENE` | 1 | 44 | 1 | 20 | 0 | 41 | 1 |
+| `search gene p16` | 3 | 602 | 2 | 240 | 2 | 130 | 3 |
+| `search gene KRAS` | 3 | 163 | 1 | 105 | 1 | 88 | 3 |
+| `get gene CDKN2A protein` | 2 | 1332 | 1 | 364 | 1 | 1133 | 2 |
+| `get gene MIR21 protein constraint` | 3, and no wrong protein | 1529 (orangutan PARN) | 0 | 591 | 0 | 516 | 3 |
+| `get gene VISTA civic` | 3 | 1096 | 1 | 229 | 1 | 407 | 3 |
+| `get gene ERBB2 civic` | 4 | 2689 | 0 | 280 | 0 | 735 | 4 |
+| `get gene TP53 constraint clingen` | 6 | 1401 | 5 | 404 | 5 | 585 | 6 |
+| `get gene CLDN18 expression` (0.9 `hpa`) | 5 | 2158 | 4 | 679 | 4 | 572 | 5 |
+| Lynch, five genes with `clingen` (0.9: five calls) | 7 | 6651 | 2 | 1965 | 2 | 2901 | 7 |
+| `search gene --band 9p21.3`, first 10 of 65 | 3 | no 0.9 command | | | | 464 | 2 on page 1, 3 in the walk |
 
-1. **Should HGNC ship as a local bundle?** Recommendation: yes. The CC0 file is 17 MB, changes about weekly, and has an ETag. It makes resolution and `search gene` instant and offline, gives deterministic ambiguity and withdrawn answers, saves one request on every gene, variant and article call that names a gene, and is the only way to offer `search gene --band`, since no live API filters by band. The cost is a `biomcp sync hgnc` step and 17 MB of disk. Without it, every gene input costs one 0.2 to 0.5 s HGNC call.
-2. **When an alias matches several genes, should BioMCP pick one?** Recommendation: never pick. Return ranked candidates with how each matched. MLL2 means KMT2D in older papers and is an alias of KMT2B in HGNC, and p16 matches CDKN2A and a pseudogene. A wrong silent pick would send the agent to the wrong gene, which is what issue 113 reported.
-3. **May BioMCP show OncoKB's public gene list fields, such as oncogene or tumor suppressor?** Recommendation: leave OncoKB out until you rule on its license. The endpoint needs no token, but OncoKB terms limit free use to academic research. No open source carries a gene's role in cancer, so example 14 stays answered by CIViC's description and articles until you decide.
-4. **Should the gene-scoped pivots (`gene trials`, `gene articles`, `gene drugs`) stay as gene commands?** Recommendation: move each to its own entity's search (`search trial --gene ERBB2`), and have the gene card's `next` name them. `architecture.md` uses `gene trials BRAF` as an example, so this needs your word. One spelling per idea favors the entity search, and 0.9's `gene drugs HER2` returning nothing shows the cost of two paths.
-5. **Do you accept the drops from 0.9?** Enrichr ontology and diseases, GO, STRING, GTEx, DisGeNET, NIH funding, the Open Targets drug and disease lists, `--chromosome`, `--region`, `--pathway`, `--go` and the command aliases. Recommendation: drop them. No harvested example needs them, several return noise or wrong answers, and the parity bar covers useful behavior only.
-6. **Should the default card carry the full RefSeq summary?** Recommendation: yes, whole and dated. It is about 800 characters for BRAF and holds the sentence that names V600E and the cancers. 0.9's two-sentence cut removed it.
-7. **Should the card give both GRCh38 and GRCh37 spans?** Recommendation: yes. MyGene.info returns both in the same call at no cost, many lab reports and OncoKB's list still carry GRCh37 fields, and each span states its build.
-8. **Should BioMCP serve non-human genes?** Recommendation: human only. Every example is human. HGNC maps mouse Braf to human BRAF, and the card should say the input matched a human symbol without regard to case.
+Section cost on BRAF, as tokens added to the default card:
+
+| Section | Redux | 0.9 JSON added | 0.9 Markdown section |
+| --- | --- | --- | --- |
+| `constraint` | 48 | 110 | 249 |
+| `expression` (0.9 `hpa`) | 83 | 1081 | 590 |
+| `protein` | 155 | 219 | 370 |
+| `clingen` | 229 | 323 | 401 |
+| `pathways` | 305 | not run (KEGG) | not run |
+| `civic` | 468 | 1975 | 310 |
+| `oncokb` | about 400, estimated | none | none |
+
+BRAF default card by part: summary 845 bytes, identifiers and names 520, spans on two builds 213, the `next` step 118, envelope 79, MANE 54. Two trims are already in: NCBI-only aliases are used for matching and not printed (saves 85 tokens on KRAS), and `next` is one step with a section list instead of six commands (saves about 45 tokens per card).
+
+### Where Redux costs more, and why
+
+- **Against 0.9 Markdown on HER2, MLL and BRAF cards** (521, 503 and 457 against about 406). Redux carries every needed fact (6, 5 and 7) where 0.9 carries 2, 1 and 1. The extra cost is the full summary Ian ruled in, both builds, the MANE pair and the match kind. JSON is the default output, and against 0.9 JSON every Redux card is 50 to 70% smaller.
+- **`get gene HGNC:1097`** (460 against 54). 0.9 refuses the ID with an error; Redux returns the card.
+- **Ambiguous and withdrawn inputs against 0.9 Markdown** (150 against 66 for p16). 0.9 returns UMLS concept labels; Redux returns each HGNC candidate with ID, band, locus group and match kind, which lets the agent pick without another search.
+- **`civic` against 0.9 Markdown** (468 against 310 on BRAF, 735 against 280 on ERBB2). 0.9 Markdown prints an assertion table without the gene description; Redux prints CIViC's description, which names the gene's cancer role. Against 0.9 JSON, Redux `civic` is 4 times smaller.
+- **Lynch panel against 0.9 Markdown** (2901 against 1965). Redux returns all five validity tables with MONDO IDs and dates; 0.9 Markdown carries 2 of 7 facts.
+
+### Budget
+
+The cases in section 8 enforce a byte ceiling on each output, set at about 1.5 times the measured size so that upstream summary edits do not fail them and real growth does. Per-command budgets: a search header 60 tokens, a default card 650 tokens, `constraint` 100, `expression` 150, `protein` 400 per protein, `clingen` 600, `pathways` 600, `civic` 1,000, `oncokb` 700, an ambiguous result 60 tokens per candidate, a withdrawn or not-found result 100.
+
+## 7. Keyed sources
+
+`decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` governs every source below. Without the user's key, BioMCP sends no request to the source, including its public endpoints, and the envelope names the source once as skipped, with the config key to set.
+
+### OncoKB
+
+OncoKB is the gene slice's main keyed source. It answers example 14 (oncogene or tumor suppressor) and adds whether a gene has any therapeutic level, which no open source in this slice offers. The fields below come from OncoKB's public API source code (`oncokb/oncokb` on GitHub: `GenesApi`, `UtilsApi`, `apiModels/CuratedGene`, `model/Gene`, `model/GeneType`), not from calls.
+
+| Endpoint | Returns | Use |
+| --- | --- | --- |
+| `GET /api/v1/utils/allCuratedGenes?hugoSymbol=X&includeEvidence=true` | One `CuratedGene`: hugoSymbol, entrezGeneId, geneType, highestSensitiveLevel, highestResistanceLevel, summary, background, grch37Isoform, grch37RefSeq, grch38Isoform, grch38RefSeq | The card's OncoKB block and the `oncokb` section, in one call per gene. The parameter accepts aliases, but BioMCP sends the HGNC symbol |
+| `GET /api/v1/genes/{entrezGeneId}` | `Gene`: hugoSymbol, entrezGeneId, geneType, isoforms and RefSeqs per build, geneAliases | Fallback when the curated-gene call is not allowed for the key's plan |
+| `GET /api/v1/genes/{entrezGeneId}/evidences?evidenceTypes=GENE_SUMMARY,GENE_BACKGROUND` | Gene-level evidence text | Not needed: `allCuratedGenes` carries the same summary and background |
+| `GET /api/v1/info` | Data version and OncoTree version | The `oncokb` block's version, cached per day |
+| `annotate/*`, `allActionableVariants` | Variant-level levels and therapies | The variant slice, not this one |
+
+Closed set for gene type, from `GeneType`: `oncogene_and_tsg`, `oncogene`, `tsg`, `insufficient_evidence`, `neither`. The card shows it as OncoKB states it and never derives a role from other sources.
+
+The card block, with a key: `oncokb: { gene_type, highest_sensitive_level, highest_resistance_level, version }`, about 30 tokens. The `oncokb` section adds the summary, the background and OncoKB's transcript per build, about 400 tokens estimated. OncoKB's transcript sits beside HGNC's MANE pair and is never merged with it: BRAF showed NM_004333.4 in OncoKB's list and NM_004333.6 as MANE Select.
+
+States: `data`; `empty` when OncoKB does not curate the gene (VSIR and CLDN18 were absent from its gene list); `unavailable` with the reason on a source error or a rejected key; `skipped` with `reason: no_key` and the config key `oncokb_api_key` when no key is set.
+
+Cases: keyed-source recordings hold licensed content, so they never enter the repo. Recorded OncoKB cases run from outside the repo through the runner's `--cases DIR`. The repo holds only the no-key case, which proves no OncoKB request is sent.
+
+### Other keyed sources
+
+| Source | Key | Serves | Ruling sought |
+| --- | --- | --- | --- |
+| COSMIC Cancer Gene Census | COSMIC account token | Role in cancer, tier, hallmark, and translocation partner genes, which fill the fusion-partner gap in examples 4 and 15 | Recommended as the second keyed source, after OncoKB lands and only if Ian wants fusion partners from a gene call |
+| NCBI E-utilities | `ncbi_api_key`, optional | Raises the limit from 3 to 10 requests per second for the replaced-ID check | Not a keyed-only source: it runs without a key at the lower limit |
+| DisGeNET | API key | Scored gene-disease pairs | Stays dropped by Ian's ruling; ClinGen covers validated links |
+| OMIM | API key | Gene-phenotype map | Not needed: no example asks for it beyond what ClinGen and the RefSeq summary give |
+
+## 8. Outside-in cases
+
+Each case was verified on 2026-10-23 or 2026-10-24 against live HGNC, MyGene.info, CIViC or the ClinGen files. Each asserts stable identity facts, ordering rules, states and a byte ceiling, not free text that drifts. Ceilings are about 1.5 times the measured size in section 6.
+
+| # | Story | Run | Expect | Ceiling |
+| --- | --- | --- | --- | --- |
+| 1 | KRAS G12C lung tumor, gene card first (PMID 34096690) | `get gene KRAS` | `/status` complete; `hgnc_id` HGNC:6407; `entrez_id` 3845; `ensembl_id` ENSG00000133703; `location` 12p12.1; `previous_symbols` includes KRAS2; `mane_select.refseq` starts NM_004985.; `match.kind` symbol | 2,400 bytes |
+| 2 | Oncologist types HER2 (PMID 29846122) | `get gene HER2` | `symbol` ERBB2; `hgnc_id` HGNC:3430; `location` 17q12; `match.kind` alias; `match.text` HER2 | 3,200 bytes |
+| 3 | MLL-rearranged leukemia (PMID 18022353) | `get gene MLL` | `symbol` KMT2A; `hgnc_id` HGNC:7132; `match.kind` previous_symbol | 3,000 bytes |
+| 4 | Myeloma panel says FAM46C (PMID 28931820) | `get gene FAM46C` | `symbol` TENT5C; `hgnc_id` HGNC:24712; `location` 1p12; `match.kind` previous_symbol | 1,900 bytes |
+| 5 | Old paper says MLL2 (PMID 18022353) | `get gene MLL2` | resolution ambiguous; candidates exactly {HGNC:7133, HGNC:15840}; KMT2D (previous symbol) ranks before KMT2B (alias); `next` holds `get gene HGNC:7133` and `get gene HGNC:15840` | 1,000 bytes |
+| 6 | Pathology says p16 loss (PMID 32747822) | `get gene p16` | resolution ambiguous; candidates include HGNC:1787 and HGNC:43802; CDKN2A (protein coding) ranks first | 1,000 bytes |
+| 7 | Family asks about BRCA3 (PMID 16614877) | `get gene BRCA3` | resolution withdrawn; `hgnc_id` HGNC:18617; `hgnc_status` Entry Withdrawn; no card; never BRCA1 or BRCA2 | 400 bytes |
+| 8 | Nonsense input | `get gene NOTAGENE` | resolution not_found; error code `not_found`; the input text never appears in the message | 400 bytes |
+| 9 | Agent holds an ID from another tool | `get gene HGNC:1097`, `get gene 673`, `get gene ENSG00000157764` | each returns `symbol` BRAF with `match.kind` hgnc_id, entrez_id, ensembl_id | 2,800 bytes each |
+| 10 | BRAF summary keeps the cancer sentence (0.9 finding 1) | `get gene BRAF` | `summary.text` includes "V600E"; `summary.dated` present | 2,800 bytes |
+| 11 | CDKN2A encodes two proteins (0.9 finding 3) | `get gene CDKN2A protein` | `protein` state data; accessions exactly {P42771, Q8N726} | 6,800 bytes |
+| 12 | MIR21 has no protein (0.9 finding 2) | `get gene MIR21 protein constraint` | `locus_group` non_coding_rna; `protein` state not_applicable; `constraint` state not_applicable; no accession anywhere | 3,100 bytes |
+| 13 | VISTA in trial text (PMID 24691993) | `get gene VISTA civic` | `symbol` VSIR; `civic` state confirmed empty with CIViC gene ID 14308 | 2,500 bytes |
+| 14 | Lynch panel (PMID 25070057) | `get gene MLH1 MSH2 MSH6 PMS2 EPCAM clingen` | five cards in input order; each `clingen` state data; each has a Definitive row for a Lynch syndrome disease | 17,500 bytes |
+| 15 | 9p21 deletion, which genes go with CDKN2A | `search gene --band 9p21.3`, walked to the end | the walk includes CDKN2A, CDKN2B and MTAP; total between 55 and 75 (65 on 2026-10-24); no duplicates | 2,800 bytes per page of 10 |
+| 16 | CIViC fails during a card | `get gene ERBB2 civic` with a recorded HTTP 500 | `/status` partial; `civic` state unavailable with reason; identity fields still present | 3,200 bytes |
+| 17 | TP53 germline finding (PMID 32457520) | `get gene TP53 constraint clingen` | `constraint` state data with version v4; `clingen` holds a Definitive Li-Fraumeni syndrome row with MONDO:0018875 | 3,600 bytes |
+| 18 | CLDN18.2-positive gastric cancer (PMID 37068504) | `get gene CLDN18 expression` | `symbol` CLDN18; `expression` state data; stomach is among the tissue-specific entries | 3,500 bytes |
+| 19 | NOTCH1 role asked with no OncoKB key (PMID 28890946) | `get gene NOTCH1 oncokb` with no key configured | `oncokb` state skipped, reason no_key, names the config key; the replay records no request to OncoKB; `/status` complete | 3,000 bytes |
+| 20 | NOTCH1 role with a key, outside the repo | same, with a key, through `--cases DIR` | `oncokb.gene_type` present as OncoKB states it; `oncokb` section version present | 5,000 bytes |
+
+Cases 5, 6 and 15 assert sets and order rules that BioMCP owns, so upstream additions do not break them. HGNC REST fetch gives CDKN2A, CDKN2B and MTAP each the location 9p21.3. Neither HGNC REST search nor MyGene.info can query by band (MyGene.info answers "map_location is not indexed"), so case 15 and `--band` need the HGNC bundle. Case 7 needs HGNC's `withdrawn.txt`, because the complete set leaves BRCA3 out. Case 20's answer must be verified by a key holder when it is recorded.
+
+## 9. Ian's rulings
+
+Ian approved every recommendation below on 2026-10-24, as `decisions/2026-10-24-gene-slice-rulings.md` records. Question 3 was later widened: OncoKB is allowed as a keyed source that runs only with the user's key, as `decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` says.
+
+1. **Should HGNC ship as a local bundle?** Recommendation: yes. The CC0 file is 17 MB, changes about weekly, and has an ETag. It makes resolution and `search gene` instant and offline, gives deterministic ambiguity and withdrawn answers, saves one request on every gene, variant and article call that names a gene, and is the only way to offer `search gene --band`, since no live API filters by band. The cost is a `biomcp sync hgnc` step and 17 MB of disk. Without it, every gene input costs one 0.2 to 0.5 s HGNC call. **Answered: yes. HGNC ships as a local bundle.**
+2. **When an alias matches several genes, should BioMCP pick one?** Recommendation: never pick. Return ranked candidates with how each matched. MLL2 means KMT2D in older papers and is an alias of KMT2B in HGNC, and p16 matches CDKN2A and a pseudogene. A wrong silent pick would send the agent to the wrong gene, which is what issue 113 reported. **Answered: never pick; return ranked candidates.**
+3. **May BioMCP show OncoKB's public gene list fields, such as oncogene or tumor suppressor?** Recommendation: leave OncoKB out until you rule on its license. The endpoint needs no token, but OncoKB terms limit free use to academic research. No open source carries a gene's role in cancer, so example 14 stays answered by CIViC's description and articles until you decide. **Answered: at first leave out; then allowed as a keyed source run only with the user's key (section 7).**
+4. **Should the gene-scoped pivots (`gene trials`, `gene articles`, `gene drugs`) stay as gene commands?** Recommendation: move each to its own entity's search (`search trial --gene ERBB2`), and have the gene card's `next` name them. `architecture.md` uses `gene trials BRAF` as an example, so this needs your word. One spelling per idea favors the entity search, and 0.9's `gene drugs HER2` returning nothing shows the cost of two paths. **Answered: move to each entity's search. Retired 0.9 spellings return a usage error naming the new command.**
+5. **Do you accept the drops from 0.9?** Enrichr ontology and diseases, GO, STRING, GTEx, DisGeNET, NIH funding, the Open Targets drug and disease lists, `--chromosome`, `--region`, `--pathway`, `--go` and the command aliases. Recommendation: drop them. No harvested example needs them, several return noise or wrong answers, and the parity bar covers useful behavior only. **Answered: yes, the drops stay dropped.**
+6. **Should the default card carry the full RefSeq summary?** Recommendation: yes, whole and dated. It is about 800 characters for BRAF and holds the sentence that names V600E and the cancers. 0.9's two-sentence cut removed it. **Answered: yes, whole and dated.**
+7. **Should the card give both GRCh38 and GRCh37 spans?** Recommendation: yes. MyGene.info returns both in the same call at no cost, many lab reports and OncoKB's list still carry GRCh37 fields, and each span states its build. **Answered: yes, both builds.**
+8. **Should BioMCP serve non-human genes?** Recommendation: human only. Every example is human. HGNC maps mouse Braf to human BRAF, and the card should say the input matched a human symbol without regard to case. **Answered: human only.**
