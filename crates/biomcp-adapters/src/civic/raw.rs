@@ -1,3 +1,4 @@
+use crate::raw::Field;
 use biodata::{EntrezGeneId, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
@@ -66,7 +67,7 @@ pub(super) struct Gene {
     #[serde(deserialize_with = "entrez")]
     pub entrez_id: EntrezGeneId,
     #[serde(deserialize_with = "nullable")]
-    pub description: Option<String>,
+    pub description: Option<Field<String>>,
     pub link: String,
     pub variants: Variants,
 }

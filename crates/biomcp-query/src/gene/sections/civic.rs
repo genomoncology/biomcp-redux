@@ -22,7 +22,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .map(|(id, gene)| {
             let section = if let Some(entrez) = gene.entrez_id {
                 match &result {
-                    Ok(values) => match values.iter().find(|value| value.id == entrez) {
+                    Ok(values) => match values.iter().find(|value| value.id == entrez && value.symbol == gene.symbol) {
                         Some(value) => {
                             status::append(&mut problems, value.civic.problems.clone());
                             value.civic.value.clone()

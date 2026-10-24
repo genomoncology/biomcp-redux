@@ -104,7 +104,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         ) || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
-                    gene.ensembl_id
+                    (matches!(section, SectionValue::Civic(_))
+                        && gene.entrez_id.is_some_and(|id| record.as_str() == id.to_string()))
+                        || gene.ensembl_id
                         .as_ref()
                         .is_some_and(|id| record.as_str() == id.base())
                 })

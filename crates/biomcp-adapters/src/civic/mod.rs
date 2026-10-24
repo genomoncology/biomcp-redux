@@ -1,6 +1,6 @@
 //! Checked CIViC gene-level curation joined to HGNC Entrez identities.
 mod raw;
-use crate::{Mapped, quotas};
+use crate::{Mapped, quotas, raw::Field};
 use biodata::{
     CivicGene, EntrezGeneId, GeneSymbol, Problem, ProblemCode, Section, Source, SourceRecord, Text,
 };
@@ -27,6 +27,8 @@ struct Query {
 /// A requested identity and its independently mapped source section.
 #[derive(Debug)]
 pub struct GeneCivic {
+    /// Submitted symbol that selected the GraphQL alias.
+    pub symbol: GeneSymbol,
     /// Submitted Entrez join identity.
     pub id: EntrezGeneId,
     /// Complete section or its explicit absence/failure.
@@ -65,10 +67,10 @@ pub fn genes(
     Ok(ids
         .into_iter()
         .enumerate()
-        .map(|(index, (_, id))| mapped(&raw, index, id))
+        .map(|(index, (symbol, id))| mapped(&raw, index, symbol, id))
         .collect())
 }
-fn mapped(raw: &raw::Aliases, index: usize, id: EntrezGeneId) -> GeneCivic {
+fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: EntrezGeneId) -> GeneCivic {
     let mut problems = Vec::new();
     let gene = raw
         .0
@@ -92,9 +94,10 @@ fn mapped(raw: &raw::Aliases, index: usize, id: EntrezGeneId) -> GeneCivic {
                 reason: biodata::Reason::BadReply,
             }
         }
-        Some(gene) => map(gene),
+        Some(gene) => map(gene, id, &mut problems),
     };
     GeneCivic {
+        symbol,
         id,
         civic: Mapped {
             value: section,
@@ -103,18 +106,26 @@ fn mapped(raw: &raw::Aliases, index: usize, id: EntrezGeneId) -> GeneCivic {
     }
 }
 
-fn map(gene: &raw::Gene) -> Section<CivicGene> {
+fn map(gene: &raw::Gene, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Section<CivicGene> {
     let Ok(url) = Text::new(&format!("https://civicdb.org{}", gene.link)) else {
         return Section::Unavailable {
             source: Source::Civic,
             reason: biodata::Reason::BadReply,
         };
     };
-    let description = gene
-        .description
-        .as_deref()
-        .filter(|text| !text.is_empty())
-        .and_then(|text| Text::new(text).ok());
+    let description = match &gene.description {
+        Some(Field::Value(text)) => Text::new(text).ok(),
+        Some(Field::Invalid(_)) => {
+            problems.push(Problem {
+                source: Source::Civic,
+                record: Text::new(&id.to_string()).ok(),
+                field: "description".into(),
+                code: ProblemCode::ValueUnknown,
+            });
+            None
+        }
+        None => None,
+    };
     if gene.variants.total_count == 0 && description.is_none() {
         Section::Empty {
             source: Source::Civic,
