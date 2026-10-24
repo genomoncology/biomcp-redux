@@ -4,7 +4,10 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    vec![
+        Trial::test("variant-search/raw-region-build-and-native-duplicates", || raw_and_region().map_err(Into::into)),
+        Trial::test("variant-search/valid-zero-and-failed-page-cache-admission", || zero_and_failed().map_err(Into::into)),
+        Trial::test(
         "variant-search/declared-protein-native-walk-and-warm-page",
         || walk().map_err(Into::into),
     )]
@@ -87,4 +90,49 @@ fn body(request: &str) -> Result<String, String> {
         "chr7:g.55259515T>G"
     };
     Ok(json!({"total":2,"hits":[{"_id":id,"dbsnp":{"gene":{"symbol":"EGFR"}}}]}).to_string())
+}
+
+fn environment(stub: &Stub) -> Result<Environment,String> {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let ca=env.root().join("synthetic-ca.pem");
+    fs::write(&ca,&stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca})).map_err(|e|e.to_string())?;
+    Ok(env)
+}
+fn command(env:&Environment,args:&[&str]) -> Result<Value,String> {
+    let args=args.iter().map(|s|(*s).into()).collect::<Vec<_>>();
+    let output=env.command(env!("CARGO_BIN_EXE_biomcp"),&args).output().map_err(|e|e.to_string())?;
+    serde_json::from_slice(&output.stdout).map_err(|e|e.to_string())
+}
+fn raw_and_region() -> Result<(),String> {
+    let stub=Stub::for_source("myvariant.info","application/json",selectors_body)?;
+    let env=environment(&stub)?;
+    let query="  dbsnp.rsid:rs113488022 OR _id:chr7*  ";
+    let raw=command(&env,&["search","variant","--query",query,"--source","myvariant","--build","GRCh38"])?;
+    let region=command(&env,&["search","variant","--region","chr7:140753336-140753336","--build","GRCh38"])?;
+    if raw.pointer("/result/source_query")!=Some(&json!(query)) || raw.pointer("/query/query")!=Some(&json!(query)) || raw.pointer("/page/returned")!=Some(&json!(2)) || raw.pointer("/result/items/0")!=raw.pointer("/result/items/1") || region.pointer("/result/source_query")!=Some(&json!("chr7:140753336-140753336")) || region.pointer("/result/items/0/identity/representations/0/build")!=Some(&json!("GRCh38")) {return Err(format!("raw syntax, duplicate source candidates or regional build lost: {raw} {region}"));}
+    if stub.finish()?.len()!=2 {return Err("selector made unexpected source calls".into());}
+    Ok(())
+}
+fn selectors_body(request:&str) -> Result<String,String> {
+    let raw="GET /v1/query?q=%20%20dbsnp.rsid%3Ars113488022%20OR%20_id%3Achr7%2A%20%20&";
+    let region="GET /v1/query?q=chr7%3A140753336-140753336&";
+    if !(request.starts_with(raw)||request.starts_with(region)) || !request.contains("&assembly=hg38 HTTP/1.1") {return Err(format!("raw/region query changed: {request}"));}
+    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140753336A>T"},{"_id":"chr7:g.140753336A>T"}]}).to_string())
+}
+fn zero_and_failed() -> Result<(),String> {
+    let stub=Stub::for_source("myvariant.info","application/json",outcomes_body)?;
+    let env=environment(&stub)?;
+    let zero=command(&env,&["search","variant","--query","synthetic-zero","--source","myvariant"])?;
+    if zero.pointer("/status")!=Some(&json!("absent")) || zero.pointer("/page/total")!=Some(&json!(0)) || zero.pointer("/sources/0/state")!=Some(&json!("ok")) {return Err(format!("valid native zero was not preserved: {zero}"));}
+    for _ in 0..2 {
+        let bad=command(&env,&["search","variant","--query","synthetic-bad","--source","myvariant"])?;
+        if bad.pointer("/status")!=Some(&json!("failed")) || bad.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) || bad.get("page").is_some() {return Err(format!("malformed source page became a valid zero: {bad}"));}
+    }
+    let offline=command(&env,&["search","variant","--query","synthetic-bad","--source","myvariant","--offline"])?;
+    if offline.pointer("/sources/0/reason")!=Some(&json!("offline")) || stub.finish()?.len()!=3 {return Err("invalid source page entered or came from cache".into());}
+    Ok(())
+}
+fn outcomes_body(request:&str) -> Result<String,String> {
+    if request.contains("q=synthetic-zero&") {Ok(json!({"total":0,"hits":[]}).to_string())} else {Ok(json!({"total":1,"hits":[]}).to_string())}
 }
