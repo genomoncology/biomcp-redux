@@ -38,10 +38,10 @@ fn registration() -> Check {
     invoke(&env, &["key","set","semantic-scholar"], &format!("{SECOND}\n"),2)?;
     invoke(&env, &["key","set","semantic-scholar","--replace"], &format!("{SECOND}\n"),0)?;
     let listed=invoke(&env, &["key","list"], "",0)?;
-    if listed.pointer("/result/1/state") != Some(&json!("stored")) { return Err(format!("stored state missing: {listed}")); }
+    if listed.pointer("/result/entries/1/state") != Some(&json!("stored")) { return Err(format!("stored state missing: {listed}")); }
     invoke(&env, &["key","remove","semantic-scholar"], "",0)?;
     let value=invoke(&env, &["key","remove","semantic-scholar"], "",0)?;
-    if value.pointer("/result/state") != Some(&json!("none")) { return Err("absent remove did not report none".into()); }
+    if value.pointer("/result/entries/0/state") != Some(&json!("none")) { return Err("absent remove did not report none".into()); }
     invoke(&env, &["key","set","semantic-scholar"], "\n",2)?;
     invoke(&env, &["key","set","reactome"], "",2)?;
     invoke(&env, &["key","set","semantic-scholar",FIRST], "",2)?;

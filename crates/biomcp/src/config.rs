@@ -13,7 +13,7 @@ struct ConfigFile {
     disable_sources: Option<Vec<String>>,
     ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
-    keys: Option<Keys>,
+    keys: Option<std::collections::BTreeMap<String, String>>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -21,17 +21,10 @@ struct Http {
     allowed_hosts: Vec<String>,
 }
 pub(crate) fn http_hosts() -> Result<Vec<String>, ()> {
-    Ok(read_file()?
+    Ok(read_file(None)?
         .and_then(|file| file.http)
         .map(|http| http.allowed_hosts)
         .unwrap_or_default())
-}
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Keys {
-    oncokb_api_key: Option<String>,
-    ncbi_api_key: Option<String>,
-    semantic_scholar_api_key: Option<String>,
 }
 #[expect(
     clippy::disallowed_methods,
@@ -53,16 +46,11 @@ fn variable(name: &str) -> Option<PathBuf> {
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
     let home = variable("HOME");
-    let file = read_file()?;
+    let file = read_file(globals.config.as_ref())?;
     fetch_using(globals, home, file)
 }
-fn read_file() -> Result<Option<ConfigFile>, ()> {
-    let home = variable("HOME");
-    let path = crate::paths::config(
-        variable("XDG_CONFIG_HOME"),
-        home.clone(),
-        variable("APPDATA"),
-    );
+fn read_file(override_path: Option<&PathBuf>) -> Result<Option<ConfigFile>, ()> {
+    let path = config_path(override_path);
     let file = path
         .map(|path| match fs::read(path) {
             Ok(bytes) => serde_json::from_slice::<ConfigFile>(&bytes)
@@ -73,10 +61,11 @@ fn read_file() -> Result<Option<ConfigFile>, ()> {
         })
         .transpose()?
         .flatten();
+    if file.as_ref().and_then(|f| f.keys.as_ref()).is_some_and(|keys| keys.keys().any(|key| !SecretName::ALL.iter().any(|n| n.config() == key))) { return Err(()); }
     Ok(file)
 }
-pub(crate) fn ncbi_email() -> Result<Option<Secret>, ()> {
-    Ok(read_file()?
+pub(crate) fn ncbi_email(globals: &Globals) -> Result<Option<Secret>, ()> {
+    Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.ncbi_email)
         .filter(|s| !s.is_empty())
         .map(Secret::new))
@@ -116,37 +105,7 @@ fn fetch_using(
     {
         fs::create_dir_all(parent).map_err(|_| ())?;
     }
-    let mut secrets = Secrets::default();
-    let key = variable("ONCOKB_API_KEY")
-        .map(|value| value.to_string_lossy().into_owned())
-        .or_else(|| {
-            file.as_ref()
-                .and_then(|file| file.keys.as_ref())
-                .and_then(|keys| keys.oncokb_api_key.clone())
-        });
-    if let Some(key) = key {
-        secrets.insert(SecretName::OncokbApiKey, Secret::new(key));
-    }
-    let ncbi = variable("NCBI_API_KEY")
-        .map(|v| v.to_string_lossy().into_owned())
-        .or_else(|| {
-            file.as_ref()
-                .and_then(|f| f.keys.as_ref())
-                .and_then(|k| k.ncbi_api_key.clone())
-        });
-    if let Some(key) = ncbi {
-        secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
-    }
-    let scholar = variable("SEMANTIC_SCHOLAR_API_KEY")
-        .map(|v| v.to_string_lossy().into_owned())
-        .or_else(|| {
-            file.as_ref()
-                .and_then(|f| f.keys.as_ref())
-                .and_then(|k| k.semantic_scholar_api_key.clone())
-        });
-    if let Some(key) = scholar {
-        secrets.insert(SecretName::SemanticScholarApiKey, Secret::new(key));
-    }
+    let secrets = secrets_from(file.as_ref());
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
         disabled_sources: disabled_sources(globals, file.as_ref())?,
@@ -219,6 +178,24 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
     .map_err(|_| ())
 }
 
-pub(crate) fn format() -> Option<crate::grammar::Format> {
-    read_file().ok().flatten().and_then(|file| file.format)
+pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
+    read_file(path).ok().flatten().and_then(|file| file.format)
 }
+
+pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Option<PathBuf> {
+    override_path.cloned().or_else(|| crate::paths::config(variable("XDG_CONFIG_HOME"), variable("HOME"), variable("APPDATA")))
+}
+pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
+    Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
+}
+fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
+    let mut secrets = Secrets::default();
+    for &name in SecretName::ALL {
+        let value = file.and_then(|file| file.keys.as_ref()).and_then(|keys| keys.get(name.config())).filter(|v| !v.is_empty()).cloned()
+            .or_else(|| variable(name.environment()).map(|v|v.to_string_lossy().into_owned()));
+        if let Some(value)=value { secrets.insert(name, Secret::new(value)); }
+    }
+    secrets
+}
+
+pub(crate) fn has_environment_key(name: SecretName) -> bool { variable(name.environment()).is_some() }

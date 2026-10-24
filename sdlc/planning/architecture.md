@@ -103,6 +103,8 @@ Lints are `deny`, never `forbid`, so a rare exception can carry `#[expect(lint, 
 
 The version numbers above are the stage 1 starting point. The stage that adds each dependency confirms its current release and feature names and records the code it saves, as `planning/rust-standards.md` says.
 
+`rpassword` reads terminal credentials without echo in one maintained prompt call. `tempfile` publishes key configuration atomically from a sibling file with Unix owner-only permissions. The binary uses the standard file lock to serialize writers. Server calls clone the shared Fetch transport with an immutable credential snapshot reloaded from the selected config; quotas, connections, recordings, clocks, caches and source restrictions remain shared.
+
 ### 2.3 How tools enforce the boundaries
 
 Three tools carry every boundary rule, and `make landing-gate` runs all three.

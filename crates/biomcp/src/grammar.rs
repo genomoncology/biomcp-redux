@@ -7,6 +7,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Globals {
+    pub(crate) config: Option<PathBuf>,
     pub(crate) replay: Option<PathBuf>,
     pub(crate) observe: Option<PathBuf>,
     pub(crate) record: Option<PathBuf>,
@@ -24,6 +25,7 @@ pub(crate) enum Format {
 }
 #[derive(Debug)]
 pub(crate) struct Parsed {
+    pub(crate) key: Option<crate::keys::Command>,
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
@@ -75,7 +77,7 @@ fn root() -> Result<Command, ()> {
             .value_delimiter(',')
             .action(ArgAction::Append),
     );
-    for name in ["replay", "record", "case-cache", "observe"] {
+    for name in ["config", "replay", "record", "case-cache", "observe"] {
         root = root.arg(
             Arg::new(name)
                 .long(name)
@@ -104,6 +106,7 @@ fn root() -> Result<Command, ()> {
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     root = root.subcommand(Command::new("health"));
+    root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(
         Command::new("help")
             .subcommand(
@@ -117,7 +120,7 @@ fn root() -> Result<Command, ()> {
                 Command::new("key").arg(
                     Arg::new("source")
                         .required(true)
-                        .value_parser(["oncokb", "semantic-scholar"]),
+                        .value_parser(crate::keys::names()),
                 ),
             )
             .subcommand(
@@ -160,6 +163,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
+            key: None,
             http: matches.get_one::<String>("http").map(|address| {
                 (
                     address.clone(),
@@ -175,6 +179,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             globals,
             help: None,
         });
+    }
+    if verb == "key" {
+        return Ok(Parsed { key: Some(crate::keys::parse(matches)?), http: None, action: None, globals, help: None });
     }
     let help = if verb == "help" {
         match matches.subcommand() {
@@ -198,7 +205,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             .subcommand()
             .filter(|(name, _)| *name == "key")
             .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biodata::Source::Oncokb), |s| s.parse())
+            .map_or(Ok(biodata::Source::Oncokb), |s| if s == "ncbi" { Ok(biodata::Source::Pubmed) } else { s.parse() })
             .map_err(|_| ())?;
         Action::KeyHelp(source)
     } else if verb == "sync" {
@@ -221,6 +228,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     };
     Ok(Parsed {
+        key: None,
         http: None,
         action: Some(action),
         globals,
@@ -229,6 +237,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
 }
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
+        config: matches.get_one::<PathBuf>("config").cloned(),
         disable_sources: matches
             .get_many::<String>("disable-sources")
             .into_iter()
@@ -345,6 +354,8 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 
 impl Globals {
     pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
+        if self.config.is_some() { return Err(()); }
+        self.config = process.config.clone();
         self.disable_sources.extend(process.disable_sources.clone());
         self.disable_sources.sort();
         self.disable_sources.dedup();

@@ -33,3 +33,5 @@ article-preprints: A caller retrieves preprint cards and licensed full text by E
 mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health. Cases: `crates/biomcp/tests/runner/http.rs`, `crates/biomcp/tests/runner/http_limits.rs`.
 article-evidence: Read all source citation contexts and explicit full-text reference paragraphs through checked continuations. Cases: `tests/cases/article/evidence/*.yaml`, `crates/biomcp/tests/runner/evidence.rs`.
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
+
+key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`.

@@ -62,7 +62,7 @@ pub use response::{
 };
 
 pub use response::{
-    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, Oncokb, OncokbCard, OncokbGeneType,
+    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, RegisteredKey, RegisteredKeys, Oncokb, OncokbCard, OncokbGeneType,
     OncokbTranscript, SyncQuery, SyncResult,
 };
 
