@@ -7,5 +7,9 @@
     "Merged/Split"
   ],
   "title": "HgncStatus",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " Entry withdrawn.",
+    " Entry merged or split."
+  ]
 }

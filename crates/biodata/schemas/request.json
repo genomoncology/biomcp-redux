@@ -20,7 +20,17 @@
         "oncokb",
         "all"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Reviewed human proteins.",
+        " CIViC gene curation.",
+        " ClinGen validity and dosage.",
+        " Population constraint metrics.",
+        " Human Protein Atlas expression.",
+        " Human Reactome pathways.",
+        " Keyed OncoKB annotations.",
+        " Every landed section."
+      ]
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
@@ -31,7 +41,14 @@
         "phenotype",
         "other"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

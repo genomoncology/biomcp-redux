@@ -12,7 +12,17 @@
         "ensembl_id",
         "band"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Current symbol.",
+        " Previous symbol.",
+        " HGNC alias.",
+        " NCBI-only alias.",
+        " HGNC identifier.",
+        " NCBI Gene identifier.",
+        " Ensembl gene identifier.",
+        " Cytogenetic band."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

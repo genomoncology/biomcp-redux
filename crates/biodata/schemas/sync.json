@@ -70,7 +70,10 @@
       "enum": [
         "value.unknown"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
     },
     "Reason": {
       "description": "Why a source could not supply data.",
@@ -88,7 +91,21 @@
         "syncing",
         "no_join_id"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
@@ -107,7 +124,22 @@
         "civic",
         "oncokb"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
     },
     "SourceOutcome": {
       "additionalProperties": false,

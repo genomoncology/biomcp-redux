@@ -1,17 +1,11 @@
 //! Schema-fed command help shared with MCP discovery.
 use biodata::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
-use std::{collections::BTreeMap, ffi::OsString, io};
+use std::{collections::BTreeMap, io};
 
-pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Option<Help>> {
-    let words: Vec<_> = args.iter().filter_map(|s| s.to_str()).collect();
-    let path = match words.as_slice() {
-        ["help"] => None,
-        ["help", verb @ ("get" | "search"), "gene"] => Some(*verb),
-        _ => return Ok(None),
-    };
-    let commands = commands()?.into_iter().filter(|c| path.is_none_or(|v| c.command.first().is_some_and(|s| s == v))).collect();
-    Ok(Some(Help { commands }))
+pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
+    let commands = commands()?.into_iter().filter(|c| path.is_empty() || c.command == path).collect();
+    Ok(Help { commands })
 }
 fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> = serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;

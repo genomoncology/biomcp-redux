@@ -18,6 +18,7 @@ fn main() -> ExitCode {
     if let Ok(grammar::Parsed {
         action: None,
         globals,
+        ..
     }) = grammar::parse(&args)
     {
         let fetch = config::fetch(&globals);

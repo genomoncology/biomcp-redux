@@ -7,7 +7,12 @@
         "GRCh38",
         "unstated"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38.",
+        " Source did not state an assembly."
+      ]
     },
     "CancerPtpm": {
       "additionalProperties": false,
@@ -746,7 +751,16 @@
         "pathways",
         "oncokb"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Reviewed human proteins.",
+        " CIViC gene curation.",
+        " ClinGen validity and dosage.",
+        " Population constraint metrics.",
+        " Human Protein Atlas expression.",
+        " Human Reactome pathways.",
+        " Keyed OncoKB annotations."
+      ]
     },
     "GeneSectionWord": {
       "description": "A section request word, including expansion to all landed sections.",
@@ -760,7 +774,17 @@
         "oncokb",
         "all"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Reviewed human proteins.",
+        " CIViC gene curation.",
+        " ClinGen validity and dosage.",
+        " Population constraint metrics.",
+        " Human Protein Atlas expression.",
+        " Human Reactome pathways.",
+        " Keyed OncoKB annotations.",
+        " Every landed section."
+      ]
     },
     "GeneSections": {
       "additionalProperties": false,
@@ -852,7 +876,11 @@
         "approved",
         "withdrawn"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " An HGNC approved record.",
+        " An HGNC withdrawn record."
+      ]
     },
     "GeneSymbol": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
@@ -903,7 +931,11 @@
         "Entry Withdrawn",
         "Merged/Split"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Entry withdrawn.",
+        " Entry merged or split."
+      ]
     },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
@@ -914,7 +946,14 @@
         "phenotype",
         "other"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
     },
     "LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
@@ -945,7 +984,34 @@
         "unknown",
         "virus_integration_site"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC gene with protein product.",
+        " HGNC rna cluster.",
+        " HGNC long non coding rna.",
+        " HGNC micro rna.",
+        " HGNC misc rna.",
+        " HGNC ribosomal rna.",
+        " HGNC small nuclear rna.",
+        " HGNC small nucleolar rna.",
+        " HGNC transfer rna.",
+        " HGNC vault rna.",
+        " HGNC y rna.",
+        " HGNC phenotype only.",
+        " HGNC pseudogene.",
+        " HGNC complex locus constituent.",
+        " HGNC endogenous retrovirus.",
+        " HGNC fragile site.",
+        " HGNC immunoglobulin gene.",
+        " HGNC immunoglobulin pseudogene.",
+        " HGNC readthrough.",
+        " HGNC region.",
+        " HGNC t cell receptor gene.",
+        " HGNC t cell receptor pseudogene.",
+        " HGNC transposable element.",
+        " HGNC unknown.",
+        " HGNC virus integration site."
+      ]
     },
     "ManeSelect": {
       "additionalProperties": false,
@@ -997,7 +1063,17 @@
         "ensembl_id",
         "band"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Current symbol.",
+        " Previous symbol.",
+        " HGNC alias.",
+        " NCBI-only alias.",
+        " HGNC identifier.",
+        " NCBI Gene identifier.",
+        " Ensembl gene identifier.",
+        " Cytogenetic band."
+      ]
     },
     "OmimId": {
       "pattern": "^[0-9]{6}$",
@@ -1111,7 +1187,14 @@
         "INSUFFICIENT_EVIDENCE",
         "NEITHER"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Both stated roles.",
+        " Source-stated oncogene.",
+        " Source-stated tumor suppressor.",
+        " Source states insufficient evidence.",
+        " Source states neither role."
+      ]
     },
     "OncokbTranscript": {
       "additionalProperties": false,
@@ -1235,7 +1318,10 @@
       "enum": [
         "value.unknown"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
     },
     "Protein": {
       "additionalProperties": false,
@@ -1297,7 +1383,21 @@
         "syncing",
         "no_join_id"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
     },
     "RnaAbundance": {
       "description": "A finite nonnegative RNA abundance expressed in the field's stated unit.",
@@ -2172,7 +2272,22 @@
         "civic",
         "oncokb"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
     },
     "SourceOutcome": {
       "additionalProperties": false,
@@ -2313,7 +2428,11 @@
         "+",
         "-"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Forward strand.",
+        " Reverse strand."
+      ]
     },
     "Summary": {
       "additionalProperties": false,
@@ -2350,7 +2469,10 @@
       "enum": [
         "refseq"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " RefSeq attribution."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

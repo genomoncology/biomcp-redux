@@ -19,9 +19,6 @@ fn dispatch_using(
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
     )>,
 ) -> io::Result<Outcome> {
-    if let Some(help) = crate::help::dispatch(args)? {
-        return encode(Envelope::new(Status::Complete, args.iter().skip(1).map(|s| s.to_string_lossy().into_owned()).collect(), Some(help)), crate::exit::Status::Success);
-    }
     if let [command, name] = args
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)
@@ -50,6 +47,9 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
+    if let Some(path) = parsed.help {
+        return encode(Envelope::new(Status::Complete, path.clone(), Some(crate::help::dispatch(&path)?)), crate::exit::Status::Success);
+    }
     if action == Action::KeyHelp {
         return key_help();
     }

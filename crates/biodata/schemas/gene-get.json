@@ -16,7 +16,17 @@
         "oncokb",
         "all"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Reviewed human proteins.",
+        " CIViC gene curation.",
+        " ClinGen validity and dosage.",
+        " Population constraint metrics.",
+        " Human Protein Atlas expression.",
+        " Human Reactome pathways.",
+        " Keyed OncoKB annotations.",
+        " Every landed section."
+      ]
     }
   },
   "$id": "biodata.gene-get/1",
