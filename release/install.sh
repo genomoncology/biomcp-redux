@@ -124,6 +124,15 @@ case "$archive" in
     tar -xOzf "$archive" biomcp > "$scratch/executable" ;;
 esac
 [ -s "$scratch/executable" ] || fail 'Archive executable is empty'
+# Strip directory suffix aliases before -L, which follows a trailing slash or /.
+while :; do
+  case "$install_dir" in
+    /) break ;;
+    */) install_dir=${install_dir%/} ;;
+    */.) install_dir=${install_dir%/.}; install_dir=${install_dir:-/} ;;
+    *) break ;;
+  esac
+done
 [ ! -L "$install_dir" ] || fail 'Refusing symbolic-link install directory'
 [ ! -L "$install_dir/$binary" ] || fail 'Refusing symbolic-link executable'
 [ ! -e "$install_dir/$binary" ] || [ -f "$install_dir/$binary" ] || fail 'Install target is not a regular file'
