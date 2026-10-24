@@ -138,7 +138,12 @@ fn attribution(
     let full = version
         .as_ref()
         .map_or_else(|| id.clone(), |v| format!("{id}.{v}"));
-    full.parse::<biodata::VariantId>().map_err(|_| BadReply)?;
+    if !(full.parse::<biodata::VcvId>().is_ok()
+        || full.parse::<biodata::RcvId>().is_ok()
+        || full.parse::<biodata::ScvId>().is_ok())
+    {
+        return Err(BadReply);
+    }
     Ok(Attribution {
         source: Source::ClinVar,
         record: Some(text(&id)?),
