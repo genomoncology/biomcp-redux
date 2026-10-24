@@ -71,6 +71,18 @@ pub struct UnmappedAssertion {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionDetail {
+    /// Native somatic impact assertion type, without deriving a predicate.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub impact_assertion_type: Option<Text>,
+    /// Native somatic significance, independent of the tier label.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub impact_clinical_significance: Option<Text>,
+    /// Native therapy text, without splitting or assigning it to a predicate.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub impact_therapies: Option<Text>,
+    /// Native classification comments, without extracting clinical claims.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub comments: Box<[Text]>,
     /// Assertion method labels, not inferred from clinical testing.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub methods: Box<[Text]>,

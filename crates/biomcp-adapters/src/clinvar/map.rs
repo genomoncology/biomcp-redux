@@ -36,6 +36,21 @@ pub(super) fn aggregate(
                 .map(|s| text(&s))
                 .transpose()?;
             let detail = AssertionDetail {
+                impact_therapies: description
+                    .attr("DrugForTherapeuticAssertion")?
+                    .as_deref()
+                    .map(text)
+                    .transpose()?,
+                impact_assertion_type: description
+                    .attr("ClinicalImpactAssertionType")?
+                    .as_deref()
+                    .map(text)
+                    .transpose()?,
+                impact_clinical_significance: description
+                    .attr("ClinicalImpactClinicalSignificance")?
+                    .as_deref()
+                    .map(text)
+                    .transpose()?,
                 conditions: if let Some(list) = group.child("ConditionList")? {
                     super::detail::conditions(list)?.into()
                 } else {
@@ -80,6 +95,27 @@ pub(super) fn submission(
             continue;
         };
         let label = value.value(&["Description"])?.unwrap_or(value.text()?);
+        let mut detail = detail.clone();
+        detail.impact_assertion_type = value
+            .attr("ClinicalImpactAssertionType")?
+            .as_deref()
+            .map(text)
+            .transpose()?;
+        detail.impact_clinical_significance = value
+            .attr("ClinicalImpactClinicalSignificance")?
+            .as_deref()
+            .map(text)
+            .transpose()?;
+        detail.impact_therapies = value
+            .attr("DrugForTherapeuticAssertion")?
+            .as_deref()
+            .map(text)
+            .transpose()?;
+        detail.comments = class
+            .children("Comment")?
+            .iter()
+            .map(|c| text(&c.text()?))
+            .collect::<Result<_, _>>()?;
         rows.push(crate::assertion::row(
             AssertionKind::Scv,
             domain,

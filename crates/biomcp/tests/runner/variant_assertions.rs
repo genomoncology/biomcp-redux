@@ -6,6 +6,14 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "variant/assertions-disabled-before-identity-and-join",
+            || disabled().map_err(Into::into),
+        ),
+        Trial::test(
+            "variant/assertions-native-row-walk-preserves-unmapped",
+            || native_walk().map_err(Into::into),
+        ),
+        Trial::test(
             "variant/assertions-erepo-selected-version-uses-only-document",
             || history(false).map_err(Into::into),
         ),
@@ -224,6 +232,128 @@ fn history(wrong: bool) -> Result<(), String> {
         return Err(format!(
             "historical cache admission or warm walk wrong: {requests:?}"
         ));
+    }
+    Ok(())
+}
+
+fn native_walk() -> Result<(), String> {
+    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
+        let xml = super::variant::clinvar_body(request)?;
+        // Explicit synthetic XML retains this public record's native not-provided classification.
+        Ok(xml.replace("</ClinicalAssertionList>",r#"<ClinicalAssertion><ClinVarAccession Accession="SCV000607207" Version="3" SubmitterName="GenomeConnect, ClinGen"/><Classification><ReviewStatus>no classification provided</ReviewStatus><GermlineClassification>not provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"#))
+    })?;
+    let env = environment(&stub)?;
+    let mut args = [
+        "get",
+        "variant",
+        "clinvar:128042",
+        "clinvar",
+        "--section-limit",
+        "1",
+    ]
+    .map(String::from)
+    .to_vec();
+    let mut records = Vec::new();
+    for offset in 0..3 {
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
+            return Err("native assertion CLI/MCP mismatch".into());
+        }
+        let data = value
+            .pointer("/result/candidates/0/sections/clinvar/data")
+            .unwrap_or(&value["result"]);
+        if data.pointer("/page/offset") != Some(&json!(offset))
+            || data.pointer("/page/total") != Some(&json!(3))
+        {
+            return Err(format!("native assertion page lost bounds: {value}"));
+        }
+        let row = data
+            .pointer("/assertions/0")
+            .ok_or("missing native assertion")?;
+        let record = row
+            .pointer("/statement/attribution/record")
+            .or_else(|| row.pointer("/unmapped/attribution/record"))
+            .ok_or("missing source record")?;
+        records.push(record.clone());
+        if offset == 2
+            && (row.get("statement_unmapped") != Some(&json!(true))
+                || row.pointer("/unmapped/classification") != Some(&json!("not provided"))
+                || row.get("statement").is_some()
+                || value.get("problems").is_some())
+        {
+            return Err(format!(
+                "unsupported category invented a proposition or problem: {value}"
+            ));
+        }
+        let page = value
+            .get("next")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .find(|n| n.get("kind") == Some(&json!("page")));
+        if offset < 2 {
+            args = serde_json::from_value(
+                page.and_then(|p| p.get("args"))
+                    .cloned()
+                    .ok_or("missing runnable assertion continuation")?,
+            )
+            .map_err(|e| e.to_string())?;
+            if args.first().map(String::as_str) != Some("variant")
+                || args.get(1).map(String::as_str) != Some("assertions")
+            {
+                return Err(format!("invalid continuation spelling: {args:?}"));
+            }
+        } else if page.is_some() {
+            return Err("unexpected fourth assertion page".into());
+        }
+    }
+    if records
+        != [
+            json!("VCV000128042"),
+            json!("SCV000611258"),
+            json!("SCV000607207"),
+        ]
+        || stub.finish()?.len() != 1
+    {
+        return Err(format!(
+            "native rows merged, reordered or requested again: {records:?}"
+        ));
+    }
+    Ok(())
+}
+
+fn disabled() -> Result<(), String> {
+    let stub = Stub::for_source("reg.genome.network", "application/json", |_| {
+        Err("disabled source attempted HTTP".into())
+    })?;
+    let env = environment(&stub)?;
+    for (input, source) in [("CA000434", "clinvar"), ("rs113488022", "erepo")] {
+        let args = ["get", "variant", input, source, "--disable-sources", source].map(String::from);
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        let section = value.pointer(&format!("/result/candidates/0/sections/{source}"));
+        if section.and_then(|s| s.get("state")) != Some(&json!("skipped"))
+            || section.and_then(|s| s.get("reason")) != Some(&json!("disabled"))
+            || value.pointer("/sources/0/state") != Some(&json!("skipped"))
+            || value.pointer("/result/candidates/0/identity/ids").is_some()
+        {
+            return Err(format!(
+                "disabled assertion source resolved identity or joined: {value}"
+            ));
+        }
+        if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
+            return Err("disabled assertion CLI/MCP mismatch".into());
+        }
+    }
+    if !stub.finish()?.is_empty() {
+        return Err("disabled assertion source attempted provider work".into());
     }
     Ok(())
 }

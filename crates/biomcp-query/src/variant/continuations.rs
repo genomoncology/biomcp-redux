@@ -7,15 +7,15 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
             continue;
         };
         for section in [&sections.clinvar, &sections.erepo].into_iter().flatten() {
-            if let Section::Data { data, .. } = section {
-                if let Some(query) = &data.next {
-                    let action = Action::Run {
-                        request: Request::VariantAssertions(query.clone()),
-                        fresh: false,
-                    };
-                    if !next.iter().any(|(_, old)| old == &action) {
-                        next.push((StepKind::Page, action));
-                    }
+            if let Section::Data { data, .. } = section
+                && let Some(query) = &data.next
+            {
+                let action = Action::Run {
+                    request: Request::VariantAssertions(query.clone()),
+                    fresh: false,
+                };
+                if !next.iter().any(|(_, old)| old == &action) {
+                    next.push((StepKind::Page, action));
                 }
             }
         }
