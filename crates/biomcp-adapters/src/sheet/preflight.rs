@@ -239,9 +239,13 @@ fn worksheet_layout(tag: &quick_xml::events::BytesStart<'_>) -> Result<(), Reaso
             })
             .transpose()
     };
-    if attribute("Type")?.is_some_and(|v| matches!(v.rsplit('/').next(), Some("worksheet" | "chartsheet" | "dialogsheet")))
-        && (attribute("TargetMode")?.is_some_and(|v| v.eq_ignore_ascii_case("External"))
-            || attribute("Target")?.is_none_or(|v| !v.to_ascii_lowercase().ends_with(".xml")))
+    if attribute("Type")?.is_some_and(|v| {
+        matches!(
+            v.rsplit('/').next(),
+            Some("worksheet" | "chartsheet" | "dialogsheet")
+        )
+    }) && (attribute("TargetMode")?.is_some_and(|v| v.eq_ignore_ascii_case("External"))
+        || attribute("Target")?.is_none_or(|v| !v.to_ascii_lowercase().ends_with(".xml")))
     {
         return Err(Reason::Unsupported);
     }
