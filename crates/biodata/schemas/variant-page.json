@@ -4,6 +4,17 @@
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
+    "AcmgAmp2015Code": {
+      "description": "Checked AcmgAmp2015 codes.",
+      "enum": [
+        "pathogenic",
+        "likely_pathogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign"
+      ],
+      "type": "string"
+    },
     "Allele": {
       "additionalProperties": false,
       "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
@@ -25,6 +36,106 @@
       ],
       "type": "object"
     },
+    "AmpAscoCap2017LevelCode": {
+      "description": "Checked AmpAscoCap2017Level codes.",
+      "enum": [
+        "level_a",
+        "level_b",
+        "level_c",
+        "level_d"
+      ],
+      "type": "string"
+    },
+    "AmpAscoCap2017TierCode": {
+      "description": "Checked AmpAscoCap2017Tier codes.",
+      "enum": [
+        "tier_i",
+        "tier_ii",
+        "tier_iii",
+        "tier_iv"
+      ],
+      "type": "string"
+    },
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Provenance for one source record.",
+      "properties": {
+        "evaluated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evaluation date."
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native assertion record."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset release."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Source responsible for the claim."
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record link."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record version."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -36,6 +147,485 @@
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
       ]
+    },
+    "CivicClaimKind": {
+      "description": "CIViC native claim collection.",
+      "enum": [
+        "evidence",
+        "assertions"
+      ],
+      "type": "string"
+    },
+    "CivicClaimPage": {
+      "additionalProperties": false,
+      "description": "Native stream bounds; evidence and assertions have separate cursors.",
+      "properties": {
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue the same source candidate, profile and claim stream."
+        },
+        "returned": {
+          "description": "Number of native rows displayed in this stream.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Native total for this stream.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "CivicEvidenceLevelCode": {
+      "description": "Source-defined CIViC evidence levels.",
+      "enum": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e"
+      ],
+      "type": "string"
+    },
+    "CivicMember": {
+      "additionalProperties": false,
+      "description": "A native CIViC member, including members without a common-model subject.",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/Text",
+          "description": "Native feature label, including fusion features."
+        },
+        "hgvs_descriptions": {
+          "description": "Every native notation, without selecting a transcript or repairing a spelling.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source variant label."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native variant identity and link."
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-qualified subject when supported by the common model."
+        }
+      },
+      "required": [
+        "record",
+        "label",
+        "feature"
+      ],
+      "type": "object"
+    },
+    "CivicMembership": {
+      "description": "Identity strength of a CIViC profile lookup.",
+      "enum": [
+        "exact",
+        "candidate"
+      ],
+      "type": "string"
+    },
+    "CivicNativeClaim": {
+      "additionalProperties": false,
+      "description": "Source facts retained without inventing a common-model subject or proposition.",
+      "properties": {
+        "allele_origin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native origin, when stated."
+        },
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Original source provenance."
+        },
+        "citations": {
+          "description": "Native publication identities.",
+          "items": {
+            "$ref": "#/$defs/Pmid"
+          },
+          "type": "array"
+        },
+        "classification": {
+          "$ref": "#/$defs/Term",
+          "description": "Whole native classification."
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Concept"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source disease context."
+        },
+        "strength": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native level, when present."
+        },
+        "therapies": {
+          "description": "Native therapies in source order.",
+          "items": {
+            "$ref": "#/$defs/Concept"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "classification",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "CivicProfile": {
+      "additionalProperties": false,
+      "description": "One source molecular profile, preserving compound expressions.",
+      "properties": {
+        "assertion_count": {
+          "description": "Native assertion count, independent of the displayed page.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "assertion_page": {
+          "$ref": "#/$defs/CivicClaimPage",
+          "description": "Native assertion stream and its independent continuation."
+        },
+        "compound": {
+          "description": "Native complex-profile flag; a member match does not satisfy the whole profile.",
+          "type": "boolean"
+        },
+        "evidence_count": {
+          "description": "Native evidence count, independent of the displayed page.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "evidence_page": {
+          "$ref": "#/$defs/CivicClaimPage",
+          "description": "Native evidence stream and its independent continuation."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source profile label, including its logical expression."
+        },
+        "members": {
+          "description": "Every source member reference, without collapsing compound profiles.",
+          "items": {
+            "$ref": "#/$defs/CivicMember"
+          },
+          "type": "array"
+        },
+        "membership": {
+          "$ref": "#/$defs/CivicMembership",
+          "description": "Whether a source member was joined to the requested exact identity."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native profile identity and link."
+        },
+        "statements": {
+          "description": "Source claims; a compound claim retains a profile subject.",
+          "items": {
+            "$ref": "#/$defs/CivicStatement"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "record",
+        "label",
+        "compound",
+        "membership",
+        "members",
+        "evidence_count",
+        "assertion_count",
+        "statements",
+        "evidence_page",
+        "assertion_page"
+      ],
+      "type": "object"
+    },
+    "CivicStatement": {
+      "additionalProperties": false,
+      "description": "One CIViC claim with native labels that exceed the common statement model.",
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original provider direction; disputes never implies the opposite effect."
+        },
+        "kind": {
+          "$ref": "#/$defs/Text",
+          "description": "Source claim category, without a fallback proposition."
+        },
+        "native": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicNativeClaim"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native claim facts when the common subject or proposition is unavailable."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native claim identity, retained even when no common proposition applies."
+        },
+        "significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original significance, including when the classification holds an AMP tier."
+        },
+        "statement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Statement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Common source-attributed claim."
+        },
+        "status": {
+          "$ref": "#/$defs/Text",
+          "description": "Native curation state, without implying that every row is accepted."
+        }
+      },
+      "required": [
+        "record",
+        "kind",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ClingenCgcVicc2022Code": {
+      "description": "Checked ClingenCgcVicc2022 codes.",
+      "enum": [
+        "oncogenic",
+        "likely_oncogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign"
+      ],
+      "type": "string"
+    },
+    "ClingenLowPenetrance2024Code": {
+      "description": "Checked ClingenLowPenetrance2024 codes.",
+      "enum": [
+        "pathogenic_low_penetrance",
+        "likely_pathogenic_low_penetrance",
+        "established_risk_allele",
+        "likely_risk_allele",
+        "uncertain_risk_allele"
+      ],
+      "type": "string"
+    },
+    "Coding": {
+      "description": "A code in one explicitly named source framework.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "CIViC evidence level.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/CivicEvidenceLevelCode"
+            },
+            "system": {
+              "const": "civic_evidence_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "acmg_amp_2015 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AcmgAmp2015Code"
+            },
+            "system": {
+              "const": "acmg_amp_2015",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "clingen_low_penetrance_2024 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ClingenLowPenetrance2024Code"
+            },
+            "system": {
+              "const": "clingen_low_penetrance_2024",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "amp_asco_cap_2017_tier vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AmpAscoCap2017TierCode"
+            },
+            "system": {
+              "const": "amp_asco_cap_2017_tier",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "amp_asco_cap_2017_level vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AmpAscoCap2017LevelCode"
+            },
+            "system": {
+              "const": "amp_asco_cap_2017_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "clingen_cgc_vicc_2022 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ClingenCgcVicc2022Code"
+            },
+            "system": {
+              "const": "clingen_cgc_vicc_2022",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Concept": {
+      "additionalProperties": false,
+      "description": "One source concept with its optional ontology identifier.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated concept identifier."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Original concept label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "Direction": {
+      "description": "Assessment direction stated by the source.",
+      "enum": [
+        "supports",
+        "disputes",
+        "neutral"
+      ],
+      "type": "string"
     },
     "Expression": {
       "additionalProperties": false,
@@ -98,6 +688,168 @@
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
     },
+    "HgvsText": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
+      "type": "string"
+    },
+    "HotspotAlternate": {
+      "additionalProperties": false,
+      "description": "One source amino-acid alternate count.",
+      "properties": {
+        "amino_acid": {
+          "$ref": "#/$defs/Text",
+          "description": "Source alternate amino-acid spelling."
+        },
+        "count": {
+          "description": "Source count, without deriving a frequency.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amino_acid",
+        "count"
+      ],
+      "type": "object"
+    },
+    "HotspotMembership": {
+      "description": "Source transcript and consequence join state.",
+      "enum": [
+        "exact",
+        "candidate"
+      ],
+      "type": "string"
+    },
+    "HotspotRecord": {
+      "additionalProperties": false,
+      "description": "Counts for one source transcript and residue label.",
+      "properties": {
+        "alternates": {
+          "description": "Source alternate amino acids and their counts.",
+          "items": {
+            "$ref": "#/$defs/HotspotAlternate"
+          },
+          "type": "array"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Gene as stated by the source."
+        },
+        "membership": {
+          "$ref": "#/$defs/HotspotMembership",
+          "description": "Whether transcript and consequence were linked by the identity source."
+        },
+        "residue": {
+          "$ref": "#/$defs/Text",
+          "description": "Native residue label; no genomic allele is inferred."
+        },
+        "transcript": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native transcript spelling, without an inferred accession version."
+        },
+        "tumor_count": {
+          "description": "Tumors reported for this residue by the source.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "membership",
+        "gene",
+        "residue",
+        "tumor_count",
+        "alternates"
+      ],
+      "type": "object"
+    },
+    "LeafRef": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source-qualified HGVS."
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VariantId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source identifier."
+            },
+            "level": {
+              "const": "allele",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Source gene."
+            },
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein HGVS."
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein label."
+            },
+            "level": {
+              "const": "protein",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level",
+            "gene"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "MyVariantQuery": {
       "pattern": "\\S",
       "type": "string"
@@ -150,6 +902,14 @@
       ],
       "type": "object"
     },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "PoolInfo": {
       "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
@@ -184,6 +944,22 @@
         "expires"
       ],
       "type": "object"
+    },
+    "Predicate": {
+      "description": "VA-Spec 1.1 proposition relationships in native snake_case.",
+      "enum": [
+        "is_causal_for",
+        "is_oncogenic_for",
+        "has_clinical_significance_for",
+        "predicts_sensitivity_to",
+        "predicts_resistance_to",
+        "is_diagnostic_inclusion_criterion_for",
+        "is_diagnostic_exclusion_criterion_for",
+        "associated_with_better_outcome_for",
+        "associated_with_worse_outcome_for",
+        "impacts_function_of"
+      ],
+      "type": "string"
     },
     "Problem": {
       "additionalProperties": false,
@@ -229,6 +1005,19 @@
       "x-enum-descriptions": [
         " The field value was not recognized."
       ]
+    },
+    "Proposition": {
+      "description": "Domain of a source claim.",
+      "enum": [
+        "pathogenicity",
+        "oncogenicity",
+        "clinical_significance",
+        "therapeutic_response",
+        "diagnostic",
+        "prognostic",
+        "functional_impact"
+      ],
+      "type": "string"
     },
     "ProteinChange": {
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
@@ -319,6 +1108,248 @@
       ],
       "type": "object"
     },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantCivic",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantHotspots",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Sequence": {
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
@@ -363,6 +1394,7 @@
         "ctgov",
         "nci",
         "civic",
+        "hotspots",
         "oncokb",
         "myvariant",
         "car",
@@ -390,6 +1422,7 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
+        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -569,6 +1602,122 @@
       ],
       "type": "object"
     },
+    "Statement": {
+      "additionalProperties": false,
+      "description": "One source claim, kept in its own framework and context.",
+      "properties": {
+        "allele_origin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated origin."
+        },
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "One source record and its provenance."
+        },
+        "citations": {
+          "description": "Source publications.",
+          "items": {
+            "$ref": "#/$defs/Pmid"
+          },
+          "type": "array"
+        },
+        "classification": {
+          "$ref": "#/$defs/Term",
+          "description": "Whole source classification label."
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Concept"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source disease or tumor context."
+        },
+        "criteria": {
+          "description": "Source criterion labels in source order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Direction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated assessment direction."
+        },
+        "gene_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneSymbol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source gene context."
+        },
+        "predicate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Predicate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated relationship."
+        },
+        "proposition": {
+          "$ref": "#/$defs/Proposition",
+          "description": "Claim domain."
+        },
+        "strength": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Term"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evidence level or review status."
+        },
+        "subject": {
+          "$ref": "#/$defs/VariantRef",
+          "description": "Source-owned subject reference."
+        },
+        "therapies": {
+          "description": "Source therapies in their native order.",
+          "items": {
+            "$ref": "#/$defs/Concept"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "subject",
+        "proposition",
+        "classification",
+        "attribution"
+      ],
+      "type": "object"
+    },
     "Status": {
       "description": "Overall command outcome.",
       "enum": [
@@ -616,6 +1765,31 @@
       ],
       "type": "string"
     },
+    "Term": {
+      "additionalProperties": false,
+      "description": "A source label with optional explicitly supported coding.",
+      "properties": {
+        "coding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Coding"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Documented framework coding."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Original label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -649,6 +1823,140 @@
       },
       "type": "object"
     },
+    "VariantCivic": {
+      "additionalProperties": false,
+      "description": "CIViC molecular profiles with their original membership and separate source claims.",
+      "properties": {
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue this section without changing the input or source selectors."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Disclosure bounds for this section."
+        },
+        "profiles": {
+          "description": "Source profiles in native order; name candidates carry no attached statements.",
+          "items": {
+            "$ref": "#/$defs/CivicProfile"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profiles",
+        "page"
+      ],
+      "type": "object"
+    },
+    "VariantGet": {
+      "additionalProperties": false,
+      "description": "Read one published variant identifier; every source candidate is retained.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required for chromosome notation; no assembly is guessed."
+        },
+        "civic_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC cursor, retained unchanged."
+        },
+        "civic_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicClaimKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC claim collection within the selected profile."
+        },
+        "civic_profile": {
+          "description": "Selected CIViC molecular profile for native claim paging.",
+          "format": "uint64",
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Candidate rows to skip in source order.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolver": {
+          "$ref": "#/$defs/VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default.",
+          "items": {
+            "$ref": "#/$defs/VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Rows per named source section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
     "VariantHeader": {
       "additionalProperties": false,
       "description": "Consumer identity header with an exact source selection and compact annotation entity.",
@@ -672,6 +1980,28 @@
           "$ref": "#/$defs/SourceRecord",
           "description": "Exact source record, including source keys that are expressions rather than identifiers."
         },
+        "requested": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked caller ID used by a source-only section, without asserting resolved identity."
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicitly requested source sections for this exact candidate."
+        },
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source responsible for this identity."
@@ -684,8 +2014,56 @@
       ],
       "type": "object"
     },
+    "VariantHotspots": {
+      "additionalProperties": false,
+      "description": "Source residue recurrence counts without allele-frequency or clinical interpretation.",
+      "properties": {
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue this section without changing identity selectors."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Disclosure bounds for this section."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source rows remain candidates when no transcript/consequence join exists."
+        },
+        "records": {
+          "description": "Native residue records in source order.",
+          "items": {
+            "$ref": "#/$defs/HotspotRecord"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "records",
+        "page"
+      ],
+      "type": "object"
+    },
     "VariantId": {
       "pattern": "^(((rs|clinvar:|clinvar\\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\\.[1-9][0-9]*)?|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
+    },
+    "VariantInput": {
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
     },
     "VariantPage": {
@@ -715,8 +2093,130 @@
       ],
       "type": "object"
     },
+    "VariantRef": {
+      "description": "Checked source subject reference; at least one source identity or label is required.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Exact allele identifier or reference-qualified notation.",
+          "properties": {
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source-qualified HGVS."
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VariantId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source identifier."
+            },
+            "level": {
+              "const": "allele",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Protein-level assertion, without genomic conversion.",
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Source gene."
+            },
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein HGVS."
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein label."
+            },
+            "level": {
+              "const": "protein",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level",
+            "gene"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Compound source profile, without an inferred allele.",
+          "properties": {
+            "label": {
+              "$ref": "#/$defs/Text",
+              "description": "Complete source label."
+            },
+            "level": {
+              "const": "profile",
+              "type": "string"
+            },
+            "members": {
+              "description": "Source member references in their native order.",
+              "items": {
+                "$ref": "#/$defs/LeafRef"
+              },
+              "type": "array"
+            },
+            "record": {
+              "$ref": "#/$defs/Text",
+              "description": "Native profile ID."
+            }
+          },
+          "required": [
+            "level",
+            "record",
+            "label"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "VariantRegion": {
       "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
+      "type": "string"
+    },
+    "VariantResolver": {
+      "description": "Explicit source service for reference-qualified notation.",
+      "enum": [
+        "car",
+        "mutalyzer",
+        "variantvalidator"
+      ],
       "type": "string"
     },
     "VariantSearch": {
@@ -792,6 +2292,49 @@
         "myvariant"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Named variant source sections, without automatic expansion of identity cards.",
+      "enum": [
+        "civic",
+        "hotspots",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CIViC molecular-profile evidence.",
+        " Cancer Hotspots native residues and counts.",
+        " Every implemented variant section."
+      ]
+    },
+    "VariantSections": {
+      "additionalProperties": false,
+      "description": "Source-specific sections, absent unless explicitly selected.",
+      "properties": {
+        "civic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit civic source result."
+        },
+        "hotspots": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit hotspots source result."
+        }
+      },
+      "type": "object"
     }
   },
   "$id": "biomcp.variant_page/1",
