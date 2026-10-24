@@ -1,0 +1,30 @@
+{
+  "feature": "article-search",
+  "story": "synthetic empty",
+  "replay": "article/semantic-scholar/synthetic-empty",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "max_bytes": 3500,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": []
+      }
+    }
+  ],
+  "verified": "Response-only synthetic copy of actual keyless --record j9693; distinct stable IDs preserve equal titles. Successful live capture tracked in0061."
+}

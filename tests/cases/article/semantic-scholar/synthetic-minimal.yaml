@@ -1,0 +1,48 @@
+{
+  "feature": "article-search",
+  "story": "synthetic minimal",
+  "replay": "article/semantic-scholar/synthetic-minimal",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semantic-scholar"
+      ],
+      "max_bytes": 3500,
+      "expect": {
+        "/status": "partial",
+        "/page/total": 4,
+        "/result/items/0/key/namespace": "semantic_scholar",
+        "/result/items/0/header/date": "2020",
+        "/result/items/0/header/author_count": 0,
+        "/result/items/1/header/date": "2021-03-04",
+        "/result/items/1/header/author_count": 2,
+        "/result/items/1/header/first_author": "First Author",
+        "/result/items/2/key/namespace": "pmc",
+        "/result/items/3/key/id": "4444444444444444444444444444444444444444",
+        "/result/items/3": {
+          "equals": {
+            "key": {
+              "namespace": "semantic_scholar",
+              "id": "4444444444444444444444444444444444444444"
+            }
+          }
+        },
+        "/result/items/*/key/id": {
+          "unique": true
+        }
+      }
+    }
+  ],
+  "verified": "Response-only synthetic copy of actual keyless --record j9693; distinct stable IDs preserve equal titles. Successful live capture tracked in0061."
+}
