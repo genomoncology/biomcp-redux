@@ -51,6 +51,7 @@ fn common_registry() -> Vec<Contract> {
         Representation => ("representation", "biodata.representation/1"),
         VariantId => ("variant-id", "biodata.variant-id/1"),
         Variant => ("variant", "biodata.variant/1"),
+        Statement => ("statement", "biodata.statement/1"),
     }
 }
 
