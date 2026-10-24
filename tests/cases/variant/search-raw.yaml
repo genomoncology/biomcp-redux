@@ -1,0 +1,224 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic",
+  "replay": "variant/search/raw",
+  "story": "Explicit MyVariant raw candidates retain the source identities and query",
+  "harvest": "sdlc/planning/slices/variant.md",
+  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant"
+      ],
+      "max_bytes": 1504,
+      "max_tokens": 376,
+      "expect": {
+        "/schema": "biomcp.variant_page/1",
+        "/status": "complete",
+        "/query": {
+          "query": "rs113488022",
+          "source": "myvariant",
+          "limit": 10,
+          "offset": 0
+        },
+        "/result": {
+          "source_query": "rs113488022",
+          "build": "GRCh37",
+          "items": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>G"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>G"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:40389"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>C"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>C"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "offset": 0,
+          "returned": 3,
+          "total": 3
+        },
+        "/sources/0/source": "myvariant"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant"
+      ],
+      "offline": true,
+      "expect": {
+        "/result": {
+          "source_query": "rs113488022",
+          "build": "GRCh37",
+          "items": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>G"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>G"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:40389"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>C"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>C"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "offset": 0,
+          "returned": 3,
+          "total": 3
+        }
+      }
+    }
+  ]
+}

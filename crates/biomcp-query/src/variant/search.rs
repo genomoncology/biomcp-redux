@@ -27,7 +27,13 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         local: error.and_then(status::local),
     };
     if let Ok(reply) = reply {
-        out.status = if !reply.rows.problems.is_empty() || reply.total > 10_000 || out.sources.iter().any(|s| s.state == biodata::SourceState::Stale) {
+        out.status = if !reply.rows.problems.is_empty()
+            || reply.total > 10_000
+            || out
+                .sources
+                .iter()
+                .any(|s| s.state == biodata::SourceState::Stale)
+        {
             Status::Partial
         } else if reply.total == 0 {
             Status::Absent

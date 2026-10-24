@@ -22,7 +22,9 @@ struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.error.is_some() || self.success == Some(false) || self.hits.len() > 50
+        if self.error.is_some()
+            || self.success == Some(false)
+            || self.hits.len() > 50
             || self.hits.len() as u64 > self.total
             || self.hits.iter().any(|h| h.check().is_err())
         {
@@ -52,7 +54,16 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         ],
         |page| {
             if page.hits.len() <= query.limit() as usize
-                && page.hits.len() as u64 == page.total.saturating_sub(u64::from(query.offset())).min(u64::from(query.limit())) { Ok(()) } else { Err(BadReply) }
+                && page.hits.len() as u64
+                    == page
+                        .total
+                        .saturating_sub(u64::from(query.offset()))
+                        .min(u64::from(query.limit()))
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
         },
     )?;
     let mut rows = Mapped {

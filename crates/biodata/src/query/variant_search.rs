@@ -50,15 +50,19 @@ text_value!(
 pub struct MyVariantQuery(Box<str>);
 impl FromStr for MyVariantQuery {
     type Err = QueryInvalid;
-    fn from_str(value: &str) -> Result<Self,Self::Err> {
-        if value.trim().is_empty() || value.len()>2048 || value.chars().any(char::is_control) { return Err(QueryInvalid); }
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        if value.trim().is_empty() || value.len() > 2048 || value.chars().any(char::is_control) {
+            return Err(QueryInvalid);
+        }
         Ok(Self(value.into()))
     }
 }
 impl fmt::Display for MyVariantQuery {
-    fn fmt(&self,f:&mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
-text_value!(MyVariantQuery,"MyVariantQuery",r"\S");
+text_value!(MyVariantQuery, "MyVariantQuery", r"\S");
 /// Discover source candidates using one declared selector, without interpreting free text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -148,11 +152,7 @@ impl TryFrom<Fields> for VariantSearch {
             && f.gene.is_none()
             && f.protein.is_none()
             && f.region.is_none();
-        if !(protein || region || raw)
-            || !(1..=50).contains(&f.limit)
-            || f.offset >= 10_000
-
-        {
+        if !(protein || region || raw) || !(1..=50).contains(&f.limit) || f.offset >= 10_000 {
             return Err(QueryInvalid);
         }
         Ok(Self(f))
@@ -170,7 +170,8 @@ impl VariantSearch {
         match (&self.0.gene, &self.0.protein) {
             (Some(g), Some(p)) => format!(
                 "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
-                literal(g.as_str()), literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
+                literal(g.as_str()),
+                literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
             ),
             _ => String::new(),
         }
@@ -201,7 +202,9 @@ impl VariantSearch {
 fn literal(value: &str) -> String {
     let mut escaped = String::new();
     for c in value.chars() {
-        if "+-=|&><!(){}[]^\"~*?:\\/".contains(c) { escaped.push('\\'); }
+        if "+-=|&><!(){}[]^\"~*?:\\/".contains(c) {
+            escaped.push('\\');
+        }
         escaped.push(c);
     }
     escaped
