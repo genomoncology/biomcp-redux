@@ -17,7 +17,8 @@
           "fulltext",
           "supplements",
           "citations",
-          "tldr"
+          "tldr",
+          "pdf"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
@@ -29,7 +30,8 @@
           "fulltext",
           "supplements",
           "citations",
-          "tldr"
+          "tldr",
+          "pdf"
         ]
       },
       "max_bytes": 2900

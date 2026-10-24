@@ -289,13 +289,7 @@ fn record_metadata() -> Check {
         let entry = entry?;
         if entry.path().extension().is_some_and(|v| v == "json") {
             let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
-            use std::io::Write;
-            writeln!(
-                std::io::stdout(),
-                "PDF_CANONICAL_RECORD {} {}",
-                entry.file_name().to_string_lossy(),
-                record
-            )?;
+            assert_eq!(record.pointer("/exchanges/0/body/value/openAccessPdf"), Some(&Value::Null));
         }
     }
     Ok(())
