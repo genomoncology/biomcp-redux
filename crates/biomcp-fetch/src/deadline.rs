@@ -1,6 +1,6 @@
 #![expect(
     clippy::disallowed_types,
-    reason = "Advance the shared replay clock atomically without sleeping"
+    reason = "Advance each replay leg clock atomically across its requests"
 )]
 use std::{
     sync::Mutex,
@@ -72,7 +72,8 @@ impl<'a> Deadline<'a> {
             .is_some_and(|clock| clock.advance(delay.min(self.remaining())))
             && !self.expired()
     }
-    /// Return the budget still available.
+    /// Return the budget still available on this clock.
+    /// Replay progress belongs to the source leg; inspect it with `Leg::remaining`.
     pub fn remaining(&self) -> Duration {
         self.end.saturating_duration_since(self.now())
     }

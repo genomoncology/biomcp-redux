@@ -130,7 +130,7 @@ impl Fetch {
         })
     }
 
-    /// Start an absolute monotonic deadline.
+    /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
         Deadline::start(budget, self.clock.as_ref())
     }

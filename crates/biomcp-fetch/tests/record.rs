@@ -175,6 +175,7 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
         matches!(leg.json::<Answer>(&original.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::DeadlineExceeded)
     );
     assert_eq!(leg.remaining(), Duration::ZERO);
+    assert!(get(&replay, original).unwrap().answer);
 }
 #[derive(Debug, serde::Deserialize)]
 struct Number {
