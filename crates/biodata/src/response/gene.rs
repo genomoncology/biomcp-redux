@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native registry search page.
+    TrialPage(crate::TrialPage),
     /// Explicit PDF save result.
     ArticlePdf(crate::ArticlePdfResult),
     /// Invalid destination or unavailable save surface, retaining the source link.

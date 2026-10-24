@@ -38,6 +38,10 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        TrialSearch => ("trial-search", "biodata.trial-search/1"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/1"),
+        NctId => ("nct-id", "biodata.nct-id/1"),
+        TrialHeader => ("trial-header", "biodata.trial_header/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),

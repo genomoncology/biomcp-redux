@@ -44,6 +44,10 @@ macro_rules! wire_enum {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         pub enum $name { $($(#[$vdoc])* #[serde(rename = $literal)] $variant,)+ }
+        impl $name {
+            /// Canonical wire spelling from the enum declaration.
+            pub const fn as_str(self) -> &'static str { match self { $(Self::$variant => $literal,)+ } }
+        }
     }
 }
 pub(crate) use wire_enum;
