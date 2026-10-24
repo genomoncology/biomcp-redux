@@ -1,6 +1,7 @@
 # 0034 — Document the gene commands and close the gene slice
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 17d171e93eb01404be54aa5b62cfb6f430cec355
 
 Milestone: 1
 
