@@ -92,7 +92,7 @@ fn execute<'a>(
             out.body = QueryBody::TextPositionError;
             return Ok(Section::NotApplicable);
         };
-        let mut content = empty(document.license,selection.forms.clone());
+        let mut content = empty(document.license, selection.forms.clone());
         if !file.file.kind.readable() {
             content.url = Some(file.url.clone());
             content.reason = Some(Reason::Unsupported);
@@ -143,6 +143,14 @@ fn execute<'a>(
     Ok(())
 }
 
-fn empty(license:biodata::License,forms:Option<[String;4]>)->SupplementContent {
-    SupplementContent {license,sha256:None,url:None,reason:None,sheets:None,rows:None,forms}
+fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementContent {
+    SupplementContent {
+        license,
+        sha256: None,
+        url: None,
+        reason: None,
+        sheets: None,
+        rows: None,
+        forms,
+    }
 }

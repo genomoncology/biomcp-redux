@@ -45,7 +45,7 @@ pub(super) fn select(
     end: LocalDeadline,
 ) -> Result<bool, Reason> {
     if query.rows().is_none() && selected.is_empty() {
-        overview(query,sheets,content,out);
+        overview(query, sheets, content, out);
         return Ok(true);
     }
     if query.rows().is_some()
@@ -181,29 +181,34 @@ fn chunks(value: &str) -> Vec<String> {
     chunks
 }
 
-fn overview(query:&ArticleSupplement,sheets:&[sheet::Sheet],content:&mut SupplementContent,out:&mut Outcome) {
-        content.sheets = Some(
-            sheets
-                .iter()
-                .filter_map(|s| {
-                    Some(SheetInfo {
-                        name: Text::new(&s.name).ok()?,
-                        rows: s.rows.last().map_or(0, |r| r.number),
-                    })
+fn overview(
+    query: &ArticleSupplement,
+    sheets: &[sheet::Sheet],
+    content: &mut SupplementContent,
+    out: &mut Outcome,
+) {
+    content.sheets = Some(
+        sheets
+            .iter()
+            .filter_map(|s| {
+                Some(SheetInfo {
+                    name: Text::new(&s.name).ok()?,
+                    rows: s.rows.last().map_or(0, |r| r.number),
                 })
-                .collect(),
-        );
-        if let Some(first) = sheets.first()
-            && let Ok(name) = Text::new(&first.name)
-        {
-            out.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::ArticleSupplement(
-                        query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
-                    ),
-                    fresh: false,
-                },
-            ));
-        }
+            })
+            .collect(),
+    );
+    if let Some(first) = sheets.first()
+        && let Ok(name) = Text::new(&first.name)
+    {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::ArticleSupplement(
+                    query.first_rows(name, first.rows.last().map_or(1, |r| r.number)),
+                ),
+                fresh: false,
+            },
+        ));
+    }
 }

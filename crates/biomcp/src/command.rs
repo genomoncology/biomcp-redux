@@ -92,95 +92,47 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
         }
     }
 }
+struct ResponseMeta {
+    status: Status,
+    sources: Vec<biodata::SourceOutcome>,
+    problems: Vec<biodata::Problem>,
+    next: Vec<biodata::Step>,
+    page: Option<biodata::PageInfo>,
+    exit: crate::exit::Status,
+}
+impl ResponseMeta {
+    fn encode<B: biodata::ResponseBody>(self, query: B::Query, body: Option<B>) -> io::Result<Outcome> {
+        let mut envelope = Envelope::new(self.status,query,body);
+        envelope.sources=self.sources;
+        envelope.problems=self.problems;
+        envelope.next=self.next;
+        envelope.page=self.page;
+        encode(envelope,self.exit)
+    }
+}
 fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outcome> {
-    let status = if result.local.is_some() {
-        crate::exit::Status::Local
-    } else {
-        crate::exit::Status::from(result.status)
+    let meta=ResponseMeta {
+        exit:if result.local.is_some(){crate::exit::Status::Local}else{crate::exit::Status::from(result.status)},
+        status:result.status,
+        next:result.next.iter().map(|(kind,action)|crate::spell::step(*kind,action)).collect::<Result<Vec<_>,_>>()?,
+        page:result.page,sources:result.sources,problems:result.problems,
     };
-    let steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    match (request, result.body) {
-        (Request::ArticleSupplement(_), QueryBody::TextPositionError)
-        | (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
-            biodata::ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        ),
-        (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
+    match (request,result.body) {
+        (_,QueryBody::TextPositionError)=>encode(biodata::ErrorEnvelope::arguments(),crate::exit::Status::Usage),
+        (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body))=>meta.encode(query,Some(body)),
+        (Request::ArticleText(query), QueryBody::ArticleText(body))=>meta.encode(query,Some(body)),
+        (_,QueryBody::TooManyPmids {count})=>encode(biodata::ErrorEnvelope::too_many_pmids(count),crate::exit::Status::Usage),
+        (_,QueryBody::PoolError {mismatch})=>pool_error(mismatch,meta.next),
+        (Request::ArticleCitations(query)|Request::ArticleReferences(query),QueryBody::ArticleEdges(body))=>{
+            let body=(meta.status!=Status::Failed).then_some(body);meta.encode(query,body)
         }
-        (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
+        (Request::SearchArticle(query),QueryBody::ArticlePage(body))=>{
+            let body=(meta.status!=Status::Failed).then_some(body);meta.encode(query,body)
         }
-
-        (_, QueryBody::TooManyPmids { count }) => encode(
-            biodata::ErrorEnvelope::too_many_pmids(count),
-            crate::exit::Status::Usage,
-        ),
-        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
-        (
-            Request::ArticleCitations(query) | Request::ArticleReferences(query),
-            QueryBody::ArticleEdges(body),
-        ) => {
-            let mut envelope = Envelope::new(
-                result.status,
-                query,
-                (result.status != Status::Failed).then_some(body),
-            );
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
-        }
-        (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
-            let mut envelope = Envelope::new(
-                result.status,
-                query,
-                (result.status != Status::Failed).then_some(body),
-            );
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
-        }
-        (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            encode(envelope, status)
-        }
-        (Request::GetGene(query), QueryBody::GeneCards(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            encode(envelope, status)
-        }
-        (Request::SearchGene(query), QueryBody::GenePage(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
-        }
-        _ => Err(io::Error::other("query response mismatch")),
+        (Request::GetArticle(query),QueryBody::ArticleCards(body))=>meta.encode(query,Some(body)),
+        (Request::GetGene(query),QueryBody::GeneCards(body))=>meta.encode(query,Some(body)),
+        (Request::SearchGene(query),QueryBody::GenePage(body))=>meta.encode(query,Some(body)),
+        _=>Err(io::Error::other("query response mismatch")),
     }
 }
 

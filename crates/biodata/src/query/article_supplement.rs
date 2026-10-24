@@ -9,7 +9,12 @@ impl FromStr for SheetRows {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Error> {
         let (a, b) = s.split_once('-').ok_or(Error::ArticleIdInvalid)?;
-        if [a,b].iter().any(|v| v.starts_with('0') || !v.bytes().all(|c| c.is_ascii_digit())) { return Err(Error::ArticleIdInvalid); }
+        if [a, b]
+            .iter()
+            .any(|v| v.starts_with('0') || !v.bytes().all(|c| c.is_ascii_digit()))
+        {
+            return Err(Error::ArticleIdInvalid);
+        }
         let a: u32 = a.parse().map_err(|_| Error::ArticleIdInvalid)?;
         let b: u32 = b.parse().map_err(|_| Error::ArticleIdInvalid)?;
         if a == 0 || b < a || b - a >= 200 {
@@ -20,9 +25,13 @@ impl FromStr for SheetRows {
 }
 impl SheetRows {
     /// Inclusive first original row number.
-    pub fn start(&self) -> u32 { self.0 }
+    pub fn start(&self) -> u32 {
+        self.0
+    }
     /// Inclusive last original row number.
-    pub fn end(&self) -> u32 { self.1 }
+    pub fn end(&self) -> u32 {
+        self.1
+    }
 }
 impl fmt::Display for SheetRows {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
