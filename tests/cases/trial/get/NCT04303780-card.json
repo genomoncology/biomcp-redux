@@ -14,10 +14,22 @@
     "Docetaxel"
   ],
   "sponsor": "Amgen",
-  "start": "2020-06-04",
-  "primary_completion": "2022-08-02",
-  "completion": "2026-06-24",
-  "updated": "2026-07-22",
+  "start": {
+    "date": "2020-06-04",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2022-08-02",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2026-06-24",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2026-07-22",
+    "kind": "ACTUAL"
+  },
   "brief_summary": "A Phase 3 Study to Compare AMG 510 with Docetaxel in Non Small Cell Lung Cancer (NSCLC) subjects with KRAS p. G12c mutation",
   "url": "https://clinicaltrials.gov/study/NCT04303780"
 }

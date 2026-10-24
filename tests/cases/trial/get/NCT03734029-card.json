@@ -18,10 +18,22 @@
     "Nab-paclitaxel"
   ],
   "sponsor": "Daiichi Sankyo",
-  "start": "2018-12-27",
-  "primary_completion": "2022-01-11",
-  "completion": "2026-05-19",
-  "updated": "2026-09-28",
+  "start": {
+    "date": "2018-12-27",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2022-01-11",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2026-05-19",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2026-09-28",
+    "kind": "ACTUAL"
+  },
   "brief_summary": "This study will compare DS-8201a to physician choice standard treatment.\n\nParticipants must have HER2-low breast cancer that has been treated before.\n\nParticipants' cancer:\n\n* Cannot be removed by an operation\n* Has spread to other parts of the body",
   "url": "https://clinicaltrials.gov/study/NCT03734029"
 }

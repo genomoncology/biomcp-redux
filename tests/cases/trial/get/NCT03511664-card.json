@@ -14,10 +14,22 @@
     "Best supportive/best standard of care"
   ],
   "sponsor": "Endocyte",
-  "start": "2018-05-29",
-  "primary_completion": "2021-01-27",
-  "completion": "2023-12-14",
-  "updated": "2025-01-13",
+  "start": {
+    "date": "2018-05-29",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2021-01-27",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2023-12-14",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2025-01-13",
+    "kind": "ACTUAL"
+  },
   "brief_summary": "The primary objective of this study was to compare the two alternate primary endpoints of radiographic progression-free survival (rPFS) and overall survival (OS) in patients with progressive prostate-specific membrane antigen (PSMA)-positive metastatic castration-resistant prostate cancer (mCRPC) who received 177Lu-PSMA-617 in addition to best supportive/best standard of care (BSC/BSoC) versus patients treated with best supportive/best standard of care alone.",
   "url": "https://clinicaltrials.gov/study/NCT03511664"
 }

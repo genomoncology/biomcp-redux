@@ -14,10 +14,22 @@
     "Placebo"
   ],
   "sponsor": "AstraZeneca",
-  "start": "2014-04-22",
-  "primary_completion": "2020-03-27",
-  "completion": "2029-05-28",
-  "updated": "2026-07-14",
+  "start": {
+    "date": "2014-04-22",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2020-03-27",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2029-05-28",
+    "kind": "ESTIMATED"
+  },
+  "updated": {
+    "date": "2026-07-14",
+    "kind": "ACTUAL"
+  },
   "brief_summary": "Olaparib treatment in patients with germline BRCA1/2 mutations and high risk HER2 negative primary breast cancer who have completed definitive local treatment and neoadjuvant or adjuvant chemotherapy",
   "url": "https://clinicaltrials.gov/study/NCT02032823"
 }

@@ -18,10 +18,22 @@
     "Placebo AZD9291 80 mg/ 40 mg"
   ],
   "sponsor": "AstraZeneca",
-  "start": "2014-12-03",
-  "primary_completion": "2017-06-19",
-  "completion": "2025-11-20",
-  "updated": "2026-04-21",
+  "start": {
+    "date": "2014-12-03",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2017-06-19",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2025-11-20",
+    "kind": "ACTUAL"
+  },
+  "updated": {
+    "date": "2026-04-21",
+    "kind": "ACTUAL"
+  },
   "brief_summary": "To assess the efficacy and safety of AZD9291 versus a standard of care epidermal growth factor receptor tyrosine kinase inhibitor in patients with locally advanced or Metastatic Non Small Cell Lung Cancer",
   "url": "https://clinicaltrials.gov/study/NCT02296125"
 }
