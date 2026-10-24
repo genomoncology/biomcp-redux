@@ -88,6 +88,7 @@ pub(crate) fn global_arguments() -> Command {
     root = root.arg(
         Arg::new("disable-sources")
             .long("disable-sources")
+            .help("Disable source names or noncommercial/restricted groups, including carried component fields; commercial users should select both groups")
             .global(true)
             .num_args(1)
             .value_delimiter(',')
