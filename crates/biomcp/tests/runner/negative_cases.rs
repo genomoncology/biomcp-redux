@@ -8,7 +8,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         (
             "excluded-wrong-type",
             "    expect: {'/type': {excludes: hgnc}}",
-            "excludes requires an array",
+            "excludes: expected an array",
         ),
         (
             "mcp-wrong-value",
