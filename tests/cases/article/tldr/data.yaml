@@ -35,8 +35,7 @@
         "33123537",
         "tldr",
         "--disable-sources",
-        "semantic-scholar",
-        "--offline"
+        "semantic-scholar"
       ],
       "exit": 0,
       "expect": {
@@ -45,7 +44,8 @@
         "/result/items/0/sections/tldr/reason": "disabled",
         "/sources/1/state": "skipped",
         "/sources/1/reason": "disabled"
-      }
+      },
+      "offline": true
     }
   ]
 }
