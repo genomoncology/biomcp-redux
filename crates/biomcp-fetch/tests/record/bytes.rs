@@ -72,8 +72,9 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
     );
     assert!(
-        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| panic!("disabled parser ran")), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
+        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| { called.set(true); Ok(()) }), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
     );
+    assert!(!called.get());
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
     std::fs::remove_file(&sidecar).unwrap();
