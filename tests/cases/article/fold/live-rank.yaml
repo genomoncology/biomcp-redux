@@ -1,0 +1,178 @@
+{
+  "feature": "article-search",
+  "story": "Recorded native PubMed and Europe PMC ranks define one complete stable walk",
+  "replay": "article/fold/live",
+  "verified": "Public metadata recorded through the article command on 2026-10-24. Native request rows define the checked keys and first source ranks. The maximum page is 5216 bytes. Its measured value plus 15 percent is 5999 bytes, bounded here by the matching 0.9 AKT1 E17K JSON baseline of 1307 tokens / 5228 bytes.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "max_bytes": 5228,
+      "max_tokens": 1307,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 249,
+        "/page/truncated": true,
+        "/sources/0/count": 192,
+        "/sources/0/fetched": 192,
+        "/sources/1/count": 1204,
+        "/sources/1/fetched": 100,
+        "/result/items/*/key": [
+          {
+            "id": "33377972",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "42896970",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "33123537",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40608215",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "34837233",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40494773",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "33303690",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40153687",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "31138602",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40027941",
+            "namespace": "pubmed"
+          }
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 32
+      },
+      "max_bytes": 5228,
+      "max_tokens": 1307,
+      "expect": {
+        "/result/items/*/key": {
+          "equals_file": "live-rank-keys.json",
+          "unique": true
+        },
+        "/result/items/*/found_by": {
+          "equals_file": "live-rank-found-by.json"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 32
+      },
+      "max_bytes": 5228,
+      "max_tokens": 1307,
+      "expect": {
+        "/result/items/*/key": {
+          "equals_file": "live-rank-keys.json"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "offline": true,
+      "max_bytes": 5228,
+      "max_tokens": 1307,
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/key": [
+          {
+            "id": "33377972",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "42896970",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "33123537",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40608215",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "34837233",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40494773",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "33303690",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40153687",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "31138602",
+            "namespace": "pubmed"
+          },
+          {
+            "id": "40027941",
+            "namespace": "pubmed"
+          }
+        ]
+      }
+    }
+  ]
+}

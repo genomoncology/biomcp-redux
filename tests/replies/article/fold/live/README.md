@@ -11,3 +11,5 @@ The recorded relevance window contains 100 Europe PMC rows from 1204 matches. It
 The checked floors beside the cases come from the native request rows. They preserve first native ranks before duplicate suppression and test the complete stored order. The source quota remains a conservative local policy. The provider documentation does not establish a numeric rate here.
 
 Source: [Europe PMC REST service documentation](https://dev.europepmc.org/RestfulWebService).
+
+The relevance ESearch request has two captured exchanges. PMID 42896970 has native rank 77 in the first and rank 76 in the second. Each stored pool retains the order from its own exchange. Each separate replay case starts from the first captured snapshot. The source-order case uses that snapshot’s ranks.
