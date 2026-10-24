@@ -6,6 +6,7 @@ use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/search/").fresh(Freshness::Days(1));
 const LIMIT: usize = 100;
 /// A retained prefix and any failure that prevented completing its bounded window.
+#[derive(Debug)]
 pub struct Search {
     /// Distinct papers in provider order.
     pub ids: Vec<Pmid>,

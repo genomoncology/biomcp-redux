@@ -34,7 +34,9 @@
       "enum": [
         "pubmed",
         "europepmc",
-        "litvar"
+        "litvar",
+        "litsense",
+        "pubtator"
       ],
       "type": "string"
     },
@@ -391,7 +393,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nlitsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.\npubtator: entity and relation search; needs the right entity ID, and uses full text where available.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
