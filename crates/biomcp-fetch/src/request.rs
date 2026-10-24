@@ -190,19 +190,7 @@ impl Leg<'_> {
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let started = Instant::now();
             let exchange = self.exchange(prepared, codec);
-            match &exchange {
-                Ok(response) => self.observe(
-                    &prepared.identity,
-                    Some(response.status),
-                    &response.body,
-                    &response.content_type,
-                    started.elapsed(),
-                ),
-                Err(Failure::Local(RequestError::Source(error))) => {
-                    self.observe(&prepared.identity, error.status, &[], "", started.elapsed())
-                }
-                Err(_) => self.observe(&prepared.identity, None, &[], "", started.elapsed()),
-            }
+            self.observe_exchange(prepared, &exchange, started.elapsed());
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
@@ -249,6 +237,27 @@ impl Leg<'_> {
         }
         // Every iteration either returns or advances to the next attempt.
         Err(self.failure(Reason::Unavailable, None).into())
+    }
+
+    fn observe_exchange(
+        &self,
+        prepared: &Prepared,
+        exchange: &Result<Wire, Failure>,
+        elapsed: Duration,
+    ) {
+        match exchange {
+            Ok(response) => self.observe(
+                &prepared.identity,
+                Some(response.status),
+                &response.body,
+                &response.content_type,
+                elapsed,
+            ),
+            Err(Failure::Local(RequestError::Source(error))) => {
+                self.observe(&prepared.identity, error.status, &[], "", elapsed)
+            }
+            Err(_) => self.observe(&prepared.identity, None, &[], "", elapsed),
+        }
     }
 
     pub(crate) fn wire_call(

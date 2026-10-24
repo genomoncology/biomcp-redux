@@ -180,6 +180,7 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
+            t.started = Instant::now();
             let response = self.wire_call(&prepared, b.format.media(), &headers);
             match response {
                 Ok(mut response) => {

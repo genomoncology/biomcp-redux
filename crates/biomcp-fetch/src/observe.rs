@@ -28,19 +28,7 @@ impl Shape {
                 shape.json(&value, "", 0);
             }
         } else if media.contains("xml") {
-            let mut reader = quick_xml::Reader::from_reader(body);
-            while shape.fields.len() < FIELDS {
-                match reader.read_event() {
-                    Ok(quick_xml::events::Event::Start(e) | quick_xml::events::Event::Empty(e)) => {
-                        let name = e.name().as_ref().to_owned();
-                        if name.len() <= 128 {
-                            shape.fields.insert(name, true);
-                        }
-                    }
-                    Ok(quick_xml::events::Event::Eof) | Err(_) => break,
-                    _ => {}
-                }
-            }
+            shape.xml(body);
         } else if media.contains("csv") || media.contains("tab-separated") {
             shape.header = body
                 .split(|b| *b == b'\n')
@@ -50,6 +38,34 @@ impl Shape {
                 .map(str::to_owned);
         }
         shape
+    }
+    fn xml(&mut self, body: &[u8]) {
+        let mut reader = quick_xml::Reader::from_reader(body);
+        let mut count = None;
+        while self.fields.len() < FIELDS {
+            match reader.read_event() {
+                Ok(quick_xml::events::Event::Start(e) | quick_xml::events::Event::Empty(e)) => {
+                    let name = e.name().as_ref().to_owned();
+                    count = name
+                        .to_ascii_lowercase()
+                        .contains("count")
+                        .then(|| name.clone());
+                    if name.len() <= 128 {
+                        self.fields.insert(name, true);
+                    }
+                }
+                Ok(quick_xml::events::Event::Text(text)) => {
+                    if let Some(name) = count.take()
+                        && let Ok(value) = text.as_ref().trim().parse::<u64>()
+                    {
+                        self.positive.insert(name, value > 0);
+                    }
+                }
+                Ok(quick_xml::events::Event::Eof) | Err(_) => break,
+                Ok(quick_xml::events::Event::End(_)) => count = None,
+                _ => {}
+            }
+        }
     }
     fn json(&mut self, value: &serde_json::Value, path: &str, depth: usize) {
         if depth >= 8 || path.len() > 256 || self.fields.len() >= FIELDS {
