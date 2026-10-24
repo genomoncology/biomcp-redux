@@ -81,7 +81,7 @@ mod markdown;
 pub use markdown::Markdown;
 pub use response::{Health, HttpHealth, SourceHealth};
 
-pub use query::{ArticleEvidence, ArticleRecommend};
+pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
@@ -93,4 +93,5 @@ pub use query::SponsorType;
 pub use query::TrialSearch;
 pub use response::TrialPage;
 pub use response::TrialParameter;
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};

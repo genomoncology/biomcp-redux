@@ -43,6 +43,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     )?;
     let query = match request {
         Request::SearchTrial(query) => serde_json::to_value(query)?,
+        Request::ArticlePdf(query) => serde_json::to_value(query)?,
         Request::ArticleEvidence(query) => serde_json::to_value(query)?,
         Request::ArticleRecommend(query) => serde_json::to_value(query)?,
         Request::ArticleSupplement(query) => serde_json::to_value(query)?,
@@ -57,7 +58,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleEvidence(_)
+            Request::ArticlePdf(_)
+            | Request::ArticleEvidence(_)
             | Request::ArticleRecommend(_)
             | Request::ArticleSupplement(_)
             | Request::ArticleText(_)
@@ -71,6 +73,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         .into(),
         if matches!(request, Request::SearchTrial(_)) {
             "trial"
+        } else if matches!(request, Request::ArticlePdf(_)) {
+            "pdf"
         } else if matches!(request, Request::ArticleEvidence(_)) {
             "citation-evidence"
         } else if matches!(request, Request::ArticleRecommend(_)) {

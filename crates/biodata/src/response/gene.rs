@@ -67,6 +67,10 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Native registry search page.
     TrialPage(crate::TrialPage),
+    /// Explicit PDF save result.
+    ArticlePdf(crate::ArticlePdfResult),
+    /// Invalid destination or unavailable save surface, retaining the source link.
+    PdfSaveRefused(crate::PdfLink),
     /// Citation context evidence.
     ArticleEvidence(crate::ArticleEvidenceResult),
     /// Source-native recommendations.

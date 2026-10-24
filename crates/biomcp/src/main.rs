@@ -9,6 +9,7 @@ mod mcp;
 mod output;
 mod paths;
 mod retired;
+mod save;
 mod schema;
 mod spell;
 mod view;

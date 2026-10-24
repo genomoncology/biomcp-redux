@@ -1,0 +1,20 @@
+{
+  "exchanges": [
+    {
+      "body": {
+        "kind": "json",
+        "value": {
+          "openAccessPdf": null
+        }
+      },
+      "content_type": "application/json",
+      "delay_ms": 17,
+      "fetched": 1792862178,
+      "retry_after_ms": null,
+      "status": 200
+    }
+  ],
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A33123537?fields=openAccessPdf"
+}

@@ -83,3 +83,10 @@ pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
 // Conservative serial registry policy; no published numeric quota was established.
 pub(crate) static CTGOV: Quota =
     Quota::new(SourceKey::declare("ctgov"), Rate::per_second(1), None, 1);
+/// Independent credential-free publisher download quota.
+pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(
+    SourceKey::declare("publisher-pdf"),
+    Rate::per_second(2),
+    None,
+    1,
+);

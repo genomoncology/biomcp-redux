@@ -47,6 +47,8 @@ fn registry() -> Vec<Contract> {
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
         Envelope<ArticleEvidenceResult> => ("article-evidence-result", "biomcp.article_evidence/1"),
         Envelope<ArticleRecommendations> => ("article-recommendations", "biomcp.article_recommendations/1"),
+        ArticlePdf => ("article-pdf", "biodata.article-pdf/1"),
+        Envelope<ArticlePdfResult> => ("article-pdf-result", "biomcp.article_pdf/1"),
         ArticleSupplement => ("article-supplement", "biodata.article-supplement/1"),
         Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article_supplement/1"),
         Envelope<Health> => ("health", "biomcp.health/1"),
