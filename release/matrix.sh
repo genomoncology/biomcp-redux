@@ -16,9 +16,11 @@ python3 release/gate.py --artifacts "$scratch/native" --scratch "$scratch/native
 BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" python3 -m unittest release.test_artifacts
 for arch in amd64 arm64; do
   case "$arch" in amd64) wheel_arch=x86_64;; arm64) wheel_arch=aarch64;; esac
+  image="quay.io/pypa/manylinux_2_28_$wheel_arch"
   docker run --rm --label pm.repo=biomcp-redux --label pm.ticket=0058 \
     --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
-    "quay.io/pypa/manylinux_2_28_$wheel_arch" /bin/bash -c '
+    -e "BIOMCP_BUILD_REVISION=$revision" -e "BIOMCP_BUILD_ARCH=$arch" \
+    "$image" /bin/bash -c '
       set -euo pipefail
       cp -a /source /tmp/build
       cd /tmp/build
@@ -26,15 +28,24 @@ for arch in amd64 arm64; do
       curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup.sh
       sh /tmp/rustup.sh -y --profile minimal --default-toolchain 1.95.0
       export PATH=/tmp/cargo/bin:/opt/python/cp311-cp311/bin:$PATH
-      python release/artifacts.py build --revision "'"$revision"'" --output /output/linux-'"$arch"'
-      python release/gate.py --python /opt/python/cp311-cp311/bin/python --artifacts /output/linux-'"$arch"' --scratch /tmp/check
-      cp /tmp/check/report.json /output/linux-'"$arch"'/report.json
-      mkdir -p /output/container-'"$arch"'
-      cp /tmp/check/installer-bin/biomcp /output/container-'"$arch"'/biomcp
-      cp /tmp/check/case-runner /output/container-'"$arch"'/case-runner
-      cp -a /tmp/check/fixtures /output/container-'"$arch"'/fixtures
+      python release/artifacts.py build --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
+      python release/gate.py --prepare-only --artifacts "/output/linux-$BIOMCP_BUILD_ARCH" --scratch /tmp/proof
+      cp -a /tmp/proof "/output/proof-$BIOMCP_BUILD_ARCH"
     '
-  # Build and execute the actual runtime image for this architecture.
+  # The installation container has only artifacts, a runner and public fixtures.
+  # It has no checkout, build tree, host configuration or credential mount.
+  docker run --rm --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+    --platform "linux/$arch" -v "$scratch/linux-$arch:/artifacts:ro" \
+    -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
+      set -euo pipefail
+      cp -a /proof /tmp/check
+      /opt/python/cp311-cp311/bin/python /tmp/check/tools/release/gate.py --prepared \
+        --python /opt/python/cp311-cp311/bin/python --artifacts /artifacts --scratch /tmp/check
+    '
+  mkdir "$scratch/container-$arch"
+  tar -xzf "$scratch/linux-$arch/biomcp-$version-manylinux_2_28_$wheel_arch.tar.gz" -C "$scratch/container-$arch"
+  cp "$scratch/proof-$arch/case-runner" "$scratch/container-$arch/case-runner"
+  cp -R "$scratch/proof-$arch/fixtures" "$scratch/container-$arch/fixtures"
   cp release/Dockerfile "$scratch/container-$arch/Dockerfile"
   docker build --platform "linux/$arch" -t "biomcp-local-0058:$arch" "$scratch/container-$arch"
   python3 release/container_check.py "biomcp-local-0058:$arch" "$arch" "$scratch/container-$arch" "$version"

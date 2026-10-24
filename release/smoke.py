@@ -27,7 +27,7 @@ def smoke(binary, runner, fixtures, version):
                 raise ValueError("installed command failed: " + result.stdout.decode() + result.stderr.decode())
             return json.loads(result.stdout)
         assert command(["schema", "biodata.problem/1"])["$id"] == "biodata.problem/1"
-        assert command(["help"])["commands"]
+        assert command(["help"])["result"]["commands"]
         # The first tool call creates the ordinary cache; every emitted line,
         # including shutdown, must be a correlated JSON-RPC response.
         mcp_probe([str(binary), "serve"], env, root, version)

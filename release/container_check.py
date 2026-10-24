@@ -18,7 +18,8 @@ def main():
     assert checksum == hashlib.sha256((Path(proof) / "biomcp").read_bytes()).hexdigest(), "container binary differs from the candidate"
     for args, key in [(["schema", "biodata.problem/1"], "$id"), (["help"], "commands")]:
         result = subprocess.run(common + [image] + args, capture_output=True, text=True, check=True)
-        assert not result.stderr and json.loads(result.stdout)[key]
+        value = json.loads(result.stdout)
+        assert not result.stderr and (value["result"][key] if key == "commands" else value[key])
     with tempfile.TemporaryDirectory() as root:
         mcp_probe(common + ["-i", image, "serve"], os.environ.copy(), Path(root), version)
     executable = common + ["-v", str(Path(proof).resolve()) + ":/proof:ro", "-e", "BIOMCP_TEST_EXECUTABLE=/usr/local/bin/biomcp", "-e", "BIOMCP_TEST_FIXTURES=/proof/fixtures", "--entrypoint", "/proof/case-runner", image]

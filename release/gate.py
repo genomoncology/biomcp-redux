@@ -20,16 +20,20 @@ def installed(args):
     root = args.scratch.resolve()
     root.mkdir(parents=True, exist_ok=True)
     fixtures = root / "fixtures"
-    (fixtures / "cases").mkdir(parents=True, exist_ok=True)
     source = Path(__file__).resolve().parent.parent
-    shutil.copy(source / "tests/cases/gene/kras.yaml", fixtures / "cases/kras.yaml")
-    for name in ["gene/main", "article/search/synthetic-small"]:
-        shutil.copytree(source / "tests/replies" / name, fixtures / "replies" / name, dirs_exist_ok=True)
-    for path in fixtures.rglob("*"):
-        if path.is_file():
-            path.chmod(0o444)
     executable = root / "case-runner"
-    shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
+    if not args.prepared:
+        (fixtures / "cases").mkdir(parents=True, exist_ok=True)
+        shutil.copy(source / "tests/cases/gene/kras.yaml", fixtures / "cases/kras.yaml")
+        for name in ["gene/main", "article/search/synthetic-small"]:
+            shutil.copytree(source / "tests/replies" / name, fixtures / "replies" / name, dirs_exist_ok=True)
+        for path in fixtures.rglob("*"):
+            if path.is_file():
+                path.chmod(0o444)
+        shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
+        shutil.copytree(source / "release", root / "tools/release", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
+    if args.prepare_only:
+        return
     results = []
     def check(kind, binary):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
@@ -64,6 +68,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifacts", type=Path, required=True)
     parser.add_argument("--scratch", type=Path, required=True)
+    parser.add_argument("--prepared", action="store_true", help="Use the already copied runner and public fixtures")
+    parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--python", default="python3")
     installed(parser.parse_args())
 
