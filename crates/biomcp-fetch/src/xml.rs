@@ -263,11 +263,19 @@ mod tests;
 #[derive(serde::Deserialize)]
 pub(crate) struct Probe;
 impl Reply for Probe {
-    fn check(&self) -> Result<(), crate::BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
 }
 impl Decoder<'_, Probe> {
     pub(crate) fn probe() -> Self {
-        Self { codec: Codec::Probe, validate: None, limit: None, octet_stream: false, parse: |_| Some(Probe) }
+        Self {
+            codec: Codec::Probe,
+            validate: None,
+            limit: None,
+            octet_stream: false,
+            parse: |_| Some(Probe),
+        }
     }
 }
 #[derive(serde::Deserialize)]

@@ -120,7 +120,11 @@ impl ResponseMeta {
         encode(envelope, self.exit)
     }
 }
-fn response(fetch: &biomcp_fetch::Fetch, request: Request, result: biomcp_query::Outcome) -> io::Result<Outcome> {
+fn response(
+    fetch: &biomcp_fetch::Fetch,
+    request: Request,
+    result: biomcp_query::Outcome,
+) -> io::Result<Outcome> {
     let steps = next_steps(fetch, &result)?;
     let meta = ResponseMeta {
         exit: if result.local.is_some() {

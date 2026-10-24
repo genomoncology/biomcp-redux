@@ -29,5 +29,5 @@ pub mod pmc_oa;
 pub mod icite;
 mod xml_element;
 
-pub mod sheet;
 pub mod registry;
+pub mod sheet;
