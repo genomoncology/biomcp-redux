@@ -26,7 +26,7 @@ struct Fields {
     section_offset: u32,
     /// Selected CIViC molecular profile for native claim paging.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
     /// Native CIViC claim collection within the selected profile.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -70,7 +70,9 @@ impl TryFrom<Fields> for VariantGet {
         if !(1..=50).contains(&fields.limit) || !(1..=50).contains(&fields.section_limit) {
             return Err(super::gene::QueryInvalid);
         }
-        if fields.civic_profile == Some(0)
+        if fields
+            .civic_profile
+            .is_some_and(|id| id == 0 || id > i32::MAX as u64)
             || fields.civic_profile.is_some() != fields.civic_kind.is_some()
             || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
             || fields.civic_profile.is_some()

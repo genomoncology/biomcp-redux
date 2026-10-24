@@ -16,12 +16,15 @@ fn condition(
     id: Option<String>,
     label: Option<String>,
 ) -> Result<AssertionCondition, BadReply> {
-    let id = match (db, id) {
-        (Some(db), Some(id)) => Some(format!("{db}:{id}").parse().map_err(|_| BadReply)?),
+    let qualified = match (&db, &id) {
+        (_, Some(id)) if id.contains(':') => id.parse().ok(),
+        (Some(db), Some(id)) => format!("{db}:{id}").parse().ok(),
         _ => None,
     };
     Ok(AssertionCondition {
-        id,
+        database: db.as_deref().map(text).transpose()?,
+        accession: id.as_deref().map(text).transpose()?,
+        id: qualified,
         label: label
             .filter(|s| !s.trim().is_empty())
             .map(|s| text(&s))
