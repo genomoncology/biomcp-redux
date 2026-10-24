@@ -8,6 +8,7 @@ mod cache;
 mod cache_access;
 pub use cache_access::CacheAccess;
 mod cache_request;
+mod containment;
 mod deadline;
 mod declaration;
 mod destination;
