@@ -2075,7 +2075,14 @@
       "description": "One native MyVariant candidate page; its total and offset are in the shared envelope.",
       "properties": {
         "build": {
-          "$ref": "#/$defs/Build",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Assembly sent to the source, never inferred from a candidate label."
         },
         "items": {
@@ -2092,7 +2099,6 @@
       },
       "required": [
         "source_query",
-        "build",
         "items"
       ],
       "type": "object"
@@ -2249,7 +2255,7 @@
       "properties": {
         "build": {
           "$ref": "#/$defs/Build",
-          "description": "Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly."
+          "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
         },
         "gene": {
           "$ref": "#/$defs/GeneSymbol",
@@ -2341,7 +2347,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant_page/1",
+  "$id": "biomcp.variant_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2387,7 +2393,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_page/1",
+      "const": "biomcp.variant_page/2",
       "type": "string"
     },
     "sources": {

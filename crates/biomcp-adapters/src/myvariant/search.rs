@@ -5,6 +5,7 @@ use crate::Mapped;
 use biodata::{Build, VariantHeader, VariantSearch};
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use serde::Deserialize;
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38";
 /// Native MyVariant page; no local sort or deduplication changes candidate identity.
 #[derive(Debug)]
 pub struct SearchPage {
@@ -36,43 +37,43 @@ impl Reply for Page {
 /// Send one declared native query window and validate it before cache admission.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let (page, _) = leg.json_received_checked::<Page>(
-        &QUERY,
-        &[
-            ("q", Arg::Text(&term)),
-            ("size", Arg::Num(u64::from(query.limit()))),
-            ("from", Arg::Num(u64::from(query.offset()))),
-            ("fields", Arg::Text(super::FIELDS)),
-            (
-                "assembly",
-                Arg::Text(if query.build() == Build::Grch38 {
-                    "hg38"
-                } else {
-                    "hg19"
-                }),
-            ),
-        ],
-        |page| {
-            if page.hits.len() <= query.limit() as usize
-                && page.hits.len() as u64
-                    == page
-                        .total
-                        .saturating_sub(u64::from(query.offset()))
-                        .min(u64::from(query.limit()))
-            {
-                Ok(())
+    let mut args = vec![
+        ("q", Arg::Text(&term)),
+        ("size", Arg::Num(u64::from(query.limit()))),
+        ("from", Arg::Num(u64::from(query.offset()))),
+        ("fields", Arg::Text(FIELDS)),
+    ];
+    if let Some(build) = query.build() {
+        args.push((
+            "assembly",
+            Arg::Text(if build == Build::Grch38 {
+                "hg38"
             } else {
-                Err(BadReply)
-            }
-        },
-    )?;
+                "hg19"
+            }),
+        ));
+    }
+    let (page, _) = leg.json_received_checked::<Page>(&QUERY, &args, |page| {
+        if page.hits.len() <= query.limit() as usize
+            && page.hits.len() as u64
+                == page
+                    .total
+                    .saturating_sub(u64::from(query.offset()))
+                    .min(u64::from(query.limit()))
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    })?;
     let mut rows = Mapped {
         value: Vec::new(),
         problems: Vec::new(),
     };
     for hit in page.hits {
         let id = hit.id.clone();
-        let mapped = map::candidates(vec![hit], id.as_str(), query.build());
+        let build = super::search_build::source_build(&hit);
+        let mapped = map::candidates(vec![hit], id.as_str(), build);
         rows.value.extend(mapped.value);
         rows.problems.extend(mapped.problems);
     }

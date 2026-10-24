@@ -580,7 +580,7 @@
       "properties": {
         "build": {
           "$ref": "#/$defs/Build",
-          "description": "Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly."
+          "description": "Optional caller assembly sent to MyVariant; regions require it explicitly."
         },
         "command": {
           "const": "search_variant",
