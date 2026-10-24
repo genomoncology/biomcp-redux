@@ -97,7 +97,9 @@ impl XmlReply for Records {
                 _ => {}
             }
         };
-        if Element(&xml[start..]).child("ERROR")?.is_some() { return Err(BadReply); }
+        if Element(&xml[start..]).child("ERROR")?.is_some() {
+            return Err(BadReply);
+        }
         let articles = Element(&xml[start..])
             .children("PubmedArticle")?
             .into_iter()

@@ -695,26 +695,56 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
     let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
     exchange(&server, 200, r#"{"answer":true}"#, || {
         get(&fetch, spec, &endpoint, &[("id", Arg::Num(1))])
-    }).unwrap();
-    Connection::open(&path).unwrap()
-        .execute("UPDATE reply SET fetched_at=1234567890", []).unwrap();
+    })
+    .unwrap();
+    Connection::open(&path)
+        .unwrap()
+        .execute("UPDATE reply SET fetched_at=1234567890", [])
+        .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let worker = scope.spawn(|| leg.batch(&[1, 2], |child, id| {
-            child.json::<Answer>(&endpoint, &[("id", Arg::Num(*id))])
-        }));
+        let worker = scope.spawn(|| {
+            leg.batch(&[1, 2], |child, id| {
+                child.json::<Answer>(&endpoint, &[("id", Arg::Num(*id))])
+            })
+        });
         let request = server.next();
         assert!(request.text.contains("id=2"));
         request.ok();
-        assert!(worker.join().unwrap().into_iter().all(|row| row.unwrap().answer));
+        assert!(
+            worker
+                .join()
+                .unwrap()
+                .into_iter()
+                .all(|row| row.unwrap().answer)
+        );
     });
     let report = leg.finish();
     assert_eq!(report.replies.len(), 2);
     assert_ne!(report.replies[0].identity, report.replies[1].identity);
-    assert_eq!(report.replies.iter().filter(|r|r.fetched==1234567890).count(), 1);
-    assert_eq!(report.replies.iter().filter(|r|r.fetched>1234567890).count(), 1);
-    let offline = Fetch::open(FetchConfig { mode:Mode::Offline, ..config(&path) }).unwrap();
+    assert_eq!(
+        report
+            .replies
+            .iter()
+            .filter(|r| r.fetched == 1234567890)
+            .count(),
+        1
+    );
+    assert_eq!(
+        report
+            .replies
+            .iter()
+            .filter(|r| r.fetched > 1234567890)
+            .count(),
+        1
+    );
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        ..config(&path)
+    })
+    .unwrap();
     let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
-    leg.json::<Answer>(&endpoint, &[("id",Arg::Num(1))]).unwrap();
-    assert_eq!(leg.finish().replies[0].fetched,1234567890);
+    leg.json::<Answer>(&endpoint, &[("id", Arg::Num(1))])
+        .unwrap();
+    assert_eq!(leg.finish().replies[0].fetched, 1234567890);
 }

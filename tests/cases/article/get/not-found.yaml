@@ -16,7 +16,7 @@
         "/sources/0/state": "ok"
       },
       "exit": 1,
-      "max_bytes": 420
+      "max_bytes": 400
     },
     {
       "run": [
@@ -29,7 +29,7 @@
       },
       "exit": 1,
       "offline": true,
-      "max_bytes": 420
+      "max_bytes": 400
     }
   ]
 }
