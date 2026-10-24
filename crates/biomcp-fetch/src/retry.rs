@@ -33,7 +33,9 @@ pub(crate) fn backoff(identity: &[u8; 32], attempt: u32) -> Duration {
 }
 
 pub(crate) fn wait(delay: Duration, deadline: Deadline<'_>) -> bool {
-    if deadline.virtual_time() { return deadline.advance(delay); }
+    if deadline.virtual_time() {
+        return deadline.advance(delay);
+    }
     let Some(end) = Instant::now().checked_add(delay) else {
         return false;
     };

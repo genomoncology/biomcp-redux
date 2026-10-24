@@ -1,10 +1,21 @@
+use crate::record::{Body, Exchange};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use biodata::Reason;
-use std::{io::Read, time::{Duration, Instant}};
-use crate::record::{Exchange, Body};
+use std::{
+    io::Read,
+    time::{Duration, Instant},
+};
 
-struct Wire { status: u16, content_type: String, body: Vec<u8>, retry_after: Option<Duration> }
-enum Failure { Transport(ureq::Error), Local(RequestError) }
+struct Wire {
+    status: u16,
+    content_type: String,
+    body: Vec<u8>,
+    retry_after: Option<Duration>,
+}
+enum Failure {
+    Transport(ureq::Error),
+    Local(RequestError),
+}
 
 impl Leg<'_> {
     /// Send a checked JSON GET. A missing record returns `not_found`.
@@ -148,54 +159,120 @@ impl Leg<'_> {
             .call()
     }
 
-    fn exchange(&self, url: &str, identity: &[u8;32]) -> Result<Wire, Failure> {
+    fn exchange(&self, url: &str, identity: &[u8; 32]) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
-        if let Some(exchange) = self.fetch.recordings.replay(self.spec.source, identity, url, self.fetch.config.max_body).map_err(local)? {
-            if !self.deadline.advance(Duration::from_millis(exchange.delay_ms)) {
-                return Err(Failure::Local(self.failure(Reason::DeadlineExceeded, Some(exchange.status)).into()));
+        if let Some(exchange) = self
+            .fetch
+            .recordings
+            .replay(self.spec.source, identity, url, self.fetch.config.max_body)
+            .map_err(local)?
+        {
+            if !self
+                .deadline
+                .advance(Duration::from_millis(exchange.delay_ms))
+            {
+                return Err(Failure::Local(
+                    self.failure(Reason::DeadlineExceeded, Some(exchange.status))
+                        .into(),
+                ));
             }
-            return Ok(Wire { status: exchange.status, content_type: exchange.content_type,
-                body: exchange.body.bytes().to_vec(), retry_after: exchange.retry_after_ms.map(Duration::from_millis) });
+            return Ok(Wire {
+                status: exchange.status,
+                content_type: exchange.content_type,
+                body: exchange.body.bytes().to_vec(),
+                retry_after: exchange.retry_after_ms.map(Duration::from_millis),
+            });
         }
         let started = Instant::now();
         let mut response = self.call(url).map_err(Failure::Transport)?;
         let status = response.status().as_u16();
-        let content_type = response.headers().get("content-type").and_then(|v| v.to_str().ok()).unwrap_or("").to_owned();
-        let retry_after = response.headers().get("retry-after").and_then(|v| v.to_str().ok())
+        let content_type = response
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_owned();
+        let retry_after = response
+            .headers()
+            .get("retry-after")
+            .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
         let mut body = Vec::new();
-        let recording = matches!(self.fetch.config.mode, crate::Mode::Record {..});
+        let recording = matches!(self.fetch.config.mode, crate::Mode::Record { .. });
         if recording || (200..300).contains(&status) {
-            response.body_mut().as_reader().take(self.fetch.config.max_body + 1).read_to_end(&mut body).map_err(|error| {
-                Failure::Local(self.failure(if error.kind() == std::io::ErrorKind::TimedOut || self.deadline.expired() {
-                    Reason::DeadlineExceeded
-                } else { Reason::BadReply }, Some(status)).into())
-            })?;
+            response
+                .body_mut()
+                .as_reader()
+                .take(self.fetch.config.max_body + 1)
+                .read_to_end(&mut body)
+                .map_err(|error| {
+                    Failure::Local(
+                        self.failure(
+                            if error.kind() == std::io::ErrorKind::TimedOut
+                                || self.deadline.expired()
+                            {
+                                Reason::DeadlineExceeded
+                            } else {
+                                Reason::BadReply
+                            },
+                            Some(status),
+                        )
+                        .into(),
+                    )
+                })?;
             if body.len() as u64 > self.fetch.config.max_body {
-                return Err(Failure::Local(self.failure(Reason::BadReply, Some(status)).into()));
+                return Err(Failure::Local(
+                    self.failure(Reason::BadReply, Some(status)).into(),
+                ));
             }
         }
         if recording {
-            let exchange = Exchange { status, content_type: content_type.clone(), body: Body::capture(body.clone()).map_err(local)?,
+            let exchange = Exchange {
+                status,
+                content_type: content_type.clone(),
+                body: Body::capture(body.clone()).map_err(local)?,
                 delay_ms: crate::record::millis(started.elapsed()).map_err(local)?,
-                retry_after_ms: retry_after.map(crate::record::millis).transpose().map_err(local)? };
-            self.fetch.recordings.append(self.spec.source, identity, url, exchange).map_err(local)?;
+                retry_after_ms: retry_after
+                    .map(crate::record::millis)
+                    .transpose()
+                    .map_err(local)?,
+            };
+            self.fetch
+                .recordings
+                .append(self.spec.source, identity, url, exchange)
+                .map_err(local)?;
         }
-        Ok(Wire {status, content_type, body, retry_after})
+        Ok(Wire {
+            status,
+            content_type,
+            body,
+            retry_after,
+        })
     }
 
     fn decode<T: Reply>(&self, response: Wire) -> Result<(T, u16, Vec<u8>), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
-        let content_type = response.content_type.split(';').next().unwrap_or("").trim().to_ascii_lowercase();
+        let content_type = response
+            .content_type
+            .split(';')
+            .next()
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
         if content_type != "application/json"
-            && !(content_type.starts_with("application/") && content_type.ends_with("+json")) {
+            && !(content_type.starts_with("application/") && content_type.ends_with("+json"))
+        {
             return Err(bad());
         }
-        if self.deadline.expired() { return Err(self.failure(Reason::DeadlineExceeded, Some(status))); }
+        if self.deadline.expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
+        }
         let reply: T = serde_json::from_slice(&response.body).map_err(|_| bad())?;
         reply.check().map_err(|_| bad())?;
-        if self.deadline.expired() { return Err(self.failure(Reason::DeadlineExceeded, Some(status))); }
+        if self.deadline.expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
+        }
         Ok((reply, status, response.body))
     }
 }

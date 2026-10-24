@@ -79,14 +79,26 @@ impl Leg<'_> {
         }
     }
 
-    fn offline<T: Reply>(&self, endpoint: &Endpoint, key: &[u8;32]) -> Result<T, RequestError> {
-        if let Some(cache) = self.fetch.cache.as_ref().filter(|_| endpoint.fresh.seconds().is_some()) {
+    fn offline<T: Reply>(&self, endpoint: &Endpoint, key: &[u8; 32]) -> Result<T, RequestError> {
+        if let Some(cache) = self
+            .fetch
+            .cache
+            .as_ref()
+            .filter(|_| endpoint.fresh.seconds().is_some())
+        {
             match self.checked_cached(cache, key)? {
                 Some(Checked::Positive(reply, fresh)) => {
-                    if !fresh { self.report.lock().unwrap_or_else(std::sync::PoisonError::into_inner).stale = true; }
+                    if !fresh {
+                        self.report
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner)
+                            .stale = true;
+                    }
                     return Ok(reply);
                 }
-                Some(Checked::Absent) => return Err(self.failure(Reason::NotFound, Some(404)).into()),
+                Some(Checked::Absent) => {
+                    return Err(self.failure(Reason::NotFound, Some(404)).into());
+                }
                 None => {}
             }
         }

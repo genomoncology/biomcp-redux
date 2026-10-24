@@ -17,8 +17,8 @@ pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
 };
 pub use error::{BadReply, CacheError, FetchError, RecordError, RequestError, SourceError};
-pub use record::ReplayCache;
 pub use quota::{Quota, Rate, SourceKey};
+pub use record::ReplayCache;
 pub use secret::{Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
 
@@ -103,15 +103,23 @@ impl Fetch {
             .build()
             .new_agent();
         let recordings = record::Recordings::open(&config.mode).map_err(FetchError::Recording)?;
-        let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline) && config.replay_cache.is_some() {
+        let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline)
+            && config.replay_cache.is_some()
+        {
             config.replay_cache.as_ref().map(|cache| cache.cache())
         } else if matches!(config.mode, Mode::Replay { .. }) {
             None
         } else {
-            config.cache.as_deref().map(cache::Cache::open).transpose()
-                .map_err(FetchError::Cache)?.map(std::sync::Arc::new)
+            config
+                .cache
+                .as_deref()
+                .map(cache::Cache::open)
+                .transpose()
+                .map_err(FetchError::Cache)?
+                .map(std::sync::Arc::new)
         };
-        let clock = matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
+        let clock =
+            matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
             agent,
             cache,

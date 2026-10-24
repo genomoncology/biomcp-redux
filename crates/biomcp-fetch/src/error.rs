@@ -138,5 +138,7 @@ impl fmt::Display for RecordError {
 }
 impl std::error::Error for RecordError {}
 impl From<RecordError> for RequestError {
-    fn from(error: RecordError) -> Self { Self::Recording(error) }
+    fn from(error: RecordError) -> Self {
+        Self::Recording(error)
+    }
 }
