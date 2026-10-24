@@ -106,7 +106,10 @@ pub(crate) fn global_arguments() -> Command {
 }
 fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
-    for verb in ["get", "search", "article"] {
+    for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
+        if QUERIES.iter().take(index).any(|(prior, _, _)| *prior == verb) {
+            continue;
+        }
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =

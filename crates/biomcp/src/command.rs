@@ -287,7 +287,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             word => break word,
         }
     };
-    let mut error = if matches!(root, Some("get" | "search" | "sync" | "article" | "key")) {
+    let mut error = if matches!(root, Some("sync" | "key")) || root.is_some_and(|root| crate::grammar::QUERIES.iter().any(|(verb, _, _)|*verb==root)) {
         biodata::ErrorEnvelope::arguments()
     } else {
         biodata::ErrorEnvelope::schema_usage()
