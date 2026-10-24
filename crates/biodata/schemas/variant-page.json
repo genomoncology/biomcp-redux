@@ -1746,12 +1746,34 @@
           "$ref": "#/$defs/Build",
           "description": "Assembly sent to the source, never inferred from a candidate label."
         },
+        "filter_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ComponentTerms"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent publisher terms for named ClinVar filters, present only when requested."
+        },
         "items": {
           "description": "Native source order, preserving every candidate including repeated source identities.",
           "items": {
             "$ref": "#/$defs/VariantHeader"
           },
           "type": "array"
+        },
+        "selector_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ComponentTerms"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent publisher terms for the declared dbNSFP gene/protein selector."
         },
         "source_query": {
           "description": "Exact query sent to the named source, without rewriting raw query text.",
@@ -1956,9 +1978,17 @@
           "$ref": "#/$defs/Build",
           "description": "Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly."
         },
+        "condition": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector."
+        },
         "gene": {
           "$ref": "#/$defs/GeneSymbol",
-          "description": "Exact checked gene symbol for the fixed MyVariant gene/protein field query."
+          "description": "Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches."
+        },
+        "has": {
+          "$ref": "#/$defs/VariantSearchField",
+          "description": "Require the selected component's identifier field. Only source-proven mappings are offered."
         },
         "limit": {
           "default": 10,
@@ -1982,11 +2012,15 @@
         },
         "query": {
           "$ref": "#/$defs/MyVariantQuery",
-          "description": "Raw MyVariant query, passed and echoed unchanged; requires --source myvariant."
+          "description": "Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead."
         },
         "region": {
           "$ref": "#/$defs/VariantRegion",
           "description": "Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build."
+        },
+        "review_status": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector."
         },
         "source": {
           "$ref": "#/$defs/VariantSearchSource",
@@ -1994,6 +2028,13 @@
         }
       },
       "type": "object"
+    },
+    "VariantSearchField": {
+      "description": "Source-proven component fields supported by the presence filter.",
+      "enum": [
+        "clinvar"
+      ],
+      "type": "string"
     },
     "VariantSearchSource": {
       "description": "The source-native query language exposed by variant search.",

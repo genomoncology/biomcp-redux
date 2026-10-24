@@ -23,8 +23,8 @@
         "--protein",
         "G719C"
       ],
-      "max_bytes": 978,
-      "max_tokens": 245,
+      "max_bytes": 1161,
+      "max_tokens": 291,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",

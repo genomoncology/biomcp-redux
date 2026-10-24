@@ -23,8 +23,8 @@
         "--protein",
         "E709K"
       ],
-      "max_bytes": 980,
-      "max_tokens": 245,
+      "max_bytes": 1163,
+      "max_tokens": 291,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",

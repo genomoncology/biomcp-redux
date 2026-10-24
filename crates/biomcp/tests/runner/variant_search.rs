@@ -416,12 +416,26 @@ fn terms_budget() -> Result<(), String> {
     Ok(())
 }
 fn subtract_selector(value: &mut Value, selected: bool) -> Result<usize, String> {
-    let expected = serde_json::to_value(biomcp_adapters::myvariant::components::label(
-        biomcp_adapters::myvariant::components::DBNSFP.terms,
-    ).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
-    let terms = value.pointer_mut("/result").and_then(Value::as_object_mut)
-        .ok_or("missing source result")?.remove("selector_terms");
-    if !selected && terms.is_none() { return Ok(0); }
-    if terms.as_ref() != Some(&expected) { return Err("selector terms changed during subtraction".into()); }
-    Ok(serde_json::to_vec(&json!({"selector_terms": expected})).map_err(|e| e.to_string())?.len() - 1)
+    let expected = serde_json::to_value(
+        biomcp_adapters::myvariant::components::label(
+            biomcp_adapters::myvariant::components::DBNSFP.terms,
+        )
+        .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    let terms = value
+        .pointer_mut("/result")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing source result")?
+        .remove("selector_terms");
+    if !selected && terms.is_none() {
+        return Ok(0);
+    }
+    if terms.as_ref() != Some(&expected) {
+        return Err("selector terms changed during subtraction".into());
+    }
+    Ok(serde_json::to_vec(&json!({"selector_terms": expected}))
+        .map_err(|e| e.to_string())?
+        .len()
+        - 1)
 }
