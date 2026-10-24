@@ -182,6 +182,42 @@
       },
       "type": "object"
     },
+    "AssertionConditionRelationship": {
+      "additionalProperties": false,
+      "description": "A source trait relationship without assigning a clinical interpretation.",
+      "properties": {
+        "related_conditions": {
+          "description": "Conditions named by the related source trait.",
+          "items": {
+            "$ref": "#/$defs/AssertionCondition"
+          },
+          "type": "array"
+        },
+        "relationship_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Relationship type exactly supplied by the source."
+        },
+        "source_conditions": {
+          "description": "Conditions on the source trait that owns this relationship.",
+          "items": {
+            "$ref": "#/$defs/AssertionCondition"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_conditions",
+        "related_conditions"
+      ],
+      "type": "object"
+    },
     "AssertionDetail": {
       "additionalProperties": false,
       "description": "Source details that do not fit the compact shared statement.",
@@ -208,6 +244,13 @@
           "description": "Native classification comments, without extracting clinical claims.",
           "items": {
             "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "condition_relationships": {
+          "description": "Native trait relationships, kept separate from assertion conditions.",
+          "items": {
+            "$ref": "#/$defs/AssertionConditionRelationship"
           },
           "type": "array"
         },

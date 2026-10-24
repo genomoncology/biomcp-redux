@@ -303,6 +303,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         variant_assertion_wire::trials()
             .into_iter()
             .chain(variant_assertions::trials())
+            .chain(variant_condition_relationship::trials())
             .collect::<Vec<_>>(),
     );
     trials.extend(variant_population::trials());
@@ -462,3 +463,4 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
 
 mod variant_assertion_wire;
 mod variant_assertions;
+mod variant_condition_relationship;

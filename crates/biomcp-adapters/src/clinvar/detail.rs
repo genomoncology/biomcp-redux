@@ -2,7 +2,7 @@ use super::map::text;
 use crate::xml_element::Element;
 use biodata::Text;
 use biomcp_fetch::BadReply;
-use biomcp_types::{AssertionCondition, AssertionDetail};
+use biomcp_types::{AssertionCondition, AssertionConditionRelationship, AssertionDetail};
 pub(super) fn rcv_conditions(record: Element<'_>) -> Result<Vec<AssertionCondition>, BadReply> {
     let Some(list) = record.child("ClassifiedConditionList")? else {
         return Ok(Vec::new());
@@ -53,6 +53,7 @@ pub(super) fn submission(record: Element<'_>) -> Result<AssertionDetail, BadRepl
     detail.methods = methods.into();
     detail.citations = citations.into();
     detail.conditions = conditions(record)?.into();
+    detail.condition_relationships = relationships(record)?.into();
     let mut origins = Vec::<Text>::new();
     if let Some(observations) = record.child("ObservedInList")? {
         for observation in observations.children("ObservedIn")? {
@@ -71,39 +72,54 @@ pub(super) fn conditions(record: Element<'_>) -> Result<Vec<AssertionCondition>,
     let mut conditions = Vec::new();
     for set in record.children("TraitSet")? {
         for trait_ in set.children("Trait")? {
-            let mut preferred = None;
-            let mut labels = Vec::new();
-            for name in trait_.children("Name")? {
-                if let Some(value) = name.child("ElementValue")? {
-                    let label = value.text()?;
-                    if value.attr("Type")?.as_deref() == Some("Preferred") {
-                        preferred = Some(label.clone());
-                    }
-                    labels.push(label);
-                }
-            }
-            let label = preferred.or_else(|| {
-                if labels.len() == 1 {
-                    labels.pop()
-                } else {
-                    None
-                }
-            });
-            let refs = trait_.children("XRef")?;
-            if refs.is_empty() {
-                if label.is_some() {
-                    conditions.push(condition(None, None, label)?);
-                }
-                continue;
-            }
-            for reference in refs {
-                conditions.push(condition(
-                    reference.attr("DB")?,
-                    reference.attr("ID")?,
-                    label.clone(),
-                )?);
-            }
+            conditions.extend(trait_conditions(trait_)?);
         }
     }
     Ok(conditions)
+}
+fn relationships(record: Element<'_>) -> Result<Vec<AssertionConditionRelationship>, BadReply> {
+    let mut relationships = Vec::new();
+    for set in record.children("TraitSet")? {
+        for trait_ in set.children("Trait")? {
+            for related in trait_.children("TraitRelationship")? {
+                relationships.push(AssertionConditionRelationship {
+                    relationship_type: related.attr("Type")?.as_deref().map(text).transpose()?,
+                    source_conditions: trait_conditions(trait_)?.into(),
+                    related_conditions: trait_conditions(related)?.into(),
+                });
+            }
+        }
+    }
+    Ok(relationships)
+}
+fn trait_conditions(trait_: Element<'_>) -> Result<Vec<AssertionCondition>, BadReply> {
+    let mut preferred = None;
+    let mut labels = Vec::new();
+    for name in trait_.children("Name")? {
+        if let Some(value) = name.child("ElementValue")? {
+            let label = value.text()?;
+            if value.attr("Type")?.as_deref() == Some("Preferred") {
+                preferred = Some(label.clone());
+            }
+            labels.push(label);
+        }
+    }
+    let label = preferred.or_else(|| {
+        if labels.len() == 1 {
+            labels.pop()
+        } else {
+            None
+        }
+    });
+    let refs = trait_.children("XRef")?;
+    if refs.is_empty() {
+        return if label.is_some() {
+            Ok(vec![condition(None, None, label)?])
+        } else {
+            Ok(Vec::new())
+        };
+    }
+    refs.into_iter()
+        .map(|reference| condition(reference.attr("DB")?, reference.attr("ID")?, label.clone()))
+        .collect()
 }
