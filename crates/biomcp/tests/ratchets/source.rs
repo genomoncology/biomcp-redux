@@ -11,6 +11,10 @@ const INLINE_TESTS: &[&str] = &[
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/batch.rs",
+        "Own bounded scoped callback threads and join their clocks before returning",
+    ),
+    (
         "crates/biomcp-fetch/src/deadline.rs",
         "Advance shared replay time without real sleeping",
     ),

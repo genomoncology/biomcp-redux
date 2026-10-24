@@ -28,6 +28,11 @@ impl VirtualClock {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
+    pub(crate) fn join(&self, other: &Self) {
+        let completed = other.now();
+        let mut now = self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        *now = (*now).max(completed);
+    }
     fn advance(&self, delay: Duration) -> bool {
         let mut now = self
             .0

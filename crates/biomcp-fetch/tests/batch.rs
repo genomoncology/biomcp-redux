@@ -5,7 +5,7 @@
 )]
 mod support;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, RequestError, SourceKey};
-use std::{sync::mpsc, thread, time::Duration};
+use std::{thread, time::Duration};
 use support::{Answer, Server};
 
 fn quota(in_flight: u8) -> &'static Quota {
@@ -21,8 +21,8 @@ fn overlapping_requests_keep_input_order_and_independent_failures() {
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let worker = scope.spawn(|| leg.batch(&[0, 1, 2], |leg, chunk| {
-            leg.json::<Answer>(&spec.get(&format!("/{chunk}")), &[])
+        let worker = scope.spawn(|| leg.batch(&["/0", "/1", "/2"], |leg, chunk| {
+            leg.json::<Answer>(&spec.get(chunk), &[])
         }));
         let requests: Vec<_> = (0..3).map(|_| server.next()).collect();
         for request in requests.into_iter().rev() {

@@ -6,7 +6,8 @@
 
 use crate::Deadline;
 use std::{
-    collections::{BTreeMap, VecDeque},
+    collections::{BTreeMap, BinaryHeap, VecDeque},
+    cmp::Reverse,
     sync::{Arc, Condvar, Mutex},
     time::{Duration, Instant},
 };
@@ -89,12 +90,12 @@ impl Quota {
 pub(crate) struct Limiters(Mutex<BTreeMap<SourceKey, Arc<Limiter>>>);
 
 impl Limiters {
-    pub(crate) fn acquire(
+    pub(crate) fn acquire<'a>(
         &self,
         quota: &'static Quota,
         keyed: bool,
-        deadline: Deadline<'_>,
-    ) -> Option<Permit> {
+        deadline: Deadline<'a>,
+    ) -> Option<Permit<'a>> {
         let limiter = self
             .0
             .lock()
@@ -119,6 +120,7 @@ struct State {
     in_flight: u8,
     updated: Option<Instant>,
     credit: u128,
+    completed: Option<BinaryHeap<Reverse<Instant>>>,
 }
 
 // Nanosecond token units retain exact rates across credential changes.
@@ -150,7 +152,7 @@ impl Limiter {
         }
     }
 
-    fn acquire(self: Arc<Self>, keyed: bool, deadline: Deadline<'_>) -> Option<Permit> {
+    fn acquire<'a>(self: Arc<Self>, keyed: bool, deadline: Deadline<'a>) -> Option<Permit<'a>> {
         let rate = if keyed {
             self.quota.keyed_rate.unwrap_or(self.quota.rate)
         } else {
@@ -158,6 +160,9 @@ impl Limiter {
         };
         let ticket = Arc::new(());
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
+        if deadline.virtual_time() && state.completed.is_none() {
+            state.completed = Some((0..self.quota.in_flight).map(|_| Reverse(deadline.now())).collect());
+        }
         state.queue.push_back(ticket.clone());
         loop {
             if deadline.expired() {
@@ -166,8 +171,9 @@ impl Limiter {
                 return None;
             }
             let mut now = deadline.now();
+            let slot = state.completed.as_ref().and_then(|times| times.peek()).map(|time| time.0);
             if deadline.virtual_time()
-                && let Some(last) = state.updated.filter(|last| *last > now)
+                && let Some(last) = state.updated.into_iter().chain(slot).max().filter(|last| *last > now)
             {
                 deadline.advance(last.duration_since(now));
                 now = deadline.now();
@@ -185,11 +191,14 @@ impl Limiter {
             if head && state.in_flight < self.quota.in_flight && delay.is_zero() {
                 state.queue.pop_front();
                 state.in_flight += 1;
+                if let Some(completed) = &mut state.completed {
+                    completed.pop();
+                }
                 state.credit = available - TOKEN;
                 state.updated = Some(now);
                 self.wake.notify_all();
                 drop(state);
-                return Some(Permit(self));
+                return Some(Permit { limiter: self, deadline });
             }
             let wait = if head && state.in_flight < self.quota.in_flight {
                 deadline.remaining().min(delay)
@@ -215,12 +224,18 @@ impl Limiter {
 }
 
 #[derive(Debug)]
-pub(crate) struct Permit(Arc<Limiter>);
+pub(crate) struct Permit<'a> {
+    limiter: Arc<Limiter>,
+    deadline: Deadline<'a>,
+}
 
-impl Drop for Permit {
+impl Drop for Permit<'_> {
     fn drop(&mut self) {
-        let mut state = self.0.state.lock().unwrap_or_else(|e| e.into_inner());
+        let mut state = self.limiter.state.lock().unwrap_or_else(|e| e.into_inner());
         state.in_flight -= 1;
-        self.0.wake.notify_all();
+        if let Some(completed) = &mut state.completed {
+            completed.push(Reverse(self.deadline.now()));
+        }
+        self.limiter.wake.notify_all();
     }
 }
