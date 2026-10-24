@@ -77,7 +77,9 @@ fn run_inner(
 ) -> Result<biodata::RegisteredKeys, Failure> {
     let path = crate::config::config_path(globals.config.as_ref()).ok_or(Failure::Local)?;
     // Validate the same config contract used by ordinary commands before preserving it.
-    if path.exists() { crate::config::secrets(globals).map_err(|()| Failure::Local)?; }
+    if path.exists() {
+        crate::config::secrets(globals).map_err(|()| Failure::Local)?;
+    }
     if matches!(command, Command::List) {
         let value = crate::config::key_file::read(&path)?;
         return Ok(biodata::RegisteredKeys {

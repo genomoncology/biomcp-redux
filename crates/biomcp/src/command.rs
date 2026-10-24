@@ -234,14 +234,24 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
     let root = loop {
         match words.next() {
-            Some("--format" | "--config" | "--replay" | "--record" | "--case-cache" | "--disable-sources") => {
+            Some(
+                "--format" | "--config" | "--replay" | "--record" | "--case-cache"
+                | "--disable-sources",
+            ) => {
                 words.next();
             }
             Some("--fresh" | "--offline") => {}
             Some(word)
-                if ["--format=", "--config=", "--replay=", "--record=", "--case-cache=", "--disable-sources="]
-                    .iter()
-                    .any(|prefix| word.starts_with(prefix)) => {}
+                if [
+                    "--format=",
+                    "--config=",
+                    "--replay=",
+                    "--record=",
+                    "--case-cache=",
+                    "--disable-sources=",
+                ]
+                .iter()
+                .any(|prefix| word.starts_with(prefix)) => {}
             word => break word,
         }
     };
@@ -329,9 +339,20 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biodata::KeyHelp {
-        guidance: Some(biodata::Text::new(&format!("biomcp key set {}{}", name.source(), if source == biodata::Source::SemanticScholar { "; a free key raises the request limit" } else { "" })).map_err(io::Error::other)?),
+        guidance: Some(
+            biodata::Text::new(&format!(
+                "biomcp key set {}{}",
+                name.source(),
+                if source == biodata::Source::SemanticScholar {
+                    "; a free key raises the request limit"
+                } else {
+                    ""
+                }
+            ))
+            .map_err(io::Error::other)?,
+        ),
         source,
-        config: biodata::Text::new(&format!("keys.{}",name.config())).map_err(io::Error::other)?,
+        config: biodata::Text::new(&format!("keys.{}", name.config())).map_err(io::Error::other)?,
         environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
     };
     encode(
