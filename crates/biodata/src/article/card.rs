@@ -1,12 +1,41 @@
 use crate::{Capped, Doi, PartialDate, Pmcid, Pmid, PublicationType, Text};
 use serde::{Deserialize, Serialize};
-/// Complete PubMed article facts; card disclosure caps authors without dropping their total.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct Article<A = Box<[Text]>> {
+// Keep the wire fields and checked entity in one declaration.
+macro_rules! article {
+    ($( $(#[$attribute:meta])* pub $field:ident: $ty:ty, )*) => {
+        /// Article facts with at least one checked identity.
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(try_from = "ArticleFields<A>")]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields,
+            extend("anyOf" = [
+                {"required":["pmid"], "properties":{"pmid":{"type":"string"}}},
+                {"required":["pmcid"], "properties":{"pmcid":{"type":"string"}}},
+                {"required":["doi"], "properties":{"doi":{"type":"string"}}}
+            ])))]
+        pub struct Article<A = Box<[Text]>> {
+            $( $(#[$attribute])* pub $field: $ty, )*
+        }
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct ArticleFields<A> {
+            $( $(#[$attribute])* $field: $ty, )*
+        }
+        impl<A> TryFrom<ArticleFields<A>> for Article<A> {
+            type Error = &'static str;
+            fn try_from(value: ArticleFields<A>) -> Result<Self, Self::Error> {
+                if value.pmid.is_none() && value.pmcid.is_none() && value.doi.is_none() {
+                    return Err("article identity required");
+                }
+                Ok(Self { $( $field: value.$field, )* })
+            }
+        }
+    };
+}
+article! {
     /// PubMed identity.
-    pub pmid: Pmid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pmid: Option<Pmid>,
     /// DOI assigned to this article.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub doi: Option<Doi>,

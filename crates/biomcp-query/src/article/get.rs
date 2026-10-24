@@ -87,7 +87,7 @@ fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure
         match result {
             Ok((rows, metadata)) => {
                 for row in rows {
-                    if ids.contains(&row.pmid)
+                    if row.pmid.is_some_and(|id| ids.contains(&id))
                         && !records.iter().any(|(r, _): &Record| r.pmid == row.pmid)
                     {
                         records.push((row, metadata.fetched));
@@ -101,7 +101,7 @@ fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure
 }
 fn agrees(input: &ArticleInput, card: &Article) -> bool {
     match input {
-        ArticleInput::Pmid(id) => *id == card.pmid,
+        ArticleInput::Pmid(id) => Some(*id) == card.pmid,
         ArticleInput::Pmcid(id) => card.pmcid.as_ref() == Some(id),
         ArticleInput::Doi(id) => card.doi.as_ref() == Some(id),
     }
@@ -129,7 +129,7 @@ fn append(
     for id in ids {
         if let Some((card, fetched)) = records
             .iter()
-            .find(|(card, _)| card.pmid == *id && agrees(input, card))
+            .find(|(card, _)| card.pmid == Some(*id) && agrees(input, card))
         {
             found = true;
             items.push(item(

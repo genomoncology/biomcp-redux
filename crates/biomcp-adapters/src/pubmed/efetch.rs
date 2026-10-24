@@ -141,7 +141,7 @@ fn article(root: Element<'_>) -> Result<Article, BadReply> {
         }
     }
     Ok(Article {
-        pmid,
+        pmid: Some(pmid),
         doi,
         pmcid,
         title,
