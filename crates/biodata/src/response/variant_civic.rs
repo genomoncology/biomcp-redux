@@ -33,7 +33,22 @@ pub struct CivicProfile {
     /// Native assertion count, independent of the displayed page.
     pub assertion_count: u64,
     /// Source claims; a compound claim retains a profile subject.
-    pub statements: Box<[Statement]>,
+    pub statements: Box<[CivicStatement]>,
+}
+
+/// One CIViC claim with native labels that exceed the common statement model.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CivicStatement {
+    /// Common source-attributed claim.
+    pub statement: Statement,
+    /// Original provider direction; disputes never implies the opposite effect.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direction: Option<Text>,
+    /// Original significance, including when the classification holds an AMP tier.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub significance: Option<Text>,
 }
 
 crate::macros::wire_enum! {

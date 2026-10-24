@@ -67,7 +67,7 @@ pub use article::{
 mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantResolution};
 mod variant_civic;
-pub use variant_civic::{CivicMembership, CivicProfile, VariantCivic};
+pub use variant_civic::{CivicMembership, CivicProfile, CivicStatement, VariantCivic};
 mod variant_hotspots;
 pub use variant_hotspots::{HotspotAlternate, HotspotRecord, VariantHotspots};
 mod trial;
