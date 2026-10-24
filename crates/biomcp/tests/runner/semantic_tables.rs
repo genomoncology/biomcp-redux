@@ -11,6 +11,11 @@ const ARGS: &[&str] = &[
     "semantic-scholar",
 ];
 pub(super) fn check() -> Check {
+    fields()?;
+    anonymous()?;
+    failures()
+}
+fn fields() -> Check {
     for (contexts, flag, expected) in [
         (
             None,
@@ -57,7 +62,9 @@ pub(super) fn check() -> Check {
             return Err("missing influential flag was invented".into());
         }
     }
-    anonymous()?;
+    Ok(())
+}
+fn failures() -> Check {
     for (value, reason) in [
         (json!({"data":[],"next":0}), "bad_reply"),
         (
@@ -115,9 +122,16 @@ fn anonymous() -> Check {
             });
             record["exchanges"][0]["body"]["value"] = json!({"data":rows});
         },
-        json!({"/status":"complete","/page/total":2,"/result/items/*/header/title":["First anonymous source row.","Second anonymous source row."],"/next/*/kind":{"excludes":"disambiguate"}}),
+        json!({"/status":"complete","/page/total":2,"/result/items/*/header/title":["First anonymous source row.","Second anonymous source row."]}),
         0,
     )?;
+    if value
+        .get("next")
+        .and_then(|v| v.as_array())
+        .is_some_and(|steps| !steps.is_empty())
+    {
+        return Err("anonymous rows gained an external step".into());
+    }
     for i in 0..2 {
         if value.pointer(&format!("/result/items/{i}/key")).is_some() {
             return Err("anonymous row gained an identity".into());
