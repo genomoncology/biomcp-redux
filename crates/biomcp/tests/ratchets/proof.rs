@@ -172,5 +172,9 @@ fn case_parser_stays_outside_runtime_dependencies() -> Check {
 
 #[test]
 fn rejects_unlisted_integration_test_folders() -> Check {
-    rejects("crates/biomcp-adapters/tests/unlisted/hidden.rs", "#[test]\nfn hidden() {}", "test outside listed locations")
+    rejects(
+        "crates/biomcp-adapters/tests/unlisted/hidden.rs",
+        "#[test]\nfn hidden() {}",
+        "test outside listed locations",
+    )
 }

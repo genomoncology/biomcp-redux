@@ -8,9 +8,9 @@ mod graphql;
 mod hgnc;
 mod mygene;
 
+use super::response_cases::case;
 use libtest_mimic::Trial;
 use serde_json::Value;
-use super::response_cases::case;
 
 type Check = Result<(), Box<dyn std::error::Error>>;
 
@@ -48,7 +48,8 @@ fn tsv(record: &mut Value, symbol: &str, edits: &[(&str, &str)]) {
         if cells.get(index).is_some_and(|v| v == symbol) {
             for (field, value) in edits {
                 if let Some(i) = fields.iter().position(|v| v == field)
-                    && let Some(cell) = cells.get_mut(i) {
+                    && let Some(cell) = cells.get_mut(i)
+                {
                     *cell = (*value).into();
                 }
             }

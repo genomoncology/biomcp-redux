@@ -143,7 +143,7 @@ fn markup() -> Check {
         body,
         |_| {},
         &["article", "text", "PMC5606870", "--part", "2"],
-        json!({"/result/content/data/markdown": "### First\n\nA & B α &lt;sample&gt; [1]."}),
+        json!({"/result/content/data/markdown": "### First\n\nA & B α &lt;sample&gt; 1."}),
     )?;
     run(
         "",

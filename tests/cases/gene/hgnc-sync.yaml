@@ -5,7 +5,7 @@ steps:
   - run: [sync, hgnc]
     expect:
       /status: complete
-      /result/rows: 175
+      /result/rows: 176
   - run: [search, gene, BRAF]
     offline: true
     expect:
