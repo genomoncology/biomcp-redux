@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "pubmed",
-  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%28ERBB2%20OR%20HER2%20OR%20NGL%29%20AND%20low%20trastuzumab%20deruxtecan&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%28ERBB2%20OR%20HER2%29%20AND%20low%20trastuzumab%20deruxtecan&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
   "exchanges": [
     {
       "status": 200,

@@ -43,6 +43,8 @@
         "moved to the variant entity",
         "use: --locus-group",
         "use: search article <text>",
+        "no score blends in 1.0; each source keeps its own order",
+        "use: get article <id> pdf",
         "use: --since",
         "use: --until",
         "use: --sort citations",

@@ -41,16 +41,17 @@ const ARTICLE_SEARCH: &[(&str, ErrorMessage)] = &[
     ("-g", ErrorMessage::GeneOption),
     ("-d", ErrorMessage::DiseaseOption),
     ("-a", ErrorMessage::AuthorOption),
-    ("--ranking-mode", ErrorMessage::Dropped),
-    ("--weight-semantic", ErrorMessage::Dropped),
-    ("--weight-lexical", ErrorMessage::Dropped),
-    ("--weight-position", ErrorMessage::Dropped),
+    ("--ranking-mode", ErrorMessage::ScoreBlends),
+    ("--weight-semantic", ErrorMessage::ScoreBlends),
+    ("--weight-lexical", ErrorMessage::ScoreBlends),
+    ("--weight-position", ErrorMessage::ScoreBlends),
     ("--max-per-source", ErrorMessage::Dropped),
     ("--session", ErrorMessage::Dropped),
     ("--debug-plan", ErrorMessage::Dropped),
     ("--full", ErrorMessage::Dropped),
 ];
 const ARTICLE_GET: &[(&str, ErrorMessage)] = &[
+    ("--pdf", ErrorMessage::ArticlePdf),
     ("--outline", ErrorMessage::Fulltext),
     ("--lines", ErrorMessage::ArticlePart),
     ("--out", ErrorMessage::Dropped),
@@ -62,7 +63,6 @@ const ARTICLE_GET: &[(&str, ErrorMessage)] = &[
 const ARTICLE_SECTIONS: &[(&str, ErrorMessage)] = &[
     ("assets", ErrorMessage::Supplements),
     ("asset", ErrorMessage::Supplement),
-    ("indexing", ErrorMessage::Dropped),
 ];
 fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
     table
