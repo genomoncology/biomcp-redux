@@ -1,6 +1,7 @@
 # 0038 — Add article sections with annotations from PubTator3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0d172c854e5613c92285bc1355edf86962707e95
 
 Milestone: 1
 
