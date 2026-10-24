@@ -138,6 +138,9 @@ impl Leg<'_> {
         }
         let reply: T = serde_json::from_slice(&bytes).map_err(|_| bad())?;
         reply.check().map_err(|_| bad())?;
+        if self.deadline.expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
+        }
         Ok(reply)
     }
 }
