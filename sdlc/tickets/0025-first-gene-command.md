@@ -1,6 +1,7 @@
 # 0025 — Answer get gene and search gene in the response envelope
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c36d916649ed8147d9510f9a45c280b9d1c3de95
 
 Milestone: 1
 
