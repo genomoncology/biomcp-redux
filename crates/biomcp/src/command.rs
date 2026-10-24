@@ -121,20 +121,7 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
             biodata::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
         ),
-        (_, QueryBody::PoolError { mismatch }) => {
-            let restart = steps
-                .into_iter()
-                .next()
-                .ok_or_else(|| io::Error::other("missing restart"))?;
-            encode(
-                biodata::ErrorEnvelope::pool(mismatch, restart),
-                if mismatch {
-                    crate::exit::Status::Usage
-                } else {
-                    crate::exit::Status::Expired
-                },
-            )
-        }
+        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
             QueryBody::ArticleEdges(body),
@@ -324,4 +311,12 @@ fn run_request(
         },
         request,
     ))
+}
+
+fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {
+    let restart = steps.into_iter().next().ok_or_else(|| io::Error::other("missing restart"))?;
+    encode(
+        biodata::ErrorEnvelope::pool(mismatch, restart),
+        if mismatch { crate::exit::Status::Usage } else { crate::exit::Status::Expired },
+    )
 }
