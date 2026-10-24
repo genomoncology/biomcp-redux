@@ -4,6 +4,7 @@ use biodata::{Build, VariantHeader, VariantSearch};
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use serde::Deserialize;
 /// Native MyVariant page; no local sort or deduplication changes candidate identity.
+#[derive(Debug)]
 pub struct SearchPage {
     /// Total reported by MyVariant for this exact query.
     pub total: u64,
