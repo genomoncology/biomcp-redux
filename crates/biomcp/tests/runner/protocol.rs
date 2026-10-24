@@ -106,6 +106,16 @@ fn validation_frames() -> Result<Vec<Value>, String> {
     ));
     frames.push(json!({"jsonrpc":"2.0","id":16,"method":"ping","params":[]}));
     frames.push(json!({"jsonrpc":"2.0", "id":"invalid-method", "method":9}));
+    for (index, malformed) in [Value::Null, json!([]), json!("SENSITIVE-meta")]
+        .into_iter()
+        .enumerate()
+    {
+        frames.push(json!({"jsonrpc":"2.0", "id":20 + index, "method":"ping",
+            "params":{"_meta":malformed}}));
+    }
+    for (index, malformed) in [Value::Null, json!([]), json!(7)].into_iter().enumerate() {
+        frames.push(request(json!(23 + index), "tools/list", json!({"cursor":malformed})));
+    }
     Ok(frames)
 }
 
@@ -127,6 +137,12 @@ fn validation() -> Check {
         (14, -32602),
         (15, -32602),
         (16, -32602),
+        (20, -32602),
+        (21, -32602),
+        (22, -32602),
+        (23, -32602),
+        (24, -32602),
+        (25, -32602),
     ] {
         if reply(&replies, &json!(id))?.pointer("/error/code") != Some(&json!(code)) {
             return Err(format!("wrong validation code for {id}: {replies:?}"));
