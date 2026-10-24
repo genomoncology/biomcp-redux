@@ -1,0 +1,116 @@
+{
+  "feature": "article-annotations",
+  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
+  "replay": "article/annotations/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537"
+      ],
+      "expect": {
+        "/result/items/0/more": [
+          "annotations"
+        ],
+        "/next/0/kind": "section",
+        "/next/0/args": [
+          "get",
+          "article",
+          "33123537",
+          "annotations"
+        ]
+      },
+      "max_bytes": 2900
+    },
+    {
+      "follow": "section",
+      "expect": {
+        "/result/items/0/sections/annotations/state": "data"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "--section",
+        "annotations",
+        "--section",
+        "annotations"
+      ],
+      "expect": {
+        "/result/items/0/sections/annotations/state": "data"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "all"
+      ],
+      "expect": {
+        "/result/items/0/sections/annotations/state": "data"
+      },
+      "mcp": [
+        "get",
+        "article",
+        "33123537",
+        "all"
+      ],
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "annotations",
+        "all"
+      ],
+      "expect": {
+        "/result/items/0/sections/annotations/state": "data"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "annotations"
+      ],
+      "expect": {
+        "/status": "usage"
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "Annotations"
+      ],
+      "expect": {
+        "/status": "usage"
+      },
+      "exit": 2
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "--section",
+        "bogus"
+      ],
+      "expect": {
+        "/status": "usage"
+      },
+      "exit": 2
+    }
+  ]
+}

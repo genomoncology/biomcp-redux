@@ -84,6 +84,7 @@ Sources:
 - [x] Plain PubMed search with stable stored pages
 - [x] PubMed author, journal, date and publication-type filters and date order
 - [x] Get by PMID, PMCID and DOI with article cards
+- [x] Article section grammar and PubTator3 annotations through CLI and MCP
 - [ ] Full text, supplementary material and citations
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
@@ -93,7 +94,7 @@ Sources:
 
 Sources:
 - [x] PubMed search and page summaries (optional key)
-- [ ] PubTator3 (optional key)
+- [x] PubTator3 export for annotations
 - [ ] Europe PMC
 - [ ] Semantic Scholar (optional key)
 - [ ] PMC Open Access and NCBI ID converter (optional key)

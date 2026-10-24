@@ -1,0 +1,55 @@
+//! PubTator3 abstract annotation export, joined by each document's own PMID.
+mod map;
+mod raw;
+use crate::{Mapped, quotas};
+use biodata::{Annotations, Pmid, Section, Source};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use std::time::Duration;
+/// Conservative application batch bound; DOI expansions are batched by the caller.
+pub const BATCH_LIMIT: usize = 20;
+/// Public export policy; its quota is local policy, not a claimed provider limit.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::PubTator,
+    base: "https://www.ncbi.nlm.nih.gov/research/pubtator3-api",
+    key: KeyUse::None,
+    quota: &quotas::PUBTATOR,
+    deadline: Duration::from_secs(8),
+};
+const EXPORT: Endpoint = SPEC
+    .get("/publications/export/biocjson")
+    .fresh(Freshness::Days(7));
+/// One PMID's independently mapped export section.
+#[derive(Debug)]
+pub struct ArticleAnnotations {
+    /// Requested document identity.
+    pub id: Pmid,
+    /// Mapped section and optional field problems.
+    pub annotations: Mapped<Section<Annotations>>,
+}
+/// Export unique PMIDs in one bounded request and retain absent documents as empty sections.
+pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations>, RequestError> {
+    if ids.is_empty() || ids.len() > BATCH_LIMIT {
+        return Err(biomcp_fetch::SourceError {
+            source: Source::PubTator,
+            reason: biodata::Reason::BadReply,
+            status: None,
+            retry_after: None,
+        }
+        .into());
+    }
+    let names: Vec<_> = ids
+        .iter()
+        .map(|id| id.to_string().into_boxed_str())
+        .collect();
+    let reply = leg.json::<raw::Export>(&EXPORT, &[("pmids", Arg::Ids(&names))])?;
+    Ok(ids
+        .iter()
+        .map(|id| {
+            let document = reply.documents.iter().find(|doc| doc.id == *id);
+            ArticleAnnotations {
+                id: *id,
+                annotations: map::document(*id, document),
+            }
+        })
+        .collect())
+}

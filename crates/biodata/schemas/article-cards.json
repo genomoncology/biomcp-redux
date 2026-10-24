@@ -25,6 +25,92 @@
       ],
       "type": "object"
     },
+    "AnnotatedEntity": {
+      "additionalProperties": false,
+      "description": "One normalized entity with its mention count.",
+      "properties": {
+        "count": {
+          "description": "Number of annotation mentions.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "entrez_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EntrezGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Gene identity, including a variant's associated gene."
+        },
+        "hgvs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source HGVS expression for a variant."
+        },
+        "kind": {
+          "$ref": "#/$defs/AnnotationKind",
+          "description": "Source concept type."
+        },
+        "mesh": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source MeSH identity for a disease or chemical."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source normalized name."
+        },
+        "rsid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference SNP identity for a variant."
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "count"
+      ],
+      "type": "object"
+    },
+    "AnnotationKind": {
+      "description": "Normalized annotation category in deterministic tie order.",
+      "enum": [
+        "gene",
+        "variant",
+        "disease",
+        "chemical"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Gene mention.",
+        " Genetic variant mention.",
+        " Disease mention.",
+        " Chemical mention."
+      ]
+    },
     "Article": {
       "additionalProperties": false,
       "anyOf": [
@@ -138,6 +224,24 @@
           "$ref": "#/$defs/ArticleInput",
           "description": "Original selector."
         },
+        "more": {
+          "description": "Applicable sections omitted by this request.",
+          "items": {
+            "$ref": "#/$defs/ArticleSection"
+          },
+          "type": "array"
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested section states for a resolved card."
+        },
         "status": {
           "$ref": "#/$defs/Status",
           "description": "This card's outcome."
@@ -179,6 +283,14 @@
           "minItems": 1,
           "type": "array",
           "x-positional": 0
+        },
+        "section": {
+          "description": "Requested section words; trailing words and --section share this field.",
+          "items": {
+            "$ref": "#/$defs/ArticleSectionWord"
+          },
+          "type": "array",
+          "x-trailing-section": true
         }
       },
       "required": [
@@ -268,6 +380,46 @@
         }
       ]
     },
+    "ArticleSection": {
+      "description": "A landed article section.",
+      "enum": [
+        "annotations"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Normalized text-mined entities from PubTator3."
+      ]
+    },
+    "ArticleSectionWord": {
+      "description": "Article section request including all landed sections.",
+      "enum": [
+        "annotations",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Normalized text-mined entities from PubTator3.",
+        " Every landed article section."
+      ]
+    },
+    "ArticleSections": {
+      "additionalProperties": false,
+      "description": "Landed article sections with independent source states.",
+      "properties": {
+        "annotations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Normalized PubTator3 entities."
+        }
+      },
+      "type": "object"
+    },
     "Capped": {
       "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
@@ -276,6 +428,30 @@
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Capped2": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/AnnotatedEntity"
           },
           "type": "array"
         },
@@ -343,6 +519,10 @@
     },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "EntrezGeneId": {
+      "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "PageInfo": {
@@ -567,6 +747,127 @@
         " Identity lacks the identifier required to join this source."
       ]
     },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Capped2",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
@@ -691,6 +992,31 @@
       "required": [
         "source",
         "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
       ],
       "type": "object"
     },

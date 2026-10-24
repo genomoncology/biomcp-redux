@@ -1,6 +1,8 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod fold;
 pub mod get;
+mod next;
+mod sections;
 mod sources;
 mod term;
 use crate::{

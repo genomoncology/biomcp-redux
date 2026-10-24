@@ -1,0 +1,101 @@
+{
+  "method": "GET",
+  "source": "pubtator",
+  "url": "https://www.ncbi.nlm.nih.gov/research/pubtator3-api/publications/export/biocjson?pmids=10000001%2C10000002%2C10000003%2C10000004%2C10000005%2C10000006%2C10000007%2C10000008%2C10000009%2C10000010%2C10000011%2C10000012%2C10000013%2C10000014%2C10000015%2C10000016%2C10000017%2C10000018%2C10000019%2C10000020",
+  "exchanges": [
+    {
+      "fetched": 1792841189,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 198,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "PubTator3": [
+            {
+              "id": "10000020",
+              "passages": []
+            },
+            {
+              "id": "10000019",
+              "passages": []
+            },
+            {
+              "id": "10000018",
+              "passages": []
+            },
+            {
+              "id": "10000017",
+              "passages": []
+            },
+            {
+              "id": "10000016",
+              "passages": []
+            },
+            {
+              "id": "10000015",
+              "passages": []
+            },
+            {
+              "id": "10000014",
+              "passages": []
+            },
+            {
+              "id": "10000013",
+              "passages": []
+            },
+            {
+              "id": "10000012",
+              "passages": []
+            },
+            {
+              "id": "10000011",
+              "passages": []
+            },
+            {
+              "id": "10000010",
+              "passages": []
+            },
+            {
+              "id": "10000009",
+              "passages": []
+            },
+            {
+              "id": "10000008",
+              "passages": []
+            },
+            {
+              "id": "10000007",
+              "passages": []
+            },
+            {
+              "id": "10000006",
+              "passages": []
+            },
+            {
+              "id": "10000005",
+              "passages": []
+            },
+            {
+              "id": "10000004",
+              "passages": []
+            },
+            {
+              "id": "10000003",
+              "passages": []
+            },
+            {
+              "id": "10000002",
+              "passages": []
+            },
+            {
+              "id": "10000001",
+              "passages": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

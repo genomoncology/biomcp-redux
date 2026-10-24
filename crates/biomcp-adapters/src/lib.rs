@@ -21,3 +21,4 @@ pub mod clingen;
 pub mod hpa;
 
 pub mod europepmc;
+pub mod pubtator;
