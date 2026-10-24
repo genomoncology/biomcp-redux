@@ -32,11 +32,7 @@ pub(super) fn resolve<'a>(
                 GeneInput::Text(text) => Some(text.as_str()),
                 _ => None,
             };
-            for name in typed
-                .into_iter()
-                .map(str::to_owned)
-                .chain(gene.previous_symbols.iter().map(ToString::to_string))
-            {
+            for name in typed.into_iter().map(str::to_owned) {
                 if !names.iter().any(|n| n.eq_ignore_ascii_case(&name)) {
                     names.push(name);
                 }
