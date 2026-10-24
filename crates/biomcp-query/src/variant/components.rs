@@ -34,7 +34,7 @@ pub(super) fn target(candidates: &[VariantHeader]) -> Option<(String, Build)> {
             .find_map(|r| r.build)
             .map(|build| (candidate.record.id.to_string(), build))
     } else {
-        super::join_id(candidate).map(|id| (id, Build::Grch37))
+        super::join_id(candidate).map(|id| (id, Build::GRCh37))
     }
 }
 pub(super) fn measurements(
