@@ -177,3 +177,4 @@ pub use variant::{
 };
 
 pub use variant::PopulationFrequency;
+pub use response::{OncokbVariantRecord, VariantOncokb};
