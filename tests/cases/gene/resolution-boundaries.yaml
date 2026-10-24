@@ -1,3 +1,4 @@
+live_check: public
 feature: gene-commands
 story: Exact gene identities preserve optional absence and do not confuse identifier families
 replay: gene/main

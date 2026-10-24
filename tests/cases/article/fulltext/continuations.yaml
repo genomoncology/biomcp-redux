@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-fulltext",
   "story": "long-source-section",
   "replay": "article/fulltext/live-results",

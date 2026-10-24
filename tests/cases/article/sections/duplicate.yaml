@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-annotations",
   "story": "Duplicate source document identities are rejected instead of choosing an arbitrary document.",
   "replay": "article/annotations/synthetic-duplicate",

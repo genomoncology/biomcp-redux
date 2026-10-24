@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "An inclusive upper publication-date bound retains all matching discovery-era papers.",
   "replay": "article/filters/until",

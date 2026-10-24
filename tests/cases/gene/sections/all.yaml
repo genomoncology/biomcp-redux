@@ -1,4 +1,5 @@
 {
+  "live_check": "configured or keyed case",
   "feature": "gene-sections",
   "story": "TP53 all expands each landed section in enum order",
   "replay": "gene/all",

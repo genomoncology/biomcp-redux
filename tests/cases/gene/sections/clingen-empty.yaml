@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "A gene absent from both complete ClinGen files is empty without a source record",
   "replay": "gene/clingen",

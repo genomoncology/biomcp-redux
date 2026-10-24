@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-citations",
   "story": "A recorded iCite reply supplies counts independently of the article card; the section stays within its dedicated token bound.",
   "replay": "article/annotations/live",

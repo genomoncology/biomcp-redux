@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-annotations",
   "story": "Annotations retain their own article identity for a retracted paper.",
   "replay": "article/annotations/retracted",

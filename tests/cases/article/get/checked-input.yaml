@@ -1,4 +1,5 @@
 {
+  "live_check": "local-only case",
   "feature": "article-get",
   "story": "Article inputs reject unknown namespaces and overlarge batches before source access.",
   "steps": [

@@ -57,3 +57,29 @@ be an array. An empty floor is allowed but cannot override wildcard-empty
 failure. Future code constants must bound floor reads, regex source size and
 compiled regex size. Every operator, pattern and floor must validate before any
 command launches.
+
+## Scheduled live checks
+
+`cargo test --locked -p biomcp --test cases -- --live-check` runs the distinct
+keyless diagnostic mode. Ordinary tests and landing gates never select this mode.
+Run it from landed main through `pm job run 0055 REV -- cargo test --locked -p
+biomcp --test cases -- --live-check`. The coordinator reads its bounded JSON drift summary. The summary counts all cases with drift or command errors and samples affected cases first. The default samples cases and drift details using `CASE_SAMPLE` and `MAX_CHANGES`; `--live-check --list` lists every eligibility and skip reason offline. `--live-check --details` includes every checked case in the live report; individual drift samples retain their bound.
+The PM asks Jarvis to register this recipe after landing; this command installs no
+schedule. It never records or refreshes a fixture.
+
+Every public case is discovered. A case with reviewed real public provenance may
+set `live_check: public`; another string states its skip reason. Unreviewed cases
+are skipped explicitly. Configured cases remain ineligible even with the public marker. A public case skips its offline and local validation steps while retaining real absent-result requests. Injected failure and synthetic cases carry explicit skip markers. Review source evidence before adding the
+marker. Licensed, keyed, synthetic and external cases never receive it.
+
+Each case runs in an empty environment with cold isolated caches. Its commands retain only their own case state for continuation. The shared
+transport enforces within-command quotas. Commands run serially with a keyless
+interval between them. The run has a discovery limit and a total time budget;
+child watchdogs kill and reap hung commands. The optional `--observe PATH` creates
+an exclusive bounded JSON-lines diagnostic file. It contains existing transport
+identities, attempts, status, received bytes, elapsed time and sampled raw field
+structure. It contains no URL, response text or scalar values. Truncated samples
+can miss optional-field changes; schema failures and status transitions remain
+reported separately. Live counts compare only positive to zero, never historical
+exact totals. Drift is diagnostic and does not fail the landing gate.
+The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process proofs, including nested runner checks, and never falls back after a failed installed launch. `BIOMCP_TEST_FIXTURES` selects copied public fixtures outside the checkout. `--installed-process-proof` runs the existing ordinary-cache publication proof without discovering cases from the source checkout.
