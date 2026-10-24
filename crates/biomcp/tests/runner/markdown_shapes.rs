@@ -2,7 +2,6 @@
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::path::Path;
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test("markdown-view/command-shapes", || {
         shapes().map_err(Into::into)
@@ -108,8 +107,7 @@ const SHAPES: &[Shape] = &[
 fn shapes() -> Result<(), String> {
     for shape in SHAPES {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/replies")
+        let replay = super::launch::fixtures().join("replies")
             .join(shape.replies);
         let globals = env.globals(Some(&replay), false);
         let mut command = globals.clone();
