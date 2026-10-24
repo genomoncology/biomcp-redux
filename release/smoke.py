@@ -36,6 +36,7 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
         subprocess.run([str(runner), "--cases", str(fixtures / "cases"), "--test-threads", "1"], env=env, cwd=root, check=True, timeout=120)
         # The existing process publication test uses the very same selector.
         subprocess.run([str(runner), "--installed-process-proof"], env=env, cwd=root, check=True, timeout=120)
+        subprocess.run([str(runner), "--installed-http-proof"], env=env, cwd=root, check=True, timeout=120)
         return tools
 
 def mcp_probe(command, env, root, version):

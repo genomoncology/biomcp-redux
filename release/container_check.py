@@ -25,7 +25,8 @@ def main():
     executable = common + ["-v", str(Path(proof).resolve()) + ":/proof:ro", "-e", "BIOMCP_TEST_EXECUTABLE=/usr/local/bin/biomcp", "-e", "BIOMCP_TEST_FIXTURES=/proof/fixtures", "--entrypoint", "/proof/case-runner", image]
     subprocess.run(executable + ["--cases", "/proof/fixtures/cases", "--test-threads", "1"], check=True)
     subprocess.run(executable + ["--installed-process-proof"], check=True)
-    print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": ["help", "schemas", "version", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]}))
+    subprocess.run(executable + ["--installed-http-proof"], check=True)
+    print(json.dumps({"artifact": "docker", "platform": "linux/" + arch, "result": "pass", "checks": ["help", "schemas", "version", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http"]}))
 
 
 if __name__ == "__main__":

@@ -3,6 +3,8 @@ mod configuration;
 mod corporate;
 mod gene_tables;
 mod held_proxy;
+mod http;
+mod http_limits;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
@@ -250,6 +252,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(scholar::trials());
     trials.extend(source_controls::trials());
 
+    trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
@@ -387,4 +390,9 @@ fn run_sequence(
 
 pub(super) fn installed_process_proof() -> Result<(), String> {
     configuration::article_processes()
+}
+
+// Run installed HTTP ownership checks without resolving a build-checkout case directory.
+pub(super) fn installed_http_trials() -> Vec<Trial> {
+    http::trials()
 }

@@ -4,6 +4,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp/src/mcp/http.rs",
+        "Own bounded HTTP connection workers and join completed handles",
+    ),
+    (
         "crates/biomcp-adapters/src/pmc_oa/supplement.rs",
         "Retain one parsed binary reply across its checked cache admission callback",
     ),

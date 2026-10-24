@@ -19,9 +19,17 @@ fn main() -> ExitCode {
     if let Ok(grammar::Parsed {
         action: None,
         globals,
+        http,
         ..
     }) = grammar::parse(&args)
     {
+        if let Some((address, hosts)) = http {
+            return match mcp::http::serve(&address, hosts, globals) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(mcp::http::StartError::Usage) => ExitCode::from(2),
+                Err(mcp::http::StartError::Local) => ExitCode::from(5),
+            };
+        }
         let fetch = config::fetch(&globals);
         return exit::finish(mcp::serve(globals, fetch), exit::Status::Success);
     }
