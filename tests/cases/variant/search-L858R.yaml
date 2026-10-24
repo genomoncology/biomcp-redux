@@ -29,43 +29,49 @@
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",
         "/query": {
-          "gene": "EGFR",
-          "protein": "L858R",
-          "limit": 10,
-          "offset": 0
+          "eq": {
+            "gene": "EGFR",
+            "protein": "L858R",
+            "limit": 10,
+            "offset": 0
+          }
         },
         "/result": {
-          "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\"",
-          "build": "GRCh37",
-          "items": [
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568",
-                  "clinvar:16609"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>G"
-                    },
-                    "build": "GRCh37"
-                  }
-                ]
-              },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>G"
+          "eq": {
+            "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\"",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568",
+                    "clinvar:16609"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>G"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>G"
+                }
               }
-            }
-          ]
+            ]
+          }
         },
         "/page": {
-          "offset": 0,
-          "returned": 1,
-          "total": 1
+          "eq": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
         },
         "/sources/0/source": "myvariant"
       }
@@ -82,37 +88,41 @@
       "offline": true,
       "expect": {
         "/result": {
-          "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\"",
-          "build": "GRCh37",
-          "items": [
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568",
-                  "clinvar:16609"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>G"
-                    },
-                    "build": "GRCh37"
-                  }
-                ]
-              },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>G"
+          "eq": {
+            "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\"",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568",
+                    "clinvar:16609"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>G"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>G"
+                }
               }
-            }
-          ]
+            ]
+          }
         },
         "/page": {
-          "offset": 0,
-          "returned": 1,
-          "total": 1
+          "eq": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
         }
       }
     }

@@ -33,70 +33,76 @@
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",
         "/query": {
-          "region": "chr7:55259515-55259515",
-          "build": "GRCh37",
-          "limit": 2,
-          "offset": 0
+          "eq": {
+            "region": "chr7:55259515-55259515",
+            "build": "GRCh37",
+            "limit": 2,
+            "offset": 0
+          }
         },
         "/result": {
-          "source_query": "chr7:55259515-55259515",
-          "build": "GRCh37",
-          "items": [
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>A"
-                    },
-                    "build": "GRCh37"
-                  }
-                ],
-                "genes": [
-                  "EGFR"
-                ]
+          "eq": {
+            "source_query": "chr7:55259515-55259515",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>A"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    "EGFR"
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>A"
+                }
               },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>A"
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568",
+                    "clinvar:16609"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>G"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    "EGFR"
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>G"
+                }
               }
-            },
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568",
-                  "clinvar:16609"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>G"
-                    },
-                    "build": "GRCh37"
-                  }
-                ],
-                "genes": [
-                  "EGFR"
-                ]
-              },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>G"
-              }
-            }
-          ]
+            ]
+          }
         },
         "/page": {
-          "offset": 0,
-          "returned": 2,
-          "total": 4
+          "eq": {
+            "offset": 0,
+            "returned": 2,
+            "total": 4
+          }
         },
         "/sources/0/source": "myvariant"
       }
@@ -115,64 +121,68 @@
       "offline": true,
       "expect": {
         "/result": {
-          "source_query": "chr7:55259515-55259515",
-          "build": "GRCh37",
-          "items": [
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>A"
-                    },
-                    "build": "GRCh37"
-                  }
-                ],
-                "genes": [
-                  "EGFR"
-                ]
+          "eq": {
+            "source_query": "chr7:55259515-55259515",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>A"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    "EGFR"
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>A"
+                }
               },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>A"
+              {
+                "identity": {
+                  "ids": [
+                    "rs121434568",
+                    "clinvar:16609"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55259515T>G"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    "EGFR"
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55259515T>G"
+                }
               }
-            },
-            {
-              "identity": {
-                "ids": [
-                  "rs121434568",
-                  "clinvar:16609"
-                ],
-                "representations": [
-                  {
-                    "source": "myvariant",
-                    "expression": {
-                      "syntax": "hgvs.g",
-                      "value": "chr7:g.55259515T>G"
-                    },
-                    "build": "GRCh37"
-                  }
-                ],
-                "genes": [
-                  "EGFR"
-                ]
-              },
-              "source": "myvariant",
-              "record": {
-                "id": "chr7:g.55259515T>G"
-              }
-            }
-          ]
+            ]
+          }
         },
         "/page": {
-          "offset": 0,
-          "returned": 2,
-          "total": 4
+          "eq": {
+            "offset": 0,
+            "returned": 2,
+            "total": 4
+          }
         }
       }
     }
