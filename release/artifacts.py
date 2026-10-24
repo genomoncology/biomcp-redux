@@ -112,7 +112,7 @@ def build(args):
     check_floor(binary, tag)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    record = {"version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": run(["git", "rev-parse", "HEAD"]).strip()}
+    record = {"version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
     candidate = wheel(output, binary, record)
     archive = output / ("biomcp-" + version + "-" + tag + ".tar.gz")
     with tarfile.open(archive, "w:gz") as package:
@@ -140,6 +140,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     producer = commands.add_parser("build")
+    producer.add_argument("--revision", help="Source revision when building a git archive")
     producer.add_argument("--output", type=Path, required=True)
     producer.add_argument("--profile", choices=["release", "dev"], default="release")
     inspector = commands.add_parser("inspect")
