@@ -73,7 +73,7 @@ struct Fields {
     /// europepmc: words in open full text, and preprints.
     /// semantic-scholar: broad discovery; an optional free key raises the limit.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 3), extend("x-comma-separated"=true)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true, "uniqueItems"=true)))]
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
@@ -184,7 +184,6 @@ impl TryFrom<Fields> for ArticleSearch {
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
-            || v.source.len() > 3
             || v.source
                 .iter()
                 .enumerate()

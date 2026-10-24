@@ -33,7 +33,10 @@
       "max_bytes": 8000,
       "expect": {
         "/status": "partial",
-        "/sources/1/reason": "rate_limited"
+        "/sources/1/reason": "rate_limited",
+        "/next/*/kind": {
+          "includes": "key"
+        }
       }
     }
   ],
