@@ -85,7 +85,7 @@ pub(super) fn resolve<'a>(
 }
 fn execute<'a>(
     cx: &Ctx<'a>,
-    input: &ArticleInput,
+    query: &ArticleText,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {

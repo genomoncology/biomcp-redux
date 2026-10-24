@@ -106,7 +106,7 @@ fn execute<'a>(
                     .map_err(|_| failure(Reason::BadReply))?,
             );
             let sheets = sheet::read(&bytes, file.file.kind, leg.remaining()).map_err(failure)?;
-            if !page::select(query, &sheets, &mut content, out) {
+            if !page::select(query, &sheets, &mut content, out, std::time::Instant::now() + leg.remaining()).map_err(failure)? {
                 out.body = QueryBody::TextPositionError;
                 return Ok(Section::NotApplicable);
             }

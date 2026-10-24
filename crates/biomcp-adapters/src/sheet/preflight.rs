@@ -206,10 +206,20 @@ fn validate_xml(bytes: &[u8], end: Instant) -> Result<(), Reason> {
     }
 }
 fn coordinate(s: &str) -> Result<(), Reason> {
-    let first = s.find(|c: char| c.is_ascii_digit()).ok_or(Reason::BadReply)?;
+    let first = s
+        .find(|c: char| c.is_ascii_digit())
+        .ok_or(Reason::BadReply)?;
     let col = s.get(..first).ok_or(Reason::BadReply)?;
-    let row: u32 = s.get(first..).ok_or(Reason::BadReply)?.parse().map_err(|_| Reason::BadReply)?;
-    if col.is_empty() || !col.bytes().all(|c| c.is_ascii_uppercase()) || row == 0 { return Err(Reason::BadReply); }
-    if col.len() > 3 || col.len() == 3 && col > "XFD" || row > 1048576 { return Err(Reason::TooLarge); }
+    let row: u32 = s
+        .get(first..)
+        .ok_or(Reason::BadReply)?
+        .parse()
+        .map_err(|_| Reason::BadReply)?;
+    if col.is_empty() || !col.bytes().all(|c| c.is_ascii_uppercase()) || row == 0 {
+        return Err(Reason::BadReply);
+    }
+    if col.len() > 3 || col.len() == 3 && col > "XFD" || row > 1048576 {
+        return Err(Reason::TooLarge);
+    }
     Ok(())
 }
