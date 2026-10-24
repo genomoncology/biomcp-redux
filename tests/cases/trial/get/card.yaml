@@ -1,0 +1,6 @@
+{
+  "feature":"trial-get",
+  "story":"FLAURA exact registry card retains phase and full brief summary",
+  "offline":true,
+  "steps":[{"run":["get","trial","NCT02296125"],"expect":{"/status":"complete","/result/items/0/card/nct_id":"NCT02296125","/result/items/0/card/phases":["PHASE3"]},"mcp":["get","trial","NCT02296125"],"max_bytes":3200}]
+}
