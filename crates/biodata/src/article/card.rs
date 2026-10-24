@@ -9,14 +9,15 @@ macro_rules! article {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields,
             extend("anyOf" = [
-                {"required":["pmid"], "properties":{"pmid":{"type":"string"}}},
-                {"required":["pmcid"], "properties":{"pmcid":{"type":"string"}}},
-                {"required":["doi"], "properties":{"doi":{"type":"string"}}}
+                {"required":["pmid"]},
+                {"required":["pmcid"]},
+                {"required":["doi"]}
             ])))]
         pub struct Article<A = Box<[Text]>> {
             $( $(#[$attribute])* pub $field: $ty, )*
         }
         #[derive(Deserialize)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[serde(deny_unknown_fields)]
         struct ArticleFields<A> {
             $( $(#[$attribute])* $field: $ty, )*
@@ -34,13 +35,16 @@ macro_rules! article {
 }
 article! {
     /// PubMed identity.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pub pmid: Option<Pmid>,
     /// DOI assigned to this article.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Doi"))]
     pub doi: Option<Doi>,
     /// PMC identity assigned to this article.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmcid"))]
     pub pmcid: Option<Pmcid>,
     /// Whole title with inline text preserved.
     pub title: Text,
@@ -120,6 +124,13 @@ pub struct Correction {
     /// Whether the related record is a notice or original.
     pub relation: CorrectionRelation,
     /// Related PMID, when supplied.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pub pmid: Option<Pmid>,
+}
+
+fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error> {
+    T::deserialize(deserializer).map(Some)
 }
