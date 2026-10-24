@@ -93,6 +93,11 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 },
                 &request,
             );
+            response(request,result)
+        }
+    }
+}
+fn response(request:Request,result:biomcp_query::Outcome)->io::Result<Outcome> {
             let status = if result.local.is_some() {
                 crate::exit::Status::Local
             } else {
@@ -173,9 +178,9 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 }
                 _ => Err(io::Error::other("query response mismatch")),
             }
-        }
-    }
+
 }
+
 pub(crate) fn tool(
     args: &[OsString],
     globals: &crate::grammar::Globals,

@@ -138,36 +138,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if verb == "article" {
-            "biodata.article-edges/1"
-        } else if entity == "article" && verb == "get" {
-            "biodata.article-get/1"
-        } else if entity == "article" {
-            "biodata.article-search/1"
-        } else if verb == "get" {
-            "biodata.gene-get/1"
-        } else {
-            "biodata.gene-search/1"
-        };
-        let schema: Value =
-            serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-        let value = arguments(matches, &schema)?;
-        let request = if verb == "article" {
-            let query = serde_json::from_value::<ArticleEdges>(value).map_err(|_| ())?;
-            if entity == "citations" {
-                Request::ArticleCitations(query)
-            } else {
-                Request::ArticleReferences(query)
-            }
-        } else if entity == "article" && verb == "get" {
-            Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
-        } else if entity == "article" {
-            Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
-        } else if verb == "get" {
-            Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
-        } else {
-            Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
-        };
+        let request=request(verb,entity,matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -292,4 +263,19 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
         }
     }
     Ok(())
+}
+
+fn request(verb:&str,entity:&str,matches:&clap::ArgMatches)->Result<Request,()> {
+    let id=QUERIES.iter().find(|(v,e,_)|*v==verb && *e==entity).map(|(_,_,id)|*id).ok_or(())?;
+    let schema:Value=serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_|())?;
+    let value=arguments(matches,&schema)?;
+    match (verb,entity) {
+        ("article","citations")=>serde_json::from_value::<ArticleEdges>(value).map(Request::ArticleCitations).map_err(|_|()),
+        ("article","references")=>serde_json::from_value::<ArticleEdges>(value).map(Request::ArticleReferences).map_err(|_|()),
+        ("get","article")=>serde_json::from_value::<ArticleGet>(value).map(Request::GetArticle).map_err(|_|()),
+        ("search","article")=>serde_json::from_value::<ArticleSearch>(value).map(Request::SearchArticle).map_err(|_|()),
+        ("get","gene")=>serde_json::from_value::<GeneGet>(value).map(Request::GetGene).map_err(|_|()),
+        ("search","gene")=>serde_json::from_value::<GeneSearch>(value).map(Request::SearchGene).map_err(|_|()),
+        _=>Err(()),
+    }
 }
