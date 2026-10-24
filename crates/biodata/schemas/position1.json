@@ -1,0 +1,10 @@
+{
+  "$id": "biodata.position1/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A positive one-based position, without an assembly or biological meaning.",
+  "format": "uint32",
+  "maximum": 4294967295,
+  "minimum": 1,
+  "title": "Position1",
+  "type": "integer"
+}

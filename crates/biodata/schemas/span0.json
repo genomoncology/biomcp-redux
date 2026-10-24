@@ -1,0 +1,26 @@
+{
+  "$id": "biodata.span0/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+  "properties": {
+    "end": {
+      "format": "uint32",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "start": {
+      "format": "uint32",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "start",
+    "end"
+  ],
+  "title": "Span0",
+  "type": "object"
+}
