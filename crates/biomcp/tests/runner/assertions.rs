@@ -149,8 +149,13 @@ impl Assertion<'_> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
             Self::Excludes(expected) => {
-                if !array(pointer, "excludes", actual)?.contains(expected) { Ok(()) }
-                else { Err(format!("{pointer} excludes: unexpected member {expected}, actual {actual}")) }
+                if !array(pointer, "excludes", actual)?.contains(expected) {
+                    Ok(())
+                } else {
+                    Err(format!(
+                        "{pointer} excludes: unexpected member {expected}, actual {actual}"
+                    ))
+                }
             }
             Self::Includes(expected) => {
                 if array(pointer, "includes", actual)?.contains(expected) {

@@ -38,7 +38,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
-    let value = match request {
+    let query = match request {
         Request::GetGene(query) => serde_json::to_value(query)?,
         Request::SearchGene(query) => serde_json::to_value(query)?,
     };
@@ -50,6 +50,33 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         .into(),
         "gene".into(),
     ];
+    let positional = fields(&schema, &query, &mut args);
+    if positional.iter().any(|arg| arg.starts_with('-')) {
+        args.push("--".into());
+        args.extend(positional);
+    } else {
+        args.splice(2..2, positional);
+    }
+    Ok(args)
+}
+
+fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
+    let item = &property["items"];
+    let item = item
+        .get("$ref")
+        .and_then(Value::as_str)
+        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
+        .unwrap_or(item);
+    query["input"].as_array().is_some_and(|inputs| {
+        inputs.iter().any(|input| {
+            item["enum"]
+                .as_array()
+                .is_some_and(|words| words.contains(input))
+        })
+    })
+}
+
+fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {
     let mut positional = Vec::new();
     let mut trailing = Vec::new();
     if let Some(properties) = schema.get("properties").and_then(Value::as_object) {
@@ -61,14 +88,14 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
                 .unwrap_or(u64::MAX)
         });
         for (name, property) in fields {
-            let Some(value) = value
+            let Some(value) = query
                 .get(name)
                 .filter(|value| !value.is_null() && property.get("default") != Some(*value))
             else {
                 continue;
             };
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));
-            let explicit = is_trailing && trailing_input(&schema, &value_for(request)?, property);
+            let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {
                 args.push(format!("--{name}"));
             }
@@ -96,33 +123,5 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         }
     }
     positional.extend(trailing);
-    if positional.iter().any(|arg| arg.starts_with('-')) {
-        args.push("--".into());
-        args.extend(positional);
-    } else {
-        args.splice(2..2, positional);
-    }
-    Ok(args)
-}
-
-fn value_for(request: &Request) -> Result<Value, serde_json::Error> {
-    match request {
-        Request::GetGene(q) => serde_json::to_value(q),
-        Request::SearchGene(q) => serde_json::to_value(q),
-    }
-}
-fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
-    let item = &property["items"];
-    let item = item
-        .get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
-        .unwrap_or(item);
-    query["input"].as_array().is_some_and(|inputs| {
-        inputs.iter().any(|input| {
-            item["enum"]
-                .as_array()
-                .is_some_and(|words| words.contains(input))
-        })
-    })
+    positional
 }

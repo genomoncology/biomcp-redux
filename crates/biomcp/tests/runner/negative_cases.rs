@@ -1,7 +1,15 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
-        ("excluded-member", "    expect: {'/enum': {excludes: hgnc}}", "excludes: unexpected member"),
-        ("excluded-wrong-type", "    expect: {'/type': {excludes: hgnc}}", "excludes requires an array"),
+        (
+            "excluded-member",
+            "    expect: {'/enum': {excludes: hgnc}}",
+            "excludes: unexpected member",
+        ),
+        (
+            "excluded-wrong-type",
+            "    expect: {'/type': {excludes: hgnc}}",
+            "excludes requires an array",
+        ),
         (
             "mcp-wrong-value",
             "  - mcp: [schema, biodata.source/1]\n    expect: {'/type': integer}",

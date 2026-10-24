@@ -13,8 +13,8 @@ struct Shape {
     minimum_items: u64,
     maximum_items: Option<u64>,
     pattern: Option<String>,
-    minimum: Option<f64>,
-    maximum: Option<f64>,
+    minimum: Option<Bound>,
+    maximum: Option<Bound>,
     closed: bool,
 }
 
@@ -384,12 +384,11 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
     Ok(())
 }
 
-fn bound(node: &Value, value: &Value) -> Check<f64> {
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+enum Bound { Integer(u64), Decimal(f64) }
+fn bound(node: &Value, value: &Value) -> Check<Bound> {
     if node["type"] == "integer" {
-        value.as_u64().ok_or("unsupported integer bound")?;
+        return value.as_u64().map(Bound::Integer).ok_or_else(|| "unsupported integer bound".into());
     }
-    value
-        .as_f64()
-        .filter(|value| value.is_finite())
-        .ok_or_else(|| "unsupported decimal bound".into())
+    value.as_f64().filter(|value| value.is_finite()).map(Bound::Decimal).ok_or_else(|| "unsupported decimal bound".into())
 }

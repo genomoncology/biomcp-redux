@@ -111,4 +111,8 @@ pub(super) struct Constraint {
     pub flags: Option<Field<Vec<Field<String>>>>,
 }
 
-fn nullable<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(d: D) -> Result<Option<T>, D::Error> { Option::<T>::deserialize(d) }
+fn nullable<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<T>, D::Error> {
+    Option::<T>::deserialize(d)
+}
