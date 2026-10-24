@@ -106,7 +106,8 @@ fn label(name: &str) -> String {
     })
 }
 fn escape(text: &str) -> String {
-    text.replace('\\', "\\\\")
+    text.replace('&', "&amp;")
+        .replace('\\', "\\\\")
         .replace('*', "\\*")
         .replace('_', "\\_")
         .replace('`', "\\`")

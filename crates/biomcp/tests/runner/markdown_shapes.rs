@@ -39,7 +39,7 @@ fn shapes() -> Result<(), String> {
         (
             vec!["article", "text", "PMC5606870", "--part", "1"],
             "article/fulltext/synthetic",
-            vec!["## Introduction", "*text*", "biomcp article text"],
+            vec!["## Introduction", "*text*", "**state:** data"],
         ),
         (
             vec!["get", "gene"],
