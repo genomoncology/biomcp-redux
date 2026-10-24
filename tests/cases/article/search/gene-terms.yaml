@@ -11,7 +11,7 @@
         "--gene",
         "HER2"
       ],
-      "max_bytes": 5748,
+      "max_bytes": 5810,
       "expect": {
         "/sources/1/term": "(ERBB2 OR HER2) AND low trastuzumab deruxtecan",
         "/result/items/*/pmid": {
@@ -31,7 +31,7 @@
         "items": "/result/items",
         "max_pages": 64
       },
-      "max_bytes": 6412,
+      "max_bytes": 6445,
       "expect": {
         "/result/items/*/pmid": {
           "unique": true,
@@ -50,13 +50,13 @@
         "--gene",
         "SUR1"
       ],
-      "max_bytes": 632,
+      "max_bytes": 605,
       "expect": {
         "/page/total": 0,
         "/sources/1/term": "(ABCC8 OR SUR1) AND R1437Q",
-        "/sources/1/notices/0/words": {
-          "includes": "R1437Q"
-        }
+        "/sources/1/notices/0/words": [
+          "R1437Q"
+        ]
       }
     },
     {
@@ -87,7 +87,7 @@
         "--disease",
         "lung"
       ],
-      "max_bytes": 4885,
+      "max_bytes": 5188,
       "expect": {
         "/sources/1/term": "KRAS AND G12C sotorasib lung"
       }
@@ -100,7 +100,7 @@
         "--gene",
         "HGNC:6407"
       ],
-      "max_bytes": 4885,
+      "max_bytes": 4773,
       "expect": {
         "/sources/1/term": "KRAS AND G12C"
       }
@@ -113,7 +113,7 @@
         "--gene",
         "kras"
       ],
-      "max_bytes": 4885,
+      "max_bytes": 4773,
       "expect": {
         "/sources/1/term": "KRAS AND G12C"
       }

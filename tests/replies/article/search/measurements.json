@@ -19,15 +19,17 @@
   },
   "her2": {
     "pages": 55,
-    "first_bytes": 4998,
-    "largest_bytes": 5575,
-    "measured_plus_15_percent": 6412
+    "first_bytes": 5052,
+    "largest_bytes": 5604,
+    "measured_plus_15_percent": 6445,
+    "first_plus_15_percent": 5810
   },
   "sur1": {
     "pages": 1,
-    "first_bytes": 549,
-    "largest_bytes": 549,
-    "measured_plus_15_percent": 632
+    "first_bytes": 526,
+    "largest_bytes": 526,
+    "measured_plus_15_percent": 605,
+    "first_plus_15_percent": 605
   },
   "akt1-gene": {
     "pages": 1,
@@ -37,8 +39,16 @@
   },
   "kras": {
     "pages": 1,
-    "first_bytes": 4247,
-    "largest_bytes": 4247,
-    "measured_plus_15_percent": 4885
+    "first_bytes": 4511,
+    "largest_bytes": 4511,
+    "measured_plus_15_percent": 5188,
+    "first_plus_15_percent": 5188
+  },
+  "hgnc-id": {
+    "pages": 1,
+    "first_bytes": 4150,
+    "largest_bytes": 4150,
+    "measured_plus_15_percent": 4773,
+    "first_plus_15_percent": 4773
   }
 }
