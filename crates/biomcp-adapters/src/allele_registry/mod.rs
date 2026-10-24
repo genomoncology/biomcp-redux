@@ -24,7 +24,7 @@ const FIELDS: &str = "none @id communityStandardTitle genomicAlleles transcriptA
 #[derive(Debug)]
 pub enum Resolution {
     /// Source-resolved canonical identity.
-    Found(VariantHeader),
+    Found(crate::Mapped<VariantHeader>),
     /// Source rejected the unchanged notation.
     Rejected(Text),
 }
@@ -42,7 +42,7 @@ pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let reply = leg.json::<raw::Allele>(&endpoint, &[("fields", Arg::Text(FIELDS))])?;
     let mapped = map::allele(reply).map_err(|_| bad())?;
     match &mapped {
-        Resolution::Found(v) if v.identity.key.as_str() != input => {
+        Resolution::Found(v) if v.value.record.id.as_str() != input => {
             Err(biomcp_fetch::SourceError {
                 source: Source::AlleleRegistry,
                 reason: biodata::Reason::BadReply,

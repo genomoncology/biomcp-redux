@@ -1,4 +1,4 @@
-use crate::{Source, Text, VariantGet, VariantHeader, VariantResolution};
+use crate::{Source, SourceRecord, Text, Variant, VariantGet};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -18,4 +18,35 @@ pub struct VariantCard {
 impl super::ResponseBody for VariantCard {
     const SCHEMA: &'static str = "biomcp.variant_card/1";
     type Query = VariantGet;
+}
+
+/// Consumer identity header with an exact source selection and compact annotation entity.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantHeader {
+    /// Source-qualified variant entity.
+    pub identity: Variant,
+    /// Source responsible for this identity.
+    pub source: Source,
+    /// Exact source record, including source keys that are expressions rather than identifiers.
+    pub record: SourceRecord,
+    /// Compact MyVariant annotations, attributed by their field name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub myvariant: Option<Variant>,
+}
+crate::macros::wire_enum! {
+    /// Identity resolution preserves candidates and source validation outcomes.
+    VariantResolution {
+        /// One checked provider identity.
+        Resolved => "resolved",
+        /// Several provider identities; none was selected.
+        Candidates => "candidates",
+        /// Provider reported no match.
+        Absent => "absent",
+        /// Provider rejected the unchanged input.
+        Rejected => "rejected",
+        /// Provider could not answer.
+        Unavailable => "unavailable",
+    }
 }

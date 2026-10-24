@@ -47,7 +47,7 @@ pub use gene::{SyncQuery, SyncResult};
 pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
 
 pub use gene::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
@@ -65,4 +65,4 @@ pub use article::{
 };
 
 mod variant;
-pub use variant::VariantCard;
+pub use variant::{VariantCard, VariantHeader, VariantResolution};

@@ -69,7 +69,7 @@ pub use response::{
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
 
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
@@ -88,11 +88,16 @@ pub use response::{
 };
 
 mod variant;
-pub use variant::{
-    VariantFact, VariantHeader, VariantIdentity, VariantInput, VariantNamespace,
-    VariantRepresentation, VariantResolution, VariantResolver, variant_build,
-};
+pub use variant::{Variant, Representation};
 
-pub use query::VariantGet;
-pub use response::VariantCard;
+pub use query::{VariantGet, VariantResolver};
+pub use response::{VariantCard, VariantHeader, VariantResolution};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+
+pub use coord::Chromosome;
+
+pub use variant::{Accession, EnsemblFeature, LrgPart, RefSeqPrefix, Base, Sequence, Allele, SequenceLocation};
+
+pub use variant::{VariantId, HgvsText, Expression, ExpressionSyntax};
+
+pub use query::{VariantInput, VariantNamespace};

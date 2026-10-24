@@ -1,4 +1,4 @@
-use crate::{Build, VariantInput, VariantNamespace, VariantResolver};
+use crate::{Build, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
 /// Read one published variant identifier; every source candidate is retained.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -40,8 +40,8 @@ impl VariantGet {
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
-        if resolver == VariantResolver::Variantvalidator && build.is_none()
-            || build.is_some_and(|b| !crate::variant_build(b))
+        if input.namespace().ok() == Some(VariantNamespace::Unsupported) || resolver == VariantResolver::Variantvalidator && build.is_none()
+            || build.is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38))
             || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none()
         {
             return Err(super::gene::QueryInvalid);
@@ -63,5 +63,23 @@ impl VariantGet {
     /// Caller assembly; never a default.
     pub fn build(&self) -> Option<Build> {
         self.0.build
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Explicit source service for reference-qualified notation.
+    VariantResolver {
+        /// ClinGen Allele Registry.
+        Car => "car",
+        /// Mutalyzer.
+        Mutalyzer => "mutalyzer",
+        /// VariantValidator.
+        Variantvalidator => "variantvalidator",
+    }
+}
+impl VariantResolver {
+    /// Declared source policy for the selected service.
+    pub fn source(self) -> crate::Source {
+        match self { Self::Car => crate::Source::AlleleRegistry, Self::Mutalyzer => crate::Source::Mutalyzer, Self::Variantvalidator => crate::Source::VariantValidator }
     }
 }

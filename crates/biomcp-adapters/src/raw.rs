@@ -43,3 +43,9 @@ impl TryFrom<u32> for NumericPmid {
         biodata::Pmid::new(value).map(Self)
     }
 }
+
+/// Read provider chromosome spellings before constructing the canonical shared value.
+pub(crate) fn chromosome(value: &str) -> Option<biodata::Chromosome> {
+    let value = value.strip_prefix("chr").unwrap_or(value);
+    match value { "M" => "MT".parse().ok(), "23" => "X".parse().ok(), "24" => "Y".parse().ok(), "25" => "MT".parse().ok(), _ => value.parse().ok() }
+}

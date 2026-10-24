@@ -93,7 +93,7 @@ fn resolve(
             let term = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {
                 format!(
                     "clinvar.variant_id:{}",
-                    input.strip_prefix("ClinVar:").unwrap_or(input)
+                    input.strip_prefix("clinvar:").unwrap_or(input)
                 )
             } else {
                 input.to_owned()
@@ -103,9 +103,9 @@ fn resolve(
             problems.extend(found.problems);
             Ok((found.value, None))
         }
-        Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?),
+        Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems),
         _ => match query.resolver() {
-            biodata::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?),
+            biodata::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
             biodata::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
                 mutalyzer::Resolution::Rejected(codes) => {
@@ -137,22 +137,19 @@ fn resolve(
 }
 fn car(
     result: allele_registry::Resolution,
+    problems: &mut Vec<biodata::Problem>,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     Ok(match result {
-        allele_registry::Resolution::Found(row) => (vec![row], None),
+        allele_registry::Resolution::Found(row) => { problems.extend(row.problems); (vec![row.value], None) },
         allele_registry::Resolution::Rejected(code) => (Vec::new(), Some(code)),
     })
 }
 fn join_id(row: &VariantHeader) -> Option<String> {
     row.identity.representations.iter().find_map(|r| {
-        if r.assembly.as_ref().map(Text::as_str) != Some("GRCh37") {
-            return None;
-        }
-        let coordinate = r.coordinate.as_ref()?;
-        if !r.notation.as_str().starts_with("NC_") {
-            return None;
-        }
-        myvariant::genomic_id(coordinate.contig.as_str(), &r.notation)
+        if r.build != Some(biodata::Build::Grch37) { return None; }
+        let allele = r.allele.as_ref()?;
+        let chromosome = biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::Grch37).ok()?;
+        myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }
 fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
@@ -188,11 +185,7 @@ fn enrich(
             match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
                 Ok(found) => {
                     problems.extend(found.problems);
-                    for row in found.value {
-                        let mut facts = candidate.facts.to_vec();
-                        facts.extend(row.facts);
-                        candidate.facts = facts.into();
-                    }
+                    for row in found.value { candidate.myvariant = Some(row.identity); }
                 }
                 Err(e) => {
                     join_error = Some(e);
@@ -215,9 +208,9 @@ fn next(
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates {
         for row in candidates {
-            if let Ok(input) = row.identity.key.as_str().parse()
+            if let Ok(input) = row.record.id.as_str().parse()
                 && let Ok(q) =
-                    VariantGet::new(input, query.resolver(), row.identity.representations.iter().find_map(|r| r.assembly.as_ref().and_then(|a| a.as_str().parse().ok())).or(query.build()))
+                    VariantGet::new(input, query.resolver(), row.identity.representations.iter().find_map(|r| r.build).or(query.build()))
             {
                 next.push((
                     StepKind::Disambiguate,

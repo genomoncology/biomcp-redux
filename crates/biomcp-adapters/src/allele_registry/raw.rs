@@ -9,6 +9,8 @@ pub(super) struct Allele {
     pub error_type: Option<Text>,
     #[serde(default, rename = "genomicAlleles")]
     pub genomic: Vec<Genomic>,
+    #[serde(default, rename = "transcriptAlleles")]
+    pub transcripts: Vec<Transcript>,
     #[serde(default, rename = "externalRecords")]
     pub external: External,
 }
@@ -30,11 +32,8 @@ pub(super) struct Clinvar {
 }
 #[derive(Deserialize)]
 pub(super) struct Genomic {
-    pub chromosome: Option<biodata::Contig>,
     #[serde(rename = "referenceGenome")]
     pub assembly: Option<Text>,
-    #[serde(rename = "referenceSequence")]
-    pub reference: Text,
     pub hgvs: Vec<Text>,
     pub coordinates: Vec<Coordinate>,
 }
@@ -73,3 +72,12 @@ impl Reply for Allele {
         Ok(())
     }
 }
+
+#[derive(Deserialize)]
+pub(super) struct Transcript { #[serde(rename = "MANE")] pub mane: Option<Mane> }
+#[derive(Deserialize)]
+pub(super) struct Mane { pub nucleotide: Option<ManeForms>, pub protein: Option<ManeForms> }
+#[derive(Deserialize)]
+pub(super) struct ManeForms { #[serde(rename = "Ensembl")] pub ensembl: Option<Hgvs>, #[serde(rename = "RefSeq")] pub refseq: Option<Hgvs> }
+#[derive(Deserialize)]
+pub(super) struct Hgvs { pub hgvs: Text }

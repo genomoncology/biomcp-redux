@@ -101,3 +101,6 @@ impl<'de> Deserialize<'de> for Span0 {
 
 mod genomic;
 pub use genomic::{Build, Contig, GenomicInterval, Strand};
+
+mod chromosome;
+pub use chromosome::Chromosome;

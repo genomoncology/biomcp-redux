@@ -11,7 +11,7 @@ use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
 pub use clingen::{ClinGenGene, ClinGenValidity};
 pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
-pub use expression::{CancerPtpm, Expression, RnaAbundance, TissueNtpm};
+pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
 pub use protein::Protein;
@@ -55,7 +55,7 @@ pub struct GenePage {
     pub items: Box<[GeneHeader]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene_cards/1";
+    const SCHEMA: &'static str = "biomcp.gene_cards/2";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
@@ -154,7 +154,7 @@ pub struct GeneSections {
     pub constraint: Option<Section<Constraint>>,
     /// Human Protein Atlas expression annotations.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub expression: Option<Section<Expression>>,
+    pub expression: Option<Section<GeneExpression>>,
     /// Lowest-level human Reactome mappings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pathways: Option<Section<Capped<PathwayRef>>>,

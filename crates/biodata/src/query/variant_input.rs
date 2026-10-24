@@ -16,6 +16,8 @@ pub enum VariantNamespace {
     Hgvs,
     /// Chromosome HGVS description requiring an explicit build.
     Chromosome,
+    /// Identifier vocabulary is recognized but this get slice has no source route.
+    Unsupported,
 }
 impl VariantInput {
     /// Check the identifier's spelling while preserving every supplied character.
@@ -34,22 +36,18 @@ impl VariantInput {
     /// Classify a published namespace, without parsing molecular meaning.
     pub fn namespace(&self) -> Result<VariantNamespace, Error> {
         let value = self.as_str();
-        if value.strip_prefix("rs").is_some_and(positive) {
-            return Ok(VariantNamespace::Rs);
+        if let Ok(id) = value.parse::<crate::VariantId>() {
+            return match id { crate::VariantId::Rs(_) => Ok(VariantNamespace::Rs), crate::VariantId::Ca(_) => Ok(VariantNamespace::Ca), crate::VariantId::ClinVarVariation(_) => Ok(VariantNamespace::ClinVar), _ => Ok(VariantNamespace::Unsupported) };
         }
-        if value.strip_prefix("CA").is_some_and(positive) {
-            return Ok(VariantNamespace::Ca);
-        }
-        if positive(value) || value.strip_prefix("ClinVar:").is_some_and(positive) {
-            return Ok(VariantNamespace::ClinVar);
-        }
+        if positive(value) { return Ok(VariantNamespace::ClinVar); }
+        if value.parse::<crate::HgvsText>().is_ok() { return Ok(VariantNamespace::Hgvs); }
         let Some((reference, description)) = value.split_once(':') else {
             return Err(Error::VariantInputInvalid);
         };
         if description.len() < 3
             || !matches!(
                 description.as_bytes().first(),
-                Some(b'c' | b'g' | b'n' | b'p' | b'r' | b'm')
+                Some(b'c' | b'g' | b'n' | b'p' | b'r' | b'm' | b'o')
             )
             || description.as_bytes().get(1) != Some(&b'.')
         {
@@ -61,30 +59,8 @@ impl VariantInput {
         {
             return Ok(VariantNamespace::Chromosome);
         }
-        let valid = if let Some(tail) = reference.strip_prefix("LRG_") {
-            let mut parts = tail.split(['t', 'p']);
-            parts.next().is_some_and(positive)
-                && parts.next().is_none_or(positive)
-                && parts.next().is_none()
-        } else {
-            [
-                "NC_", "NM_", "NP_", "NG_", "NR_", "NT_", "NW_", "ENST", "ENSP",
-            ]
-            .iter()
-            .any(|prefix| reference.strip_prefix(prefix).is_some_and(accession))
-        };
-        if valid {
-            Ok(VariantNamespace::Hgvs)
-        } else {
-            Err(Error::VariantInputInvalid)
-        }
+        Err(Error::VariantInputInvalid)
     }
-}
-fn accession(value: &str) -> bool {
-    let Some((number, version)) = value.split_once('.') else {
-        return false;
-    };
-    !number.is_empty() && number.bytes().all(|b| b.is_ascii_digit()) && positive(version)
 }
 fn positive(value: &str) -> bool {
     !value.is_empty() && !value.starts_with('0') && value.bytes().all(|b| b.is_ascii_digit())
@@ -103,5 +79,5 @@ impl fmt::Display for VariantInput {
 text_value!(
     VariantInput,
     "VariantInput",
-    r"^(rs[1-9][0-9]*|CA[1-9][0-9]*|(ClinVar:)?[1-9][0-9]*|((N[CGMPRTW]_[0-9]+|ENS[TP][0-9]+)\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprm]\.[\x21-\x7e]+)$"
+    r"^(rs[1-9][0-9]*|CA[1-9][0-9]*|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\.[\x21-\x7e]+)$"
 );

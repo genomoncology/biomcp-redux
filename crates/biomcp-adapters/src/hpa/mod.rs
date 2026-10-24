@@ -2,7 +2,7 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EnsemblGeneId, Expression, Reason, Source};
+use biodata::{EnsemblGeneId, GeneExpression, Reason, Source};
 use biomcp_fetch::{Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec};
 use std::time::Duration;
 /// HPA source policy with a conservative local quota.
@@ -22,7 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 pub fn expression(
     leg: &Leg<'_>,
     id: &EnsemblGeneId,
-) -> Result<Option<Mapped<Expression>>, RequestError> {
+) -> Result<Option<Mapped<GeneExpression>>, RequestError> {
     let endpoint = SPEC
         .get("/")
         .fresh(Freshness::Days(7))

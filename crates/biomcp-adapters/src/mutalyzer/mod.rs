@@ -1,6 +1,6 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
 use crate::quotas;
-use biodata::{Source, Text, VariantHeader, VariantIdentity, VariantRepresentation};
+use biodata::{Source, Text, VariantHeader, Variant, Representation, SourceRecord};
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
 use serde::Deserialize;
 use std::time::Duration;
@@ -61,30 +61,13 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         return Err(bad());
     }
     let notation = raw.normalized_description.ok_or_else(bad)?;
-    let reference = notation
-        .as_str()
-        .split_once(':')
-        .and_then(|(r, _)| Text::new(r).ok())
-        .ok_or_else(bad)?;
+    let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
-        identity: VariantIdentity {
-            source: Source::Mutalyzer,
-            key: notation.clone(),
-            aliases: Box::default(),
-            representations: vec![VariantRepresentation {
-                source: Source::Mutalyzer,
-                notation,
-                reference,
-                assembly: None,
-                coordinate: None,
-                reference_allele: None,
-                alternate_allele: None,
-            }]
-            .into(),
-        },
-        facts: Box::default(),
+        identity: Variant { ids: Box::default(), representations: vec![Representation { source: Source::Mutalyzer, expression, build: None, allele: None }].into(), genes: Box::default() },
+        source: Source::Mutalyzer, record: SourceRecord { id: notation, url: None }, myvariant: None,
     }))
 }
+
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Mutalyzer,

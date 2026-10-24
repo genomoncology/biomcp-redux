@@ -19,7 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
-const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,cosmic.cosmic_id";
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id";
 /// Resolve the exact published rsID or ClinVar ID, keeping every native candidate.
 /// Pages are bounded by the provider cap and source totals, never by taking its first hit.
 pub fn lookup(

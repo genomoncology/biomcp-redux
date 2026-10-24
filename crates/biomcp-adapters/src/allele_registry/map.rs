@@ -1,67 +1,35 @@
-use super::{Resolution, raw::Allele};
-use biodata::{
-    Build, GenomicInterval, Source, Span0, Text, VariantHeader, VariantIdentity,
-    VariantRepresentation,
-};
-pub(super) fn allele(raw: Allele) -> Result<Resolution, biomcp_fetch::BadReply> {
-    if let Some(error) = raw.error_type {
-        return Ok(Resolution::Rejected(error));
-    }
-    let key = raw.id.and_then(|s| {
-        s.as_str()
-            .strip_prefix("http://reg.genome.network/allele/")
-            .and_then(|v| Text::new(v).ok())
-    });
-    let key = key.ok_or(biomcp_fetch::BadReply)?;
-    let mut aliases = Vec::new();
-    for rs in raw.external.rs {
-        if let Ok(id) = Text::new(&format!("rs{}", rs.rs)) {
-            aliases.push(id);
-        }
-    }
-    for cv in raw.external.clinvar {
-        if let Ok(id) = Text::new(&format!("ClinVar:{}", cv.id)) {
-            aliases.push(id);
-        }
-    }
+use super::{Resolution, raw::{Allele as RawAllele, Genomic}};
+use crate::Mapped;
+use biodata::{Allele, Build, Expression, Problem, ProblemCode, Representation, SequenceLocation, Source, SourceRecord, Span0, Text, Variant, VariantHeader, VariantId};
+pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadReply> {
+    if let Some(error) = raw.error_type { return Ok(Resolution::Rejected(error)); }
+    let url = raw.id.ok_or(biomcp_fetch::BadReply)?;
+    let key = url.as_str().rsplit('/').next().ok_or(biomcp_fetch::BadReply)?;
+    let id = key.parse::<VariantId>().map_err(|_| biomcp_fetch::BadReply)?;
+    let record = Text::new(key).map_err(|_| biomcp_fetch::BadReply)?;
+    let mut ids = vec![id];
+    for rs in raw.external.rs { if rs.rs > 0 { ids.push(VariantId::Rs(rs.rs)); } }
+    for cv in raw.external.clinvar { if cv.id > 0 { ids.push(VariantId::ClinVarVariation(cv.id)); } }
+    let mut problems = Vec::new();
     let mut representations = Vec::new();
-    for g in raw.genomic {
-        let build = g
-            .assembly
-            .as_ref()
-            .and_then(|a| a.as_str().parse().ok())
-            .unwrap_or(Build::Unstated);
-        for notation in g.hgvs {
-            for c in &g.coordinates {
-                let coordinate = g
-                    .chromosome
-                    .clone()
-                    .zip(Span0::new(c.start, c.end).ok())
-                    .map(|(contig, span)| GenomicInterval {
-                        build,
-                        contig,
-                        span,
-                        strand: None,
-                    });
-                representations.push(VariantRepresentation {
-                    source: Source::AlleleRegistry,
-                    notation: notation.clone(),
-                    reference: g.reference.clone(),
-                    assembly: g.assembly.clone(),
-                    coordinate,
-                    reference_allele: Some(c.reference.clone()),
-                    alternate_allele: Some(c.allele.clone()),
-                });
-            }
-        }
-    }
-    Ok(Resolution::Found(VariantHeader {
-        identity: VariantIdentity {
-            source: Source::AlleleRegistry,
-            key,
-            aliases: aliases.into(),
-            representations: representations.into(),
-        },
-        facts: Box::default(),
-    }))
+    for g in raw.genomic { genomic(g, &record, &mut representations, &mut problems); }
+    for t in raw.transcripts { if let Some(m) = t.mane { for forms in [m.nucleotide, m.protein].into_iter().flatten() { for form in [forms.ensembl, forms.refseq].into_iter().flatten() { match Expression::hgvs(form.hgvs) { Ok(expression) => representations.push(Representation { source: Source::AlleleRegistry, expression, build: None, allele: None }), Err(_) => problems.push(problem(&record, "representations.expression")) } } } } }
+    let value = VariantHeader { identity: Variant { ids: ids.into(), representations: representations.into(), genes: Box::default() }, source: Source::AlleleRegistry, record: SourceRecord { id: record, url: Some(url) }, myvariant: None };
+    Ok(Resolution::Found(Mapped { value, problems }))
 }
+fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
+    let build = g.assembly.as_ref().and_then(|a| a.as_str().parse::<Build>().ok());
+    if g.assembly.is_some() && build.is_none() { problems.push(problem(record, "representations.build")); }
+    for notation in g.hgvs {
+        let expression = match Expression::hgvs(notation.clone()) { Ok(v) => v, Err(_) => { problems.push(problem(record, "representations.expression")); continue; } };
+        let sequence = notation.as_str().parse::<biodata::HgvsText>().and_then(|h| h.accession());
+        let allele = if g.coordinates.len() == 1 {
+            g.coordinates.first().and_then(|c| {
+                Allele::new(SequenceLocation { sequence: sequence.ok()?, span: Span0::new(c.start, c.end).ok()? }, c.reference.parse().ok()?, c.allele.parse().ok()?).ok()
+            })
+        } else { None };
+        if allele.is_none() { problems.push(problem(record, "representations.allele")); }
+        out.push(Representation { source: Source::AlleleRegistry, expression, build, allele });
+    }
+}
+fn problem(record: &Text, field: &str) -> Problem { Problem { source: Source::AlleleRegistry, record: Some(record.clone()), field: field.into(), code: ProblemCode::ValueUnknown } }

@@ -11,7 +11,6 @@ pub(super) struct Hit {
     pub id: biodata::Text,
     pub dbsnp: Option<Dbsnp>,
     pub clinvar: Option<Clinvar>,
-    pub cosmic: Option<Cosmic>,
 }
 #[derive(Deserialize)]
 pub(super) struct Dbsnp {
@@ -34,21 +33,9 @@ pub(super) enum OneOrMany {
     One(biodata::Text),
     Many(Vec<biodata::Text>),
 }
-impl OneOrMany {
-    pub(super) fn values(self) -> Vec<biodata::Text> {
-        match self {
-            Self::One(v) => vec![v],
-            Self::Many(v) => v,
-        }
-    }
-}
 #[derive(Deserialize)]
 pub(super) struct Clinvar {
     pub variant_id: u64,
-}
-#[derive(Deserialize)]
-pub(super) struct Cosmic {
-    pub cosmic_id: Option<OneOrMany>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
