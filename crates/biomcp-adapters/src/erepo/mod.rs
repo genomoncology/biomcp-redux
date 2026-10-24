@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const FETCH: Endpoint = SPEC
     .get("/evrepo/api/summary/classifications")
+    .json_absence()
     .fresh(Freshness::Days(1));
 /// Read native pages until completion, retaining source order and checked request identity.
 pub fn assertions(leg: &Leg<'_>, caid: &str) -> Result<Vec<VariantAssertion>, RequestError> {
@@ -33,14 +34,18 @@ pub fn assertions(leg: &Leg<'_>, caid: &str) -> Result<Vec<VariantAssertion>, Re
             ("pg", Arg::Num(page)),
         ];
         let (reply, _) = leg.json_received_checked::<raw::ReplyBody>(&FETCH, &params, |r| {
-            if r.data.iter().all(|r| r.ca_id == caid) {
+            if r.data
+                .as_ref()
+                .is_none_or(|rows| rows.iter().all(|r| r.ca_id == caid))
+            {
                 Ok(())
             } else {
                 Err(BadReply)
             }
         })?;
-        let complete = reply.data.len() < 3;
-        for row in reply.data {
+        let data = reply.data.unwrap_or_default();
+        let complete = data.len() < 3;
+        for row in data {
             rows.push(row.map()?);
         }
         if complete {

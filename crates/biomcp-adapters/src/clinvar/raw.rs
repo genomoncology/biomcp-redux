@@ -28,7 +28,7 @@ impl XmlReply for Records {
         if archives.len() != 1 {
             return Err(BadReply);
         }
-        let archive = archives[0];
+        let archive = *archives.first().ok_or(BadReply)?;
         let id = archive.attr("VariationID")?.ok_or(BadReply)?;
         format!("clinvar:{id}")
             .parse::<biodata::VariantId>()
@@ -73,7 +73,7 @@ fn root(xml: &str) -> Result<Element<'_>, BadReply> {
         let begin = reader.buffer_position() as usize;
         match reader.read_event().map_err(|_| BadReply)? {
             quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
-                return if tag.name().as_ref() == b"ClinVarResult-Set" {
+                return if tag.name().as_ref() == "ClinVarResult-Set" {
                     Ok(Element(&xml[begin..]))
                 } else {
                     Err(BadReply)

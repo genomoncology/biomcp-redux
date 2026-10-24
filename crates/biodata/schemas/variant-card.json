@@ -294,6 +294,40 @@
       ],
       "type": "string"
     },
+    "CivicClaimPage": {
+      "additionalProperties": false,
+      "description": "Native stream bounds; evidence and assertions have separate cursors.",
+      "properties": {
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue the same source candidate, profile and claim stream."
+        },
+        "returned": {
+          "description": "Number of native rows displayed in this stream.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Native total for this stream.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
     "CivicEvidenceLevelCode": {
       "description": "Source-defined CIViC evidence levels.",
       "enum": [
@@ -304,6 +338,41 @@
         "e"
       ],
       "type": "string"
+    },
+    "CivicMember": {
+      "additionalProperties": false,
+      "description": "A native CIViC member, including members without a common-model subject.",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/Text",
+          "description": "Native feature label, including fusion features."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source variant label."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native variant identity and link."
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-qualified subject when supported by the common model."
+        }
+      },
+      "required": [
+        "record",
+        "label",
+        "feature"
+      ],
+      "type": "object"
     },
     "CivicMembership": {
       "description": "Identity strength of a CIViC profile lookup.",
@@ -323,11 +392,19 @@
           "minimum": 0,
           "type": "integer"
         },
+        "assertion_page": {
+          "$ref": "#/$defs/CivicClaimPage",
+          "description": "Native assertion stream and its independent continuation."
+        },
         "evidence_count": {
           "description": "Native evidence count, independent of the displayed page.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
+        },
+        "evidence_page": {
+          "$ref": "#/$defs/CivicClaimPage",
+          "description": "Native evidence stream and its independent continuation."
         },
         "label": {
           "$ref": "#/$defs/Text",
@@ -336,7 +413,7 @@
         "members": {
           "description": "Every source member reference, without collapsing compound profiles.",
           "items": {
-            "$ref": "#/$defs/VariantRef"
+            "$ref": "#/$defs/CivicMember"
           },
           "type": "array"
         },
@@ -351,7 +428,7 @@
         "statements": {
           "description": "Source claims; a compound claim retains a profile subject.",
           "items": {
-            "$ref": "#/$defs/Statement"
+            "$ref": "#/$defs/CivicStatement"
           },
           "type": "array"
         }
@@ -363,7 +440,66 @@
         "members",
         "evidence_count",
         "assertion_count",
-        "statements"
+        "statements",
+        "evidence_page",
+        "assertion_page"
+      ],
+      "type": "object"
+    },
+    "CivicStatement": {
+      "additionalProperties": false,
+      "description": "One CIViC claim with native labels that exceed the common statement model.",
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original provider direction; disputes never implies the opposite effect."
+        },
+        "kind": {
+          "$ref": "#/$defs/Text",
+          "description": "Source claim category, without a fallback proposition."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native claim identity, retained even when no common proposition applies."
+        },
+        "significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original significance, including when the classification holds an AMP tier."
+        },
+        "statement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Statement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Common source-attributed claim."
+        },
+        "status": {
+          "$ref": "#/$defs/Text",
+          "description": "Native curation state, without implying that every row is accepted."
+        }
+      },
+      "required": [
+        "record",
+        "kind",
+        "status"
       ],
       "type": "object"
     },
@@ -527,13 +663,80 @@
       ],
       "type": "object"
     },
+    "CosmicCoordinates": {
+      "additionalProperties": false,
+      "description": "Historical coordinates exactly as carried by the component.",
+      "properties": {
+        "end": {
+          "description": "Source end value, without coordinate conversion.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "description": "Source start value, without coordinate conversion.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "CosmicIdentity": {
+      "description": "Relationship between a carried historical fragment and its aggregator record.",
+      "enum": [
+        "unverified"
+      ],
+      "type": "string"
+    },
     "CosmicRecord": {
       "additionalProperties": false,
       "description": "One source record from MyVariant's historical COSMIC copy.",
       "properties": {
+        "alternate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unmodified source alternate spelling."
+        },
+        "chromosome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source chromosome label."
+        },
         "cosmic_id": {
           "$ref": "#/$defs/Text",
           "description": "Native COSMIC record identifier."
+        },
+        "hg19": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CosmicCoordinates"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source hg19 coordinates, without allele construction."
+        },
+        "identity": {
+          "$ref": "#/$defs/CosmicIdentity",
+          "description": "Fragment identity has not been independently verified."
         },
         "mut_freq": {
           "anyOf": [
@@ -544,7 +747,7 @@
               "type": "null"
             }
           ],
-          "description": "Source frequency; never recomputed."
+          "description": "Source frequency; units and denominator are not inferred."
         },
         "mut_nt": {
           "anyOf": [
@@ -557,9 +760,20 @@
           ],
           "description": "Source nucleotide text, without repair or normalization."
         },
-        "subject": {
-          "$ref": "#/$defs/VariantRef",
-          "description": "Exact source-qualified subject."
+        "myvariant_record": {
+          "$ref": "#/$defs/Text",
+          "description": "MyVariant parent record association; this does not establish allele equivalence."
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unmodified source reference spelling."
         },
         "tumor_site": {
           "description": "Every source tumor-site label in native order.",
@@ -570,7 +784,8 @@
         }
       },
       "required": [
-        "subject",
+        "myvariant_record",
+        "identity",
         "cosmic_id"
       ],
       "type": "object"
@@ -704,6 +919,13 @@
           ],
           "description": "Source odds ratio."
         },
+        "ontology_traits": {
+          "description": "Source mapped trait identifiers and whole labels, without clinical inference.",
+          "items": {
+            "$ref": "#/$defs/GwasTrait"
+          },
+          "type": "array"
+        },
         "p_value": {
           "$ref": "#/$defs/FiniteNumber",
           "description": "Reported p value."
@@ -746,6 +968,7 @@
         "id",
         "study",
         "traits",
+        "ontology_traits",
         "alleles",
         "p_value"
       ],
@@ -767,6 +990,25 @@
       "required": [
         "rs_id",
         "allele"
+      ],
+      "type": "object"
+    },
+    "GwasTrait": {
+      "additionalProperties": false,
+      "description": "Source ontology mapping as supplied by GWAS Catalog.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source ontology identifier spelling."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source trait label."
+        }
+      },
+      "required": [
+        "id",
+        "label"
       ],
       "type": "object"
     },
@@ -795,6 +1037,14 @@
       ],
       "type": "object"
     },
+    "HotspotMembership": {
+      "description": "Source transcript and consequence join state.",
+      "enum": [
+        "exact",
+        "candidate"
+      ],
+      "type": "string"
+    },
     "HotspotRecord": {
       "additionalProperties": false,
       "description": "Counts for one source transcript and residue label.",
@@ -810,12 +1060,23 @@
           "$ref": "#/$defs/GeneSymbol",
           "description": "Gene as stated by the source."
         },
+        "membership": {
+          "$ref": "#/$defs/HotspotMembership",
+          "description": "Whether transcript and consequence were linked by the identity source."
+        },
         "residue": {
           "$ref": "#/$defs/Text",
           "description": "Native residue label; no genomic allele is inferred."
         },
         "transcript": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Native transcript spelling, without an inferred accession version."
         },
         "tumor_count": {
@@ -826,8 +1087,8 @@
         }
       },
       "required": [
+        "membership",
         "gene",
-        "transcript",
         "residue",
         "tumor_count",
         "alternates"
@@ -1342,6 +1603,7 @@
         "deadline_exceeded",
         "offline",
         "no_key",
+        "restricted_terms",
         "disabled",
         "replay_miss",
         "syncing",
@@ -1363,6 +1625,7 @@
         " The request exhausted its deadline.",
         " Network access was disabled.",
         " A required credential was absent.",
+        " Component terms do not permit this application to offer its values.",
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
@@ -2546,6 +2809,7 @@
         "ctgov",
         "nci",
         "civic",
+        "hotspots",
         "oncokb",
         "myvariant",
         "car",
@@ -2575,6 +2839,7 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
+        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -3326,15 +3591,33 @@
           },
           "type": "array"
         },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Typed next page for the same identity and section selection."
+        },
         "records": {
           "description": "Native historical records in source order.",
           "items": {
             "$ref": "#/$defs/CosmicRecord"
           },
           "type": "array"
+        },
+        "total": {
+          "description": "Number of native historical fragments before paging.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
+        "total",
         "records",
         "components"
       ],
@@ -3511,6 +3794,17 @@
         "record": {
           "$ref": "#/$defs/SourceRecord",
           "description": "Exact source record, including source keys that are expressions rather than identifiers."
+        },
+        "requested": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked caller ID used by a source-only section, without asserting resolved identity."
         },
         "sections": {
           "anyOf": [
@@ -3845,6 +4139,7 @@
     "VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
+        "unresolved",
         "resolved",
         "candidates",
         "absent",
