@@ -28,7 +28,7 @@ pub(super) fn search<'a>(
         .leg(&semantic_scholar::SPEC, deadline)
         .fresh(cx.fresh);
     let start = leg.remaining();
-    let result = semantic_scholar::search(&leg, &term, year.as_deref());
+    let result = semantic_scholar::search(&leg, &term, year.as_deref(), query.open_access());
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::SemanticScholar, leg.finish(), error);
