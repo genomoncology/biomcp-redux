@@ -1,4 +1,5 @@
 //! Data-only presentation hints; paths refer exclusively to response JSON.
+use biodata::ResponseBody;
 pub(super) struct Hint {
     pub(super) schema: &'static str,
     pub(super) title: &'static str,
@@ -6,27 +7,27 @@ pub(super) struct Hint {
 }
 const HINTS: &[Hint] = &[
     Hint {
-        schema: "biomcp.article_supplement/1",
+        schema: biodata::ArticleSupplementResult::SCHEMA,
         title: "",
         columns: &["sheet", "row", "header", "cells", "fragment"],
     },
     Hint {
-        schema: "biomcp.gene_cards/1",
+        schema: biodata::GeneCards::SCHEMA,
         title: "/answer/gene/symbol",
         columns: &[],
     },
     Hint {
-        schema: "biomcp.article_cards/1",
+        schema: biodata::ArticleCards::SCHEMA,
         title: "/answer/card/title",
         columns: &[],
     },
     Hint {
-        schema: "biomcp.gene_page/1",
+        schema: biodata::GenePage::SCHEMA,
         title: "",
         columns: &["symbol", "name", "hgnc_id", "location", "status"],
     },
     Hint {
-        schema: "biomcp.article_page/1",
+        schema: biodata::ArticlePage::SCHEMA,
         title: "",
         columns: &[
             "pmid",
@@ -38,7 +39,7 @@ const HINTS: &[Hint] = &[
         ],
     },
     Hint {
-        schema: "biomcp.article_edges/1",
+        schema: biodata::ArticleEdgePage::SCHEMA,
         title: "",
         columns: &["pmid", "header/title", "header/journal", "cited_by"],
     },
