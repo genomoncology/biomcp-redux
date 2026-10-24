@@ -111,6 +111,18 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             if property.get("x-positional").is_none() && !is_trailing {
                 args.push(format!("--{}", name.replace('_', "-")));
             }
+            if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
+                args.push(
+                    value
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(Value::as_str)
+                        .collect::<Vec<_>>()
+                        .join(","),
+                );
+                continue;
+            }
             for value in value
                 .as_array()
                 .map(Vec::as_slice)

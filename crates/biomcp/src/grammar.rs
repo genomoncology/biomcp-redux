@@ -193,7 +193,10 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         }
         if property.get("type").and_then(Value::as_str) == Some("array") {
             argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
-                argument.num_args(1).value_delimiter(',').action(ArgAction::Append)
+                argument
+                    .num_args(1)
+                    .value_delimiter(',')
+                    .action(ArgAction::Append)
             } else if property.get("x-trailing-section").is_some() {
                 argument.num_args(1).action(ArgAction::Append)
             } else {
