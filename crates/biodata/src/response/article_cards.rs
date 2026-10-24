@@ -37,6 +37,12 @@ pub struct ArticleCardItem {
     /// Absent only when a provider failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub answer: Option<ArticleResolution>,
+    /// Requested section states for a resolved card.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sections: Option<crate::ArticleSections>,
+    /// Applicable sections omitted by this request.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub more: Box<[crate::ArticleSection]>,
 }
 /// Cards in caller order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

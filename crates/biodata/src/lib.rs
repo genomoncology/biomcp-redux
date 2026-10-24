@@ -7,7 +7,7 @@ pub use article::{
 };
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid};
-pub use query::ArticleGet;
+pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
@@ -59,3 +59,5 @@ pub use response::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
+
+pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};

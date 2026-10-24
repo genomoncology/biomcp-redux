@@ -4,6 +4,18 @@
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
+    "ArticleSectionWord": {
+      "description": "Article section request including all landed sections.",
+      "enum": [
+        "annotations",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Normalized text-mined entities from PubTator3.",
+        " Every landed article section."
+      ]
+    },
     "ArticleSort": {
       "description": "Article ordering supported by this command.",
       "enum": [
@@ -113,6 +125,14 @@
           "minItems": 1,
           "type": "array",
           "x-positional": 0
+        },
+        "section": {
+          "description": "Requested section words; trailing words and --section share this field.",
+          "items": {
+            "$ref": "#/$defs/ArticleSectionWord"
+          },
+          "type": "array",
+          "x-trailing-section": true
         }
       },
       "required": [

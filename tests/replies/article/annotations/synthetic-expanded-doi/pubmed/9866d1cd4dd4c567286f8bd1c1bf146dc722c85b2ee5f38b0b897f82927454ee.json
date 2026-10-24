@@ -1,0 +1,45 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=10.3389%2Ffcell.2020.573599%5Bdoi%5D&retmax=9999&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1792839535,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "esearchresult": {
+            "count": "21",
+            "idlist": [
+              "10000001",
+              "10000002",
+              "10000003",
+              "10000004",
+              "10000005",
+              "10000006",
+              "10000007",
+              "10000008",
+              "10000009",
+              "10000010",
+              "10000011",
+              "10000012",
+              "10000013",
+              "10000014",
+              "10000015",
+              "10000016",
+              "10000017",
+              "10000018",
+              "10000019",
+              "10000020",
+              "10000021"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

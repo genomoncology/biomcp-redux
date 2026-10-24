@@ -46,3 +46,7 @@ pub(crate) static NCBI: Quota = Quota::new(
     Some(Rate::per_second(10)),
     3,
 );
+
+// Conservative local PubTator3 policy; no published numeric provider limit checked.
+pub(crate) static PUBTATOR: Quota =
+    Quota::new(SourceKey::declare("pubtator"), Rate::per_second(3), None, 3);

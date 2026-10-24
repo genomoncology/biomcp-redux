@@ -37,3 +37,6 @@ pub use gene::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
+
+mod article_sections;
+pub use article_sections::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
