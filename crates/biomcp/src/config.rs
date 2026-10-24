@@ -8,6 +8,8 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    disable_sources: Option<Vec<String>>,
+    ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
     keys: Option<Keys>,
 }
@@ -16,6 +18,7 @@ struct ConfigFile {
 struct Keys {
     oncokb_api_key: Option<String>,
     ncbi_api_key: Option<String>,
+    semantic_scholar_api_key: Option<String>,
 }
 #[expect(
     clippy::disallowed_methods,
@@ -121,14 +124,84 @@ fn fetch_using(
     if let Some(key) = ncbi {
         secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
     }
+    let scholar = variable("SEMANTIC_SCHOLAR_API_KEY")
+        .map(|v| v.to_string_lossy().into_owned())
+        .or_else(|| {
+            file.as_ref()
+                .and_then(|f| f.keys.as_ref())
+                .and_then(|k| k.semantic_scholar_api_key.clone())
+        });
+    if let Some(key) = scholar {
+        secrets.insert(SecretName::SemanticScholarApiKey, Secret::new(key));
+    }
+    let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
+        disabled_sources: disabled_sources(globals, file.as_ref())?,
+        observations: globals
+            .observe
+            .as_ref()
+            .map(|path| biomcp_fetch::Observations::create(path).map(std::sync::Arc::new))
+            .transpose()
+            .map_err(|_| ())?,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
+        network,
         cache,
         mode,
         replay_cache,
         proxy: file.and_then(|file| file.proxy).map(Secret::new),
         ..FetchConfig::default()
     })
+    .map_err(|_| ())
+}
+
+fn disabled_sources(
+    globals: &Globals,
+    file: Option<&ConfigFile>,
+) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
+    let mut disabled = globals.disable_sources.clone();
+    disabled.extend(
+        file.and_then(|f| f.disable_sources.clone())
+            .unwrap_or_default(),
+    );
+    biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())
+}
+
+fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
+    use std::io::Read;
+    const MAX_PEM_BYTES: u64 = 4 * 1024 * 1024;
+    let roots = file
+        .and_then(|file| file.ca_bundle.as_ref())
+        .map(|path| {
+            let mut bytes = Vec::new();
+            fs::File::open(path)
+                .map_err(|_| ())?
+                .take(MAX_PEM_BYTES + 1)
+                .read_to_end(&mut bytes)
+                .map_err(|_| ())?;
+            if bytes.len() as u64 > MAX_PEM_BYTES {
+                return Err(());
+            }
+            biomcp_fetch::Certificates::from_pem(&bytes).map_err(|_| ())
+        })
+        .transpose()?
+        .unwrap_or_default();
+    let explicit = file.is_some_and(|file| file.proxy.is_some());
+    let proxy = |name| {
+        if explicit {
+            None
+        } else {
+            variable(name).map(|v| Secret::new(v.to_string_lossy().into_owned()))
+        }
+    };
+    let bypass = if explicit { None } else { variable("NO_PROXY") };
+    biomcp_fetch::Network::new(
+        proxy("HTTP_PROXY"),
+        proxy("HTTPS_PROXY"),
+        &bypass
+            .map(|v| v.to_string_lossy().into_owned())
+            .unwrap_or_default(),
+        roots,
+    )
     .map_err(|_| ())
 }

@@ -104,10 +104,7 @@ fn section<T>(content: &Content, map: impl FnOnce(&(FullText, Supplements)) -> T
             source: Source::PmcOa,
             reason: Reason::NotOpen,
         },
-        Err(reason) => Section::Unavailable {
-            source: Source::PmcOa,
-            reason: *reason,
-        },
+        Err(reason) => Section::unavailable(Source::PmcOa, *reason),
     }
 }
 fn supplement_next(id: Pmcid, files: &Supplements, out: &mut Vec<(StepKind, Action)>) {

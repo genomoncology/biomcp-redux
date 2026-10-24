@@ -10,6 +10,7 @@ pub(crate) enum Codec {
     Json,
     Xml,
     Bytes,
+    Probe,
 }
 impl Codec {
     pub(crate) fn name(self) -> &'static str {
@@ -17,6 +18,7 @@ impl Codec {
             Self::Json => "application/json",
             Self::Xml => "application/xml",
             Self::Bytes => "application/octet-stream",
+            Self::Probe => "*/*",
         }
     }
     pub(crate) fn accepts(self, media: &str) -> bool {
@@ -24,6 +26,7 @@ impl Codec {
         let name = parts.next().unwrap_or("").trim().to_ascii_lowercase();
         match self {
             Self::Bytes => true,
+            Self::Probe => true,
             Self::Json => {
                 name == self.name() || name.starts_with("application/") && name.ends_with("+json")
             }
@@ -257,6 +260,16 @@ impl MixedText {
 #[path = "xml_tests.rs"]
 mod tests;
 
+#[derive(serde::Deserialize)]
+pub(crate) struct Probe;
+impl Reply for Probe {
+    fn check(&self) -> Result<(), crate::BadReply> { Ok(()) }
+}
+impl Decoder<'_, Probe> {
+    pub(crate) fn probe() -> Self {
+        Self { codec: Codec::Probe, validate: None, limit: None, octet_stream: false, parse: |_| Some(Probe) }
+    }
+}
 #[derive(serde::Deserialize)]
 pub(crate) struct Bytes(pub(crate) Vec<u8>);
 impl Reply for Bytes {

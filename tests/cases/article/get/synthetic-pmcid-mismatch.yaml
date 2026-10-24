@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-get",
   "story": "synthetic-pmcid-mismatch",
   "replay": "article/get/synthetic-pmcid-mismatch",

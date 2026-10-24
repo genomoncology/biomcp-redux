@@ -1,5 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+mod observe;
+pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 mod batch;
 mod bundle;
 mod cache;
@@ -9,7 +11,10 @@ mod cache_request;
 mod deadline;
 mod declaration;
 mod error;
+mod network;
 mod prepared;
+mod tls;
+pub use network::{Certificates, Network};
 mod quota;
 mod record;
 mod request;
@@ -22,7 +27,7 @@ pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
 pub use cache::{SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
-    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
+    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec, Terms,
 };
 pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,
@@ -41,8 +46,12 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// Explicit bounded wire summaries, disabled by default.
+    pub observations: Option<std::sync::Arc<Observations>>,
     /// Other schema owners checked before any cache mutation.
     pub cache_owners: Vec<SchemaOwner>,
+    /// Source identities switched off before keys, caches, replay or requests.
+    pub disabled_sources: std::collections::BTreeSet<biodata::Source>,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -53,6 +62,8 @@ pub struct FetchConfig {
     pub replay_cache: Option<ReplayCache>,
     /// Explicit HTTP proxy URL, redacted when formatted.
     pub proxy: Option<Secret>,
+    /// Checked environment routes and additive trust certificates.
+    pub network: Network,
     /// Maximum encoded request and decoded response bytes, each bounded independently.
     pub max_body: u64,
     /// Independent explicit bundle synchronization budget.
@@ -66,12 +77,15 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            observations: None,
             cache_owners: Vec::new(),
+            disabled_sources: Default::default(),
             secrets: Secrets::default(),
             cache: None,
             mode: Mode::default(),
             replay_cache: None,
             proxy: None,
+            network: Network::default(),
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
             sync_budget: Duration::from_secs(120),
@@ -85,14 +99,16 @@ impl Default for FetchConfig {
     clippy::disallowed_types,
     reason = "Reserve each bundle replay import once per Fetch"
 )]
+#[derive(Clone)]
 pub struct Fetch {
-    agent: ureq::Agent,
-    limiters: quota::Limiters,
+    agents: std::sync::Arc<network::Agents>,
+    limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
-    recordings: record::Recordings,
-    clock: Option<deadline::VirtualClock>,
-    config: FetchConfig,
-    bundle_imports: std::sync::Mutex<std::collections::BTreeSet<&'static str>>,
+    recordings: std::sync::Arc<record::Recordings>,
+    clock: Option<std::sync::Arc<deadline::VirtualClock>>,
+    config: std::sync::Arc<FetchConfig>,
+    bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
+    disabled_sources: std::collections::BTreeSet<biodata::Source>,
 }
 
 impl fmt::Debug for Fetch {
@@ -105,31 +121,11 @@ impl fmt::Debug for Fetch {
 
 impl Fetch {
     /// Open a client using platform TLS roots and only the supplied proxy.
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Initialize the Fetch-local bundle import reservation"
-    )]
     pub fn open(mut config: FetchConfig) -> Result<Self, FetchError> {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
-        let proxy = config
-            .proxy
-            .as_ref()
-            .map(|p| ureq::Proxy::new(p.value()))
-            .transpose()
-            .map_err(|_| FetchError::Proxy)?;
-        let agent = ureq::Agent::config_builder()
-            .proxy(proxy)
-            .http_status_as_error(false)
-            .max_redirects(0)
-            .tls_config(
-                ureq::tls::TlsConfig::builder()
-                    .root_certs(ureq::tls::RootCerts::PlatformVerifier)
-                    .build(),
-            )
-            .build()
-            .new_agent();
+        let agents = network::Agents::new(&config.network, config.proxy.as_ref())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
             config.replay_cache = Some(
                 ReplayCache::temporary_with_owners(&config.cache_owners)
@@ -155,14 +151,28 @@ impl Fetch {
         let clock =
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
-            agent,
+            agents: std::sync::Arc::new(agents),
             cache,
-            recordings,
-            clock,
-            config,
-            limiters: quota::Limiters::default(),
-            bundle_imports: std::sync::Mutex::default(),
+            recordings: std::sync::Arc::new(recordings),
+            clock: clock.map(std::sync::Arc::new),
+            disabled_sources: config.disabled_sources.clone(),
+            config: std::sync::Arc::new(config),
+            limiters: std::sync::Arc::default(),
+            bundle_imports: std::sync::Arc::default(),
         })
+    }
+
+    /// Whether the explicit source policy prevents every read and request.
+    pub fn disabled(&self, source: biodata::Source) -> bool {
+        self.disabled_sources.contains(&source)
+    }
+
+    /// Restrict a command while retaining shared quotas, clocks, recordings and connections.
+    /// Existing source restrictions cannot be removed.
+    pub fn restrict_sources(&self, disabled: std::collections::BTreeSet<biodata::Source>) -> Self {
+        let mut restricted = self.clone();
+        restricted.disabled_sources.extend(disabled);
+        restricted
     }
 
     /// Report whether a configured credential is nonempty without exposing it.
@@ -172,12 +182,12 @@ impl Fetch {
 
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
-        Deadline::start(budget, self.clock.as_ref())
+        Deadline::start(budget, self.clock.as_deref())
     }
 
     /// Own a sequential command's replay origin without changing independent leg consumers.
     pub fn command_deadline(&self, budget: Duration) -> CommandDeadline<'_> {
-        CommandDeadline::start(budget, self.clock.as_ref())
+        CommandDeadline::start(budget, self.clock.as_deref())
     }
 
     /// Start a leg capped by this source's budget.
@@ -194,16 +204,19 @@ impl Fetch {
             .get(&spec.source)
             .copied()
             .unwrap_or(spec.deadline);
-        let no_key = match spec.key {
-            KeyUse::Required(credential) => self.config.secrets.get(credential.secret).is_none(),
-            _ => false,
-        };
+        let no_key = !self.disabled(spec.source)
+            && match spec.key {
+                KeyUse::Required(credential) => {
+                    self.config.secrets.get(credential.secret).is_none()
+                }
+                _ => false,
+            };
         Leg {
             fetch: self,
             spec,
             deadline: deadline.child(cap),
             clock: deadline.fork(),
-            wrong_clock: !deadline.matches(self.clock.as_ref()),
+            wrong_clock: !deadline.matches(self.clock.as_deref()),
             no_key,
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,

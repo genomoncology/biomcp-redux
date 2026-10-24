@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Synthetic metadata preserves native ranks before duplicate suppression and stable page walks",
   "replay": "article/fold/synthetic-fold",

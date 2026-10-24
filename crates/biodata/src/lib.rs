@@ -25,7 +25,7 @@ mod source;
 mod text;
 
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
-pub use source::{Reason, Source};
+pub use source::{Reason, Source, Use};
 pub use text::Text;
 
 mod coord;
@@ -75,3 +75,5 @@ mod markdown;
 pub use markdown::Markdown;
 pub use query::ArticleEdges;
 pub use response::{ArticleEdgePage, Citations};
+
+pub use response::{Health, SourceHealth};

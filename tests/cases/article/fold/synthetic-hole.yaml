@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Synthetic source-local identity stays anchored when citation metadata is missing",
   "replay": "article/fold/synthetic-hole",

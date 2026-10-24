@@ -11,6 +11,11 @@ use std::time::Duration;
 pub use supplement::{Download, Supplement, download};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms {
+        name: "PMC copyright; article-specific licenses",
+        url: "https://pmc.ncbi.nlm.nih.gov/about/copyright/",
+        usage: biodata::Use::Restricted,
+    },
     source: Source::PmcOa,
     base: "https://pmc-oa-opendata.s3.amazonaws.com",
     key: KeyUse::None,

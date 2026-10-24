@@ -58,10 +58,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             }
         }
         let section = if let Some(reason) = failure {
-            Section::Unavailable {
-                source: Source::Reactome,
-                reason,
-            }
+            Section::unavailable(Source::Reactome, reason)
         } else if pathways.is_empty() {
             Section::Empty {
                 source: Source::Reactome,

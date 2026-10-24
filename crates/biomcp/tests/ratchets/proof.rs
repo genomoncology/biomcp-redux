@@ -187,3 +187,21 @@ fn rejects_conditional_integration_test_attributes() -> Check {
         "test outside listed locations",
     )
 }
+
+#[test]
+fn source_without_publisher_terms_is_rejected() -> Check {
+    rejects(
+        "crates/biomcp-adapters/src/planted.rs",
+        "pub static SPEC: SourceSpec = SourceSpec { source: Source::Hgnc };",
+        "publisher terms",
+    )
+}
+
+#[test]
+fn test_files_obey_the_file_line_limit() -> Check {
+    let tree = tree()?;
+    let path = "crates/biodata/tests/nested/size.rs";
+    put(tree.path(), path, &"// line\n".repeat(600))?;
+    check(tree.path())?;
+    rejects(path, &"// line\n".repeat(601), "file line limit")
+}

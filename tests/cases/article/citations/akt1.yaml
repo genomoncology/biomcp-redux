@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-citations",
   "story": "Recorded default AKT1 search keeps the review paper on its first page; its citation strategy finds the original paper first.",
   "replay": "article/citations/live",

@@ -48,6 +48,30 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::checked_bytes(limit, &check))
             .map(|(v, _)| v.0)
     }
+    /// Probe declared reachability through the same bounded transport, quota and replay policy.
+    /// Probe replies never enter the checked data cache.
+    pub fn probe(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<(), RequestError> {
+        let ep = ep.clone().fresh(crate::Freshness::Never);
+        self.parameters(&ep, params, Decoder::probe()).map(|_| ())
+    }
+    /// Probe a declared read-only JSON endpoint with a bounded request body.
+    pub fn probe_json<B: serde::Serialize>(
+        &self,
+        ep: &Endpoint,
+        body: &B,
+    ) -> Result<(), RequestError> {
+        let ep = ep.clone().fresh(crate::Freshness::Never);
+        self.validate(&ep, true)?;
+        let body = crate::prepared::json(body, self.fetch.config.max_body)?;
+        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        self.send(
+            &ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            Decoder::probe(),
+        )
+        .map(|_| ())
+    }
+
     /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
     pub fn json<T: Reply>(
         &self,
@@ -149,6 +173,9 @@ impl Leg<'_> {
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
+        if self.fetch.disabled(self.spec.source) {
+            return Err(self.failure(Reason::Disabled, None).into());
+        }
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
         }
@@ -215,7 +242,10 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
-            let (mut error, retryable, delay) = match self.exchange(prepared, codec) {
+            let started = Instant::now();
+            let exchange = self.exchange(prepared, codec);
+            self.observe_exchange(prepared, &exchange, started.elapsed());
+            let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
                     if (200..300).contains(&status) {
@@ -231,11 +261,7 @@ impl Leg<'_> {
                 Err(Failure::Local(error)) => return Err(error),
                 Err(Failure::Transport(error)) => {
                     let retryable = crate::retry::retry_error(&error);
-                    let reason = if matches!(error, ureq::Error::Timeout(_)) && !retryable {
-                        Reason::DeadlineExceeded
-                    } else {
-                        Reason::Unavailable
-                    };
+                    let reason = crate::tls::reason(&error);
                     (self.failure(reason, None), retryable, None)
                 }
             };
@@ -263,16 +289,42 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
+    fn observe_exchange(
+        &self,
+        prepared: &Prepared,
+        exchange: &Result<Wire, Failure>,
+        elapsed: Duration,
+    ) {
+        match exchange {
+            Ok(response) => self.observe(
+                &prepared.identity,
+                Some(response.status),
+                &response.body,
+                &response.content_type,
+                elapsed,
+            ),
+            Err(Failure::Local(RequestError::Source(error))) => {
+                self.observe(&prepared.identity, error.status, &[], "", elapsed)
+            }
+            Err(_) => self.observe(&prepared.identity, None, &[], "", elapsed),
+        }
+    }
+
     pub(crate) fn wire_call(
         &self,
         prepared: &Prepared,
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        let agent = self.fetch.agents.for_url(
+            &self.fetch.config.network,
+            self.fetch.config.proxy.is_some(),
+            &prepared.url,
+        );
         let mut request = if prepared.post.is_some() {
-            self.fetch.agent.post(&prepared.url)
+            agent.post(&prepared.url)
         } else {
-            self.fetch.agent.get(&prepared.url).force_send_body()
+            agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
         for (name, value) in &prepared.outgoing {

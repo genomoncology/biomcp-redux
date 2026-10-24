@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-annotations",
   "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
   "replay": "article/fulltext/live-all",

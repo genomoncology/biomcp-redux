@@ -32,6 +32,8 @@ impl std::error::Error for SourceError {}
 pub enum FetchError {
     /// The configured proxy could not be parsed.
     Proxy,
+    /// The configured additive certificates could not be checked.
+    Certificates,
     /// The body limit must allow one byte for overflow detection.
     BodyLimit,
     /// The explicit cache could not be opened safely.
@@ -44,6 +46,7 @@ impl fmt::Display for FetchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
             Self::Proxy => "fetch.proxy",
+            Self::Certificates => "fetch.certificates",
             Self::BodyLimit => "fetch.body_limit",
             Self::Cache(error) => return error.fmt(f),
             Self::Recording(error) => return error.fmt(f),

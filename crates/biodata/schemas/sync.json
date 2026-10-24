@@ -137,6 +137,8 @@
         "too_large",
         "rate_limited",
         "unavailable",
+        "tls",
+        "proxy",
         "rejected",
         "bad_reply",
         "deadline_exceeded",
@@ -155,6 +157,8 @@
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
         " The source rejected the request.",
         " The reply could not be used.",
         " The request exhausted its deadline.",
@@ -350,7 +354,8 @@
         "fresh",
         "disambiguate",
         "sync",
-        "key"
+        "key",
+        "configure"
       ],
       "type": "string"
     },

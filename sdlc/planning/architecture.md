@@ -96,7 +96,7 @@ disallowed_types = "deny"
 
 Lints are `deny`, never `forbid`, so a rare exception can carry `#[expect(lint, reason = "...")]` where a reviewer sees it. `allow_attributes_without_reason` makes every such exception state its reason, and the ratchet test lists the files allowed to carry one.
 
-`ureq` uses rustls with the ring provider and the platform's trust roots, so corporate roots installed on the machine work without a CA bundle. Its proxy comes only from the config file. The client never reads proxy environment variables, because only `config.rs` reads the environment. `clap`'s `string` feature lets the grammar build arguments from owned names read out of the schemas.
+`ureq` uses rustls with the ring provider and platform certificate verification. `ca_bundle` adds checked PEM roots through rustls-platform-verifier without replacing platform trust. The transport keeps ureq's TCP and CONNECT connectors and a narrow TLS connector because ureq's root selector cannot express additive platform roots. `config.rs` owns PEM I/O and proxy environment reads; the transport receives checked, owned settings. `clap`'s `string` feature lets the grammar build arguments from owned names read out of the schemas.
 
 The version numbers above are the stage 1 starting point. The stage that adds each dependency confirms its current release and feature names and records the code it saves, as `planning/rust-standards.md` says.
 
@@ -114,7 +114,7 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
    - Each crate's direct dependencies are a subset of its allowed list, which the test holds as one table that mirrors section 2.1.
    - `rusqlite` appears in `biomcp-query` only under `src/store/`.
-   - No product file exceeds 600 lines. No file in an adapter folder exceeds 300.
+   - No product or test file exceeds 600 lines. No file in an adapter folder exceeds 300.
    - `#[test]` appears in product crates only in the listed exception files.
    - `#[serde(default)]` never appears in an adapter's `raw.rs` (section 5.1).
    - `#[expect(` appears only in the listed files.
@@ -669,6 +669,7 @@ pub struct Quota {
 }
 
 pub struct SourceSpec {
+    pub terms: Terms, // publisher name, terms page and reviewed Use category
     pub source: Source,
     pub base: &'static str,
     pub key: KeyUse,
@@ -811,7 +812,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. A proxy comes only from the config file's `proxy` key.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
 
 ### 4.11 Bundles
 
@@ -1585,6 +1586,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
   "format": "json",
   "disable_sources": ["semanticscholar"],
   "proxy": "http://proxy.example:3128",
+  "ca_bundle": "/etc/company/root-certificates.pem",
   "cache": { "folder": "/home/user/.cache/biomcp", "max_mb": 1024 },
   "bundles": { "sync_budget_ms": 120000, "auto_sync_max_mb": 32 },
   "keys": { "ncbi_api_key": "...", "oncokb_api_key": "..." },
@@ -1595,7 +1597,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 ```rust
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ConfigFile { proxy: Option<String> } // the first gene slice consumes only proxy; unknown keys refuse
+struct ConfigFile { proxy: Option<String>, ca_bundle: Option<PathBuf>, /* source settings */ } // unknown keys refuse
 
 pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub format: Format, pub disabled: BTreeSet<Source>, pub explain: bool }
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
@@ -1604,6 +1606,10 @@ pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 - Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `S2_API_KEY`. `biomcp help key <source>` names both for each source that takes a key.
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
+
+Corporate routing uses the config file's `proxy` for both schemes when present. Otherwise `HTTP_PROXY` serves HTTP and `HTTPS_PROXY` serves HTTPS; no scheme falls back to the other. Only uppercase names are read. `NO_PROXY` is a comma-separated list: a bare host or IP matches exactly, `.domain` matches that domain and its subdomains, `*.domain` matches subdomains only, and `*` bypasses every proxy. Rules may specify a numeric port, including bracketed IPv6 literals. CIDR, malformed ports and credentials in bypass rules refuse as local configuration failures. Host matching ignores ASCII case and uses label boundaries.
+
+`ca_bundle` names a PEM file read at the settings boundary. Its certificate anchors add to platform trust for every source and each request codec. Missing, unreadable, malformed, empty or oversized bundles fail locally before provider requests. The configured path is relative to the process directory unless absolute. Client certificates remain deferred. Fetch owns immutable trust settings and separate connection pools for direct, HTTP-proxy and HTTPS-proxy routes, so trust and route changes cannot reuse a previous Fetch's connections. A target TLS failure remains `tls` after a successful CONNECT; only proxy connection or negotiation failures become `proxy`. Envelope fix steps follow `help network ca_bundle` and `help network proxy`.
 
 ### 9.2 Observability
 
@@ -1706,7 +1712,7 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the report merges them.
+`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. Permitted library tests run in a separate profile collection and have a separate report. Their profiles never count toward the floor. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
 
 The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
 
@@ -1733,7 +1739,12 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/freshness.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/storage.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -1742,6 +1753,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
@@ -1864,3 +1876,10 @@ EFetch provenance uses `LegReport.replies`, keyed by the canonical credential-fr
 Supplement readers use explicit JATS MIME declarations when present and supported. Missing or generic octet-stream declarations fall back to the exact filename suffix. Other explicit MIME declarations return unsupported. XLSX preflight bounds container metadata and actual expanded XML before calamine, then reads sparse cells without evaluating formulas or links. Binary recordings publish one relative sidecar per exchange. Binary parser validation occurs before cache admission.
 
 The supplement adapter uses one local RefCell during a synchronous checked-byte callback to retain its parsed workbook for the query layer. It owns no global or shared mutable state. Its exact path and reason remain listed in the lint exception ratchet for review.
+### Source terms and switches
+
+Each implemented adapter owns its publisher terms in `SourceSpec::terms`. `biomcp-adapters::registry` references those declarations and owns the bounded health endpoints. The structural check refuses missing terms and omitted source declarations. Terms metadata was checked against publisher pages on 2026-10-24. HGNC, CIViC and ClinGen explicitly publish CC0 data. gnomAD's publisher-owned [terms source](https://github.com/broadinstitute/gnomad-browser/blob/main/browser/about/policies/terms.md) names CC0 for primary data and separate conditions for some annotations; this adapter requests constraint data and does not request those restricted annotations. [Reactome's current agreement](https://reactome.org/license) dedicates database data and derived files to CC0; its graphics and software use separate licenses. [iCite's publisher support page](https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview) explicitly identifies its citation database as public domain. The UniProt and HPA declarations link their attribution terms; HPA retains its separate third-party conditions. MyGene's terms retain upstream rights. PubMed, Europe PMC, PubTator export text and PMC preserve publisher-specific text rights under the restricted category. OncoKB requires the user's license and key. These source categories do not authorize individual uses or replace a record's license. Per-section categories remain deferred.
+
+The configuration's `disable_sources` and CLI `--disable-sources` combine by union. Expansion uses implemented source declarations and source identities, never quota keys. The transport checks disabled before credentials, quota, replay, reply caches and bundle synchronization. Stored article pools refuse disabled source rows before paging or hydration. Source and section skips retain reason `disabled` and never become confirmed absence. MCP process policy cannot be weakened by a tool call. `Fetch::restrict_sources` creates an immutable command view that unions disabled identities while sharing connection pools, quotas, replay cursors and clocks, checked settings, caches and bundle reservations. A disabled search leg does not hide rows supplied by an enabled leg; disabled header hydration leaves those rows partial.
+
+CLI health uses these same declarations and transport policies. Its probes bypass the checked data cache and do not synchronize bundles. `PROBE_BUDGET` caps each source leg within the command budget. A skipped source has no latency; each attempted probe reports bounded elapsed time and a typed state. Local recording or cache failures remain local errors. HTTP service health separately checks owned local storage.

@@ -64,8 +64,11 @@ fn repeated_key_consumes_ordered_replies_and_never_opens_replay_http() {
         dir: dir.path().to_owned(),
     });
     assert!(get(&replay, spec).unwrap().answer);
+    let restricted = replay.restrict_sources([biodata::Source::Oncokb].into());
     assert!(
-        matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+        matches!(restricted.leg(spec, replay.deadline(Duration::from_secs(10)))
+            .json::<Answer>(&spec.get("/answer"), &[]),
+            Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
     );
     assert_eq!(
         get(&replay, spec).unwrap_err(),

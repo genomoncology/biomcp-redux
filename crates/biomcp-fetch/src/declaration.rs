@@ -6,6 +6,8 @@ use std::time::Duration;
 pub struct SourceSpec {
     /// Source reported on failures.
     pub source: Source,
+    /// Publisher-declared terms, reviewed by the source adapter.
+    pub terms: Terms,
     /// Absolute base URL.
     pub base: &'static str,
     /// Credential policy.
@@ -92,6 +94,8 @@ pub struct Credential {
 pub enum SecretName {
     /// NCBI API key.
     NcbiApiKey,
+    /// Semantic Scholar API key.
+    SemanticScholarApiKey,
     /// OncoKB API key.
     OncokbApiKey,
 }
@@ -203,4 +207,15 @@ impl Endpoint {
         self.path = std::borrow::Cow::Owned(path);
         Ok(self)
     }
+}
+
+/// Publisher evidence for a source's reuse category; not a grant of rights.
+#[derive(Clone, Copy, Debug)]
+pub struct Terms {
+    /// Publisher license or terms name.
+    pub name: &'static str,
+    /// Publisher page documenting the terms.
+    pub url: &'static str,
+    /// Reviewed category used by the source switch.
+    pub usage: biodata::Use,
 }

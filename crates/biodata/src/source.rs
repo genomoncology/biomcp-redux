@@ -97,6 +97,10 @@ canonical_enum! {
         RateLimited => "rate_limited",
         /// The source was unavailable.
         Unavailable => "unavailable",
+        /// Platform or configured certificate verification failed.
+        Tls => "tls",
+        /// Connecting to or negotiating the configured proxy failed.
+        Proxy => "proxy",
         /// The source rejected the request.
         Rejected => "rejected",
         /// The reply could not be used.
@@ -115,5 +119,19 @@ canonical_enum! {
         Syncing => "syncing",
         /// Identity lacks the identifier required to join this source.
         NoJoinId => "no_join_id",
+    }
+}
+
+crate::response::wire_enum! {
+    /// Reviewed source-use category, without inferring rights in individual records.
+    Use {
+        /// Public-domain or unrestricted source data.
+        Open => "open",
+        /// Attribution is required.
+        Attribution => "attribution",
+        /// Commercial use requires separate permission.
+        Noncommercial => "noncommercial",
+        /// Source-specific or mixed rights require checking the publisher's terms.
+        Restricted => "restricted",
     }
 }

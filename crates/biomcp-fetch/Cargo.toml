@@ -10,6 +10,8 @@ biodata = { path = "../biodata" }
 serde.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 ureq.workspace = true
+rustls.workspace = true
+rustls-platform-verifier.workspace = true
 sha2.workspace = true
 httpdate.workspace = true
 quick-xml.workspace = true

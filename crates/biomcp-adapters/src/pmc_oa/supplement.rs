@@ -85,10 +85,7 @@ pub struct Download {
     clippy::disallowed_types,
     reason = "Retain one parsed binary reply across its checked cache admission callback"
 )]
-pub fn download(
-    leg: &Leg<'_>,
-    file: &Supplement,
-) -> Result<Download, RequestError> {
+pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestError> {
     if !file.file.kind.readable() {
         return Err(super::bad(BadReply));
     }
@@ -109,9 +106,13 @@ pub fn download(
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
         let end = local_end.earlier(leg.local_deadline());
         let sheets = crate::sheet::read(bytes, file.file.kind, end)?;
-        *parsed.borrow_mut() = Some((sheets,end));
+        *parsed.borrow_mut() = Some((sheets, end));
         Ok(())
     })?;
-    let (sheets,deadline)=parsed.into_inner().ok_or_else(|| super::bad(BadReply))?;
-    Ok(Download {bytes,sheets,deadline})
+    let (sheets, deadline) = parsed.into_inner().ok_or_else(|| super::bad(BadReply))?;
+    Ok(Download {
+        bytes,
+        sheets,
+        deadline,
+    })
 }

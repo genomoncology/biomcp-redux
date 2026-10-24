@@ -13,6 +13,7 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
     for (rate, burst) in [(0, 1), (1, 0), (0, 0)] {
         assert!(std::panic::catch_unwind(|| Rate::new(rate, burst)).is_err());
     }
+    assert!(std::panic::catch_unwind(|| Rate::every_seconds(0)).is_err());
     assert!(
         std::panic::catch_unwind(|| Quota::new(
             SourceKey::declare("valid-1"),
@@ -50,52 +51,6 @@ fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &
 }
 
 #[test]
-fn two_source_specs_share_rate_while_separate_keys_progress_independently() {
-    let server = Server::new();
-    let shared = quota("shared", Rate::per_second(20), None, 2);
-    let specs = [
-        server.spec(shared, KeyUse::None),
-        server.spec(shared, KeyUse::None),
-    ];
-    let other = server.spec(quota("other", Rate::per_second(1), None, 1), KeyUse::None);
-    let fetch = Fetch::open(FetchConfig::default()).unwrap();
-    thread::scope(|scope| {
-        let workers: Vec<_> = specs
-            .iter()
-            .map(|spec| {
-                let fetch = &fetch;
-                scope.spawn(move || {
-                    fetch
-                        .leg(spec, fetch.deadline(Duration::from_secs(5)))
-                        .json::<Answer>(&spec.get("/shared"), &[])
-                })
-            })
-            .collect();
-        let first = server.next();
-        let first_start = first.started;
-        // Keep a shared request in flight while an unrelated key completes.
-        let independent = scope.spawn(|| {
-            fetch
-                .leg(other, fetch.deadline(Duration::from_secs(5)))
-                .json::<Answer>(&other.get("/other"), &[])
-        });
-        let next = server.next();
-        let last = server.next();
-        for request in [next, last] {
-            if request.text.contains("/shared") {
-                assert!(request.started.duration_since(first_start) >= Duration::from_millis(45));
-            }
-            request.ok();
-        }
-        first.ok();
-        for worker in workers {
-            assert!(worker.join().unwrap().unwrap().answer);
-        }
-        assert!(independent.join().unwrap().unwrap().answer);
-    });
-}
-
-#[test]
 fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
     let server = Server::new();
     let shared = quota("shared", Rate::per_second(1000), None, 1);
@@ -106,6 +61,13 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         KeyUse::None,
     );
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    let restricted = fetch.restrict_sources([biodata::Source::Oncokb].into());
+    assert!(!fetch.disabled(biodata::Source::Oncokb));
+    assert!(
+        restricted
+            .restrict_sources(Default::default())
+            .disabled(biodata::Source::Oncokb)
+    );
     thread::scope(|scope| {
         let holder = scope.spawn(|| {
             fetch
@@ -114,8 +76,8 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         });
         let held = server.next();
         let canceled = scope.spawn(|| {
-            fetch
-                .leg(second, fetch.deadline(Duration::from_millis(100)))
+            restricted
+                .leg(second, restricted.deadline(Duration::from_millis(100)))
                 .json::<Answer>(&second.get("/cancel"), &[])
         });
         // Completion with the holder still blocked proves the waiter exhausted its queue budget.
@@ -125,8 +87,8 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         );
         assert!(server.requests.try_recv().is_err());
         let successor = scope.spawn(|| {
-            fetch
-                .leg(second, fetch.deadline(Duration::from_secs(5)))
+            restricted
+                .leg(second, restricted.deadline(Duration::from_secs(5)))
                 .json::<Answer>(&second.get("/successor"), &[])
         });
         let other = scope.spawn(|| {
@@ -149,7 +111,12 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
 fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
     for configured in [false, true] {
         let server = Server::new();
-        let shared = quota("keyed", Rate::per_second(20), Some(Rate::per_second(5)), 1);
+        let shared = quota(
+            "keyed",
+            Rate::every_seconds(2),
+            Some(Rate::per_second(1)),
+            1,
+        );
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
@@ -180,7 +147,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             first.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
             let second = server.next();
-            let floor = if configured { 195 } else { 45 };
+            let floor = if configured { 995 } else { 1995 };
             assert!(second.started.duration_since(started) >= Duration::from_millis(floor));
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);

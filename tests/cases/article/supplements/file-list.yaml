@@ -36,7 +36,7 @@
         "/result/content/data/reason": "unsupported",
         "/result/content/data/url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC5606870.1/MGG3-5-553-s001.pdf?md5=13e1b3cada043c863b28fc7c4e9cb103"
       },
-      "max_bytes": 650
+      "max_bytes": 523
     },
     {
       "run": [

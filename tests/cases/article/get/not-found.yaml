@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-get",
   "story": "not-found",
   "replay": "article/get/synthetic-derived",
