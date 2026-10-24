@@ -2,26 +2,30 @@ use super::gene::{QueryInvalid, present};
 use crate::{GeneInput, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Source selectors supported by article search.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
+    /// Europe PMC native relevance or publication-date order.
+    Europepmc,
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["rank", "date"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["rank", "date", "citations"])))]
 pub enum ArticleSort {
     /// Native relevance order.
     Rank,
     /// PubMed most recently added order.
     Date,
+    /// Whole-pool iCite citation count, with native-rank ties.
+    Citations,
 }
-/// Publication-type selectors sent to PubMed.
+/// Publication-type selectors sent to the named sources.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -52,7 +56,7 @@ pub struct ArticleSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Words sent to PubMed in its default fields.
+    /// Words sent to each named source in its default fields.
     #[serde(
         default,
         deserialize_with = "present",
@@ -60,14 +64,20 @@ struct Fields {
     )]
     #[cfg_attr(feature="schema", schemars(with="Text", extend("x-positional"=0)))]
     text: Option<Text>,
-    /// Sources in caller order; defaults to PubMed.
+    /// Sources to search in caller order, comma separated. Default: pubmed.
+    /// Several sources take turns, remove duplicates and show every native rank.
+    /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
+    /// europepmc: words in open full text, and preprints.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 1)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
-    /// Native provider order.
+    /// rank (default): native provider order; several sources take turns.
+    /// date: newest first in each source; PubMed means date added to PubMed.
+    /// citations: most cited first; costs about 1 s per 1,000 PMIDs.
+    /// All sources support citations.
     #[serde(default = "sort")]
     sort: ArticleSort,
-    /// Gene input resolved through HGNC.
+    /// Gene input; PubMed resolves it through HGNC.
     #[serde(
         default,
         deserialize_with = "present",
@@ -169,7 +179,9 @@ impl TryFrom<Fields> for ArticleSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
-            || v.source.len() != 1
+            || v.source.is_empty()
+            || v.source.len() > 2
+            || (v.source.len() == 2 && v.source.first() == v.source.get(1))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -197,6 +209,10 @@ impl TryFrom<Fields> for ArticleSearch {
     }
 }
 impl ArticleSearch {
+    /// Sources in the caller’s turn order.
+    pub fn sources(&self) -> &[ArticleSource] {
+        &self.0.source
+    }
     /// Native provider order requested by the caller.
     pub fn sort(&self) -> ArticleSort {
         self.0.sort
@@ -254,6 +270,12 @@ impl ArticleSearch {
         let mut v = self.clone();
         v.0.offset = offset;
         v.0.pool = pool;
+        v
+    }
+    /// Change ordering and restart the request without an old pool.
+    pub fn ordered(&self, sort: ArticleSort) -> Self {
+        let mut v = self.page(0, None);
+        v.0.sort = sort;
         v
     }
     /// Canonical identity excludes cursor and page size.

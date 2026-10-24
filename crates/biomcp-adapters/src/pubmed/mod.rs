@@ -50,7 +50,7 @@ pub fn search_ids(
         ("retmode", Arg::Text("json")),
         ("tool", Arg::Text("biomcp")),
     ];
-    if sort == ArticleSort::Rank {
+    if sort != ArticleSort::Date {
         params.insert(2, ("sort", Arg::Text("relevance")));
     }
     if let Some(email) = email {

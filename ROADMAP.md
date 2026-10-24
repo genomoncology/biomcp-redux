@@ -108,7 +108,8 @@ Sources:
 - [x] Get by PMID, PMCID and DOI with article cards
 - [x] Article section grammar and PubTator3 annotations through CLI and MCP
 - [x] PMC full-text outline and JATS Markdown text reader
-- [ ] Supplementary material and citations
+- [x] Citation counts, citation ordering and citation/reference walks
+- [ ] Supplementary material
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
 - [x] Plain PubMed search MCP parity
@@ -118,7 +119,7 @@ Sources:
 Sources:
 - [x] PubMed search and page summaries (optional key)
 - [x] PubTator3 export for annotations
-- [ ] Europe PMC
+- [x] Europe PMC
 - [ ] Semantic Scholar (optional key)
 - [x] PMC Open Access full-text records and JATS
 - [ ] NCBI ID converter (optional key)

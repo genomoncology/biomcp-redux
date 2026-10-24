@@ -1,0 +1,34 @@
+{
+  "feature": "article-search",
+  "story": "Synthetic source-local identity stays anchored when citation metadata is missing",
+  "replay": "article/fold/synthetic-hole",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc"
+      ],
+      "max_bytes": 1719,
+      "expect": {
+        "/status": "partial",
+        "/result/items/4/key/id": "PPR8888",
+        "/next/*/kind": {
+          "includes": "fresh"
+        },
+        "/next/1/args": [
+          "search",
+          "article",
+          "AKT1 E17K",
+          "--source",
+          "europepmc",
+          "--fresh"
+        ]
+      },
+      "max_tokens": 431
+    }
+  ],
+  "verified": "No exact 0.9 baseline exists for these synthetic boundary replies. Per-step ceilings are measured CLI output plus 15 percent from M5 replay j9294; every walked page is measured independently."
+}

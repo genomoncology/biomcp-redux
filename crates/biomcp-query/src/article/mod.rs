@@ -1,20 +1,18 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
+mod edges;
+mod fold;
 pub mod get;
 mod next;
+mod order;
+mod page;
 mod sections;
+mod sources;
 pub mod supplement;
 mod protein_change;
 mod term;
 pub mod text;
-use crate::{
-    Action, Ctx, Outcome, status,
-    store::{Pool, Store, StoredItem},
-};
-use biodata::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSearch, PageInfo, QueryBody, Request, Source,
-    Status, StepKind, Text,
-};
-use biomcp_adapters::pubmed;
+use crate::{Action, Ctx, Outcome, status, store::Store};
+use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
@@ -56,169 +54,32 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(term) = term::resolve(cx, query, deadline, out)? else {
+            let term = if query.sources().contains(&biodata::ArticleSource::Pubmed) {
+                let Some(term) = term::resolve(cx, query, deadline, out)? else {
+                    return Ok(());
+                };
+                term
+            } else {
+                String::new()
+            };
+            let Some(mut items) = sources::search(cx, query, &term, deadline, out)? else {
+                retry(query, None, out);
                 return Ok(());
             };
-            store.set_deadline(*deadline);
-            *deadline = store.deadline();
-            let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
-            let started = leg.remaining();
-            let result = pubmed::search_ids(&leg, &term, query.sort(), cx.ncbi_email.as_ref());
-            *deadline = consume(*deadline, started, leg.remaining());
-            store.set_deadline(*deadline);
-            let mut source =
-                status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
-            source.term = Text::new(&term).ok();
-            match result {
-                Ok(ids) => {
-                    source.count = Some(ids.count);
-                    source.fetched =
-                        Some(u32::try_from(ids.ids.len()).map_err(|_| CacheError::Database)?);
-                    source.notices = ids.notices;
-                    out.sources.push(source);
-                    store.publish(&key, &ids.ids, &out.sources)?
-                }
-                Err(error) => {
-                    out.sources.push(source);
-                    out.status = Status::Failed;
-                    retry(query, None, out);
-                    return Err(error);
-                }
+            if query.sort() == biodata::ArticleSort::Citations
+                && !order::apply(cx, deadline, &mut items, out)?
+            {
+                retry(query, None, out);
+                return Ok(());
             }
+            store.set_deadline(*deadline);
+            store.publish(&key, &items, &out.sources, &out.problems)?
         }
     };
     out.sources = pool.sources.clone();
-    let result = read_page(cx, query, &mut store, &pool, out);
+    let result = page::read(cx, page::Cursor::Search(query), &mut store, &pool, out);
     *deadline = store.deadline();
     result
-}
-fn read_page<'a>(
-    cx: &Ctx<'a>,
-    query: &ArticleSearch,
-    store: &mut Store<'a>,
-    pool: &Pool,
-    out: &mut Outcome,
-) -> Result<(), RequestError> {
-    let id = pool.info.id.as_str();
-    let mut rows = store.page(id, query.offset(), query.limit())?;
-    let missing: Vec<_> = rows
-        .iter()
-        .filter(|r| r.header.is_none() && (!r.checked || cx.fresh))
-        .map(|r| r.id)
-        .collect();
-    if !missing.is_empty() {
-        let deadline = store.deadline();
-        let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
-        let started = leg.remaining();
-        let result = pubmed::summaries(&leg, &missing, cx.ncbi_email.as_ref());
-        store.set_deadline(consume(deadline, started, leg.remaining()));
-        match result {
-            Ok(mapped) => {
-                status::append(&mut out.problems, mapped.problems.clone());
-                let source = status::source(Source::PubMed, leg.finish(), None);
-                let stale = (source.state == biodata::SourceState::Stale).then_some(&source);
-                store.hydrate(id, &missing, &mapped.value, &mapped.problems, stale)?;
-                rows = store.page(id, query.offset(), query.limit())?;
-            }
-            Err(error) => {
-                let mut source = status::source(Source::PubMed, leg.finish(), Some(error));
-                if let Some(original) = pool.sources.iter().find(|s| s.source == Source::PubMed) {
-                    source.term = original.term.clone();
-                    source.count = original.count;
-                    source.fetched = original.fetched;
-                    source.notices = original.notices.clone();
-                }
-                out.sources.retain(|s| s.source != Source::PubMed);
-                out.sources.push(source);
-                out.status = Status::Failed;
-                retry(query, Some(pool.info.id.clone()), out);
-                return Err(error);
-            }
-        }
-    }
-    finish(query, pool, rows, out);
-    Ok(())
-}
-fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
-    for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {
-        if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
-            original.state = source.state;
-            original.reason = source.reason;
-        }
-    }
-    let stale = out
-        .sources
-        .iter()
-        .any(|s| s.state == biodata::SourceState::Stale);
-    let partial = stale || rows.iter().any(|r| r.header.is_none());
-    for row in &rows {
-        status::append(&mut out.problems, row.problems.clone());
-    }
-    out.status = if partial {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
-    let returned = u32::try_from(rows.len()).unwrap_or(u32::MAX);
-    let total = u64::from(pool.info.size);
-    out.page = Some(PageInfo {
-        offset: query.offset(),
-        returned,
-        total,
-        pool: Some(pool.info.clone()),
-        truncated: Some(pool.sources.iter().any(|s| {
-            s.count
-                .zip(s.fetched)
-                .is_some_and(|(count, fetched)| count > u64::from(fetched))
-        })),
-    });
-    out.body = QueryBody::ArticlePage(ArticlePage {
-        items: rows
-            .into_iter()
-            .map(|r| ArticleItem {
-                key: ArticleKey::Pubmed(r.id),
-                pmid: r.id,
-                header: r.header,
-            })
-            .collect(),
-    });
-    if let Some(offset) = query
-        .offset()
-        .checked_add(returned)
-        .filter(|offset| u64::from(*offset) < total && returned > 0)
-    {
-        out.next.push((
-            StepKind::Page,
-            Action::Run {
-                request: Request::SearchArticle(query.page(offset, Some(pool.info.id.clone()))),
-                fresh: false,
-            },
-        ));
-    }
-    if let QueryBody::ArticlePage(page) = &out.body
-        && let Some(first) = page.items.first()
-        && let Ok(query) =
-            biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(first.pmid)].into())
-    {
-        out.next.push((
-            StepKind::Disambiguate,
-            Action::Run {
-                request: Request::GetArticle(query),
-                fresh: false,
-            },
-        ));
-    }
-    if partial {
-        retry(
-            query,
-            if stale {
-                None
-            } else {
-                Some(pool.info.id.clone())
-            },
-            out,
-        );
-    }
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch };
@@ -255,10 +116,15 @@ fn empty() -> Outcome {
 
 // Fetch legs deliberately own independent replay clocks. A sequential article
 // command debits each leg before starting another; real deadlines remain absolute.
-fn consume<'a>(
+pub(super) fn consume<'a>(
     deadline: Deadline<'a>,
     started: std::time::Duration,
     remaining: std::time::Duration,
 ) -> Deadline<'a> {
     deadline.after_stage(started.saturating_sub(remaining))
+}
+
+/// Page one citation graph direction.
+pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> Outcome {
+    edges::run(cx, query, references)
 }

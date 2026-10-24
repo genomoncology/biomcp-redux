@@ -1,0 +1,423 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EGFR%20lung%20cancer&format=json&resultType=lite&pageSize=100",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "hitCount": 100,
+          "resultList": {
+            "result": [
+              {
+                "id": "200000",
+                "source": "MED"
+              },
+              {
+                "id": "200001",
+                "source": "MED"
+              },
+              {
+                "id": "200002",
+                "source": "MED"
+              },
+              {
+                "id": "200003",
+                "source": "MED"
+              },
+              {
+                "id": "200004",
+                "source": "MED"
+              },
+              {
+                "id": "200005",
+                "source": "MED"
+              },
+              {
+                "id": "200006",
+                "source": "MED"
+              },
+              {
+                "id": "200007",
+                "source": "MED"
+              },
+              {
+                "id": "200008",
+                "source": "MED"
+              },
+              {
+                "id": "200009",
+                "source": "MED"
+              },
+              {
+                "id": "200010",
+                "source": "MED"
+              },
+              {
+                "id": "200011",
+                "source": "MED"
+              },
+              {
+                "id": "200012",
+                "source": "MED"
+              },
+              {
+                "id": "200013",
+                "source": "MED"
+              },
+              {
+                "id": "200014",
+                "source": "MED"
+              },
+              {
+                "id": "200015",
+                "source": "MED"
+              },
+              {
+                "id": "200016",
+                "source": "MED"
+              },
+              {
+                "id": "200017",
+                "source": "MED"
+              },
+              {
+                "id": "200018",
+                "source": "MED"
+              },
+              {
+                "id": "200019",
+                "source": "MED"
+              },
+              {
+                "id": "200020",
+                "source": "MED"
+              },
+              {
+                "id": "200021",
+                "source": "MED"
+              },
+              {
+                "id": "200022",
+                "source": "MED"
+              },
+              {
+                "id": "200023",
+                "source": "MED"
+              },
+              {
+                "id": "200024",
+                "source": "MED"
+              },
+              {
+                "id": "200025",
+                "source": "MED"
+              },
+              {
+                "id": "200026",
+                "source": "MED"
+              },
+              {
+                "id": "200027",
+                "source": "MED"
+              },
+              {
+                "id": "200028",
+                "source": "MED"
+              },
+              {
+                "id": "200029",
+                "source": "MED"
+              },
+              {
+                "id": "200030",
+                "source": "MED"
+              },
+              {
+                "id": "200031",
+                "source": "MED"
+              },
+              {
+                "id": "200032",
+                "source": "MED"
+              },
+              {
+                "id": "200033",
+                "source": "MED"
+              },
+              {
+                "id": "200034",
+                "source": "MED"
+              },
+              {
+                "id": "200035",
+                "source": "MED"
+              },
+              {
+                "id": "200036",
+                "source": "MED"
+              },
+              {
+                "id": "200037",
+                "source": "MED"
+              },
+              {
+                "id": "200038",
+                "source": "MED"
+              },
+              {
+                "id": "200039",
+                "source": "MED"
+              },
+              {
+                "id": "200040",
+                "source": "MED"
+              },
+              {
+                "id": "200041",
+                "source": "MED"
+              },
+              {
+                "id": "200042",
+                "source": "MED"
+              },
+              {
+                "id": "200043",
+                "source": "MED"
+              },
+              {
+                "id": "200044",
+                "source": "MED"
+              },
+              {
+                "id": "200045",
+                "source": "MED"
+              },
+              {
+                "id": "200046",
+                "source": "MED"
+              },
+              {
+                "id": "200047",
+                "source": "MED"
+              },
+              {
+                "id": "200048",
+                "source": "MED"
+              },
+              {
+                "id": "200049",
+                "source": "MED"
+              },
+              {
+                "id": "200050",
+                "source": "MED"
+              },
+              {
+                "id": "200051",
+                "source": "MED"
+              },
+              {
+                "id": "200052",
+                "source": "MED"
+              },
+              {
+                "id": "200053",
+                "source": "MED"
+              },
+              {
+                "id": "200054",
+                "source": "MED"
+              },
+              {
+                "id": "200055",
+                "source": "MED"
+              },
+              {
+                "id": "200056",
+                "source": "MED"
+              },
+              {
+                "id": "200057",
+                "source": "MED"
+              },
+              {
+                "id": "200058",
+                "source": "MED"
+              },
+              {
+                "id": "200059",
+                "source": "MED"
+              },
+              {
+                "id": "200060",
+                "source": "MED"
+              },
+              {
+                "id": "200061",
+                "source": "MED"
+              },
+              {
+                "id": "200062",
+                "source": "MED"
+              },
+              {
+                "id": "200063",
+                "source": "MED"
+              },
+              {
+                "id": "200064",
+                "source": "MED"
+              },
+              {
+                "id": "200065",
+                "source": "MED"
+              },
+              {
+                "id": "200066",
+                "source": "MED"
+              },
+              {
+                "id": "200067",
+                "source": "MED"
+              },
+              {
+                "id": "200068",
+                "source": "MED"
+              },
+              {
+                "id": "200069",
+                "source": "MED"
+              },
+              {
+                "id": "200070",
+                "source": "MED"
+              },
+              {
+                "id": "200071",
+                "source": "MED"
+              },
+              {
+                "id": "200072",
+                "source": "MED"
+              },
+              {
+                "id": "200073",
+                "source": "MED"
+              },
+              {
+                "id": "200074",
+                "source": "MED"
+              },
+              {
+                "id": "200075",
+                "source": "MED"
+              },
+              {
+                "id": "200076",
+                "source": "MED"
+              },
+              {
+                "id": "200077",
+                "source": "MED"
+              },
+              {
+                "id": "200078",
+                "source": "MED"
+              },
+              {
+                "id": "200079",
+                "source": "MED"
+              },
+              {
+                "id": "200080",
+                "source": "MED"
+              },
+              {
+                "id": "200081",
+                "source": "MED"
+              },
+              {
+                "id": "200082",
+                "source": "MED"
+              },
+              {
+                "id": "200083",
+                "source": "MED"
+              },
+              {
+                "id": "200084",
+                "source": "MED"
+              },
+              {
+                "id": "200085",
+                "source": "MED"
+              },
+              {
+                "id": "200086",
+                "source": "MED"
+              },
+              {
+                "id": "200087",
+                "source": "MED"
+              },
+              {
+                "id": "200088",
+                "source": "MED"
+              },
+              {
+                "id": "200089",
+                "source": "MED"
+              },
+              {
+                "id": "200090",
+                "source": "MED"
+              },
+              {
+                "id": "200091",
+                "source": "MED"
+              },
+              {
+                "id": "200092",
+                "source": "MED"
+              },
+              {
+                "id": "200093",
+                "source": "MED"
+              },
+              {
+                "id": "200094",
+                "source": "MED"
+              },
+              {
+                "id": "200095",
+                "source": "MED"
+              },
+              {
+                "id": "200096",
+                "source": "MED"
+              },
+              {
+                "id": "200097",
+                "source": "MED"
+              },
+              {
+                "id": "200098",
+                "source": "MED"
+              },
+              {
+                "id": "200099",
+                "source": "MED"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

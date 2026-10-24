@@ -20,11 +20,13 @@ pub mod clingen;
 
 pub mod hpa;
 
+pub mod europepmc;
 pub mod pubtator;
 
 pub mod jats;
 pub mod pmc_oa;
 
+pub mod icite;
 mod xml_element;
 
 pub mod sheet;

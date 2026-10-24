@@ -11,8 +11,8 @@
         "--type",
         "guideline"
       ],
-      "max_bytes": 1203,
-      "max_tokens": 302,
+      "max_bytes": 1439,
+      "max_tokens": 360,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "next-generation sequencing advanced cancer ESMO AND (guideline[pt] OR \"practice guideline\"[pt])",
@@ -26,5 +26,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "With the approved citation-order next step the recorded output is 1251 bytes. Bounds add15percent; no matching0.9baseline is recorded for this exact filter."
 }

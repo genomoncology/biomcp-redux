@@ -8,7 +8,8 @@
         "usage.retired",
         "local.failure",
         "pool.expired",
-        "usage.pool_mismatch"
+        "usage.pool_mismatch",
+        "usage.too_many_pmids"
       ],
       "type": "string"
     },
@@ -17,6 +18,14 @@
       "properties": {
         "code": {
           "$ref": "#/$defs/ErrorCode"
+        },
+        "count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "message": {
           "$ref": "#/$defs/ErrorMessage"
@@ -31,6 +40,7 @@
     "ErrorMessage": {
       "description": "Fixed input-free error and migration guidance.",
       "enum": [
+        "citation ordering exceeds the PMID limit; narrow the search",
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
@@ -115,6 +125,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",

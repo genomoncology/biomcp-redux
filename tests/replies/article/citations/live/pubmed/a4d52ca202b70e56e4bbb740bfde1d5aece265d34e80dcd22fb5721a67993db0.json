@@ -1,0 +1,1044 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845889,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 253,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "21092076",
+              "23558737",
+              "26422542",
+              "27068338",
+              "30780001",
+              "31548347",
+              "32175433"
+            ],
+            "21092076": {
+              "uid": "21092076",
+              "pubdate": "2010 Nov 19",
+              "epubdate": "2010 Nov 19",
+              "source": "BMC Cancer",
+              "authors": [
+                {
+                  "name": "Pallis AG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Agelaki S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Agelidou A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Varthalitis I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Syrigos K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kentepozidis N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pavlakou G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kotsakis A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kontopodis E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Georgoulias V",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Georgoulias V",
+              "title": "A randomized phase III study of the docetaxel/carboplatin combination versus docetaxel single-agent as second line treatment for patients with advanced/metastatic non-small cell lung cancer.",
+              "sorttitle": "randomized phase iii study of the docetaxel carboplatin combination versus docetaxel single agent as second line treatment for patients with advanced metastatic non small cell lung cancer",
+              "volume": "10",
+              "issue": "",
+              "pages": "633",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "100967800",
+              "issn": "",
+              "essn": "1471-2407",
+              "pubtype": [
+                "Clinical Trial, Phase III",
+                "Journal Article",
+                "Randomized Controlled Trial",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "3",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "21092076"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC2994826"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC2994826;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1186/1471-2407-10-633"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "1471-2407-10-633"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2010/02/24 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2010/11/19 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2010/11/25 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2010/11/26 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2011/03/22 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2010/11/19 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 33,
+              "fulljournalname": "BMC cancer",
+              "elocationid": "doi: 10.1186/1471-2407-10-633",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2010/11/19 00:00",
+              "sortfirstauthor": "Pallis AG",
+              "vernaculartitle": ""
+            },
+            "23558737": {
+              "uid": "23558737",
+              "pubdate": "2013",
+              "epubdate": "2013 Apr 3",
+              "source": "BMJ Open",
+              "authors": [
+                {
+                  "name": "Boch C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kollmeier J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Roth A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stephan-Falkenau S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Misch D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gr\u00fcning W",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bauer TT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mairinger T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Mairinger T",
+              "title": "The frequency of EGFR and KRAS mutations in non-small cell lung cancer (NSCLC): routine screening data for central Europe from a cohort study.",
+              "sorttitle": "frequency of egfr and kras mutations in non small cell lung cancer nsclc routine screening data for central europe from a cohort study",
+              "volume": "3",
+              "issue": "4",
+              "pages": "",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101552874",
+              "issn": "2044-6055",
+              "essn": "2044-6055",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed",
+              "pubstatus": "257",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "23558737"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC3641502"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC3641502;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1136/bmjopen-2013-002560"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "bmjopen-2013-002560"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2013/04/06 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2013/04/06 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2013/04/06 06:01"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2013/04/03 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 33,
+              "fulljournalname": "BMJ open",
+              "elocationid": "doi: 10.1136/bmjopen-2013-002560",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2013/04/03 00:00",
+              "sortfirstauthor": "Boch C",
+              "vernaculartitle": ""
+            },
+            "26422542": {
+              "uid": "26422542",
+              "pubdate": "2015 Oct 1",
+              "epubdate": "2015 Oct 1",
+              "source": "R I Med J (2013)",
+              "authors": [
+                {
+                  "name": "Black RC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Khurshid H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Khurshid H",
+              "title": "NSCLC: An Update of Driver Mutations, Their Role in Pathogenesis and Clinical Significance.",
+              "sorttitle": "nsclc an update of driver mutations their role in pathogenesis and clinical significance",
+              "volume": "98",
+              "issue": "10",
+              "pages": "25-8",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101605827",
+              "issn": "",
+              "essn": "2327-2228",
+              "pubtype": [
+                "Journal Article",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "3",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "26422542"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2015/10/01 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2015/10/01 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2016/06/01 06:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Rhode Island medical journal (2013)",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2015/10/01 00:00",
+              "sortfirstauthor": "Black RC",
+              "vernaculartitle": ""
+            },
+            "27068338": {
+              "uid": "27068338",
+              "pubdate": "2016 May",
+              "epubdate": "2016 Mar 18",
+              "source": "Cancer Genet",
+              "authors": [
+                {
+                  "name": "Biernacka A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tsongalis PD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peterson JD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "de Abreu FB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Black CC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gutmann EJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Liu X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tafe LJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Amos CI",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tsongalis GJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Tsongalis GJ",
+              "title": "The potential utility of re-mining results of somatic mutation testing: KRAS status in lung adenocarcinoma.",
+              "sorttitle": "potential utility of re mining results of somatic mutation testing kras status in lung adenocarcinoma",
+              "volume": "209",
+              "issue": "5",
+              "pages": "195-8",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101539150",
+              "issn": "2210-7762",
+              "essn": "",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "27068338"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS873066"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC5506544"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC5506544;manuscript-id: NIHMS873066;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.cancergen.2016.03.001"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S2210-7762(16)30021-7"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2015/12/31 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2016/02/25 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2016/03/01 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2016/04/13 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2016/04/14 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2017/02/07 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2017/07/12 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 22,
+              "fulljournalname": "Cancer genetics",
+              "elocationid": "doi: 10.1016/j.cancergen.2016.03.001",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2016/05/01 00:00",
+              "sortfirstauthor": "Biernacka A",
+              "vernaculartitle": ""
+            },
+            "30780001": {
+              "uid": "30780001",
+              "pubdate": "2019 Jun",
+              "epubdate": "2019 Feb 16",
+              "source": "J Thorac Oncol",
+              "authors": [
+                {
+                  "name": "Negrao MV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lam VK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Reuben A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rubin ML",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Landry LL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Roarty EB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rinsurongkawong W",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lewis J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Roth JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Swisher SG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gibbons DL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wistuba II",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Papadimitrakopoulou V",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Glisson BS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Blumenschein GR Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lee JJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Heymach JV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhang J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Zhang J",
+              "title": "PD-L1 Expression, Tumor Mutational Burden, and Cancer Gene Mutations Are Stronger Predictors of Benefit from Immune Checkpoint Blockade than HLA Class I Genotype in Non-Small Cell Lung Cancer.",
+              "sorttitle": "pd l1 expression tumor mutational burden and cancer gene mutations are stronger predictors of benefit from immune checkpoint blockade than hla class i genotype in non small cell lung cancer",
+              "volume": "14",
+              "issue": "6",
+              "pages": "1021-1031",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101274235",
+              "issn": "1556-0864",
+              "essn": "1556-1380",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "30780001"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.jtho.2019.02.008"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S1556-0864(19)30116-9"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2018/12/19 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2019/02/01 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2019/02/11 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2019/02/20 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2020/07/22 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2019/02/20 06:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of thoracic oncology : official publication of the International Association for the Study of Lung Cancer",
+              "elocationid": "doi: 10.1016/j.jtho.2019.02.008",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2019/06/01 00:00",
+              "sortfirstauthor": "Negrao MV",
+              "vernaculartitle": ""
+            },
+            "31548347": {
+              "uid": "31548347",
+              "pubdate": "2020 Jan 1",
+              "epubdate": "2019 Sep 23",
+              "source": "Clin Cancer Res",
+              "authors": [
+                {
+                  "name": "Jeong Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hellyer JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stehr H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hoang NT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Niu X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Das M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Padda SK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ramchandran K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Neal JW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wakelee H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Diehn M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Diehn M",
+              "title": "Role of KEAP1/NFE2L2 Mutations in the Chemotherapeutic Response of Patients with Non-Small Cell Lung Cancer.",
+              "sorttitle": "role of keap1 nfe2l2 mutations in the chemotherapeutic response of patients with non small cell lung cancer",
+              "volume": "26",
+              "issue": "1",
+              "pages": "274-281",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9502500",
+              "issn": "1078-0432",
+              "essn": "1557-3265",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "31548347"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS1540518"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC6942632"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC6942632;manuscript-id: NIHMS1540518;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1158/1078-0432.CCR-19-1237"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "1078-0432.CCR-19-1237"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2019/04/16 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2019/07/12 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2019/09/16 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2019/09/25 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2020/10/02 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2019/09/25 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2020/07/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 33,
+              "fulljournalname": "Clinical cancer research : an official journal of the American Association for Cancer Research",
+              "elocationid": "doi: 10.1158/1078-0432.CCR-19-1237",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2020/01/01 00:00",
+              "sortfirstauthor": "Jeong Y",
+              "vernaculartitle": ""
+            },
+            "32175433": {
+              "uid": "32175433",
+              "pubdate": "2020 Feb",
+              "epubdate": "",
+              "source": "Ann Transl Med",
+              "authors": [
+                {
+                  "name": "Chen X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Su C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ren S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhou C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jiang T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Jiang T",
+              "title": "Pan-cancer analysis of KEAP1 mutations as biomarkers for immunotherapy outcomes.",
+              "sorttitle": "pan cancer analysis of keap1 mutations as biomarkers for immunotherapy outcomes",
+              "volume": "8",
+              "issue": "4",
+              "pages": "141",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101617978",
+              "issn": "2305-5839",
+              "essn": "2305-5847",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "32175433"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC7048975"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC7048975;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.21037/atm.2019.11.52"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "atm-08-04-141"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2020/03/17 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2020/03/17 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2020/03/17 06:01"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2020/02/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [],
+              "pmcrefcount": 10,
+              "fulljournalname": "Annals of translational medicine",
+              "elocationid": "doi: 10.21037/atm.2019.11.52",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2020/02/01 00:00",
+              "sortfirstauthor": "Chen X",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "7708f08124fe747abf9764a0e3f0767f2fa89c652b660fe5221b7f2a1a03e985"
+  }
+}

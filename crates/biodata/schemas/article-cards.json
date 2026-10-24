@@ -384,14 +384,14 @@
       "description": "A landed article section.",
       "enum": [
         "fulltext",
-        "supplements",
-        "annotations"
+        "annotations",
+        "citations"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Licensed PMC body outline.",
-        " Supplementary files.",
-        " Normalized text-mined entities from PubTator3."
+        " Normalized text-mined entities from PubTator3.",
+        " Citation counts from NIH iCite."
       ]
     },
     "ArticleSectionWord": {
@@ -399,14 +399,14 @@
       "enum": [
         "annotations",
         "fulltext",
-        "supplements",
+        "citations",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
-        " Supplementary files.",
+        " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
     },
@@ -425,7 +425,7 @@
           ],
           "description": "Normalized PubTator3 entities."
         },
-        "fulltext": {
+        "citations": {
           "anyOf": [
             {
               "$ref": "#/$defs/Section2"
@@ -434,9 +434,9 @@
               "type": "null"
             }
           ],
-          "description": "Licensed PMC body outline."
+          "description": "Citation counts from NIH iCite."
         },
-        "supplements": {
+        "fulltext": {
           "anyOf": [
             {
               "$ref": "#/$defs/Section"
@@ -445,7 +445,7 @@
               "type": "null"
             }
           ],
-          "description": "JATS supplementary files confirmed by the bucket record."
+          "description": "Licensed PMC body outline."
         }
       },
       "type": "object"
@@ -496,6 +496,51 @@
         "items",
         "total"
       ],
+      "type": "object"
+    },
+    "Citations": {
+      "additionalProperties": false,
+      "description": "Independently reported iCite counts; absent lists are never confirmed zeros.",
+      "properties": {
+        "cited_by": {
+          "description": "Number of citing PubMed papers.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cited_by_clinical": {
+          "description": "Number of distinct clinical citing papers, when the list was present.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "rcr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Relative citation ratio, only when confirmed non-provisional."
+        },
+        "references": {
+          "description": "Number of distinct references, when the list was present.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
       "type": "object"
     },
     "Correction": {
@@ -574,25 +619,10 @@
       ],
       "type": "object"
     },
-    "FileKind": {
-      "description": "Supplement format determined by the exact source filename suffix.",
-      "enum": [
-        "xlsx",
-        "csv",
-        "tsv",
-        "txt",
-        "pdf",
-        "other"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Excel workbook.",
-        " Comma-separated text.",
-        " Tab-separated text.",
-        " Plain text lines.",
-        " PDF download offered without parsing.",
-        " Other source format."
-      ]
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
     },
     "FullText": {
       "additionalProperties": false,
@@ -865,8 +895,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "unsupported",
-        "too_large",
         "rate_limited",
         "unavailable",
         "rejected",
@@ -883,8 +911,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The local reader does not support the file or container format.",
-        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " The source rejected the request.",
@@ -906,7 +932,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Supplements",
+              "$ref": "#/$defs/FullText",
               "description": "Whole section data."
             },
             "source": {
@@ -1027,7 +1053,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/FullText",
+              "$ref": "#/$defs/Citations",
               "description": "Whole section data."
             },
             "source": {
@@ -1274,6 +1300,7 @@
         "pubmed",
         "europepmc",
         "pmc-oa",
+        "icite",
         "pubtator",
         "ctgov",
         "civic",
@@ -1291,6 +1318,7 @@
         " PubMed.",
         " Europe PMC.",
         " PMC Open Access bucket.",
+        " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",
@@ -1463,6 +1491,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",
@@ -1470,69 +1499,6 @@
         "key"
       ],
       "type": "string"
-    },
-    "SupplementFile": {
-      "additionalProperties": false,
-      "description": "A JATS supplement confirmed by the same processing record.",
-      "properties": {
-        "caption": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Markdown"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "JATS caption when present."
-        },
-        "kind": {
-          "$ref": "#/$defs/FileKind",
-          "description": "Checked format."
-        },
-        "label": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "JATS label when present."
-        },
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Exact source filename."
-        }
-      },
-      "required": [
-        "name",
-        "kind"
-      ],
-      "type": "object"
-    },
-    "Supplements": {
-      "additionalProperties": false,
-      "description": "Available supplements with their owning article license.",
-      "properties": {
-        "files": {
-          "description": "Exact JATS/record intersection.",
-          "items": {
-            "$ref": "#/$defs/SupplementFile"
-          },
-          "type": "array"
-        },
-        "license": {
-          "$ref": "#/$defs/License",
-          "description": "Article license from the record."
-        }
-      },
-      "required": [
-        "license",
-        "files"
-      ],
-      "type": "object"
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

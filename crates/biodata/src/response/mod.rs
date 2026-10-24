@@ -1,11 +1,8 @@
 mod article;
+pub use article::{ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent, SupplementFile, Supplements};
 mod article_cards;
 mod article_text;
-pub use article::{ArticleItem, ArticleKey, ArticlePage};
-pub use article::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
-};
+pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
@@ -48,4 +45,6 @@ pub use gene::{
 };
 
 mod article_sections;
-pub use article_sections::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
+pub use article_sections::{
+    AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations,
+};

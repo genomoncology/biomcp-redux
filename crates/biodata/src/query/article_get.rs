@@ -57,8 +57,10 @@ crate::source::canonical_enum! {
         Annotations => "annotations",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
-        /// Supplementary files.
+        /// Supplementary files confirmed by PMC metadata.
         Supplements => "supplements",
+        /// Citation counts from NIH iCite.
+        Citations => "citations",
         /// Every landed article section.
         All => "all",
     }
@@ -68,9 +70,11 @@ crate::source::canonical_enum! {
     ArticleSection, SourceUnknown {
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
-        /// Supplementary files.
+        /// Supplementary files confirmed by PMC metadata.
         Supplements => "supplements",
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
+        /// Citation counts from NIH iCite.
+        Citations => "citations",
     }
 }

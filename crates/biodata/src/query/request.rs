@@ -9,6 +9,10 @@ pub enum Request {
     ArticleSupplement(crate::ArticleSupplement),
     /// Read licensed PMC body text.
     ArticleText(crate::ArticleText),
+    /// Papers citing one PMID.
+    ArticleCitations(crate::ArticleEdges),
+    /// Papers referenced by one PMID.
+    ArticleReferences(crate::ArticleEdges),
     /// Retrieve PubMed article cards.
     GetArticle(crate::ArticleGet),
     /// Search PubMed article identities.

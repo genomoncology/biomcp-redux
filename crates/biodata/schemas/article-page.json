@@ -2,7 +2,7 @@
   "$defs": {
     "ArticleHeader": {
       "additionalProperties": false,
-      "description": "Citation metadata owned by PubMed.",
+      "description": "Citation metadata from PubMed or Europe PMC.",
       "properties": {
         "author_count": {
           "description": "Whole source author count.",
@@ -31,6 +31,17 @@
             }
           ],
           "description": "Checked DOI, when supplied."
+        },
+        "europepmc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Europe PMC source-local identity."
         },
         "first_author": {
           "anyOf": [
@@ -79,10 +90,13 @@
             "$ref": "#/$defs/PublicationType"
           },
           "type": "array"
+        },
+        "types_unknown": {
+          "description": "The provider does not supply checked publication types.",
+          "type": "boolean"
         }
       },
       "required": [
-        "pmid",
         "title",
         "types",
         "author_count"
@@ -93,6 +107,32 @@
       "additionalProperties": false,
       "description": "One original pool position, including a summary hole.",
       "properties": {
+        "cited_by": {
+          "description": "iCite citing-paper count, only under citation ordering.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "found_by": {
+          "additionalProperties": false,
+          "description": "Native one-based source positions, disclosed only for multiple sources.",
+          "properties": {
+            "europepmc": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pubmed": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
         "header": {
           "anyOf": [
             {
@@ -114,8 +154,7 @@
         }
       },
       "required": [
-        "key",
-        "pmid"
+        "key"
       ],
       "type": "object"
     },
@@ -138,12 +177,63 @@
             "id"
           ],
           "type": "object"
+        },
+        {
+          "description": "PMC identity when PubMed is absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Pmcid"
+            },
+            "namespace": {
+              "const": "pmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "DOI when both indexed numeric identities are absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Doi"
+            },
+            "namespace": {
+              "const": "doi",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Europe PMC local source identity.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            "namespace": {
+              "const": "europepmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
         }
       ]
     },
     "ArticlePage": {
       "additionalProperties": false,
-      "description": "A page in PubMed's original relevance order.",
+      "description": "A slice of the stored article source order.",
       "properties": {
         "items": {
           "description": "Original ordered items.",
@@ -228,7 +318,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Gene input resolved through HGNC."
+          "description": "Gene input; PubMed resolves it through HGNC."
         },
         "journal": {
           "$ref": "#/$defs/Text",
@@ -260,23 +350,24 @@
         "sort": {
           "$ref": "#/$defs/ArticleSort",
           "default": "rank",
-          "description": "Native provider order."
+          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\ncitations: most cited first; costs about 1 s per 1,000 PMIDs.\nAll sources support citations."
         },
         "source": {
           "default": [
             "pubmed"
           ],
-          "description": "Sources in caller order; defaults to PubMed.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 1,
+          "maxItems": 2,
           "minItems": 1,
-          "type": "array"
+          "type": "array",
+          "x-comma-separated": true
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Words sent to PubMed in its default fields.",
+          "description": "Words sent to each named source in its default fields.",
           "x-positional": 0
         },
         "type": {
@@ -298,19 +389,21 @@
       "description": "Article ordering supported by this command.",
       "enum": [
         "rank",
-        "date"
+        "date",
+        "citations"
       ],
       "type": "string"
     },
     "ArticleSource": {
       "description": "Source selectors supported by article search.",
       "enum": [
-        "pubmed"
+        "pubmed",
+        "europepmc"
       ],
       "type": "string"
     },
     "ArticleType": {
-      "description": "Publication-type selectors sent to PubMed.",
+      "description": "Publication-type selectors sent to the named sources.",
       "enum": [
         "trial",
         "randomized",
@@ -324,6 +417,10 @@
     },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
     "GeneInput": {
@@ -571,6 +668,7 @@
         "pubmed",
         "europepmc",
         "pmc-oa",
+        "icite",
         "pubtator",
         "ctgov",
         "civic",
@@ -588,6 +686,7 @@
         " PubMed.",
         " Europe PMC.",
         " PMC Open Access bucket.",
+        " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",
@@ -735,6 +834,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",
