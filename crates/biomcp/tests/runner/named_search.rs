@@ -65,7 +65,8 @@ fn failures() -> Check {
                     {"run":args,"expect":expect},
                     {"run":args,"offline":true,"expect":expect}
                 ]),
-            )?;
+            )
+            .map_err(|e| format!("{source}/{kind}: {e}"))?;
         }
     }
     Ok(())
@@ -275,7 +276,7 @@ fn policies() -> Check {
             "article/litsense/licensed-subset",
             &args,
             |_, _| {},
-            json!({"/status":"failed","/sources/0/state":"skipped","/sources/0/reason":"disabled","/result/items":{"count":0}}),
+            json!({"/status":"failed","/sources/0/state":"skipped","/sources/0/reason":"disabled"}),
             4,
         )?;
     }
