@@ -124,16 +124,6 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::xml())
     }
 
-    /// Apply a request-bound XML check on cache/replay reads and before live cache admission.
-    pub fn xml_received_checked<T: XmlReply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.parameters(ep, params, Decoder::checked_xml(&check))
-    }
-
     pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
@@ -207,41 +197,8 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
     ) -> Result<T, RequestError> {
-        self.post_json_decoded(ep, params, body, Decoder::json())
-            .map(|(reply, _)| reply)
-    }
-
-    /// Check request-bound JSON POST identity before admission and on cache/replay reads.
-    pub fn post_json_received_checked<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        body: &B,
-        check: impl Fn(&T) -> Result<(), crate::BadReply>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
-        self.post_json_decoded(ep, params, body, Decoder::checked_json(&check))
-    }
-
-    /// Keep valid source rows while denying cache admission for mixed request identities.
-    /// The same predicate rejects pre-existing entries before fresh or stale reuse.
-    pub fn post_json_checked_cache<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        body: &B,
-        cache_if: impl Fn(&T) -> bool,
-    ) -> Result<T, RequestError> {
-        self.post_json_decoded(ep, &[], body, Decoder::json().cache_if(&cache_if))
-            .map(|(reply, _)| reply)
-    }
-
-    fn post_json_decoded<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        body: &B,
-        codec: Decoder<'_, T>,
-    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, true)?;
+        let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
             ep.path.to_string()
@@ -254,6 +211,7 @@ impl Leg<'_> {
             Prepared::new(url, body, ep.method, ep.idempotent),
             codec,
         )
+        .map(|(reply, _)| reply)
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
@@ -305,7 +263,6 @@ impl Leg<'_> {
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
-        codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
         let (reply, fetched) =
             self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
@@ -349,7 +306,6 @@ impl Leg<'_> {
                     let status = response.status;
                     if (200..300).contains(&status)
                         || codec.json_rejections && matches!(status, 400 | 422)
-                        || codec.json_absence && status == 404
                     {
                         return self.decode(response, codec).map_err(Into::into);
                     }
@@ -528,9 +484,7 @@ impl Leg<'_> {
         let body = self.read_body(
             &mut response,
             status,
-            recording
-                || codec.json_rejections && matches!(status, 400 | 422)
-                || codec.json_absence && status == 404,
+            recording || codec.json_rejections && matches!(status, 400 | 422),
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
         let wire = Wire {

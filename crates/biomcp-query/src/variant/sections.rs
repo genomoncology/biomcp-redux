@@ -1,8 +1,8 @@
 //! Candidate-specific section disclosure under one shared command deadline.
 use crate::Ctx;
 use biodata::{
-    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
-    VariantHeader, VariantSection, VariantSections,
+    Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
@@ -13,21 +13,10 @@ pub(super) type Result<T> = (
 );
 pub(super) fn requested(query: &VariantGet) -> Vec<VariantSection> {
     use VariantSection as S;
-    [
-        S::Clinvar,
-        S::Erepo,
-        S::Population,
-        S::Gwas,
-        S::Civic,
-        S::Hotspots,
-        S::Predict,
-        S::Conservation,
-        S::Cosmic,
-        S::Oncokb,
-    ]
-    .into_iter()
-    .filter(|s| query.sections().contains(s) || query.sections().contains(&S::All))
-    .collect()
+    [S::Oncokb]
+        .into_iter()
+        .filter(|s| query.sections().contains(s) || query.sections().contains(&S::All))
+        .collect()
 }
 pub(super) fn apply(
     cx: &Ctx<'_>,
@@ -54,57 +43,11 @@ pub(super) fn apply(
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
-                S::Clinvar | S::Erepo => {
-                    let source = if section == S::Clinvar {
-                        AssertionSource::Clinvar
-                    } else {
-                        AssertionSource::Erepo
-                    };
-                    let result = retain(
-                        permitted(cx, section, || {
-                            super::assertions::section(cx, query, candidates, deadline, source)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    );
-                    if section == S::Clinvar {
-                        sections.clinvar = Some(result)
-                    } else {
-                        sections.erepo = Some(result)
-                    }
-                }
-                S::Population => attach!(
-                    population,
-                    super::population::section(cx, query, candidates, deadline)
-                ),
-                S::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
-                S::Civic => attach!(
-                    civic,
-                    super::civic::section(cx, query, candidates, deadline)
-                ),
-                S::Hotspots => attach!(
-                    hotspots,
-                    super::hotspots::section(cx, query, candidates, deadline)
-                ),
-                S::Predict => attach!(
-                    predict,
-                    super::predict::section(cx, query, candidates, deadline)
-                ),
-                S::Conservation => attach!(
-                    conservation,
-                    super::conservation::section(cx, query, candidates, deadline)
-                ),
-                S::Cosmic => attach!(
-                    cosmic,
-                    super::cosmic::section(cx, query, candidates, deadline)
-                ),
                 S::Oncokb => attach!(
                     oncokb,
                     super::oncokb::section(cx, query, candidates, deadline)
                 ),
                 S::All => {}
-                _ => {}
             }
         }
         if !query.sections().is_empty() {
@@ -115,17 +58,10 @@ pub(super) fn apply(
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     use VariantSection as S;
-    Some(match section {
-        S::Clinvar => Source::ClinVar,
-        S::Erepo => Source::Erepo,
-        S::Population => Source::Gnomad,
-        S::Gwas => Source::Gwas,
-        S::Civic => Source::Civic,
-        S::Hotspots => Source::CancerHotspots,
-        S::Predict | S::Conservation | S::Cosmic => Source::MyVariant,
-        S::Oncokb => Source::Oncokb,
-        _ => return None,
-    })
+    match section {
+        S::Oncokb => Some(Source::Oncokb),
+        S::All => None,
+    }
 }
 fn permitted<T>(
     cx: &Ctx<'_>,

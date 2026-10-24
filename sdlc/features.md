@@ -50,8 +50,7 @@ trial-sites: Page original registry sites and their attached contacts, and retri
 variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 
-variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups. Cases: `crates/biomcp/tests/runner/oncokb.rs`.
-variant-civic: Retrieve exact CIViC molecular-profile evidence and assertions, preserve compound context and native labels, and page independent source streams. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
-variant-hotspots: Show source transcript and residue/alternate recurrence counts with explicit candidate state when no exact transcript join exists. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
+
+- Variant annotation accepts the user’s OncoKB key with explicit build and tumor context, preserves native implication groups and source classifications, and offers key setup without a source request when no key is configured.

@@ -1,14 +1,7 @@
 //! Published-identifier resolution with source-owned allele identity checks.
-pub(crate) mod assertions;
-mod civic;
-mod components;
-mod conservation;
-mod cosmic;
 mod direct;
-mod hotspots;
 pub mod normalize;
 mod oncokb;
-mod predict;
 pub mod recurrence;
 pub mod search;
 mod sections;
@@ -295,10 +288,6 @@ fn candidate_page(
         truncated: None,
     })
 }
-
-mod gwas;
-mod population;
-pub(crate) mod population_detail;
 
 fn overall(
     resolution: VariantResolution,

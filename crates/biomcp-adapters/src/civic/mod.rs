@@ -1,9 +1,5 @@
 //! Checked CIViC gene-level curation joined to HGNC Entrez identities.
 mod raw;
-mod variant;
-mod variant_claims;
-mod variant_map;
-mod variant_raw;
 use crate::{Mapped, quotas, raw::Field};
 use biodata::{
     CivicGene, EntrezGeneId, GeneSymbol, Problem, ProblemCode, Section, Source, SourceRecord, Text,
@@ -11,7 +7,6 @@ use biodata::{
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
-pub use variant::variant;
 /// Public CIViC GraphQL source policy.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {

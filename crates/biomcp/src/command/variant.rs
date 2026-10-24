@@ -9,12 +9,6 @@ pub(super) fn response(
     body: QueryBody,
 ) -> io::Result<Outcome> {
     match (request, body) {
-        (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
-            meta.encode(query, Some(body))
-        }
         (Request::VariantNormalize(query), QueryBody::VariantNormalization(body)) => {
             meta.encode(query, Some(body))
         }
