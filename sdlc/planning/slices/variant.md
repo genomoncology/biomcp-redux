@@ -196,3 +196,119 @@ These are product and scope choices, not clinical questions. The clinical review
 ## 9. Measurement appendix
 
 The final evidence manifest, source totals, baseline comparison and proposed byte ceilings follow the same raw captures. Bytes divided by four are estimates, not tokenizer counts. Measured latency includes the M5's concurrent load and network; it is not an isolated speed benchmark. No source ranking or cross-machine comparison follows from these figures.
+
+### Provenance and raw evidence
+
+Live work ran on the configured M5 through `pm job` at the starting revision. Jobs `j10340`, `j10356` and `j10369` hold source discovery, refined joins and declared protein queries. `j10350` is the preserved failed alternate-contig inspection. Jobs `j10356`, `j10365` and `j10382` hold the historical get, search/helper and positive-rsID section measurements. The jobs passed when the bounded script completed and recorded each observed command status; that does not relabel expected source errors or historical command failures as success.
+
+Raw responses, request method/URL/body, timestamps, selected response headers, SHA-256, status, duration, byte counts and truncation markers are retained on Yellow at `data/biomcp-redux/0078-variant-investigation/`. `requests.json`, `final-question-matrix.json`, `reviewed-matrix.json`, `declared-protein-queries.json`, `clinical-questions.json`, `baseline.json`, `baseline-extra.json`, `baseline-sections.json`, `proposed-outputs.json`, `comparison.json` and `manifest.json` are the entry points. The manifest includes job logs and scripts. This store is evidence, not a second work-status record.
+
+The first 24 exploratory inputs include redundant forms and an invalid-position diagnostic. The final 23-question corpus replaces the exploratory BRAF rsID absence control with the clinical paper's coding form and retains the rsID experiment separately. Q22 therefore shares Q09's positive captured request, then plans a response-only empty control. Q23 shares Q16's positive request, then plans a response-only failure control. The synthetic controls are proposed outside-in cases, not claimed completed clinical findings. The full final matrix maps these reused responses by question ID.
+
+The official historical binary is BioMCP 0.9.3, darwin-arm64, downloaded from [the tagged release asset](https://github.com/genomoncology/biomcp/releases/download/v0.9.3/biomcp-darwin-arm64.tar.gz). Archive SHA-256 `e637062c18c6692f3ec49c5847e69b29f6feee7f7909345970bd504d72174994` matches its published `.sha256`. Binary SHA-256 is `54f66769d9193c569d1b65756ad766eafd1a2c5e92d08f8c855cc8964e9a7145`. The trial investigation retains the shared release provenance. The installed 0.9.1 executable was inspected only, not used in these comparisons. Static surface accounting also checks historical source revision `4050fdc7dbdf4d713d94cf02a39a147b863665be` (0.9.4); differences from the released executable are labeled below rather than silently substituted.
+
+Each historical command receives an empty owned HOME/config/cache and a keyless environment. The cold get uses `--no-cache`; the immediate second call enables cache. Since the cold call bypasses managed state, the second is not proof of a primed HTTP cache. No hardware speed claim follows from concurrent loaded M5 runs.
+
+### Source request cost
+
+These totals include exploratory mistakes, metadata and bounded retries, not just successful final questions. Per-question coverage is in the matrix. Reused identical requests count once. The initial unprojected MyVariant response adds 508,997 bytes outside this table's later `requests.json` inventory.
+
+| Source | Actual HTTP requests | Status counts | Median seconds | Returned bytes |
+| --- | --- | --- | --- | --- |
+| car | 13 | 200: 9, 400: 2, 500: 2 | 0.095 | 34,164 |
+| cbioportal | 8 | 200: 8 | 0.135 | 8,438 |
+| civic | 32 | 200: 32 | 0.278 | 10,523 |
+| clinvar | 44 | 200: 39, 429: 5 | 0.162 | 2,008,234 |
+| dbsnp | 43 | 200: 40, 404: 1, 429: 2 | 0.184 | 1,135,625 |
+| erepo | 9 | 200: 1, 404: 8 | 0.074 | 10,549 |
+| gnomad | 8 | 200: 8 | 0.325 | 20,248 |
+| gwas | 2 | 200: 2 | 2.473 | 3,417 |
+| hotspots | 4 | 200: 4 | 0.127 | 79,129 |
+| interpro | 4 | 200: 4 | 1.819 | 10,032 |
+| mutalyzer | 13 | 200: 10, 422: 3 | 0.986 | 33,455 |
+| myvariant | 49 | 200: 48, 400: 1 | 0.268 | 1,517,828 |
+| uniprot | 4 | 200: 4 | 0.593 | 503,044 |
+| variantvalidator | 13 | 200: 11, 404: 2 | 0.527 | 27,388 |
+
+Total: 246 HTTP requests and 5,402,074 returned bytes. No response exceeded the probe's 1 MiB bound without a `truncated` marker. A truncated body is not complete-field or assertion proof. Only the documented bounded NCBI retry was used; no retry loop or changed-query retry was used.
+
+Declared MyVariant gene/protein queries returned one candidate for every Q01–Q08 EGFR example and CHEK2 Arg117Gly. The fixed query for Q01 is `dbnsfp.genename:EGFR AND dbnsfp.hgvsp:"p.L858R"`. This is source-documented field construction from explicitly declared options; the source returns genomic ID `chr7:g.55259515T>G`. No local alternate spelling or mutation normalization was tried. Bare `EGFR L858R` returned zero. Q09's unchanged transcript form resolved through CAR to CA123643 and ClinVar Variation 13961, although MyVariant bare text and the historical get failed. CAR also returned both GRCh37 and GRCh38 representations, with separate source coordinate counting. These are retrieval observations, not a clinical equivalence judgment.
+
+The current MyVariant metadata reports build version `20250624`, build date `2025-06-24T16:27:25.889841-07:00`, and COSMIC version 68 with an explicit pre-license-change snapshot note. Dataset ages remain in provenance. They are never presented as a current direct COSMIC release.
+
+### Default get comparison on the question inputs
+
+The proposed outputs are offline projections of retained raw replies, not a working 1.0 command or schema. They measure source identity/candidate and rejected-input headers. They omit historical bulk predictors, repeated commands, `_meta`, unrequested section outcomes and embedded CIViC evidence. Those facts are deferred to named sections, not declared false or absent. They also do not yet measure the complete shipped envelope, every provider's assertion summary or all additional provenance. Before implementation review, the actual generated envelope must be measured and its case ceiling set from the complete output; the projection is a design cost estimate, not a green budget test.
+
+| Case | 0.9.3 cold exit | Cold seconds | Historical bytes | Proposed header bytes | Header estimate tokens | Proposed fixture ceiling bytes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Q01 | 0 | 0.422 | 9668 | 438 | 110 | 504 |
+| Q02 | 0 | 0.628 | 9501 | 438 | 110 | 504 |
+| Q03 | 0 | 0.450 | 5996 | 438 | 110 | 504 |
+| Q04 | 0 | 0.650 | 3034 | 437 | 110 | 503 |
+| Q05 | 0 | 0.355 | 2582 | 437 | 110 | 503 |
+| Q06 | 0 | 0.282 | 5419 | 438 | 110 | 504 |
+| Q07 | 0 | 0.296 | 3574 | 438 | 110 | 504 |
+| Q08 | 0 | 0.389 | 6553 | 438 | 110 | 504 |
+| Q09 | 1 | 0.906 | 338 | 818 | 205 | 941 |
+| Q10 | 1 | 0.011 | 493 | 271 | 68 | 312 |
+| Q11 | 1 | 0.946 | 344 | 802 | 201 | 923 |
+| Q12 | 1 | 0.291 | 221 | 340 | 85 | 391 |
+| Q13 | 1 | 0.976 | 344 | 756 | 189 | 870 |
+| Q14 | 1 | 0.971 | 344 | 797 | 200 | 917 |
+| Q15 | 0 | 0.282 | 2220 | 377 | 95 | 434 |
+| Q16 | 0 | 0.972 | 2347 | 810 | 203 | 932 |
+| Q17 | 0 | 0.992 | 2328 | 813 | 204 | 935 |
+| Q18 | 0 | 0.279 | 2325 | 546 | 137 | 628 |
+| Q19 | 0 | 0.922 | 2327 | 811 | 203 | 933 |
+| Q20 | 0 | 0.957 | 1976 | 820 | 205 | 943 |
+| Q21 | 1 | 0.009 | 445 | 146 | 37 | 168 |
+| Q22 | 1 | 0.906 | 338 | 818 | 205 | 941 |
+| Q23 | 0 | 0.921 | 2347 | 810 | 203 | 932 |
+
+Of 23 get invocations, 16 succeeded and 7 returned an error. These include the ambiguity control and the exploratory rsID positive; repeated failure-control positives do not add independent coverage. Median cold duration was 0.525 seconds; immediate repeat 0.526. Historical JSON ranges from 221 to 9,668 bytes; projected headers range from 146 to 820 bytes.
+
+A larger projected Q09/Q11/Q13/Q14 header replaces a historical error with a source-resolved identity, so its extra bytes buy a previously missing fact. That is not an output-size regression for the same successful answer. It needs an explicit source-resolution case. The prototype's other rejected/empty outputs cannot stand in for source assertions. No tokenizer was run; all token figures use compact UTF-8 bytes divided by four, rounded up.
+
+### Section and helper budget comparison
+
+The source-derived section prototypes use the actual captured first page. ClinVar projects three source submissions and total, CIViC keeps the actual three-item evidence/assertion page, ancestry detail keeps the source groups, and recurrence keeps the exact selected cohort request. They retain record IDs and source fields; original prose remains a deeper selection/link. The conservation projection keeps only source `gerp++`, `phastcons`, `phylop` and `siphy_29way` values and the component license. It does not call the whole dbNSFP record conservation.
+
+Historical section figures below are positive `get variant rs113488022 SECTION` calls. They include the historical whole card, whereas the proposed figures measure the named section payload only. They illustrate disclosure savings; they are not fact-for-fact full-envelope benchmarks. The proposed section ceiling is measured payload plus 15%; the implementation adds its required envelope/provenance before binding the final case ceiling. It must stay within a comparable successful 0.9 output unless the new facts justify an explicit exception.
+
+| Section | Measured payload bytes | Estimated tokens | Proposed payload ceiling bytes | Historical full reply bytes |
+| --- | --- | --- | --- | --- |
+| clinvar | 1477 | 370 | 1699 | 108197 |
+| civic | 1242 | 311 | 1429 | 16102 |
+| population | 146 | 37 | 168 | 15473 |
+| population-details | 1077 | 270 | 1239 | 15473 |
+| hotspots | 1126 | 282 | 1295 | No same-command comparator |
+| gwas | 176 | 44 | 203 | 1644 |
+| erepo | 258 | 65 | 297 | No same-command comparator |
+| cbioportal | 2234 | 559 | 2570 | 10110 |
+| predict | 1416 | 354 | 1629 | 9322 |
+| conservation | 601 | 151 | 692 | 9414 |
+| cosmic | 250 | 63 | 288 | 9160 |
+| normalization | 3379 | 845 | 3886 | No same-command comparator |
+
+OncoKB has no public-tier execution measurement. Its budget remains unmeasured until the user's configured licensed tier is captured. CGI has no accepted new section payload and remains deferred. A retained `all` ceiling must sum the selected bounded pages and one envelope, not pull every original record. Search defaults to three measured candidate rows in these probes; the shipped default page and its complete envelope must be measured before choosing the final limit. No arbitrary token ceiling is presented as observed proof.
+
+| Historical helper or section | Cold seconds | Bytes | Observed outcome |
+| --- | --- | --- | --- |
+| `variant normalize car NM_004333.4:c.1799T>A` | 0.100 | 1254 | exit 0 |
+| `variant normalize mutalyzer NM_004333.4:c.1799T>A` | 0.607 | 2734 | exit 0 |
+| `variant normalize variantvalidator NM_004333.4:c.1799T>A` | 0.443 | 1256 | exit 0 |
+| `variant normalize all NM_004333.4:c.1799T>A` | 0.561 | 5149 | exit 0 |
+| `variant structure NM_004333.4:c.1799T>A` | 1.362 | 338 | exit 1 |
+| `variant erepo CA123643` | 0.066 | 256 | exit 0 |
+| `gene cspec TP53 --limit 3` | 0.417 | 1027 | exit 0 |
+| `search gwas --gene CHEK2 --limit 3` | 4.186 | 1749 | exit 0 |
+| `batch variant NM_004333.4:c.1799T>A,NM_007194.4:c.470T>C` | 1.944 | 3159 | exit 1 |
+
+The 21 historical search examples include 9 usage errors because the transcript/genomic text is treated as a gene filter and rejected by its gene-symbol validation, 2 other errors, and 10 successful searches. Exact stderr/stdout are retained. This is behavior of the released argument surface, not evidence those variants are absent. The direct resolver results show why explicit `--hgvs` is useful. Search outputs retain source-native candidates rather than locally declaring the most familiar result exact.
+
+The initial historical section run used Q09's transcript input and failed before sections. The corrected positive rsID section run succeeded for all 12 section words. `predict` and `predictions` differ in output byte size and should share one canonical capability in the new schema. The 0.9.4 source inventory contains `gwas`; the 0.9.3 runtime's same word explicitly reports `unavailable`, permanent legacy-endpoint retirement, and a v2 migration gap in the positive run. Do not call that current v2 coverage. `variant structure` and generic batch were executed and failed at the transcript-resolution prerequisite; their source joins remain unmeasured, and deferral rests on the absence of a harvested need, not a claim that those endpoints fail.
+
+### Remaining proof limits for PM review
+
+The corpus does not establish an exact same-allele germline-versus-somatic conflict. It does establish a source-paper/reference inconsistency, source name-search ambiguity and multiple alternate alleles for one rsID. cBioPortal exact allele recurrence and its denominators need a selected-cohort case. A field from the public tier is retained only after a valid untruncated source capture shows it; source docs alone cannot enable a section. Several publishers' output redistribution terms remain unverified, so captures stay outside Git. The proposed source limits, final schema, page sizes and full-envelope ceilings are implementation decisions after design approval. No new parser, clinical interpretation, ticket or release is authorized by this file.
