@@ -12,16 +12,16 @@ use biomcp_fetch::{
 use std::{path::Path, thread, time::Duration};
 use support::Answer;
 type Server = support::Server<()>;
+fn quota(key: &'static str, rate: u16, in_flight: u8) -> &'static Quota {
+    Box::leak(Box::new(Quota::new(
+        SourceKey::declare(key),
+        Rate::per_second(rate),
+        None,
+        in_flight,
+    )))
+}
 fn spec(server: &Server) -> &'static SourceSpec {
-    server.spec(
-        Box::leak(Box::new(Quota::new(
-            SourceKey::declare("record"),
-            Rate::per_second(1000),
-            None,
-            4,
-        ))),
-        KeyUse::None,
-    )
+    server.spec(quota("record", 1000, 4), KeyUse::None)
 }
 fn fetch(mode: Mode) -> Fetch {
     Fetch::open(FetchConfig {
@@ -158,48 +158,44 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
     })
     .unwrap();
     let clock = replay.deadline(Duration::from_secs(1000));
+    let leg = replay.leg(original, clock);
     assert!(
-        replay
-            .leg(original, clock)
-            .json::<Answer>(&original.get("/answer"), &[])
+        leg.json::<Answer>(&original.get("/answer"), &[])
             .unwrap()
             .answer
     );
-    assert_eq!(clock.remaining(), Duration::from_secs(640));
+    assert_eq!(leg.remaining(), Duration::from_secs(640));
     assert!(server.requests.try_recv().is_err());
     let replay = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
     });
     let clock = replay.deadline(Duration::from_secs(1000));
+    let leg = replay.leg(original, clock);
     assert!(
-        matches!(replay.leg(original, clock).json::<Answer>(&original.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::DeadlineExceeded)
+        matches!(leg.json::<Answer>(&original.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::DeadlineExceeded)
     );
-    assert_eq!(clock.remaining(), Duration::from_secs(990));
+    assert_eq!(leg.remaining(), Duration::ZERO);
 }
-#[test]
-fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
-    #[derive(Debug, serde::Deserialize)]
-    struct Number {
-        value: u32,
+#[derive(Debug, serde::Deserialize)]
+struct Number {
+    value: u32,
+}
+impl biomcp_fetch::Reply for Number {
+    fn check(&self) -> Result<(), biomcp_fetch::BadReply> {
+        Ok(())
     }
-    impl biomcp_fetch::Reply for Number {
-        fn check(&self) -> Result<(), biomcp_fetch::BadReply> {
-            Ok(())
-        }
-    }
-    let dir = tempfile::tempdir().unwrap();
-    let server = Server::new();
-    let original = spec(&server);
+}
+fn capture_numbers(server: &Server, spec: &'static SourceSpec, dir: &Path) {
     let recording = fetch(Mode::Record {
-        dir: dir.path().to_owned(),
+        dir: dir.to_owned(),
     });
     thread::scope(|scope| {
         let workers: Vec<_> = (0..8)
             .map(|_| {
                 scope.spawn(|| {
                     recording
-                        .leg(original, recording.deadline(Duration::from_secs(10)))
-                        .json::<Number>(&original.get("/answer"), &[])
+                        .leg(spec, recording.deadline(Duration::from_secs(10)))
+                        .json::<Number>(&spec.get("/answer"), &[])
                         .unwrap()
                         .value
                 })
@@ -218,17 +214,19 @@ fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
         assert_eq!(numbers, (0..8).collect::<Vec<_>>());
     });
     drop(recording);
+}
+#[test]
+fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let original = spec(&server);
+    capture_numbers(&server, original, dir.path());
     change(dir.path(), |v| {
         for exchange in v["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = 0.into();
         }
     });
-    let quota = Box::leak(Box::new(Quota::new(
-        SourceKey::declare("virtual-shared"),
-        Rate::per_second(1),
-        None,
-        2,
-    )));
+    let quota = quota("virtual-shared", 1, 2);
     let slow = server.spec(quota, KeyUse::None);
     let replay = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
@@ -238,11 +236,9 @@ fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
         let workers: Vec<_> = (0..8)
             .map(|_| {
                 scope.spawn(|| {
-                    replay
-                        .leg(slow, clock)
-                        .json::<Number>(&slow.get("/answer"), &[])
-                        .unwrap()
-                        .value
+                    let leg = replay.leg(slow, clock);
+                    let value = leg.json::<Number>(&slow.get("/answer"), &[]).unwrap().value;
+                    (value, leg.remaining())
                 })
             })
             .collect();
@@ -251,9 +247,17 @@ fn concurrent_same_key_reserves_each_exchange_once_and_shares_virtual_quota() {
             .map(|worker| worker.join().unwrap())
             .collect::<Vec<_>>()
     });
+    let mut budgets: Vec<_> = numbers.iter().map(|(_, remaining)| *remaining).collect();
+    budgets.sort();
+    assert_eq!(
+        budgets,
+        (3..=10).map(Duration::from_secs).collect::<Vec<_>>()
+    );
     numbers.sort();
-    assert_eq!(numbers, (0..8).collect::<Vec<_>>());
-    assert_eq!(clock.remaining(), Duration::from_secs(13));
+    assert_eq!(
+        numbers.iter().map(|(value, _)| *value).collect::<Vec<_>>(),
+        (0..8).collect::<Vec<_>>()
+    );
     assert_eq!(
         get(&replay, slow).unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
@@ -384,4 +388,62 @@ fn non_utf8_capture_is_a_typed_refusal_and_never_publishes_a_partial_file() {
         );
     });
     assert!(!dir.path().join("pubmed").exists());
+}
+
+#[test]
+fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording_access() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    capture(
+        &server,
+        spec,
+        dir.path(),
+        &[
+            (200, "", r#"{"answer":true}"#),
+            (200, "", r#"{"answer":true}"#),
+        ],
+    );
+    change(dir.path(), |v| {
+        v["exchanges"][0]["delay_ms"] = 6000.into();
+        v["exchanges"][1]["delay_ms"] = 0.into();
+    });
+    let replay = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
+    let other = server.spec(quota("independent-clock", 1000, 1), KeyUse::None);
+    let budget = replay.deadline(Duration::from_secs(10));
+    let first = replay.leg(spec, budget);
+    let second = replay.leg(other, budget);
+    assert!(
+        first
+            .json::<Answer>(&spec.get("/answer"), &[])
+            .unwrap()
+            .answer
+    );
+    assert_eq!(first.remaining(), Duration::from_secs(4));
+    assert!(
+        second
+            .json::<Answer>(&other.get("/answer"), &[])
+            .unwrap()
+            .answer
+    );
+    assert_eq!(second.remaining(), Duration::from_secs(10));
+    std::fs::write(file(dir.path()), "broken-recording").unwrap();
+    let live = fetch(Mode::default());
+    let foreign = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
+    for wrong in [
+        live.deadline(Duration::from_secs(10)),
+        foreign.deadline(Duration::from_secs(10)),
+    ] {
+        assert!(
+            matches!(replay.leg(spec,wrong).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Rejected)
+        );
+    }
+    assert!(
+        matches!(live.leg(spec,budget).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Rejected)
+    );
+    assert!(server.requests.try_recv().is_err());
 }

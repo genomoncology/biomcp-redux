@@ -136,6 +136,8 @@ impl Fetch {
     }
 
     /// Start a leg capped by this source's budget.
+    /// Replay legs spend independent virtual budgets and share provider quota schedules.
+    /// Requests reject deadlines from a different clock domain or replay client.
     #[expect(
         clippy::disallowed_types,
         reason = "Create the shared leg report lock without holding it during request work"
@@ -154,7 +156,9 @@ impl Fetch {
         Leg {
             fetch: self,
             spec,
-            deadline: deadline.rebase(self.clock.as_ref()).child(cap),
+            deadline: deadline.child(cap),
+            clock: deadline.fork(),
+            wrong_clock: !deadline.matches(self.clock.as_ref()),
             no_key,
             report: std::sync::Mutex::new(LegReport::default()),
         }
@@ -171,6 +175,8 @@ pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
     deadline: Deadline<'a>,
+    clock: Option<deadline::VirtualClock>,
+    wrong_clock: bool,
     no_key: bool,
     report: std::sync::Mutex<LegReport>,
 }
@@ -211,6 +217,13 @@ pub struct LegReport {
     pub failures: Vec<SourceError>,
 }
 impl Leg<'_> {
+    pub(crate) fn budget(&self) -> Deadline<'_> {
+        self.deadline.bind(self.clock.as_ref())
+    }
+    /// Return this source leg's remaining real or virtual budget.
+    pub fn remaining(&self) -> Duration {
+        self.budget().remaining()
+    }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
         self.report

@@ -165,7 +165,16 @@ impl Limiter {
                 self.wake.notify_all();
                 return None;
             }
-            let now = deadline.now();
+            let mut now = deadline.now();
+            if deadline.virtual_time()
+                && let Some(last) = state.updated.filter(|last| *last > now)
+            {
+                deadline.advance(last.duration_since(now));
+                now = deadline.now();
+                if deadline.expired() {
+                    continue;
+                }
+            }
             let available = state.available(rate, now);
             // Missing credit is at most one token, so this fits in a u64.
             let nanos = TOKEN

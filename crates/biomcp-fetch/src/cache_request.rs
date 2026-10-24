@@ -19,7 +19,7 @@ impl Leg<'_> {
         key: &[u8; 32],
         live: impl FnOnce() -> Result<(T, u16, Vec<u8>), RequestError>,
     ) -> Result<T, RequestError> {
-        if self.deadline.expired() {
+        if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
         if self.fetch.config.mode == Mode::Offline {
@@ -46,7 +46,7 @@ impl Leg<'_> {
                     self.spec.source,
                     url,
                     &Entry::new(status, body, seconds),
-                    self.deadline,
+                    self.budget(),
                 )?;
                 Ok(reply)
             }
@@ -58,7 +58,7 @@ impl Leg<'_> {
                     self.spec.source,
                     url,
                     &Entry::new(404, Vec::new(), NEGATIVE_SECONDS),
-                    self.deadline,
+                    self.budget(),
                 )?;
                 Err(error.into())
             }
@@ -110,7 +110,7 @@ impl Leg<'_> {
         cache: &Cache,
         key: &[u8; 32],
     ) -> Result<Option<Checked<T>>, RequestError> {
-        let Some(entry) = cache.read(key, self.fetch.config.max_body, self.deadline)? else {
+        let Some(entry) = cache.read(key, self.fetch.config.max_body, self.budget())? else {
             return Ok(None);
         };
         let fresh = entry.fresh_until > now();
@@ -123,10 +123,10 @@ impl Leg<'_> {
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and
             // cannot become a stale fallback after the live request fails.
-            cache.remove(key, self.deadline)?;
+            cache.remove(key, self.budget())?;
             return Ok(None);
         };
-        if self.deadline.expired() {
+        if self.budget().expired() {
             return Err(self
                 .failure(Reason::DeadlineExceeded, Some(entry.status))
                 .into());

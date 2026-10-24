@@ -52,7 +52,7 @@ impl Leg<'_> {
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
         }
-        if !std::ptr::eq(self.spec, ep.spec) {
+        if self.wrong_clock || !std::ptr::eq(self.spec, ep.spec) {
             return Err(self.failure(Reason::Rejected, None).into());
         }
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
@@ -79,7 +79,7 @@ impl Leg<'_> {
             let permit = self
                 .fetch
                 .limiters
-                .acquire(self.spec.quota, keyed, self.deadline)
+                .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
             let (mut error, retryable, delay) = match self.exchange(url, identity) {
                 Ok(response) => {
@@ -114,11 +114,11 @@ impl Leg<'_> {
                 }
             };
             drop(permit);
-            if self.deadline.expired() {
+            if self.budget().expired() {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
             error.retry_after = delay;
-            if retryable && delay.is_some_and(|wait| wait >= self.deadline.remaining()) {
+            if retryable && delay.is_some_and(|wait| wait >= self.budget().remaining()) {
                 error.reason = Reason::RateLimited;
                 return Err(error.into());
             }
@@ -126,7 +126,7 @@ impl Leg<'_> {
                 return Err(error.into());
             }
             let wait = delay.unwrap_or_else(|| crate::retry::backoff(identity, attempt));
-            if !crate::retry::wait(wait, self.deadline) {
+            if !crate::retry::wait(wait, self.budget()) {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
         }
@@ -148,7 +148,7 @@ impl Leg<'_> {
                 KeyPlace::Header(name) => request.header(name, secret),
             };
         }
-        let remaining = self.deadline.remaining();
+        let remaining = self.budget().remaining();
         if remaining.is_zero() {
             return Err(ureq::Error::Timeout(ureq::Timeout::Global));
         }
@@ -168,7 +168,7 @@ impl Leg<'_> {
             .map_err(local)?
         {
             if !self
-                .deadline
+                .budget()
                 .advance(Duration::from_millis(exchange.delay_ms))
             {
                 return Err(Failure::Local(
@@ -240,7 +240,7 @@ impl Leg<'_> {
                     Failure::Local(
                         self.failure(
                             if error.kind() == std::io::ErrorKind::TimedOut
-                                || self.deadline.expired()
+                                || self.budget().expired()
                             {
                                 Reason::DeadlineExceeded
                             } else {
@@ -275,12 +275,12 @@ impl Leg<'_> {
         {
             return Err(bad());
         }
-        if self.deadline.expired() {
+        if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
         let reply: T = serde_json::from_slice(&response.body).map_err(|_| bad())?;
         reply.check().map_err(|_| bad())?;
-        if self.deadline.expired() {
+        if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
         Ok((reply, status, response.body))

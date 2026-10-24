@@ -49,12 +49,17 @@ impl<'a> Deadline<'a> {
             clock,
         }
     }
-    pub(crate) fn rebase(self, clock: Option<&'a VirtualClock>) -> Self {
-        if self.clock.map(std::ptr::from_ref) == clock.map(std::ptr::from_ref) {
-            self
-        } else {
-            Self::start(self.remaining(), clock)
+    pub(crate) fn matches(&self, clock: Option<&VirtualClock>) -> bool {
+        self.clock.map(std::ptr::from_ref) == clock.map(std::ptr::from_ref)
+    }
+    pub(crate) fn bind<'b>(&self, clock: Option<&'b VirtualClock>) -> Deadline<'b> {
+        Deadline {
+            end: self.end,
+            clock,
         }
+    }
+    pub(crate) fn fork(&self) -> Option<VirtualClock> {
+        self.clock.map(|_| VirtualClock(Mutex::new(self.now())))
     }
     pub(crate) fn now(&self) -> Instant {
         self.clock.map_or_else(Instant::now, VirtualClock::now)

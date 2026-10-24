@@ -20,6 +20,17 @@ fn config(cache: &Path, mode: Mode) -> FetchConfig {
         ..FetchConfig::default()
     }
 }
+fn spec(server: &Server, key: &'static str) -> &'static biomcp_fetch::SourceSpec {
+    server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare(key),
+            Rate::per_second(1000),
+            None,
+            1,
+        ))),
+        KeyUse::None,
+    )
+}
 fn expire(path: &Path) {
     rusqlite::Connection::open(path)
         .unwrap()
@@ -37,15 +48,7 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
     let dir = tempfile::tempdir().unwrap();
     let cache = dir.path().join("cache.sqlite");
     let server = Server::new();
-    let spec = server.spec(
-        Box::leak(Box::new(Quota::new(
-            SourceKey::declare("offline"),
-            Rate::per_second(1000),
-            None,
-            1,
-        ))),
-        KeyUse::None,
-    );
+    let spec = spec(&server, "offline");
     let ep = spec.get("/answer").fresh(Freshness::Hours(1));
     let live = Fetch::open(config(&cache, Mode::Live { fresh: true })).unwrap();
     let offline = Fetch::open(config(&cache, Mode::Offline)).unwrap();
@@ -99,15 +102,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     let cache = dir.path().join("cache.sqlite");
     let recording = dir.path().join("recording");
     let server = Server::new();
-    let spec = server.spec(
-        Box::leak(Box::new(Quota::new(
-            SourceKey::declare("isolated-replay"),
-            Rate::per_second(1000),
-            None,
-            1,
-        ))),
-        KeyUse::None,
-    );
+    let spec = spec(&server, "isolated-replay");
     let ep = spec.get("/answer").fresh(Freshness::Hours(1));
     let get = |fetch: &Fetch| {
         fetch
@@ -190,15 +185,7 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
     std::fs::write(&cache, b"keep").unwrap();
     let recording = dir.path().join("recording");
     let server = Server::new();
-    let spec = server.spec(
-        Box::leak(Box::new(Quota::new(
-            SourceKey::declare("invalid-ordinary"),
-            Rate::per_second(1000),
-            None,
-            1,
-        ))),
-        KeyUse::None,
-    );
+    let spec = spec(&server, "invalid-ordinary");
     let ep = spec.get("/answer").fresh(Freshness::Hours(1));
     let capture = Fetch::open(FetchConfig {
         mode: Mode::Record {
