@@ -1,0 +1,20 @@
+{
+  "feature": "article-citations",
+  "story": "A citation section is available independently of annotations and keeps the article card when iCite is absent.",
+  "replay": "article/get/synthetic-derived",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "citations"
+      ],
+      "exit": 4,
+      "expect": {
+        "/result/items/0/sections/citations/state": "unavailable",
+        "/result/items/0/answer/resolution": "resolved"
+      }
+    }
+  ]
+}
