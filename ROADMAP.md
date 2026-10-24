@@ -43,6 +43,7 @@ Each slice updates these counts when its accounting lands.
 - [x] JSON envelope, statuses, exit codes and next steps
 - [ ] Markdown view over JSON
 - [x] Outside-in runner with size ceilings and coverage floor
+- [x] Enforced test placement with documented library exceptions
 - [x] The one MCP tool over the CLI grammar
 - [ ] Release pipeline carried over from 0.9
 - [ ] MCP over streamable HTTP at `/mcp`, with a `/health` endpoint
@@ -106,7 +107,8 @@ Sources:
 - [x] PubMed author, journal, date and publication-type filters and date order
 - [x] Get by PMID, PMCID and DOI with article cards
 - [x] Article section grammar and PubTator3 annotations through CLI and MCP
-- [ ] Full text, supplementary material and citations
+- [x] PMC full-text outline and JATS Markdown text reader
+- [ ] Supplementary material and citations
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
 - [x] Plain PubMed search MCP parity
@@ -118,7 +120,8 @@ Sources:
 - [x] PubTator3 export for annotations
 - [ ] Europe PMC
 - [ ] Semantic Scholar (optional key)
-- [ ] PMC Open Access and NCBI ID converter (optional key)
+- [x] PMC Open Access full-text records and JATS
+- [ ] NCBI ID converter (optional key)
 - [x] NCBI EFetch (optional key)
 - [ ] LitVar
 - [ ] LitSense2
