@@ -67,9 +67,13 @@ impl Reply for Normalized {
 pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
     let (raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
-        if !reply.errors.is_empty() || reply.input_description.as_ref().map(Text::as_str) == Some(input) {
+        if !reply.errors.is_empty()
+            || reply.input_description.as_ref().map(Text::as_str) == Some(input)
+        {
             Ok(())
-        } else { Err(BadReply) }
+        } else {
+            Err(BadReply)
+        }
     })?;
     if !raw.errors.is_empty() {
         return Ok(Resolution::Rejected(

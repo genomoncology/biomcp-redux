@@ -95,7 +95,13 @@ fn annotation(
             ("fields", Arg::Text(FIELDS)),
             ("assembly", Arg::Text(assembly)),
         ],
-        |hit| if hit.matches(id) { Ok(()) } else { Err(biomcp_fetch::BadReply) },
+        |hit| {
+            if hit.matches(id) {
+                Ok(())
+            } else {
+                Err(biomcp_fetch::BadReply)
+            }
+        },
     )?;
     Ok(map::candidates(vec![hit], id, build))
 }

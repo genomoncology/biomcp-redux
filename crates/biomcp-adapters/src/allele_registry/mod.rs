@@ -43,9 +43,16 @@ pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         &endpoint,
         &[("fields", Arg::Text(FIELDS))],
         |reply| {
-            if reply.error_type.is_some() || reply.id.as_ref().is_some_and(|url| {
-                url.as_str().rsplit('/').next() == Some(input)
-            }) { Ok(()) } else { Err(biomcp_fetch::BadReply) }
+            if reply.error_type.is_some()
+                || reply
+                    .id
+                    .as_ref()
+                    .is_some_and(|url| url.as_str().rsplit('/').next() == Some(input))
+            {
+                Ok(())
+            } else {
+                Err(biomcp_fetch::BadReply)
+            }
         },
     )?;
     map::allele(reply).map_err(|_| bad())
