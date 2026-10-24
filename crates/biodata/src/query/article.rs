@@ -16,6 +16,17 @@ crate::macros::wire_enum! {
         Pubtator => "pubtator",
     }
 }
+// Preserve the original declaration order for source provenance keys.
+impl Ord for ArticleSource {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (*self as u8).cmp(&(*other as u8))
+    }
+}
+impl PartialOrd for ArticleSource {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
