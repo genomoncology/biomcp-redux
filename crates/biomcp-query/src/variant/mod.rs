@@ -3,6 +3,7 @@ mod civic;
 mod continuations;
 mod direct;
 mod hotspots;
+mod oncokb;
 pub mod normalize;
 pub mod recurrence;
 pub mod search;

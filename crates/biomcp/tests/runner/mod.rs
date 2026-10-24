@@ -292,6 +292,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
+    trials.extend(oncokb::trials());
+    trials.extend(oncokb_context::trials());
     trials.extend(variant_civic::trials());
     trials.extend(variant_hotspots::trials());
     trials.extend(recurrence::trials());

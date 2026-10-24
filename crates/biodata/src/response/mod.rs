@@ -102,3 +102,6 @@ pub use variant_civic::{
 mod variant_hotspots;
 pub use variant::VariantSections;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
+
+mod variant_oncokb;
+pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};

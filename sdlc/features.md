@@ -55,3 +55,5 @@ variant-normalization: A caller sends unchanged HGVS to named services and recei
 
 variant-civic: Preserve CIViC exact profile membership and separate native claim pages. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
+
+variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups. Cases: `crates/biomcp/tests/runner/oncokb.rs`.

@@ -28,6 +28,9 @@ struct Fields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
+    /// Explicit tumor context for keyed OncoKB annotation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    tumor_type: Option<crate::Text>,
     /// Native CIViC claim collection within the selected profile.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
@@ -80,7 +83,9 @@ impl TryFrom<Fields> for VariantGet {
         {
             return Err(super::gene::QueryInvalid);
         }
+        if fields.section.contains(&VariantSection::Oncokb) && (fields.build.is_none() || fields.tumor_type.is_none()) { return Err(super::gene::QueryInvalid); }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.tumor_type = fields.tumor_type;
         query.0.civic_profile = fields.civic_profile;
         query.0.civic_kind = fields.civic_kind;
         query.0.civic_cursor = fields.civic_cursor;
@@ -112,6 +117,7 @@ impl VariantGet {
             section_limit: default_section_limit(),
             section_offset: 0,
             civic_profile: None,
+            tumor_type: None,
             civic_kind: None,
             civic_cursor: None,
             resolver,
@@ -129,6 +135,8 @@ impl VariantGet {
         self.0.section = sections;
         self
     }
+    /// Caller tumor context, never inferred from an allele or gene.
+    pub fn tumor_type(&self) -> Option<&crate::Text> { self.0.tumor_type.as_ref() }
     /// Selected native CIViC profile.
     pub fn civic_profile(&self) -> Option<u64> {
         self.0.civic_profile
@@ -230,6 +238,8 @@ crate::source::canonical_enum! {
     VariantSection, SourceUnknown {
         /// CIViC molecular-profile evidence.
         Civic => "civic",
+        /// Keyed OncoKB annotation with explicit tumor context and build.
+        Oncokb => "oncokb",
         /// Cancer Hotspots native residues and counts.
         Hotspots => "hotspots",
         /// Every implemented variant section.

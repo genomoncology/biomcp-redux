@@ -64,6 +64,9 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
+    /// Explicit keyed OncoKB source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
     /// Explicit civic source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub civic: Option<crate::Section<crate::VariantCivic>>,

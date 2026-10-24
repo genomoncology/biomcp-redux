@@ -22,7 +22,7 @@ pub(super) fn apply(
     let mut local = None;
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in [VariantSection::Civic, VariantSection::Hotspots] {
+        for section in [VariantSection::Civic, VariantSection::Hotspots, VariantSection::Oncokb] {
             if !query.sections().contains(&section)
                 && !query.sections().contains(&VariantSection::All)
             {
@@ -50,6 +50,7 @@ pub(super) fn apply(
                         &mut local,
                     ))
                 }
+                VariantSection::Oncokb => { sections.oncokb = Some(retain(permitted(cx, section, || super::oncokb::section(cx, query, candidates, deadline)), &mut sources, &mut problems, &mut local)); }
                 _ => {}
             }
         }
@@ -62,6 +63,7 @@ pub(super) fn apply(
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
         VariantSection::Civic => Some(Source::Civic),
+        VariantSection::Oncokb => Some(Source::Oncokb),
         VariantSection::Hotspots => Some(Source::CancerHotspots),
         _ => None,
     }

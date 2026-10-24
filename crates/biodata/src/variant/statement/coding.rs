@@ -5,6 +5,12 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub enum Coding {
+    /// OncoKB oncogenicity vocabulary.
+    #[serde(rename = "oncokb_oncogenicity")]
+    OncokbOncogenicity(OncokbOncogenicityCode),
+    /// OncoKB evidence levels.
+    #[serde(rename = "oncokb_level")]
+    OncokbLevel(OncokbLevelCode),
     /// CIViC evidence level.
     #[serde(rename = "civic_evidence_level")]
     CivicEvidenceLevel(CivicEvidenceLevelCode),
@@ -109,5 +115,55 @@ crate::macros::wire_enum! {
         D => "d",
         /// E.
         E => "e",
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Source-defined OncoKB vocabulary.
+    OncokbOncogenicityCode {
+        /// Published oncogenic value.
+        Oncogenic => "oncogenic",
+        /// Published likely_oncogenic value.
+        LikelyOncogenic => "likely_oncogenic",
+        /// Published likely_neutral value.
+        LikelyNeutral => "likely_neutral",
+        /// Published inconclusive value.
+        Inconclusive => "inconclusive",
+        /// Published resistance value.
+        Resistance => "resistance",
+        /// Published unknown value.
+        Unknown => "unknown",
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Source-defined OncoKB vocabulary.
+    OncokbLevelCode {
+        /// Published level_1 value.
+        Level1 => "level_1",
+        /// Published level_2 value.
+        Level2 => "level_2",
+        /// Published level_3a value.
+        Level3a => "level_3a",
+        /// Published level_3b value.
+        Level3b => "level_3b",
+        /// Published level_4 value.
+        Level4 => "level_4",
+        /// Published level_r1 value.
+        LevelR1 => "level_r1",
+        /// Published level_r2 value.
+        LevelR2 => "level_r2",
+        /// Published level_dx1 value.
+        LevelDx1 => "level_dx1",
+        /// Published level_dx2 value.
+        LevelDx2 => "level_dx2",
+        /// Published level_dx3 value.
+        LevelDx3 => "level_dx3",
+        /// Published level_px1 value.
+        LevelPx1 => "level_px1",
+        /// Published level_px2 value.
+        LevelPx2 => "level_px2",
+        /// Published level_px3 value.
+        LevelPx3 => "level_px3",
     }
 }
