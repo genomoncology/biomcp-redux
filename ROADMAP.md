@@ -99,8 +99,8 @@ Sources:
 - [ ] Semantic Scholar (optional key)
 - [ ] PMC Open Access and NCBI ID converter (optional key)
 - [x] NCBI EFetch (optional key)
-- [ ] LitVar (investigate)
-- [ ] LitSense2 (investigate)
+- [ ] LitVar
+- [ ] LitSense2
 - [ ] OpenCitations (investigate)
 - [ ] Figshare (investigate)
 
