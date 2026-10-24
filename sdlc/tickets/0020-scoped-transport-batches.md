@@ -1,6 +1,7 @@
 # 0020 — Run bounded source batches with ordered results
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4180c6350e05cc9894c6f4e4e0e965f4b7e2264b
 
 Milestone: 1
 
