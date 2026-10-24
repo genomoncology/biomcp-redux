@@ -87,16 +87,15 @@ fn source_health() -> Check {
         {
             return Err("health lost publisher terms".into());
         }
-        if spec.source == biodata::Source::Hgnc
+        let disabled = spec.source == biodata::Source::Hgnc
             || spec.source == biodata::Source::Hpa
-            || spec.terms.usage == biodata::Use::Restricted
-        {
-            if row.get("state") != Some(&json!("skipped"))
+            || spec.terms.usage == biodata::Use::Restricted;
+        if disabled
+            && (row.get("state") != Some(&json!("skipped"))
                 || row.get("reason") != Some(&json!("disabled"))
-                || row.get("latency_ms").is_some()
-            {
-                return Err(format!("disabled source probed: {row}"));
-            }
+                || row.get("latency_ms").is_some())
+        {
+            return Err(format!("disabled source probed: {row}"));
         }
     }
     invoke(
