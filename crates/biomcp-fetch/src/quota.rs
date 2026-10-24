@@ -93,7 +93,7 @@ impl Limiters {
         &self,
         quota: &'static Quota,
         keyed: bool,
-        deadline: Deadline,
+        deadline: Deadline<'_>,
     ) -> Option<Permit> {
         let limiter = self
             .0
@@ -150,7 +150,7 @@ impl Limiter {
         }
     }
 
-    fn acquire(self: Arc<Self>, keyed: bool, deadline: Deadline) -> Option<Permit> {
+    fn acquire(self: Arc<Self>, keyed: bool, deadline: Deadline<'_>) -> Option<Permit> {
         let rate = if keyed {
             self.quota.keyed_rate.unwrap_or(self.quota.rate)
         } else {
@@ -165,7 +165,7 @@ impl Limiter {
                 self.wake.notify_all();
                 return None;
             }
-            let now = Instant::now();
+            let now = deadline.now();
             let available = state.available(rate, now);
             // Missing credit is at most one token, so this fits in a u64.
             let nanos = TOKEN
@@ -187,6 +187,14 @@ impl Limiter {
             } else {
                 deadline.remaining()
             };
+            if deadline.virtual_time() && head && state.in_flight < self.quota.in_flight {
+                deadline.advance(wait);
+                continue;
+            }
+            if deadline.virtual_time() {
+                state = self.wake.wait(state).unwrap_or_else(|e| e.into_inner());
+                continue;
+            }
             // Condvar releases the mutex while this caller waits for its rate slot or predecessor.
             state = self
                 .wake

@@ -6,6 +6,7 @@ mod deadline;
 mod declaration;
 mod error;
 mod quota;
+mod record;
 mod request;
 mod retry;
 mod secret;
@@ -15,7 +16,8 @@ pub use deadline::Deadline;
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
 };
-pub use error::{BadReply, CacheError, FetchError, RequestError, SourceError};
+pub use error::{BadReply, CacheError, FetchError, RecordError, RequestError, SourceError};
+pub use record::ReplayCache;
 pub use quota::{Quota, Rate, SourceKey};
 pub use secret::{Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
@@ -35,6 +37,8 @@ pub struct FetchConfig {
     pub cache: Option<std::path::PathBuf>,
     /// Live request policy.
     pub mode: Mode,
+    /// Owned case cache for replay writes or later offline reads.
+    pub replay_cache: Option<ReplayCache>,
     /// Explicit HTTP proxy URL, redacted when formatted.
     pub proxy: Option<Secret>,
     /// Maximum decoded response body bytes.
@@ -49,6 +53,7 @@ impl Default for FetchConfig {
             secrets: Secrets::default(),
             cache: None,
             mode: Mode::default(),
+            replay_cache: None,
             proxy: None,
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
@@ -61,7 +66,9 @@ pub struct Fetch {
     agent: ureq::Agent,
     config: FetchConfig,
     limiters: quota::Limiters,
-    cache: Option<cache::Cache>,
+    cache: Option<std::sync::Arc<cache::Cache>>,
+    recordings: record::Recordings,
+    clock: Option<deadline::VirtualClock>,
 }
 
 impl fmt::Debug for Fetch {
@@ -95,23 +102,29 @@ impl Fetch {
             )
             .build()
             .new_agent();
-        let cache = config
-            .cache
-            .as_deref()
-            .map(cache::Cache::open)
-            .transpose()
-            .map_err(FetchError::Cache)?;
+        let recordings = record::Recordings::open(&config.mode).map_err(FetchError::Recording)?;
+        let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline) && config.replay_cache.is_some() {
+            config.replay_cache.as_ref().map(|cache| cache.cache())
+        } else if matches!(config.mode, Mode::Replay { .. }) {
+            None
+        } else {
+            config.cache.as_deref().map(cache::Cache::open).transpose()
+                .map_err(FetchError::Cache)?.map(std::sync::Arc::new)
+        };
+        let clock = matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
             agent,
             cache,
+            recordings,
+            clock,
             config,
             limiters: quota::Limiters::default(),
         })
     }
 
     /// Start an absolute monotonic deadline.
-    pub fn deadline(&self, budget: Duration) -> Deadline {
-        Deadline::after(budget)
+    pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
+        Deadline::start(budget, self.clock.as_ref())
     }
 
     /// Start a leg capped by this source's budget.
@@ -119,7 +132,7 @@ impl Fetch {
         clippy::disallowed_types,
         reason = "Create the shared leg report lock without holding it during request work"
     )]
-    pub fn leg(&self, spec: &'static SourceSpec, deadline: Deadline) -> Leg<'_> {
+    pub fn leg<'a>(&'a self, spec: &'static SourceSpec, deadline: Deadline<'a>) -> Leg<'a> {
         let cap = self
             .config
             .source_deadlines
@@ -133,7 +146,7 @@ impl Fetch {
         Leg {
             fetch: self,
             spec,
-            deadline: deadline.child(cap),
+            deadline: deadline.rebase(self.clock.as_ref()).child(cap),
             no_key,
             report: std::sync::Mutex::new(LegReport::default()),
         }
@@ -149,15 +162,27 @@ impl Fetch {
 pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
-    deadline: Deadline,
+    deadline: Deadline<'a>,
     no_key: bool,
     report: std::sync::Mutex<LegReport>,
 }
 
 /// Request policy for live provider access.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Mode {
     /// Force a provider refresh when `fresh` is true, while still writing results.
+    /// Capture each provider response in a new or empty directory.
+    Record {
+        /// Exclusive capture directory.
+        dir: std::path::PathBuf,
+    },
+    /// Read only captured exchanges with virtual time.
+    Replay {
+        /// Existing recording directory.
+        dir: std::path::PathBuf,
+    },
+    /// Serve only checked cache entries, including stale positive replies.
+    Offline,
     Live {
         /// Skip cached reads and stale fallback.
         fresh: bool,

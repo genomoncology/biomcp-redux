@@ -107,7 +107,7 @@ impl Cache {
     // uses the remaining deadline after acquiring the connection.
     fn sql<T>(
         &self,
-        deadline: Deadline,
+        deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         loop {
@@ -117,12 +117,13 @@ impl Cache {
             match self.0.try_lock() {
                 Ok(connection) => {
                     connection
-                        .busy_timeout(deadline.remaining())
+                        .busy_timeout(if deadline.virtual_time() { Duration::ZERO } else { deadline.remaining() })
                         .map_err(db_error)?;
                     return operation(&connection);
                 }
                 Err(std::sync::TryLockError::Poisoned(_)) => return Err(CacheError::Database),
                 Err(std::sync::TryLockError::WouldBlock) => {
+                    if deadline.virtual_time() { return Err(CacheError::Busy); }
                     std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
                 }
             }
@@ -133,7 +134,7 @@ impl Cache {
         &self,
         key: &[u8; 32],
         max_body: u64,
-        deadline: Deadline,
+        deadline: Deadline<'_>,
     ) -> Result<Option<Entry>, CacheError> {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         self.sql(deadline, |connection| {
@@ -151,7 +152,7 @@ impl Cache {
         })
     }
 
-    pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline) -> Result<(), CacheError> {
+    pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline<'_>) -> Result<(), CacheError> {
         self.sql(deadline, |connection| Self::delete(connection, key))
     }
 
@@ -168,7 +169,7 @@ impl Cache {
         source: biodata::Source,
         url: &str,
         entry: &Entry,
-        deadline: Deadline,
+        deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
         self.sql(deadline, |connection| {
             connection.execute(
