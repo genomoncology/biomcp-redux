@@ -103,3 +103,6 @@ pub use variant_assertions::{
     AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
     VariantAssertion, VariantAssertions,
 };
+
+mod variant_oncokb;
+pub use variant_oncokb::{OncokbVariantRecord, VariantOncokb};
