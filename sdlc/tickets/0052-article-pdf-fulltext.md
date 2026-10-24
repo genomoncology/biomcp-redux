@@ -1,6 +1,7 @@
 # 0052 — Report and download the open PDF that Semantic Scholar names
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c9d44c27ad2f04881f10e1b194b71e9fb70d10b9
 
 Milestone: 1
 
