@@ -24,7 +24,9 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
         return Ok(());
     }
     for (path, old) in old_shapes {
-        let new = new_shapes.get(&path).ok_or_else(|| format!("removed {path}"))?;
+        let new = new_shapes
+            .get(&path)
+            .ok_or_else(|| format!("removed {path}"))?;
         if old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
@@ -60,21 +62,47 @@ fn visit(
     shapes: &mut BTreeMap<String, Shape>,
     refs: &mut BTreeSet<String>,
 ) -> Check<()> {
-    let object = node.as_object().ok_or_else(|| format!("unsupported schema at {path}"))?;
+    let object = node
+        .as_object()
+        .ok_or_else(|| format!("unsupported schema at {path}"))?;
     for key in object.keys() {
-        if !["$schema", "$id", "$defs", "$ref", "title", "description", "type", "enum",
-            "properties", "required", "additionalProperties", "anyOf", "minLength"].contains(&key.as_str()) {
+        if ![
+            "$schema",
+            "$id",
+            "$defs",
+            "$ref",
+            "title",
+            "description",
+            "type",
+            "enum",
+            "properties",
+            "required",
+            "additionalProperties",
+            "anyOf",
+            "minLength",
+        ]
+        .contains(&key.as_str())
+        {
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
     if let Some(reference) = node.get("$ref") {
         let reference = reference.as_str().ok_or("invalid reference")?;
-        let pointer = reference.strip_prefix("#/$defs/").map(|_| &reference[1..])
+        let pointer = reference
+            .strip_prefix("#/$defs/")
+            .map(|_| &reference[1..])
             .ok_or_else(|| format!("unsupported reference {reference}"))?;
         if !refs.insert(reference.into()) {
             return Err(format!("recursive reference {reference}"));
         }
-        visit(root, root.pointer(pointer).ok_or_else(|| format!("unresolved {reference}"))?, path, shapes, refs)?;
+        visit(
+            root,
+            root.pointer(pointer)
+                .ok_or_else(|| format!("unresolved {reference}"))?,
+            path,
+            shapes,
+            refs,
+        )?;
         refs.remove(reference);
     }
     if let Some(branches) = node.get("anyOf") {
@@ -95,7 +123,10 @@ fn visit(
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
     if let Some(kind) = node.get("type") {
-        let kinds = kind.as_array().cloned().unwrap_or_else(|| vec![kind.clone()]);
+        let kinds = kind
+            .as_array()
+            .cloned()
+            .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
             if !["string", "object", "null"].contains(&kind) {
@@ -105,18 +136,29 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         }
     }
     if let Some(values) = node.get("enum") {
-        shape.values = Some(values.as_array().ok_or("invalid enum")?.iter().map(Value::to_string).collect());
+        shape.values = Some(
+            values
+                .as_array()
+                .ok_or("invalid enum")?
+                .iter()
+                .map(Value::to_string)
+                .collect(),
+        );
     }
     if let Some(required) = node.get("required") {
         for name in required.as_array().ok_or("invalid required")? {
-            shape.required.insert(name.as_str().ok_or("invalid required name")?.into());
+            shape
+                .required
+                .insert(name.as_str().ok_or("invalid required name")?.into());
         }
     }
     if let Some(minimum) = node.get("minLength") {
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
     if let Some(additional) = node.get("additionalProperties") {
-        shape.closed = !additional.as_bool().ok_or("unsupported additionalProperties")?;
+        shape.closed = !additional
+            .as_bool()
+            .ok_or("unsupported additionalProperties")?;
     }
     Ok(())
 }
