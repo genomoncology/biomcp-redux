@@ -1,6 +1,7 @@
 mod article;
 mod article_cards;
 mod article_text;
+pub use article::{ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
 pub use article::{ArticleItem, ArticleKey, ArticlePage};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{

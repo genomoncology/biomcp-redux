@@ -57,6 +57,8 @@ crate::source::canonical_enum! {
         Annotations => "annotations",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
+        /// Supplementary files.
+        Supplements => "supplements",
         /// Every landed article section.
         All => "all",
     }
@@ -66,6 +68,8 @@ crate::source::canonical_enum! {
     ArticleSection, SourceUnknown {
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
+        /// Supplementary files.
+        Supplements => "supplements",
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
     }

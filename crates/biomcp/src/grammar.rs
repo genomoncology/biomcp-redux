@@ -27,6 +27,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticleSupplement(_) => "biodata.article-supplement/1",
         Request::ArticleText(_) => "biodata.article-text/1",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
@@ -39,6 +40,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
+    ("article", "supplement", "biodata.article-supplement/1"),
     ("article", "text", "biodata.article-text/1"),
 ];
 fn root() -> Result<Command, ()> {
@@ -276,7 +278,9 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 }
 
 fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let id = if verb == "article" && entity == "text" {
+    let id = if verb == "article" && entity == "supplement" {
+        "biodata.article-supplement/1"
+    } else if verb == "article" && entity == "text" {
         "biodata.article-text/1"
     } else if entity == "article" && verb == "get" {
         "biodata.article-get/1"
@@ -289,7 +293,9 @@ fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request
     };
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
-    let request = if verb == "article" && entity == "text" {
+    let request = if verb == "article" && entity == "supplement" {
+        Request::ArticleSupplement(serde_json::from_value::<biodata::ArticleSupplement>(value).map_err(|_| ())?)
+    } else if verb == "article" && entity == "text" {
         Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
     } else if entity == "article" && verb == "get" {
         Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)

@@ -30,6 +30,8 @@ pub(super) struct Record {
     pub license_code: String,
     pub is_manuscript: bool,
     pub xml_url: String,
+    #[serde(default)]
+    pub media_urls: Vec<String>,
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {

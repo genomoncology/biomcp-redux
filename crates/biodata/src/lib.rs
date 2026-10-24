@@ -7,7 +7,8 @@ pub use article::{
 };
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid, ProteinChange};
-pub use query::ArticleText;
+pub use query::{ArticleText, ArticleSupplement, SheetRows};
+pub use response::{ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};

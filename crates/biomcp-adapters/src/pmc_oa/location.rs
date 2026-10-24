@@ -1,5 +1,6 @@
 //! Checked bucket location. No source-supplied authority becomes a request target.
 use biomcp_fetch::BadReply;
+#[derive(Debug)]
 pub(super) struct Location {
     pub path: String,
     pub md5: Option<String>,
@@ -16,7 +17,7 @@ impl Location {
         let file = path.strip_prefix(prefix).ok_or(BadReply)?;
         if file.is_empty()
             || file.contains('/')
-            || !file.ends_with(".xml")
+
             || !path
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b"/.-_".contains(&b))

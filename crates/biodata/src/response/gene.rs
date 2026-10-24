@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Licensed supplement reader.
+    ArticleSupplement(crate::ArticleSupplementResult),
     /// Bounded licensed body reader.
     ArticleText(crate::ArticleTextResult),
     /// Invalid body reader position.

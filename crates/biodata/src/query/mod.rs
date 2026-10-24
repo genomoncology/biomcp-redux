@@ -1,6 +1,8 @@
 //! Checked command inputs shared by every interface.
 mod article;
 mod article_get;
+mod article_supplement;
+pub use article_supplement::{ArticleSupplement, SheetRows};
 mod article_text;
 pub use article::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};

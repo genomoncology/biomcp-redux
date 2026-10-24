@@ -1,6 +1,8 @@
 //! PMC OA bucket listing, checked metadata and confined JATS reads.
 mod location;
 mod raw;
+mod supplement;
+pub use supplement::{Supplement, download};
 use crate::{jats, quotas};
 use biodata::{License, Pmcid, Pmid, Reason, Source};
 use biomcp_fetch::{
@@ -28,6 +30,8 @@ pub struct Document {
     pub manuscript: bool,
     /// Parsed source body.
     pub body: jats::Body,
+    /// JATS supplements confirmed against the record media list.
+    pub supplements: Vec<Supplement>,
 }
 fn bad(_: impl std::fmt::Debug) -> RequestError {
     SourceError {
@@ -77,7 +81,9 @@ pub fn read(
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
     }
+    let supplements = supplement::select(&body.supplements, &record.media_urls, &directory)?;
     Ok(Some(Document {
+        supplements,
         license: license(&record.license_code),
         version,
         manuscript: record.is_manuscript,
