@@ -152,7 +152,10 @@ impl TryFrom<Fields> for VariantSearch {
             && f.gene.is_none()
             && f.protein.is_none()
             && f.region.is_none();
-        if !(protein || region || raw) || !(1..=50).contains(&f.limit) || f.offset >= Self::MAX_RESULTS {
+        if !(protein || region || raw)
+            || !(1..=50).contains(&f.limit)
+            || f.offset >= Self::MAX_RESULTS
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(f))
