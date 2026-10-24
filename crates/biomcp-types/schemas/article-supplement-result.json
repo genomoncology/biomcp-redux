@@ -878,6 +878,13 @@
           ],
           "description": "Explicit original-byte save receipt."
         },
+        "search_message": {
+          "description": "Explicit absence of matching text from the returned search page.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "sha256": {
           "anyOf": [
             {

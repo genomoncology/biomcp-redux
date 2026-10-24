@@ -26,4 +26,12 @@ Milestone: 3
   7. Settled by the PM: OLS for discovery limited to MONDO by default and MyDisease for exact annotation, with no automatic pick; Monarch's native scope is shown with the requested ID and the returned row's ID side by side, without an `expanded_scope` field; trial `--condition-id` is accepted, and the design states the exact text sent to ClinicalTrials.gov and echoed, with NCI taking NCIt only; the drops stand; the query is positional with no `--query` spelling.
   8. Statistics wait for one structured SEER capture, with no HTML parsing and no name-to-site table, and stay inside search and get. If no structured tier exists, the design says so, and the PM takes the dropped 0.9 survival command to Ian with options and cost.
   9. Close these gaps in this ticket, then rename the PM review section to Ian's questions, listing only what is his.
+- PM recheck 2026-10-24 of 0d2fa76f, returned with these remaining fixes:
+  1. Measure the SEER sites page offline from the retained catalog, and mark each unmeasured row (card beyond D08, the MONDO-only default, per-section 0.9 comparison waiting on a contained 0.9 run) as unmeasured beside it.
+  2. Limit `--ontology` to mondo, doid and ncit. Remove "explicit expanded scope" from the Monarch row. `--condition-id` names the source that resolves the ID and sends that concept's primary label.
+  3. SEER stays inside search and get: `search disease --source seer` for the site catalog and `get disease <site ID> statistics --source seer`. Drop survival `--period` until a capture returns the requested period. PM ruling: the structured annual survival rows answer the survival question, and the five-year aggregate that only the web page carries is dropped with that reason; this is not Ian's question.
+  4. Capture one positive Open Targets disease-genes case through the MONDO to EFO path, or defer that section.
+  5. Settle HPO's use label from the publisher's current terms page and any published license file, not from a 404. If HPO allows commercial use, Monarch's genes and phenotypes stay open.
+  6. Move `--condition-id` to its own trial-owned ticket, named in the design.
+  7. Rename "Decision boundary" to "Ian's questions" and write None.
 - Defers: tickets, which the PM files from the reviewed design.
