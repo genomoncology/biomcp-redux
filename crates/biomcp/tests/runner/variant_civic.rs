@@ -16,6 +16,10 @@ pub(super) fn trials() -> Vec<Trial> {
             poisoned().map_err(Into::into)
         }),
         Trial::test(
+            "variant/civic-graphql-errors-with-data-stay-unavailable",
+            || graphql_errors().map_err(Into::into),
+        ),
+        Trial::test(
             "variant/civic-compound-profile-retains-all-native-members",
             || compound().map_err(Into::into),
         ),
@@ -57,6 +61,10 @@ fn exact() -> Result<(), String> {
     {
         return Err(format!("exact source profile not retained: {value}"));
     }
+    eprintln!(
+        "CIViC default envelope bytes: {}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
+    );
     check_claims(&value)?;
     walk_streams(&environment, &value)?;
     let args = [
@@ -71,6 +79,20 @@ fn exact() -> Result<(), String> {
     let mcp = super::mcp::call_with_globals(&environment, &args, false, &[])?;
     if mcp.get("result") != value.get("result") {
         return Err("CIViC CLI/MCP source mapping differs".into());
+    }
+    let disabled = run(
+        &environment,
+        &[
+            "get",
+            "variant",
+            "CA123643",
+            "civic",
+            "--disable-sources",
+            "civic",
+        ],
+    )?;
+    if disabled.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("disabled")) {
+        return Err("disabled CIViC reused its warm source reply".into());
     }
     let requests = civic.finish()?;
     let (_, request) = requests
@@ -307,5 +329,30 @@ fn compound_body(request: &str) -> Result<String, String> {
     *raw.pointer_mut(&format!("{base}/isComplex"))
         .ok_or("profile type")? = json!(true);
     raw.pointer_mut(&format!("{base}/variants")).and_then(Value::as_array_mut).ok_or("members")?.push(json!({"id":23,"name":"Fusion","link":"/variants/23","feature":{"name":"KIAA1549::BRAF"}}));
+    Ok(raw.to_string())
+}
+
+fn graphql_errors() -> Result<(), String> {
+    let (environment, source) = source_environment(error_body)?;
+    for _ in 0..2 {
+        let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
+        if value.pointer("/result/candidates/0/sections/civic/reason") != Some(&json!("bad_reply"))
+        {
+            return Err(format!(
+                "GraphQL partial error data was presented as complete evidence: {value}"
+            ));
+        }
+    }
+    if source.finish()?.len() != 2 {
+        return Err("GraphQL error reply entered source cache".into());
+    }
+    Ok(())
+}
+fn error_body(request: &str) -> Result<String, String> {
+    let mut raw: Value = serde_json::from_str(&civic_body(request)?).map_err(|e| e.to_string())?;
+    raw.as_object_mut().ok_or("GraphQL body")?.insert(
+        "errors".into(),
+        json!([{"message":"synthetic source error"}]),
+    );
     Ok(raw.to_string())
 }
