@@ -1,0 +1,98 @@
+{
+  "feature": "variant-population",
+  "live_check": "synthetic response-only projection of reviewed public source facts",
+  "story": "Source counts retain a missing genome and every separately qualified ancestry row",
+  "replay": "variant-population/main",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant_population/1",
+        "/status": "complete",
+        "/result/population/data/dataset": "gnomad_r4",
+        "/result/population/data/build": "GRCh38",
+        "/result/population/data/exome/allele_count": 2,
+        "/result/population/data/exome/allele_number": 1460618,
+        "/result/population/data/exome/filters": [
+          "SYNTHETIC_FILTER"
+        ],
+        "/result/groups/0/observation/group": "synthetic-A",
+        "/page/total": 3,
+        "/page/returned": 1,
+        "/page/offset": 0
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/groups/0/observation/group": "synthetic-B",
+        "/page/total": 3,
+        "/page/offset": 1
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--limit",
+        "1",
+        "--offset",
+        "2"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/groups/0/observation/group": "synthetic-B_XX",
+        "/page/total": 3,
+        "/page/offset": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "population"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "CA123643",
+        "population"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/population/state": "data",
+        "/result/candidates/0/sections/population/data/exome/allele_count": 2,
+        "/result/candidates/0/sections/population/data/exome/allele_number": 1460618
+      }
+    }
+  ]
+}
