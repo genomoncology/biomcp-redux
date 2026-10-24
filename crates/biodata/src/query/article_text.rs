@@ -11,7 +11,7 @@ pub struct ArticleText(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// PubMed or PMC identity. DOI selectors are not accepted by the reader.
+    /// PubMed, PMC or Europe PMC identity; DOI is accepted only with --pdf.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     input: ArticleInput,
     /// Read publisher PDF text instead of structured JATS.
@@ -48,7 +48,7 @@ struct Fields {
 impl TryFrom<Fields> for ArticleText {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if matches!(v.input, ArticleInput::Doi(_))
+        if matches!(v.input, ArticleInput::Doi(_)) && !v.pdf
             || [v.part.is_some(), v.find.is_some(), v.variant.is_some()]
                 .into_iter()
                 .filter(|v| *v)
@@ -68,6 +68,18 @@ impl ArticleText {
         Fields {
             input,
             pdf: false,
+            part: Some(part),
+            find: None,
+            variant: None,
+            offset: 0,
+        }
+        .try_into()
+    }
+    /// Build a PDF part selector, including a DOI-only paper.
+    pub fn pdf_part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
+        Fields {
+            input,
+            pdf: true,
             part: Some(part),
             find: None,
             variant: None,

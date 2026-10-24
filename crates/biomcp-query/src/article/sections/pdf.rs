@@ -38,12 +38,12 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         };
         if matches!(section, Section::Data { .. })
             && out.next.len() < 5
-            && let Ok(text) = biodata::ArticleText::part(input, 1)
+            && let Ok(text) = biodata::ArticleText::pdf_part(input, 1)
         {
             out.next.push((
                 StepKind::Section,
                 Action::Run {
-                    request: Request::ArticleText(text.with_pdf()),
+                    request: Request::ArticleText(text),
                     fresh: false,
                 },
             ));

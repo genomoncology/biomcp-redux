@@ -47,7 +47,7 @@ pub(super) fn select(
             .checked_add(1)
             .filter(|n| document.parts.iter().any(|part| part.meta.number == *n))
         {
-            let query = ArticleText::part(query.input().clone(), number)
+            let query = ArticleText::pdf_part(query.input().clone(), number)
                 .ok()?
                 .with_pdf();
             push(out, query);

@@ -29,6 +29,21 @@
         "/result/content/data/hits/0/page": 1,
         "/page/total": 7
       }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "41351423",
+        "--pdf",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/result/content/data/markdown": {
+          "max_tokens": 4000
+        }
+      }
     }
   ]
 }
