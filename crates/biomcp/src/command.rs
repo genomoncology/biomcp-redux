@@ -536,10 +536,10 @@ fn next_steps(
 }
 
 fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
-    let disabled = biomcp_adapters::registry::SOURCES
-        .iter()
-        .filter(|s| fetch.disabled(s.source))
-        .map(|s| s.source.to_string())
+    let disabled = fetch
+        .disabled_sources()
+        .map(|source| source.to_string())
+        .chain(fetch.disabled_uses().map(|usage| usage.to_string()))
         .collect::<Vec<_>>()
         .join(",");
     if disabled.is_empty() {

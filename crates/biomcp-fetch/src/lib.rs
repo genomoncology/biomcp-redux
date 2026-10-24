@@ -185,6 +185,10 @@ impl Fetch {
     pub fn disabled(&self, source: biodata::Source) -> bool {
         self.disabled_sources.contains(&source)
     }
+    /// Preserve every explicit source restriction in generated follow-up commands.
+    pub fn disabled_sources(&self) -> impl Iterator<Item = biodata::Source> + '_ {
+        self.disabled_sources.iter().copied()
+    }
 
     /// Restrict a command while retaining shared quotas, clocks, recordings and connections.
     /// Existing source restrictions cannot be removed.
@@ -197,6 +201,10 @@ impl Fetch {
     /// Whether a component category was explicitly switched off.
     pub fn disabled_use(&self, usage: biodata::Use) -> bool {
         self.disabled_uses.contains(&usage)
+    }
+    /// Preserve component group restrictions in generated follow-up commands.
+    pub fn disabled_uses(&self) -> impl Iterator<Item = biodata::Use> + '_ {
+        self.disabled_uses.iter().copied()
     }
     /// Add component restrictions without changing source policy or shared resources.
     pub fn restrict_uses(&self, disabled: std::collections::BTreeSet<biodata::Use>) -> Self {

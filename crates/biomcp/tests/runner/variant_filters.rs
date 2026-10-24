@@ -38,7 +38,7 @@ fn restricted_page() -> Result<(), String> {
             "--limit",
             "1",
             "--disable-sources",
-            "restricted",
+            "restricted,clinvar",
         ]
         .map(Into::into),
     )?;
@@ -57,6 +57,7 @@ fn restricted_page() -> Result<(), String> {
         .unwrap_or_default();
     if !disabled.contains(&"restricted")
         || !disabled.contains(&"noncommercial")
+        || !disabled.contains(&"clinvar")
         || page.pointer("/page/offset") != Some(&json!(1))
         || page
             .pointer("/result/items/0/identity/aliases/clinvar")
