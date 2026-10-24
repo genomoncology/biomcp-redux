@@ -16,7 +16,6 @@ pub const CADD: Component = Component {
     source: Source::MyVariant,
     name: "cadd",
     terms: Terms {
-        source: Source::MyVariant,
         name: "CADD noncommercial data terms",
         url: "https://cadd.gs.washington.edu/license",
         usage: Use::Noncommercial,
@@ -27,7 +26,6 @@ pub const DBNSFP: Component = Component {
     source: Source::MyVariant,
     name: "dbnsfp",
     terms: Terms {
-        source: Source::MyVariant,
         name: "dbNSFP academic branch and individual component terms",
         url: "https://sites.google.com/site/jpopgen/dbNSFP",
         usage: Use::Noncommercial,
@@ -38,7 +36,6 @@ pub const COSMIC: Component = Component {
     source: Source::MyVariant,
     name: "cosmic",
     terms: Terms {
-        source: Source::MyVariant,
         name: "Historical COSMIC snapshot terms",
         url: "http://cancer.sanger.ac.uk/cosmic/license",
         usage: Use::Restricted,
