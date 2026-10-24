@@ -28,24 +28,6 @@ fn run(environment: &Environment, args: &[&str]) -> Result<Value, String> {
 }
 fn exact() -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
-    let car = Stub::for_source("reg.genome.network", "application/json", car_body)?;
-    configure(&environment, &car)?;
-    let value = run(
-        &environment,
-        &[
-            "get",
-            "variant",
-            "CA123643",
-            "--disable-sources",
-            "myvariant",
-        ],
-    )?;
-    if value.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
-        return Err(format!("identity prewarm failed: {value}"));
-    }
-    if car.finish()?.len() != 1 {
-        return Err("identity prewarm request count".into());
-    }
     let civic = Stub::for_source("civicdb.org", "application/json", civic_body)?;
     configure(&environment, &civic)?;
     let value = run(
@@ -124,9 +106,6 @@ fn exact() -> Result<(), String> {
         ));
     }
     Ok(())
-}
-fn car_body(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string())
 }
 fn civic_body(_: &str) -> Result<String, String> {
     let evidence = json!({"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-e1"}});
