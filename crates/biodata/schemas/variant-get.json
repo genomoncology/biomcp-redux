@@ -41,6 +41,8 @@
     "VariantSection": {
       "description": "Named variant source sections, without automatic expansion of identity cards.",
       "enum": [
+        "clinvar",
+        "erepo",
         "civic",
         "oncokb",
         "hotspots",
@@ -48,6 +50,8 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " ClinVar native assertions.",
+        " ClinGen native assertions.",
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",

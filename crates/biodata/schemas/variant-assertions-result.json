@@ -39,6 +39,28 @@
           "$ref": "#/$defs/Text",
           "description": "Native criterion code."
         },
+        "criterion_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native criterion identifier."
+        },
+        "criterion_iri": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native criterion IRI."
+        },
         "default_strength": {
           "anyOf": [
             {
@@ -50,9 +72,35 @@
           ],
           "description": "Native default strength, distinct from an applied evidence strength."
         },
+        "default_strength_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native default-strength identifier; not an applied evidence strength."
+        },
+        "default_strength_iri": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native default-strength IRI."
+        },
         "outcome": {
           "$ref": "#/$defs/Text",
           "description": "Source outcome label."
+        },
+        "outcome_conflict": {
+          "description": "The supplied outcome identifier contradicts its supplied Met/Not Met label.",
+          "type": "boolean"
         },
         "outcome_id": {
           "anyOf": [
@@ -997,6 +1045,7 @@
         "ctgov",
         "nci",
         "civic",
+        "hotspots",
         "oncokb",
         "myvariant",
         "car",
@@ -1026,6 +1075,7 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
+        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -1524,7 +1574,7 @@
               "type": "null"
             }
           ],
-          "description": "Selected record version, never borrowed from another record."
+          "description": "VCV archive or ERepo document version; RCV/SCV selectors match a returned native version."
         }
       },
       "required": [

@@ -67,7 +67,7 @@
           "type": "null"
         }
       ],
-      "description": "Selected record version, never borrowed from another record."
+      "description": "VCV archive or ERepo document version; RCV/SCV selectors match a returned native version."
     }
   },
   "required": [

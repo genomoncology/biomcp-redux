@@ -6,6 +6,10 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "variant/assertions-synthetic-drug-response-stays-native",
+            || drug_response().map_err(Into::into),
+        ),
+        Trial::test(
             "variant/assertions-current-version-keeps-summary-panel",
             || current_version().map_err(Into::into),
         ),
@@ -429,6 +433,66 @@ fn current_version() -> Result<(), String> {
     }
     if stub.finish()?.len() != 1 {
         return Err("current version fetched an unnecessary historical document".into());
+    }
+    Ok(())
+}
+
+// Response-only synthetic label edit. This does not claim a real drug-response assertion.
+fn drug_response_body(request: &str) -> Result<String, String> {
+    native_walk_body(request).map(|xml| {
+        xml.replace(
+            "<GermlineClassification>not provided</GermlineClassification>",
+            "<GermlineClassification>drug response</GermlineClassification>",
+        )
+    })
+}
+fn drug_response() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "eutils.ncbi.nlm.nih.gov",
+        "application/xml",
+        drug_response_body,
+    )?;
+    let env = environment(&stub)?;
+    let args = [
+        "variant",
+        "assertions",
+        "clinvar:128042",
+        "--source",
+        "clinvar",
+        "--assertion",
+        "SCV000607207",
+        "--version",
+        "3",
+    ]
+    .map(String::from);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let row = value
+        .pointer("/result/assertions/0")
+        .ok_or("missing synthetic drug row")?;
+    if row.get("statement_unmapped") != Some(&json!(true))
+        || row.get("statement").is_some()
+        || row.pointer("/unmapped/classification") != Some(&json!("drug response"))
+        || row.pointer("/unmapped/attribution/record") != Some(&json!("SCV000607207"))
+        || row.pointer("/unmapped/attribution/version") != Some(&json!("3"))
+        || row.pointer("/unmapped/attribution/submitter") != Some(&json!("GenomeConnect, ClinGen"))
+        || row.pointer("/unmapped/attribution/evaluated").is_some()
+        || value
+            .get("problems")
+            .is_some_and(|p| p.as_array().is_none_or(|p| !p.is_empty()))
+    {
+        return Err(format!(
+            "synthetic drug-response row changed native context: {value}"
+        ));
+    }
+    if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
+        return Err("synthetic drug-response CLI/MCP mismatch".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("synthetic drug-response cache was not reused".into());
     }
     Ok(())
 }
