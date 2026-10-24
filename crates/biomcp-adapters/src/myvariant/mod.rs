@@ -39,7 +39,7 @@ pub fn lookup(
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
-        let page = leg.json::<raw::Page>(
+        let page = leg.json_checked_cache::<raw::Page>(
             &QUERY,
             &[
                 ("q", Arg::Text(query)),
@@ -48,6 +48,7 @@ pub fn lookup(
                 ("fields", Arg::Text(FIELDS)),
                 ("assembly", Arg::Text(assembly)),
             ],
+            |page| page.hits.iter().all(|hit| hit.matches(query)),
         )?;
         let count = page.hits.len() as u64;
         hits.extend(page.hits);
@@ -88,12 +89,13 @@ fn annotation(
         "hg19"
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
-    let hit = leg.json::<raw::Hit>(
+    let (hit, _) = leg.json_received_checked::<raw::Hit>(
         &endpoint,
         &[
             ("fields", Arg::Text(FIELDS)),
             ("assembly", Arg::Text(assembly)),
         ],
+        |hit| if hit.matches(id) { Ok(()) } else { Err(biomcp_fetch::BadReply) },
     )?;
     Ok(map::candidates(vec![hit], id, build))
 }

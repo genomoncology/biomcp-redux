@@ -33,8 +33,8 @@ struct Response {
     flag: Text,
     #[serde(rename = "metadata")]
     _metadata: Metadata,
-    #[serde(flatten)]
-    variants: BTreeMap<String, RawVariant>,
+    #[serde(flatten, deserialize_with = "ordered_variants")]
+    variants: Vec<(String, RawVariant)>,
 }
 #[derive(Deserialize)]
 struct Metadata {
@@ -69,7 +69,7 @@ impl Reply for Response {
         if self.flag.as_str() == "warning"
             || self
                 .variants
-                .values()
+                .iter().map(|(_, value)| value)
                 .all(|v| !v.hgvs_transcript_variant.is_empty())
         {
             Ok(())
@@ -86,17 +86,13 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
         PathSegment::new(input)?,
         PathSegment::new("all")?,
     ]);
-    let raw = leg.json::<Response>(
+    let (raw, _) = leg.json_received_checked::<Response>(
         &endpoint,
         &[("content-type", Arg::Text("application/json"))],
+        |reply| if reply.variants.iter().all(|(_, variant)| variant.submitted_variant.as_str() == input) {
+            Ok(())
+        } else { Err(BadReply) },
     )?;
-    if raw
-        .variants
-        .values()
-        .any(|v| v.submitted_variant.as_str() != input)
-    {
-        return Err(bad());
-    }
     if raw.flag.as_str() == "warning" {
         return Ok(Resolution {
             rejected: true,
@@ -106,7 +102,10 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
     let mut candidates = Vec::new();
     for (_, v) in raw.variants {
         let key = Text::new(&v.hgvs_transcript_variant).map_err(|_| bad())?;
-        let mut representations = Vec::new();
+        let expression = biodata::Expression::hgvs(key.clone()).map_err(|_| bad())?;
+        let mut representations = vec![Representation {
+            source: Source::VariantValidator, expression, build: None, allele: None,
+        }];
         for (assembly, locus) in v.primary_assembly_loci {
             let expression =
                 biodata::Expression::hgvs(locus.hgvs_genomic_description).map_err(|_| bad())?;
@@ -146,4 +145,20 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+fn ordered_variants<'de, D: serde::Deserializer<'de>>(de: D) -> Result<Vec<(String, RawVariant)>, D::Error> {
+    struct Ordered;
+    impl<'de> serde::de::Visitor<'de> for Ordered {
+        type Value = Vec<(String, RawVariant)>;
+        fn expecting(&self, out: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            out.write_str("source candidate map")
+        }
+        fn visit_map<M: serde::de::MapAccess<'de>>(self, mut map: M) -> Result<Self::Value, M::Error> {
+            let mut rows = Vec::new();
+            while let Some(row) = map.next_entry()? { rows.push(row); }
+            Ok(rows)
+        }
+    }
+    de.deserialize_map(Ordered)
 }

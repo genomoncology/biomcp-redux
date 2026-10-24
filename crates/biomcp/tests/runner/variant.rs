@@ -5,6 +5,8 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/mixed-identity-page-never-enters-cache", || mixed_page().map_err(Into::into)),
+        Trial::test("variant/validator-keeps-native-order-and-transcript-only-forms", || validator_order().map_err(Into::into)),
         Trial::test("variant/native-candidate-walk-is-warm", || {
             candidate_walk().map_err(Into::into)
         }),
@@ -61,12 +63,7 @@ fn call(
     args: &[&str],
 ) -> Result<(Value, Requests), String> {
     let stub = Stub::for_source(host, "application/json", body)?;
-    let environment = Environment::new().map_err(|e| e.to_string())?;
-    let ca = environment.root().join("synthetic-ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    environment
-        .config(&json!({"proxy":format!("http://{}", stub.address), "ca_bundle":ca}))
-        .map_err(|e| e.to_string())?;
+    let environment = source_environment(&stub)?;
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
     let output = environment
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
@@ -83,12 +80,7 @@ fn myvariant_body(_: &str) -> Result<String, String> {
 }
 fn candidate_walk() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", candidates_body)?;
-    let environment = Environment::new().map_err(|e| e.to_string())?;
-    let ca = environment.root().join("synthetic-ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    environment
-        .config(&json!({"proxy":format!("http://{}", stub.address), "ca_bundle":ca}))
-        .map_err(|e| e.to_string())?;
+    let environment = source_environment(&stub)?;
     let mut args = ["get", "variant", "rs113488022", "--limit", "1"]
         .iter()
         .map(|s| (*s).into())
@@ -155,4 +147,44 @@ fn candidate_walk() -> Result<(), String> {
 }
 fn candidates_body(_: &str) -> Result<String, String> {
     Ok(json!({"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
+}
+
+fn source_environment(stub: &Stub) -> Result<Environment, String> {
+    let environment = Environment::new().map_err(|e| e.to_string())?;
+    let ca = environment.root().join("synthetic-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    environment.config(&json!({"proxy":format!("http://{}", stub.address), "ca_bundle":ca})).map_err(|e| e.to_string())?;
+    Ok(environment)
+}
+fn mixed_page() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", mixed_body)?;
+    let environment = source_environment(&stub)?;
+    let args = ["get", "variant", "rs113488022"].into_iter().map(Into::into).collect::<Vec<_>>();
+    for _ in 0..2 {
+        let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/status") != Some(&json!("partial")) || value.pointer("/result/candidates/0/record/id") != Some(&json!("chr7:g.140453136A>T")) || value.pointer("/problems/0/field") != Some(&json!("identity")) {
+            return Err(format!("mixed page lost the valid source candidate or mismatch problem: {value}"));
+        }
+    }
+    let mut offline = args; offline.push("--offline".into());
+    let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), &offline).output().map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if value.pointer("/sources/0/reason") != Some(&json!("offline")) || stub.finish()?.len() != 2 {
+        return Err("mixed identity response entered or was reused from cache".into());
+    }
+    Ok(())
+}
+fn mixed_body(_: &str) -> Result<String, String> {
+    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs1"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
+}
+fn validator_order() -> Result<(), String> {
+    let (value, requests) = call("rest.variantvalidator.org", validator_body, &["get", "variant", "NM_004333.4:c.1799T>A", "--resolver", "variantvalidator", "--build", "GRCh38"])?;
+    if requests.len() != 1 || value.pointer("/result/candidates/0/record/id") != Some(&json!("NM_004333.4:c.2A>T")) || value.pointer("/result/candidates/1/record/id") != Some(&json!("NM_004333.4:c.1A>T")) || value.pointer("/result/candidates/0/identity/representations/0/expression/value") != Some(&json!("NM_004333.4:c.2A>T")) {
+        return Err(format!("validator changed object order or lost transcript-only source forms: {value}"));
+    }
+    Ok(())
+}
+fn validator_body(_: &str) -> Result<String, String> {
+    Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
 }

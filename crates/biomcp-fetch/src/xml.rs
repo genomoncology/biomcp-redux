@@ -62,6 +62,7 @@ type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
     check: Option<&'a ReplyCheck<'a, T>>,
+    cache_if: Option<&'a dyn Fn(&T) -> bool>,
     codec: Codec,
     pub(crate) limit: Option<u64>,
     pub(crate) json_rejections: bool,
@@ -79,6 +80,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             codec: Codec::Json,
             validate: None,
             check: None,
+            cache_if: None,
             octet_stream: false,
             limit: None,
             json_rejections: false,
@@ -93,6 +95,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             codec: Codec::Xml,
             validate: None,
             check: None,
+            cache_if: None,
             octet_stream: false,
             limit: None,
             json_rejections: false,
@@ -103,6 +106,13 @@ impl<'a, T: Reply> Decoder<'a, T> {
                 T::decode_xml(text).ok()
             },
         }
+    }
+    pub(crate) fn cache_if(mut self, predicate: &'a dyn Fn(&T) -> bool) -> Self {
+        self.cache_if = Some(predicate);
+        self
+    }
+    pub(crate) fn cacheable(&self, reply: &T) -> bool {
+        self.cache_if.is_none_or(|predicate| predicate(reply))
     }
     pub(crate) fn validate(&self, bytes: &[u8]) -> Result<(), biodata::Reason> {
         self.validate.map_or(Ok(()), |check| check(bytes))
@@ -288,6 +298,7 @@ impl Decoder<'_, Probe> {
             codec: Codec::Probe,
             validate: None,
             check: None,
+            cache_if: None,
             limit: None,
             json_rejections: false,
             octet_stream: false,
@@ -316,6 +327,7 @@ impl<'a> Decoder<'a, Bytes> {
             codec: Codec::Bytes,
             validate: None,
             check: None,
+            cache_if: None,
             octet_stream: false,
             limit: Some(limit),
             json_rejections: false,

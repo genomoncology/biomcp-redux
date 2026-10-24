@@ -66,14 +66,15 @@ impl Reply for Normalized {
 /// Route only the explicitly selected service, preserving the supplied description.
 pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
-    let raw = leg.json::<Normalized>(&endpoint, &[])?;
+    let (raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
+        if !reply.errors.is_empty() || reply.input_description.as_ref().map(Text::as_str) == Some(input) {
+            Ok(())
+        } else { Err(BadReply) }
+    })?;
     if !raw.errors.is_empty() {
         return Ok(Resolution::Rejected(
             raw.errors.into_iter().map(|e| e.code).collect(),
         ));
-    }
-    if raw.input_description.as_ref().map(Text::as_str) != Some(input) {
-        return Err(bad());
     }
     let notation = raw.normalized_description.ok_or_else(bad)?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;

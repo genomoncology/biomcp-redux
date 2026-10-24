@@ -51,7 +51,6 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "gene", "biodata.gene-get/1"),
-    ("get", "variant", "biodata.variant-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/2"),
@@ -65,6 +64,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "trial", "biodata.trial-search/1"),
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
+    ("get", "variant", "biodata.variant-get/1"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")

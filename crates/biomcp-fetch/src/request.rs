@@ -124,7 +124,7 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::xml())
     }
 
-    fn parameters<T: Reply>(
+    pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],

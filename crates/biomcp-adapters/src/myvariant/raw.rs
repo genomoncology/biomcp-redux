@@ -63,3 +63,18 @@ impl Reply for Hit {
         }
     }
 }
+
+impl Hit {
+    pub(super) fn matches(&self, query: &str) -> bool {
+        if query.starts_with("rs") {
+            self.dbsnp.as_ref().and_then(|d| d.rsid.as_ref()).is_some_and(|ids| match ids {
+                OneOrMany::One(id) => id.as_str() == query,
+                OneOrMany::Many(ids) => ids.iter().any(|id| id.as_str() == query),
+            })
+        } else if let Some(id) = query.strip_prefix("clinvar.variant_id:") {
+            self.clinvar.as_ref().is_some_and(|c| c.variant_id.to_string() == id)
+        } else {
+            self.id.as_str() == query
+        }
+    }
+}

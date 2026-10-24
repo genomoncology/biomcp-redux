@@ -17,16 +17,7 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
                 OneOrMany::Many(v) => v.clone(),
             })
             .unwrap_or_default();
-        let matches = if query.starts_with("rs") {
-            aliases.iter().any(|a| a.as_str() == query)
-        } else if let Some(id) = query.strip_prefix("clinvar.variant_id:") {
-            hit.clinvar
-                .as_ref()
-                .is_some_and(|c| c.variant_id.to_string() == id)
-        } else {
-            hit.id.as_str() == query
-        };
-        if !matches || value.iter().any(|v: &VariantHeader| v.record.id == hit.id) {
+        if !hit.matches(query) || value.iter().any(|v: &VariantHeader| v.record.id == hit.id) {
             problems.push(problem(hit.id, "identity"));
             continue;
         }

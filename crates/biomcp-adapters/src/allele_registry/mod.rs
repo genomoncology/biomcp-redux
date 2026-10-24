@@ -39,20 +39,16 @@ pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let endpoint = ALLELE.clone().with_segments(&[PathSegment::new(input)?]);
-    let reply = leg.json::<raw::Allele>(&endpoint, &[("fields", Arg::Text(FIELDS))])?;
-    let mapped = map::allele(reply).map_err(|_| bad())?;
-    match &mapped {
-        Resolution::Found(v) if v.value.record.id.as_str() != input => {
-            Err(biomcp_fetch::SourceError {
-                source: Source::AlleleRegistry,
-                reason: biodata::Reason::BadReply,
-                status: None,
-                retry_after: None,
-            }
-            .into())
-        }
-        _ => Ok(mapped),
-    }
+    let (reply, _) = leg.json_received_checked::<raw::Allele>(
+        &endpoint,
+        &[("fields", Arg::Text(FIELDS))],
+        |reply| {
+            if reply.error_type.is_some() || reply.id.as_ref().is_some_and(|url| {
+                url.as_str().rsplit('/').next() == Some(input)
+            }) { Ok(()) } else { Err(biomcp_fetch::BadReply) }
+        },
+    )?;
+    map::allele(reply).map_err(|_| bad())
 }
 
 fn bad() -> RequestError {
