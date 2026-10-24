@@ -1,8 +1,8 @@
 //! PubMed card resolution under one command deadline.
-use crate::{Action, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{
     Article, ArticleCardItem, ArticleCards, ArticleGet, ArticleInput, ArticleMatch,
-    ArticleResolution, Pmid, QueryBody, Request, Source, SourceState, Status, StepKind,
+    ArticleResolution, Pmid, QueryBody, Source, SourceState, Status,
 };
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Leg, RequestError};
@@ -46,33 +46,17 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
-    let overall = status::status(items.iter().map(|i| i.status));
-    let mut next = Vec::new();
-    if matches!(overall, Status::Failed | Status::Partial) {
-        next.push((
-            StepKind::Fresh,
-            Action::Run {
-                request: Request::GetArticle(query.clone()),
-                fresh: true,
-            },
-        ));
-    }
-    command.finish(
-        deadline
-            .after_stage(started.saturating_sub(remaining))
-            .remaining(),
-    );
-    Outcome {
-        status: overall,
-        body: QueryBody::ArticleCards(ArticleCards {
-            items: items.into(),
-        }),
-        sources: vec![source],
-        page: None,
-        problems: Vec::new(),
-        next,
-        local,
-    }
+    let requested = super::sections::prepare(query, &mut items);
+    let mut out = Outcome {
+        status: status::status(items.iter().map(|i| i.status)),
+        body: QueryBody::ArticleCards(ArticleCards { items: items.into() }),
+        sources: vec![source], page: None, problems: Vec::new(), next: Vec::new(), local,
+    };
+    let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
+    if requested { super::sections::run(cx, &mut deadline, &mut out); }
+    super::next::get(query, &mut out);
+    command.finish(deadline.remaining());
+    out
 }
 type Record = (Article, i64);
 type Failure = (Pmid, RequestError);
@@ -115,6 +99,8 @@ fn item(
         input: input.clone(),
         status,
         answer,
+        sections: None,
+        more: Box::default(),
     }
 }
 fn append(
