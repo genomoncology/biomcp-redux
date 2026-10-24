@@ -5,18 +5,15 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    let args = &args[..args
-        .iter()
-        .position(|arg| arg == "--")
-        .unwrap_or(args.len())];
-    let format = args
-        .windows(2)
-        .find_map(|pair| (pair[0] == "--format").then(|| pair[1].to_str()).flatten())
-        .or_else(|| {
-            args.iter()
-                .filter_map(|arg| arg.to_str())
-                .find_map(|arg| arg.strip_prefix("--format="))
-        });
+    let mut words = args.iter().take_while(|arg| *arg != "--");
+    let mut format = None;
+    while let Some(word) = words.next().and_then(|arg| arg.to_str()) {
+        if word == "--format" {
+            format = words.next().and_then(|arg| arg.to_str());
+        } else if let Some(value) = word.strip_prefix("--format=") {
+            format = Some(value);
+        }
+    }
     let format = format
         .map(|value| {
             if value == "md" {

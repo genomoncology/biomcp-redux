@@ -51,7 +51,8 @@ fn shapes() -> Result<(), String> {
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
             .output()
             .map_err(|e| e.to_string())?;
-        let _: Value = serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
+        let value: Value =
+            serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
         env.config(&json!({"format":"md"}))
             .map_err(|e| e.to_string())?;
         let output = env
@@ -64,6 +65,19 @@ fn shapes() -> Result<(), String> {
                 return Err(format!("{command:?} lacks {required}: {text}"));
             }
         }
+        let tool = super::mcp::call_with_globals(
+            &env,
+            &["--format".into(), "md".into(), "get".into(), "gene".into()],
+            true,
+            &[],
+        )?;
+        if tool.get("schema") != Some(&json!("biomcp.error/1")) {
+            return Err("MCP did not keep JSON".into());
+        }
+        if value.get("status").is_none() {
+            return Err("JSON baseline missing status".into());
+        }
+        eprintln!("Markdown bytes {}: {}", command.join(" "), text.len());
         command.extend(["--format".into(), "json".into()]);
         let explicit = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)

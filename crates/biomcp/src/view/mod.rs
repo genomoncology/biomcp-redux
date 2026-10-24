@@ -155,7 +155,7 @@ fn table(items: &[Value], preferred: &[&str], out: &mut String) {
     out.push_str(
         &columns
             .iter()
-            .map(|name| label(name))
+            .map(|name| escape(&label(name)))
             .collect::<Vec<_>>()
             .join(" | "),
     );
@@ -199,7 +199,9 @@ fn steps(value: &Value, out: &mut String) {
             })
             .collect::<Vec<_>>()
             .join(" ");
-        out.push_str(&format!("```sh\nbiomcp {args}\n```\n\n"));
+        let longest = args.split(|c| c != '`').map(str::len).max().unwrap_or(0);
+        let fence = "`".repeat(3.max(longest + 1));
+        out.push_str(&format!("{fence}sh\nbiomcp {args}\n{fence}\n\n"));
     }
 }
 fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {

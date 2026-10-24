@@ -11,3 +11,5 @@ The build machine needs `cargo-llvm-cov` and the pinned toolchain's LLVM tools. 
 BioMCP uses platform TLS trust roots. To add a company certificate authority, set `ca_bundle` in the config file to a PEM file. This adds certificates for every source and keeps verification enabled. `biomcp help network ca_bundle` explains this setting.
 
 Set `proxy` in the config file to an HTTP or HTTPS proxy URL to use that route for every source. Otherwise BioMCP reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Each proxy variable applies to its own scheme. `NO_PROXY` accepts comma-separated exact hosts or IPs, `.domain`, `*.domain`, optional ports, and `*`. An explicit config proxy overrides these environment settings. `biomcp help network proxy` explains routing.
+
+Use `--format md` for a Markdown document with tables and copyable next commands. Set `"format": "md"` in the config file to use Markdown by default. `--format json` overrides that setting. MCP always returns JSON.
