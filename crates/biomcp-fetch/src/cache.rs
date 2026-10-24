@@ -117,7 +117,9 @@ impl Cache {
             // Replay threads can overlap their SQL. Wait for the in-process
             // owner, while external SQLite contention still fails immediately.
             let connection = self.0.lock().map_err(|_| CacheError::Database)?;
-            if deadline.expired() { return Err(CacheError::Busy); }
+            if deadline.expired() {
+                return Err(CacheError::Busy);
+            }
             connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
             return operation(&connection);
         }

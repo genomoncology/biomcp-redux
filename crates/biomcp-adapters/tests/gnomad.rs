@@ -1,6 +1,7 @@
 //! Public GraphQL decoder boundary tables beyond the command stories.
 #![expect(
     clippy::disallowed_methods,
+    clippy::unwrap_used,
     clippy::indexing_slicing,
     reason = "Isolate synthetic mutations of a public source capture and assert checked results"
 )]
