@@ -83,6 +83,7 @@ class Installer(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 binary = self.destination / ("biomcp.exe" if suffix == ".zip" else "biomcp")
                 self.assertEqual(binary.read_bytes(), b"#!/bin/sh\necho candidate\n")
+                self.assertTrue(os.access(binary, os.X_OK))
                 binary.unlink()
 
     def test_latest_environment_and_local_tar_share_checksum_boundary(self):
@@ -94,6 +95,9 @@ class Installer(unittest.TestCase):
             self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
             self.assertEqual(self.install().returncode, 0)
         self.assertEqual(self.install(str(archive), checksum, str(self.root / "offline")).returncode, 0)
+        unnamed = self.root / "local-archive"
+        unnamed.write_bytes(archive.read_bytes())
+        self.assertEqual(self.install(str(unnamed), checksum, str(self.root / "unnamed")).returncode, 0)
         self.environment["BIOMCP_VERSION"] = "v1.0.0"
         archive.with_name(archive.name + ".sha256").write_text("0" * 64 + "\n")
         self.destination.joinpath("biomcp").unlink()
@@ -120,6 +124,26 @@ class Installer(unittest.TestCase):
                 self.assertNotEqual(self.install().returncode, 0)
                 self.assertFalse(self.destination.exists())
                 self.assertFalse(self.root.joinpath("escape").exists())
+
+    def test_zip_rejects_extra_paths_and_preserves_existing_install(self):
+        self.platform("MSYS_NT-10.0")
+        release = self.root / "releases/download/v1.0.0"
+        release.mkdir(parents=True)
+        self.destination.mkdir()
+        installed = self.destination / "biomcp.exe"
+        installed.write_bytes(b"previous executable")
+        with server(self.root) as base:
+            self.environment.update(BIOMCP_RELEASE_BASE_URL=base + "/releases", BIOMCP_VERSION="v1.0.0")
+            archive, _ = candidate(release, "biomcp-windows-x86_64.zip", member="../escape.exe")
+            result = self.install()
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("archive contents", result.stderr)
+            self.assertEqual(installed.read_bytes(), b"previous executable")
+            self.assertFalse(self.root.joinpath("escape.exe").exists())
+            archive.write_bytes(b"truncated archive")
+            archive.with_name(archive.name + ".sha256").write_text(hashlib.sha256(archive.read_bytes()).hexdigest())
+            self.assertNotEqual(self.install().returncode, 0)
+            self.assertEqual(installed.read_bytes(), b"previous executable")
 
     def test_unknown_platform_names_failure_and_help_needs_no_download(self):
         for system, machine, message in [("Plan9", "x86_64", "Plan9"), ("Linux", "mips", "mips"), ("MSYS_NT", "arm64", "windows/arm64")]:

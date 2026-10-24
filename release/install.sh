@@ -113,16 +113,15 @@ expected=$(printf '%s' "$expected" | tr '[:upper:]' '[:lower:]')
 
 # Read only the single regular executable. Never extract archive paths.
 case "$archive" in
-  *.tar.gz)
-    [ "$(tar -tzf "$archive")" = biomcp ] || fail 'Unexpected archive contents'
-    [[ "$(tar -tvzf "$archive")" = -* ]] || fail 'Archive executable is not a regular file'
-    tar -xOzf "$archive" biomcp > "$scratch/executable" ;;
   *.zip)
     binary=biomcp.exe
     command -v unzip >/dev/null 2>&1 || fail 'unzip is required to install on Windows shells'
     [ "$(unzip -Z -1 "$archive")" = biomcp.exe ] || fail 'Unexpected archive contents'
     unzip -p "$archive" biomcp.exe > "$scratch/executable" ;;
-  *) fail "Unsupported archive format: $archive" ;;
+  *)
+    [ "$(tar -tzf "$archive")" = biomcp ] || fail 'Unexpected archive contents'
+    [[ "$(tar -tvzf "$archive")" = -* ]] || fail 'Archive executable is not a regular file'
+    tar -xOzf "$archive" biomcp > "$scratch/executable" ;;
 esac
 [ -s "$scratch/executable" ] || fail 'Archive executable is empty'
 [ ! -L "$install_dir" ] || fail 'Refusing symbolic-link install directory'
