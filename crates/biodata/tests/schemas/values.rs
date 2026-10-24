@@ -4,10 +4,19 @@ use schemars::JsonSchema;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
 
+#[expect(
+    clippy::expect_used,
+    reason = "Schema test setup must build a validator"
+)]
 fn validator<T: JsonSchema>() -> jsonschema::Validator {
     jsonschema::draft202012::new(&generate::<T>()).expect("valid local schema")
 }
 
+#[expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "Public enum schema table fails on invalid test fixtures"
+)]
 fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
     let validator = validator::<T>();
     for value in values {

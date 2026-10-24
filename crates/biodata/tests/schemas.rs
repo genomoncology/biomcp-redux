@@ -18,6 +18,10 @@ struct Contract {
     generate: fn() -> Value,
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "Schema test setup must serialize a generated schema"
+)]
 fn generate<T: JsonSchema>() -> Value {
     serde_json::to_value(
         SchemaSettings::draft2020_12()
