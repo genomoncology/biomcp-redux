@@ -42,6 +42,7 @@ mod trial_documents;
 mod trial_get;
 mod trial_sites;
 mod trial_tables;
+mod variant;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -281,6 +282,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
     trials.extend(http::trials());
     trials.extend(corporate::trials());
+    trials.extend(variant::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());

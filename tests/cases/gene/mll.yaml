@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "gene-commands",
-  "story": "mll",
+  "story": "MLL resolves to KMT2A while its unsupported patch contig is reported and primary chromosome spans remain",
   "replay": "gene/main",
   "steps": [
     {
@@ -11,7 +11,7 @@
         "MLL"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items/0/answer/resolution": "resolved",
         "/result/items/0/answer/gene/hgnc_id": "HGNC:7132",
         "/result/items/0/answer/gene/symbol": "KMT2A",
@@ -32,7 +32,19 @@
         },
         "/next/*/kind": {
           "includes": "key"
-        }
+        },
+        "/problems/0": {
+          "equals": {
+            "source": "mygene",
+            "record": "4297",
+            "field": "genomic_pos_hg19",
+            "code": "value.unknown"
+          }
+        },
+        "/result/items/0/answer/gene/spans/*/chromosome": [
+          "11",
+          "11"
+        ]
       },
       "max_bytes": 3000,
       "max_tokens": 650

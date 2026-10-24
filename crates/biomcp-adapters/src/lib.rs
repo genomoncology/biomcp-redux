@@ -41,8 +41,12 @@ pub mod registry;
 pub mod litsense;
 pub mod sheet;
 
+pub mod allele_registry;
 /// ClinicalTrials.gov native search.
 pub mod ctgov;
 
+pub mod mutalyzer;
+pub mod myvariant;
 /// Explicit keyed NCI native trials.
 pub mod nci;
+pub mod variantvalidator;

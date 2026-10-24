@@ -4,14 +4,12 @@
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
         "GRCh37",
-        "GRCh38",
-        "unstated"
+        "GRCh38"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
-        " Genome Reference Consortium human build 38.",
-        " Source did not state an assembly."
+        " Genome Reference Consortium human build 38."
       ]
     },
     "CancerPtpm": {
@@ -56,6 +54,10 @@
         "total"
       ],
       "type": "object"
+    },
+    "Chromosome": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
+      "type": "string"
     },
     "CivicGene": {
       "additionalProperties": false,
@@ -241,10 +243,6 @@
       ],
       "type": "object"
     },
-    "Contig": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
-      "type": "string"
-    },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
@@ -260,74 +258,6 @@
     "EntrezGeneId": {
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
-    },
-    "Expression": {
-      "additionalProperties": false,
-      "description": "Gene-level HPA expression and subcellular annotations.",
-      "properties": {
-        "rna_cancer_ptpm": {
-          "description": "Cancer-specific pTPM pairs.",
-          "items": {
-            "$ref": "#/$defs/CancerPtpm"
-          },
-          "type": "array"
-        },
-        "rna_cancer_specificity": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source RNA cancer specificity."
-        },
-        "rna_tissue_distribution": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source RNA tissue distribution."
-        },
-        "rna_tissue_ntpm": {
-          "description": "Tissue-specific nTPM pairs.",
-          "items": {
-            "$ref": "#/$defs/TissueNtpm"
-          },
-          "type": "array"
-        },
-        "rna_tissue_specificity": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source RNA tissue specificity."
-        },
-        "subcellular_additional": {
-          "description": "Source additional subcellular locations.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "subcellular_main": {
-          "description": "Source main subcellular locations.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        }
-      },
-      "type": "object"
     },
     "FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",
@@ -489,6 +419,74 @@
       "required": [
         "items"
       ],
+      "type": "object"
+    },
+    "GeneExpression": {
+      "additionalProperties": false,
+      "description": "Gene-level HPA expression and subcellular annotations.",
+      "properties": {
+        "rna_cancer_ptpm": {
+          "description": "Cancer-specific pTPM pairs.",
+          "items": {
+            "$ref": "#/$defs/CancerPtpm"
+          },
+          "type": "array"
+        },
+        "rna_cancer_specificity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source RNA cancer specificity."
+        },
+        "rna_tissue_distribution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source RNA tissue distribution."
+        },
+        "rna_tissue_ntpm": {
+          "description": "Tissue-specific nTPM pairs.",
+          "items": {
+            "$ref": "#/$defs/TissueNtpm"
+          },
+          "type": "array"
+        },
+        "rna_tissue_specificity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source RNA tissue specificity."
+        },
+        "subcellular_additional": {
+          "description": "Source additional subcellular locations.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "subcellular_main": {
+          "description": "Source main subcellular locations.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
       "type": "object"
     },
     "GeneGet": {
@@ -891,12 +889,19 @@
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
-          "$ref": "#/$defs/Build",
-          "description": "Source-stated assembly, explicitly unstated when absent."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated assembly, omitted when absent."
         },
-        "contig": {
-          "$ref": "#/$defs/Contig",
-          "description": "Source chromosome or scaffold name."
+        "chromosome": {
+          "$ref": "#/$defs/Chromosome",
+          "description": "Canonical primary chromosome."
         },
         "span": {
           "$ref": "#/$defs/Span0",
@@ -915,8 +920,7 @@
         }
       },
       "required": [
-        "build",
-        "contig",
+        "chromosome",
         "span"
       ],
       "type": "object"
@@ -1965,7 +1969,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Expression",
+              "$ref": "#/$defs/GeneExpression",
               "description": "Whole section data."
             },
             "source": {
@@ -2341,7 +2345,11 @@
         "ctgov",
         "nci",
         "civic",
-        "oncokb"
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -2363,7 +2371,11 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
-        " OncoKB."
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator."
       ]
     },
     "SourceNotice": {
@@ -2665,7 +2677,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene_cards/1",
+  "$id": "biomcp.gene_cards/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2711,7 +2723,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gene_cards/1",
+      "const": "biomcp.gene_cards/2",
       "type": "string"
     },
     "sources": {

@@ -69,7 +69,7 @@ pub use response::{
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
 
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, Expression, PathwayRef,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
@@ -87,13 +87,28 @@ pub use response::{
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
 
+mod variant;
+pub use variant::{Representation, Variant};
+
+pub use query::{VariantGet, VariantResolver};
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{VariantCard, VariantHeader, VariantResolution};
+
+pub use coord::Chromosome;
+
+pub use variant::{
+    Accession, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence, SequenceLocation,
+};
+
+pub use variant::{Expression, ExpressionSyntax, HgvsText, VariantId};
+
+pub use query::{VariantInput, VariantNamespace};
 mod trial;
 pub use query::PhaseFilter;
 pub use query::SponsorType;
 pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use response::TrialPage;
 pub use response::TrialParameter;
-pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
 
 mod trial_detail;

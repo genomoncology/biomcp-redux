@@ -186,7 +186,10 @@ fn response(
         sources: result.sources,
         problems: result.problems,
     };
-    match (request, result.body) {
+    response_body(meta, request, result.body)
+}
+fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+    match (request, body) {
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),
@@ -251,6 +254,9 @@ fn response(
             meta.encode(query, body)
         }
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
+            meta.encode(query, Some(body))
+        }
+        (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
             meta.encode(query, Some(body))
         }
         (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
@@ -329,7 +335,10 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
-    if root == Some("search") && words.next() == Some("trial") {
+    if root == Some("get") && words.next() == Some("variant") {
+        error = biodata::ErrorEnvelope::variant_arguments();
+    }
+    if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
         let flags: Vec<_> = args
             .iter()
             .filter_map(|arg| arg.to_str())

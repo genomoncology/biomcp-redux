@@ -748,7 +748,11 @@
         "ctgov",
         "nci",
         "civic",
-        "oncokb"
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -770,7 +774,11 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
-        " OncoKB."
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator."
       ]
     },
     "SourceNotice": {

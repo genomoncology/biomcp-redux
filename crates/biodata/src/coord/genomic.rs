@@ -8,8 +8,6 @@ canonical_enum! {
         Grch37 => "GRCh37",
         /// Genome Reference Consortium human build 38.
         Grch38 => "GRCh38",
-        /// Source did not state an assembly.
-        Unstated => "unstated",
     }
 }
 canonical_enum! {
@@ -64,10 +62,11 @@ text_value!(
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenomicInterval {
-    /// Source-stated assembly, explicitly unstated when absent.
-    pub build: Build,
-    /// Source chromosome or scaffold name.
-    pub contig: Contig,
+    /// Source-stated assembly, omitted when absent.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub build: Option<Build>,
+    /// Canonical primary chromosome.
+    pub chromosome: crate::Chromosome,
     /// Checked zero-based half-open bounds; an empty span remains valid.
     pub span: Span0,
     /// Source-stated strand, if available.

@@ -4,18 +4,16 @@
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
         "GRCh37",
-        "GRCh38",
-        "unstated"
+        "GRCh38"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Genome Reference Consortium human build 37.",
-        " Genome Reference Consortium human build 38.",
-        " Source did not state an assembly."
+        " Genome Reference Consortium human build 38."
       ]
     },
-    "Contig": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+    "Chromosome": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
     "Cytoband": {
@@ -247,12 +245,19 @@
       "description": "An assembly-qualified zero-based half-open source interval.",
       "properties": {
         "build": {
-          "$ref": "#/$defs/Build",
-          "description": "Source-stated assembly, explicitly unstated when absent."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated assembly, omitted when absent."
         },
-        "contig": {
-          "$ref": "#/$defs/Contig",
-          "description": "Source chromosome or scaffold name."
+        "chromosome": {
+          "$ref": "#/$defs/Chromosome",
+          "description": "Canonical primary chromosome."
         },
         "span": {
           "$ref": "#/$defs/Span0",
@@ -271,8 +276,7 @@
         }
       },
       "required": [
-        "build",
-        "contig",
+        "chromosome",
         "span"
       ],
       "type": "object"
@@ -524,7 +528,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.gene-resolution/1",
+  "$id": "biodata.gene-resolution/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
   "oneOf": [

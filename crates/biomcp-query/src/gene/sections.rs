@@ -22,7 +22,7 @@ pub(super) enum SectionValue {
     Civic(Section<biodata::CivicGene>),
     ClinGen(Section<biodata::ClinGenGene>),
     Constraint(Section<biodata::Constraint>),
-    Expression(Section<biodata::Expression>),
+    Expression(Section<biodata::GeneExpression>),
     Pathways(Section<biodata::Capped<biodata::PathwayRef>>),
     Oncokb(Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool),
 }

@@ -96,7 +96,7 @@ fn multicontig() -> Check {
             body[0]["genomic_pos"] = json!([
         {"chr":"X","start":10,"end":20}, {"chr":"Y","start":30,"end":40}])
         },
-        json!({"/result/items/0/answer/gene/spans/*/contig": ["X", "Y", "7"]}),
+        json!({"/result/items/0/answer/gene/spans/*/chromosome": ["X", "Y", "7"]}),
     )
 }
 

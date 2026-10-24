@@ -67,8 +67,8 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         dated: Some("2026-10".parse()?),
     });
     entity.spans = vec![GenomicInterval {
-        build: Build::Grch38,
-        contig: Contig::new("7")?,
+        build: Some(Build::Grch38),
+        chromosome: "7".parse()?,
         span: Span0::new(140719327, 140924929)?,
         strand: Some(Strand::Reverse),
     }]
@@ -156,12 +156,12 @@ fn genomic_intervals_preserve_assembly_strand_and_scaffold_names() -> Check {
     }
     assert!(Contig::new(&"x".repeat(Contig::MAX_LEN)).is_ok());
     assert!(Contig::new(&"x".repeat(Contig::MAX_LEN + 1)).is_err());
-    for build in [Build::Grch37, Build::Grch38, Build::Unstated] {
+    for build in [Some(Build::Grch37), Some(Build::Grch38), None] {
         for strand in [None, Some(Strand::Forward), Some(Strand::Reverse)] {
             let interval = GenomicInterval {
                 build,
                 strand,
-                contig: "7".parse()?,
+                chromosome: "7".parse()?,
                 span: Span0::new(0, 0)?,
             };
             round_trip(&interval)?;
@@ -170,8 +170,8 @@ fn genomic_intervals_preserve_assembly_strand_and_scaffold_names() -> Check {
         }
     }
     for value in [
-        json!({"contig":"7","span":{"start":0,"end":1}}),
-        json!({"build":"GRCh38","contig":"7","span":{"start":2,"end":1}}),
+        json!({"chromosome":"chr7","span":{"start":0,"end":1}}),
+        json!({"build":"GRCh38","chromosome":"7","span":{"start":2,"end":1}}),
     ] {
         assert!(serde_json::from_value::<GenomicInterval>(value).is_err());
     }

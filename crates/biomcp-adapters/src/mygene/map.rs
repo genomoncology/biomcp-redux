@@ -1,7 +1,5 @@
 use super::raw::Pos;
-use biodata::{
-    Build, Contig, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text,
-};
+use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
 pub(super) fn summary(value: String) -> Option<Summary> {
     let parsed = value.strip_suffix("].").and_then(|text| {
@@ -44,8 +42,8 @@ pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
     // https://github.com/biothings/mygene.info/blob/7515239530e9784f311623bd925c4ae3ba284415/src/hub/dataload/sources/ensembl/parser.py#L224
     // https://beta.ensembl.org/help/articles/accessing-ensembl-s-refget-services
     Some(GenomicInterval {
-        build,
-        contig: Contig::new(&value.chr?.value()?).ok()?,
+        build: Some(build),
+        chromosome: crate::raw::chromosome(&value.chr?.value()?)?,
         span: Span0::new(start - 1, end).ok()?,
         strand,
     })

@@ -2,6 +2,22 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A published variant identifier was invalid.
+    VariantIdInvalid,
+    /// The source notation did not match its declared form.
+    NotationInvalid,
+    /// A versioned sequence accession was invalid.
+    AccessionInvalid,
+    /// A canonical primary chromosome was invalid.
+    ChromosomeInvalid,
+    /// A DNA base or sequence was invalid.
+    SequenceInvalid,
+    /// Allele reference length differs from its span.
+    AlleleReferenceLength,
+    /// An allele has neither reference nor alternate bases.
+    AlleleEmpty,
+    /// Input is not a published variant identifier.
+    VariantInputInvalid,
     /// A trial identifier failed its namespace syntax.
     TrialIdInvalid,
     /// An article identifier failed its namespace syntax.
@@ -64,6 +80,14 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::VariantIdInvalid => "id.variant.invalid",
+            Self::NotationInvalid => "notation.invalid",
+            Self::AccessionInvalid => "sequence.accession.invalid",
+            Self::ChromosomeInvalid => "chromosome.invalid",
+            Self::SequenceInvalid => "sequence.invalid",
+            Self::AlleleReferenceLength => "allele.reference_length",
+            Self::AlleleEmpty => "allele.empty",
+            Self::VariantInputInvalid => "variant.input.invalid",
             Self::TrialIdInvalid => "id.trial.invalid",
             Self::ArticleIdInvalid => "id.article.invalid",
             Self::LocusTypeUnknown => "gene.locus_type.unknown",
