@@ -1,0 +1,32 @@
+{
+  "feature": "article-semantic-sections",
+  "story": "A machine-written source summary preserves its model and independently supplied counts beside the PubMed card.",
+  "verified": "Response-only synthetic summary; original exact request identity is unchanged and no source summary text is committed.",
+  "replay": "article/tldr/synthetic-data",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "tldr"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "33123537",
+        "tldr"
+      ],
+      "expect": {
+        "/result/items/0/sections/tldr/state": "data",
+        "/result/items/0/sections/tldr/data/model": "synthetic-test-model",
+        "/result/items/0/sections/tldr/data/machine_written": true,
+        "/result/items/0/sections/tldr/data/cited_by": 17,
+        "/result/items/0/sections/tldr/data/influential_cited_by": 2,
+        "/result/items/0/sections/tldr": {
+          "max_tokens": 120
+        }
+      }
+    }
+  ]
+}
