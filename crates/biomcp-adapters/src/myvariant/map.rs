@@ -1,7 +1,7 @@
 use super::raw::{Genes, Hit};
 use crate::Mapped;
 use biodata::{Problem, ProblemCode, Source, Text, VariantFact, VariantHeader, VariantIdentity};
-pub(super) fn candidates(hits: Vec<Hit>, query: &str) -> Mapped<Vec<VariantHeader>> {
+pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: biodata::Build) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
     for hit in hits {
@@ -58,12 +58,13 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str) -> Mapped<Vec<VariantHeade
                 fact(&mut facts, "cosmic", "cosmic_id", id);
             }
         }
+        let representations = representation(&hit.id, build);
         value.push(VariantHeader {
             identity: VariantIdentity {
                 source: Source::MyVariant,
                 key: hit.id,
                 aliases: aliases.into(),
-                representations: Box::default(),
+                representations,
             },
             facts: facts.into(),
         });
@@ -78,4 +79,10 @@ fn fact(facts: &mut Vec<VariantFact>, source: &str, field: &str, value: Text) {
             value,
         });
     }
+}
+
+fn representation(id: &Text, build: biodata::Build) -> Box<[biodata::VariantRepresentation]> {
+    let Some((reference, _)) = id.as_str().split_once(':') else { return Box::default(); };
+    let (Ok(reference), Ok(assembly)) = (Text::new(reference), Text::new(&build.to_string())) else { return Box::default(); };
+    vec![biodata::VariantRepresentation { source: Source::MyVariant, notation: id.clone(), reference, assembly: Some(assembly), coordinate: None, reference_allele: None, alternate_allele: None }].into()
 }

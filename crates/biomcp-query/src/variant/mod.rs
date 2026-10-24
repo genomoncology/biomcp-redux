@@ -10,22 +10,7 @@ use biomcp_fetch::{Leg, RequestError};
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let direct = matches!(
-        query.input().namespace(),
-        Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome)
-    );
-    let spec = if direct {
-        &myvariant::SPEC
-    } else {
-        match query.input().namespace() {
-            Ok(VariantNamespace::Ca) => &allele_registry::SPEC,
-            _ => match query.resolver() {
-                biodata::VariantResolver::Car => &allele_registry::SPEC,
-                biodata::VariantResolver::Mutalyzer => &mutalyzer::SPEC,
-                biodata::VariantResolver::Variantvalidator => &variantvalidator::SPEC,
-            },
-        }
-    };
+    let spec = source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let result = resolve(query, &leg, &mut problems);
@@ -51,47 +36,12 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         sources[0].reason = Some(Reason::Rejected);
     }
     let mut local = error.and_then(status::local);
-    // Only CAR's explicit GRCh37 genomic representation may join MyVariant's documented hg19 IDs.
     if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
-        let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
-        let mut join_error = None;
-        for candidate in &mut candidates {
-            if let Some(id) = join_id(candidate) {
-                match myvariant::lookup(&leg, &id) {
-                    Ok(found) => {
-                        problems.extend(found.problems);
-                        for row in found.value {
-                            let mut facts = candidate.facts.to_vec();
-                            facts.extend(row.facts);
-                            candidate.facts = facts.into();
-                        }
-                    }
-                    Err(e) => {
-                        join_error = Some(e);
-                        local = local.or(status::local(e));
-                    }
-                }
-            }
-        }
-        sources.push(status::source(Source::MyVariant, leg.finish(), join_error));
+        let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
+        sources.push(source);
+        local = local.or(error);
     }
-    let mut next = Vec::new();
-    if resolution == VariantResolution::Candidates {
-        for row in &candidates {
-            if let Ok(input) = row.identity.key.as_str().parse()
-                && let Ok(q) =
-                    VariantGet::new(input, query.resolver(), Some(biodata::Build::Grch37))
-            {
-                next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetVariant(q),
-                        fresh: false,
-                    },
-                ));
-            }
-        }
-    }
+    let next = next(query, resolution, &candidates);
     let overall = if resolution == VariantResolution::Unavailable {
         Status::Failed
     } else if resolution == VariantResolution::Absent {
@@ -148,7 +98,7 @@ fn resolve(
             } else {
                 input.to_owned()
             };
-            let found = myvariant::lookup(leg, &term)?;
+            let found = myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::Grch37))?;
             problems.extend(found.problems);
             Ok((found.value, None))
         }
@@ -203,4 +153,70 @@ fn join_id(row: &VariantHeader) -> Option<String> {
         }
         myvariant::genomic_id(coordinate.contig.as_str(), &r.notation)
     })
+}
+fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
+    let direct = matches!(
+        query.input().namespace(),
+        Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome)
+    );
+    if direct {
+        &myvariant::SPEC
+    } else {
+        match query.input().namespace() {
+            Ok(VariantNamespace::Ca) => &allele_registry::SPEC,
+            _ => match query.resolver() {
+                biodata::VariantResolver::Car => &allele_registry::SPEC,
+                biodata::VariantResolver::Mutalyzer => &mutalyzer::SPEC,
+                biodata::VariantResolver::Variantvalidator => &variantvalidator::SPEC,
+            },
+        }
+    }
+
+}
+
+fn enrich(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, candidates: &mut [VariantHeader], problems: &mut Vec<biodata::Problem>) -> (biodata::SourceOutcome, Option<RequestError>) {
+    let mut local = None;
+        let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+        let mut join_error = None;
+        for candidate in candidates {
+            if let Some(id) = join_id(candidate) {
+                match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
+                    Ok(found) => {
+                        problems.extend(found.problems);
+                        for row in found.value {
+                            let mut facts = candidate.facts.to_vec();
+                            facts.extend(row.facts);
+                            candidate.facts = facts.into();
+                        }
+                    }
+                    Err(e) => {
+                        join_error = Some(e);
+                        local = local.or(status::local(e));
+                    }
+                }
+            }
+        }
+    (status::source(Source::MyVariant, leg.finish(), join_error), local)
+
+}
+
+fn next(query: &VariantGet, resolution: VariantResolution, candidates: &[VariantHeader]) -> Vec<(StepKind, Action)> {
+    let mut next = Vec::new();
+    if resolution == VariantResolution::Candidates {
+        for row in candidates {
+            if let Ok(input) = row.identity.key.as_str().parse()
+                && let Ok(q) =
+                    VariantGet::new(input, query.resolver(), Some(biodata::Build::Grch37))
+            {
+                next.push((
+                    StepKind::Disambiguate,
+                    Action::Run {
+                        request: Request::GetVariant(q),
+                        fresh: false,
+                    },
+                ));
+            }
+        }
+    }
+    next
 }

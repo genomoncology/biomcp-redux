@@ -61,24 +61,23 @@ impl VariantInput {
         {
             return Ok(VariantNamespace::Chromosome);
         }
-        let valid = [
-            "NC_", "NM_", "NP_", "NG_", "NR_", "NT_", "NW_", "ENST", "ENSP", "LRG_",
-        ]
-        .iter()
-        .any(|prefix| {
-            reference.strip_prefix(prefix).is_some_and(|tail| {
-                !tail.is_empty()
-                    && tail
-                        .bytes()
-                        .all(|b| b.is_ascii_digit() || matches!(b, b'.' | b't' | b'p'))
-            })
-        });
+        let valid = if let Some(tail) = reference.strip_prefix("LRG_") {
+            let mut parts = tail.split(['t', 'p']);
+            parts.next().is_some_and(positive) && parts.next().is_none_or(positive) && parts.next().is_none()
+        } else {
+            ["NC_", "NM_", "NP_", "NG_", "NR_", "NT_", "NW_", "ENST", "ENSP"]
+                .iter().any(|prefix| reference.strip_prefix(prefix).is_some_and(accession))
+        };
         if valid {
             Ok(VariantNamespace::Hgvs)
         } else {
             Err(Error::VariantInputInvalid)
         }
     }
+}
+fn accession(value: &str) -> bool {
+    let Some((number, version)) = value.split_once('.') else { return false; };
+    !number.is_empty() && number.bytes().all(|b| b.is_ascii_digit()) && positive(version)
 }
 fn positive(value: &str) -> bool {
     !value.is_empty() && !value.starts_with('0') && value.bytes().all(|b| b.is_ascii_digit())
@@ -94,4 +93,4 @@ impl fmt::Display for VariantInput {
         f.write_str(self.as_str())
     }
 }
-text_value!(VariantInput, "VariantInput", r"^[\x21-\x7e]{1,2048}$");
+text_value!(VariantInput, "VariantInput", r"^(rs[1-9][0-9]*|CA[1-9][0-9]*|(ClinVar:)?[1-9][0-9]*|((N[CGMPRTW]_[0-9]+|ENS[TP][0-9]+)\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprm]\.[\x21-\x7e]+)$");

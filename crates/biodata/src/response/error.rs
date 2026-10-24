@@ -42,6 +42,7 @@ singleton! {
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+        VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
@@ -90,6 +91,12 @@ pub struct ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Explain the published variant identifier boundary without interpreting caller text.
+    pub fn variant_arguments() -> Self {
+        let mut error = Self::arguments();
+        error.error.message = ErrorMessage::VariantIdentifier;
+        error
+    }
     /// Construct the fixed response for every invalid schema request.
     pub fn schema_usage() -> Self {
         Self {

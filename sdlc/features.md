@@ -36,3 +36,5 @@ article-evidence: Read all source citation contexts and explicit full-text refer
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
 
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
+
+variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair. Cases: `tests/cases/variant/*.yaml`.

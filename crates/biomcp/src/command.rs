@@ -263,6 +263,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
+    if root == Some("get") && words.next() == Some("variant") {
+        error = biodata::ErrorEnvelope::variant_arguments();
+    }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL
             .iter()
