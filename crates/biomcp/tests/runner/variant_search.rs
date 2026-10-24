@@ -399,11 +399,16 @@ fn metadata_body(request: &str) -> Result<String, String> {
         "1" => {
             hit.as_object_mut().ok_or("object absent")?.remove("hg19");
         }
-        "2" => hit["chrom"] = json!("8"),
-        "3" => hit["hg19"]["start"] = json!(55259514),
-        "4" => hit["hg19"]["end"] = json!("55259515"),
-        "5" => hit["hg38"] = hit["hg19"].clone(),
-        "6" => hit["_id"] = json!("chr7:g.55259515del"),
+        "2" => *hit.get_mut("chrom").ok_or("chrom absent")? = json!("8"),
+        "3" => *hit.pointer_mut("/hg19/start").ok_or("start absent")? = json!(55259514),
+        "4" => *hit.pointer_mut("/hg19/end").ok_or("end absent")? = json!("55259515"),
+        "5" => {
+            let span = hit.get("hg19").cloned().ok_or("hg19 absent")?;
+            hit.as_object_mut()
+                .ok_or("object absent")?
+                .insert("hg38".into(), span);
+        }
+        "6" => *hit.get_mut("_id").ok_or("id absent")? = json!("chr7:g.55259515del"),
         _ => return Err("unexpected metadata selector".into()),
     }
     Ok(json!({"total":1,"hits":[hit]}).to_string())
