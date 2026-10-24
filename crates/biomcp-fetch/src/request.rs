@@ -4,13 +4,19 @@ use std::io::Read;
 
 impl Leg<'_> {
     /// Send a checked JSON GET. A missing record returns `not_found`.
-    pub fn json<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError> {
+    pub fn json<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<T, SourceError> {
         self.send(ep, params)
     }
 
     /// Send a checked JSON GET, treating HTTP 404 as an absent record.
     pub fn json_opt<T: Reply>(
-        &self, ep: &Endpoint, params: &[(&str, Arg<'_>)],
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
     ) -> Result<Option<T>, SourceError> {
         match self.send(ep, params) {
             Err(error) if error.reason == Reason::NotFound => Ok(None),
@@ -19,7 +25,11 @@ impl Leg<'_> {
     }
 
     fn failure(&self, reason: Reason, status: Option<u16>) -> SourceError {
-        SourceError { source: self.spec.source, reason, status }
+        SourceError {
+            source: self.spec.source,
+            reason,
+            status,
+        }
     }
 
     fn send<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError> {
@@ -33,7 +43,11 @@ impl Leg<'_> {
             return Err(self.failure(Reason::DeadlineExceeded, None));
         }
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        let mut request = self.fetch.agent.get(&url).header("Accept", "application/json");
+        let mut request = self
+            .fetch
+            .agent
+            .get(&url)
+            .header("Accept", "application/json");
         for (name, value) in params {
             request = request.query(name, value.value());
         }
@@ -49,40 +63,72 @@ impl Leg<'_> {
         if remaining.is_zero() {
             return Err(self.failure(Reason::DeadlineExceeded, None));
         }
-        let mut response = request.config().timeout_global(Some(remaining)).build().call()
-            .map_err(|error| self.failure(if matches!(error, ureq::Error::Timeout(_)) {
-                Reason::DeadlineExceeded
-            } else { Reason::Unavailable }, None))?;
+        let mut response = request
+            .config()
+            .timeout_global(Some(remaining))
+            .build()
+            .call()
+            .map_err(|error| {
+                self.failure(
+                    if matches!(error, ureq::Error::Timeout(_)) {
+                        Reason::DeadlineExceeded
+                    } else {
+                        Reason::Unavailable
+                    },
+                    None,
+                )
+            })?;
         let status = response.status().as_u16();
         if !(200..300).contains(&status) {
-            return Err(self.failure(match status {
-                404 => Reason::NotFound,
-                429 => Reason::RateLimited,
-                500..=599 => Reason::Unavailable,
-                _ => Reason::Rejected,
-            }, Some(status)));
+            return Err(self.failure(
+                match status {
+                    404 => Reason::NotFound,
+                    429 => Reason::RateLimited,
+                    500..=599 => Reason::Unavailable,
+                    _ => Reason::Rejected,
+                },
+                Some(status),
+            ));
         }
         self.decode(&mut response, status)
     }
 
     fn decode<T: Reply>(
-        &self, response: &mut ureq::http::Response<ureq::Body>, status: u16,
+        &self,
+        response: &mut ureq::http::Response<ureq::Body>,
+        status: u16,
     ) -> Result<T, SourceError> {
         let bad = || self.failure(Reason::BadReply, Some(status));
-        let content_type = response.headers().get("content-type")
-            .and_then(|value| value.to_str().ok()).unwrap_or("")
-            .split(';').next().unwrap_or("").trim().to_ascii_lowercase();
+        let content_type = response
+            .headers()
+            .get("content-type")
+            .and_then(|value| value.to_str().ok())
+            .unwrap_or("")
+            .split(';')
+            .next()
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
         if content_type != "application/json"
             && !(content_type.starts_with("application/") && content_type.ends_with("+json"))
         {
             return Err(bad());
         }
         let mut bytes = Vec::new();
-        response.body_mut().as_reader().take(self.fetch.config.max_body + 1)
-            .read_to_end(&mut bytes).map_err(|error| {
-                self.failure(if error.kind() == std::io::ErrorKind::TimedOut || self.deadline.expired() {
-                    Reason::DeadlineExceeded
-                } else { Reason::BadReply }, Some(status))
+        response
+            .body_mut()
+            .as_reader()
+            .take(self.fetch.config.max_body + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|error| {
+                self.failure(
+                    if error.kind() == std::io::ErrorKind::TimedOut || self.deadline.expired() {
+                        Reason::DeadlineExceeded
+                    } else {
+                        Reason::BadReply
+                    },
+                    Some(status),
+                )
             })?;
         if bytes.len() as u64 > self.fetch.config.max_body {
             return Err(bad());

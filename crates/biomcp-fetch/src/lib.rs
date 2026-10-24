@@ -33,8 +33,12 @@ pub struct FetchConfig {
 
 impl Default for FetchConfig {
     fn default() -> Self {
-        Self { secrets: Secrets::default(), proxy: None, max_body: 8 * 1024 * 1024,
-            source_deadlines: BTreeMap::new() }
+        Self {
+            secrets: Secrets::default(),
+            proxy: None,
+            max_body: 8 * 1024 * 1024,
+            source_deadlines: BTreeMap::new(),
+        }
     }
 }
 
@@ -46,7 +50,9 @@ pub struct Fetch {
 
 impl fmt::Debug for Fetch {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Fetch").field("config", &self.config).finish_non_exhaustive()
+        f.debug_struct("Fetch")
+            .field("config", &self.config)
+            .finish_non_exhaustive()
     }
 }
 
@@ -56,13 +62,23 @@ impl Fetch {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
-        let proxy = config.proxy.as_ref().map(|p| ureq::Proxy::new(p.value()))
-            .transpose().map_err(|_| FetchError::Proxy)?;
+        let proxy = config
+            .proxy
+            .as_ref()
+            .map(|p| ureq::Proxy::new(p.value()))
+            .transpose()
+            .map_err(|_| FetchError::Proxy)?;
         let agent = ureq::Agent::config_builder()
-            .proxy(proxy).http_status_as_error(false).max_redirects(0)
-            .tls_config(ureq::tls::TlsConfig::builder()
-                .root_certs(ureq::tls::RootCerts::PlatformVerifier).build())
-            .build().new_agent();
+            .proxy(proxy)
+            .http_status_as_error(false)
+            .max_redirects(0)
+            .tls_config(
+                ureq::tls::TlsConfig::builder()
+                    .root_certs(ureq::tls::RootCerts::PlatformVerifier)
+                    .build(),
+            )
+            .build()
+            .new_agent();
         Ok(Self { agent, config })
     }
 
@@ -73,12 +89,22 @@ impl Fetch {
 
     /// Start a leg capped by this source's budget.
     pub fn leg(&self, spec: &'static SourceSpec, deadline: Deadline) -> Leg<'_> {
-        let cap = self.config.source_deadlines.get(&spec.source).copied().unwrap_or(spec.deadline);
+        let cap = self
+            .config
+            .source_deadlines
+            .get(&spec.source)
+            .copied()
+            .unwrap_or(spec.deadline);
         let no_key = match spec.key {
             KeyUse::Required(credential) => self.config.secrets.get(credential.secret).is_none(),
             _ => false,
         };
-        Leg { fetch: self, spec, deadline: deadline.child(cap), no_key }
+        Leg {
+            fetch: self,
+            spec,
+            deadline: deadline.child(cap),
+            no_key,
+        }
     }
 }
 

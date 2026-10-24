@@ -38,6 +38,9 @@ impl Secrets {
     }
 
     pub(crate) fn get(&self, name: SecretName) -> Option<&str> {
-        self.0.get(&name).map(Secret::value).filter(|v| !v.is_empty())
+        self.0
+            .get(&name)
+            .map(Secret::value)
+            .filter(|v| !v.is_empty())
     }
 }
