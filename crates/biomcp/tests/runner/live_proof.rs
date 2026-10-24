@@ -12,6 +12,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("live-source-checks/offline-eligibility", || {
             plan().map_err(|e| e.to_string().into())
         }),
+        Trial::test("live-source-checks/raw-wire-formats-and-retries", || {
+            formats().map_err(|e| e.to_string().into())
+        }),
     ]
 }
 fn check() -> Result<(), Box<dyn std::error::Error>> {
@@ -42,8 +45,8 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
             }
         })?;
     }
-    let before = observe(&env, &before, "before")?;
-    let after = observe(&env, &after, "after")?;
+    let before = observe(&env, &before, "before", &["get", "gene", "KRAS"])?;
+    let after = observe(&env, &after, "after", &["get", "gene", "KRAS"])?;
     let mut changes = Vec::new();
     live::compare(&before, &after, &mut changes, &mut BTreeMap::new());
     if !changes
@@ -67,22 +70,17 @@ fn observe(
     env: &Environment,
     replay: &Path,
     name: &str,
+    args: &[&str],
 ) -> Result<Vec<Observation>, Box<dyn std::error::Error>> {
     let report = env.root().join(format!("{name}.jsonl"));
-    let output = env
-        .command(
-            env!("CARGO_BIN_EXE_biomcp"),
-            &[
-                "get".into(),
-                "gene".into(),
-                "KRAS".into(),
-                "--replay".into(),
-                replay.display().to_string(),
-                "--observe".into(),
-                report.display().to_string(),
-            ],
-        )
-        .output()?;
+    let mut args = args.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
+    args.extend([
+        "--replay".into(),
+        replay.display().to_string(),
+        "--observe".into(),
+        report.display().to_string(),
+    ]);
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     if !output.status.success() {
         return Err("observed replay failed".into());
     }
@@ -119,6 +117,50 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
         c.get("case") == Some(&json!("gene/failure-429.yaml")) && c.get("skipped").is_some()
     }) {
         return Err("eligibility list omitted public capture or failure skip".into());
+    }
+    Ok(())
+}
+
+fn formats() -> Result<(), Box<dyn std::error::Error>> {
+    let environment = Environment::new()?;
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies");
+    let xml = observe(
+        &environment,
+        &root.join("article/get/live"),
+        "xml",
+        &["get", "article", "33123537"],
+    )?;
+    if !xml
+        .iter()
+        .any(|o| o.shape.fields.contains_key("PubmedArticleSet"))
+    {
+        return Err("raw XML names were discarded".into());
+    }
+    let retries = observe(
+        &environment,
+        &root.join("gene/synthetic-429"),
+        "retries",
+        &["get", "gene", "BRAF"],
+    )?;
+    if retries.iter().filter(|o| o.status == Some(429)).count() < 2 {
+        return Err("retry HTTP attempts were discarded".into());
+    }
+    let report = environment.root().join("xml.jsonl");
+    let original = fs::read(&report)?;
+    let output = environment
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &[
+                "get".into(),
+                "gene".into(),
+                "BRAF".into(),
+                "--observe".into(),
+                report.display().to_string(),
+            ],
+        )
+        .output()?;
+    if output.status.success() || fs::read(report)? != original {
+        return Err("existing observation report was replaced".into());
     }
     Ok(())
 }
