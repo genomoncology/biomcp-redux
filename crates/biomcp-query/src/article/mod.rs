@@ -3,6 +3,7 @@ pub mod get;
 mod next;
 mod sections;
 mod term;
+pub mod text;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},

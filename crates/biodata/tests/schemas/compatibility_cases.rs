@@ -206,3 +206,13 @@ fn compatibility_checks_consumed_decimal_bounds_and_section_annotation() {
     bad["x-trailing-section"] = json!("all");
     assert!(check(&bad, &bad).is_err());
 }
+
+#[test]
+fn compatibility_preserves_markdown_rendering_contract() {
+    let plain = json!({"$id":"biodata.example/1", "type":"string"});
+    let mut markdown = plain.clone();
+    markdown["format"] = json!("markdown");
+    assert!(check(&plain, &markdown).is_ok());
+    assert!(check(&markdown, &plain).is_err());
+    assert!(check(&markdown, &markdown).is_ok());
+}

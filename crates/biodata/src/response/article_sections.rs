@@ -44,6 +44,9 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// Licensed PMC body outline.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fulltext: Option<Section<crate::FullText>>,
     /// Normalized PubTator3 entities.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotations: Option<Section<Annotations>>,
