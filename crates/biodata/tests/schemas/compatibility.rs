@@ -13,8 +13,8 @@ struct Shape {
     minimum_items: u64,
     maximum_items: Option<u64>,
     pattern: Option<String>,
-    minimum: Option<u64>,
-    maximum: Option<u64>,
+    minimum: Option<f64>,
+    maximum: Option<f64>,
     closed: bool,
 }
 
@@ -145,7 +145,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null", "integer", "array", "boolean"].contains(&kind) {
+            if !["string", "object", "null", "integer", "array", "boolean", "number"].contains(&kind) {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
@@ -155,14 +155,14 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.pattern = Some(pattern.as_str().ok_or("invalid pattern")?.into());
     }
     if let Some(minimum) = node.get("minimum") {
-        shape.minimum = Some(minimum.as_u64().ok_or("unsupported minimum")?);
+        shape.minimum = Some(minimum.as_f64().ok_or("unsupported minimum")?);
     }
     if let Some(maximum) = node.get("maximum") {
-        shape.maximum = Some(maximum.as_u64().ok_or("unsupported maximum")?);
+        shape.maximum = Some(maximum.as_f64().ok_or("unsupported maximum")?);
     }
     if node
         .get("format")
-        .is_some_and(|format| format != "uint32" && format != "uint64")
+        .is_some_and(|format| format != "uint32" && format != "uint64" && format != "double")
     {
         return Err("unsupported format".into());
     }
@@ -196,7 +196,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum_items = Some(bound.as_u64().ok_or("invalid maxItems")?);
     }
     if let Some(minimum) = node.get("minLength") {
-        shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
+        shape.minimum_length = minimum.as_f64().ok_or("invalid minLength")?;
     }
     if let Some(additional) = node.get("additionalProperties") {
         shape.closed = !additional
@@ -338,11 +338,15 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "minItems",
             "maxItems",
             "x-positional",
+            "x-trailing-section",
         ]
         .contains(&key.as_str())
         {
             return Err(format!("unsupported keyword {key} at {path}"));
         }
+    }
+    if object.get("x-trailing-section").is_some_and(|value| value != &Value::Bool(true)) {
+        return Err("unsupported trailing-section annotation".into());
     }
     // These generated forms carry annotations beside a reference or union,
     // never assertions. Assertions would intersect, while Shape only records
@@ -359,6 +363,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-positional",
+            "x-trailing-section",
                         "default",
                     ]
                     .contains(&key.as_str())

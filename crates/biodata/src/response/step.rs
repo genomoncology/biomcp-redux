@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 super::status::wire_enum! {
 /// Purpose of an available next command.
 StepKind {
+    /// Request sections omitted from this card.
+    Section => "section",
     /// Read another page.
     Page => "page",
     /// Retry without a cached reply.

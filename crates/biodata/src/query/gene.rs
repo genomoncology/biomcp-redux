@@ -28,21 +28,31 @@ struct GetFields {
     /// Gene symbols or checked identifiers, in input order.
     #[cfg_attr(feature = "schema", schemars(length(min = MIN_INPUTS, max = MAX_INPUTS), extend("x-positional" = 0)))]
     input: Box<[GeneInput]>,
+    /// Requested section words, preserving caller order and repetitions.
+    #[serde(default, skip_serializing_if = "Box::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
+    section: Box<[GeneSectionWord]>,
 }
 impl TryFrom<GetFields> for GeneGet {
     type Error = QueryInvalid;
     fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
-        Self::new(fields.input)
+        Self::with_sections(fields.input, fields.section)
     }
 }
 impl GeneGet {
     /// Refuse an empty or oversized input batch.
     pub fn new(input: Box<[GeneInput]>) -> Result<Self, QueryInvalid> {
+        Self::with_sections(input, Box::default())
+    }
+    /// Check inputs and retain the requested section words.
+    pub fn with_sections(input: Box<[GeneInput]>, section: Box<[GeneSectionWord]>) -> Result<Self, QueryInvalid> {
         if !(MIN_INPUTS..=MAX_INPUTS).contains(&input.len()) {
             return Err(QueryInvalid);
         }
-        Ok(Self(GetFields { input }))
+        Ok(Self(GetFields { input, section }))
     }
+    /// Section words in caller order.
+    pub fn sections(&self) -> &[GeneSectionWord] { &self.0.section }
     /// Inputs in caller order.
     pub fn input(&self) -> &[GeneInput] {
         &self.0.input
@@ -137,4 +147,21 @@ fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<T>, D::Error> {
     T::deserialize(deserializer).map(Some)
+}
+
+crate::source::canonical_enum! {
+    /// A section request word, including expansion to all landed sections.
+    GeneSectionWord, SourceUnknown {
+        /// Population constraint metrics.
+        Constraint => "constraint",
+        /// Every landed section.
+        All => "all",
+    }
+}
+crate::source::canonical_enum! {
+    /// A landed section that can be requested for a gene.
+    GeneSection, SourceUnknown {
+        /// Population constraint metrics.
+        Constraint => "constraint",
+    }
 }

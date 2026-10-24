@@ -1,4 +1,4 @@
-use super::{next, resolve};
+use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
 use biodata::{
     GeneCards, GeneGet, GeneItem, GeneResolution, Problem, ProblemCode, QueryBody, Source,
@@ -26,46 +26,26 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         }
     }
     let mut sources = vec![hgnc];
-    let ids: Vec<_> = items
-        .iter()
-        .filter_map(|item| match &item.answer {
-            Some(GeneResolution::Resolved { gene, .. }) => gene.entrez_id,
-            _ => None,
-        })
-        .collect();
+    let genes = sections::prepare(query, &mut items);
+    let ids: Vec<_> = genes.iter().filter_map(|(_, gene)| gene.entrez_id).collect();
+    let mut jobs = sections::jobs(cx, deadline, query, &genes);
     if !ids.is_empty() {
-        let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
-        let batches = mygene::genes(&leg, &ids);
-        let mut error = None;
-        for batch in batches {
-            status::append(&mut problems, batch.problems);
-            match batch.result {
-                Ok(extras) => {
-                    for item in &mut items {
-                        join(item, &extras, &batch.ids, &mut problems);
-                    }
-                }
-                Err(failure) => {
-                    error = Some(failure);
-                    local = local.or(status::local(failure));
-                    for item in &mut items {
-                        if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
-                        {
-                            item.status = Status::Partial;
-                        }
-                    }
-                }
+        jobs.insert(0, Box::new(|| {
+            let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
+            let batches = mygene::genes(&leg, &ids);
+            Job::MyGene(batches, leg.finish())
+        }));
+    }
+    for job in crate::fan_out::run(jobs) {
+        match job {
+            Job::MyGene(batches, report) => mygene_join(&mut items, batches, report, &mut sources, &mut problems, &mut local),
+            Job::Section(result) => {
+                sections::join(&mut items, &result);
+                sources.push(result.source);
+                status::append(&mut problems, result.problems);
+                local = local.or(result.local);
             }
         }
-        let source = status::source(Source::MyGene, leg.finish(), error);
-        if source.state == SourceState::Stale {
-            for item in &mut items {
-                if matches!(item.answer, Some(GeneResolution::Resolved { .. })) {
-                    item.status = Status::Partial;
-                }
-            }
-        }
-        sources.push(source);
     }
     let state = status::status(items.iter().map(|item| item.status));
     let next = next::get(query, &items, &sources);
@@ -146,5 +126,34 @@ fn resolve_item(
         input: input.clone(),
         status: state,
         answer,
+        sections: None,
+        more: Box::default(),
     }
+}
+
+pub(super) enum Job {
+    MyGene(Vec<mygene::GeneBatch>, biomcp_fetch::LegReport),
+    Section(sections::SectionResult),
+}
+fn mygene_join(items: &mut [GeneItem], batches: Vec<mygene::GeneBatch>, report: biomcp_fetch::LegReport, sources: &mut Vec<biodata::SourceOutcome>, problems: &mut Vec<Problem>, local: &mut Option<biomcp_fetch::RequestError>) {
+    let mut error = None;
+    for batch in batches {
+        status::append(problems, batch.problems);
+        match batch.result {
+            Ok(extras) => { for item in &mut *items { join(item, &extras, &batch.ids, problems); } }
+            Err(failure) => {
+                error = Some(failure); *local = local.or(status::local(failure));
+                for item in &mut *items {
+                    if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id))) { item.status = Status::Partial; }
+                }
+            }
+        }
+    }
+    let source = status::source(Source::MyGene, report, error);
+    if source.state == SourceState::Stale {
+        for item in items {
+            if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some()) { item.status = Status::Partial; }
+        }
+    }
+    sources.push(source);
 }

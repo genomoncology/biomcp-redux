@@ -134,7 +134,9 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
             argument = argument.required(true);
         }
         if property.get("type").and_then(Value::as_str) == Some("array") {
-            argument = argument.num_args(1..).action(ArgAction::Append);
+            argument = if property.get("x-trailing-section").is_some() {
+                argument.num_args(1).action(ArgAction::Append)
+            } else { argument.num_args(1..).action(ArgAction::Append) };
         }
         command = command.arg(argument.value_parser(clap::builder::StringValueParser::new()));
     }
@@ -159,6 +161,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
         };
         result.insert(name.clone(), value);
     }
+    split_sections(&mut result, schema)?;
     Ok(Value::Object(result))
 }
 
@@ -183,4 +186,19 @@ impl Globals {
             Ok(())
         }
     }
+}
+
+fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(), ()> {
+    for (name, property) in properties(schema)? {
+        if property.get("x-trailing-section") != Some(&Value::Bool(true)) || result.contains_key(name) { continue; }
+        let item = &property["items"];
+        let item = item.get("$ref").and_then(Value::as_str).and_then(|s| schema.pointer(s.trim_start_matches('#'))).unwrap_or(item);
+        let words = item["enum"].as_array().ok_or(())?;
+        let Some(input) = result.get_mut("input").and_then(Value::as_array_mut) else { return Err(()); };
+        let mut split = input.len();
+        while split > 1 && input.get(split - 1).is_some_and(|v| words.contains(v)) { split -= 1; }
+        let section = input.split_off(split);
+        if !section.is_empty() { result.insert(name.clone(), Value::Array(section)); }
+    }
+    Ok(())
 }

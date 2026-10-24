@@ -21,3 +21,5 @@ pub use status::{ItemStatus, Status};
 pub use step::{Step, StepKind};
 
 pub use gene::{SyncQuery, SyncResult};
+
+pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};
