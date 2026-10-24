@@ -9,6 +9,45 @@
       ],
       "type": "string"
     },
+    "CivicGene": {
+      "additionalProperties": false,
+      "description": "CIViC's gene-level entry without evidence or variant lists.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete source description, absent when the source has none."
+        },
+        "id": {
+          "description": "CIViC feature identifier.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Link to the source entry."
+        },
+        "variant_count": {
+          "description": "Number of curated variants reported by the source.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "variant_count",
+        "url"
+      ],
+      "type": "object"
+    },
     "Constraint": {
       "additionalProperties": false,
       "description": "Source constraint metrics for the source's preferred transcript.",
@@ -483,7 +522,8 @@
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
       "enum": [
-        "constraint"
+        "constraint",
+        "civic"
       ],
       "type": "string"
     },
@@ -491,6 +531,7 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "constraint",
+        "civic",
         "all"
       ],
       "type": "string"
@@ -499,6 +540,17 @@
       "additionalProperties": false,
       "description": "Landed gene sections, each retaining its source and explicit state.",
       "properties": {
+        "civic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "CIViC gene-level curation."
+        },
         "constraint": {
           "anyOf": [
             {
@@ -759,7 +811,8 @@
         "no_key",
         "disabled",
         "replay_miss",
-        "syncing"
+        "syncing",
+        "no_join_id"
       ],
       "type": "string"
     },
@@ -772,6 +825,127 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/Constraint",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CivicGene",
               "description": "Whole section data."
             },
             "source": {

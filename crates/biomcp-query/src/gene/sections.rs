@@ -114,8 +114,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         }
         if let Some(sections) = &mut item.sections {
             match section {
-                SectionValue::Constraint(section) => sections.constraint = Some(section.clone()),
-                SectionValue::Civic(section) => sections.civic = Some(section.clone()),
+                SectionValue::Constraint(section) if result.section == GeneSection::Constraint => sections.constraint = Some(section.clone()),
+                SectionValue::Civic(section) if result.section == GeneSection::Civic => sections.civic = Some(section.clone()),
+                _ => {},
             }
         }
     }

@@ -12,6 +12,7 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "constraint",
+        "civic",
         "all"
       ],
       "type": "string"
