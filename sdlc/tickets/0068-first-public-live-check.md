@@ -8,7 +8,7 @@ Depends on: 0055
 
 ## Outcome
 
-A build delegate runs the landed live-check command once over every eligible public case and reports source drift. The PM gives the bounded recipe to Jarvis for scheduling after reading the first result.
+A build delegate runs the landed live-check command once over every eligible public case and reports source drift. The PM gives the bounded recipe to Jarvis for scheduling after 0069 and 0070 land, without repeating the whole public run first. The first run, j9937 at c589955, stays as evidence.
 
 - Why: 0055 proves the diagnostic offline; its first real source run and machine schedule remain milestone work.
 - Starts from: landed 0055, its live-check recipe, explicit per-case provenance and the PM ruling that Jarvis owns schedules.
