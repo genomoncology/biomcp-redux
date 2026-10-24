@@ -24,6 +24,148 @@
         "1"
       ],
       "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "999"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "1",
+        "--find",
+        "AXIN2"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "10.1/example",
+        "--part",
+        "1"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "missing"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/hits": [],
+        "/page/total": 0,
+        "/next": []
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "AXIN2",
+        "--offset",
+        "999"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "axin2"
+      ],
+      "expect": {
+        "/result/content/data/processing_version": 12,
+        "/result/content/data/hits": {
+          "count": 25
+        },
+        "/page/total": 29,
+        "/next/0/args": [
+          "article",
+          "text",
+          "PMC5606870",
+          "--find",
+          "axin2",
+          "--offset",
+          "25"
+        ]
+      },
+      "max_tokens": 4000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/content/data/hits": {
+          "count": 4
+        },
+        "/page/offset": 25,
+        "/next": []
+      },
+      "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "2"
+      ],
+      "expect": {
+        "/result/content/data/part": 2,
+        "/next/0/args": [
+          "article",
+          "text",
+          "PMC5606870",
+          "--part",
+          "3"
+        ]
+      },
+      "max_tokens": 4000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/content/data/part": 3,
+        "/next/0/args": [
+          "article",
+          "text",
+          "PMC5606870",
+          "--part",
+          "4"
+        ]
+      },
+      "max_tokens": 4000
     }
   ]
 }

@@ -83,16 +83,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
         Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
-            let result = biomcp_query::run(
-                &biomcp_query::Ctx {
-                    ncbi_email: crate::config::ncbi_email()
-                        .map_err(|()| io::Error::other("local configuration failed"))?,
-                    fetch,
-                    budget: crate::config::BUDGET,
-                    fresh,
-                },
-                &request,
-            );
+            let result = run_request(fetch, &request, fresh)?;
             let status = if result.local.is_some() {
                 crate::exit::Status::Local
             } else {
@@ -277,4 +268,11 @@ fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Resu
         status,
         cli_bytes: bytes,
     })
+}
+
+fn run_request(fetch: &biomcp_fetch::Fetch, request: &Request, fresh: bool) -> io::Result<biomcp_query::Outcome> {
+    Ok(biomcp_query::run(&biomcp_query::Ctx {
+        ncbi_email: crate::config::ncbi_email().map_err(|()| io::Error::other("local configuration failed"))?,
+        fetch, budget: crate::config::BUDGET, fresh,
+    }, request))
 }

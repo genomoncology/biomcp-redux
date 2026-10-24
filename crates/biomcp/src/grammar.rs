@@ -137,31 +137,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if verb == "article" && entity == "text" {
-            "biodata.article-text/1"
-        } else if entity == "article" && verb == "get" {
-            "biodata.article-get/1"
-        } else if entity == "article" {
-            "biodata.article-search/1"
-        } else if verb == "get" {
-            "biodata.gene-get/1"
-        } else {
-            "biodata.gene-search/1"
-        };
-        let schema: Value =
-            serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-        let value = arguments(matches, &schema)?;
-        let request = if verb == "article" && entity == "text" {
-            Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
-        } else if entity == "article" && verb == "get" {
-            Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
-        } else if entity == "article" {
-            Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
-        } else if verb == "get" {
-            Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
-        } else {
-            Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
-        };
+        let request = query(verb, entity, matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -281,4 +257,33 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
         }
     }
     Ok(())
+}
+
+fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
+        let id = if verb == "article" && entity == "text" {
+            "biodata.article-text/1"
+        } else if entity == "article" && verb == "get" {
+            "biodata.article-get/1"
+        } else if entity == "article" {
+            "biodata.article-search/1"
+        } else if verb == "get" {
+            "biodata.gene-get/1"
+        } else {
+            "biodata.gene-search/1"
+        };
+        let schema: Value =
+            serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+        let value = arguments(matches, &schema)?;
+        let request = if verb == "article" && entity == "text" {
+            Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
+        } else if entity == "article" && verb == "get" {
+            Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
+        } else if entity == "article" {
+            Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
+        } else if verb == "get" {
+            Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
+        } else {
+            Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
+        };
+    Ok(request)
 }
