@@ -36,7 +36,9 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                         array(pointer, operator, expected)?;
                         assertions.push(Assertion::IncludesAllOf(expected));
                     }
-                    "nonincreasing" if expected == &Value::Bool(true) => assertions.push(Assertion::Nonincreasing),
+                    "nonincreasing" if expected == &Value::Bool(true) => {
+                        assertions.push(Assertion::Nonincreasing)
+                    }
                     "unique" if expected == &Value::Bool(true) => {
                         assertions.push(Assertion::Unique)
                     }
@@ -160,9 +162,18 @@ impl Assertion<'_> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
             Self::Nonincreasing => {
-                let values=array(pointer,"nonincreasing",actual)?;
-                let numbers:Vec<_>=values.iter().map(|v|v.as_u64().ok_or_else(||format!("{pointer} nonincreasing: expected unsigned counts"))).collect::<Result<_,_>>()?;
-                if numbers.windows(2).any(|pair|pair.first()<pair.get(1)) {return Err(format!("{pointer} nonincreasing: count increased"));}
+                let values = array(pointer, "nonincreasing", actual)?;
+                let numbers: Vec<_> = values
+                    .iter()
+                    .map(|v| {
+                        v.as_u64().ok_or_else(|| {
+                            format!("{pointer} nonincreasing: expected unsigned counts")
+                        })
+                    })
+                    .collect::<Result<_, _>>()?;
+                if numbers.windows(2).any(|pair| pair.first() < pair.get(1)) {
+                    return Err(format!("{pointer} nonincreasing: count increased"));
+                }
                 Ok(())
             }
             Self::Unique => {

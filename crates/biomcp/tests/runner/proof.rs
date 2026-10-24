@@ -6,6 +6,11 @@ type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("runner/rejects-increasing-citation-counts", || {
+            let assertion=super::assertions::Assertion::Nonincreasing;
+            if assertion.check("",&serde_json::json!([8,9])).is_ok() {return Err("increasing counts accepted".into());}
+            assertion.check("",&serde_json::json!([9,9,0])).map_err(Into::into)
+        }),
         Trial::test("runner/null-and-empty-boundaries", || {
             boundaries().map_err(Into::into)
         }),

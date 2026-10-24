@@ -1,6 +1,6 @@
 {
   "feature": "article-citations",
-  "story": "A citation section is available independently of annotations and keeps the article card when iCite is absent.",
+  "story": "A missing local recording preserves the card and reports a local failure separately from its unavailable citation section.",
   "replay": "article/get/synthetic-derived",
   "steps": [
     {
@@ -10,7 +10,7 @@
         "33123537",
         "citations"
       ],
-      "exit": 0,
+      "exit": 5,
       "expect": {
         "/result/items/0/sections/citations/state": "unavailable",
         "/result/items/0/answer/resolution": "resolved"

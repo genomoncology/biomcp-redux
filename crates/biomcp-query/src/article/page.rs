@@ -99,7 +99,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
             original.state = source.state;
             original.reason = source.reason;
-        } else {out.sources.push(source.clone());}
+        } else {
+            out.sources.push(source.clone());
+        }
     }
     let stale = out
         .sources
@@ -136,7 +138,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage { items }),
         Cursor::Edges(_, _) => QueryBody::ArticleEdges(ArticleEdgePage { items }),
     };
-    actions(query,pool,returned,total,out);
+    actions(query, pool, returned, total, out);
     if partial {
         query.retry(
             if stale || failed || missing_external {
@@ -149,7 +151,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     }
 }
 
-fn actions(query:Cursor<'_>,pool:&Pool,returned:u32,total:u64,out:&mut Outcome) {
+fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut Outcome) {
     if let Some(offset) = query
         .offset()
         .checked_add(returned)

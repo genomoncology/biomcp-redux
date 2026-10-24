@@ -1,0 +1,2369 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845887,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 292,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "15117980",
+              "24256730",
+              "26412456",
+              "26712084",
+              "27979383",
+              "28636851",
+              "29658856",
+              "30955977",
+              "31666701",
+              "33433946"
+            ],
+            "15117980": {
+              "uid": "15117980",
+              "pubdate": "2004 May 1",
+              "epubdate": "",
+              "source": "J Clin Oncol",
+              "authors": [
+                {
+                  "name": "Hanna N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shepherd FA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fossella FV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pereira JR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "De Marinis F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "von Pawel J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gatzemeier U",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tsao TC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pless M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Muller T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lim HL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Desch C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Szondy K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gervais R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shaharyar",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Manegold C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Paul S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Paoletti P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Einhorn L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bunn PA Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Bunn PA Jr",
+              "title": "Randomized phase III trial of pemetrexed versus docetaxel in patients with non-small-cell lung cancer previously treated with chemotherapy.",
+              "sorttitle": "randomized phase iii trial of pemetrexed versus docetaxel in patients with non small cell lung cancer previously treated with chemotherapy",
+              "volume": "22",
+              "issue": "9",
+              "pages": "1589-97",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "8309333",
+              "issn": "0732-183X",
+              "essn": "",
+              "pubtype": [
+                "Clinical Trial",
+                "Clinical Trial, Phase III",
+                "Journal Article",
+                "Randomized Controlled Trial",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "15117980"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1200/JCO.2004.08.163"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "JCO.2004.08.163"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2004/05/01 05:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2004/05/28 05:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2004/05/01 05:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "J Clin Oncol. 2023 May 20;41(15):2682-2690. doi: 10.1200/JCO.22.02546.",
+                  "reftype": "Republished in",
+                  "pmid": 37196429,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of clinical oncology : official journal of the American Society of Clinical Oncology",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2004/05/01 00:00",
+              "sortfirstauthor": "Hanna N",
+              "vernaculartitle": ""
+            },
+            "24256730": {
+              "uid": "24256730",
+              "pubdate": "2013 Nov 28",
+              "epubdate": "2013 Nov 20",
+              "source": "Nature",
+              "authors": [
+                {
+                  "name": "Ostrem JM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peters U",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sos ML",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wells JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shokat KM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Shokat KM",
+              "title": "K-Ras(G12C) inhibitors allosterically control GTP affinity and effector interactions.",
+              "sorttitle": "k ras g12c inhibitors allosterically control gtp affinity and effector interactions",
+              "volume": "503",
+              "issue": "7477",
+              "pages": "548-51",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0410462",
+              "issn": "0028-0836",
+              "essn": "1476-4687",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "24256730"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS646437"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC4274051"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC4274051;manuscript-id: NIHMS646437;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nature12796"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nature12796"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2013/06/23 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2013/10/25 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2013/11/22 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2013/11/22 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2013/12/24 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2014/12/22 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nature. 2013 Nov 28;503(7477):475-6. doi: 10.1038/nature12835.",
+                  "reftype": "Comment in",
+                  "pmid": 24256732,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Cancer. 2014 Jan;14(1):8-9. doi: 10.1038/nrc3650.",
+                  "reftype": "Comment in",
+                  "pmid": 24304874,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 30,
+              "fulljournalname": "Nature",
+              "elocationid": "doi: 10.1038/nature12796",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2013/11/28 00:00",
+              "sortfirstauthor": "Ostrem JM",
+              "vernaculartitle": ""
+            },
+            "26412456": {
+              "uid": "26412456",
+              "pubdate": "2015 Oct 22",
+              "epubdate": "2015 Sep 27",
+              "source": "N Engl J Med",
+              "authors": [
+                {
+                  "name": "Borghaei H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Paz-Ares L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Horn L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Spigel DR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Steins M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ready NE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chow LQ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vokes EE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Felip E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Holgado E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Barlesi F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kohlh\u00e4ufl M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Arrieta O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Burgio MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fayette J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lena H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Poddubskaya E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gerber DE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gettinger SN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rudin CM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rizvi N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Crin\u00f2 L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Blumenschein GR Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Antonia SJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dorange C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Harbison CT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Graf Finckenstein F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brahmer JR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Brahmer JR",
+              "title": "Nivolumab versus Docetaxel in Advanced Nonsquamous Non-Small-Cell Lung Cancer.",
+              "sorttitle": "nivolumab versus docetaxel in advanced nonsquamous non small cell lung cancer",
+              "volume": "373",
+              "issue": "17",
+              "pages": "1627-39",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0255562",
+              "issn": "0028-4793",
+              "essn": "1533-4406",
+              "pubtype": [
+                "Clinical Trial, Phase III",
+                "Comparative Study",
+                "Journal Article",
+                "Multicenter Study",
+                "Randomized Controlled Trial",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "26412456"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS922145"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC5705936"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC5705936;manuscript-id: NIHMS922145;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1056/NEJMoa1507643"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2015/09/29 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2015/09/29 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2015/10/28 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2017/11/29 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2015 Dec;12(12):685. doi: 10.1038/nrclinonc.2015.184.",
+                  "reftype": "Comment in",
+                  "pmid": 26483299,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2016 Feb 4;374(5):493-4. doi: 10.1056/NEJMc1514790.",
+                  "reftype": "Comment in",
+                  "pmid": 26840144,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2016 Feb 4;374(5):492-3. doi: 10.1056/NEJMc1514790.",
+                  "reftype": "Comment in",
+                  "pmid": 26840145,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2016 Feb 4;374(5):493. doi: 10.1056/NEJMc1514790.",
+                  "reftype": "Comment in",
+                  "pmid": 26840146,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nature. 2017 Dec 21;552(7685):S62-S63. doi: 10.1038/d41586-017-08700-9.",
+                  "reftype": "Comment in",
+                  "pmid": 29293220,
+                  "note": ""
+                },
+                {
+                  "refsource": "JCO Clin Cancer Inform. 2023 Sep;7:e2300132. doi: 10.1200/CCI.23.00132.",
+                  "reftype": "Comment in",
+                  "pmid": 37906725,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 23,
+              "fulljournalname": "The New England journal of medicine",
+              "elocationid": "doi: 10.1056/NEJMoa1507643",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2015/10/22 00:00",
+              "sortfirstauthor": "Borghaei H",
+              "vernaculartitle": ""
+            },
+            "26712084": {
+              "uid": "26712084",
+              "pubdate": "2016 Apr 9",
+              "epubdate": "2015 Dec 19",
+              "source": "Lancet",
+              "authors": [
+                {
+                  "name": "Herbst RS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Baas P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kim DW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Felip E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "P\u00e9rez-Gracia JL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Han JY",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Molina J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kim JH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Arvis CD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ahn MJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Majem M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fidler MJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "de Castro G Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garrido M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lubiniecki GM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shentu Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Im E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dolled-Filhart M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garon EB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Garon EB",
+              "title": "Pembrolizumab versus docetaxel for previously treated, PD-L1-positive, advanced non-small-cell lung cancer (KEYNOTE-010): a randomised controlled trial.",
+              "sorttitle": "pembrolizumab versus docetaxel for previously treated pd l1 positive advanced non small cell lung cancer keynote 010 a randomised controlled trial",
+              "volume": "387",
+              "issue": "10027",
+              "pages": "1540-1550",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "2985213R",
+              "issn": "0140-6736",
+              "essn": "1474-547X",
+              "pubtype": [
+                "Journal Article",
+                "Multicenter Study",
+                "Randomized Controlled Trial",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "26712084"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/S0140-6736(15)01281-7"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0140-6736(15)01281-7"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2015/12/30 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2015/12/30 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2016/05/10 06:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Lancet. 2016 Apr 9;387(10027):1488-1490. doi: 10.1016/S0140-6736(15)01308-2.",
+                  "reftype": "Comment in",
+                  "pmid": 26712085,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2017 Nov;9(11):4187-4190. doi: 10.21037/jtd.2017.10.135.",
+                  "reftype": "Comment in",
+                  "pmid": 29268467,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2017 Dec;9(12):4821-4824. doi: 10.21037/jtd.2017.10.152.",
+                  "reftype": "Comment in",
+                  "pmid": 29312666,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Lancet (London, England)",
+              "elocationid": "doi: 10.1016/S0140-6736(15)01281-7",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2016/04/09 00:00",
+              "sortfirstauthor": "Herbst RS",
+              "vernaculartitle": ""
+            },
+            "27979383": {
+              "uid": "27979383",
+              "pubdate": "2017 Jan 21",
+              "epubdate": "2016 Dec 13",
+              "source": "Lancet",
+              "authors": [
+                {
+                  "name": "Rittmeyer A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Barlesi F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Waterkamp D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Park K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ciardiello F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "von Pawel J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gadgeel SM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hida T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kowalski DM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dols MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cortinovis DL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Leach J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Polikoff J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Barrios C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kabbinavar F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Frontera OA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "De Marinis F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Turna H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lee JS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ballinger M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kowanetz M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "He P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chen DS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sandler A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gandara DR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "OAK Study Group",
+                  "authtype": "CollectiveName",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Gandara DR",
+              "title": "Atezolizumab versus docetaxel in patients with previously treated non-small-cell lung cancer (OAK): a phase 3, open-label, multicentre randomised controlled trial.",
+              "sorttitle": "atezolizumab versus docetaxel in patients with previously treated non small cell lung cancer oak a phase 3 open label multicentre randomised controlled trial",
+              "volume": "389",
+              "issue": "10066",
+              "pages": "255-265",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "2985213R",
+              "issn": "0140-6736",
+              "essn": "1474-547X",
+              "pubtype": [
+                "Clinical Trial, Phase III",
+                "Comparative Study",
+                "Journal Article",
+                "Multicenter Study",
+                "Randomized Controlled Trial"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "27979383"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS1060372"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC6886121"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC6886121;manuscript-id: NIHMS1060372;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/S0140-6736(16)32517-X"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0140-6736(16)32517-X"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2016/10/07 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2016/11/14 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2016/11/15 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2016/12/17 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2018/01/18 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2016/12/17 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2019/12/02 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Lancet. 2017 Jan 21;389(10066):227-228. doi: 10.1016/S0140-6736(16)32535-1.",
+                  "reftype": "Comment in",
+                  "pmid": 27979385,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2017 Feb;14(2):70-71. doi: 10.1038/nrclinonc.2016.218.",
+                  "reftype": "Comment in",
+                  "pmid": 28031557,
+                  "note": ""
+                },
+                {
+                  "refsource": "Lancet. 2017 Apr 8;389(10077):e5. doi: 10.1016/S0140-6736(17)30904-2.",
+                  "reftype": "Erratum in",
+                  "pmid": 28402831,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2017 Mar;9(3):E292-E294. doi: 10.21037/jtd.2017.02.86.",
+                  "reftype": "Comment in",
+                  "pmid": 28449524,
+                  "note": ""
+                },
+                {
+                  "refsource": "Ann Transl Med. 2017 Jun;5(12):265. doi: 10.21037/atm.2017.03.89.",
+                  "reftype": "Comment in",
+                  "pmid": 28706933,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 22,
+              "fulljournalname": "Lancet (London, England)",
+              "elocationid": "doi: 10.1016/S0140-6736(16)32517-X",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2017/01/21 00:00",
+              "sortfirstauthor": "Rittmeyer A",
+              "vernaculartitle": ""
+            },
+            "28636851": {
+              "uid": "28636851",
+              "pubdate": "2017 Jun 22",
+              "epubdate": "",
+              "source": "N Engl J Med",
+              "authors": [
+                {
+                  "name": "Carbone DP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Reck M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Paz-Ares L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Creelan B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Horn L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Steins M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Felip E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "van den Heuvel MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ciuleanu TE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Badin F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ready N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hiltermann TJN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nair S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Juergens R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peters S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Minenza E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wrangle JM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rodriguez-Abreu D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Borghaei H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Blumenschein GR Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Villaruz LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Havel L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Krejci J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Corral Jaime J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chang H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Geese WJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bhagavatheeswaran P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chen AC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Socinski MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "CheckMate 026 Investigators",
+                  "authtype": "CollectiveName",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Socinski MA",
+              "title": "First-Line Nivolumab in Stage IV or Recurrent Non-Small-Cell Lung Cancer.",
+              "sorttitle": "first line nivolumab in stage iv or recurrent non small cell lung cancer",
+              "volume": "376",
+              "issue": "25",
+              "pages": "2415-2426",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0255562",
+              "issn": "0028-4793",
+              "essn": "1533-4406",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "28636851"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS889787"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC6487310"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC6487310;manuscript-id: NIHMS889787;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1056/NEJMoa1613493"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2017/06/22 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2017/06/22 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2017/06/24 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2019/04/29 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "N Engl J Med. 2017 Jun 22;376(25):2483-2485. doi: 10.1056/NEJMe1705692.",
+                  "reftype": "Comment in",
+                  "pmid": 28636845,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2017 Jul 20;14(8):458-459. doi: 10.1038/nrclinonc.2017.102.",
+                  "reftype": "Comment in",
+                  "pmid": 28726813,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2018 Feb;7(Suppl 1):S28-S30. doi: 10.21037/tlcr.2018.01.04.",
+                  "reftype": "Comment in",
+                  "pmid": 29531900,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2018 Apr;7(Suppl 2):S95-S99. doi: 10.21037/tlcr.2018.02.08.",
+                  "reftype": "Comment in",
+                  "pmid": 29780701,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 20,
+              "fulljournalname": "The New England journal of medicine",
+              "elocationid": "doi: 10.1056/NEJMoa1613493",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2017/06/22 00:00",
+              "sortfirstauthor": "Carbone DP",
+              "vernaculartitle": ""
+            },
+            "29658856": {
+              "uid": "29658856",
+              "pubdate": "2018 May 31",
+              "epubdate": "2018 Apr 16",
+              "source": "N Engl J Med",
+              "authors": [
+                {
+                  "name": "Gandhi L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rodr\u00edguez-Abreu D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gadgeel S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Esteban E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Felip E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "De Angelis F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Domine M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Clingan P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hochmair MJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Powell SF",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cheng SY",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bischoff HG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peled N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Grossi F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jennens RR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Reck M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hui R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garon EB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Boyer M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rubio-Viqueira B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Novello S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kurata T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gray JE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vida J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wei Z",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Yang J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Raftopoulos H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pietanza MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garassino MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "KEYNOTE-189 Investigators",
+                  "authtype": "CollectiveName",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Garassino MC",
+              "title": "Pembrolizumab plus Chemotherapy in Metastatic Non-Small-Cell Lung Cancer.",
+              "sorttitle": "pembrolizumab plus chemotherapy in metastatic non small cell lung cancer",
+              "volume": "378",
+              "issue": "22",
+              "pages": "2078-2092",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0255562",
+              "issn": "0028-4793",
+              "essn": "1533-4406",
+              "pubtype": [
+                "Clinical Trial, Phase III",
+                "Journal Article",
+                "Multicenter Study",
+                "Randomized Controlled Trial",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "29658856"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1056/NEJMoa1801005"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2018/04/17 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2018/06/09 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2018/04/17 06:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Cancer Discov. 2018 Jun;8(6):OF7. doi: 10.1158/2159-8290.CD-NB2018-051.",
+                  "reftype": "Comment in",
+                  "pmid": 29666060,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2018 Jul;15(7):402-403. doi: 10.1038/s41571-018-0031-1.",
+                  "reftype": "Comment in",
+                  "pmid": 29725041,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2018 May 31;378(22):2135-2137. doi: 10.1056/NEJMe1804364.",
+                  "reftype": "Comment in",
+                  "pmid": 29847766,
+                  "note": ""
+                },
+                {
+                  "refsource": "Immunity. 2018 Jun 19;48(6):1077-1080. doi: 10.1016/j.immuni.2018.06.003.",
+                  "reftype": "Comment in",
+                  "pmid": 29924973,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2018 Oct;15(10):593-594. doi: 10.1038/s41571-018-0070-7.",
+                  "reftype": "Comment in",
+                  "pmid": 29993034,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2018 Sep 13;379(11):e18. doi: 10.1056/NEJMc1808567.",
+                  "reftype": "Comment in",
+                  "pmid": 30211498,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2018 Sep 13;379(11):e18. doi: 10.1056/NEJMc1808567.",
+                  "reftype": "Comment in",
+                  "pmid": 30211499,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2018 Sep 13;379(11):e18. doi: 10.1056/NEJMc1808567.",
+                  "reftype": "Comment in",
+                  "pmid": 30211501,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2018 Sep;7(Suppl 3):S202-S205. doi: 10.21037/tlcr.2018.07.03.",
+                  "reftype": "Comment in",
+                  "pmid": 30393601,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2018 Sep;7(Suppl 3):S208-S210. doi: 10.21037/tlcr.2018.07.15.",
+                  "reftype": "Comment in",
+                  "pmid": 30393603,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2018 Sep;10(9):5184-5185. doi: 10.21037/jtd.2018.09.21.",
+                  "reftype": "Comment in",
+                  "pmid": 30416763,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2018 Sep;10(9):5186-5189. doi: 10.21037/jtd.2018.09.05.",
+                  "reftype": "Comment in",
+                  "pmid": 30416764,
+                  "note": ""
+                },
+                {
+                  "refsource": "Am J Respir Crit Care Med. 2019 May 15;199(10):1277-1279. doi: 10.1164/rccm.201810-1930RR.",
+                  "reftype": "Comment in",
+                  "pmid": 30860861,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2019 Dec;8(Suppl 4):S327-S330. doi: 10.21037/tlcr.2019.05.11.",
+                  "reftype": "Comment in",
+                  "pmid": 32038907,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "The New England journal of medicine",
+              "elocationid": "doi: 10.1056/NEJMoa1801005",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2018/05/31 00:00",
+              "sortfirstauthor": "Gandhi L",
+              "vernaculartitle": ""
+            },
+            "30955977": {
+              "uid": "30955977",
+              "pubdate": "2019 May 4",
+              "epubdate": "2019 Apr 4",
+              "source": "Lancet",
+              "authors": [
+                {
+                  "name": "Mok TSK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wu YL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kudaba I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kowalski DM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cho BC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Turna HZ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Castro G Jr",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Srimuninnimit V",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Laktionov KK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bondarenko I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kubota K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lubiniecki GM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhang J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kush D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lopes G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "KEYNOTE-042 Investigators",
+                  "authtype": "CollectiveName",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Lopes G",
+              "title": "Pembrolizumab versus chemotherapy for previously untreated, PD-L1-expressing, locally advanced or metastatic non-small-cell lung cancer (KEYNOTE-042): a randomised, open-label, controlled, phase 3 trial.",
+              "sorttitle": "pembrolizumab versus chemotherapy for previously untreated pd l1 expressing locally advanced or metastatic non small cell lung cancer keynote 042 a randomised open label controlled phase 3 trial",
+              "volume": "393",
+              "issue": "10183",
+              "pages": "1819-1830",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "2985213R",
+              "issn": "0140-6736",
+              "essn": "1474-547X",
+              "pubtype": [
+                "Clinical Trial, Phase III",
+                "Comparative Study",
+                "Journal Article",
+                "Randomized Controlled Trial"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "30955977"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/S0140-6736(18)32409-7"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0140-6736(18)32409-7"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2018/08/07 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2018/09/19 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2018/09/25 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2019/04/09 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2019/05/23 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2019/04/09 06:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2019 Jul;16(7):403. doi: 10.1038/s41571-019-0213-5.",
+                  "reftype": "Comment in",
+                  "pmid": 30992570,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Thorac Dis. 2019 Sep;11(Suppl 15):S1963-S1965. doi: 10.21037/jtd.2019.07.80.",
+                  "reftype": "Comment in",
+                  "pmid": 31632798,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2019 Oct;8(5):723-727. doi: 10.21037/tlcr.2019.05.03.",
+                  "reftype": "Comment in",
+                  "pmid": 31737510,
+                  "note": ""
+                },
+                {
+                  "refsource": "Lancet. 2019 Nov 23;394(10212):1904-1905. doi: 10.1016/S0140-6736(19)32605-4.",
+                  "reftype": "Comment in",
+                  "pmid": 31777386,
+                  "note": ""
+                },
+                {
+                  "refsource": "Lancet. 2019 Nov 23;394(10212):1904. doi: 10.1016/S0140-6736(19)32503-6.",
+                  "reftype": "Comment in",
+                  "pmid": 31777387,
+                  "note": ""
+                },
+                {
+                  "refsource": "Chin Clin Oncol. 2020 Aug;9(4):59. doi: 10.21037/cco.2020.01.05.",
+                  "reftype": "Comment in",
+                  "pmid": 32036674,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Lung Cancer Res. 2019 Dec;8(Suppl 4):S403-S406. doi: 10.21037/tlcr.2019.07.06.",
+                  "reftype": "Comment in",
+                  "pmid": 32038925,
+                  "note": ""
+                },
+                {
+                  "refsource": "Chin Clin Oncol. 2020 Aug;9(4):60. doi: 10.21037/cco.2020.01.03.",
+                  "reftype": "Comment in",
+                  "pmid": 32075393,
+                  "note": ""
+                },
+                {
+                  "refsource": "Ann Transl Med. 2020 Apr;8(7):517. doi: 10.21037/atm.2020.01.65.",
+                  "reftype": "Comment in",
+                  "pmid": 32395561,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Cancer Res. 2019 Nov;8(7):2514-2516. doi: 10.21037/tcr.2019.05.20.",
+                  "reftype": "Comment in",
+                  "pmid": 35117007,
+                  "note": ""
+                },
+                {
+                  "refsource": "Transl Cancer Res. 2019 Dec;8(Suppl 6):S618-S620. doi: 10.21037/tcr.2019.06.28.",
+                  "reftype": "Comment in",
+                  "pmid": 35117144,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Lancet (London, England)",
+              "elocationid": "doi: 10.1016/S0140-6736(18)32409-7",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2019/05/04 00:00",
+              "sortfirstauthor": "Mok TSK",
+              "vernaculartitle": ""
+            },
+            "31666701": {
+              "uid": "31666701",
+              "pubdate": "2019 Nov",
+              "epubdate": "2019 Oct 30",
+              "source": "Nature",
+              "authors": [
+                {
+                  "name": "Canon J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rex K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Saiki AY",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mohr C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cooke K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bagal D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gaida K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Holt T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Knutson CG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Koppada N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lanman BA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Werner J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rapaport AS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "San Miguel T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ortiz R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Osgood T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sun JR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhu X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McCarter JD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Volak LP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Houk BE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fakih MG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "O'Neil BH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Price TJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Falchook GS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Desai J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kuo J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Govindan R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hong DS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ouyang W",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Henary H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Arvedson T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cee VJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lipford JR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Lipford JR",
+              "title": "The clinical KRAS(G12C) inhibitor AMG 510 drives anti-tumour immunity.",
+              "sorttitle": "clinical kras g12c inhibitor amg 510 drives anti tumour immunity",
+              "volume": "575",
+              "issue": "7781",
+              "pages": "217-223",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0410462",
+              "issn": "0028-0836",
+              "essn": "1476-4687",
+              "pubtype": [
+                "Clinical Trial",
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "31666701"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/s41586-019-1694-1"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "10.1038/s41586-019-1694-1"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2019/03/29 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2019/09/18 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2019/11/02 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2020/04/14 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2019/11/01 06:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nature. 2019 Nov;575(7782):294-295. doi: 10.1038/d41586-019-03242-8.",
+                  "reftype": "Comment in",
+                  "pmid": 31705127,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Cancer. 2020 Jan;20(1):3. doi: 10.1038/s41568-019-0228-3.",
+                  "reftype": "Comment in",
+                  "pmid": 31728026,
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Rev Clin Oncol. 2020 Jan;17(1):6. doi: 10.1038/s41571-019-0304-3.",
+                  "reftype": "Comment in",
+                  "pmid": 31772333,
+                  "note": ""
+                },
+                {
+                  "refsource": "Trends Pharmacol Sci. 2020 Jan;41(1):1-3. doi: 10.1016/j.tips.2019.11.004.",
+                  "reftype": "Comment in",
+                  "pmid": 31818506,
+                  "note": ""
+                },
+                {
+                  "refsource": "Immunity. 2020 Jan 14;52(1):14-16. doi: 10.1016/j.immuni.2019.12.013.",
+                  "reftype": "Comment in",
+                  "pmid": 31951548,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature",
+              "elocationid": "doi: 10.1038/s41586-019-1694-1",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2019/11/01 00:00",
+              "sortfirstauthor": "Canon J",
+              "vernaculartitle": ""
+            },
+            "33433946": {
+              "uid": "33433946",
+              "pubdate": "2021 Jan",
+              "epubdate": "2021 Jan 12",
+              "source": "CA Cancer J Clin",
+              "authors": [
+                {
+                  "name": "Siegel RL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Miller KD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fuchs HE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jemal A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Jemal A",
+              "title": "Cancer Statistics, 2021.",
+              "sorttitle": "cancer statistics 2021",
+              "volume": "71",
+              "issue": "1",
+              "pages": "7-33",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0370647",
+              "issn": "0007-9235",
+              "essn": "1542-4863",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "33433946"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.3322/caac.21654"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2020/10/23 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2020/10/26 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2021/01/13 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2021/10/01 06:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2021/01/12 12:26"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "CA Cancer J Clin. 2021 Jul;71(4):359. doi: 10.3322/caac.21669.",
+                  "reftype": "Erratum in",
+                  "pmid": 34232515,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "CA: a cancer journal for clinicians",
+              "elocationid": "doi: 10.3322/caac.21654",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2021/01/01 00:00",
+              "sortfirstauthor": "Siegel RL",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "9845eb143192f26a34ebe8aacb484aa96279b94ea440ac14d590349152aa9697"
+  }
+}

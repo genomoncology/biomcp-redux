@@ -67,7 +67,9 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(items)=create(cx,query,references,deadline,out)? else {return Ok(());};
+            let Some(items) = create(cx, query, references, deadline, out)? else {
+                return Ok(());
+            };
             store.set_deadline(*deadline);
             store.publish(&key, &items, &out.sources)?
         }
@@ -84,19 +86,59 @@ fn execute<'a>(
     result
 }
 
-fn create<'a>(cx:&Ctx<'a>,query:&ArticleEdges,references:bool,deadline:&mut Deadline<'a>,out:&mut Outcome)->Result<Option<Vec<ArticleItem>>,RequestError> {
-    let parent=order::fetch(cx,deadline,&[query.pmid()]);
+fn create<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleEdges,
+    references: bool,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<Option<Vec<ArticleItem>>, RequestError> {
+    let parent = order::fetch(cx, deadline, &[query.pmid()]);
     out.sources.push(parent.source);
-    if let Some(error)=parent.local {return Err(error);}
-    if parent.error.is_some() {out.status=Status::Failed;restart(query,references,out,true);return Ok(None);}
-    let ids=parent.rows.into_iter().find(|row|row.pmid==query.pmid()).and_then(|row|if references {row.references}else {row.citing});
-    let Some(ids)=ids else {
-        out.status=Status::Failed;
-        if let Some(source)=out.sources.last_mut() {source.state=biodata::SourceState::Failed;source.reason=Some(biodata::Reason::BadReply);}
-        restart(query,references,out,true);return Ok(None);
+    if let Some(error) = parent.local {
+        return Err(error);
+    }
+    if parent.error.is_some() {
+        out.status = Status::Failed;
+        restart(query, references, out, true);
+        return Ok(None);
+    }
+    let ids = parent
+        .rows
+        .into_iter()
+        .find(|row| row.pmid == query.pmid())
+        .and_then(|row| {
+            if references {
+                row.references
+            } else {
+                row.citing
+            }
+        });
+    let Some(ids) = ids else {
+        out.status = Status::Failed;
+        if let Some(source) = out.sources.last_mut() {
+            source.state = biodata::SourceState::Failed;
+            source.reason = Some(biodata::Reason::BadReply);
+        }
+        restart(query, references, out, true);
+        return Ok(None);
     };
-    if order::refuse(ids.len(),out) {return Ok(None);}
-    let mut items:Vec<_>=ids.into_iter().map(|id|ArticleItem{key:ArticleKey::Pubmed(id),pmid:Some(id),header:None,cited_by:None,found_by:Default::default()}).collect();
-    if !order::apply(cx,deadline,&mut items,out)? {restart(query,references,out,true);return Ok(None);}
+    if order::refuse(ids.len(), out) {
+        return Ok(None);
+    }
+    let mut items: Vec<_> = ids
+        .into_iter()
+        .map(|id| ArticleItem {
+            key: ArticleKey::Pubmed(id),
+            pmid: Some(id),
+            header: None,
+            cited_by: None,
+            found_by: Default::default(),
+        })
+        .collect();
+    if !order::apply(cx, deadline, &mut items, out)? {
+        restart(query, references, out, true);
+        return Ok(None);
+    }
     Ok(Some(items))
 }
