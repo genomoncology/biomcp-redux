@@ -15,7 +15,7 @@
           "gene"
         ]
       },
-      "max_bytes": 24132
+      "max_bytes": 28246
     },
     {
       "run": [
@@ -228,5 +228,5 @@
       }
     }
   ],
-  "verified": "Whole help includes trial search and all landed article verbs. j10465 measured the root help at 20984 bytes; max_bytes is ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
+  "verified": "Whole help includes trial search, native NCI capabilities and variant identity. The combined landing preflight measured root help at 24561 bytes; max_bytes is ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
 }
