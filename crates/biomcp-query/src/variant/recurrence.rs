@@ -146,7 +146,7 @@ fn identity(
             c.identity
                 .representations
                 .iter()
-                .any(|r| r.build.is_some() && r.allele.is_some())
+                .any(matching::supported)
         })
     {
         out.problems.push(matching::problem(

@@ -1,4 +1,4 @@
-use biodata::{Build, Chromosome, Problem, ProblemCode, Source, Text, Variant};
+use biodata::{Build, Chromosome, Problem, ProblemCode, Representation, Source, Text, Variant};
 use biomcp_adapters::cbioportal::Mutation;
 use std::collections::BTreeSet;
 pub(super) fn count(identity: &Variant, rows: &[Mutation], study: &Text) -> (u64, Vec<Problem>) {
@@ -20,6 +20,13 @@ pub(super) fn count(identity: &Variant, rows: &[Mutation], study: &Text) -> (u64
     problems.dedup();
     (samples.len() as u64, problems)
 }
+pub(super) fn supported(r: &Representation) -> bool {
+    r.build.zip(r.allele.as_ref()).is_some_and(|(build, allele)| {
+        !allele.reference().is_empty() && !allele.alternate().is_empty()
+            && Chromosome::from_accession(allele.location().sequence, build).is_ok()
+    })
+}
+
 fn matches(identity: &Variant, row: &Mutation) -> Option<bool> {
     let build = match row.ncbi_build.as_ref()?.as_str() {
         "GRCh37" | "37" => Build::Grch37,
@@ -51,9 +58,7 @@ fn matches(identity: &Variant, row: &Mutation) -> Option<bool> {
     {
         return None;
     }
-    if !identity.representations.iter().any(|r| {
-        r.build == Some(build) && r.allele.as_ref().is_some_and(|allele| Chromosome::from_accession(allele.location().sequence, build).is_ok())
-    }) { return None; }
+    if !identity.representations.iter().any(|r| r.build == Some(build) && supported(r)) { return None; }
     Some(identity.representations.iter().any(|r| {
         let Some(allele) = r.allele.as_ref() else {
             return false;
