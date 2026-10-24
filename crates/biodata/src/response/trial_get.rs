@@ -58,8 +58,16 @@ pub struct TrialSections {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
-    /// Structured source fields; criteria contains only this page's unchanged fragment.
-    pub eligibility: TrialAgeBound, TrialSex,
+    /// Source minimum age.
+    pub minimum_age: TrialAgeBound,
+    /// Source maximum age.
+    pub maximum_age: TrialAgeBound,
+    /// Source sex field.
+    pub sex: Option<TrialSex>,
+    /// Source healthy-volunteer field.
+    pub healthy_volunteers: Option<bool>,
+    /// Exact original text fragment, including whitespace.
+    pub criteria: Box<str>,
     /// Original character offset.
     pub offset: u32,
     /// Complete original text length in Unicode scalar values.
