@@ -164,7 +164,7 @@ Sources:
 - [x] MyVariant.info
 - [x] ClinGen Allele Registry
 - [x] ClinVar through NCBI EFetch (optional key)
-- [x] dbSNP
+- [ ] dbSNP: identifiers are carried by MyVariant and CAR; no direct adapter is implemented
 - [ ] gnomAD: counts and missing-release handling landed; same-response dataset release proof remains open
 - [ ] CIViC: membership and native paging landed; actual positive joined capture remains open
 - [x] cBioPortal

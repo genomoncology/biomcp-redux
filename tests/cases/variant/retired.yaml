@@ -220,6 +220,30 @@
         "/error/code": "usage.retired",
         "/error/message": "deferred until a harvested question requires variant cspec"
       }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--input",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "mcp": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--input",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "use: variant normalize --source <car|mutalyzer|variantvalidator|all> --hgvs <TEXT>; VariantValidator and all require --build"
+      }
     }
   ]
 }
