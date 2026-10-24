@@ -34,6 +34,7 @@ pub struct NormalizationResult {
     /// Provider messages with original codes, text and category.
     pub messages: Box<[NormalizationMessage]>,
     /// Count before provider message pagination.
+    #[serde(default)]
     pub total_messages: u32,
     /// Version fields exactly as returned; absent when the service states none.
     pub version: Box<[NormalizationField]>,
