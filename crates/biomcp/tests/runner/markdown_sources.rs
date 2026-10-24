@@ -137,11 +137,20 @@ fn abstract_part() -> Result<(), String> {
     }) {
         return Err("abstract superscript was stripped".into());
     }
-    let view = output("article/get/synthetic-derived", &["get", "article", "35440569", "--format", "md"], 4000)?;
+    let view = output(
+        "article/get/synthetic-derived",
+        &["get", "article", "35440569", "--format", "md"],
+        4000,
+    )?;
     let view = String::from_utf8(view).map_err(|e| e.to_string())?;
     for part in parts {
-        let text = part.get("text").and_then(Value::as_str).ok_or("missing part text")?;
-        if view.matches(text).count() != 1 { return Err("abstract Markdown was escaped or duplicated".into()); }
+        let text = part
+            .get("text")
+            .and_then(Value::as_str)
+            .ok_or("missing part text")?;
+        if view.matches(text).count() != 1 {
+            return Err("abstract Markdown was escaped or duplicated".into());
+        }
     }
     Ok(())
 }
