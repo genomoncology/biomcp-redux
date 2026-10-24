@@ -1,6 +1,7 @@
 # 0065 — Plan every release channel and the note for 0.9 users
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8de04b7c5675471609d62f51747db45ca455cb59
 
 Milestone: 5
 

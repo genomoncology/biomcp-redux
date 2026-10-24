@@ -1,6 +1,7 @@
 # 0069 — Compare live requests across cache hits and retries
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f7fa47ba32b032db4705cc8e5327043575e09d00
 
 Milestone: 1
 
