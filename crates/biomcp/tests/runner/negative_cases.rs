@@ -169,6 +169,11 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "walk requires page offset",
         ),
         (
+            "nonincreasing-wrong-order",
+            "  - run: [schema, biodata.article-search/1]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
+            "nonincreasing requires an array",
+        ),
+        (
             "unique-duplicate",
             "  - run: [schema, biodata.gene-resolution/1]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
             "unique: duplicate member",

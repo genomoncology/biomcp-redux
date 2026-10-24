@@ -1256,6 +1256,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",

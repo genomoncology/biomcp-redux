@@ -72,8 +72,7 @@ pub(super) fn read<'a>(
                 if !out.sources.iter().any(|s| s.source == Source::PubMed) {
                     out.sources.push(source.clone());
                 }
-                let stale = (source.state == biodata::SourceState::Stale).then_some(&source);
-                store.hydrate(id, &missing, &mapped.value, &mapped.problems, stale)?;
+                store.hydrate(id, &missing, &mapped.value, &mapped.problems, Some(&source))?;
                 rows = store.page(id, query.offset(), query.limit())?;
             }
             Err(error) => {
@@ -100,7 +99,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
             original.state = source.state;
             original.reason = source.reason;
-        }
+        } else {out.sources.push(source.clone());}
     }
     let stale = out
         .sources
@@ -137,6 +136,20 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage { items }),
         Cursor::Edges(_, _) => QueryBody::ArticleEdges(ArticleEdgePage { items }),
     };
+    actions(query,pool,returned,total,out);
+    if partial {
+        query.retry(
+            if stale || failed || missing_external {
+                None
+            } else {
+                Some(pool.info.id.clone())
+            },
+            out,
+        );
+    }
+}
+
+fn actions(query:Cursor<'_>,pool:&Pool,returned:u32,total:u64,out:&mut Outcome) {
     if let Some(offset) = query
         .offset()
         .checked_add(returned)
@@ -177,15 +190,5 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
                 fresh: false,
             },
         ));
-    }
-    if partial {
-        query.retry(
-            if stale || failed || missing_external {
-                None
-            } else {
-                Some(pool.info.id.clone())
-            },
-            out,
-        );
     }
 }

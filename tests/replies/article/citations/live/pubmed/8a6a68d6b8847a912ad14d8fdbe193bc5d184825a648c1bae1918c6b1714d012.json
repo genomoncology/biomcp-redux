@@ -1,0 +1,1488 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845618,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 1253,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "9145676",
+              "8841191",
+              "7550349",
+              "8531968",
+              "8841192",
+              "9042909",
+              "9333265",
+              "18159056",
+              "9586873",
+              "9150153"
+            ],
+            "9145676": {
+              "uid": "9145676",
+              "pubdate": "1997 May 15",
+              "epubdate": "",
+              "source": "N Engl J Med",
+              "authors": [
+                {
+                  "name": "Struewing JP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hartge P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wacholder S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Baker SM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Berlin M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McAdams M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Timmerman MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brody LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tucker MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Tucker MA",
+              "title": "The risk of cancer associated with specific mutations of BRCA1 and BRCA2 among Ashkenazi Jews.",
+              "sorttitle": "risk of cancer associated with specific mutations of brca1 and brca2 among ashkenazi jews",
+              "volume": "336",
+              "issue": "20",
+              "pages": "1401-8",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0255562",
+              "issn": "0028-4793",
+              "essn": "",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9145676"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1056/NEJM199705153362001"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1997/05/15 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1997/05/15 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1997/05/15 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "N Engl J Med. 1997 May 15;336(20):1448-9. doi: 10.1056/NEJM199705153362009.",
+                  "reftype": "Comment in",
+                  "pmid": 9145684,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 1997 Sep 11;337(11):788-9.",
+                  "reftype": "Comment in",
+                  "pmid": 9289641,
+                  "note": ""
+                },
+                {
+                  "refsource": "N Engl J Med. 2001 May 10;344(19):1477-8. doi: 10.1056/NEJM200105103441914.",
+                  "reftype": "Comment in",
+                  "pmid": 11357841,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "The New England journal of medicine",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/05/15 00:00",
+              "sortfirstauthor": "Struewing JP",
+              "vernaculartitle": ""
+            },
+            "8841191": {
+              "uid": "8841191",
+              "pubdate": "1996 Oct",
+              "epubdate": "",
+              "source": "Nat Genet",
+              "authors": [
+                {
+                  "name": "Roa BB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Boyd AA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Volcik K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Richards CS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Richards CS",
+              "title": "Ashkenazi Jewish population frequencies for common mutations in BRCA1 and BRCA2.",
+              "sorttitle": "ashkenazi jewish population frequencies for common mutations in brca1 and brca2",
+              "volume": "14",
+              "issue": "2",
+              "pages": "185-7",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9216904",
+              "issn": "1061-4036",
+              "essn": "",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "8841191"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/ng1096-185"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1996/10/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1996/10/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1996/10/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1996/10/01 00:00",
+              "sortfirstauthor": "Roa BB",
+              "vernaculartitle": ""
+            },
+            "7550349": {
+              "uid": "7550349",
+              "pubdate": "1995 Oct",
+              "epubdate": "",
+              "source": "Nat Genet",
+              "authors": [
+                {
+                  "name": "Struewing JP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Abeliovich D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peretz T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Avishai N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kaback MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Collins FS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brody LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Brody LC",
+              "title": "The carrier frequency of the BRCA1 185delAG mutation is approximately 1 percent in Ashkenazi Jewish individuals.",
+              "sorttitle": "carrier frequency of the brca1 185delag mutation is approximately 1 percent in ashkenazi jewish individuals",
+              "volume": "11",
+              "issue": "2",
+              "pages": "198-200",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9216904",
+              "issn": "1061-4036",
+              "essn": "",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "7550349"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/ng1095-198"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1995/10/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1995/10/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1995/10/01 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nat Genet 1996 Jan;12(1):110",
+                  "reftype": "Erratum in",
+                  "pmid": "",
+                  "note": ""
+                },
+                {
+                  "refsource": "Nat Genet. 1995 Oct;11(2):113-4. doi: 10.1038/ng1095-113.",
+                  "reftype": "Comment in",
+                  "pmid": 7550331,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1995/10/01 00:00",
+              "sortfirstauthor": "Struewing JP",
+              "vernaculartitle": ""
+            },
+            "8531968": {
+              "uid": "8531968",
+              "pubdate": "1996 Jan 18",
+              "epubdate": "",
+              "source": "N Engl J Med",
+              "authors": [
+                {
+                  "name": "FitzGerald MG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "MacDonald DJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Krainer M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hoover I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "O'Neil E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Unsal H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Silva-Arrieto S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Finkelstein DM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beer-Romero P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Englert C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sgroi DC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Smith BL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Younger JW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garber JE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Duda RB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mayzel KA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Isselbacher KJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Friend SH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Haber DA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Haber DA",
+              "title": "Germ-line BRCA1 mutations in Jewish and non-Jewish women with early-onset breast cancer.",
+              "sorttitle": "germ line brca1 mutations in jewish and non jewish women with early onset breast cancer",
+              "volume": "334",
+              "issue": "3",
+              "pages": "143-9",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0255562",
+              "issn": "0028-4793",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "8531968"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1056/NEJM199601183340302"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1996/01/18 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1996/01/18 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1996/01/18 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "N Engl J Med. 1996 Jan 18;334(3):186-8. doi: 10.1056/NEJM199601183340311.",
+                  "reftype": "Comment in",
+                  "pmid": 8531977,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "The New England journal of medicine",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1996/01/18 00:00",
+              "sortfirstauthor": "FitzGerald MG",
+              "vernaculartitle": ""
+            },
+            "8841192": {
+              "uid": "8841192",
+              "pubdate": "1996 Oct",
+              "epubdate": "",
+              "source": "Nat Genet",
+              "authors": [
+                {
+                  "name": "Oddoux C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Struewing JP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Clayton CM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Neuhausen S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brody LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kaback M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Haas B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Norton L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Borgen P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jhanwar S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Goldgar D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ostrer H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Offit K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Offit K",
+              "title": "The carrier frequency of the BRCA2 6174delT mutation among Ashkenazi Jewish individuals is approximately 1%.",
+              "sorttitle": "carrier frequency of the brca2 6174delt mutation among ashkenazi jewish individuals is approximately 1",
+              "volume": "14",
+              "issue": "2",
+              "pages": "188-90",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9216904",
+              "issn": "1061-4036",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S.",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "8841192"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/ng1096-188"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1996/10/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1996/10/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1996/10/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1996/10/01 00:00",
+              "sortfirstauthor": "Oddoux C",
+              "vernaculartitle": ""
+            },
+            "9042909": {
+              "uid": "9042909",
+              "pubdate": "1997 Mar",
+              "epubdate": "",
+              "source": "Am J Hum Genet",
+              "authors": [
+                {
+                  "name": "Abeliovich D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kaduri L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lerer I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Weinberg N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Amir G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sagi M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zlotogora J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Heching N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peretz T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Peretz T",
+              "title": "The founder mutations 185delAG and 5382insC in BRCA1 and 6174delT in BRCA2 appear in 60% of ovarian cancer and 30% of early-onset breast cancer patients among Ashkenazi women.",
+              "sorttitle": "founder mutations 185delag and 5382insc in brca1 and 6174delt in brca2 appear in 60 of ovarian cancer and 30 of early onset breast cancer patients among ashkenazi women",
+              "volume": "60",
+              "issue": "3",
+              "pages": "505-14",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0370475",
+              "issn": "0002-9297",
+              "essn": "1537-6605",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9042909"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC1712523"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC1712523;"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1997/03/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1997/03/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1997/03/01 00:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "1997/09/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 25,
+              "fulljournalname": "American journal of human genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/03/01 00:00",
+              "sortfirstauthor": "Abeliovich D",
+              "vernaculartitle": ""
+            },
+            "9333265": {
+              "uid": "9333265",
+              "pubdate": "1997 Oct 15",
+              "epubdate": "",
+              "source": "JAMA",
+              "authors": [
+                {
+                  "name": "Shattuck-Eidens D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Oliphant A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McClure M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McBride C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gupte J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rubano T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pruss D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tavtigian SV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Teng DH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Adey N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Staebell M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gumpper K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lundstrom R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hulick M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kelly M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Holmen J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lingenfelter B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Manley S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fujimura F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Luce M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ward B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cannon-Albright L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Steele L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Offit K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Thomas A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Thomas A",
+              "title": "BRCA1 sequence analysis in women at high risk for susceptibility mutations. Risk factor analysis and implications for genetic testing.",
+              "sorttitle": "brca1 sequence analysis in women at high risk for susceptibility mutations risk factor analysis and implications for genetic testing",
+              "volume": "278",
+              "issue": "15",
+              "pages": "1242-50",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "7501160",
+              "issn": "0098-7484",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S.",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9333265"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1997/10/23 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1997/10/23 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1997/10/23 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "JAMA. 1997 Oct 15;278(15):1284-5.",
+                  "reftype": "Comment in",
+                  "pmid": 9333273,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract",
+                "Author List Incomplete"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "JAMA",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/10/15 00:00",
+              "sortfirstauthor": "Shattuck-Eidens D",
+              "vernaculartitle": ""
+            },
+            "18159056": {
+              "uid": "18159056",
+              "pubdate": "2007 Dec 26",
+              "epubdate": "",
+              "source": "JAMA",
+              "authors": [
+                {
+                  "name": "John EM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Miron A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gong G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Phipps AI",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Felberg A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Li FP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "West DW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Whittemore AS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Whittemore AS",
+              "title": "Prevalence of pathogenic BRCA1 mutation carriers in 5 US racial/ethnic groups.",
+              "sorttitle": "prevalence of pathogenic brca1 mutation carriers in 5 us racial ethnic groups",
+              "volume": "298",
+              "issue": "24",
+              "pages": "2869-76",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "7501160",
+              "issn": "0098-7484",
+              "essn": "1538-3598",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "18159056"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1001/jama.298.24.2869"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "298/24/2869"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2007/12/27 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2008/01/08 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2007/12/27 09:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "JAMA. 2007 Dec 26;298(24):2910-1. doi: 10.1001/jama.298.24.2910.",
+                  "reftype": "Comment in",
+                  "pmid": 18159061,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "JAMA",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2007/12/26 00:00",
+              "sortfirstauthor": "John EM",
+              "vernaculartitle": ""
+            },
+            "9586873": {
+              "uid": "9586873",
+              "pubdate": "1998 May",
+              "epubdate": "",
+              "source": "J Clin Oncol",
+              "authors": [
+                {
+                  "name": "Robson M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gilewski T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Haas B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Levin D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Borgen P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rajan P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hirschaut Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pressman P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rosen PP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lesser ML",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Norton L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Offit K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Offit K",
+              "title": "BRCA-associated breast cancer in young women.",
+              "sorttitle": "brca associated breast cancer in young women",
+              "volume": "16",
+              "issue": "5",
+              "pages": "1642-9",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "8309333",
+              "issn": "0732-183X",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9586873"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1200/JCO.1998.16.5.1642"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1998/05/20 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1998/05/20 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1998/05/20 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "J Clin Oncol. 1998 May;16(5):1639-41. doi: 10.1200/JCO.1998.16.5.1639.",
+                  "reftype": "Comment in",
+                  "pmid": 9586872,
+                  "note": ""
+                },
+                {
+                  "refsource": "J Clin Oncol. 1998 Sep;16(9):3206-8. doi: 10.1200/JCO.1998.16.9.3206.",
+                  "reftype": "Comment in",
+                  "pmid": 9738598,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of clinical oncology : official journal of the American Society of Clinical Oncology",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1998/05/01 00:00",
+              "sortfirstauthor": "Robson M",
+              "vernaculartitle": ""
+            },
+            "9150153": {
+              "uid": "9150153",
+              "pubdate": "1997 May",
+              "epubdate": "",
+              "source": "Am J Hum Genet",
+              "authors": [
+                {
+                  "name": "Levy-Lahad E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Catane R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Eisenberg S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kaufman B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hornreich G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lishinsky E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shohat M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Weber BL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beller U",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lahad A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Halle D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Halle D",
+              "title": "Founder BRCA1 and BRCA2 mutations in Ashkenazi Jews in Israel: frequency and differential penetrance in ovarian cancer and in breast-ovarian cancer families.",
+              "sorttitle": "founder brca1 and brca2 mutations in ashkenazi jews in israel frequency and differential penetrance in ovarian cancer and in breast ovarian cancer families",
+              "volume": "60",
+              "issue": "5",
+              "pages": "1059-67",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0370475",
+              "issn": "0002-9297",
+              "essn": "1537-6605",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9150153"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC1712434"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC1712434;"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1997/05/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1997/05/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1997/05/01 00:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "1997/11/01 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Am J Hum Genet. 1997 May;60(5):1013-20.",
+                  "reftype": "Comment in",
+                  "pmid": 9150148,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 23,
+              "fulljournalname": "American journal of human genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/05/01 00:00",
+              "sortfirstauthor": "Levy-Lahad E",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "af5030447c9417d7049d84ccfe40a97c17c68417d14563e764856bc4a413bbc6"
+  }
+}

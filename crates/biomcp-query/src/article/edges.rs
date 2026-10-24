@@ -67,63 +67,7 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let parent = order::fetch(cx, deadline, &[query.pmid()]);
-            out.sources.push(parent.source);
-            if let Some(e) = parent.local {
-                return Err(e);
-            }
-            if parent.error.is_some() {
-                out.status = Status::Failed;
-                restart(query, references, out, true);
-                return Ok(());
-            }
-            let ids = parent
-                .rows
-                .into_iter()
-                .find(|row| row.pmid == query.pmid())
-                .and_then(|row| {
-                    if references {
-                        row.references
-                    } else {
-                        row.citing
-                    }
-                });
-            // Missing is not evidence of an empty graph.
-            let Some(ids) = ids else {
-                out.status = Status::Failed;
-                if let Some(source) = out.sources.last_mut() {
-                    source.state = biodata::SourceState::Failed;
-                    source.reason = Some(biodata::Reason::BadReply);
-                }
-                restart(query, references, out, true);
-                return Ok(());
-            };
-            if order::refuse(ids.len(), out) {
-                return Ok(());
-            }
-            let mut items: Vec<_> = ids
-                .into_iter()
-                .map(|id| ArticleItem {
-                    key: ArticleKey::Pubmed(id),
-                    pmid: Some(id),
-                    header: None,
-                    cited_by: None,
-                    found_by: Default::default(),
-                })
-                .collect();
-            if !order::apply(cx, deadline, &mut items, out)? {
-                restart(query, references, out, true);
-                return Ok(());
-            }
-            // Both legs describe iCite; preserve the stale outcome of either stage.
-            let stale = out
-                .sources
-                .iter()
-                .any(|s| s.state == biodata::SourceState::Stale);
-            out.sources.dedup_by_key(|s| s.source);
-            if stale {
-                out.sources[0].state = biodata::SourceState::Stale;
-            }
+            let Some(items)=create(cx,query,references,deadline,out)? else {return Ok(());};
             store.set_deadline(*deadline);
             store.publish(&key, &items, &out.sources)?
         }
@@ -138,4 +82,21 @@ fn execute<'a>(
     );
     *deadline = store.deadline();
     result
+}
+
+fn create<'a>(cx:&Ctx<'a>,query:&ArticleEdges,references:bool,deadline:&mut Deadline<'a>,out:&mut Outcome)->Result<Option<Vec<ArticleItem>>,RequestError> {
+    let parent=order::fetch(cx,deadline,&[query.pmid()]);
+    out.sources.push(parent.source);
+    if let Some(error)=parent.local {return Err(error);}
+    if parent.error.is_some() {out.status=Status::Failed;restart(query,references,out,true);return Ok(None);}
+    let ids=parent.rows.into_iter().find(|row|row.pmid==query.pmid()).and_then(|row|if references {row.references}else {row.citing});
+    let Some(ids)=ids else {
+        out.status=Status::Failed;
+        if let Some(source)=out.sources.last_mut() {source.state=biodata::SourceState::Failed;source.reason=Some(biodata::Reason::BadReply);}
+        restart(query,references,out,true);return Ok(None);
+    };
+    if order::refuse(ids.len(),out) {return Ok(None);}
+    let mut items:Vec<_>=ids.into_iter().map(|id|ArticleItem{key:ArticleKey::Pubmed(id),pmid:Some(id),header:None,cited_by:None,found_by:Default::default()}).collect();
+    if !order::apply(cx,deadline,&mut items,out)? {restart(query,references,out,true);return Ok(None);}
+    Ok(Some(items))
 }

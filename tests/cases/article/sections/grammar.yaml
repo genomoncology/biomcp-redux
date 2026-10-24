@@ -11,14 +11,16 @@
       ],
       "expect": {
         "/result/items/0/more": [
-          "annotations"
+          "annotations",
+          "citations"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
           "get",
           "article",
           "33123537",
-          "annotations"
+          "annotations",
+          "citations"
         ]
       },
       "max_bytes": 2900

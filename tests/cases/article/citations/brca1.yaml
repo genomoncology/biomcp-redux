@@ -1,0 +1,52 @@
+{
+  "feature": "article-citations",
+  "story": "Recorded BRCA1 citation ordering covers the complete141-paper snapshot with non-increasing counts, through CLI and MCP.",
+  "replay": "article/citations/live",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "BRCA1 185delAG Ashkenazi",
+        "--sort",
+        "citations"
+      ],
+      "expect": {
+        "/result/items/0/pmid": "9145676",
+        "/query/sort": "citations",
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      },
+      "mcp": [
+        "search",
+        "article",
+        "BRCA1 185delAG Ashkenazi",
+        "--sort",
+        "citations"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "BRCA1 185delAG Ashkenazi",
+        "--sort",
+        "citations"
+      ],
+      "expect": {
+        "/result/items/*/pmid": {
+          "count": 141,
+          "unique": true
+        },
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      },
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 20
+      }
+    }
+  ]
+}
