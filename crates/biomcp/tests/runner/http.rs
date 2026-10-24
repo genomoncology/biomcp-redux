@@ -6,7 +6,7 @@ use std::{
     io::{Read, Write},
     net::{SocketAddr, TcpStream},
     process::{Child, Stdio},
-    time::{Duration, Instant},
+    time::Duration,
 };
 type Check = Result<(), String>;
 
@@ -24,7 +24,7 @@ pub(super) fn trials() -> Vec<Trial> {
             || admission().map_err(Into::into),
         ),
         Trial::test("mcp-http/framing-resource-deadlines-and-shutdown", || {
-            resources().map_err(Into::into)
+            super::http_limits::check().map_err(Into::into)
         }),
         Trial::test("mcp-http/storage-refusal-and-nonlocal-bind", || {
             storage().map_err(Into::into)
@@ -32,9 +32,9 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
-struct Server {
-    child: Child,
-    address: SocketAddr,
+pub(super) struct Server {
+    pub(super) child: Child,
+    pub(super) address: SocketAddr,
     _environment: Environment,
 }
 impl Drop for Server {
@@ -44,7 +44,7 @@ impl Drop for Server {
     }
 }
 impl Server {
-    fn start() -> Result<Self, String> { Self::configured("127.0.0.1:0", None, true) }
+    pub(super) fn start() -> Result<Self, String> { Self::configured("127.0.0.1:0", None, true) }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config { environment.config(&config).map_err(|e| e.to_string())?; }
@@ -306,70 +306,6 @@ fn admission() -> Check {
     )?;
     if status != 202 || reply.is_some() {
         return Err("notification must have an empty 202 response".into());
-    }
-    Ok(())
-}
-fn closed(address: SocketAddr, data: &[u8]) -> Check {
-    let mut socket = TcpStream::connect(address).map_err(|e| e.to_string())?;
-    socket
-        .set_read_timeout(Some(Duration::from_secs(4)))
-        .map_err(|e| e.to_string())?;
-    socket.write_all(data).map_err(|e| e.to_string())?;
-    let mut byte = [0];
-    match socket.read(&mut byte) {
-        Ok(0) => Ok(()),
-        Err(e)
-            if matches!(
-                e.kind(),
-                std::io::ErrorKind::ConnectionReset | std::io::ErrorKind::BrokenPipe
-            ) =>
-        {
-            Ok(())
-        }
-        other => Err(format!("rejected framing did not close: {other:?}")),
-    }
-}
-fn resources() -> Check {
-    let mut server = Server::start()?;
-    for bytes in [
-        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 65537\r\n\r\n", server.address),
-        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 1\r\nContent-Length: 1\r\n\r\nx", server.address),
-        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: gzip\r\n\r\n0\r\n\r\n", server.address),
-        format!("GET /health HTTP/1.1\r\nHost: {}\r\nX-Fill: {}", server.address, "x".repeat(16384)),
-    ] { closed(server.address, bytes.as_bytes())?; }
-    let mut slow = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-    slow.set_read_timeout(Some(Duration::from_secs(4)))
-        .map_err(|e| e.to_string())?;
-    slow.write_all(b"GET /health HTTP/1.1\r\nX-Slow: ")
-        .map_err(|e| e.to_string())?;
-    let started = Instant::now();
-    // Continuously send data while waiting for the server's close event. An idle
-    // timeout would stay open forever; the absolute deadline must end the read.
-    let copy = slow.try_clone().map_err(|e| e.to_string())?;
-    let (stop, receiver) = std::sync::mpsc::channel::<()>();
-    let writer = std::thread::spawn(move || {
-        let mut copy = copy;
-        while receiver.recv_timeout(Duration::from_millis(100)).is_err() {
-            if copy.write_all(b"x").is_err() { break; }
-        }
-    });
-    let mut byte = [0];
-    let result = slow.read(&mut byte);
-    let _ = stop.send(());
-    let _ = slow.shutdown(std::net::Shutdown::Both);
-    writer.join().map_err(|_| "slow writer stopped")?;
-    let ended = match result {
-        Ok(0) => true,
-        Err(error) => error.kind() == std::io::ErrorKind::ConnectionReset,
-        _ => false,
-    };
-    if !ended || started.elapsed() > Duration::from_secs(4) {
-        return Err("slow header retained a worker beyond the absolute deadline".into());
-    }
-    server.child.kill().map_err(|e| e.to_string())?;
-    server.child.wait().map_err(|e| e.to_string())?;
-    if TcpStream::connect(server.address).is_ok() {
-        return Err("shutdown left a listener".into());
     }
     Ok(())
 }
