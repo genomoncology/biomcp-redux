@@ -52,8 +52,34 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if matches!(spec.source, Source::Gnomad | Source::Civic) {
+        let path = if spec.source == Source::Gnomad {
+            "/api"
+        } else {
+            "/api/graphql"
+        };
+        return leg.probe_json(
+            &spec.post_json(path).idempotent(),
+            &ProbeQuery {
+                query: "{ __typename }",
+            },
+        );
+    }
+    let Some((path, params)) = get_probe(spec.source) else {
+        return Err(biomcp_fetch::SourceError {
+            source: spec.source,
+            reason: biodata::Reason::Rejected,
+            status: None,
+            retry_after: None,
+        }
+        .into());
+    };
+    leg.probe(&spec.get(path), &params)
+}
+type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
+fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
-    let (path, params) = match spec.source {
+    Some(match source {
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::Oncokb => ("/info", vec![]),
@@ -92,30 +118,8 @@ pub fn probe(
             "/pubs",
             vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
         ),
-        Source::Gnomad | Source::Civic => {
-            let path = if spec.source == Source::Gnomad {
-                "/api"
-            } else {
-                "/api/graphql"
-            };
-            return leg.probe_json(
-                &spec.post_json(path).idempotent(),
-                &ProbeQuery {
-                    query: "{ __typename }",
-                },
-            );
-        }
-        _ => {
-            return Err(biomcp_fetch::SourceError {
-                source: spec.source,
-                reason: biodata::Reason::Rejected,
-                status: None,
-                retry_after: None,
-            }
-            .into());
-        }
-    };
-    leg.probe(&spec.get(path), &params)
+        _ => return None,
+    })
 }
 
 #[derive(serde::Serialize)]
