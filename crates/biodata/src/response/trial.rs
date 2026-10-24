@@ -8,6 +8,9 @@ pub struct TrialPage {
     pub items: Box<[crate::TrialHeader]>,
     /// Exact parameters sent to the study search endpoint.
     pub request: Box<[TrialParameter]>,
+    /// Exact cached native count request when a continuation omits its total.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count_request: Option<Box<[TrialParameter]>>,
     /// Registry's source processing timestamp, independently of retrieval time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_updated: Option<crate::Text>,

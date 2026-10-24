@@ -27,7 +27,11 @@ pub struct SearchPage {
     /// Source order, untouched.
     pub items: Vec<TrialHeader>,
     /// Exact native total.
-    pub total: u64,
+    pub total: Option<u64>,
+    /// Native count lookup failure while page rows remain usable.
+    pub count_error: Option<RequestError>,
+    /// Exact fallback count parameters, only when the source omitted continuation totals.
+    pub count_request: Option<BTreeMap<String, String>>,
     /// Opaque next page.
     pub next: Option<Text>,
 }
@@ -149,11 +153,20 @@ pub fn search(
     leg: &Leg<'_>,
     params: &BTreeMap<String, String>,
 ) -> Result<SearchPage, RequestError> {
-    let args: Vec<_> = params
-        .iter()
-        .map(|(k, v)| (k.as_str(), Arg::Text(v)))
-        .collect();
-    let raw = leg.json::<RawPage>(&SEARCH, &args)?;
+    let raw = fetch_page(leg, params)?;
+    let mut total = raw.total_count;
+    let mut count_error = None;
+    let mut count_request = None;
+    if total.is_none() {
+        let mut count = params.clone();
+        count.remove("pageToken");
+        count.insert("pageSize".into(), "1".into());
+        match fetch_page(leg, &count) {
+            Ok(page) => total = page.total_count,
+            Err(error) => count_error = Some(error),
+        }
+        count_request = Some(count);
+    }
     Ok(SearchPage {
         items: raw
             .studies
@@ -161,9 +174,31 @@ pub fn search(
             .map(|row| row.protocol_section.header())
             .collect::<Result<Vec<_>, _>>()
             .map_err(|_| bad())?,
-        total: raw.total_count,
+        total,
+        count_error,
+        count_request,
         next: raw.next_page_token,
     })
+}
+fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPage, RequestError> {
+    let args: Vec<_> = params
+        .iter()
+        .map(|(k, v)| (k.as_str(), Arg::Text(v)))
+        .collect();
+    if params.contains_key("pageToken") {
+        leg.json::<RawPage>(&SEARCH, &args)
+    } else {
+        leg.json::<FirstPage>(&SEARCH, &args).map(|page| page.0)
+    }
+}
+#[derive(Deserialize)]
+#[serde(transparent)]
+struct FirstPage(RawPage);
+impl Reply for FirstPage {
+    fn check(&self) -> Result<(), BadReply> {
+        self.0.check()?;
+        self.0.total_count.ok_or(BadReply).map(|_| ())
+    }
 }
 /// Source processing timestamp, distinct from request time and record update dates.
 pub fn version(leg: &Leg<'_>) -> Result<Text, RequestError> {
@@ -182,7 +217,7 @@ impl Reply for Version {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct RawPage {
-    total_count: u64,
+    total_count: Option<u64>,
     #[serde(default)]
     studies: Vec<Study>,
     next_page_token: Option<Text>,
@@ -191,7 +226,9 @@ impl Reply for RawPage {
     fn check(&self) -> Result<(), BadReply> {
         let mut ids = std::collections::BTreeSet::new();
         if self.studies.len() > 100
-            || self.studies.len() as u64 > self.total_count
+            || self
+                .total_count
+                .is_some_and(|total| self.studies.len() as u64 > total)
             || self
                 .studies
                 .iter()

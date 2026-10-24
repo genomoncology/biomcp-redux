@@ -96,6 +96,7 @@
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
+        "the registry cannot bind --facility and radius to one site; choose one filter",
         "retired; use: --criteria for literal registry eligibility text",
         "retired; use: --variant for explicit discovery text",
         "renamed; use: --updated-since",

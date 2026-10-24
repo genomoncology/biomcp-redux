@@ -9,6 +9,9 @@ use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/count-failure-preserves-continuation-rows", || {
+            count_failure().map_err(Into::into)
+        }),
         Trial::test("trial/disabled-cache-and-source-usage", || {
             policy().map_err(Into::into)
         }),
@@ -99,5 +102,41 @@ fn policy() -> Check {
         json!({"/status":"usage","/error/code":"usage.arguments"}),
         2,
     )?;
+    Ok(())
+}
+
+fn count_failure() -> Check {
+    let first = checked_case(
+        "trial/condition",
+        &["search", "trial", "--condition", "melanoma"],
+        |_, _| {},
+        json!({"/page/total":3780}),
+        0,
+    )?;
+    let mut args = vec!["search", "trial", "--condition", "melanoma", "--next-page"];
+    let token = first
+        .pointer("/next/0/args")
+        .and_then(|v| v.as_array())
+        .and_then(|args| args.windows(2).find(|pair| pair[0] == "--next-page"))
+        .and_then(|pair| pair[1].as_str())
+        .ok_or("missing source continuation")?;
+    args.push(token);
+    let output = checked_steps(
+        "trial/walk",
+        |_, record| {
+            if record["url"]
+                .as_str()
+                .is_some_and(|url| url.contains("pageSize=1&"))
+            {
+                let mut exchange = record["exchanges"][0].clone();
+                exchange["status"] = json!(500);
+                record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
+            }
+        },
+        json!([{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable","/result/count_request":{"count":5}}}]),
+    )?;
+    if output.get("page").is_some() || output["sources"][0].get("count").is_some() {
+        return Err("failed native count asserted a total".into());
+    }
     Ok(())
 }

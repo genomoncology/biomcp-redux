@@ -8,38 +8,57 @@ use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = empty();
-    let Some(gene) = gene(cx, query, &mut outcome) else {
+    let deadline = cx.fetch.deadline(cx.budget);
+    let Some(gene) = gene(cx, query, &mut outcome, deadline) else {
         return outcome;
     };
-    let leg = cx
-        .fetch
-        .leg(&ctgov::SPEC, cx.fetch.deadline(cx.budget))
-        .fresh(cx.fresh);
+    let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let params = ctgov::parameters(query, gene.as_deref());
     let result = ctgov::search(&leg, &params);
+    let rejected = matches!(
+        &result,
+        Err(biomcp_fetch::RequestError::Source(
+            biomcp_fetch::SourceError {
+                status: Some(400),
+                ..
+            }
+        ))
+    );
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
     };
-    let error = result.as_ref().err().or(version.as_ref().err()).copied();
+    let error = result
+        .as_ref()
+        .err()
+        .or(version.as_ref().err())
+        .copied()
+        .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     outcome.status = if result.is_err() {
         Status::Failed
-    } else if version.is_err() || source.state == SourceState::Stale {
+    } else if version.is_err()
+        || error.is_some()
+        || source.state == SourceState::Stale
+        || outcome
+            .sources
+            .iter()
+            .any(|source| source.state != SourceState::Ok)
+    {
         Status::Partial
     } else {
         Status::Complete
     };
     if let Ok(mut page) = result {
-        source.count = Some(page.total);
+        source.count = page.total;
         source.fetched = Some(page.items.len() as u32);
         if query.count_only() {
             page.items.clear();
         }
-        outcome.page = Some(biodata::PageInfo {
+        outcome.page = page.total.map(|total| biodata::PageInfo {
             offset: 0,
             returned: page.items.len() as u32,
-            total: page.total,
+            total,
             pool: None,
             truncated: None,
         });
@@ -54,29 +73,27 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         }
         if let QueryBody::TrialPage(body) = &mut outcome.body {
             body.items = page.items.into();
+            body.count_request = page.count_request.map(parameters);
         }
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
-        body.request = params
-            .into_iter()
-            .map(|(name, value)| biodata::TrialParameter { name, value })
-            .collect();
+        body.request = parameters(params);
         body.source_updated = version.ok();
     }
-    if matches!(
-        error,
-        Some(biomcp_fetch::RequestError::Source(
-            biomcp_fetch::SourceError {
-                status: Some(400),
-                ..
-            }
-        ))
-    ) {
+    if rejected {
         outcome.body = QueryBody::TextPositionError;
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome
+}
+fn parameters(
+    values: std::collections::BTreeMap<String, String>,
+) -> Box<[biodata::TrialParameter]> {
+    values
+        .into_iter()
+        .map(|(name, value)| biodata::TrialParameter { name, value })
+        .collect()
 }
 fn empty() -> Outcome {
     Outcome {
@@ -84,6 +101,7 @@ fn empty() -> Outcome {
         body: QueryBody::TrialPage(TrialPage {
             items: Box::default(),
             request: Default::default(),
+            count_request: None,
             source_updated: None,
             attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
                 .into(),
@@ -96,14 +114,16 @@ fn empty() -> Outcome {
         local: None,
     }
 }
-fn gene(cx: &Ctx<'_>, query: &TrialSearch, outcome: &mut Outcome) -> Option<Option<String>> {
+fn gene(
+    cx: &Ctx<'_>,
+    query: &TrialSearch,
+    outcome: &mut Outcome,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> Option<Option<String>> {
     let Some(input) = query.gene() else {
         return Some(None);
     };
-    let leg = cx
-        .fetch
-        .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
-        .fresh(cx.fresh);
+    let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let result = crate::gene::resolve(&leg, input);
     let error = result.as_ref().err().copied();
     outcome

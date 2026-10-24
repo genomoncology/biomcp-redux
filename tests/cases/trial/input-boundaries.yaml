@@ -310,7 +310,8 @@
       "offline": true,
       "expect": {
         "/error/message": "the registry cannot bind --facility and radius to one site; choose one filter"
-      }
+      },
+      "is_error": true
     }
   ]
 }
