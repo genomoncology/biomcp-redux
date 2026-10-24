@@ -8,14 +8,14 @@ const LIMIT: usize = 100;
 /// A retained prefix and any failure that prevented completing its bounded window.
 #[derive(Debug)]
 pub struct Search {
-    /// Distinct papers in provider order.
+    /// Native rows before the shared fold removes duplicate papers.
     pub ids: Vec<Pmid>,
     /// Provider's total, separate from our fetched prefix.
     pub count: u64,
     /// A later-page failure never discards earlier successful pages.
     pub error: Option<RequestError>,
 }
-/// Fetch until the local paper bound, terminal pagination, repeated page or typed failure.
+/// Fetch until the native-row bound, terminal pagination, repeated page or typed failure.
 pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
     let mut result = Search {
         ids: Vec::new(),
@@ -49,7 +49,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Search, RequestError> {
         }
         let terminal = ids.is_empty() || page >= reply.total_pages;
         for id in &ids {
-            if !result.ids.contains(id) && result.ids.len() < LIMIT {
+            if result.ids.len() < LIMIT {
                 result.ids.push(*id);
             }
         }

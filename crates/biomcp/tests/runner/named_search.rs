@@ -6,7 +6,7 @@
 )]
 use super::response_cases::{checked_case, checked_steps};
 use libtest_mimic::Trial;
-use serde_json::{Value, json};
+use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
 const WORDS: &str = "next-generation sequencing recommendations advanced cancer ESMO";
 const NONSENSE: &str = "xqzvw zzyzxq kinase";
@@ -134,6 +134,10 @@ fn paging() -> Check {
             );
         }
     }
+    join()?;
+    Ok(())
+}
+fn join() -> Check {
     let args = [
         "search",
         "article",
@@ -222,30 +226,7 @@ fn sentences() -> Check {
             .get("section")
             .is_none()
     );
-    for kind in ["oversize", "zero-pmid", "bad-text"] {
-        checked_case(
-            "article/litsense/licensed-subset",
-            &args,
-            |source, record| {
-                if source != "litsense" {
-                    return;
-                }
-                let rows = record["exchanges"][0]["body"]["value"]
-                    .as_array_mut()
-                    .unwrap();
-                match kind {
-                    "oversize" => {
-                        let row = rows[0].clone();
-                        *rows = vec![row; 101];
-                    }
-                    "zero-pmid" => rows[0]["pmid"] = json!(0),
-                    _ => rows[0]["text"] = json!(""),
-                }
-            },
-            json!({"/status":"failed","/sources/0/reason":"bad_reply"}),
-            4,
-        )?;
-    }
+    invalid_sentences(&args)?;
     let folded = checked_case(
         "article/litsense/combined",
         &["search", "article", NONSENSE, "--source", "pubmed,litsense"],
@@ -294,8 +275,36 @@ fn policies() -> Check {
             "article/litsense/licensed-subset",
             &args,
             |_, _| {},
-            json!({"/status":"complete","/sources/0/state":"skipped","/sources/0/reason":"disabled","/result/items":{"count":0}}),
-            0,
+            json!({"/status":"failed","/sources/0/state":"skipped","/sources/0/reason":"disabled","/result/items":{"count":0}}),
+            4,
+        )?;
+    }
+    Ok(())
+}
+
+fn invalid_sentences(args: &[&str]) -> Check {
+    for kind in ["oversize", "zero-pmid", "bad-text"] {
+        checked_case(
+            "article/litsense/licensed-subset",
+            args,
+            |source, record| {
+                if source != "litsense" {
+                    return;
+                }
+                let rows = record["exchanges"][0]["body"]["value"]
+                    .as_array_mut()
+                    .unwrap();
+                match kind {
+                    "oversize" => {
+                        let row = rows[0].clone();
+                        *rows = vec![row; 101];
+                    }
+                    "zero-pmid" => rows[0]["pmid"] = json!(0),
+                    _ => rows[0]["text"] = json!(""),
+                }
+            },
+            json!({"/status":"failed","/sources/0/reason":"bad_reply"}),
+            4,
         )?;
     }
     Ok(())
