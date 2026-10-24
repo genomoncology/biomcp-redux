@@ -385,6 +385,11 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
 }
 
 fn bound(node: &Value, value: &Value) -> Check<f64> {
-    if node["type"] == "integer" { value.as_u64().ok_or("unsupported integer bound")?; }
-    value.as_f64().filter(|value| value.is_finite()).ok_or_else(|| "unsupported decimal bound".into())
+    if node["type"] == "integer" {
+        value.as_u64().ok_or("unsupported integer bound")?;
+    }
+    value
+        .as_f64()
+        .filter(|value| value.is_finite())
+        .ok_or_else(|| "unsupported decimal bound".into())
 }

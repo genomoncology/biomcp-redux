@@ -88,7 +88,7 @@ pub(super) struct Mane {
     pub ensembl_id: String,
 }
 impl Gene {
-    pub fn transcript(&self) -> Option<EnsemblTranscript> {
+    pub(super) fn transcript(&self) -> Option<EnsemblTranscript> {
         let text = self
             .mane_select_transcript
             .as_ref()
