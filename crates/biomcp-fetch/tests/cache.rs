@@ -101,12 +101,12 @@ fn fresh_hit_and_force_refresh_and_never_and_disabled_storage() {
         ..config(&path)
     })
     .unwrap();
-    exchange(&server, 200, r#"{"answer":true}"#, || {
+    exchange(&server, 200, r#"{"answer":true,"refreshed":true}"#, || {
         get(&forced, spec, &endpoint, &[])
     })
     .unwrap();
     let never = spec.get("/answer");
-    exchange(&server, 200, r#"{"answer":true}"#, || {
+    exchange(&server, 200, r#"{"answer":true,"never":true}"#, || {
         get(&fetch, spec, &never, &[])
     })
     .unwrap();
@@ -122,6 +122,11 @@ fn fresh_hit_and_force_refresh_and_never_and_disabled_storage() {
         .query_row("SELECT count(*) FROM reply", [], |r| r.get(0))
         .unwrap();
     assert_eq!(rows, 1);
+    let stored: String = Connection::open(&path)
+        .unwrap()
+        .query_row("SELECT CAST(body AS TEXT) FROM reply", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(stored, r#"{"answer":true,"refreshed":true}"#);
 }
 
 #[test]
@@ -277,7 +282,9 @@ fn every_cached_read_obeys_current_reply_type_body_limit_and_sql_contract() {
     .unwrap();
     // The oversized old entry is evicted. Its stale body cannot hide this failure.
     let error = exchange(&server, 400, "rejected", || {
-        get(&limited, spec, &endpoint, &[])
+        limited
+            .leg(spec, limited.deadline(Duration::from_secs(10)))
+            .json::<Strict>(&endpoint, &[])
     })
     .unwrap_err();
     assert_eq!(source(error).reason, Reason::Rejected);
