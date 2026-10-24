@@ -1,0 +1,133 @@
+{
+  "feature": "trial-nci",
+  "live_check": "keyed NCI source requires user-owned account",
+  "story": "The NCI public-tier capture preserves native get fields without registry fallback.",
+  "replay": "trial/nci/get",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  },
+  "verified": "NCI public-tier source capture from 2026-10-24, one NCIt C3224 search and one exact get. C3224 is the publisher-provided cross-reference for MONDO:0005105 in the clinical-reviewed trial investigation. Frozen source count, not broad-keyword parity. No credential in requests or captures. Each compact CLI ceiling is measured bytes plus 15 percent. No comparable released NCI exact-card or section baseline was established; every original record and summary character is checked by the independent source walk.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/nct_id": "NCT05136196",
+        "/result/items/0/card/diseases/items": {
+          "count": 3
+        }
+      },
+      "max_bytes": 2336
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "all",
+        "--source",
+        "nci"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "all",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/nct_id": "NCT05136196",
+        "/result/items/0/sections/eligibility/state": "data",
+        "/result/items/0/sections/arms/state": "data",
+        "/result/items/0/sections/outcomes/state": "data",
+        "/result/items/0/sections/diseases/state": "data"
+      },
+      "max_bytes": 22660
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "eligibility",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/state": "data"
+      },
+      "max_bytes": 6657
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "outcomes",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/outcomes/state": "data"
+      },
+      "max_bytes": 6845
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "arms",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/arms/state": "data"
+      },
+      "max_bytes": 8666
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "diseases",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/diseases/state": "data"
+      },
+      "max_bytes": 6388
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "summary",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/summary/state": "data"
+      },
+      "max_bytes": 3988
+    }
+  ]
+}

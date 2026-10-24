@@ -1,0 +1,127 @@
+//! Independent NCI source: never a registry fallback or local disease matcher.
+mod get;
+mod page;
+use crate::{Action, Ctx, Outcome, status};
+use biodata::{
+    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, Text, TrialSearch,
+};
+use biomcp_adapters::nci;
+pub(super) use get::run as get;
+const ATTRIBUTION: &str =
+    "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
+pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
+    let mut out = empty(QueryBody::NciTrialPage(NciTrialPage {
+        items: Box::default(),
+        request: Box::default(),
+        attribution: ATTRIBUTION.into(),
+    }));
+    if q.nci_disease_invalid() {
+        out.body = QueryBody::NciDiseaseError;
+        return out;
+    }
+    if let Some(option) = q.unsupported() {
+        out.body = QueryBody::UnsupportedTrialFilter {
+            source: Source::Nci,
+            option,
+        };
+        return out;
+    }
+    if q.limit() > nci::PAGE_LIMIT
+        || q.next_page()
+            .is_some_and(|p| p.as_str().parse::<u32>().is_err())
+    {
+        out.body = QueryBody::TextPositionError;
+        return out;
+    }
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
+    let params = nci::parameters(q);
+    let result = nci::search(&leg, &params);
+    let error = result.as_ref().err().copied();
+    let mut source = status::source(Source::Nci, leg.finish(), error);
+    if let Ok(page) = result {
+        apply(q, cx.fresh, &mut out, &mut source, page, params);
+    }
+    finish(&mut out, source, error);
+    command.finish(deadline.remaining());
+    out
+}
+
+fn finish(
+    out: &mut Outcome,
+    source: biodata::SourceOutcome,
+    error: Option<biomcp_fetch::RequestError>,
+) {
+    if source.reason == Some(Reason::NoKey) {
+        out.next
+            .insert(0, (StepKind::Key, Action::KeyHelp(Source::Nci)));
+    }
+    out.local = error.and_then(status::local);
+    out.sources.push(source);
+}
+fn empty(body: QueryBody) -> Outcome {
+    Outcome {
+        status: Status::Failed,
+        body,
+        page: None,
+        sources: Vec::new(),
+        problems: Vec::new(),
+        next: Vec::new(),
+        local: None,
+    }
+}
+
+fn apply(
+    q: &TrialSearch,
+    fresh: bool,
+    out: &mut Outcome,
+    source: &mut biodata::SourceOutcome,
+    page: nci::Page,
+    params: Vec<(String, String)>,
+) {
+    source.count = Some(page.total);
+    source.fetched = Some(page.data.len() as u32);
+    out.status = if source.state == biodata::SourceState::Stale {
+        Status::Partial
+    } else {
+        Status::Complete
+    };
+    let offset = q
+        .next_page()
+        .and_then(|v| v.as_str().parse::<u32>().ok())
+        .unwrap_or_default();
+    let returned = if q.count_only() {
+        0
+    } else {
+        page.data.len() as u32
+    };
+    out.page = Some(biodata::PageInfo {
+        offset,
+        returned,
+        total: page.total,
+        pool: None,
+        truncated: None,
+    });
+    if !q.count_only() && returned > 0 && u64::from(offset.saturating_add(returned)) < page.total {
+        let token = Text::new(&offset.saturating_add(returned).to_string());
+        if let Ok(token) = token {
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::SearchTrial(q.at_page(token)),
+                    fresh,
+                },
+            ));
+        }
+    }
+    if let QueryBody::NciTrialPage(body) = &mut out.body {
+        if !q.count_only() {
+            body.items = page.data.into_iter().map(|r| r.card(false)).collect();
+        }
+        body.request = params
+            .into_iter()
+            .map(|(name, value)| biodata::TrialParameter { name, value })
+            .collect();
+    }
+}

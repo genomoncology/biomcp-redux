@@ -1,6 +1,7 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
 pub mod document;
 pub(crate) mod get;
+mod nci;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     GeneResolution, QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage,
@@ -9,6 +10,18 @@ use biodata::{
 use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
+    if query.source() == biodata::TrialSource::Nci {
+        return nci::search(cx, query);
+    }
+    if let Some(option) = query.unsupported() {
+        let mut out = empty();
+        out.body = QueryBody::UnsupportedTrialFilter {
+            source: Source::ClinicalTrialsGov,
+            option,
+        };
+        return out;
+    }
+
     let mut outcome = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();

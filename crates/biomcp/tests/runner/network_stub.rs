@@ -142,6 +142,9 @@ fn identity(host: &str) -> Result<(String, Arc<ServerConfig>), String> {
     };
     let now = time::OffsetDateTime::now_utc();
     let mut ca = CertificateParams::default();
+    // Windows must distinguish the signer from the leaf's default subject name.
+    ca.distinguished_name
+        .push(rcgen::DnType::CommonName, "Synthetic local test authority");
     ca.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
     ca.key_usages = vec![KeyUsagePurpose::KeyCertSign, KeyUsagePurpose::CrlSign];
     ca.not_before = now - time::Duration::days(1);

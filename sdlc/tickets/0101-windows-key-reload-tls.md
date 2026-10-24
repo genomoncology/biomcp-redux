@@ -1,6 +1,7 @@
 # 0101 — Diagnose Windows TLS in installed key-reload checks
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9fd456a43b5ac43ceca200f719e81e80a57f264c
 
 Milestone: 1
 

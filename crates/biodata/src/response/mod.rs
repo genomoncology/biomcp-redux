@@ -73,5 +73,15 @@ pub use trial_get::{
     TrialRecords, TrialSections,
 };
 
+mod nci_trial;
+pub use nci_trial::{
+    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+};
+
+mod nci_detail;
+pub use nci_detail::{
+    NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
+    NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
+};
 mod trial_document;
 pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};

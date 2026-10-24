@@ -1,5 +1,5 @@
 //! Exact trial cards and immutable source section continuations.
-mod page;
+pub(in crate::trial) mod page;
 mod snapshot;
 use self::snapshot::Snapshot;
 use crate::{Action, Ctx, Outcome, status, store::Store};
@@ -11,6 +11,10 @@ use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
 /// Retrieve independent input states under one shared command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
+    if query.source() == biodata::TrialSource::Nci {
+        return super::nci::get(cx, query);
+    }
+
     let mut out = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

@@ -111,6 +111,8 @@ pub enum SecretName {
     SemanticScholarApiKey,
     /// OncoKB API key.
     OncokbApiKey,
+    /// NCI Clinical Trials Search API key.
+    NciApiKey,
 }
 
 /// Credential insertion location.

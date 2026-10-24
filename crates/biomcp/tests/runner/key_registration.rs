@@ -8,6 +8,9 @@ const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/nci/key-reload", || {
+            super::key_reload::nci().map_err(Into::into)
+        }),
         Trial::test("configuration/key-registration", || {
             registration().map_err(Into::into)
         }),

@@ -80,18 +80,18 @@ impl Client {
         }
     }
 }
-fn start(http: bool, fallback: bool, config: Value) -> Result<Client, String> {
+fn start(http: bool, fallback: bool, config: Value, variable: &str) -> Result<Client, String> {
     if http {
         return Ok(Client::Http(super::http::Server::keys(
             config,
-            fallback.then_some(ENV),
+            fallback.then_some((variable, ENV)),
         )?));
     }
     let environment = Environment::new().map_err(|e| e.to_string())?;
     environment.config(&config).map_err(|e| e.to_string())?;
     let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()]);
     if fallback {
-        command.env("SEMANTIC_SCHOLAR_API_KEY", ENV);
+        command.env(variable, ENV);
     }
     let mut child = command
         .stdin(Stdio::piped())
@@ -119,27 +119,39 @@ fn start(http: bool, fallback: bool, config: Value) -> Result<Client, String> {
     })
 }
 pub(super) fn check(http: bool, fallback: bool) -> Check {
+    check_source(http, fallback, false)
+}
+pub(super) fn nci() -> Check {
+    for http in [false, true] {
+        check_source(http, true, true)?;
+    }
+    Ok(())
+}
+fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
     let assets = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::for_source("api.semanticscholar.org", "application/json", |_| {
-        Ok(r#"{"total":0,"data":[]}"#.into())
-    })?;
+    let source = if nci { "nci" } else { "semantic-scholar" };
+    let variable = if nci {
+        "NCI_API_KEY"
+    } else {
+        "SEMANTIC_SCHOLAR_API_KEY"
+    };
+    let stub = Stub::for_source(
+        if nci {
+            "clinicaltrialsapi.cancer.gov"
+        } else {
+            "api.semanticscholar.org"
+        },
+        "application/json",
+        |_| Ok(r#"{"total":0,"data":[]}"#.into()),
+    )?;
     let certificate = assets.root().join("ca.pem");
     std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     let mut client = start(
         http,
         fallback,
         json!({"proxy":format!("http://{}",stub.address),"ca_bundle":certificate,"disable_sources":["reactome"]}),
+        variable,
     )?;
-    let query = |index: usize| {
-        vec![
-            "search".to_owned(),
-            "article".into(),
-            format!("synthetic EGFR {index}"),
-            "--source".into(),
-            "semantic-scholar".into(),
-            "--fresh".into(),
-        ]
-    };
     let mut expected = Vec::new();
     for (index, key) in [None, Some(FIRST), Some(SECOND), None]
         .into_iter()
@@ -149,7 +161,7 @@ pub(super) fn check(http: bool, fallback: bool) -> Check {
             1 => {
                 invoke(
                     client.environment(),
-                    &["key", "set", "semantic-scholar"],
+                    &["key", "set", source],
                     &format!("{FIRST}\n"),
                     0,
                 )?;
@@ -157,23 +169,18 @@ pub(super) fn check(http: bool, fallback: bool) -> Check {
             2 => {
                 invoke(
                     client.environment(),
-                    &["key", "set", "semantic-scholar", "--replace"],
+                    &["key", "set", source, "--replace"],
                     &format!("{SECOND}\n"),
                     0,
                 )?;
             }
             3 => {
-                invoke(
-                    client.environment(),
-                    &["key", "remove", "semantic-scholar"],
-                    "",
-                    0,
-                )?;
+                invoke(client.environment(), &["key", "remove", source], "", 0)?;
             }
             _ => {}
         }
         let selected = key.or(fallback.then_some(ENV));
-        let args = query(index);
+        let args = query(index, nci, source);
         let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
         let result = client.call(index, &refs)?;
         if result.pointer("/sources/0/reason") == Some(&json!("no_key")) {
@@ -187,7 +194,7 @@ pub(super) fn check(http: bool, fallback: bool) -> Check {
             expected.push(selected);
         }
     }
-    let refusal = client.call(99, &["key", "set", "semantic-scholar"])?;
+    let refusal = client.call(99, &["key", "set", source])?;
     if refusal.get("status") != Some(&json!("usage")) {
         return Err("MCP accepted key management".into());
     }
@@ -210,4 +217,27 @@ fn check_wire(stub: Stub, expected: Vec<Option<&str>>) -> Check {
         }
     }
     Ok(())
+}
+
+fn query(index: usize, nci: bool, source: &str) -> Vec<String> {
+    if nci {
+        vec![
+            "search".into(),
+            "trial".into(),
+            "--source".into(),
+            source.into(),
+            "--keyword".into(),
+            format!("synthetic {index}"),
+            "--fresh".into(),
+        ]
+    } else {
+        vec![
+            "search".into(),
+            "article".into(),
+            format!("synthetic EGFR {index}"),
+            "--source".into(),
+            source.into(),
+            "--fresh".into(),
+        ]
+    }
 }

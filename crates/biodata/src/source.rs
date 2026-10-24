@@ -81,6 +81,8 @@ canonical_enum! {
         PubTator => "pubtator",
         /// ClinicalTrials.gov.
         ClinicalTrialsGov => "ctgov",
+        /// NCI Clinical Trials Search.
+        Nci => "nci",
         /// CIViC.
         Civic => "civic",
         /// OncoKB.
