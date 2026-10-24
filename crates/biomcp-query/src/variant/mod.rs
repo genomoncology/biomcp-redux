@@ -24,6 +24,8 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         rejection = rejected;
         resolution = if rejection.is_some() {
             VariantResolution::Rejected
+        } else if candidates.is_empty() && !problems.is_empty() {
+            VariantResolution::Unavailable
         } else {
             classify(candidates.len())
         };

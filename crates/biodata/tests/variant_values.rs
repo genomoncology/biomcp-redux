@@ -106,3 +106,46 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     }
     Ok(())
 }
+#[test]
+fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
+    let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!("../../../tests/fixtures/variant/common.json"))?;
+    let mut mitochondrial = Vec::new();
+    for row in rows {
+        // Clinical source rows are preserved for the ClinVar, ClinGen and CIViC section owners.
+        if row["kind"] == "statement" { continue; }
+        if row["kind"] == "refusal" {
+            assert!(row["input"].as_str().ok_or("refusal input")?.parse::<Sequence>().is_err());
+            continue;
+        }
+        for text in row["hgvs"].as_array().into_iter().flatten() {
+            let text = text.as_str().ok_or("HGVS text")?;
+            assert_eq!(text.parse::<HgvsText>()?.as_str(), text);
+        }
+        for id in row["identifiers"].as_array().into_iter().flatten() {
+            let id = id.as_str().ok_or("identifier text")?;
+            assert_eq!(id.parse::<VariantId>()?.to_string(), id);
+        }
+        if let Some(value) = row.get("allele") {
+            let allele: Allele = serde_json::from_value(value.clone())?;
+            assert_eq!(serde_json::to_value(&allele)?, *value);
+            let build: Build = serde_json::from_value(row["build"].clone())?;
+            if row["name"].as_str().is_some_and(|s| s.starts_with("mitochondrial-")) {
+                let chromosome: Chromosome = "MT".parse()?;
+                assert_eq!(chromosome.accession(build), allele.location().sequence);
+                mitochondrial.push((build, allele));
+            }
+        }
+        for expression in row["expressions"].as_array().into_iter().flatten() {
+            let parsed: Expression = serde_json::from_value(expression.clone())?;
+            assert_eq!(serde_json::to_value(parsed)?, *expression);
+        }
+        for candidate in row["candidates"].as_array().into_iter().flatten() {
+            let _: Build = serde_json::from_value(candidate["build"].clone())?;
+            let _: Expression = serde_json::from_value(candidate["expression"].clone())?;
+        }
+    }
+    let [(first_build, first), (second_build, second)] = mitochondrial.as_slice() else { return Err("one mitochondrial row per build is required".into()); };
+    assert_ne!(first_build, second_build);
+    assert_eq!(first, second);
+    Ok(())
+}
