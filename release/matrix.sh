@@ -17,16 +17,17 @@ BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" python3 -m unittest relea
 for arch in amd64 arm64; do
   case "$arch" in amd64) wheel_arch=x86_64;; arm64) wheel_arch=aarch64;; esac
   image="quay.io/pypa/manylinux_2_28_$wheel_arch"
-  docker run --rm --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
     --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
     -e "BIOMCP_BUILD_REVISION=$revision" -e "BIOMCP_BUILD_ARCH=$arch" \
     "$image" /bin/bash -c '
       set -euo pipefail
       cp -a /source /tmp/build
       cd /tmp/build
-      export CARGO_HOME=/tmp/cargo RUSTUP_HOME=/tmp/rustup CARGO_BUILD_JOBS=2
+      export HOME=/tmp/build-home CARGO_HOME=/tmp/cargo RUSTUP_HOME=/tmp/rustup CARGO_BUILD_JOBS=2
+      mkdir -p "$HOME"
       curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup.sh
-      sh /tmp/rustup.sh -y --profile minimal --default-toolchain 1.95.0
+      sh /tmp/rustup.sh -y --no-modify-path --profile minimal --default-toolchain 1.95.0
       export PATH=/tmp/cargo/bin:/opt/python/cp311-cp311/bin:$PATH
       python release/artifacts.py build --manylinux --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
       python release/gate.py --prepare-only --artifacts "/output/linux-$BIOMCP_BUILD_ARCH" --scratch /tmp/proof
@@ -34,7 +35,7 @@ for arch in amd64 arm64; do
     '
   # The installation container has only artifacts, a runner and public fixtures.
   # It has no checkout, build tree, host configuration or credential mount.
-  docker run --rm --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
     --platform "linux/$arch" -v "$scratch/linux-$arch:/artifacts:ro" \
     -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
       set -euo pipefail
