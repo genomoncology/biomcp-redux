@@ -130,6 +130,18 @@ fn invalid_xml_media_encodings_documents_and_reply_checks_are_input_free() {
             "text/xml",
             "<?xml version=\"1.0\" encoding=\"UTF-16\"?><answer>V600E</answer>",
         ),
+        (
+            "text/xml",
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" encoding=\"UTF-16\"?><answer>V600E</answer>",
+        ),
+        (
+            "text/xml",
+            "<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?><answer>V600E</answer>",
+        ),
+        (
+            "text/xml",
+            "<?xml version=\"1.0\" unknown=\"private-error\"?><answer>V600E</answer>",
+        ),
         ("text/xml", "<answer>V600E"),
         ("text/xml", "<answer>V600E</wrong>"),
         ("text/xml", "<answer>V600E</answer><extra/>"),
