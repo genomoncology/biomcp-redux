@@ -93,56 +93,7 @@ fn execute<'a>(
                 reason: Reason::NotOpen,
             });
         };
-        let Some(file) = document
-            .supplements
-            .iter()
-            .find(|v| v.file.name == *query.file())
-        else {
-            out.body = QueryBody::TextPositionError;
-            return Ok(Section::NotApplicable);
-        };
-        let mut content = empty(document.license, selection.forms.clone());
-        if query.save().is_some() {
-            content.url = Some(file.url.clone());
-            if save.allow {
-                save.file = Some(super::save::File {
-                    bytes: pmc_oa::download_bytes(&leg, file)?,
-                    url: file.url.clone(),
-                    parts: None,
-                });
-            }
-        } else if !file.file.kind.readable() {
-            content.url = Some(file.url.clone());
-            content.reason = Some(Reason::Unsupported);
-        } else {
-            let downloaded = pmc_oa::download(&leg, file)?;
-            content.sha256 = Some(
-                Text::new(
-                    &Sha256::digest(&downloaded.bytes)
-                        .iter()
-                        .map(|v| format!("{v:02x}"))
-                        .collect::<String>(),
-                )
-                .map_err(|_| failure(Reason::BadReply))?,
-            );
-            if !page::select(
-                query,
-                &downloaded.sheets,
-                &mut content,
-                out,
-                &selection.needles,
-                downloaded.deadline,
-            )
-            .map_err(failure)?
-            {
-                out.body = QueryBody::TextPositionError;
-                return Ok(Section::NotApplicable);
-            }
-        }
-        Ok(Section::Data {
-            source: Source::PmcOa,
-            data: content,
-        })
+        content(query, selection, &leg, &document, out, save)
     })();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
@@ -171,4 +122,64 @@ fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementCon
         rows: None,
         forms,
     }
+}
+
+fn content(
+    query: &ArticleSupplement,
+    selection: &super::protein_change::Selection,
+    leg: &biomcp_fetch::Leg<'_>,
+    document: &pmc_oa::Document,
+    out: &mut Outcome,
+    save: &mut super::save::State,
+) -> Result<Section<SupplementContent>, RequestError> {
+    let Some(file) = document
+        .supplements
+        .iter()
+        .find(|v| v.file.name == *query.file())
+    else {
+        out.body = QueryBody::TextPositionError;
+        return Ok(Section::NotApplicable);
+    };
+    let mut content = empty(document.license, selection.forms.clone());
+    if query.save().is_some() {
+        content.url = Some(file.url.clone());
+        if save.allow {
+            save.file = Some(super::save::File {
+                bytes: pmc_oa::download_bytes(leg, file)?,
+                url: file.url.clone(),
+                parts: None,
+            });
+        }
+    } else if !file.file.kind.readable() {
+        content.url = Some(file.url.clone());
+        content.reason = Some(Reason::Unsupported);
+    } else {
+        let downloaded = pmc_oa::download(leg, file)?;
+        content.sha256 = Some(
+            Text::new(
+                &Sha256::digest(&downloaded.bytes)
+                    .iter()
+                    .map(|v| format!("{v:02x}"))
+                    .collect::<String>(),
+            )
+            .map_err(|_| failure(Reason::BadReply))?,
+        );
+        if !page::select(
+            query,
+            &downloaded.sheets,
+            &mut content,
+            out,
+            &selection.needles,
+            downloaded.deadline,
+        )
+        .map_err(failure)?
+        {
+            out.body = QueryBody::TextPositionError;
+            return Ok(Section::NotApplicable);
+        }
+    }
+    Ok(Section::Data {
+        source: Source::PmcOa,
+        data: content,
+    })
 }

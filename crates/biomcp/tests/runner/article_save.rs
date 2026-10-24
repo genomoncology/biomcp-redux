@@ -8,6 +8,9 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn check() -> Check {
     text()?;
     supplement()?;
+    pdf()?;
+    opaque()?;
+    arguments()?;
     failures()?;
     http_refusal()
 }
@@ -25,7 +28,10 @@ fn command(
     args: &[String],
     exit: i32,
 ) -> Result<Value, Box<dyn std::error::Error>> {
-    let mut all = env.globals(Some(&fixtures().join("replies").join(capture)), false);
+    command_at(env, &fixtures().join("replies").join(capture), args, exit)
+}
+fn command_at(env: &Environment, replay: &Path, args: &[String], exit: i32) -> Result<Value, Box<dyn std::error::Error>> {
+    let mut all = env.globals(Some(replay), false);
     all.extend_from_slice(args);
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &all).output()?;
     assert_eq!(
@@ -95,7 +101,7 @@ fn text() -> Check {
         "Source: https://",
         "Introduction",
         "Discussion",
-        "Table S4. Alternative splicing variants.",
+        "**Table S4.** Alternative splicing variants.",
     ] {
         assert!(body.contains(text), "lost complete text/header: {text}");
     }
@@ -171,8 +177,15 @@ fn http_refusal() -> Check {
     ] {
         let env = Environment::new()?;
         let path = env.root().join("server-must-not-write");
-        let mut server =
-            super::http::Server::start_replay(fixtures().join("replies").join(capture))?;
+        let replay = env.root().join("metadata-only");
+        super::response_cases::copy_capture(capture, &replay, |_, _| {})?;
+        for source in fs::read_dir(&replay)? {
+            for file in fs::read_dir(source?.path())? {
+                let path = file?.path();
+                if path.extension().is_some_and(|v| v == "bin") { fs::remove_file(path)?; }
+            }
+        }
+        let mut server = super::http::Server::start_replay(replay)?;
         let call = super::mcp::request(
             json!(7),
             "tools/call",
@@ -193,6 +206,63 @@ fn http_refusal() -> Check {
         );
         assert!(!path.exists());
         server.stop()?;
+    }
+    Ok(())
+}
+
+fn pdf() -> Check {
+    let env = Environment::new()?;
+    let replay = fixtures().join("replies/article/saves/pdf");
+    let mut original = None;
+    for entry in fs::read_dir(replay.join("pmc-oa"))? {
+        let path = entry?.path();
+        if path.extension().is_some_and(|v| v == "bin") { original = Some(fs::read(path)?); }
+    }
+    let original = original.ok_or("recorded source PDF absent")?;
+    assert!(original.starts_with(b"%PDF-"));
+    let folder = env.root().join("pdf");
+    fs::create_dir(&folder)?;
+    let mut cli = args("supplement", &folder);
+    *cli.get_mut(3).ok_or("file argument")? = "MGG3-5-553-s001.pdf".into();
+    let value = command_at(&env, &replay, &cli, 0)?;
+    let path = folder.join("MGG3-5-553-s001.pdf");
+    receipt(&value, &path, &original, None)?;
+    assert_eq!(fs::read(path)?, original);
+    let stdio = folder.join("stdio.pdf");
+    let mut cli = args("supplement", &stdio);
+    *cli.get_mut(3).ok_or("file argument")? = "MGG3-5-553-s001.pdf".into();
+    let value = super::mcp::call_with_globals(&env, &cli, false, &env.globals(Some(&replay), false))?;
+    receipt(&value, &stdio, &original, None)?;
+    assert_eq!(fs::read(stdio)?, original);
+    Ok(())
+}
+fn opaque() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("opaque");
+    // Preserve request identity and exact declared filename; edit only source MIME/body.
+    super::response_cases::copy_capture("article/supplements/live", &replay, |_, record| {
+        if let Some(Value::String(xml)) = record.pointer_mut("/exchanges/0/body/value") {
+            *xml = xml.replace("vnd.openxmlformats-officedocument.spreadsheetml.sheet", "vnd.openxmlformats-officedocument.wordprocessingml.document");
+        }
+    })?;
+    let bytes = b"PK\x03\x04opaque Word document, no extraction";
+    fs::write(replay.join("pmc-oa/51c9ef213345bdbc7ed493ea19928bd900d5791413a6c5a65b60f2c50eac690f-0.bin"), bytes)?;
+    let path = env.root().join("opaque.docx");
+    let value = command_at(&env, &replay, &args("supplement", &path), 0)?;
+    receipt(&value, &path, bytes, None)?;
+    assert_eq!(fs::read(path)?, bytes);
+    Ok(())
+}
+fn arguments() -> Check {
+    let env = Environment::new()?;
+    for kind in ["text", "supplement"] {
+        for extra in [vec!["--find", "literal"], vec!["--variant", "E17K"], vec!["--offset", "1"]] {
+            let path = env.root().join("never");
+            let mut cli = args(kind, &path);
+            cli.extend(extra.iter().map(|s| (*s).to_owned()));
+            command(&env, "article/supplements/live", &cli, 2)?;
+            assert!(!path.exists());
+        }
     }
     Ok(())
 }

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pmc-oa",
+  "url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC5606870.1/MGG3-5-553-s001.pdf?md5=13e1b3cada043c863b28fc7c4e9cb103",
+  "exchanges": [
+    {
+      "fetched": 1792862282,
+      "status": 200,
+      "content_type": "binary/octet-stream",
+      "delay_ms": 95,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "ae7c09b1d0f662747960e9374c9824a4178f0a0fda225c978a14122f48aed6f3-0.bin"
+      }
+    }
+  ]
+}
