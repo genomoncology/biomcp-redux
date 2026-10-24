@@ -48,7 +48,7 @@ const LAYERS: &[(&str, &[&str])] = &[
 ];
 
 fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
-    Ok(fs::read_to_string(path)?.parse()?)
+    Ok(toml::from_str(&fs::read_to_string(path)?)?)
 }
 
 pub(super) fn check(root: &Path) -> Check {
