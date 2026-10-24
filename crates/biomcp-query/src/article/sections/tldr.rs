@@ -53,6 +53,13 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         out.next
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }
+    if source.state == biodata::SourceState::Stale {
+        for item in &mut cards.items {
+            if item.sections.as_ref().is_some_and(|s| s.tldr.is_some()) {
+                item.status = Status::Partial;
+            }
+        }
+    }
     out.sources.push(source);
     out.status = status::status(cards.items.iter().map(|i| i.status));
 }

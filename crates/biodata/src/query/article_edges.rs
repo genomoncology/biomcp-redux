@@ -11,7 +11,7 @@ pub struct ArticleEdges(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// PMID whose graph edges to read.
+    /// PMID, PMC or DOI; iCite accepts only a PMID.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     pmid: ArticleInput,
     /// Graph provider; iCite remains the default.

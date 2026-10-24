@@ -15,6 +15,7 @@ mod protocol;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod semantic_tables;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
