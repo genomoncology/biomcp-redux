@@ -67,3 +67,21 @@ fn bad() -> RequestError {
     }
     .into()
 }
+
+/// Cache only a checked successful identity for bounded dependent-source paging.
+/// Validation rejections never enter this cache; ordinary resolution preserves them separately.
+pub fn exact_identity(leg: &Leg<'_>, input: &biodata::VariantInput) -> Result<crate::Mapped<VariantHeader>, RequestError> {
+    let by_id = input.namespace().ok() == Some(biodata::VariantNamespace::Ca);
+    let endpoint = if by_id {
+        ALLELE.clone().with_segments(&[PathSegment::new(input.as_str())?])
+    } else { ALLELE.clone() }.fresh(biomcp_fetch::Freshness::Days(1));
+    let mut params = vec![("fields", Arg::Text(FIELDS))];
+    if !by_id { params.insert(0, ("hgvs", Arg::Text(input.as_str()))); }
+    let (reply, _) = leg.json_received_checked::<raw::Allele>(&endpoint, &params, |r| {
+        if r.error_type.is_none() && (!by_id || r.id.as_ref().is_some_and(|url| url.as_str().rsplit('/').next() == Some(input.as_str()))) { Ok(()) } else { Err(biomcp_fetch::BadReply) }
+    })?;
+    match map::allele(reply).map_err(|_| bad())? {
+        Resolution::Found(row) => Ok(row),
+        Resolution::Rejected(_) => Err(bad()),
+    }
+}
