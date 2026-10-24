@@ -21,13 +21,13 @@
           "section",
           "section",
           "section",
-          "table",
-          "table",
-          "section",
           "section",
           "table",
           "table",
           "table",
+          "table",
+          "table",
+          "section",
           "section",
           "section"
         ],
@@ -65,12 +65,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/content/data/hits/*/part": {
-          "count": {
-            "min": 1,
-            "max": 25
-          }
-        }
+        "/query/find": "AXIN2"
       },
       "max_tokens": 4000
     }

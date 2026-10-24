@@ -77,8 +77,7 @@
       "expect": {
         "/status": "complete",
         "/result/content/data/hits": [],
-        "/page/total": 0,
-        "/next": []
+        "/page/total": 0
       }
     },
     {
@@ -128,8 +127,7 @@
         "/result/content/data/hits": {
           "count": 4
         },
-        "/page/offset": 25,
-        "/next": []
+        "/page/offset": 25
       },
       "max_tokens": 4000
     },

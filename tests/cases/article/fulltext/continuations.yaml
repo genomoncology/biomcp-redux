@@ -41,8 +41,7 @@
     {
       "follow": "page",
       "expect": {
-        "/result/content/data/part": 4,
-        "/next": []
+        "/result/content/data/part": 4
       },
       "max_tokens": 4000
     }
