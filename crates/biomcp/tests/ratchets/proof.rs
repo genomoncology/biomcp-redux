@@ -110,9 +110,10 @@ fn isolated_trees_reject_structural_violations() -> Check {
 fn rejects(path: &str, content: &str, rule: &str) -> Check {
     let tree = tree()?;
     put(tree.path(), path, content)?;
-    let failure = check(tree.path())
-        .expect_err("planted violation must fail")
-        .to_string();
+    let failure = match check(tree.path()) {
+        Ok(()) => return Err("planted violation passed".into()),
+        Err(error) => error.to_string(),
+    };
     assert!(
         failure.contains(path) && failure.contains(rule),
         "{failure}"
