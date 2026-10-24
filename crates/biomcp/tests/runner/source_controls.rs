@@ -10,6 +10,9 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/health-keeps-local-recording-errors-typed", || {
+            health_local().map_err(Into::into)
+        }),
         Trial::test("sources/disabled-before-warm-cache-and-sync", || {
             disabled().map_err(Into::into)
         }),
@@ -195,6 +198,33 @@ fn no_request() -> Check {
         if source.file_type().map_err(|e| e.to_string())?.is_dir() {
             return Err("disabled source wrote a recording".into());
         }
+    }
+    Ok(())
+}
+
+fn health_local() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let missing = env.root().join("missing-recording");
+    fs::create_dir(&missing).map_err(|e| e.to_string())?;
+    let disabled = biomcp_adapters::registry::SOURCES
+        .iter()
+        .filter(|s| s.source != biodata::Source::MyGene)
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    let result = invoke(
+        &env,
+        vec![
+            "health".into(),
+            "--replay".into(),
+            missing.to_string_lossy().into(),
+            "--disable-sources".into(),
+            disabled,
+        ],
+        5,
+    )?;
+    if result.pointer("/error/code") != Some(&json!("local.failure")) {
+        return Err("health lost its typed local error".into());
     }
     Ok(())
 }
