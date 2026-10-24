@@ -3,6 +3,7 @@ mod configuration;
 mod corporate;
 mod gene_tables;
 mod held_proxy;
+mod http;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
@@ -237,6 +238,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(configuration::trials());
     trials.extend(source_controls::trials());
 
+    trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_sources::trials());
