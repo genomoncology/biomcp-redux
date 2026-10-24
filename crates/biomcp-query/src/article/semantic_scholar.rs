@@ -129,7 +129,7 @@ pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
     item.header
         .as_ref()
         .and_then(|h| h.doi.as_ref())
-        .or_else(|| {
+        .or({
             if let Some(ArticleKey::Doi(doi)) = &item.key {
                 Some(doi)
             } else {
