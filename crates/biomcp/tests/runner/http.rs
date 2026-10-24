@@ -192,7 +192,7 @@ fn resources() -> Check {
     for bytes in [
         format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 65537\r\n\r\n", server.address),
         format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 1\r\nContent-Length: 1\r\n\r\nx", server.address),
-        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n", server.address),
+        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: gzip\r\n\r\n0\r\n\r\n", server.address),
         format!("GET /health HTTP/1.1\r\nHost: {}\r\nX-Fill: {}", server.address, "x".repeat(16384)),
     ] { closed(server.address, bytes.as_bytes())?; }
     let mut slow = TcpStream::connect(server.address).map_err(|e| e.to_string())?;

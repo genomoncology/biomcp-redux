@@ -1,5 +1,6 @@
 //! Bounded blocking HTTP transport with independent request protocol state.
 mod authority;
+mod chunked;
 mod metadata;
 mod wire;
 use authority::Authority;

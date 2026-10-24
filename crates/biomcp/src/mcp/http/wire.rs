@@ -48,10 +48,14 @@ pub(super) fn read(stream: &mut TcpStream) -> io::Result<Request> {
             }
         }
     };
-    if request.one("transfer-encoding").map_err(|_| malformed())?.is_some() {
-        return Err(malformed());
+    let encoding = request.one("transfer-encoding").map_err(|_| malformed())?;
+    let length = request.one("content-length").map_err(|_| malformed())?;
+    if let Some(encoding) = encoding {
+        if length.is_some() || !encoding.eq_ignore_ascii_case("chunked") { return Err(malformed()); }
+        request.body = super::chunked::read(stream, bytes.get(offset..).ok_or_else(malformed)?.to_vec(), end)?;
+        return Ok(request);
     }
-    let length = request.one("content-length").map_err(|_| malformed())?
+    let length = length
         .map(|n| if n.bytes().all(|c| c.is_ascii_digit()) { n.parse::<usize>().map_err(|_| malformed()) }
             else { Err(malformed()) }).transpose()?.unwrap_or(0);
     if length > MAX_BODY { return Err(malformed()); }
@@ -71,11 +75,22 @@ fn timeout(stream: &TcpStream, end: Instant) -> io::Result<()> {
         .ok_or_else(|| io::Error::new(io::ErrorKind::TimedOut, "HTTP read budget"))?;
     stream.set_read_timeout(Some(left))
 }
-fn malformed() -> io::Error { io::Error::new(io::ErrorKind::InvalidData, "Invalid HTTP request") }
+pub(super) fn malformed() -> io::Error { io::Error::new(io::ErrorKind::InvalidData, "Invalid HTTP request") }
 pub(super) fn write(stream: &mut TcpStream, status: u16, body: &[u8], revision: Option<&str>) -> io::Result<()> {
     stream.set_write_timeout(Some(READ_BUDGET))?;
     let revision = revision.map(|revision| format!("MCP-Protocol-Version: {revision}\r\n")).unwrap_or_default();
     let head = format!("HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: close\r\nCache-Control: no-store\r\n{revision}Content-Length: {}\r\n\r\n", body.len());
     stream.write_all(head.as_bytes())?;
     stream.write_all(body)
+}
+
+pub(super) fn read_more(stream: &mut TcpStream, bytes: &mut Vec<u8>, cap: usize, end: Instant) -> io::Result<()> {
+    if bytes.len() >= cap { return Err(malformed()); }
+    timeout(stream, end)?;
+    let mut buffer = [0; 4096];
+    let available = buffer.len().min(cap - bytes.len());
+    let read = stream.read(buffer.get_mut(..available).ok_or_else(malformed)?)?;
+    if read == 0 { return Err(malformed()); }
+    bytes.extend_from_slice(buffer.get(..read).ok_or_else(malformed)?);
+    Ok(())
 }
