@@ -138,7 +138,13 @@ impl Cache {
             let tx=c.unchecked_transaction().map_err(db_error)?;
             let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:u64::from(r.get::<_,u32>(4)?),etag:r.get(5)?,total:r.get::<_,Option<u32>>(6)?.map(u64::from)}))).optional().map_err(db_error)?;
             if old.as_ref().is_some_and(|(h,until,_,_)|h.is_some()&&*until>now()){return Err(CacheError::Busy);}
-            let part=old.and_then(|(_,_,u,p)|(u==url).then_some(p));
+            // A released file transfers to this claim. An active predecessor keeps its file,
+            // even after lease expiry; its completion still owns cleanup of that path.
+            let part=old.and_then(|(h,_,u,mut p)| {
+                if h.is_some() { return None; }
+                if u!=url { p.bytes=0; }
+                Some(p)
+            });
             tx.execute("INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,etag=NULL,total=NULL",params![name,holder,lease,url,path]).map_err(db_error)?;
             tx.commit().map_err(db_error)?; Ok(part)
         })

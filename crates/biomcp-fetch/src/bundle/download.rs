@@ -74,9 +74,7 @@ impl Leg<'_> {
             total: None,
         };
         let record = matches!(self.fetch.config.mode, Mode::Record { .. });
-        if !record {
-            resume(prior, &mut part, &mut file)?;
-        }
+        resume(prior, &mut part, &mut file, !record)?;
         let started = Instant::now();
         let mut transfer = Transfer {
             holder: &holder,
@@ -452,20 +450,29 @@ fn resume(
     prior: Option<Part>,
     part: &mut Part,
     file: &mut tempfile::NamedTempFile,
+    allowed: bool,
 ) -> Result<(), CacheError> {
-    if let Some(prior) = prior
-        && strong(prior.etag.as_deref())
-        && prior.bytes > 0
-        && let Ok(input) = fs::File::open(&prior.path)
-    {
-        let copied =
-            std::io::copy(&mut input.take(prior.bytes), file).map_err(|_| CacheError::Database)?;
-        if copied == prior.bytes {
-            part.bytes = copied;
-            part.etag = prior.etag;
-            part.total = prior.total;
-        } else {
-            reset(file, part)?;
+    if let Some(prior) = prior {
+        if allowed
+            && strong(prior.etag.as_deref())
+            && prior.bytes > 0
+            && let Ok(input) = fs::File::open(&prior.path)
+        {
+            let copied = std::io::copy(&mut input.take(prior.bytes), file)
+                .map_err(|_| CacheError::Database)?;
+            if copied == prior.bytes {
+                part.bytes = copied;
+                part.etag = prior.etag;
+                part.total = prior.total;
+            } else {
+                reset(file, part)?;
+            }
+        }
+        // claim transfers only a released predecessor's file to this holder.
+        if let Err(error) = fs::remove_file(prior.path)
+            && error.kind() != std::io::ErrorKind::NotFound
+        {
+            return Err(CacheError::Database);
         }
     }
     Ok(())

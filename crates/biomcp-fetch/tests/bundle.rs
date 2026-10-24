@@ -423,7 +423,12 @@ fn interrupted_download_resumes_only_the_same_representation() {
                 assert_eq!(call.join().unwrap().unwrap().rows, 1);
             });
         }
-        assert_eq!(std::fs::read_dir(path.with_extension("parts")).unwrap().count(), 0);
+        assert_eq!(
+            std::fs::read_dir(path.with_extension("parts"))
+                .unwrap()
+                .count(),
+            0
+        );
     }
 }
 
