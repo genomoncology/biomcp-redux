@@ -209,12 +209,24 @@ fn next_positionals() -> Check {
         let original = invoke(
             &env,
             [command, "gene", "--offline", "--", "-BRAF"]
-                .into_iter().map(str::to_owned).collect(),
+                .into_iter()
+                .map(str::to_owned)
+                .collect(),
             4,
         )?;
-        let args = original.pointer("/next/0/args")
-            .and_then(Value::as_array).ok_or("missing fresh command")?;
-        let mut args = args.iter().map(|value| value.as_str().ok_or("invalid command argument").map(str::to_owned)).collect::<Result<Vec<_>, _>>()?;
+        let args = original
+            .pointer("/next/0/args")
+            .and_then(Value::as_array)
+            .ok_or("missing fresh command")?;
+        let mut args = args
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .ok_or("invalid command argument")
+                    .map(str::to_owned)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         args.insert(0, "--offline".into());
         let repeated = invoke(&env, args, 4)?;
         if repeated.get("query") != original.get("query") {

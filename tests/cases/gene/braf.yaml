@@ -27,7 +27,11 @@
         "/result/items/0/answer/gene/spans/0/build": "GRCh38",
         "/result/items/0/answer/gene/spans/1/span/start": 140419126,
         "/result/items/0/answer/gene/spans/1/span/end": 140624564,
-        "/result/items/0/answer/gene/spans/1/build": "GRCh37"
+        "/result/items/0/answer/gene/spans/1/build": "GRCh37",
+        "/result/items/0/answer/gene/spans/*/strand": [
+          "-",
+          "-"
+        ]
       },
       "max_bytes": 2800
     },

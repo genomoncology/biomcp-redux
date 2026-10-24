@@ -24,7 +24,10 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;
             if *fresh {
-                let position = args.iter().position(|arg| arg == "--").unwrap_or(args.len());
+                let position = args
+                    .iter()
+                    .position(|arg| arg == "--")
+                    .unwrap_or(args.len());
                 args.insert(position, "--fresh".into());
             }
             Ok(args)
