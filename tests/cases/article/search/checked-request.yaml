@@ -1,0 +1,12 @@
+feature: article-search
+story: Article search accepts only checked selectors and offers a restart for an unknown pool.
+steps:
+  - run: [search, article]
+    exit: 2
+    expect:
+      /error/code: {equals: usage.arguments}
+  - run: [search, article, AKT1 E17K, --pool, unknown]
+    exit: 3
+    expect:
+      /error/code: {equals: pool.expired}
+      /next/0/kind: {equals: restart}
