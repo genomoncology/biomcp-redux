@@ -8,6 +8,7 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
     keys: Option<Keys>,
 }
@@ -129,9 +130,19 @@ fn fetch_using(
     if let Some(key) = scholar {
         secrets.insert(SecretName::SemanticScholarApiKey, Secret::new(key));
     }
+    let roots = file.as_ref().and_then(|file| file.ca_bundle.as_ref())
+        .map(|path| fs::read(path).map_err(|_| ()).and_then(|bytes| biomcp_fetch::Certificates::from_pem(&bytes).map_err(|_| ())))
+        .transpose()?.unwrap_or_default();
+    let network = biomcp_fetch::Network::new(
+        variable("HTTP_PROXY").map(|v| Secret::new(v.to_string_lossy().into_owned())),
+        variable("HTTPS_PROXY").map(|v| Secret::new(v.to_string_lossy().into_owned())),
+        &variable("NO_PROXY").map(|v| v.to_string_lossy().into_owned()).unwrap_or_default(),
+        roots,
+    ).map_err(|_| ())?;
     Fetch::open(FetchConfig {
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
+        network,
         cache,
         mode,
         replay_cache,

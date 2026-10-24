@@ -10,6 +10,9 @@ mod deadline;
 mod declaration;
 mod error;
 mod prepared;
+mod network;
+mod tls;
+pub use network::{Certificates, Network};
 mod quota;
 mod record;
 mod request;
@@ -53,6 +56,8 @@ pub struct FetchConfig {
     pub replay_cache: Option<ReplayCache>,
     /// Explicit HTTP proxy URL, redacted when formatted.
     pub proxy: Option<Secret>,
+    /// Checked environment routes and additive trust certificates.
+    pub network: Network,
     /// Maximum encoded request and decoded response bytes, each bounded independently.
     pub max_body: u64,
     /// Independent explicit bundle synchronization budget.
@@ -72,6 +77,7 @@ impl Default for FetchConfig {
             mode: Mode::default(),
             replay_cache: None,
             proxy: None,
+            network: Network::default(),
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
             sync_budget: Duration::from_secs(120),
@@ -86,7 +92,7 @@ impl Default for FetchConfig {
     reason = "Reserve each bundle replay import once per Fetch"
 )]
 pub struct Fetch {
-    agent: ureq::Agent,
+    agents: network::Agents,
     limiters: quota::Limiters,
     cache: Option<std::sync::Arc<cache::Cache>>,
     recordings: record::Recordings,
@@ -113,23 +119,7 @@ impl Fetch {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
-        let proxy = config
-            .proxy
-            .as_ref()
-            .map(|p| ureq::Proxy::new(p.value()))
-            .transpose()
-            .map_err(|_| FetchError::Proxy)?;
-        let agent = ureq::Agent::config_builder()
-            .proxy(proxy)
-            .http_status_as_error(false)
-            .max_redirects(0)
-            .tls_config(
-                ureq::tls::TlsConfig::builder()
-                    .root_certs(ureq::tls::RootCerts::PlatformVerifier)
-                    .build(),
-            )
-            .build()
-            .new_agent();
+        let agents = network::Agents::new(&config.network, config.proxy.as_ref())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
             config.replay_cache = Some(
                 ReplayCache::temporary_with_owners(&config.cache_owners)
@@ -155,7 +145,7 @@ impl Fetch {
         let clock =
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
-            agent,
+            agents,
             cache,
             recordings,
             clock,
