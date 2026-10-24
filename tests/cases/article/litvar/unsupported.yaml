@@ -6,6 +6,115 @@
       "run": [
         "search",
         "article",
+        "words",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "words",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "TEXT"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--disease",
+        "cancer"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--disease",
+        "cancer"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--disease"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--drug",
+        "drug"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--drug",
+        "drug"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--drug"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--author",
+        "Smith"
+      ],
+      "mcp": [
+        "search",
+        "article",
         "--gene",
         "KRAS",
         "--variant",
@@ -21,6 +130,194 @@
         "/error/code": "usage.unsupported_filter",
         "/error/source": "litvar",
         "/error/option": "--author"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--journal",
+        "Nature"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--journal",
+        "Nature"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--journal"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--since",
+        "2020"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--since",
+        "2020"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--since"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--until",
+        "2024"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--until",
+        "2024"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--until"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--type",
+        "trial"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--type",
+        "trial"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--type"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--sort",
+        "date"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--source",
+        "litvar",
+        "--sort",
+        "date"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--sort date"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1",
+        "--source",
+        "litvar"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "AKT1",
+        "--source",
+        "litvar"
+      ],
+      "exit": 2,
+      "max_bytes": 400,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "litvar",
+        "/error/option": "--variant"
       }
     }
   ]

@@ -7,8 +7,8 @@ pub use article::{
 };
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
-pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use query::ArticleText;
+pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, LitVarCandidate, PoolInfo, SourceNotice};
