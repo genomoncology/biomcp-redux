@@ -545,7 +545,7 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
 - The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
-- `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
+- The public contract tests in `crates/biodata/tests/` check JSON round trips, and `crates/biodata/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
 
