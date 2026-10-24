@@ -33,9 +33,12 @@ struct Stub {
     release: Option<mpsc::Sender<()>>,
     worker: Option<thread::JoinHandle<()>>,
 }
-#[expect(clippy::unwrap_used, reason = "Fixture setup and worker failures must abort the contract test")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Fixture setup and worker failures must abort the contract test"
+)]
 impl Stub {
-    fn new(status: u16, content_type: &str, body: &str, blocked: bool) -> Self {
+    fn new(status: u16, content_type: &str, body: &str, blocked: Option<&str>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let base = Box::leak(format!("http://{}", listener.local_addr().unwrap()).into_boxed_str());
         let reply = format!(
@@ -44,6 +47,7 @@ impl Stub {
         );
         let (sent, requests) = mpsc::channel();
         let (release, wait) = mpsc::channel();
+        let blocked = blocked.map(str::to_owned);
         let worker = thread::spawn(move || {
             for stream in listener.incoming() {
                 let mut stream = stream.unwrap();
@@ -62,10 +66,17 @@ impl Stub {
                     break;
                 }
                 sent.send(String::from_utf8(request).unwrap()).unwrap();
-                if blocked {
+                if blocked.as_deref() == Some("body") {
+                    let (head, body) = reply.split_once("\r\n\r\n").unwrap();
+                    let _ = write!(stream, "{head}\r\n\r\n");
                     let _ = wait.recv();
+                    let _ = stream.write_all(body.as_bytes());
+                } else {
+                    if blocked.is_some() {
+                        let _ = wait.recv();
+                    }
+                    let _ = stream.write_all(reply.as_bytes());
                 }
-                let _ = stream.write_all(reply.as_bytes());
             }
         });
         Self {
@@ -101,7 +112,10 @@ impl Drop for Stub {
     }
 }
 
-#[expect(clippy::unwrap_used, reason = "Default fixture configuration must open successfully")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Default fixture configuration must open successfully"
+)]
 fn fetch() -> Fetch {
     Fetch::open(FetchConfig::default()).unwrap()
 }
@@ -118,7 +132,7 @@ fn checked_json_encodes_parameters_and_sorts_identifier_sets() {
         200,
         "application/json; charset=utf-8",
         r#"{"answer":"yes"}"#,
-        false,
+        None,
     );
     let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
     let fetch = fetch();
@@ -155,7 +169,7 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
         (503, Reason::Unavailable),
         (302, Reason::Rejected),
     ] {
-        let stub = Stub::new(status, "application/json", "credential-echo", false);
+        let stub = Stub::new(status, "application/json", "credential-echo", None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
         let fetch = fetch();
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
@@ -179,7 +193,7 @@ fn unusable_success_replies_are_bad_reply() {
         ("application/json", r#"{"ERROR":"failed"}"#, 100),
         ("application/problem+json", r#"{"answer":"too large"}"#, 5),
     ] {
-        let stub = Stub::new(200, content_type, body, false);
+        let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
         let fetch = Fetch::open(FetchConfig {
             max_body: limit,
@@ -197,7 +211,7 @@ fn unusable_success_replies_are_bad_reply() {
 #[test]
 fn refusals_send_zero_requests() {
     for refusal in ["no_key", "expired", "foreign"] {
-        let stub = Stub::new(200, "application/json", r#"{"answer":"yes"}"#, false);
+        let stub = Stub::new(200, "application/json", r#"{"answer":"yes"}"#, None);
         let key = if refusal == "no_key" {
             KeyUse::Required(credential(KeyPlace::Query("api_key")))
         } else {
@@ -233,24 +247,29 @@ fn refusals_send_zero_requests() {
 }
 
 #[test]
-fn source_budget_caps_supplied_deadline_while_waiting_for_response() {
-    let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, true);
-    let spec = stub.spec(KeyUse::None, Duration::from_millis(40));
-    let fetch = fetch();
-    let error = fetch
-        .leg(spec, fetch.deadline(Duration::from_secs(30)))
-        .json::<Answer>(&spec.get("/answer"), &[])
-        .unwrap_err();
-    assert_eq!(error.reason, Reason::DeadlineExceeded);
-    // The server stays blocked until after the call returns. No elapsed-time assertion.
-    assert_eq!(stub.finish().len(), 1);
+fn source_budget_caps_supplied_deadline_during_headers_and_body() {
+    for (block, status) in [("head", None), ("body", Some(200))] {
+        let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, Some(block));
+        let spec = stub.spec(KeyUse::None, Duration::from_secs(1));
+        let fetch = fetch();
+        let error = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(30)))
+            .json::<Answer>(&spec.get("/answer"), &[])
+            .unwrap_err();
+        assert_eq!(
+            (error.reason, error.status),
+            (Reason::DeadlineExceeded, status)
+        );
+        // The server stays blocked until after the call returns. No elapsed-time assertion.
+        assert_eq!(stub.finish().len(), 1);
+    }
 }
 
 #[test]
 fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
     let secret = "placeholder-only-abc123";
     for place in [KeyPlace::Query("api_key"), KeyPlace::Header("x-api-key")] {
-        let stub = Stub::new(500, "application/json", secret, false);
+        let stub = Stub::new(500, "application/json", secret, None);
         let spec = stub.spec(KeyUse::Required(credential(place)), Duration::from_secs(10));
         let mut config = FetchConfig::default();
         config
