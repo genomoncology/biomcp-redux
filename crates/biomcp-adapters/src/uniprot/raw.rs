@@ -6,7 +6,9 @@ pub(super) struct Proteins {
     pub results: Vec<Field<Protein>>,
 }
 impl Reply for Proteins {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,17 +22,27 @@ pub(super) struct Protein {
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Organism { pub taxon_id: u32 }
+pub(super) struct Organism {
+    pub taxon_id: u32,
+}
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Description { pub recommended_name: Name }
+pub(super) struct Description {
+    pub recommended_name: Name,
+}
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Name { pub full_name: Value }
+pub(super) struct Name {
+    pub full_name: Value,
+}
 #[derive(Debug, Deserialize)]
-pub(super) struct Value { pub value: String }
+pub(super) struct Value {
+    pub value: String,
+}
 #[derive(Debug, Deserialize)]
-pub(super) struct Sequence { pub length: u32 }
+pub(super) struct Sequence {
+    pub length: u32,
+}
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Comment {
@@ -39,4 +51,6 @@ pub(super) struct Comment {
     pub subcellular_locations: Option<Field<Vec<Field<Location>>>>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Location { pub location: Value }
+pub(super) struct Location {
+    pub location: Value,
+}

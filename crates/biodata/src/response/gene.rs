@@ -1,10 +1,10 @@
 mod constraint;
 mod protein;
-pub use protein::Protein;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
+pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -1,6 +1,6 @@
 //! Reviewed human proteins fetched only by HGNC-listed accessions.
-mod raw;
 mod map;
+mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Protein, Source, UniProtAcc};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
@@ -21,10 +21,13 @@ pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>
     ids.sort_unstable();
     ids.dedup();
     let text: Vec<Box<str>> = ids.iter().map(|id| id.to_string().into()).collect();
-    let raw = leg.json::<raw::Proteins>(&PROTEINS, &[
-        ("accessions", Arg::Ids(&text)),
-        ("fields", Arg::Text(FIELDS)),
-        ("format", Arg::Text("json")),
-    ])?;
+    let raw = leg.json::<raw::Proteins>(
+        &PROTEINS,
+        &[
+            ("accessions", Arg::Ids(&text)),
+            ("fields", Arg::Text(FIELDS)),
+            ("format", Arg::Text("json")),
+        ],
+    )?;
     Ok(map::proteins(raw, &ids))
 }

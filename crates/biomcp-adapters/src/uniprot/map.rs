@@ -33,14 +33,29 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
             continue;
         }
         let (function, subcellular_locations) = comments(raw.comments, &id, &mut problems);
-        values.push(Protein { accession: id, name, length: raw.sequence.length, function: function.into(), subcellular_locations: subcellular_locations.into() });
+        values.push(Protein {
+            accession: id,
+            name,
+            length: raw.sequence.length,
+            function: function.into(),
+            subcellular_locations: subcellular_locations.into(),
+        });
     }
     for id in ids {
-        if !seen.contains(id) { problem(&mut problems, Some(id), "missing"); }
+        if !seen.contains(id) {
+            problem(&mut problems, Some(id), "missing");
+        }
     }
-    Mapped { value: values, problems }
+    Mapped {
+        value: values,
+        problems,
+    }
 }
-fn comments(raw: Option<Field<Vec<Field<raw::Comment>>>>, id: &UniProtAcc, problems: &mut Vec<Problem>) -> (Vec<Text>, Vec<Text>) {
+fn comments(
+    raw: Option<Field<Vec<Field<raw::Comment>>>>,
+    id: &UniProtAcc,
+    problems: &mut Vec<Problem>,
+) -> (Vec<Text>, Vec<Text>) {
     let mut function = Vec::new();
     let mut locations = Vec::new();
     for comment in fields(raw, id, "comments", problems) {
@@ -51,8 +66,19 @@ fn comments(raw: Option<Field<Vec<Field<raw::Comment>>>>, id: &UniProtAcc, probl
                 }
             }
             "SUBCELLULAR LOCATION" => {
-                for value in fields(comment.subcellular_locations, id, "subcellular_locations", problems) {
-                    text(value.location.value, id, "subcellular_locations", problems, &mut locations);
+                for value in fields(
+                    comment.subcellular_locations,
+                    id,
+                    "subcellular_locations",
+                    problems,
+                ) {
+                    text(
+                        value.location.value,
+                        id,
+                        "subcellular_locations",
+                        problems,
+                        &mut locations,
+                    );
                 }
             }
             _ => {}
@@ -60,18 +86,49 @@ fn comments(raw: Option<Field<Vec<Field<raw::Comment>>>>, id: &UniProtAcc, probl
     }
     (function, locations)
 }
-fn fields<T>(raw: Option<Field<Vec<Field<T>>>>, id: &UniProtAcc, field: &str, problems: &mut Vec<Problem>) -> Vec<T> {
+fn fields<T>(
+    raw: Option<Field<Vec<Field<T>>>>,
+    id: &UniProtAcc,
+    field: &str,
+    problems: &mut Vec<Problem>,
+) -> Vec<T> {
     match raw {
         None => Vec::new(),
-        Some(Field::Value(values)) => values.into_iter().filter_map(|value| {
-            if let Field::Value(value) = value { Some(value) } else { problem(problems, Some(id), field); None }
-        }).collect(),
-        Some(_) => { problem(problems, Some(id), field); Vec::new() }
+        Some(Field::Value(values)) => values
+            .into_iter()
+            .filter_map(|value| {
+                if let Field::Value(value) = value {
+                    Some(value)
+                } else {
+                    problem(problems, Some(id), field);
+                    None
+                }
+            })
+            .collect(),
+        Some(_) => {
+            problem(problems, Some(id), field);
+            Vec::new()
+        }
     }
 }
-fn text(value: String, id: &UniProtAcc, field: &str, problems: &mut Vec<Problem>, out: &mut Vec<Text>) {
-    if let Ok(text) = Text::new(&value) { out.push(text); } else { problem(problems, Some(id), field); }
+fn text(
+    value: String,
+    id: &UniProtAcc,
+    field: &str,
+    problems: &mut Vec<Problem>,
+    out: &mut Vec<Text>,
+) {
+    if let Ok(text) = Text::new(&value) {
+        out.push(text);
+    } else {
+        problem(problems, Some(id), field);
+    }
 }
 fn problem(problems: &mut Vec<Problem>, id: Option<&UniProtAcc>, field: &str) {
-    problems.push(Problem { source: Source::UniProt, record: id.and_then(|id| Text::new(&id.to_string()).ok()), field: field.into(), code: ProblemCode::ValueUnknown });
+    problems.push(Problem {
+        source: Source::UniProt,
+        record: id.and_then(|id| Text::new(&id.to_string()).ok()),
+        field: field.into(),
+        code: ProblemCode::ValueUnknown,
+    });
 }

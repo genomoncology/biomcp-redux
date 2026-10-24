@@ -7,6 +7,7 @@
     "GeneSectionWord": {
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
+        "protein",
         "constraint",
         "all"
       ],

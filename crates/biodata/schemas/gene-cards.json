@@ -483,6 +483,7 @@
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
       "enum": [
+        "protein",
         "constraint"
       ],
       "type": "string"
@@ -490,6 +491,7 @@
     "GeneSectionWord": {
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
+        "protein",
         "constraint",
         "all"
       ],
@@ -502,13 +504,24 @@
         "constraint": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Population constraint reported by gnomAD."
+        },
+        "protein": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Reviewed human proteins listed by HGNC."
         }
       },
       "type": "object"
@@ -746,6 +759,46 @@
       ],
       "type": "string"
     },
+    "Protein": {
+      "additionalProperties": false,
+      "description": "A reviewed human protein listed by the authoritative gene record.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtAcc",
+          "description": "Checked primary accession."
+        },
+        "function": {
+          "description": "Whole source function paragraphs, omitted when absent.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "length": {
+          "description": "Sequence length in amino acids.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Recommended protein name."
+        },
+        "subcellular_locations": {
+          "description": "Source subcellular location names.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "accession",
+        "name",
+        "length"
+      ],
+      "type": "object"
+    },
     "Reason": {
       "description": "Why a source could not supply data.",
       "enum": [
@@ -764,6 +817,130 @@
       "type": "string"
     },
     "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "description": "Whole section data.",
+              "items": {
+                "$ref": "#/$defs/Protein"
+              },
+              "type": "array"
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -889,6 +1066,7 @@
       "enum": [
         "hgnc",
         "mygene",
+        "uniprot",
         "gnomad",
         "pubmed",
         "europepmc",

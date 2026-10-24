@@ -50,7 +50,9 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
             .collect();
         if !requested.is_empty() {
             item.sections = Some(GeneSections {
-                protein: requested.contains(&GeneSection::Protein).then_some(Section::NotApplicable),
+                protein: requested
+                    .contains(&GeneSection::Protein)
+                    .then_some(Section::NotApplicable),
                 constraint: requested
                     .contains(&GeneSection::Constraint)
                     .then_some(Section::NotApplicable),
@@ -77,8 +79,11 @@ pub(super) fn jobs<'a>(
         }));
     }
     if requested(query).contains(&GeneSection::Protein)
-        && genes.iter().any(|(_, gene)| protein::applicable(gene)) {
-        jobs.push(Box::new(move || super::get::Job::Section(protein::run(cx, deadline, genes))));
+        && genes.iter().any(|(_, gene)| protein::applicable(gene))
+    {
+        jobs.push(Box::new(move || {
+            super::get::Job::Section(protein::run(cx, deadline, genes))
+        }));
     }
     jobs
 }
@@ -93,13 +98,16 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         if match section {
             SectionValue::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             SectionValue::Protein(value) => matches!(value, Section::Unavailable { .. }),
-        }
-            || result.source.state == SourceState::Stale
+        } || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
-                    gene.uniprot.iter().any(|id| record.as_str() == id.to_string()) || gene.ensembl_id
-                        .as_ref()
-                        .is_some_and(|id| record.as_str() == id.base())
+                    gene.uniprot
+                        .iter()
+                        .any(|id| record.as_str() == id.to_string())
+                        || gene
+                            .ensembl_id
+                            .as_ref()
+                            .is_some_and(|id| record.as_str() == id.base())
                 })
             })
         {
