@@ -27,7 +27,7 @@ fn gwas_zero() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
     if !out.status.success()
-        || value.pointer("/result/sections/gwas/state") != Some(&json!("empty"))
+        || value.pointer("/result/candidates/0/sections/gwas/state") != Some(&json!("empty"))
     {
         return Err(format!(
             "valid v2 catalog zero was not source-local empty: {value}"
@@ -82,6 +82,28 @@ fn population() -> Result<(), String> {
     {
         return Err(format!(
             "source counts/null dataset/no-derived-frequency lost: {value}"
+        ));
+    }
+    let page_args: Vec<String> = serde_json::from_value(
+        value
+            .pointer("/next/0/args")
+            .cloned()
+            .ok_or("missing ancestry continuation")?,
+    )
+    .map_err(|e| e.to_string())?;
+    let out = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &page_args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let second: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
+    if value.pointer("/result/groups/0/observation/group") != Some(&json!("nfe"))
+        || second.pointer("/result/groups/0/observation/group") != Some(&json!("sas"))
+        || second.pointer("/page/offset") != Some(&json!(1))
+        || second.pointer("/page/total") != Some(&json!(2))
+        || second.pointer("/next").is_some()
+    {
+        return Err(format!(
+            "ancestry continuation lost source rows/bounds: {value} {second}"
         ));
     }
     let requests = stub.finish()?;

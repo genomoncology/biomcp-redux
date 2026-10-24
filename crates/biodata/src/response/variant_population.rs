@@ -77,6 +77,8 @@ pub struct GwasAssociation {
     pub study: Text,
     /// Source reported traits.
     pub traits: Box<[Text]>,
+    /// Source mapped trait identifiers and whole labels, without clinical inference.
+    pub ontology_traits: Box<[GwasTrait]>,
     /// Every source effect allele paired with its rsID.
     pub alleles: Box<[GwasEffectAllele]>,
     /// Reported p value.
@@ -121,4 +123,15 @@ pub struct VariantPopulationResult {
 impl super::ResponseBody for VariantPopulationResult {
     const SCHEMA: &'static str = "biomcp.variant_population/1";
     type Query = crate::VariantPopulationQuery;
+}
+
+/// Source ontology mapping as supplied by GWAS Catalog.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasTrait {
+    /// Exact source ontology identifier spelling.
+    pub id: Text,
+    /// Whole source trait label.
+    pub label: Text,
 }

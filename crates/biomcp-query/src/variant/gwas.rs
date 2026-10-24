@@ -57,8 +57,10 @@ pub(super) fn section(
                 .skip((offset % size) as usize)
                 .collect::<Vec<_>>();
             let returned = rows.len() as u32;
-            let continuation = ((offset as u64 + returned as u64) < page.total)
-                .then(|| query.at_section_offset(offset + returned));
+            let continuation = offset
+                .checked_add(returned)
+                .filter(|next| u64::from(*next) < page.total)
+                .map(|next| query.at_section_offset(next));
             Section::Data {
                 source: Source::Gwas,
                 data: VariantGwas {
@@ -111,6 +113,14 @@ fn map(row: gwas::Association) -> GwasAssociation {
         id: row.association_id,
         study: row.accession_id,
         traits: row.reported_trait.into(),
+        ontology_traits: row
+            .efo_traits
+            .into_iter()
+            .map(|t| biodata::GwasTrait {
+                id: t.efo_id,
+                label: t.efo_trait,
+            })
+            .collect(),
         alleles: row
             .snp_allele
             .into_iter()
