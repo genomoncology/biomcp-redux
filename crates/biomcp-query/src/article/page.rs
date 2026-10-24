@@ -52,7 +52,9 @@ pub(super) fn read<'a>(
     pool: &Pool,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    if pool.sources.iter().any(|s| cx.fetch.disabled(s.source)) {
+    if pool.sources.iter().any(|s| {
+        cx.fetch.disabled(s.source) && s.reason != Some(biodata::Reason::Disabled)
+    }) {
         out.sources = pool
             .sources
             .iter()

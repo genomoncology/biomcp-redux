@@ -193,6 +193,17 @@ fn no_request() -> Check {
     if result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("source did not report disabled".into());
     }
+    let mut disabled = biomcp_adapters::registry::SOURCES.iter()
+        .filter(|s| s.terms.usage != biodata::Use::Restricted)
+        .map(|s| s.source.to_string()).collect::<Vec<_>>();
+    disabled.extend(["restricted".into(), "noncommercial".into()]);
+    let health = invoke(&env, vec!["health".into(), "--disable-sources".into(),
+        disabled.join(","), "--record".into(), record.to_string_lossy().into()], 0)?;
+    if !health.pointer("/result/sources").and_then(Value::as_array)
+        .is_some_and(|rows| rows.iter().all(|row| row.get("reason") == Some(&json!("disabled"))))
+    {
+        return Err("terms group failed to skip its declared sources".into());
+    }
     if listener.accept().is_ok() {
         return Err("disabled source opened a network connection".into());
     }
