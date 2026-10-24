@@ -1,10 +1,10 @@
 use crate::{Action, Outcome};
-use biodata::{
-    ArticleSupplement, PageInfo, Reason, Request, SheetInfo, SheetRow, StepKind, SupplementContent,
-    Text,
-};
+use biodata::Text;
 use biomcp_adapters::sheet;
 use biomcp_fetch::LocalDeadline;
+use biomcp_types::{
+    ArticleSupplement, PageInfo, Reason, Request, SheetInfo, SheetRow, StepKind, SupplementContent,
+};
 const PAGE_BYTES: usize = 4000;
 const FRAGMENT_BYTES: usize = 1000;
 struct Page {
@@ -146,7 +146,7 @@ fn fragments(
                     row: row.number,
                     header: Box::default(),
                     cells: Box::default(),
-                    fragment: Some(biodata::CellFragment {
+                    fragment: Some(biomcp_types::CellFragment {
                         header: is_header,
                         column: column as u32 + 1,
                         offset,

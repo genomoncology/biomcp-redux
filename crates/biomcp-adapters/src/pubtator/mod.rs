@@ -4,8 +4,9 @@ mod search;
 pub use search::{Search, search};
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Annotations, Pmid, Section, Source};
+use biodata::Pmid;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Annotations, Section, Source};
 use std::time::Duration;
 /// Conservative application batch bound; DOI expansions are batched by the caller.
 pub const BATCH_LIMIT: usize = 20;
@@ -14,7 +15,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in input text",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::PubTator,
     base: "https://www.ncbi.nlm.nih.gov/research/pubtator3-api",
@@ -38,7 +39,7 @@ pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations
     if ids.is_empty() || ids.len() > BATCH_LIMIT {
         return Err(biomcp_fetch::SourceError {
             source: Source::PubTator,
-            reason: biodata::Reason::BadReply,
+            reason: biomcp_types::Reason::BadReply,
             status: None,
             retry_after: None,
         }

@@ -1,6 +1,8 @@
 use crate::raw::Field;
-use biodata::{NcbiGeneId, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript, Text};
+use biodata::{NcbiGeneId, Text};
+
 use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(transparent)]
@@ -29,7 +31,7 @@ pub(super) struct Gene {
     grch38_refseq: Option<Field<String>>,
 }
 impl Gene {
-    pub(super) fn mapped(self, problems: &mut Vec<biodata::Problem>) -> super::GeneData {
+    pub(super) fn mapped(self, problems: &mut Vec<biomcp_types::Problem>) -> super::GeneData {
         let mut text = |value, field| text(value, self.entrez_gene_id, field, problems);
         let _symbol = self.hugo_symbol;
         super::GeneData {
@@ -85,7 +87,7 @@ fn text(
     value: Option<Field<String>>,
     id: NcbiGeneId,
     field: &str,
-    problems: &mut Vec<biodata::Problem>,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<Text> {
     let value = value?;
     if let Some(value) = value.value().and_then(|value| Text::new(&value).ok()) {

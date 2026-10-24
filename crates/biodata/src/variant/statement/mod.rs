@@ -1,5 +1,5 @@
 //! Source assertions without ranking, merging or clinical inference.
-use crate::{GeneRef, PartialDate, Pmid, Source, Text};
+use crate::{GeneRef, PartialDate, Pmid, Text};
 use serde::{Deserialize, Serialize};
 mod coding;
 pub use coding::*;
@@ -74,7 +74,7 @@ pub struct Concept {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Attribution {
     /// Source responsible for the claim.
-    pub source: Source,
+    pub source: Text,
     /// Native assertion record.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub record: Option<Text>,
@@ -94,7 +94,7 @@ pub struct Attribution {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<Text>,
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Domain of a source claim.
     #[non_exhaustive]
     Proposition {
@@ -114,7 +114,7 @@ crate::macros::wire_enum! {
         FunctionalImpact => "functional_impact",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Assessment direction stated by the source.
     #[non_exhaustive]
     Direction {
@@ -126,7 +126,7 @@ crate::macros::wire_enum! {
         Neutral => "neutral",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// VA-Spec 1.1 proposition relationships in native snake_case.
     #[non_exhaustive]
     Predicate {

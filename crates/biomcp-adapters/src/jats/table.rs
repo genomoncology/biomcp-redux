@@ -4,8 +4,9 @@ use super::{
     markdown, references,
 };
 use crate::xml_element::Element;
-use biodata::{Text, TextPartKind};
+use biodata::Text;
 use biomcp_fetch::BadReply;
+use biomcp_types::TextPartKind;
 const MAX_COLUMNS: usize = 256;
 struct Cells {
     expanded: Vec<String>,

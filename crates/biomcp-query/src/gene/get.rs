@@ -1,10 +1,11 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    GeneCards, GeneGet, GeneItem, GeneResolution, Problem, ProblemCode, QueryBody, Source,
-    SourceState, Status, Text,
-};
+use biodata::Text;
 use biomcp_adapters::{hgnc, mygene};
+use biomcp_types::GeneResolution;
+use biomcp_types::{
+    GeneCards, GeneGet, GeneItem, Problem, ProblemCode, QueryBody, Source, SourceState, Status,
+};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
@@ -118,7 +119,7 @@ fn join(
 
 fn resolve_item(
     leg: &biomcp_fetch::Leg<'_>,
-    input: &biodata::GeneInput,
+    input: &biomcp_types::GeneInput,
     problems: &mut Vec<Problem>,
     error: &mut Option<biomcp_fetch::RequestError>,
     local: &mut Option<biomcp_fetch::RequestError>,
@@ -157,7 +158,7 @@ fn mygene_join(
     items: &mut [GeneItem],
     batches: Vec<mygene::GeneBatch>,
     report: biomcp_fetch::LegReport,
-    sources: &mut Vec<biodata::SourceOutcome>,
+    sources: &mut Vec<biomcp_types::SourceOutcome>,
     problems: &mut Vec<Problem>,
     local: &mut Option<biomcp_fetch::RequestError>,
 ) {

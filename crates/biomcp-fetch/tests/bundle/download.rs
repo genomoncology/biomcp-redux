@@ -17,7 +17,7 @@ fn auto_download_limit_keeps_owned_part_and_offline_miss_stays_offline() {
         let call = scope.spawn(|| leg.rows(&b, Find::Words("kinase")));
         server.next().respond(200, "ETag: \"one\"\r\n", TSV);
         assert!(
-            matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Syncing)
+            matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Syncing)
         );
     });
     assert_eq!(
@@ -33,7 +33,7 @@ fn auto_download_limit_keeps_owned_part_and_offline_miss_stays_offline() {
     })
     .unwrap();
     assert!(
-        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("kinase")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
+        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("kinase")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline)
     );
     assert!(server.requests.try_recv().is_err());
 }
@@ -156,7 +156,7 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
         let (release, wait) = std::sync::mpsc::channel();
         request.reply.send(support::Response{bytes:format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",TSV.len(),&TSV[..cut]).into_bytes(),continuation:Some(wait)}).unwrap();
         assert!(
-            matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Syncing)
+            matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Syncing)
         );
         drop(release);
     });

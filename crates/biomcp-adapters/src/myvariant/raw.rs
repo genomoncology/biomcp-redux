@@ -57,8 +57,8 @@ impl Reply for Hit {
         if self
             .id
             .as_str()
-            .parse::<biodata::VariantInput>()
-            .is_ok_and(|i| i.namespace().ok() == Some(biodata::VariantNamespace::Chromosome))
+            .parse::<biomcp_types::VariantInput>()
+            .is_ok_and(|i| i.namespace().ok() == Some(biomcp_types::VariantNamespace::Chromosome))
         {
             Ok(())
         } else {

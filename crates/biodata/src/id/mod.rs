@@ -1,4 +1,4 @@
-use crate::{Error, macros::text_value};
+use crate::{Error, text_value};
 use std::{fmt, num::NonZeroU32, str::FromStr};
 
 /// An HGNC identifier with canonical namespace and positive numeric value.

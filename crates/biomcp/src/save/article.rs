@@ -1,15 +1,20 @@
 //! Article payloads reuse the single binary-owned destination and atomic write boundary.
 use super::SaveTarget;
-use biodata::{ArticleSaved, QueryBody, Section, Text};
+use biodata::Text;
 use biomcp_query::{Ctx, Outcome, article};
+use biomcp_types::{ArticleSaved, QueryBody, Section};
 
-pub(crate) fn text(cx: &Ctx<'_>, query: &biodata::ArticleText, allow: bool) -> Outcome {
+pub(crate) fn text(cx: &Ctx<'_>, query: &biomcp_types::ArticleText, allow: bool) -> Outcome {
     let filename = format!("{}.md", query.input());
     let target = target(query.save(), &filename, query.replace(), allow);
     let download = article::text::download(cx, query, target.is_some());
     finish(download, target)
 }
-pub(crate) fn supplement(cx: &Ctx<'_>, query: &biodata::ArticleSupplement, allow: bool) -> Outcome {
+pub(crate) fn supplement(
+    cx: &Ctx<'_>,
+    query: &biomcp_types::ArticleSupplement,
+    allow: bool,
+) -> Outcome {
     let target = target(query.save(), query.file().as_str(), query.replace(), allow);
     let download = article::supplement::download(cx, query, target.is_some());
     finish(download, target)

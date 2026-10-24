@@ -1,11 +1,12 @@
 //! Molecular-profile lookups use source allele identities, never name-derived equivalence.
 use super::{GENES, variant_map as map, variant_raw as raw};
 use crate::Mapped;
-use biodata::{
-    CivicClaimKind, PageInfo, Reason, Source, Text, VariantCivic, VariantGet, VariantHeader,
-    VariantId,
-};
+use biodata::{Text, VariantId};
+
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::{
+    CivicClaimKind, PageInfo, Reason, Source, VariantCivic, VariantGet, VariantHeader,
+};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -62,11 +63,11 @@ pub fn variant(
         {
             let mut mapped = map::page(connection, query, &allele)?;
             if partial {
-                mapped.problems.push(biodata::Problem {
+                mapped.problems.push(biomcp_types::Problem {
                     source: Source::Civic,
                     record: None,
                     field: "graphql.errors".into(),
-                    code: biodata::ProblemCode::ValueUnknown,
+                    code: biomcp_types::ProblemCode::ValueUnknown,
                 });
             }
             return Ok(mapped);

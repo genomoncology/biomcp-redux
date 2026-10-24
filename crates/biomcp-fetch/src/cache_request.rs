@@ -4,7 +4,7 @@ use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
 };
-use biodata::Reason;
+use biomcp_types::Reason;
 
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {

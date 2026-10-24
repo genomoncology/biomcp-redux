@@ -35,8 +35,8 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
 mod support;
 #[path = "support/timing.rs"]
 mod timing;
-use biodata::Reason;
 use biomcp_fetch::{Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Secret, SecretName};
+use biomcp_types::Reason;
 use std::{sync::mpsc, thread, time::Duration};
 use support::Answer;
 use timing::Server;
@@ -61,12 +61,12 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         KeyUse::None,
     );
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
-    let restricted = fetch.restrict_sources([biodata::Source::Oncokb].into());
-    assert!(!fetch.disabled(biodata::Source::Oncokb));
+    let restricted = fetch.restrict_sources([biomcp_types::Source::Oncokb].into());
+    assert!(!fetch.disabled(biomcp_types::Source::Oncokb));
     assert!(
         restricted
             .restrict_sources(Default::default())
-            .disabled(biodata::Source::Oncokb)
+            .disabled(biomcp_types::Source::Oncokb)
     );
     thread::scope(|scope| {
         let holder = scope.spawn(|| {

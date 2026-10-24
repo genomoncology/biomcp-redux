@@ -2,10 +2,11 @@
 mod get;
 mod page;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, Text, TrialSearch,
-};
+use biodata::Text;
 use biomcp_adapters::nci;
+use biomcp_types::{
+    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, TrialSearch,
+};
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
@@ -50,7 +51,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
 
 fn finish(
     out: &mut Outcome,
-    source: biodata::SourceOutcome,
+    source: biomcp_types::SourceOutcome,
     error: Option<biomcp_fetch::RequestError>,
 ) {
     if source.reason == Some(Reason::NoKey) {
@@ -76,13 +77,13 @@ fn apply(
     q: &TrialSearch,
     fresh: bool,
     out: &mut Outcome,
-    source: &mut biodata::SourceOutcome,
+    source: &mut biomcp_types::SourceOutcome,
     page: nci::Page,
     params: Vec<(String, String)>,
 ) {
     source.count = Some(page.total);
     source.fetched = Some(page.data.len() as u32);
-    out.status = if source.state == biodata::SourceState::Stale {
+    out.status = if source.state == biomcp_types::SourceState::Stale {
         Status::Partial
     } else {
         Status::Complete
@@ -96,7 +97,7 @@ fn apply(
     } else {
         page.data.len() as u32
     };
-    out.page = Some(biodata::PageInfo {
+    out.page = Some(biomcp_types::PageInfo {
         offset,
         returned,
         total: page.total,
@@ -121,7 +122,7 @@ fn apply(
         }
         body.request = params
             .into_iter()
-            .map(|(name, value)| biodata::TrialParameter { name, value })
+            .map(|(name, value)| biomcp_types::TrialParameter { name, value })
             .collect();
     }
 }

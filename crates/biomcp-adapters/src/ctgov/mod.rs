@@ -2,13 +2,15 @@
 pub mod detail;
 pub mod document;
 mod raw;
-use biodata::{Text, TrialHeader, TrialSearch};
+use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::TrialHeader;
+use biomcp_types::TrialSearch;
 use raw::{FirstPage, RawPage, Version};
 use std::{collections::BTreeMap, time::Duration};
 /// Publisher terms apply to this registry; individual records are not a blanket CC0 grant.
 pub static SPEC: SourceSpec = SourceSpec {
-    source: biodata::Source::ClinicalTrialsGov,
+    source: biomcp_types::Source::ClinicalTrialsGov,
     base: "https://clinicaltrials.gov/api/v2",
     key: KeyUse::None,
     quota: &crate::quotas::CTGOV,
@@ -16,7 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "ClinicalTrials.gov attribution and source processing date; publisher terms",
         url: "https://clinicaltrials.gov/about-site/terms-conditions",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
 };
 const SEARCH: Endpoint = SPEC.get("/studies").fresh(Freshness::Days(1));
@@ -200,8 +202,8 @@ pub fn version(leg: &Leg<'_>) -> Result<Text, RequestError> {
 
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
-        source: biodata::Source::ClinicalTrialsGov,
-        reason: biodata::Reason::BadReply,
+        source: biomcp_types::Source::ClinicalTrialsGov,
+        reason: biomcp_types::Reason::BadReply,
         status: Some(200),
         retry_after: None,
     }

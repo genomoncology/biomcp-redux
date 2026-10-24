@@ -1,8 +1,9 @@
 //! Bounded local spreadsheet readers; parsing never evaluates formulas or links.
 mod preflight;
 mod xlsx;
-use biodata::{FileKind, Reason};
+
 use biomcp_fetch::LocalDeadline;
+use biomcp_types::{FileKind, Reason};
 /// An original sparse sheet row.
 #[derive(Debug)]
 pub struct Row {

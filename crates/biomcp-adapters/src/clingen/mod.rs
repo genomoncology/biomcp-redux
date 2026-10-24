@@ -1,17 +1,18 @@
 //! Published ClinGen validity and dosage bundles, keyed only by HGNC identity.
 mod raw;
 use crate::quotas;
-use biodata::{ClinGenGene, HgncId, Source, SyncResult};
+use biodata::HgncId;
 use biomcp_fetch::{
     Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
 };
+use biomcp_types::{ClinGenGene, Source, SyncResult};
 use std::{marker::PhantomData, time::Duration};
 /// ClinGen published summaries are generated anew for each request.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
         url: "https://clinicalgenome.org/docs/terms-of-use/",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::ClinGen,
     base: "https://search.clinicalgenome.org",
@@ -76,7 +77,7 @@ pub fn gene(leg: &Leg<'_>, id: HgncId) -> Result<Option<ClinGenGene>, RequestErr
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::ClinGen,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

@@ -2,8 +2,10 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{GenomicInterval, HgncId, NcbiGeneId, Problem, Source, Summary};
+use biodata::{GenomicInterval, HgncId, NcbiGeneId, Summary};
+
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Problem, Source};
 use std::time::Duration;
 
 /// Source declaration used to open a MyGene.info transport leg.
@@ -11,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "MyGene.info Terms of Use; upstream data terms",
         url: "https://docs.mygene.info/en/latest/terms.html",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::MyGene,
     base: "https://mygene.info/v3",

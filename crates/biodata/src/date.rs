@@ -1,4 +1,4 @@
-use crate::{Error, macros::text_value};
+use crate::{Error, text_value};
 use std::{fmt, str::FromStr};
 
 /// A Gregorian date preserving year, month or day precision.

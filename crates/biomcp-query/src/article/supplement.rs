@@ -1,12 +1,14 @@
 //! Confined supplement download, local parsing and bounded row selection.
 mod page;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section,
-    Source, Status, StepKind, SupplementContent, Text,
-};
+use biodata::Text;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{
+    ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source,
+    Status, StepKind, SupplementContent,
+};
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
 pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
@@ -97,7 +99,7 @@ fn execute<'a>(
     })();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
-    if source.state == biodata::SourceState::Stale {
+    if source.state == biomcp_types::SourceState::Stale {
         out.status = Status::Partial;
     }
     out.sources.push(source);

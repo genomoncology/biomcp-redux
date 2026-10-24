@@ -1,4 +1,4 @@
-use crate::{Error, macros::text_value};
+use crate::{Error, text_value};
 use std::{fmt, str::FromStr};
 /// One nucleotide: the four DNA bases and the IUPAC ambiguity codes.
 /// It renders as its upper-case letter.

@@ -1,6 +1,4 @@
 //! Registry identities and source-native trial values.
-use crate::{PartialDate, Text};
-use serde::{Deserialize, Serialize};
 /// Canonical ClinicalTrials.gov identifier.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NctId(u32);
@@ -25,8 +23,8 @@ impl std::fmt::Display for NctId {
         write!(f, "NCT{:08}", self.0)
     }
 }
-crate::macros::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
-crate::macros::wire_enum! {
+crate::text_value!(NctId, "NctId", r"^NCT(?!00000000)[0-9]{8}$");
+crate::wire_enum! {
     /// Source-native registry value.
     TrialPhase {
         /// Registry EARLY_PHASE1 value.
@@ -43,7 +41,7 @@ crate::macros::wire_enum! {
         NotApplicable => "NA",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     TrialStatus {
         /// Registry ACTIVE_NOT_RECRUITING value.
@@ -74,7 +72,7 @@ crate::macros::wire_enum! {
         Unknown => "UNKNOWN",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     StudyType {
         /// Registry INTERVENTIONAL value.
@@ -85,7 +83,7 @@ crate::macros::wire_enum! {
         ExpandedAccess => "EXPANDED_ACCESS",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-native registry value.
     TrialSex {
         /// Registry ALL value.
@@ -95,26 +93,4 @@ crate::macros::wire_enum! {
         /// Registry MALE value.
         Male => "MALE",
     }
-}
-/// Small source-attributed trial discovery record.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct TrialHeader {
-    /// Exact registry identity.
-    pub nct_id: NctId,
-    /// Complete brief title.
-    pub title: Text,
-    /// Registry's overall status, independent of site status.
-    pub status: TrialStatus,
-    /// Source phases; absent phases remain absent.
-    pub phases: Box<[TrialPhase]>,
-    /// Source condition names.
-    pub conditions: crate::Capped<Text>,
-    /// Source intervention names.
-    pub interventions: crate::Capped<Text>,
-    /// Last posted registry update.
-    pub updated: PartialDate,
-    /// Publisher's canonical record URL.
-    pub url: Text,
 }

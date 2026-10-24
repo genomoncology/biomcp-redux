@@ -1,4 +1,4 @@
-use biodata::{ArticleGet, ArticleResolution, ArticleSectionWord, QueryBody, Section, Source};
+use biomcp_types::{ArticleGet, ArticleResolution, ArticleSectionWord, QueryBody, Section, Source};
 pub(in crate::article) fn join(
     query: &ArticleGet,
     records: &[super::super::get::Record],

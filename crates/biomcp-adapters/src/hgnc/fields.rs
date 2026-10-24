@@ -1,4 +1,6 @@
-use biodata::{HgncId, LocusGroup, LocusType, Mane, Problem, ProblemCode, Source, Text};
+use biodata::{HgncId, LocusGroup, LocusType, Mane, Text};
+
+use biomcp_types::{Problem, ProblemCode, Source};
 use std::str::FromStr;
 
 pub(super) struct Fields {

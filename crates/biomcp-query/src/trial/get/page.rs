@@ -2,11 +2,13 @@ mod publications;
 mod sites;
 use super::snapshot::Snapshot;
 use crate::{Action, Outcome};
-use biodata::{
-    NctId, Request, Section, Source, SourceRecord, Status, StepKind, Text, TrialArmRecord,
-    TrialCardItem, TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
-};
+use biodata::{NctId, Text};
+
 use biomcp_fetch::{CacheError, RequestError};
+use biomcp_types::{
+    Request, Section, Source, SourceRecord, Status, StepKind, TrialArmRecord, TrialCardItem,
+    TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
+};
 const SECTIONS: [TrialSection; 7] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,

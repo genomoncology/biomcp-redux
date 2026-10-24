@@ -1,6 +1,8 @@
 //! Bounded paper sections and native citation graph windows.
-use biodata::{ArticleInput, Capped, Text, Tldr};
+use biodata::Text;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{Capped, Tldr};
 use serde::Deserialize;
 const PAPER: Endpoint = super::SPEC.get("/paper").fresh(Freshness::Days(1));
 /// Independent machine-written summary and source counts.
@@ -30,14 +32,14 @@ impl Reply for PaperSummary {
 }
 impl PaperSummary {
     /// Preserve missing counts independently from an available summary.
-    pub fn section(self) -> biodata::Section<Tldr> {
+    pub fn section(self) -> biomcp_types::Section<Tldr> {
         self.tldr.map_or(
-            biodata::Section::Empty {
-                source: biodata::Source::SemanticScholar,
+            biomcp_types::Section::Empty {
+                source: biomcp_types::Source::SemanticScholar,
                 record: None,
             },
-            |summary| biodata::Section::Data {
-                source: biodata::Source::SemanticScholar,
+            |summary| biomcp_types::Section::Data {
+                source: biomcp_types::Source::SemanticScholar,
                 data: Tldr {
                     text: summary.text,
                     model: summary.model,
@@ -82,7 +84,7 @@ pub struct Edge {
     /// Present in a references reply.
     pub cited_paper: Option<super::Paper>,
     /// Provider intent labels.
-    pub intents: Option<Box<[biodata::CitationIntent]>>,
+    pub intents: Option<Box<[biomcp_types::CitationIntent]>>,
     /// Missing is distinct from false.
     pub is_influential: Option<bool>,
     /// Missing is distinct from a reported empty list.
@@ -117,7 +119,7 @@ fn edge_data<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<Vec<
 }
 impl Edge {
     /// Keep the selected direction's paper and first whole context.
-    pub fn item(self, references: bool) -> Result<biodata::ArticleEdgeItem, BadReply> {
+    pub fn item(self, references: bool) -> Result<biomcp_types::ArticleEdgeItem, BadReply> {
         let mut item = if references {
             self.cited_paper
         } else {
@@ -169,8 +171,8 @@ pub fn edges(
     }
     let raw = leg.json::<RawEdges>(&endpoint, &args)?;
     let data = raw.data.ok_or(biomcp_fetch::SourceError {
-        source: biodata::Source::SemanticScholar,
-        reason: biodata::Reason::Unavailable,
+        source: biomcp_types::Source::SemanticScholar,
+        reason: biomcp_types::Reason::Unavailable,
         status: Some(200),
         retry_after: None,
     })?;

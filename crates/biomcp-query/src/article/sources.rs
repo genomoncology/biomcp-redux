@@ -1,10 +1,11 @@
 use crate::{Ctx, Outcome, fan_out, status};
-use biodata::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
-    SourceState, Status, Text,
-};
+use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{
+    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
+    SourceState, Status,
+};
 use std::time::Duration;
 pub(super) struct ResultLeg {
     pub(super) source: ArticleSource,
@@ -63,7 +64,7 @@ pub(super) fn search<'a>(
     let failed_pubmed = results.iter().any(|r| {
         r.source == ArticleSource::Pubmed
             && r.error.is_some()
-            && r.outcome.reason != Some(biodata::Reason::Disabled)
+            && r.outcome.reason != Some(biomcp_types::Reason::Disabled)
     });
     let answered = results
         .iter()
@@ -283,16 +284,16 @@ fn prepare_litvar<'a>(
                 .push(status::source(Source::LitVar, leg.finish(), None));
             for candidate in &candidates {
                 out.next.push((
-                    biodata::StepKind::Disambiguate,
+                    biomcp_types::StepKind::Disambiguate,
                     crate::Action::Run {
-                        request: biodata::Request::SearchArticle(
+                        request: biomcp_types::Request::SearchArticle(
                             query.with_variant(candidate.rsid.clone()),
                         ),
                         fresh: cx.fresh,
                     },
                 ));
             }
-            out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage {
+            out.body = biomcp_types::QueryBody::ArticlePage(biomcp_types::ArticlePage {
                 items: Box::default(),
                 candidates,
             });

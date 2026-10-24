@@ -1,7 +1,8 @@
 //! Component provenance from the aggregator, without a blanket component license.
 use crate::raw::Field;
-use biodata::{ComponentUpload, Text, VariantComponent};
+use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
+use biomcp_types::{ComponentUpload, VariantComponent};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 const METADATA: Endpoint = super::SPEC.get("/metadata").fresh(Freshness::Days(1));

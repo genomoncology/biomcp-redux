@@ -64,11 +64,11 @@ fn repeated_key_consumes_ordered_replies_and_never_opens_replay_http() {
         dir: dir.path().to_owned(),
     });
     assert!(get(&replay, spec).unwrap().answer);
-    let restricted = replay.restrict_sources([biodata::Source::Oncokb].into());
+    let restricted = replay.restrict_sources([biomcp_types::Source::Oncokb].into());
     assert!(
         matches!(restricted.leg(spec, replay.deadline(Duration::from_secs(10)))
             .json::<Answer>(&spec.get("/answer"), &[]),
-            Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+            Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
     );
     assert_eq!(
         get(&replay, spec).unwrap_err(),
@@ -156,7 +156,7 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
         mode: Mode::Replay {
             dir: dir.path().to_owned(),
         },
-        source_deadlines: [(biodata::Source::PubMed, Duration::from_secs(1000))].into(),
+        source_deadlines: [(biomcp_types::Source::PubMed, Duration::from_secs(1000))].into(),
         ..FetchConfig::default()
     })
     .unwrap();
@@ -175,7 +175,7 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
     let clock = replay.deadline(Duration::from_secs(1000));
     let leg = replay.leg(original, clock);
     assert!(
-        matches!(leg.json::<Answer>(&original.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::DeadlineExceeded)
+        matches!(leg.json::<Answer>(&original.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::DeadlineExceeded)
     );
     assert_eq!(leg.remaining(), Duration::ZERO);
     assert!(get(&replay, original).unwrap().answer);
@@ -352,7 +352,7 @@ fn capture_keeps_retry_status_headers_and_rejected_json_without_credentials() {
         server.next().respond(429, "Retry-After: 0\r\n", "limited");
         server.next().respond(200, "", r#"{"answer":false}"#);
         assert!(
-            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );
     });
     drop(recording);
@@ -364,12 +364,12 @@ fn capture_keeps_retry_status_headers_and_rejected_json_without_credentials() {
         dir: dir.path().to_owned(),
     });
     assert!(
-        matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::NoKey)
+        matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NoKey)
     );
     // Missing credentials win even over a now malformed recording.
     std::fs::write(file(dir.path()), "bad").unwrap();
     assert!(
-        matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::NoKey)
+        matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NoKey)
     );
 }
 
@@ -443,11 +443,11 @@ fn independent_virtual_leg_budgets_reject_foreign_clock_domains_before_recording
         foreign.deadline(Duration::from_secs(10)),
     ] {
         assert!(
-            matches!(replay.leg(spec,wrong).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Rejected)
+            matches!(replay.leg(spec,wrong).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
         );
     }
     assert!(
-        matches!(live.leg(spec,budget).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Rejected)
+        matches!(live.leg(spec,budget).json::<Answer>(&spec.get("/answer"), &[]), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Rejected)
     );
     assert!(server.requests.try_recv().is_err());
 }

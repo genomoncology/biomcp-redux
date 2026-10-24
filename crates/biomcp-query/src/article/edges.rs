@@ -1,11 +1,12 @@
 use super::{empty, order, page};
 use crate::{Action, Ctx, Outcome, store::Store};
-use biodata::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, Status, StepKind, Text};
+use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, Status, StepKind};
 use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
     let mut out = empty();
-    out.body = QueryBody::ArticleEdges(biodata::ArticleEdgePage {
+    out.body = QueryBody::ArticleEdges(biomcp_types::ArticleEdgePage {
         items: Box::default(),
     });
     let command = cx.fetch.command_deadline(cx.budget);
@@ -93,7 +94,7 @@ fn create<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
-    if query.source() == biodata::EdgeSource::SemanticScholar {
+    if query.source() == biomcp_types::EdgeSource::SemanticScholar {
         return super::semantic_edges::create(cx, query, references, deadline, out);
     }
     let Some(pmid) = query.pmid() else {
@@ -123,8 +124,8 @@ fn create<'a>(
     let Some(ids) = ids else {
         out.status = Status::Failed;
         if let Some(source) = out.sources.last_mut() {
-            source.state = biodata::SourceState::Failed;
-            source.reason = Some(biodata::Reason::BadReply);
+            source.state = biomcp_types::SourceState::Failed;
+            source.reason = Some(biomcp_types::Reason::BadReply);
         }
         restart(query, references, out, true);
         return Ok(None);

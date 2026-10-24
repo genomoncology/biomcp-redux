@@ -1,4 +1,4 @@
-use biodata::{Reason, Source};
+use biomcp_types::{Reason, Source};
 use std::fmt;
 
 /// A rejected decoded reply; carries no provider text.

@@ -1,9 +1,12 @@
 //! Locate the citing paper without treating an unresolved DOI as a missing PMC copy.
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
-use biodata::{ArticleInput, Pmcid, Pmid, Reason, Source};
+use biodata::{Pmcid, Pmid};
+
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{Reason, Source};
 
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,

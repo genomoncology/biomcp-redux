@@ -1,4 +1,4 @@
-use crate::{Error, Span0, macros::text_value, source::canonical_enum};
+use crate::{Error, Span0, canonical_enum, text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 canonical_enum! {

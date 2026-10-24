@@ -1,9 +1,10 @@
 //! LitSense2 sentence resemblance in the provider's original order.
 use crate::quotas;
-use biodata::{ArticleItem, ArticleKey, ArticleSentence, ArticleSource, Source, Text};
+use biodata::Text;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSentence, ArticleSource, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public access does not grant rights in the sentences returned from publishers.
@@ -11,7 +12,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in input text",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::LitSense,
     base: "https://www.ncbi.nlm.nih.gov/research/litsense2-api",

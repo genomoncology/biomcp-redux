@@ -6,10 +6,12 @@ use toml::Value;
 // Test tooling has no product dependency edge.
 const LAYERS: &[(&str, &[&str])] = &[
     ("biodata", &["serde", "winnow", "schemars"]),
+    ("biomcp-types", &["biodata", "serde", "schemars"]),
     (
         "biomcp-fetch",
         &[
             "biodata",
+            "biomcp-types",
             "ureq",
             "url",
             "rustls",
@@ -28,6 +30,7 @@ const LAYERS: &[(&str, &[&str])] = &[
         "biomcp-adapters",
         &[
             "biodata",
+            "biomcp-types",
             "biomcp-fetch",
             "serde",
             "quick-xml",
@@ -41,6 +44,7 @@ const LAYERS: &[(&str, &[&str])] = &[
         "biomcp-query",
         &[
             "biodata",
+            "biomcp-types",
             "biomcp-fetch",
             "biomcp-adapters",
             "rusqlite",
@@ -53,6 +57,7 @@ const LAYERS: &[(&str, &[&str])] = &[
         "biomcp",
         &[
             "biodata",
+            "biomcp-types",
             "biomcp-fetch",
             "biomcp-adapters",
             "biomcp-query",

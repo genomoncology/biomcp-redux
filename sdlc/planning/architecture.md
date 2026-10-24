@@ -11,10 +11,10 @@ The gene sketches follow `planning/slices/gene.md` and `decisions/2026-10-24-gen
 | Goal | Mechanism |
 | --- | --- |
 | Far less code | One transport does every request step once. An adapter is a constant source description, serde raw types with one validity check and pure mapping functions. One grammar serves the CLI and MCP. One generic view renders Markdown from JSON. |
-| Easy upkeep | Five crates whose direction Cargo enforces. Lints and a ratchet test enforce size, state and dependency rules from the first commit. |
+| Easy upkeep | Six crates whose direction Cargo enforces. Lints and a ratchet test enforce size, state and dependency rules from the first commit. |
 | Very fast | Blocking I/O on threads with no async runtime. One leg per source, each with its own deadline, under a limiter keyed by the source key its adapter declares. A SQLite reply cache, pinned pools and indexed bundle rows make warm calls local. A budget per command, measured in replay. |
 | Right information in context | The densest facts sit at the top of the tree, as `decisions/2026-10-24-dense-facts-first-with-a-token-budget.md` says. Search returns capped headers. Get returns cards with requested sections. Every response names the sections it left out and typed next steps that go deeper. Nulls, empty lists and unrequested sections are omitted. Cases hold size ceilings per command and per section. |
-| JSON by default, shaped by biodata | Every response is one envelope type from `biodata`, with a generated, checked-in and versioned JSON Schema. |
+| JSON by default, shaped by biodata | Every response is one envelope type from `biomcp-types`, with a generated, checked-in and versioned JSON Schema. |
 | MCP as one tool over the CLI | The tool takes the CLI argument list. The same grammar parses it and the same service call runs. |
 | Search and get scope | The request type holds search, get and drill-down commands only. |
 | Data bundles as local APIs | A bundle is an endpoint kind in the transport. Its rows sit in SQLite with lookup keys and a word index, and its adapter maps them like any reply. |
@@ -26,14 +26,15 @@ The gene sketches follow `planning/slices/gene.md` and `decisions/2026-10-24-gen
 
 ### 2.1 The crates
 
-Five crates. Each exists because a rule needs a crate boundary to enforce it.
+Six crates. Each exists because a rule needs a crate boundary to enforce it.
 
 | Crate | Job | May import | May not import |
 | --- | --- | --- | --- |
-| `biodata` | Typed values for every entity, identifier, closed set, query, request and response. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
+| `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
+| `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
@@ -44,9 +45,11 @@ Why each crate is its own:
 - `biomcp-query` holds the logic that the CLI, MCP and the later web mode share. Splitting it from the binary keeps clap and the config file out of it.
 - `biomcp` is the only binary.
 
+`biomcp-types` separates consumer query and disclosure choices from reusable neutral values. Biodata never imports it. `Attribution.source` and `Representation.source` are neutral text; BioMCP writes canonical `Source` spellings through one checked conversion. That conversion has one reasoned lint exception in `crates/biomcp-types/src/source.rs` because every enum spelling is nonempty. Schema majors change for this enum-to-text boundary; emitted source values stay the same.
+
 The store is the `store` module of `biomcp-query`. The ratchet test confines `rusqlite` inside `biomcp-query` to `src/store/`. The Markdown view is the `view` module of the binary. It takes the serialized `serde_json::Value` of a response and returns text, so it cannot fetch, read a file or show content the JSON lacks.
 
-Rejected: a crate per entity, a crate per source family, a separate store crate, a separate render crate, a `biomcp-types` crate beside `biodata`, and a separate MCP crate. Each adds a manifest and a public surface without enforcing a rule the five crates miss.
+Rejected: a crate per entity, a crate per source family, a separate store crate, a separate render crate, a separate MCP crate. Each adds a manifest and a public surface without enforcing an additional boundary.
 
 `rpassword` owns the terminal no-echo credential prompt. Its maintained prompt function replaces platform-specific terminal control code.
 
@@ -54,7 +57,7 @@ Rejected: a crate per entity, a crate per source family, a separate store crate,
 
 ```toml
 [workspace]
-members = ["crates/biodata", "crates/biomcp-fetch", "crates/biomcp-adapters", "crates/biomcp-query", "crates/biomcp"]
+members = ["crates/biodata", "crates/biomcp-types", "crates/biomcp-fetch", "crates/biomcp-adapters", "crates/biomcp-query", "crates/biomcp"]
 resolver = "3"
 
 [workspace.package]
@@ -139,9 +142,12 @@ Cargo.toml  rust-toolchain.toml  rustfmt.toml  deny.toml  Makefile  .gitattribut
 crates/
   biodata/
     clippy.toml  README.md
-    src/lib.rs  macros.rs  error.rs  text.rs  date.rs  coord.rs  source.rs
+    src/lib.rs  macros.rs  error.rs  text.rs  date.rs  coord.rs  number.rs
     src/id/        hgnc.rs  entrez.rs  ensembl.rs  symbol.rs  uniprot.rs  pmid.rs  nct.rs  ...
-    src/gene.rs  article.rs  trial.rs  ...            one file per entity
+    src/gene.rs  variant/  trial.rs  ...             neutral entity values
+  biomcp-types/
+    clippy.toml  README.md
+    src/lib.rs  source.rs  predictor.rs  article.rs
     src/query/     request.rs  gene.rs  article.rs  trial.rs  ...
     src/response/  envelope.rs  section.rs  step.rs  problem.rs  gene.rs  article.rs  ...
     schemas/       generated *.schema.json, checked in
@@ -173,13 +179,13 @@ tests/
 
 `.gitattributes` sets `eol=lf` for every text file, so recordings, schemas and cases hash and diff the same on Windows.
 
-## 3. biodata
+## 3. Neutral values and consumer types
 
-`biodata` holds every value that crosses a layer or appears in output. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
+`biodata` holds reusable neutral entity values. `biomcp-types` holds the query, response, source and disclosure values that cross BioMCP layers. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
 
-Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `query` and `response` hold BioMCP's request and response contract, and a later split can lift them out without touching the core.
+Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `biomcp-types/query` and `biomcp-types/response` hold BioMCP's request and response contract beside its source enum. The consumer crate imports neutral values without a reverse edge.
 
-A minimal set of these types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
+A minimal set of the consumer types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
 
 ### 3.1 Identifiers
 
@@ -326,7 +332,7 @@ pub enum GeneSectionWord { Constraint, All }
 
 ```
 
-No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Headers and entities are biodata core types. Cards and sections are BioMCP response types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
+No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Complete neutral entities are biodata types. Headers, cards and sections are BioMCP consumer types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
 
 ### 3.4 Resolution
 
@@ -545,14 +551,14 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 ### 3.9 Schemas and versions
 
 - `schemars` derives every schema behind the `schema` feature. The dialect is JSON Schema 2020-12, which `schemars` 1.x emits by default.
-- The binary depends on `biodata` with the `schema` feature on. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
-- The generated files sit in `crates/biodata/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
-- `crates/biodata/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
-- Generation must stay inside the compatibility checker's [supported subset](../../crates/biodata/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
+- The binary depends on `biomcp-types` with the `schema` feature on, which enables `biodata/schema`. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
+- The generated files sit in `crates/biomcp-types/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
+- `crates/biomcp-types/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
+- Generation must stay inside the compatibility checker's [supported subset](../../crates/biomcp-types/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
 - The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
-- The public contract tests in `crates/biodata/tests/` check JSON round trips, and `crates/biodata/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
+- The public contract tests in `crates/biomcp-types/tests/` check JSON round trips, and `crates/biomcp-types/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
 
@@ -564,7 +570,7 @@ Progressive disclosure is a rule about where each fact sits in the types, so eve
 
 | Layer | Type | Returned by | Cost |
 | --- | --- | --- | --- |
-| Header | `<Entity>Header`, a biodata projection of the entity | search, ambiguous inputs | No request beyond the search |
+| Header | `<Entity>Header`, a consumer projection of the entity | search, ambiguous inputs | No request beyond the search |
 | Card | `<Entity>Card` holding the entity's core fields | get, by default | The identity source's request only |
 | Section | `Section<T>`, named in a closed enum | get with a section name | One source, one request |
 | Pivot or page | A `Step` to another search or the next page | `next` | A new command |
@@ -875,7 +881,7 @@ pub enum FetchError {                 // opening the transport only
 }
 ```
 
-`SourceError` reuses `biodata::Reason`, so a failure travels from the transport into the envelope without a second enum.
+`SourceError` reuses `biomcp_types::Reason`, so a failure travels from the transport into the envelope without a second enum.
 
 ## 5. Source adapters
 
@@ -1755,17 +1761,17 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
-| `crates/biodata/tests/variant_values.rs` | Exercise copied common variant values and constructor boundaries through the public library API. |
-| `crates/biodata/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/gene_model.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
-| `crates/biodata/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/variant_values.rs` | Exercise copied common variant values and constructor boundaries through the public library API. |
+| `crates/biomcp-types/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/gene_model.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
@@ -1887,7 +1893,7 @@ The PM ruled on this design's earlier open questions on 2026-10-23. This file ap
 
 1. **Blocking I/O.** `ureq` on standard threads, with `Leg::batch` under the source's quota, timeouts on every phase, rustls with ring, platform trust roots and proxies only from config. `decisions/2026-10-23-one-transport.md` carries the amendment.
 2. **MCP.** One hand-written file written to the specification, with the rules in section 8.7 and `serve --replay DIR` for the runner.
-3. **Five crates.** The store lives in `biomcp-query` and the view in the binary. Each call opens its own `Store`, and the fan-out receives only `&Fetch`.
+3. **Six crates.** The store lives in `biomcp-query` and the view in the binary. Each call opens its own `Store`, and the fan-out receives only `&Fetch`.
 4. **Links as next steps.** Link commands that equal a search filter are gone. Next steps carry the resolved ID, and retired 0.9 spellings return a usage error that names the new command.
 5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
 6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.

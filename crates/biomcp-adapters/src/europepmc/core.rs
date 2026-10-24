@@ -1,8 +1,10 @@
 //! Checked Europe PMC core records and their JATS document boundary.
 use super::SPEC;
 use crate::{jats, pmc_oa};
-use biodata::{AbstractPart, Article, Doi, EuropePmcId, PartialDate, Pmid, Text};
+use biodata::{Doi, EuropePmcId, PartialDate, Pmid, Text};
+
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError};
+use biomcp_types::{AbstractPart, Article};
 use serde::Deserialize;
 const CORE: Endpoint = SPEC.get("/").fresh(Freshness::Days(1));
 const FULLTEXT: Endpoint = SPEC.get("/").fresh(Freshness::Days(7));
@@ -56,8 +58,8 @@ impl Reply for Raw {
 }
 fn bad(_: impl std::fmt::Debug) -> RequestError {
     biomcp_fetch::SourceError {
-        source: biodata::Source::EuropePmc,
-        reason: biodata::Reason::BadReply,
+        source: biomcp_types::Source::EuropePmc,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

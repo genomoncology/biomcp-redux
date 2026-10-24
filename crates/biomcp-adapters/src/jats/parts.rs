@@ -1,6 +1,7 @@
 use super::body::{BodyRow, Group, Rows};
-use biodata::{Text, TextPart};
+use biodata::Text;
 use biomcp_fetch::BadReply;
+use biomcp_types::TextPart;
 /// Serialized text capacity leaves room for reader envelope and advancing step.
 pub const TEXT_BYTES: usize = 12_000;
 /// A bounded body part with original row boundaries.

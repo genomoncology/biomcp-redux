@@ -1,8 +1,9 @@
 //! Capture-proven native measurements, without score blending or interpretation.
 mod map;
 mod raw;
-use biodata::{Build, VariantPredictors};
+use biodata::Build;
 use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, RequestError};
+use biomcp_types::VariantPredictors;
 /// Read the proven prediction or conservation component projection for one exact parent.
 pub fn get(
     leg: &Leg<'_>,

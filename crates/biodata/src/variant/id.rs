@@ -1,4 +1,4 @@
-use crate::{Error, macros::text_value};
+use crate::{Error, text_value};
 use std::{fmt, num::NonZeroU64, str::FromStr};
 macro_rules! numeric_id {
     ($(#[$doc:meta])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
@@ -178,6 +178,7 @@ impl fmt::Display for VariantId {
 }
 #[cfg(feature = "schema")]
 impl VariantId {
-    pub(crate) const PATTERN: &'static str = r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$";
+    /// Canonical wire pattern shared by consumer input schemas.
+    pub const PATTERN: &'static str = r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$";
 }
 text_value!(VariantId, "VariantId", Self::PATTERN);

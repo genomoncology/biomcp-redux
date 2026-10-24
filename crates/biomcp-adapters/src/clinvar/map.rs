@@ -1,9 +1,10 @@
 use crate::xml_element::Element;
-use biodata::{
-    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Attribution, Source, Text,
-    VariantAssertion, VariantRef,
-};
+use biodata::{Attribution, Text, VariantRef};
+
 use biomcp_fetch::BadReply;
+use biomcp_types::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
+};
 const DOMAINS: [(&str, AssertionDomain); 3] = [
     ("GermlineClassification", AssertionDomain::Germline),
     (
@@ -145,7 +146,7 @@ fn attribution(
         return Err(BadReply);
     }
     Ok(Attribution {
-        source: Source::ClinVar,
+        source: Source::ClinVar.text(),
         record: Some(text(&id)?),
         version: version.map(|s| text(&s)).transpose()?,
         release: None,

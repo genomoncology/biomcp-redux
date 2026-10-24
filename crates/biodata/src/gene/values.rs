@@ -1,4 +1,4 @@
-use crate::source::canonical_enum;
+use crate::canonical_enum;
 canonical_enum! {
     /// HGNC approval status.
     GeneStatus, GeneStatusUnknown {

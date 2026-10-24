@@ -1,6 +1,8 @@
 //! Checked native registry replies and their small discovery projection.
-use biodata::{NctId, PartialDate, Text, TrialHeader, TrialPhase, TrialStatus};
+use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
+
 use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::TrialHeader;
 use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(transparent)]
@@ -125,10 +127,10 @@ impl Protocol {
 
 // Header lists stop here; get and its sections retain the full source record.
 const HEADER_NAMES: usize = 3;
-fn names(mut values: Vec<Text>) -> biodata::Capped<Text> {
+fn names(mut values: Vec<Text>) -> biomcp_types::Capped<Text> {
     let total = values.len() as u64;
     values.truncate(HEADER_NAMES);
-    biodata::Capped {
+    biomcp_types::Capped {
         items: values.into(),
         total,
     }

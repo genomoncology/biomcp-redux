@@ -1,5 +1,7 @@
-use biodata::{Build, Chromosome, Problem, ProblemCode, Representation, Source, Text, Variant};
+use biodata::{Build, Chromosome, Representation, Text, Variant};
+
 use biomcp_adapters::cbioportal::Mutation;
+use biomcp_types::{Problem, ProblemCode, Source};
 use std::collections::BTreeSet;
 pub(super) fn count(identity: &Variant, rows: &[Mutation], study: &Text) -> (u64, Vec<Problem>) {
     let mut samples = BTreeSet::new();

@@ -1,11 +1,12 @@
 //! Intact native records page by source position within an immutable NCI snapshot.
 use super::get::Snapshot;
 use crate::{Action, Outcome};
-use biodata::{
-    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind,
-    Text, TrialGet, TrialSection, TrialSource,
-};
+use biodata::Text;
 use biomcp_fetch::RequestError;
+use biomcp_types::{
+    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind,
+    TrialGet, TrialSection, TrialSource,
+};
 const SECTIONS: [TrialSection; 5] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,
@@ -95,7 +96,7 @@ pub(super) fn render(
         || s.sources.iter().any(|s| {
             matches!(
                 s.state,
-                biodata::SourceState::Stale | biodata::SourceState::Failed
+                biomcp_types::SourceState::Stale | biomcp_types::SourceState::Failed
             )
         }) {
         Status::Partial
@@ -120,7 +121,7 @@ fn records<T: Clone>(
     pool: Option<&Text>,
     out: &mut Outcome,
     size: impl Fn(&T) -> Result<Vec<u8>, serde_json::Error>,
-) -> Result<biodata::TrialRecords<T>, RequestError> {
+) -> Result<biomcp_types::TrialRecords<T>, RequestError> {
     let mut page = crate::trial::get::page::records(q, rows, SECTION_BYTES, size)?;
     crate::trial::get::page::continue_records(&mut page, q, id, section, pool);
     crate::trial::get::page::advance(
@@ -134,7 +135,7 @@ fn records<T: Clone>(
     );
     Ok(page)
 }
-fn section<T>(page: biodata::TrialRecords<T>) -> Section<biodata::TrialRecords<T>> {
+fn section<T>(page: biomcp_types::TrialRecords<T>) -> Section<biomcp_types::TrialRecords<T>> {
     if page.total == 0 {
         Section::Empty {
             source: Source::Nci,
@@ -153,7 +154,7 @@ fn summary(
     s: &Snapshot,
     pool: Option<&Text>,
     out: &mut Outcome,
-) -> Section<biodata::NciTextPage> {
+) -> Section<biomcp_types::NciTextPage> {
     let Some(text) = s.detail.summary.as_ref() else {
         return Section::Empty {
             source: Source::Nci,
@@ -182,7 +183,7 @@ fn summary(
     );
     Section::Data {
         source: Source::Nci,
-        data: biodata::NciTextPage {
+        data: biomcp_types::NciTextPage {
             continuation: crate::trial::get::page::continuation(
                 q,
                 s.detail.card.nct_id,

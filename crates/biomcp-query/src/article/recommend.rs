@@ -1,11 +1,12 @@
 //! Source-native recommendation windows reuse the ordinary checked article pool.
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{
-    ArticleRecommend, ArticleRecommendations, EvidenceNotice, QueryBody, Request, Source, Status,
-    StepKind, Text,
-};
+use biodata::Text;
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{
+    ArticleRecommend, ArticleRecommendations, EvidenceNotice, QueryBody, Request, Source, Status,
+    StepKind,
+};
 use sha2::{Digest, Sha256};
 /// Read one recommendation window without local topic filtering or ranking.
 pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
@@ -22,7 +23,7 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
         if out
             .sources
             .iter()
-            .any(|s| s.reason == Some(biodata::Reason::RateLimited))
+            .any(|s| s.reason == Some(biomcp_types::Reason::RateLimited))
         {
             out.next
                 .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
@@ -37,7 +38,7 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
     }
     out
 }
-pub(super) fn body(items: Box<[biodata::ArticleItem]>, empty: bool) -> ArticleRecommendations {
+pub(super) fn body(items: Box<[biomcp_types::ArticleItem]>, empty: bool) -> ArticleRecommendations {
     ArticleRecommendations {
         items,
         scope: "Semantic Scholar recommends from its pool of recent papers".into(),
@@ -94,7 +95,7 @@ fn create<'a>(
     query: &ArticleRecommend,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Vec<biodata::ArticleItem>, RequestError> {
+) -> Result<Vec<biomcp_types::ArticleItem>, RequestError> {
     let leg = cx
         .fetch
         .leg(&semantic_scholar::RECOMMEND_SPEC, *deadline)
@@ -122,7 +123,7 @@ fn create<'a>(
     if items.len() > query.limit() as usize {
         return Err(biomcp_fetch::SourceError {
             source: Source::SemanticScholar,
-            reason: biodata::Reason::BadReply,
+            reason: biomcp_types::Reason::BadReply,
             status: Some(200),
             retry_after: None,
         }

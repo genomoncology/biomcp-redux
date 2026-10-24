@@ -11,8 +11,9 @@ mod raw;
 mod search;
 mod search_build;
 use crate::{Mapped, quotas};
-use biodata::{Source, Text, VariantHeader};
+use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_types::{Source, VariantHeader};
 pub use search::{SearchPage, search};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
@@ -20,7 +21,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "MyVariant.info terms and component data licenses",
         url: "https://myvariant.info/terms",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::MyVariant,
     base: "https://myvariant.info/v1",
@@ -49,7 +50,7 @@ pub fn lookup(
     if query.starts_with("clinvar.variant_id:") && components::disabled_on_leg(leg, "clinvar") {
         return Err(biomcp_fetch::SourceError {
             source: Source::MyVariant,
-            reason: biodata::Reason::Disabled,
+            reason: biomcp_types::Reason::Disabled,
             status: None,
             retry_after: None,
         }
@@ -90,7 +91,7 @@ pub fn lookup(
 fn leg_bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::MyVariant,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

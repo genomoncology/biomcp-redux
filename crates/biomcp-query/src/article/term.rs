@@ -1,9 +1,9 @@
 use crate::{Action, Ctx, Outcome, gene, status};
-use biodata::{
-    ArticleSearch, ArticleType, GeneInput, GeneResolution, Request, Source, Status, StepKind,
-};
+
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{ArticleSearch, ArticleType, Request, Source, Status, StepKind};
+use biomcp_types::{GeneInput, GeneResolution};
 pub(super) struct Resolved {
     pub term: String,
     pub symbol: Option<String>,

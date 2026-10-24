@@ -1,8 +1,9 @@
-use biodata::{
-    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Attribution, Source, Text,
-    VariantAssertion, VariantRef,
-};
+use biodata::{Attribution, Text, VariantRef};
+
 use biomcp_fetch::{BadReply, Reply, RequestError};
+use biomcp_types::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
+};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct ReplyBody {
@@ -80,7 +81,7 @@ impl Record {
     pub(super) fn map(self) -> Result<VariantAssertion, RequestError> {
         let subject = VariantRef::allele(self.ca_id.parse().map_err(|_| super::bad())?);
         let attribution = Attribution {
-            source: Source::Erepo,
+            source: Source::Erepo.text(),
             record: Some(text(&self.id)?),
             version: Some(text(&self.version)?),
             release: None,

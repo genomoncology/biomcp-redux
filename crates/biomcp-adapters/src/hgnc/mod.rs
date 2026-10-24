@@ -3,13 +3,14 @@ mod fields;
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{
-    Gene, GeneHeader, GeneInput, GeneSymbol, HgncId, HgncStatus, Match, MatchKind, Source, Text,
-};
+use biodata::{Gene, GeneSymbol, HgncId, HgncStatus, MatchKind, Text};
+
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
     SourceSpec,
 };
+use biomcp_types::Source;
+use biomcp_types::{GeneHeader, GeneInput, Match};
 use std::{marker::PhantomData, time::Duration};
 
 /// HGNC source declaration for published TSV bundles.
@@ -17,7 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
         url: "https://www.genenames.org/about/license/",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Hgnc,
     base: "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv",

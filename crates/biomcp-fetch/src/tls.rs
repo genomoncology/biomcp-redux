@@ -129,15 +129,17 @@ impl Transport for TlsTransport {
         true
     }
 }
-pub(crate) fn reason(error: &Error) -> biodata::Reason {
+pub(crate) fn reason(error: &Error) -> biomcp_types::Reason {
     match error {
-        Error::ConnectProxyFailed(_) => biodata::Reason::Proxy,
+        Error::ConnectProxyFailed(_) => biomcp_types::Reason::Proxy,
         Error::Io(error) if error.kind() == std::io::ErrorKind::PermissionDenied => {
-            biodata::Reason::Rejected
+            biomcp_types::Reason::Rejected
         }
-        Error::Tls(_) | Error::Rustls(_) => biodata::Reason::Tls,
-        Error::Timeout(_) if !crate::retry::retry_error(error) => biodata::Reason::DeadlineExceeded,
-        _ => biodata::Reason::Unavailable,
+        Error::Tls(_) | Error::Rustls(_) => biomcp_types::Reason::Tls,
+        Error::Timeout(_) if !crate::retry::retry_error(error) => {
+            biomcp_types::Reason::DeadlineExceeded
+        }
+        _ => biomcp_types::Reason::Unavailable,
     }
 }
 

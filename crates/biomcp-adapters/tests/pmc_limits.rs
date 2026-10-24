@@ -1,7 +1,7 @@
 //! Confined native request identities with synthetic response-only boundary variants.
-use biodata::Reason;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, RequestError};
+use biomcp_types::Reason;
 use serde_json::Value;
 use std::{fs, path::Path, time::Duration};
 type Error = Box<dyn std::error::Error>;

@@ -1,7 +1,8 @@
 use super::map::text;
 use crate::xml_element::Element;
-use biodata::{AssertionCondition, AssertionDetail, Text};
+use biodata::Text;
 use biomcp_fetch::BadReply;
+use biomcp_types::{AssertionCondition, AssertionDetail};
 pub(super) fn rcv_conditions(record: Element<'_>) -> Result<Vec<AssertionCondition>, BadReply> {
     let Some(list) = record.child("ClassifiedConditionList")? else {
         return Ok(Vec::new());

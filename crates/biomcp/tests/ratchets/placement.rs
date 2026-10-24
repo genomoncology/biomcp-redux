@@ -4,47 +4,47 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
-        "crates/biodata/tests/variant_values.rs",
+        "crates/biomcp-types/tests/variant_values.rs",
         "Exercise copied common variant values and constructor boundaries through the public library API.",
     ),
     (
-        "crates/biodata/tests/article_ids.rs",
+        "crates/biomcp-types/tests/article_ids.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/core.rs",
+        "crates/biomcp-types/tests/core.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/gene_ids.rs",
+        "crates/biomcp-types/tests/gene_ids.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/gene_model.rs",
+        "crates/biomcp-types/tests/gene_model.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/query.rs",
+        "crates/biomcp-types/tests/query.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/response.rs",
+        "crates/biomcp-types/tests/response.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/schemas.rs",
+        "crates/biomcp-types/tests/schemas.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/schemas/compatibility_cases.rs",
+        "crates/biomcp-types/tests/schemas/compatibility_cases.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/schemas/values.rs",
+        "crates/biomcp-types/tests/schemas/values.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
-        "crates/biodata/tests/value_conventions.rs",
+        "crates/biomcp-types/tests/value_conventions.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (

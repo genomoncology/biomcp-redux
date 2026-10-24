@@ -1,10 +1,10 @@
 //! Independent machine-written summaries leave accepted article cards intact.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind,
-};
+
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::Deadline;
+use biomcp_types::ArticleInput;
+use biomcp_types::{ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind};
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
     let QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
@@ -50,7 +50,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         out.next
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }
-    if source.state == biodata::SourceState::Stale {
+    if source.state == biomcp_types::SourceState::Stale {
         for item in &mut cards.items {
             if item.sections.as_ref().is_some_and(|s| s.tldr.is_some()) {
                 item.status = Status::Partial;

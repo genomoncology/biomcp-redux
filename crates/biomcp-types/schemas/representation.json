@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "Accession": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
+      "type": "string"
+    },
+    "Allele": {
+      "additionalProperties": false,
+      "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
+      "properties": {
+        "alternate": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "location": {
+          "$ref": "#/$defs/SequenceLocation"
+        },
+        "reference": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "location",
+        "reference",
+        "alternate"
+      ],
+      "type": "object"
+    },
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38."
+      ]
+    },
+    "Expression": {
+      "additionalProperties": false,
+      "description": "Source expression checked for its declared published form, without normalization.",
+      "properties": {
+        "syntax": {
+          "$ref": "#/$defs/ExpressionSyntax"
+        },
+        "syntax_version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/Text"
+        }
+      },
+      "required": [
+        "syntax",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ExpressionSyntax": {
+      "description": "Published syntax label for a source-preserved expression.",
+      "enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGVS genomic description.",
+        " HGVS coding description.",
+        " HGVS noncoding transcript description.",
+        " HGVS RNA description.",
+        " HGVS protein description.",
+        " HGVS mitochondrial description.",
+        " HGVS circular genomic description.",
+        " NCBI SPDI interbase description.",
+        " gnomAD chromosome-position-reference-alternate identifier.",
+        " Padded VCF chromosome-position-reference-alternate text.",
+        " Source-preserved cytogenetic notation."
+      ]
+    },
+    "Sequence": {
+      "pattern": "^[ACGTNRYSWKMBDHV]*$",
+      "type": "string"
+    },
+    "SequenceLocation": {
+      "additionalProperties": false,
+      "description": "An interbase interval on one versioned sequence accession.",
+      "properties": {
+        "sequence": {
+          "$ref": "#/$defs/Accession",
+          "description": "Versioned source sequence, without an inferred genome build."
+        },
+        "span": {
+          "$ref": "#/$defs/Span0",
+          "description": "Zero-based half-open bounds."
+        }
+      },
+      "required": [
+        "sequence",
+        "span"
+      ],
+      "type": "object"
+    },
+    "Span0": {
+      "additionalProperties": false,
+      "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+      "properties": {
+        "end": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.representation/3",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One source's own expression, assembly and optional source-stated interbase allele.",
+  "properties": {
+    "allele": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Allele"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source-supplied allele, without local normalization or equivalence inference."
+    },
+    "build": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Build"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Assembly stated by the source, omitted when absent."
+    },
+    "expression": {
+      "$ref": "#/$defs/Expression",
+      "description": "Published notation kept unchanged."
+    },
+    "source": {
+      "$ref": "#/$defs/Text",
+      "description": "Source asserting this form."
+    }
+  },
+  "required": [
+    "source",
+    "expression"
+  ],
+  "title": "Representation",
+  "type": "object"
+}

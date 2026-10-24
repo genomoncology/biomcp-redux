@@ -4,11 +4,12 @@ mod locator;
 mod page;
 mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{
+
+use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{
     ArticleEvidence, ArticleEvidenceResult, CitationContexts, CitationParagraphs, QueryBody,
     Request, Section, Source, SourceOutcome, Status, StepKind,
 };
-use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
 // Source stages leave a bounded part of the same command budget for publishing
 // successful independent evidence and its continuation after a source timeout.
@@ -58,7 +59,7 @@ pub fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
     if out
         .sources
         .iter()
-        .any(|s| s.reason == Some(biodata::Reason::RateLimited))
+        .any(|s| s.reason == Some(biomcp_types::Reason::RateLimited))
     {
         out.next
             .insert(0, (StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
@@ -106,7 +107,8 @@ fn execute<'a>(
     let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));
     let started = stages.remaining();
     if graph_disabled {
-        snapshot.graph = Section::unavailable(Source::SemanticScholar, biodata::Reason::Disabled);
+        snapshot.graph =
+            Section::unavailable(Source::SemanticScholar, biomcp_types::Reason::Disabled);
         snapshot.terminal = true;
         snapshot
             .sources
@@ -118,7 +120,7 @@ fn execute<'a>(
         if text_disabled {
             snapshot.fulltext = Some(Section::unavailable(
                 Source::PmcOa,
-                biodata::Reason::Disabled,
+                biomcp_types::Reason::Disabled,
             ));
             snapshot.sources.retain(|s| s.source != Source::PmcOa);
         } else if snapshot.fulltext.is_none() {
@@ -156,7 +158,7 @@ pub(super) fn source(snapshot: &mut Snapshot, incoming: SourceOutcome) {
 pub(super) fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::SemanticScholar,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

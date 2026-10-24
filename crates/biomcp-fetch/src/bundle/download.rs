@@ -8,7 +8,7 @@ use crate::{
     prepared::Prepared,
     record::{Body, Exchange},
 };
-use biodata::Reason;
+use biomcp_types::Reason;
 use std::{
     fs,
     io::{Read, Write},

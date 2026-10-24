@@ -124,7 +124,7 @@ fn boundaries() -> Check {
 fn health() -> Check {
     let disabled = biomcp_adapters::registry::SOURCES
         .iter()
-        .filter(|spec| spec.source != biodata::Source::LitVar)
+        .filter(|spec| spec.source != biomcp_types::Source::LitVar)
         .map(|spec| spec.source.to_string())
         .collect::<Vec<_>>()
         .join(",");

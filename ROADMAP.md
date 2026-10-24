@@ -163,17 +163,19 @@ PDF metadata and explicit-path download remain pending. BioMCP will not extract 
 Sources:
 - [x] MyVariant.info
 - [x] ClinGen Allele Registry
-- [x] ClinVar through NCBI EFetch (optional key)
+- [ ] ClinVar through NCBI EFetch (optional key): native assertions landed; actual drug-response capture remains open
 - [ ] dbSNP: identifiers are carried by MyVariant and CAR; no direct adapter is implemented
 - [ ] gnomAD: counts and missing-release handling landed; same-response dataset release proof remains open
 - [ ] CIViC: membership and native paging landed; actual positive joined capture remains open
 - [x] cBioPortal
 - [ ] Cancer Hotspots: candidate residue counts only; no established exact allele join
-- [ ] OncoKB (keyed): local keyless/keyed cases landed; actual licensed drug-response proof remains open
+- [x] OncoKB (keyed)
 - [x] GWAS Catalog
 - [x] ClinGen evidence repository
 - [x] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro, and AlphaGenome (keyed)
+
+The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
 
 ### Trial
 

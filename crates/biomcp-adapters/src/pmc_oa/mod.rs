@@ -3,10 +3,13 @@ mod location;
 mod raw;
 mod supplement;
 use crate::{jats, quotas};
-use biodata::{License, Pmcid, Pmid, Reason, Source};
+use biodata::License;
+use biodata::{Pmcid, Pmid};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };
+use biomcp_types::{Reason, Source};
 use std::time::Duration;
 pub use supplement::{Download, Supplement, download, download_bytes};
 /// Conservative application policy; no numeric provider limit is claimed.
@@ -14,7 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "PMC copyright; article-specific licenses",
         url: "https://pmc.ncbi.nlm.nih.gov/about/copyright/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::PmcOa,
     base: "https://pmc-oa-opendata.s3.amazonaws.com",

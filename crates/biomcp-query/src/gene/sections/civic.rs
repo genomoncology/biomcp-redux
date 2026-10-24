@@ -1,8 +1,10 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId, Problem, ProblemCode, Reason, Section, Source, Text};
+use biodata::{Gene, HgncId, Text};
+
 use biomcp_adapters::civic;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{Problem, ProblemCode, Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let ids: Vec<_> = genes
         .iter()
@@ -53,7 +55,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         })
         .collect();
     if ids.is_empty() {
-        source.state = biodata::SourceState::Failed;
+        source.state = biomcp_types::SourceState::Failed;
         source.reason = Some(Reason::NoJoinId);
     }
     SectionResult {

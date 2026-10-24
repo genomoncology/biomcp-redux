@@ -1,8 +1,10 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId, Reason, Section, Source};
+use biodata::{Gene, HgncId};
+
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{Reason, Section, Source};
 pub(super) fn applicable(gene: &Gene) -> bool {
     !gene.uniprot.is_empty()
 }

@@ -1,4 +1,5 @@
 use biodata::{FiniteNumber, Text};
+
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]

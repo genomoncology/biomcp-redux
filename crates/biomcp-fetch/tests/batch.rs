@@ -53,7 +53,7 @@ fn overlapping_requests_keep_input_order_and_independent_failures() {
         let results = worker.join().unwrap();
         assert!(results[0].as_ref().unwrap().answer);
         assert!(
-            matches!(results[1], Err(RequestError::Source(error)) if error.reason == biodata::Reason::Rejected)
+            matches!(results[1], Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::Rejected)
         );
         assert!(results[2].as_ref().unwrap().answer);
     });
@@ -123,12 +123,12 @@ fn empty_and_refused_batches_never_execute_callbacks() {
     let foreign_expired = replay.deadline(Duration::ZERO);
     let calls = AtomicUsize::new(0);
     for (spec, deadline, reason) in [
-        (required, foreign_expired, biodata::Reason::NoKey),
-        (plain, foreign_expired, biodata::Reason::Rejected),
+        (required, foreign_expired, biomcp_types::Reason::NoKey),
+        (plain, foreign_expired, biomcp_types::Reason::Rejected),
         (
             plain,
             live.deadline(Duration::ZERO),
-            biodata::Reason::DeadlineExceeded,
+            biomcp_types::Reason::DeadlineExceeded,
         ),
     ] {
         let leg = live.leg(spec, deadline);
@@ -275,7 +275,7 @@ fn replay(dir: &std::path::Path) -> Fetch {
         mode: biomcp_fetch::Mode::Replay {
             dir: dir.to_owned(),
         },
-        source_deadlines: [(biodata::Source::PubMed, Duration::from_secs(30))].into(),
+        source_deadlines: [(biomcp_types::Source::PubMed, Duration::from_secs(30))].into(),
         ..FetchConfig::default()
     })
     .unwrap()
@@ -347,7 +347,7 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
         child.json::<Number>(&spec.get("/number"), &[])
     });
     assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
-    assert!(results.iter().any(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biodata::Reason::DeadlineExceeded)));
+    assert!(results.iter().any(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded)));
     assert_eq!(leg.remaining(), Duration::ZERO);
     assert!(
         leg.batch(&[()], |_, ()| -> Result<(), RequestError> {
@@ -405,7 +405,7 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
         .failures
         .iter()
         .map(|error| {
-            assert_eq!(error.reason, biodata::Reason::Rejected);
+            assert_eq!(error.reason, biomcp_types::Reason::Rejected);
             error.status.unwrap()
         })
         .collect();
@@ -425,6 +425,6 @@ fn real_batch_requests_share_the_original_absolute_deadline() {
         child.json::<Answer>(&spec.get("/held"), &[])
     });
     assert_eq!(results.len(), 16);
-    assert!(results.into_iter().all(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biodata::Reason::DeadlineExceeded)));
+    assert!(results.into_iter().all(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded)));
     assert_eq!(leg.remaining(), Duration::ZERO);
 }

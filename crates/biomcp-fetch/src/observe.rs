@@ -121,7 +121,7 @@ pub struct Observation {
     #[serde(default)]
     pub cached: bool,
     /// Provider source.
-    pub source: biodata::Source,
+    pub source: biomcp_types::Source,
     /// HTTP status, absent on transport failure.
     pub status: Option<u16>,
     /// Retained decoded body bytes; transport/read failures retain no body.

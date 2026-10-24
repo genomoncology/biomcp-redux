@@ -1,5 +1,5 @@
-use biodata::{Source, SourceOutcome, SourceState, Status};
 use biomcp_fetch::{LegReport, RequestError};
+use biomcp_types::{Source, SourceOutcome, SourceState, Status};
 /// Combine input outcomes without hiding a failed input behind a found one.
 pub(crate) fn status(items: impl Iterator<Item = Status>) -> Status {
     let values: Vec<_> = items.collect();
@@ -33,12 +33,12 @@ pub(crate) fn source(
         source,
         state: if matches!(
             reason,
-            Some(biodata::Reason::Disabled | biodata::Reason::NoKey)
+            Some(biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey)
         ) {
             SourceState::Skipped
         } else if report.stale {
             SourceState::Stale
-        } else if reason == Some(biodata::Reason::Syncing) {
+        } else if reason == Some(biomcp_types::Reason::Syncing) {
             SourceState::Syncing
         } else if error.is_some() {
             SourceState::Failed
@@ -52,8 +52,8 @@ pub(crate) fn local(error: RequestError) -> Option<RequestError> {
     (!matches!(error, RequestError::Source(_))).then_some(error)
 }
 pub(crate) fn append(
-    target: &mut Vec<biodata::Problem>,
-    values: impl IntoIterator<Item = biodata::Problem>,
+    target: &mut Vec<biomcp_types::Problem>,
+    values: impl IntoIterator<Item = biomcp_types::Problem>,
 ) {
     for value in values {
         if !target.contains(&value) {

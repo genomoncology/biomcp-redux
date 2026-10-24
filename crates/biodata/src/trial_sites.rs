@@ -51,7 +51,7 @@ pub struct TrialOfficial {
     /// Source official role.
     pub role: Option<TrialOfficialRole>,
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Native site recruitment status, distinct from overall trial status.
     TrialSiteStatus {
         /// Not yet recruiting at this site.
@@ -74,7 +74,7 @@ crate::macros::wire_enum! {
         Available => "AVAILABLE",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Native contact role.
     TrialContactRole {
         /// Named contact.
@@ -89,7 +89,7 @@ crate::macros::wire_enum! {
         SubInvestigator => "SUB_INVESTIGATOR",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Native overall official role.
     TrialOfficialRole {
         /// Sub-investigator.
