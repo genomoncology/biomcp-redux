@@ -81,4 +81,4 @@ pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
 );
 
 /// Independent credential-free publisher download quota.
-pub static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(SourceKey::declare("publisher-pdf"), Rate::per_second(2), None, 1);
+pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(SourceKey::declare("publisher-pdf"), Rate::per_second(2), None, 1);

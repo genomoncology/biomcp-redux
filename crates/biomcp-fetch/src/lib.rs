@@ -11,8 +11,6 @@ mod cache_request;
 mod deadline;
 mod declaration;
 mod destination;
-mod save;
-pub use save::{SaveTarget, SavedFile};
 mod error;
 mod network;
 mod prepared;

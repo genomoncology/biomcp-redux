@@ -350,7 +350,7 @@ fn run_request(
             fresh,
         };
     Ok(if let Request::ArticlePdf(query) = request {
-        biomcp_query::article::pdf::run(&cx, query, allow_save)
+        crate::save::run(&cx, query, allow_save)
     } else { biomcp_query::run(&cx, request) })
 }
 

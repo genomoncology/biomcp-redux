@@ -4,13 +4,13 @@ use std::{fs, io::{self, Write}, path::{Path, PathBuf}};
 
 /// Checked explicit destination, without creating a file or directory.
 #[derive(Debug)]
-pub struct SaveTarget {
+struct SaveTarget {
     path: PathBuf,
     replace: bool,
 }
 /// Receipt for the exact bytes written to an absolute destination.
 #[derive(Debug)]
-pub struct SavedFile {
+struct SavedFile {
     /// Absolute destination.
     pub path: PathBuf,
     /// Saved bytes.
@@ -20,7 +20,7 @@ pub struct SavedFile {
 }
 impl SaveTarget {
     /// Resolve a file or existing folder and refuse clobbering before downloading.
-    pub fn new(path: &str, filename: &str, replace: bool) -> io::Result<Self> {
+    fn new(path: &str, filename: &str, replace: bool) -> io::Result<Self> {
         let input = Path::new(path);
         let path = if input.is_dir() { input.join(filename) } else { input.to_owned() };
         let name = path.file_name().ok_or_else(|| io::Error::other("missing filename"))?;
@@ -39,7 +39,7 @@ impl SaveTarget {
         }
     }
     /// Write an adjacent temporary file, then atomically install it without partial files.
-    pub fn write(self, bytes: &[u8]) -> io::Result<SavedFile> {
+    fn write(self, bytes: &[u8]) -> io::Result<SavedFile> {
         self.check()?;
         let parent = self.path.parent().ok_or_else(|| io::Error::other("missing parent"))?;
         let mut temporary = tempfile::NamedTempFile::new_in(parent)?;
@@ -56,4 +56,22 @@ impl SaveTarget {
             sha256: Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect(),
         })
     }
+}
+
+/// Keep destination policy and every filesystem mutation at the binary boundary.
+pub(crate) fn run(cx: &biomcp_query::Ctx<'_>, query: &biodata::ArticlePdf, allow_save: bool) -> biomcp_query::Outcome {
+    let name: String = query.input.to_string().chars().map(|c| if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {c} else {'_'}).collect();
+    let target = allow_save.then(|| SaveTarget::new(query.save.as_str(), &format!("{name}.pdf"), query.replace)).and_then(Result::ok);
+    let download = biomcp_query::article::pdf::download(cx, query, target.is_some());
+    let mut out = download.out;
+    if let Some((link, bytes)) = download.file {
+        out.body = match target.and_then(|target| target.write(&bytes).ok()) {
+            Some(saved) => match (biodata::Text::new(saved.path.to_string_lossy()), biodata::Text::new(saved.sha256)) {
+                (Ok(path), Ok(sha256)) => biodata::QueryBody::ArticlePdf(biodata::ArticlePdfResult {file: biodata::Section::Data {source: biodata::Source::SemanticScholar, data: biodata::PdfSaved {path, bytes: saved.bytes, sha256, pdf: link}}}),
+                _ => biodata::QueryBody::PdfSaveRefused(link),
+            },
+            None => biodata::QueryBody::PdfSaveRefused(link),
+        };
+    }
+    out
 }

@@ -6,6 +6,8 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+sha2.workspace = true
+tempfile.workspace = true
 base64.workspace = true
 httparse.workspace = true
 ctrlc.workspace = true
@@ -22,7 +24,6 @@ serde-saphyr.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-sha2.workspace = true
 rcgen = { version = "=0.13.2", default-features = false, features = ["pem", "ring"] }
 time = { version = "0.3.55", default-features = false, features = ["std"] }
 rustls.workspace = true
