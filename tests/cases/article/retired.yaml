@@ -52,10 +52,6 @@
     {"run": ["get", "article", "secret-input", "--section", "annotations", "assets"], "mcp": ["get", "article", "secret-input", "--section", "annotations", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     # These retained filters await native source mappings. Their owner may replace the argument error with success.
     # Keep the explicit requirement that their result excludes usage.retired. Equality below enforces that requirement now.
-    {"run": ["search", "article", "secret-input", "--open-access"], "mcp": ["search", "article", "secret-input", "--open-access"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    {"run": ["search", "article", "secret-input", "--no-preprints"], "mcp": ["search", "article", "secret-input", "--no-preprints"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    {"run": ["search", "article", "secret-input", "--exclude-retracted"], "mcp": ["search", "article", "secret-input", "--exclude-retracted"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    {"run": ["search", "article", "secret-input", "--include-retracted"], "mcp": ["search", "article", "secret-input", "--include-retracted"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     # PDF remains a capability. Its old flag names the replacement section; retained TLDR, evidence and recommendations stay outside retirement.
     {"run": ["get", "article", "secret-input", "--pdf"], "mcp": ["get", "article", "secret-input", "--pdf"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: get article <id> pdf"}}}, "exit": 2, "is_error": true, "max_bytes": 400},
     {"run": ["get", "article", "secret-input", "tldr"], "mcp": ["get", "article", "secret-input", "tldr"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},

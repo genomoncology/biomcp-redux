@@ -1,0 +1,33 @@
+{
+  "live_check": "synthetic response case",
+  "feature": "article-sections",
+  "story": "A preprint with a source PMID never borrows indexing from another EFetch card",
+  "replay": "article/indexing/synthetic-preprint-pmid",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1064174",
+        "indexing"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "PPR1064174",
+        "indexing"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/indexing/state": "not_applicable",
+        "/result/items/0/more": {
+          "excludes": "indexing"
+        },
+        "/sources/*/source": [
+          "europepmc"
+        ]
+      },
+      "max_bytes": 3900
+    }
+  ]
+}
