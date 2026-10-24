@@ -11,6 +11,8 @@ const LAYERS: &[(&str, &[&str])] = &[
         &[
             "biodata",
             "ureq",
+            "rustls",
+            "rustls-platform-verifier",
             "httpdate",
             "tempfile",
             "rusqlite",

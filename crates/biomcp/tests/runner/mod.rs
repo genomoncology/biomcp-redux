@@ -1,5 +1,6 @@
 mod assertions;
 mod configuration;
+mod corporate;
 mod gene_tables;
 mod held_proxy;
 mod launch;
@@ -7,6 +8,7 @@ mod markdown;
 mod markdown_sources;
 mod mcp;
 mod negative_cases;
+mod network_stub;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -229,6 +231,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     }));
     trials.extend(configuration::trials());
     trials.extend(scholar::trials());
+    trials.extend(corporate::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {

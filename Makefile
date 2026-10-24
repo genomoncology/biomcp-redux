@@ -2,7 +2,7 @@
 
 .PHONY: landing-gate fmt lint ratchets test audit coverage unreached
 
-landing-gate: fmt lint coverage audit
+landing-gate: docs-check fmt lint coverage audit
 
 fmt:
 	cargo fmt --all -- --check
@@ -24,3 +24,8 @@ coverage:
 
 unreached:
 	sh scripts/coverage.sh unreached
+
+.PHONY: docs-check
+docs-check:
+	python3 scripts/check_docs.py
+	python3 scripts/test_docs.py
