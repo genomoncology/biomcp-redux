@@ -45,8 +45,6 @@ impl Leg<'_> {
             Ok((reply, status, body, fetched)) => {
                 let mut entry = Entry::new(status, body, seconds, codec.name());
                 entry.fetched_at = fetched;
-                entry.fresh_until =
-                    fetched.saturating_add(i64::try_from(seconds).unwrap_or(i64::MAX));
                 cache.write(key, self.spec.source, url, &entry, self.budget())?;
                 Ok((reply, fetched))
             }
