@@ -276,6 +276,8 @@ fn key_help() -> io::Result<Outcome> {
     )
 }
 fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
+    let mut value = serde_json::to_value(value)?;
+    network_steps(&mut value)?;
     let mut bytes = serde_json::to_vec(&value)?;
     bytes.push(b'\n');
     Ok(Outcome {
@@ -300,4 +302,23 @@ fn run_request(
         },
         request,
     ))
+}
+
+fn network_steps(value: &mut Value) -> io::Result<()> {
+    let reasons: Vec<_> = value.get("sources").and_then(Value::as_array).into_iter().flatten()
+        .filter_map(|source| source.get("reason").and_then(Value::as_str))
+        .filter_map(|reason| match reason { "tls" => Some("ca_bundle"), "proxy" => Some("proxy"), _ => None })
+        .collect();
+    let settings: std::collections::BTreeSet<_> = reasons.into_iter().map(str::to_owned).collect();
+    if settings.is_empty() { return Ok(()); }
+    let Some(object) = value.as_object_mut() else { return Ok(()); };
+    let steps = object.entry("next").or_insert_with(|| Value::Array(Vec::new()));
+    let Some(steps) = steps.as_array_mut() else { return Ok(()); };
+    for setting in settings {
+        let step = biodata::Step { kind: biodata::StepKind::Configure,
+            args: vec!["help".into(), "network".into(), setting.into_boxed_str()].into() };
+        steps.insert(0, serde_json::to_value(step)?);
+    }
+    steps.truncate(5);
+    Ok(())
 }

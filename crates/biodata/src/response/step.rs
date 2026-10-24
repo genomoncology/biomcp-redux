@@ -16,6 +16,8 @@ StepKind {
     Sync => "sync",
     /// Explain how to configure a source key.
     Key => "key",
+    /// Explain the network setting that needs attention.
+    Configure => "configure",
 }
 }
 /// A command argument list spelled from a typed action.

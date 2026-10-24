@@ -35,10 +35,10 @@ impl<In: Transport> Connector<In> for TlsConnector {
         let mut conn = ClientConnection::new(self.0.clone(), name)?;
         let mut sock = TransportAdapter::new(transport.boxed(), details.current_time.clone());
         let mut timeout = details.timeout;
-        use ureq::unversioned::transport::time::Duration;
-        if let (Duration::Exact(limit), Duration::Exact(elapsed)) =
-            (timeout.after, (details.current_time)().duration_since(details.now)) {
-            timeout.after = Duration::Exact(limit.saturating_sub(elapsed));
+        use ureq::unversioned::transport::time::{Duration, Instant};
+        if let (Duration::Exact(limit), Instant::Exact(now), Instant::Exact(start)) =
+            (timeout.after, (details.current_time)(), details.now) {
+            timeout.after = Duration::Exact(limit.saturating_sub(now.saturating_duration_since(start)));
         }
         sock.set_timeout(timeout);
         conn.complete_io(&mut sock).map_err(tls_io)?;

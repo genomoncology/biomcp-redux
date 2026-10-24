@@ -19,6 +19,7 @@ serde-saphyr.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
+rustls.workspace = true
 jsonschema.workspace = true
 libtest-mimic.workspace = true
 serde-saphyr.workspace = true
