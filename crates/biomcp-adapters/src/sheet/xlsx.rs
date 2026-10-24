@@ -58,7 +58,9 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
             if column < current.cells.len() {
                 return Err(Reason::BadReply);
             }
-            assembled = assembled.checked_add(column + 1 - current.cells.len()).ok_or(Reason::TooLarge)?;
+            assembled = assembled
+                .checked_add(column + 1 - current.cells.len())
+                .ok_or(Reason::TooLarge)?;
             if assembled > LIMITS.cells {
                 return Err(Reason::TooLarge);
             }
