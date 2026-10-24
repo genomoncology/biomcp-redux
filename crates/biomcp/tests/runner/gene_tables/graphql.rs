@@ -1,5 +1,5 @@
-use super::Check;
 use super::super::response_cases::checked_case;
+use super::Check;
 use serde_json::{Value, json};
 
 fn graphql(source: &str, change: impl Fn(&mut Value), expect: Value) -> Check {
@@ -124,15 +124,26 @@ fn mappings() -> Check {
         "/result/items/0/sections/constraint/data/flags": ["source flag"], "/problems/*/field": ["flags"]}),
     )?;
     for flags in [Value::Null, json!({"unexpected":"value"})] {
+        let mut expect = json!({
+            "/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
+            "/result/items/0/sections/constraint/data/flags": []});
+        let pointer = if flags.is_null() {
+            "/problems"
+        } else {
+            "/problems/*/field"
+        };
+        expect[pointer] = if flags.is_null() {
+            json!([])
+        } else {
+            json!(["flags"])
+        };
         graphql(
             "gnomad",
             |body| {
                 body["value"]["data"]["g0"]["mane_select_transcript"] = Value::Null;
                 body["value"]["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
             },
-            json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
-                "/result/items/0/sections/constraint/data/flags": [],
-                "/problems/*/field": if flags.is_null() { json!([]) } else { json!(["flags"]) }}),
+            expect,
         )?;
     }
     for mode in 0..2 {
@@ -204,7 +215,9 @@ fn clingen() -> Check {
             0,
         )?;
         if mode == "validity only"
-            && answer.pointer("/result/items/0/sections/clingen/data/haploinsufficiency").is_some()
+            && answer
+                .pointer("/result/items/0/sections/clingen/data/haploinsufficiency")
+                .is_some()
         {
             return Err("validity-only source produced haploinsufficiency".into());
         }

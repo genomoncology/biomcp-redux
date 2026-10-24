@@ -1,5 +1,5 @@
-use super::{Check, case, tsv};
 use super::super::response_cases::checked_case;
+use super::{Check, case, tsv};
 use serde_json::json;
 
 pub(super) fn check() -> Check {
@@ -76,7 +76,8 @@ fn optional() -> Check {
             "alias_symbol" => "aliases",
             other => other,
         };
-        if answer.pointer(&format!("/result/items/0/answer/gene/{mapped}"))
+        if answer
+            .pointer(&format!("/result/items/0/answer/gene/{mapped}"))
             .is_some_and(|value| !value.is_null() && !value.as_array().is_some_and(Vec::is_empty))
         {
             return Err(format!("malformed {field} survived in the gene answer").into());

@@ -1,12 +1,15 @@
-use super::Check;
 use super::super::response_cases::checked_case;
+use super::Check;
 use serde_json::{Value, json};
 
 fn run(change: impl Fn(&mut Value), expect: Value) -> Check {
     checked(change, expect).map(|_| ())
 }
 
-fn checked(change: impl Fn(&mut Value), expect: Value) -> Result<Value, Box<dyn std::error::Error>> {
+fn checked(
+    change: impl Fn(&mut Value),
+    expect: Value,
+) -> Result<Value, Box<dyn std::error::Error>> {
     checked_case(
         "gene/main",
         &["get", "gene", "BRAF"],
@@ -66,7 +69,9 @@ fn positions() -> Check {
             "/result/items/0/answer/gene/spans/0/span/end": position["end"]}),
         )?;
         if position["strand"].is_null()
-            && answer.pointer("/result/items/0/answer/gene/spans/0/strand").is_some()
+            && answer
+                .pointer("/result/items/0/answer/gene/spans/0/strand")
+                .is_some()
         {
             return Err("unstated source strand produced a strand".into());
         }
@@ -165,7 +170,10 @@ fn summaries() -> Check {
             json!({
             "/result/items/0/status": "partial", "/problems/*/field": ["summary"]}),
         )?;
-        if answer.pointer("/result/items/0/answer/gene/summary").is_some() {
+        if answer
+            .pointer("/result/items/0/answer/gene/summary")
+            .is_some()
+        {
             return Err("malformed summary survived in the gene answer".into());
         }
     }
@@ -176,7 +184,10 @@ fn summaries() -> Check {
         },
         json!({"/result/items/0/answer/gene/spans": {"count": 1}}),
     )?;
-    if answer.pointer("/result/items/0/answer/gene/summary").is_some() {
+    if answer
+        .pointer("/result/items/0/answer/gene/summary")
+        .is_some()
+    {
         return Err("missing source summary produced a summary".into());
     }
     Ok(())

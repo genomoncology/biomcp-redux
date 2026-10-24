@@ -54,5 +54,8 @@ pub(super) fn checked_case(
             "steps": [{"run": args, "expect": expect, "exit": exit}]
         }))?,
     )?;
-    Ok(super::run_case(&path, &super::schema::Registry::embedded()?)?)
+    Ok(super::run_case(
+        &path,
+        &super::schema::Registry::embedded()?,
+    )?)
 }

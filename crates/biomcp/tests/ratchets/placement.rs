@@ -152,7 +152,9 @@ pub(super) fn check(root: &Path) -> Check {
                             .collect::<Vec<_>>()
                             .windows(2)
                             .any(|v| v[1] == "test" && matches!(v[0].as_str(), "," | ":"))
-                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"])
+                        || tokens
+                            .get(index..index + 4)
+                            .is_some_and(|v| v == ["#", "[", "test", "]"])
                 });
                 if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
                     return Err(format!("{relative}: inline test outside listed locations").into());
