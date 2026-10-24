@@ -20,7 +20,7 @@ Each slice updates these counts when its accounting lands.
 - [ ] Workspace and five crates with enforced dependency direction
 - [x] Rust standards, lints and ratchets in the gate
 - [x] Minimal biodata core types and conventions
-- [ ] Transport: deadlines, source-key rate limits, retries, keyed sources, reply checks, cache
+- [x] Transport: deadlines, source-key rate limits, retries, keyed sources, reply checks, cache
 - [ ] Record, replay and offline modes
 - [ ] SQLite store: reply cache, pools, bundle rows
 - [ ] Bundle sync with lock and budget
