@@ -53,3 +53,4 @@ def mcp_probe(command, env, root, version):
     assert indexed[1]["result"]["serverInfo"]["version"] == version
     assert indexed[2]["result"]["tools"][0]["name"] == "biomcp"
 
+    return [tool["name"] for tool in indexed[2]["result"]["tools"]]

@@ -3,6 +3,7 @@
 import argparse
 import base64
 import csv
+from email.parser import Parser
 import hashlib
 import io
 import json
@@ -64,11 +65,11 @@ def check_floor(binary, tag):
 
 def wheel(output, binary, provenance):
     version, tag = provenance["version"], provenance["platform"]
-    stem = "biomcp_cli-" + version
+    stem = provenance["distribution"].replace("-", "_") + "-" + version
     metadata = stem + ".dist-info"
     files = {
         stem + ".data/scripts/biomcp" + (".exe" if tag.startswith("win_") else ""): binary.read_bytes(),
-        metadata + "/METADATA": ("Metadata-Version: 2.1\nName: biomcp-cli\nVersion: " + version + "\nSummary: BioMCP CLI and MCP server\nRequires-Python: >=3.9\n").encode(),
+        metadata + "/METADATA": ("Metadata-Version: 2.1\nName: " + provenance["distribution"] + "\nVersion: " + version + "\nSummary: BioMCP CLI and MCP server\nRequires-Python: >=3.9\n").encode(),
         metadata + "/WHEEL": ("Wheel-Version: 1.0\nGenerator: biomcp-local-producer\nRoot-Is-Purelib: false\nTag: py3-none-" + tag + "\n").encode(),
         metadata + "/release.json": json.dumps(provenance, sort_keys=True).encode(),
     }
@@ -95,6 +96,9 @@ def inspect(path):
         if len(manifests) != 1 or len(binaries) != 1:
             raise ValueError("wheel must contain one producer record and one binary")
         record = json.loads(archive.read(manifests[0]))
+        metadata = Parser().parsestr(archive.read(manifests[0].replace("release.json", "METADATA")).decode())
+        if metadata["Name"] != record["distribution"] or metadata["Version"] != record["version"]:
+            raise ValueError("wheel package identity differs from its producer")
         expected_tag = "py3-none-" + record["platform"]
         if not path.name.endswith("-" + expected_tag + ".whl") or ("Tag: " + expected_tag + "\n").encode() not in archive.read(manifests[0].replace("release.json", "WHEEL")):
             raise ValueError("wheel tags differ from the producer platform")
@@ -138,7 +142,8 @@ def build(args):
     check_floor(binary, tag)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    record = {"version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
+    distribution = json.loads((Path(__file__).resolve().parent.parent / "server.json").read_text())["packages"][0]["identifier"]
+    record = {"distribution": distribution, "version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
     candidate = wheel(output, binary, record)
     channels(output, binary, record)
     archive = output / ("biomcp-" + version + "-" + tag + ".tar.gz")

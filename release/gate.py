@@ -75,10 +75,12 @@ def installed(args):
         raise ValueError("desktop manifest launch contract differs")
     check("desktop-extension", binary)
     with tempfile.TemporaryDirectory() as directory:
-        mcp_probe([str(binary)] + config["args"], environment(Path(directory)), Path(directory), record["version"])
+        tools = mcp_probe([str(binary)] + config["args"], environment(Path(directory)), Path(directory), record["version"])
+        if sorted(tools) != sorted(tool["name"] for tool in manifest["tools"]):
+            raise ValueError("desktop manifest tools differ from installed server")
     registry = json.loads((output / "server.json").read_text())
     package, = registry["packages"]
-    if registry["name"] != "io.github.genomoncology/biomcp" or registry["version"] != record["version"] or package["registryType"] != "pypi" or package["identifier"] != "biomcp-cli" or package["version"] != record["version"] or package["transport"] != {"type": "stdio"}:
+    if registry["name"] != "io.github.genomoncology/biomcp" or registry["version"] != record["version"] or package["registryType"] != "pypi" or package["identifier"] != record["distribution"] or package["version"] != record["version"] or package["transport"] != {"type": "stdio"}:
         raise ValueError("registry identity, package or transport differs")
     arguments = [argument["value"] for argument in package["packageArguments"] if argument["type"] == "positional"]
     if arguments != ["serve"]:
