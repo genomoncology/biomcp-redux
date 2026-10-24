@@ -1,4 +1,4 @@
-# 0109 — Capture a real keyed OncoKB variant annotation
+# 0109 — Verify an approved OncoKB demo annotation
 
 Status: OPEN.
 
