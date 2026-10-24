@@ -266,9 +266,17 @@ fn opaque() -> Check {
             .join("pmc-oa/51c9ef213345bdbc7ed493ea19928bd900d5791413a6c5a65b60f2c50eac690f-0.bin"),
         bytes,
     )?;
-    let reader = vec!["article".into(), "supplement".into(), "28944238".into(), "MGG3-5-553-s002.xlsx".into()];
+    let reader = vec![
+        "article".into(),
+        "supplement".into(),
+        "28944238".into(),
+        "MGG3-5-553-s002.xlsx".into(),
+    ];
     let unavailable = command_at(&env, &replay, &reader, 0)?;
-    assert_eq!(unavailable.pointer("/result/content/data/reason"), Some(&json!("unsupported")));
+    assert_eq!(
+        unavailable.pointer("/result/content/data/reason"),
+        Some(&json!("unsupported"))
+    );
     let path = env.root().join("opaque.docx");
     let value = command_at(&env, &replay, &args("supplement", &path), 0)?;
     receipt(&value, &path, bytes, None)?;
@@ -323,7 +331,13 @@ fn cut_reply(request: &str) -> Result<String, String> {
 fn cut_body() -> Check {
     let stub = super::network_stub::Stub::with_length(
         "pmc-oa-opendata.s3.amazonaws.com",
-        |request| if request.contains("list-type=") { "application/xml" } else { "binary/octet-stream" },
+        |request| {
+            if request.contains("list-type=") {
+                "application/xml"
+            } else {
+                "binary/octet-stream"
+            }
+        },
         cut_reply,
         |request, bytes| {
             if request.contains(".xlsx?") {
@@ -386,7 +400,17 @@ fn preprint() -> Check {
     assert!(text.contains("ID: PPR1295425"));
     assert!(text.contains("License: cc_by"));
     assert!(text.contains("Introduction"));
-    assert_eq!(value.pointer("/result/content/data/saved/url"), Some(&json!("https://www.ebi.ac.uk/europepmc/webservices/rest/PPR1295425/fullTextXML")));
-    assert!(value.pointer("/result/content/data/saved/parts").and_then(Value::as_u64).is_some_and(|n| n > 1));
+    assert_eq!(
+        value.pointer("/result/content/data/saved/url"),
+        Some(&json!(
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/PPR1295425/fullTextXML"
+        ))
+    );
+    assert!(
+        value
+            .pointer("/result/content/data/saved/parts")
+            .and_then(Value::as_u64)
+            .is_some_and(|n| n > 1)
+    );
     Ok(())
 }
