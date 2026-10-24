@@ -63,6 +63,12 @@ fn configured() -> Result<(), String> {
 }
 
 fn outgoing() -> Result<(), String> {
+    let quota = biomcp_adapters::semantic_scholar::SPEC.quota;
+    if quota.interval(false) != std::time::Duration::from_secs(2)
+        || quota.interval(true) != std::time::Duration::from_secs(1)
+    {
+        return Err("the source declaration changed its optional-key rate policy".into());
+    }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = super::network_stub::Stub::for_source(
         "api.semanticscholar.org", "application/json",
