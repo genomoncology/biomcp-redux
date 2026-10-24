@@ -1,6 +1,7 @@
 # 0043 — Add the fulltext outline and the article text reader from the PMC OA bucket
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e0627e398da29303959d5d09880792782bccc73f
 
 Milestone: 1
 

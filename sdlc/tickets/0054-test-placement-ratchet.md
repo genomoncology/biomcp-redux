@@ -1,6 +1,7 @@
 # 0054 — Hold library tests to the listed exceptions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 38b578b0405fcd5586ab6c8d9e516c17308f5456
 
 Milestone: 1
 
