@@ -7,7 +7,7 @@
       "run": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "constraint",
         "all"
@@ -18,17 +18,18 @@
           "constraint",
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "not_applicable"
+        "/result/items/0/answer/resolution": "not_found"
       },
       "max_bytes": 3600,
       "mcp": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "constraint",
         "all"
-      ]
+      ],
+      "exit": 1
     },
     {
       "run": [
@@ -72,7 +73,7 @@
       "run": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "--section",
         "constraint",
@@ -81,55 +82,57 @@
       ],
       "expect": {
         "/query/input": [
-          "MIR21",
+          "NOTAGENE",
           "constraint"
         ],
         "/query/section": [
           "constraint",
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "not_applicable",
-        "/result/items/1/answer/resolution": "not_found"
+        "/result/items/1/answer/resolution": "not_found",
+        "/result/items/0/answer/resolution": "not_found"
       },
       "mcp": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "--section",
         "constraint",
         "--section",
         "all"
-      ]
+      ],
+      "exit": 1
     },
     {
       "run": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "NOTAGENE",
         "all"
       ],
       "expect": {
         "/query/input": [
-          "MIR21",
+          "NOTAGENE",
           "constraint",
           "NOTAGENE"
         ],
         "/query/section": [
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "not_applicable"
+        "/result/items/0/answer/resolution": "not_found"
       },
       "mcp": [
         "get",
         "gene",
-        "MIR21",
+        "NOTAGENE",
         "constraint",
         "NOTAGENE",
         "all"
-      ]
+      ],
+      "exit": 1
     },
     {
       "run": [

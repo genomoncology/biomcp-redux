@@ -17,9 +17,10 @@
           "P42771",
           "Q8N726"
         ],
-        "/problems/*/field": {
-          "includes": "function"
-        }
+        "/problems/*/field": [
+          "function",
+          "subcellular_locations"
+        ]
       },
       "max_bytes": 6800
     }
