@@ -6,6 +6,7 @@ mod grammar;
 mod mcp;
 mod output;
 mod paths;
+mod retired;
 mod schema;
 mod spell;
 
