@@ -22,6 +22,7 @@ mod response_cases;
 mod schema;
 mod schema_proof;
 mod scholar;
+mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
 

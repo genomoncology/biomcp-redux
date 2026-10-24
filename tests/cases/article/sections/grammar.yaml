@@ -15,7 +15,8 @@
           "annotations",
           "fulltext",
           "supplements",
-          "citations"
+          "citations",
+          "tldr"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
@@ -25,7 +26,8 @@
           "annotations",
           "fulltext",
           "supplements",
-          "citations"
+          "citations",
+          "tldr"
         ]
       },
       "max_bytes": 2900

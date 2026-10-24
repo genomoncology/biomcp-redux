@@ -13,4 +13,4 @@ pub use gene::{GeneGet, GeneSearch, GeneSection, GeneSectionWord};
 pub use request::Request;
 
 mod article_edges;
-pub use article_edges::ArticleEdges;
+pub use article_edges::{ArticleEdges, EdgeSource};

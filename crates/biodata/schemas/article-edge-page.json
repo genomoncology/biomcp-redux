@@ -185,11 +185,6 @@
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
-            },
-            "semantic-scholar": {
-              "format": "uint32",
-              "minimum": 0,
-              "type": "integer"
             }
           },
           "type": "object"
@@ -214,6 +209,9 @@
           "description": "The selected PMID, retained when summary mapping fails."
         }
       },
+      "required": [
+        "key"
+      ],
       "type": "object"
     },
     "ArticleKey": {
@@ -278,23 +276,6 @@
             },
             "namespace": {
               "const": "europepmc",
-              "type": "string"
-            }
-          },
-          "required": [
-            "namespace",
-            "id"
-          ],
-          "type": "object"
-        },
-        {
-          "description": "Semantic Scholar local identity when no indexed identifier exists.",
-          "properties": {
-            "id": {
-              "$ref": "#/$defs/SemanticScholarId"
-            },
-            "namespace": {
-              "const": "semantic_scholar",
               "type": "string"
             }
           },
@@ -509,8 +490,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "unsupported",
-        "too_large",
         "rate_limited",
         "unavailable",
         "tls",
@@ -529,8 +508,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The local reader does not support the file or container format.",
-        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
@@ -545,10 +522,6 @@
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
       ]
-    },
-    "SemanticScholarId": {
-      "pattern": "^[a-f0-9]{40}$",
-      "type": "string"
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",

@@ -1,7 +1,7 @@
 {
   "$defs": {
     "ArticleInput": {
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
     "ArticleSectionWord": {
@@ -9,7 +9,6 @@
       "enum": [
         "annotations",
         "fulltext",
-        "supplements",
         "citations",
         "all"
       ],
@@ -17,13 +16,12 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
-        " Supplementary files confirmed by PMC metadata.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
     }
   },
-  "$id": "biodata.article-get/2",
+  "$id": "biodata.article-get/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Get one to twenty article inputs in caller order.",

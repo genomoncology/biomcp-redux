@@ -78,10 +78,6 @@
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
-    "EuropePmcId": {
-      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
-      "type": "string"
-    },
     "Markdown": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "format": "markdown",
@@ -174,11 +170,6 @@
       "required": [
         "doi"
       ]
-    },
-    {
-      "required": [
-        "europepmc_id"
-      ]
     }
   ],
   "description": "Article facts with at least one checked identity.",
@@ -218,10 +209,6 @@
     "doi": {
       "$ref": "#/$defs/Doi",
       "description": "DOI assigned to this article."
-    },
-    "europepmc_id": {
-      "$ref": "#/$defs/EuropePmcId",
-      "description": "Europe PMC identity when this card comes from its core record."
     },
     "journal": {
       "anyOf": [

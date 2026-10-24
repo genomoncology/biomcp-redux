@@ -2,6 +2,7 @@
 mod annotations;
 mod citations;
 pub(crate) mod fulltext;
+mod tldr;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
@@ -18,6 +19,10 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             item.sections = Some(ArticleSections {
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
+.then_some(Section::NotApplicable),
+                tldr: (selected(query, ArticleSectionWord::Tldr)
+                    && card.pmid.is_none()
+                    && card.doi.is_none())
                 .then_some(Section::NotApplicable),
                 annotations: (selected(query, ArticleSectionWord::Annotations)
                     && card.pmid.is_none())
@@ -51,6 +56,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 ArticleSection::Citations,
                 card.pmid.is_some(),
             ),
+            (
+                ArticleSectionWord::Tldr,
+                ArticleSection::Tldr,
+                card.pmid.is_some() || card.doi.is_some(),
+            ),
         ]
         .into_iter()
         .filter(|(word, _, available)| *available && !selected(query, *word))
@@ -72,6 +82,9 @@ pub(super) fn run<'a>(
         if fulltext {
             super::preprint::fulltext(cx, deadline, out);
         }
+    }
+    if selected(query, ArticleSectionWord::Tldr) {
+        tldr::run(cx, deadline, out);
     }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

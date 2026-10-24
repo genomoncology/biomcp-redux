@@ -338,8 +338,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "unsupported",
-        "too_large",
         "rate_limited",
         "unavailable",
         "tls",
@@ -358,8 +356,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The local reader does not support the file or container format.",
-        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",

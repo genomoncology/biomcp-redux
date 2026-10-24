@@ -8,6 +8,7 @@ mod page;
 mod protein_change;
 mod preprint;
 mod sections;
+mod semantic_edges;
 pub mod semantic_scholar;
 mod sources;
 pub mod supplement;

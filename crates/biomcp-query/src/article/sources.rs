@@ -90,14 +90,11 @@ fn resolve_rows<'a>(
     let mut join_failures = Vec::new();
     for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
-            && (result
-                .dois
-                .iter()
-                .zip(&result.items)
-                .any(|(doi, item)| item.pmid.is_none() && doi.is_some())
-                || result.items.iter().any(|item| {
-                    item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
-                }))
+            && result.items.iter().enumerate().any(|(index, item)| {
+                item.pmid.is_none()
+                    && (result.dois.get(index).is_some_and(Option::is_some)
+                        || super::semantic_scholar::doi(item).is_some())
+            })
         {
             let resolved = super::semantic_scholar::resolve_dois_with(
                 cx,
@@ -155,6 +152,9 @@ fn pubmed_search<'a>(
                     pmid: Some(id),
                     header: None,
                     cited_by: None,
+                    intents: None,
+                    influential: None,
+                    contexts: None,
                     found_by: Default::default(),
                 })
                 .collect()
@@ -304,6 +304,9 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
                     pmid: Some(id),
                     header: None,
                     cited_by: None,
+                    intents: None,
+                    influential: None,
+                    contexts: None,
                     found_by: Default::default(),
                 })
                 .collect()
