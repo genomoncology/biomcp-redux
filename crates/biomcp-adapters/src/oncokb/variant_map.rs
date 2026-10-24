@@ -99,6 +99,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             drugs,
             alterations: texts(&r.alterations),
             statement_unmapped: true,
+            statement: None,
             citations: pmids(&r.pmids, &mut out.problems).into(),
             description: r.description.as_deref().map(Into::into),
             excluded_tumor_types: r
@@ -129,6 +130,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 drugs: Box::default(),
                 alterations: texts(&r.alterations),
                 statement_unmapped: true,
+                statement: None,
                 citations: pmids(&r.pmids, &mut out.problems).into(),
                 description: r.description.as_deref().map(Into::into),
                 excluded_tumor_types: Box::default(),

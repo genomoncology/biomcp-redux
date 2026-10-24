@@ -60,6 +60,7 @@ pub enum OncokbVariantRecord {
         /// Whole native classification.
         classification: Term,
         /// No subject was invented.
+        #[serde(default = "unmapped")]
         statement_unmapped: bool,
     },
     /// Native therapeutic, diagnostic or prognostic implication.
@@ -77,19 +78,30 @@ pub enum OncokbVariantRecord {
         /// Source alteration labels, which may describe a group or protein subject.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
         alterations: Box<[Text]>,
+        /// Reserved common statement slot; native alteration groups leave it absent.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        statement: Option<Box<Statement>>,
         /// Native grouping cannot be represented by a common source profile ID.
+        #[serde(default = "unmapped")]
         statement_unmapped: bool,
         /// Source PMID citations.
+        #[serde(default)]
         citations: Box<[crate::Pmid]>,
         /// Source narrative, kept without trimming.
         #[serde(skip_serializing_if = "Option::is_none")]
         description: Option<Box<str>>,
         /// Native excluded contexts, never filled from the caller context.
+        #[serde(default)]
         excluded_tumor_types: Box<[Concept]>,
         /// Native approved indication labels.
+        #[serde(default)]
         approved_indications: Box<[Text]>,
         /// Native FDA level label, independent of the evidence level.
         #[serde(skip_serializing_if = "Option::is_none")]
         fda_level: Option<Term>,
     },
+}
+
+fn unmapped() -> bool {
+    true
 }
