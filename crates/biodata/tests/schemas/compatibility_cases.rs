@@ -92,3 +92,41 @@ fn compatibility_refuses_assertion_siblings_on_composed_schemas() {
         "anyOf":[{"type":"string"},{"type":"null"}], "type":"string"});
     assert!(check(&old, &new).is_err(), "a sibling can exclude null");
 }
+
+#[test]
+fn compatibility_preserves_patterns_and_rejects_tighter_integer_bounds() {
+    let old = json!({"$id":"biodata.example/1", "type":"string", "pattern":"^a$"});
+    for pattern in [json!("^b$"), json!(null)] {
+        let mut new = old.clone();
+        if pattern.is_null() {
+            new.as_object_mut().unwrap().remove("pattern");
+        } else {
+            new["pattern"] = pattern;
+        }
+        assert!(check(&old, &new).is_err());
+    }
+    let old = json!({"$id":"biodata.example/1", "type":"integer", "minimum":1,"maximum":100});
+    for (minimum, maximum, expected) in [
+        (0, 101, true),
+        (1, 100, true),
+        (2, 100, false),
+        (1, 99, false),
+    ] {
+        let mut new = old.clone();
+        new["minimum"] = json!(minimum);
+        new["maximum"] = json!(maximum);
+        assert_eq!(check(&old, &new).is_ok(), expected);
+    }
+    for unsupported in [
+        json!({"minimum":-1}),
+        json!({"maximum":1.5}),
+        json!({"format":"int64"}),
+        json!({"exclusiveMinimum":0}),
+    ] {
+        let mut new = old.clone();
+        new.as_object_mut()
+            .unwrap()
+            .extend(unsupported.as_object().unwrap().clone());
+        assert!(check(&old, &new).is_err());
+    }
+}
