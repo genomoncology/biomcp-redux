@@ -2,7 +2,7 @@
 mod article;
 mod article_get;
 pub use article::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
-pub use article_get::ArticleGet;
+pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 mod gene;
 mod request;
 pub use gene::{GeneGet, GeneSearch, GeneSection, GeneSectionWord};

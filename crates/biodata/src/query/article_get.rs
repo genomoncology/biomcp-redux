@@ -14,23 +14,50 @@ struct Fields {
     /// PubMed, PMC or DOI identifiers in input order.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[ArticleInput]>,
+    /// Requested section words; trailing words and --section share this field.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
+    section: Box<[ArticleSectionWord]>,
 }
 impl TryFrom<Fields> for ArticleGet {
     type Error = QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, QueryInvalid> {
-        Self::new(fields.input)
+        Self::with_sections(fields.input, fields.section)
     }
 }
 impl ArticleGet {
     /// Check batch bounds.
     pub fn new(input: Box<[ArticleInput]>) -> Result<Self, QueryInvalid> {
+        Self::with_sections(input, Box::default())
+    }
+    /// Check input bounds and retain section requests.
+    pub fn with_sections(input: Box<[ArticleInput]>, section: Box<[ArticleSectionWord]>) -> Result<Self, QueryInvalid> {
         if !(1..=20).contains(&input.len()) {
             return Err(QueryInvalid);
         }
-        Ok(Self(Fields { input }))
+        Ok(Self(Fields { input, section }))
     }
+    /// Requested section words.
+    pub fn sections(&self) -> &[ArticleSectionWord] { &self.0.section }
     /// Original selectors.
     pub fn input(&self) -> &[ArticleInput] {
         &self.0.input
+    }
+}
+
+crate::source::canonical_enum! {
+    /// Article section request including all landed sections.
+    ArticleSectionWord, SourceUnknown {
+        /// Normalized text-mined entities from PubTator3.
+        Annotations => "annotations",
+        /// Every landed article section.
+        All => "all",
+    }
+}
+crate::source::canonical_enum! {
+    /// A landed article section.
+    ArticleSection, SourceUnknown {
+        /// Normalized text-mined entities from PubTator3.
+        Annotations => "annotations",
     }
 }
