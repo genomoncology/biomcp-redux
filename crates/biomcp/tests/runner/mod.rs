@@ -24,6 +24,7 @@ mod nci;
 mod nci_walk;
 mod negative_cases;
 mod network_stub;
+mod normalization;
 mod pdf;
 mod pmc_tables;
 mod pool_tables;
@@ -283,6 +284,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
+    trials.extend(normalization::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());

@@ -40,7 +40,7 @@ struct Normalized {
     warnings: Option<Vec<Message>>,
     version: Option<String>,
     input_description: Option<Text>,
-    normalized_description: Option<Text>,
+    normalized_description: Option<String>,
     errors: Option<Vec<Message>>,
 }
 #[derive(Deserialize)]
@@ -113,7 +113,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
-    let notation = raw.normalized_description.ok_or_else(bad)?;
+    let notation = Text::new(&raw.normalized_description.ok_or_else(bad)?).map_err(|_| bad())?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
         identity: Variant {

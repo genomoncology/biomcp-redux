@@ -107,6 +107,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "total_messages": {
+          "default": 0,
+          "description": "Count before provider message pagination.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
         "version": {
           "description": "Version fields exactly as returned; absent when the service states none.",
           "items": {

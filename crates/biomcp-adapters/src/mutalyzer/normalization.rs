@@ -9,7 +9,7 @@ pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<NormalizationResult, Requ
     } else {
         VariantResolution::Rejected
     };
-    result.normalized = raw.normalized_description.map(|t| t.to_string());
+    result.normalized = raw.normalized_description;
     result.corrected = raw.corrected_description;
     let mut mappings = Vec::new();
     for (field, description) in [
