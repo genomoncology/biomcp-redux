@@ -45,11 +45,6 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         }
         item.more = [
             (
-                ArticleSectionWord::Pdf,
-                ArticleSection::Pdf,
-                card.pmid.is_some() || card.doi.is_some(),
-            ),
-            (
                 ArticleSectionWord::Indexing,
                 ArticleSection::Indexing,
                 card.pmid.is_some() && card.europepmc_id.is_none(),
@@ -77,6 +72,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             (
                 ArticleSectionWord::Tldr,
                 ArticleSection::Tldr,
+                card.pmid.is_some() || card.doi.is_some(),
+            ),
+            (
+                ArticleSectionWord::Pdf,
+                ArticleSection::Pdf,
                 card.pmid.is_some() || card.doi.is_some(),
             ),
         ]
