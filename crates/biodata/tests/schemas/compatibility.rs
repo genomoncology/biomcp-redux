@@ -354,18 +354,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
-    if let Some(flags) = object.get("x-cli-flags") {
-        let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
-        if flags.is_empty()
-            || flags.iter().any(|(name, value)| {
-                !name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
-                    || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'-')
-                    || value.as_str().is_none_or(str::is_empty)
-            })
-        {
-            return Err("unsupported CLI flag annotation".into());
-        }
-    }
+    validate_cli_flags(object.get("x-cli-flags"))?;
     if object
         .get("x-trailing-section")
         .is_some_and(|value| value != &Value::Bool(true))
@@ -427,4 +416,20 @@ fn bound(node: &Value, value: &Value) -> Check<Bound> {
         .filter(|value| value.is_finite())
         .map(Bound::Decimal)
         .ok_or_else(|| "unsupported decimal bound".into())
+}
+
+fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
+    if let Some(flags) = flags {
+        let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
+        if flags.is_empty()
+            || flags.iter().any(|(name, value)| {
+                !name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
+                    || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'-')
+                    || value.as_str().is_none_or(str::is_empty)
+            })
+        {
+            return Err("unsupported CLI flag annotation".into());
+        }
+    }
+    Ok(())
 }

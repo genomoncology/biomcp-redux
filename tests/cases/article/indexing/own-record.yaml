@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic response case",
-  "feature": "article-get",
+  "feature": "article-sections",
   "story": "Own EFetch indexing is opt-in and makes no extra request",
   "replay": "article/get/synthetic-derived",
   "steps": [
