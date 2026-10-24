@@ -4,6 +4,7 @@ mod config;
 mod exit;
 mod grammar;
 mod help;
+mod keys;
 mod mcp;
 mod output;
 mod paths;
@@ -19,6 +20,7 @@ fn main() -> ExitCode {
     let args = config::arguments();
     if let Ok(grammar::Parsed {
         action: None,
+        key: None,
         globals,
         http,
         ..

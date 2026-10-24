@@ -45,6 +45,13 @@ fn dispatch_using(
     {
         return usage(args);
     }
+    if let Some(command) = parsed.key {
+        return if shared.is_some() {
+            usage(args)
+        } else {
+            crate::keys::run(command, &parsed.globals)
+        };
+    }
     let Some(action) = parsed.action else {
         return usage(args);
     };
@@ -61,23 +68,21 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
-    if let Action::Run {
-        request: Request::SearchArticle(query),
-        ..
-    } = &action
-        && let Some((source, option)) = biomcp_query::article::unsupported(query)
-    {
-        return encode(
-            biodata::ErrorEnvelope::unsupported_filter(source, option),
-            crate::exit::Status::Usage,
-        );
+    if let Some(outcome) = unsupported(&action) {
+        return outcome;
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => {
             let disabled = biomcp_adapters::registry::disabled(&parsed.globals.disable_sources)
                 .map_err(|_| io::Error::other("unchecked source policy"))?;
-            owned = fetch.restrict_sources(disabled);
+            let secrets = match crate::config::secrets(&parsed.globals) {
+                Ok(secrets) => secrets,
+                Err(()) => {
+                    return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
+                }
+            };
+            owned = fetch.with_secrets(secrets).restrict_sources(disabled);
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
@@ -93,15 +98,34 @@ fn dispatch_using(
             &owned
         }
     };
-    execute(fetch, action, allow_save)
+    execute(fetch, action, &parsed.globals, allow_save)
 }
-fn execute(fetch: &biomcp_fetch::Fetch, action: Action, allow_save: bool) -> io::Result<Outcome> {
+fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if let Action::Run {
+        request: Request::SearchArticle(query),
+        ..
+    } = action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return Some(encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        ));
+    }
+    None
+}
+fn execute(
+    fetch: &biomcp_fetch::Fetch,
+    action: Action,
+    globals: &crate::grammar::Globals,
+    allow_save: bool,
+) -> io::Result<Outcome> {
     match action {
         Action::Health => health(fetch),
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
-            let result = run_request(fetch, &request, fresh, allow_save)?;
+            let result = run_request(fetch, &request, fresh, globals, allow_save)?;
             response(fetch, request, result)
         }
     }
@@ -234,22 +258,41 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
     let root = loop {
         match words.next() {
-            Some("--replay" | "--record" | "--case-cache" | "--disable-sources") => {
+            Some(
+                "--format" | "--config" | "--replay" | "--record" | "--case-cache"
+                | "--disable-sources",
+            ) => {
                 words.next();
             }
             Some("--fresh" | "--offline") => {}
             Some(word)
-                if ["--replay=", "--record=", "--case-cache="]
-                    .iter()
-                    .any(|prefix| word.starts_with(prefix)) => {}
+                if [
+                    "--format=",
+                    "--config=",
+                    "--replay=",
+                    "--record=",
+                    "--case-cache=",
+                    "--disable-sources=",
+                ]
+                .iter()
+                .any(|prefix| word.starts_with(prefix)) => {}
             word => break word,
         }
     };
-    let error = if matches!(root, Some("get" | "search" | "sync" | "article")) {
+    let mut error = if matches!(root, Some("get" | "search" | "sync" | "article" | "key")) {
         biodata::ErrorEnvelope::arguments()
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
+    if root == Some("key") {
+        error.next = biomcp_fetch::SecretName::ALL
+            .iter()
+            .map(|name| biodata::Step {
+                kind: biodata::StepKind::Configure,
+                args: vec!["help".into(), "key".into(), name.source().into()].into(),
+            })
+            .collect();
+    }
     encode(error, crate::exit::Status::Usage)
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
@@ -314,28 +357,37 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     )
 }
 fn key_help(source: biodata::Source) -> io::Result<Outcome> {
-    let (config, environment) = match source {
-        biodata::Source::SemanticScholar => {
-            ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY")
-        }
-        _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
+    let name = match source {
+        biodata::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
+        biodata::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biodata::KeyHelp {
-        guidance: (source == biodata::Source::SemanticScholar)
-            .then(|| {
-                biodata::Text::new("a free key raises the request limit").map_err(io::Error::other)
-            })
-            .transpose()?,
+        guidance: Some(
+            biodata::Text::new(&format!(
+                "biomcp key set {}{}",
+                name.source(),
+                if source == biodata::Source::SemanticScholar {
+                    "; a free key raises the request limit"
+                } else {
+                    ""
+                }
+            ))
+            .map_err(io::Error::other)?,
+        ),
         source,
-        config: biodata::Text::new(config).map_err(io::Error::other)?,
-        environment: biodata::Text::new(environment).map_err(io::Error::other)?,
+        config: biodata::Text::new(&format!("keys.{}", name.config())).map_err(io::Error::other)?,
+        environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
     };
     encode(
         Envelope::new(Status::Complete, (), Some(data)),
         crate::exit::Status::Success,
     )
 }
-fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
+pub(crate) fn encode(
+    value: impl serde::Serialize,
+    status: crate::exit::Status,
+) -> io::Result<Outcome> {
     let mut bytes = serde_json::to_vec(&value)?;
     bytes.push(b'\n');
     Ok(Outcome {
@@ -349,10 +401,11 @@ fn run_request(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,
     fresh: bool,
+    globals: &crate::grammar::Globals,
     allow_save: bool,
 ) -> io::Result<biomcp_query::Outcome> {
     let cx = biomcp_query::Ctx {
-        ncbi_email: crate::config::ncbi_email()
+        ncbi_email: crate::config::ncbi_email(globals)
             .map_err(|()| io::Error::other("local configuration failed"))?,
         fetch,
         budget: crate::config::BUDGET,

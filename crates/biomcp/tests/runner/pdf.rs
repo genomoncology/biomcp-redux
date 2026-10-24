@@ -261,7 +261,9 @@ fn record_metadata() -> Check {
         |_| Ok("{\"openAccessPdf\":null}".into()),
     )?;
     let env = Environment::new()?;
-    env.config(&json!({"ca_bundle":stub.certificate}))?;
+    let certificate = env.root().join("ca.pem");
+    fs::write(&certificate, &stub.certificate)?;
+    env.config(&json!({"ca_bundle":certificate}))?;
     let capture = env.root().join("recording");
     let args = vec![
         "--record".into(),
@@ -287,13 +289,7 @@ fn record_metadata() -> Check {
         let entry = entry?;
         if entry.path().extension().is_some_and(|v| v == "json") {
             let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
-            use std::io::Write;
-            writeln!(
-                std::io::stdout(),
-                "PDF_CANONICAL_RECORD {} {}",
-                entry.file_name().to_string_lossy(),
-                record
-            )?;
+            assert_eq!(record.pointer("/exchanges/0/body/value/openAccessPdf"), Some(&Value::Null));
         }
     }
     Ok(())

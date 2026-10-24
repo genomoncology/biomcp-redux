@@ -1,6 +1,7 @@
 # 0080 — Make the runtime image initialize before replay
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 51cc3022c94501d6f40d651538c76896c162b8ea
 
 Milestone: 1
 

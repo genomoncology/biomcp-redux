@@ -78,20 +78,23 @@ impl Server {
     pub(super) fn start() -> Result<Self, String> {
         Self::configured("127.0.0.1:0", None, true)
     }
-    pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
-        Self::configured_at("127.0.0.1:0", None, Some(path))
+    pub(super) fn environment(&self) -> &Environment {
+        &self._environment
+    }
+    pub(super) fn keys(config: Value, key: Option<&str>) -> Result<Self, String> {
+        Self::configured_key("127.0.0.1:0", Some(config), None, key)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
-        Self::configured_at(
-            bind,
-            config,
-            replay.then(|| super::launch::fixtures().join("replies/gene/main")),
-        )
+        Self::configured_key(bind, config, replay.then(|| super::launch::fixtures().join("replies/gene/main")), None)
     }
-    fn configured_at(
+    pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
+        Self::configured_key("127.0.0.1:0", None, Some(path), None)
+    }
+    fn configured_key(
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,
+        key: Option<&str>,
     ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
@@ -102,8 +105,11 @@ impl Server {
         if let Some(path) = replay {
             args.extend(environment.globals(Some(&path), false));
         }
-        let child = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        if let Some(key) = key {
+            command.env("SEMANTIC_SCHOLAR_API_KEY", key);
+        }
+        let child = command
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::piped())

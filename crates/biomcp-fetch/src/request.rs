@@ -271,9 +271,7 @@ impl Leg<'_> {
 
     pub(crate) fn keyed(&self) -> bool {
         match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => {
-                self.fetch.config.secrets.get(c.secret).is_some()
-            }
+            KeyUse::Optional(c) | KeyUse::Required(c) => self.fetch.secrets.get(c.secret).is_some(),
             KeyUse::None => false,
         }
     }
@@ -393,7 +391,7 @@ impl Leg<'_> {
             request = request.header(*name, value);
         }
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
-            && let Some(secret) = self.fetch.config.secrets.get(c.secret)
+            && let Some(secret) = self.fetch.secrets.get(c.secret)
         {
             request = match c.place {
                 KeyPlace::Query(name) => request.query(name, secret),

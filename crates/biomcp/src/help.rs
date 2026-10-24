@@ -48,6 +48,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
+    extra_commands(&mut commands);
+    Ok(commands)
+}
+fn extra_commands(commands: &mut Vec<HelpCommand>) {
     for (command, description) in [
         (
             vec!["health"],
@@ -66,8 +70,16 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print generated command help.",
         ),
         (
-            vec!["help", "key", "oncokb"],
-            "Show OncoKB credential configuration names.",
+            vec!["key", "list"],
+            "List supported credential names and their origin without values.",
+        ),
+        (
+            vec!["key", "set", "<source>", "[--replace]"],
+            "Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.",
+        ),
+        (
+            vec!["key", "remove", "<source>"],
+            "Remove a stored credential while preserving other settings.",
         ),
         (
             vec!["serve"],
@@ -83,7 +95,18 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             examples: Vec::new(),
         });
     }
-    Ok(commands)
+    commands.extend(
+        biomcp_fetch::SecretName::ALL
+            .iter()
+            .map(|name| HelpCommand {
+                command: vec!["help".into(), "key".into(), name.source().into()],
+                description: "Show credential registration and environment fallback names.".into(),
+                arguments: Vec::new(),
+                sections: Vec::new(),
+                section_rule: None,
+                examples: Vec::new(),
+            }),
+    );
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {

@@ -37,3 +37,4 @@ article-recommendations: Read Semantic Scholar recommendations in source order w
 
 article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination. Cases: `crates/biomcp/tests/runner/article_save.rs`.
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
+key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
