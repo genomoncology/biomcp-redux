@@ -209,7 +209,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             assert!(receive.recv().unwrap().unwrap().answer);
         });
         drop(fetch);
-        assert_recorded_keyless_replay(recorded.path(), spec);
+        assert_recorded_keyless_replay(recorded.path(), spec).unwrap();
         assert!(server.requests.try_recv().is_err());
     }
 }
@@ -310,27 +310,24 @@ fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
 fn assert_recorded_keyless_replay(
     directory: &std::path::Path,
     spec: &'static biomcp_fetch::SourceSpec,
-) {
-    let path = std::fs::read_dir(directory.join("pubmed"))
-        .unwrap()
+) -> Result<(), Box<dyn std::error::Error>> {
+    let path = std::fs::read_dir(directory.join("pubmed"))?
         .next()
-        .unwrap()
-        .unwrap()
+        .ok_or("recording absent")??
         .path();
-    let text = std::fs::read_to_string(path).unwrap();
+    let text = std::fs::read_to_string(path)?;
     assert!(!text.contains("placeholder") && !text.contains("x-api-key"));
     let replay = Fetch::open(FetchConfig {
         mode: biomcp_fetch::Mode::Replay {
             dir: directory.to_owned(),
         },
         ..FetchConfig::default()
-    })
-    .unwrap();
+    })?;
     assert!(
         replay
             .leg(spec, replay.deadline(Duration::from_secs(5)))
-            .json::<Answer>(&spec.get("/answer"), &[])
-            .unwrap()
+            .json::<Answer>(&spec.get("/answer"), &[])?
             .answer
     );
+    Ok(())
 }

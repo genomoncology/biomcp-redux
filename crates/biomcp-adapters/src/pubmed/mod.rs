@@ -63,7 +63,11 @@ pub fn search_ids(
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
-    let endpoint = if term.len() > MAX_GET_TERM_BYTES { &SEARCH_POST } else { &SEARCH };
+    let endpoint = if term.len() > MAX_GET_TERM_BYTES {
+        &SEARCH_POST
+    } else {
+        &SEARCH
+    };
     let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
     let notices = raw
         .errorlist
