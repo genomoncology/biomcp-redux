@@ -205,11 +205,15 @@ fn boundaries() -> Check {
 
 fn next_positionals() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    for command in ["get", "search"] {
+    for input in [
+        vec!["get", "gene", "--offline", "--", "-BRAF"],
+        vec!["search", "gene", "--offline", "--", "-BRAF"],
+        vec!["get", "gene", "--offline", "--section", "constraint", "--", "-BRAF"],
+        vec!["get", "gene", "--offline", "--section", "constraint", "constraint"],
+    ] {
         let original = invoke(
             &env,
-            [command, "gene", "--offline", "--", "-BRAF"]
-                .into_iter()
+            input.into_iter()
                 .map(str::to_owned)
                 .collect(),
             4,
@@ -227,6 +231,7 @@ fn next_positionals() -> Check {
                     .map(str::to_owned)
             })
             .collect::<Result<Vec<_>, _>>()?;
+        if !args.iter().any(|arg| arg == "--fresh") { return Err("fresh policy was lost".into()); }
         args.insert(0, "--offline".into());
         let repeated = invoke(&env, args, 4)?;
         if repeated.get("query") != original.get("query") {
