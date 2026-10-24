@@ -28,7 +28,12 @@ pub(super) fn section(
                 .iter()
                 .chain(c.myvariant.iter().flat_map(|v| v.genes.iter()))
         })
-        .collect::<std::collections::BTreeSet<_>>();
+        .fold(Vec::new(), |mut genes, gene| {
+            if !genes.contains(&gene) {
+                genes.push(gene);
+            }
+            genes
+        });
     let mut rows = Vec::new();
     let mut problems = Vec::new();
     let mut error = None;
