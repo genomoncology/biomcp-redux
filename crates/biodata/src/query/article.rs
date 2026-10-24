@@ -285,3 +285,60 @@ impl ArticleSearch {
         v
     }
 }
+
+/// Source capability selectors checked before any lookup or transport request.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum ArticleFilter {
+    /// Free text.
+    #[serde(rename = "TEXT")]
+    Text,
+    /// Gene selector.
+    #[serde(rename = "--gene")]
+    Gene,
+    /// Variant selector.
+    #[serde(rename = "--variant")]
+    Variant,
+    /// Disease selector.
+    #[serde(rename = "--disease")]
+    Disease,
+    /// Drug selector.
+    #[serde(rename = "--drug")]
+    Drug,
+    /// Author selector.
+    #[serde(rename = "--author")]
+    Author,
+    /// Journal selector.
+    #[serde(rename = "--journal")]
+    Journal,
+    /// Lower publication date bound.
+    #[serde(rename = "--since")]
+    Since,
+    /// Upper publication date bound.
+    #[serde(rename = "--until")]
+    Until,
+    /// Publication type selector.
+    #[serde(rename = "--type")]
+    Type,
+    /// Native date ordering.
+    #[serde(rename = "--sort date")]
+    DateSort,
+}
+impl ArticleSearch {
+    /// Whether any named unsupported capability is requested.
+    pub fn rejects(&self, filters: &[ArticleFilter]) -> Option<ArticleFilter> {
+        filters.iter().copied().find(|filter| match filter {
+            ArticleFilter::Text => self.0.text.is_some(),
+            ArticleFilter::Gene => self.0.gene.is_some(),
+            ArticleFilter::Variant => self.0.variant.is_some(),
+            ArticleFilter::Disease => self.0.disease.is_some(),
+            ArticleFilter::Drug => self.0.drug.is_some(),
+            ArticleFilter::Author => self.0.author.is_some(),
+            ArticleFilter::Journal => self.0.journal.is_some(),
+            ArticleFilter::Since => self.0.since.is_some(),
+            ArticleFilter::Until => self.0.until.is_some(),
+            ArticleFilter::Type => self.0.kind.is_some(),
+            ArticleFilter::DateSort => self.0.sort == ArticleSort::Date,
+        })
+    }
+}

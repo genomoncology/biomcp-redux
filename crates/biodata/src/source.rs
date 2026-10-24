@@ -67,6 +67,8 @@ canonical_enum! {
         PubMed => "pubmed",
         /// Europe PMC.
         EuropePmc => "europepmc",
+        /// Semantic Scholar.
+        SemanticScholar => "semantic-scholar",
         /// NIH iCite.
         Icite => "icite",
         /// PubTator.
