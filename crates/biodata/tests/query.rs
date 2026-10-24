@@ -50,3 +50,28 @@ fn search_checks_selectors_and_page_bounds_at_both_entry_points() {
     assert_eq!(query.offset(), 0);
     assert_eq!(query.at_offset(50).offset(), 50);
 }
+
+/// Checked query transformations are a public API contract shared by CLI and MCP.
+#[test]
+fn term_drops_preserve_every_other_selector_and_restart_the_pool() {
+    let original = json!({"text":"words", "gene":"NF2", "variant":"K322",
+        "disease":"meningioma", "drug":"drug words", "author":"author words",
+        "journal":"journal words", "since":"2000", "until":"2020", "type":"review",
+        "source":["pubmed","europepmc"], "sort":"date", "open_access":true,
+        "no_preprints":true, "retracted":"exclude", "offset":50,"pool":"old", "limit":20});
+    let query: biodata::ArticleSearch = serde_json::from_value(original.clone()).unwrap();
+    let drops = query.term_drops();
+    assert_eq!(drops.len(), 4);
+    for (next, removed) in drops.iter().zip(["text", "variant", "disease", "drug"]) {
+        let mut expected = original.clone();
+        let fields = expected.as_object_mut().unwrap();
+        fields.remove(removed);
+        fields.remove("pool");
+        fields.insert("offset".into(), json!(0));
+        assert_eq!(serde_json::to_value(next).unwrap(), expected);
+    }
+    for request in [json!({"gene":"NF2"}), json!({"text":"two words", "gene":"NF2"})] {
+        let query: biodata::ArticleSearch = serde_json::from_value(request).unwrap();
+        assert!(query.term_drops().is_empty());
+    }
+}
