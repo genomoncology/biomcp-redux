@@ -50,8 +50,8 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
-mod variant_filters;
 mod variant_civic;
+mod variant_filters;
 mod variant_hotspots;
 mod variant_search;
 

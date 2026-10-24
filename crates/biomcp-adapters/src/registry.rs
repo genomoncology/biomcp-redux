@@ -16,6 +16,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
+    &crate::hotspots::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,

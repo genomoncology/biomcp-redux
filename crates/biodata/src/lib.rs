@@ -151,7 +151,10 @@ pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
 
-pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource};
+pub use query::{
+    MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchField,
+    VariantSearchSource,
+};
 pub use response::VariantPage;
 
 pub use query::{CivicClaimKind, VariantSection};
@@ -168,4 +171,8 @@ pub use variant::{
 };
 
 pub use response::ComponentHealth;
-pub use variant::{ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent, VariantConservation, VariantCosmic, VariantPredictors};
+pub use variant::{
+    ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity,
+    CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent,
+    VariantConservation, VariantCosmic, VariantPredictors,
+};

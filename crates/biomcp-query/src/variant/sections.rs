@@ -36,29 +36,35 @@ pub(super) fn apply(
             let candidates = std::slice::from_ref(&*candidate);
             match section {
                 VariantSection::Civic => {
-                    sections.civic = Some(collected.keep(
-                        permitted(cx, section, || {
-                            super::civic::section(cx, query, candidates, *deadline)
-                        }),
-                    ))
+                    sections.civic = Some(collected.keep(permitted(cx, section, || {
+                        super::civic::section(cx, query, candidates, *deadline)
+                    })))
                 }
                 VariantSection::Hotspots => {
-                    sections.hotspots = Some(collected.keep(
-                        permitted(cx, section, || {
-                            super::hotspots::section(cx, query, candidates, *deadline)
-                        }),
-                    ))
+                    sections.hotspots = Some(collected.keep(permitted(cx, section, || {
+                        super::hotspots::section(cx, query, candidates, *deadline)
+                    })))
                 }
                 VariantSection::Oncokb => {
-                    sections.oncokb = Some(collected.keep(
-                        permitted(cx, section, || {
-                            super::oncokb::section(cx, query, candidates, *deadline)
-                        }),
-                    ));
+                    sections.oncokb = Some(collected.keep(permitted(cx, section, || {
+                        super::oncokb::section(cx, query, candidates, *deadline)
+                    })));
                 }
-                VariantSection::Predict => { sections.predict = Some(collected.keep(super::predict::section(cx, query, candidates, deadline))); }
-                VariantSection::Conservation => { sections.conservation = Some(collected.keep(super::conservation::section(cx, query, candidates, deadline))); }
-                VariantSection::Cosmic => { sections.cosmic = Some(collected.keep(super::cosmic::section(cx, query, candidates, deadline))); }
+                VariantSection::Predict => {
+                    sections.predict = Some(
+                        collected.keep(super::predict::section(cx, query, candidates, deadline)),
+                    );
+                }
+                VariantSection::Conservation => {
+                    sections.conservation = Some(collected.keep(super::conservation::section(
+                        cx, query, candidates, deadline,
+                    )));
+                }
+                VariantSection::Cosmic => {
+                    sections.cosmic = Some(
+                        collected.keep(super::cosmic::section(cx, query, candidates, deadline)),
+                    );
+                }
                 _ => {}
             }
         }
@@ -76,7 +82,12 @@ struct Collected {
 }
 impl Collected {
     fn keep<T>(&mut self, value: Result<T>) -> Section<T> {
-        retain(value, &mut self.sources, &mut self.problems, &mut self.local)
+        retain(
+            value,
+            &mut self.sources,
+            &mut self.problems,
+            &mut self.local,
+        )
     }
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {

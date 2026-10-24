@@ -2,13 +2,13 @@
 mod civic;
 mod components;
 mod conservation;
-mod cosmic;
-mod predict;
 mod continuations;
+mod cosmic;
 mod direct;
 mod hotspots;
 pub mod normalize;
 mod oncokb;
+mod predict;
 pub mod recurrence;
 pub mod search;
 mod sections;

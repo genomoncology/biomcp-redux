@@ -74,7 +74,12 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     for hit in page.hits {
         let id = hit.id.clone();
         let build = super::search_build::source_build(&hit);
-        let mapped = map::candidates(vec![hit], id.as_str(), build, !super::components::disabled_on_leg(leg, "clinvar"));
+        let mapped = map::candidates(
+            vec![hit],
+            id.as_str(),
+            build,
+            !super::components::disabled_on_leg(leg, "clinvar"),
+        );
         rows.value.extend(mapped.value);
         rows.problems.extend(mapped.problems);
     }

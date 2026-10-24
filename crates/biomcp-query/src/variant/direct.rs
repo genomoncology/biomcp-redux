@@ -60,7 +60,8 @@ pub(super) fn get(
         sections: None,
         component_terms: Box::default(),
     }];
-    let (sources, problems, local) = super::sections::apply(cx, query, &mut candidates, &mut deadline);
+    let (sources, problems, local) =
+        super::sections::apply(cx, query, &mut candidates, &mut deadline);
     let status = if sources.is_empty()
         || sources
             .iter()

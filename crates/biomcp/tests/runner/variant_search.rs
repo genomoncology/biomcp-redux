@@ -5,7 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("variant-search/component-terms-preserve-comparable-payload", || terms_budget().map_err(Into::into)),
+        Trial::test(
+            "variant-search/component-terms-preserve-comparable-payload",
+            || terms_budget().map_err(Into::into),
+        ),
         Trial::test(
             "variant-search/source-coordinate-build-and-unknown-metadata",
             || metadata().map_err(Into::into),
