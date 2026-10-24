@@ -181,6 +181,50 @@
         ]
       },
       "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "citation-evidence"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "citation-evidence"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "citation-evidence"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 5000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "recommendations"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "recommendations"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "recommendations"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 5000
     }
   ]
 }

@@ -337,6 +337,8 @@ fn discovery() -> Check {
         "article supplement",
         "article citations",
         "article references",
+        "article citation-evidence",
+        "article recommendations",
     ] {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));

@@ -52,6 +52,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("article/edges/window.yaml", 0),
         ("article/citations/references.yaml", 0),
         ("article/edges/references.yaml", 0),
+        ("article/evidence/source.yaml", 0),
+        ("article/evidence/source.yaml", 1),
+        ("article/recommendations/single.yaml", 0),
+        ("article/recommendations/multi.yaml", 0),
     ] {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());

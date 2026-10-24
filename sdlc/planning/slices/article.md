@@ -607,7 +607,7 @@ These commands restore 0.9's Semantic Scholar capabilities as pivots. Each takes
 
 On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 KB, with `next` 1,000; the second returned the last 332, so Semantic Scholar lists 1,332 citing papers. 501 of the first 1,000 carried contexts, 65 were marked influential and 885 carried a PubMed ID. Intents counted 398 `background`, 13 `result` and 8 `methodology`. References for 33123537 (CC BY) returned 116 rows, 80 with contexts. References for 34096690 returned 38 rows and no contexts, and its phase 1 reference 32955176 carried no PubMed ID in Semantic Scholar, only a title, so a publisher can withhold contexts.
 
-**`article citation-evidence <CITING> <CITED>`.** BioMCP reads the citing paper's references from Semantic Scholar, as above, and keeps the row whose PubMed ID equals the cited PMID, or whose DOI equals the cited paper's DOI from ESummary. The reply holds every context, the intents and the influential flag. For 33123537 citing 17611497 on 2026-10-24, Semantic Scholar gave 6 contexts, intent `background` and `isInfluential` true. A pair with no matching row is `empty` with the notice `not_in_references`. A matching row with no contexts is `empty` with the notice `no_contexts`, as for 34096690 and 32955176. With `--fulltext`, BioMCP also reads the citing paper's JATS from the PMC OA bucket, finds the `ref` whose `pub-id` equals the cited PMID or DOI, and returns each paragraph that holds an `xref` to it, as Markdown with its part number. PMC7573235, the JATS of 33123537, cites 17611497 as reference B17 in 7 paragraphs. A citing paper with no PMCID or outside the bucket gives that part `not_applicable` or `unavailable` with reason `not_open`, beside Semantic Scholar's contexts.
+**`article citation-evidence <CITING> <CITED>`.** BioMCP reads the citing paper's references from Semantic Scholar, as above, and keeps the row whose PubMed ID equals the cited PMID, or whose DOI equals the cited paper's DOI from ESummary. The reply preserves every context, the intents and the influential flag across bounded pages. Oversized source strings split into exact UTF-8 fragments, with their original positions and character offsets; concatenating them reconstructs the original string without rewriting source Markdown. Stored continuation positions preserve the checked source scan and make the warm continuation network-free. For 33123537 citing 17611497 on 2026-10-24, Semantic Scholar gave 6 contexts, intent `background` and `isInfluential` true. A pair with no matching row is `empty` with the notice `not_in_references`. A matching row with no contexts is `empty` with the notice `no_contexts`, as for 34096690 and 32955176. With `--fulltext`, BioMCP also reads the citing paper's JATS from the PMC OA bucket, finds the `ref` whose `pub-id` equals the cited PMID or DOI, and returns each paragraph that holds an `xref` to it, as Markdown with its part number. PMC7573235, the JATS of 33123537, cites 17611497 as reference B17 in 7 paragraphs. A citing paper with no PMCID or outside the bucket gives that part `not_applicable` or `unavailable` with reason `not_open`, beside Semantic Scholar's contexts.
 
 **`article recommendations <ID>... [--negative ID]...`.** One seed and no negatives asks `GET /recommendations/v1/papers/forpaper/<ID>`; several seeds or any negative asks `POST /recommendations/v1/papers` with `positivePaperIds` and `negativePaperIds`. Both send `fields=externalIds,title,year` and `limit`. The page keeps Semantic Scholar's order, and its query echo says recommendations come from Semantic Scholar's pool of recent papers. As Ian ruled, a recommended paper may not share the seed's gene or topic; it serves discovery at the edges. On 2026-10-24, `forpaper/PMID:34096690` returned five 2026 papers, among them 42745055 and 42685317, and the POST with 34096690 and 32955176 against 33433946 returned the same first two. `forpaper/PMID:17611497` returned `{"recommendedPapers": []}`, which gives a complete page with total 0 and the notice `no_recommendations`.
 
@@ -733,7 +733,7 @@ Every E-utilities request sends `tool=biomcp`, and sends `email` only when the u
 
 ### How it was measured
 
-Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a scratch script built each 1.0 output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-23: PubMed EFetch and ESearch, LitVar2, Europe PMC, iCite, PubTator3, the PMC OA bucket and NCBI EFetch PMC, whose JATS matches the OA bucket's. Search pages hold the first ten of each strategy's order as section 3 measured them, in the header shape of section 5, so their sizes are estimates from pages of that shape. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown, with `--no-cache`.
+Tokens are estimated as bytes divided by 4. The original investigation used a scratch script to build each estimated 1.0 output in the shape section 5 gives, as compact JSON with nulls and empty lists left out, from live replies on 2026-10-23: PubMed EFetch and ESearch, LitVar2, Europe PMC, iCite, PubTator3, the PMC OA bucket and NCBI EFetch PMC, whose JATS matches the OA bucket's. Search pages hold the first ten of each strategy's order as section 3 measured them, in the header shape of section 5, so their sizes are estimates from pages of that shape. The 0.9.3 numbers are the real outputs of the same questions, in `--json` and in Markdown, with `--no-cache`.
 
 "Facts" counts what a careful answer needs, checked as exact text in each output. For a search these are the key PMIDs on page one and a total. For a card they are the identifiers, date, first author, a key abstract word and the journal.
 
@@ -761,31 +761,32 @@ Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a 
 
 ### Token table, 1.0 against 0.9.3
 
-| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | 1.0 tokens | 1.0 facts |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `search article "AKT1 E17K"` (default, PubMed) | 3 | 1307 | 0 | 675 | 0 | about 1000 | 2 |
-| `search article "AKT1 E17K" --sort citations` | 3 | | | | | about 1050 | 2 |
-| `search article "KRAS G12C sotorasib lung"` | 3 | 1305 | 0 | 656 | 0 | about 940 | 3 |
-| `search article "HER2-low trastuzumab deruxtecan"` | 2 | 1252 | 0 | 651 | 0 | about 1020 | 2 |
-| `search article "IDH1 R132H glioma"` (default) | 2 | 1253 | 0 | 673 | 0 | about 1000 | 1 |
-| `search article --gene IDH1 --variant R132H --source litvar --sort citations` | 2 | | | | | about 1050 | 2 |
-| `search article "TP53 R337H adrenocortical"` (default) | 2 | 1363 | 0 | 678 | 0 | about 1150 | 1 |
-| `search article "BRCA1 185delAG Ashkenazi"` (default) | 2 | 1230 | 0 | 655 | 0 | about 1050 | 1 |
-| `search article "BRCA1 185delAG Ashkenazi" --sort citations` | 2 | | | | | about 1100 | 2 |
-| `search article "next-generation sequencing recommendations advanced cancer ESMO"` | 2 | 1373 | 1 | 690 | 1 | about 1060 | 2 |
-| `search article "amivantamab lazertinib after osimertinib"` | 2 | 1354 | 0 | 712 | 0 | about 1170 | 2 |
-| `search article "xqzvw zzyzxq kinase"` | 2 | 1168 | 0 | 706 | 0 | about 1000 | 2 |
-| `variant articles "AKT1 E17K"` against `search article --gene AKT1 --variant E17K --source pubmed,litvar --sort citations` | 3 | 11378 | 0 | 760 | 0 | about 1100 | 2 |
-| `get article 17611497` | 6 | 1498 | 6 | 805 | 6 | 480 | 6 |
-| `get article 10.1056/NEJMoa1203421` | 4 | 2020 | 4 | 1045 | 4 | 733 | 4 |
-| `get article PMC6181777` | 4 | 1247 | 3 | 796 | 3 | 484 | 4 |
-| `get article 17057710` (retracted) | 2 | 872 | 1 | 669 | 1 | 469 | 2 |
-| `get article 99999999` | 1 | 47 | 1 | error | 0 | 57 | 1 |
-| `get article 30209399` with supplements (0.9 `assets`) | 3 | 12685 | 3 | refused | 0 | 771 | 3 |
-| Supplement find, BRCA1 F1761I (0.9 `supplement-search`) | 4 | 649 | 4 | refused | 0 | 165 | 4 |
-| `article citations 17611497`, first page | 2 | 1811 | 1 | 666 | 1 | 779 | 2 |
-| `get article 17611497 annotations` | 3 | 1340 | 3 | 390 | 3 | 679 | 3 |
-| `get article 34096690 fulltext` | 2 | 1562, text on disk | 1 | 259 | 1 | 1037 with outline | 2 |
+| Case | Facts needed | 0.9 JSON tokens | 0.9 JSON facts | 0.9 Markdown tokens | 0.9 Markdown facts | 1.0 tokens | 1.0 facts | 1.0 shipped tokens |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `search article "AKT1 E17K"` (default, PubMed) | 3 | 1307 | 0 | 675 | 0 | about 1000 | 2 | 1,072; search/pubmed-floor.yaml |
+| `search article "AKT1 E17K" --sort citations` | 3 | | | | | about 1050 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "KRAS G12C sotorasib lung"` | 3 | 1305 | 0 | 656 | 0 | about 940 | 3 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "HER2-low trastuzumab deruxtecan"` | 2 | 1252 | 0 | 651 | 0 | about 1020 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "IDH1 R132H glioma"` (default) | 2 | 1253 | 0 | 673 | 0 | about 1000 | 1 | Unknown for this exact question; the original recording is absent or external. |
+| `search article --gene IDH1 --variant R132H --source litvar --sort citations` | 2 | | | | | about 1050 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "TP53 R337H adrenocortical"` (default) | 2 | 1363 | 0 | 678 | 0 | about 1150 | 1 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "BRCA1 185delAG Ashkenazi"` (default) | 2 | 1230 | 0 | 655 | 0 | about 1050 | 1 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "BRCA1 185delAG Ashkenazi" --sort citations` | 2 | | | | | about 1100 | 2 | 1,095; citations/brca1.yaml |
+| `search article "next-generation sequencing recommendations advanced cancer ESMO"` | 2 | 1373 | 1 | 690 | 1 | about 1060 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "amivantamab lazertinib after osimertinib"` | 2 | 1354 | 0 | 712 | 0 | about 1170 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `search article "xqzvw zzyzxq kinase"` | 2 | 1168 | 0 | 706 | 0 | about 1000 | 2 | 959; search/not-found-words.yaml |
+| `variant articles "AKT1 E17K"` against `search article --gene AKT1 --variant E17K --source pubmed,litvar --sort citations` | 3 | 11378 | 0 | 760 | 0 | about 1100 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `get article 17611497` | 6 | 1498 | 6 | 805 | 6 | 480 | 6 | Unknown for this exact question; the original recording is absent or external. |
+| `get article 10.1056/NEJMoa1203421` | 4 | 2020 | 4 | 1045 | 4 | 733 | 4 | Unknown for this exact question; the original recording is absent or external. |
+| `get article PMC6181777` | 4 | 1247 | 3 | 796 | 3 | 484 | 4 | Unknown for this exact question; the original recording is absent or external. |
+| `get article 17057710` (retracted) | 2 | 872 | 1 | 669 | 1 | 469 | 2 | Unknown for this exact question; the original recording is absent or external. |
+| `get article 99999999` | 1 | 47 | 1 | error | 0 | 57 | 1 | 57; get/not-found.yaml |
+| `get article 30209399` with supplements (0.9 `assets`) | 3 | 12685 | 3 | refused | 0 | 771 | 3 | Unknown for this exact question; the original recording is absent or external. |
+| Supplement find, BRCA1 F1761I (0.9 `supplement-search`) | 4 | 649 | 4 | refused | 0 | 165 | 4 | Unknown for this exact question; the original recording is absent or external. |
+| `article citations 17611497`, first page | 2 | 1811 | 1 | 666 | 1 | 779 | 2 | 993; citations/citing.yaml |
+| `get article 17611497 annotations` | 3 | 1340 | 3 | 390 | 3 | 679 | 3 | Unknown for this exact question; the original recording is absent or external. |
+| `get article 34096690 fulltext` | 2 | 1562, text on disk | 1 | 259 | 1 | 1037 with outline | 2 | Unknown for this exact question; the original recording is absent or external. |
+The shipped column is measured from replayed binary outputs by the runner's compact-JSON bytes divided by four, rounded up. Each named file lives under `tests/cases/article/`. Different-paper cards and synthetic source successes do not establish a comparison for an original licensed question. Current representative CC BY cases have their own enforced ceilings: get/card.yaml returns33123537, get/doi.yaml and get/pmcid.yaml return28944238, and get/retraction.yaml returns35061708. Their sizes do not replace the original baselines.
 
 The citations facts are the total and the count source. 0.9 states neither total.
 
@@ -897,12 +898,12 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 59 | Citation contexts (PMIDs 33123537, 17611497) | `article references 33123537 --source semantic-scholar`, walked | total 116; the item for 17611497 carries intents [background], influential true, one context and `contexts.total` 6; items with no PubMed ID carry `types_unknown`; each page within the page budget | 7,200 bytes per page | edges/references.yaml |
 | 60 | Many citing papers, outside the repo (PMID 17611497) | `article citations 17611497 --source semantic-scholar` | two recorded calls; total 1,332; the first item's year is 2026; `query.source` semantic-scholar | 7,200 bytes per page | Outside the repo: original licensed contexts; edges/window.yaml proves bounded paging with synthetic source text. |
 | 61 | A publisher withholds contexts (PMID 34096690) | `article references 34096690 --source semantic-scholar` | total 38; no item carries contexts | 7,200 bytes per page | edges/no-contexts.yaml |
-| 62 | Citation evidence (PMIDs 33123537, 17611497) | `article citation-evidence 33123537 17611497` | 6 contexts; intents [background]; influential true | 3,600 bytes | Awaiting delivered citation-evidence cases. |
-| 63 | Citation evidence in the full text | `article citation-evidence 33123537 17611497 --fulltext` | Semantic Scholar's 6 contexts, and 7 paragraphs from PMC7573235 that cite reference B17, each as Markdown with its part number | 16,000 bytes | Awaiting delivered full-text citation-evidence cases. |
-| 64 | Citation evidence with no contexts (PMIDs 34096690, 32955176) | `article citation-evidence 34096690 32955176` | the row matches by DOI, 10.1056/NEJMoa1917239 against Semantic Scholar's 10.1056/NEJMOA1917239, compared without ASCII case; state empty with notice no_contexts | 1,200 bytes | Awaiting delivered no-context citation-evidence cases. |
-| 65 | Recommendations (PMID 34096690) | `article recommendations 34096690` | five items in the recorded order, 42745055 first; the query echo says the pool is Semantic Scholar's recent papers | 5,200 bytes | Awaiting delivered recommendations cases. |
-| 66 | Recommendations with a negative seed | `article recommendations 34096690 32955176 --negative 33433946` | one POST whose body holds both positive IDs and the negative one; 42745055 first | 5,200 bytes | Awaiting delivered negative-seed cases. |
-| 67 | No recommendations (PMID 17611497) | `article recommendations 17611497` | status complete; total 0; notice no_recommendations | 600 bytes | Awaiting delivered empty-recommendations case. |
+| 62 | Citation evidence (PMIDs 33123537, 17611497) | `article citation-evidence 33123537 17611497` | 6 contexts; intents [background]; influential true | 3,600 bytes | evidence/source.yaml |
+| 63 | Citation evidence in the full text | `article citation-evidence 33123537 17611497 --fulltext` | Semantic Scholar's 6 contexts, and 7 paragraphs from PMC7573235 that cite reference B17, each as Markdown with its part number | 16,000 bytes | evidence/source.yaml; runner/evidence.rs |
+| 64 | Citation evidence with no contexts (PMIDs 34096690, 32955176) | `article citation-evidence 34096690 32955176` | the row matches by DOI, 10.1056/NEJMoa1917239 against Semantic Scholar's 10.1056/NEJMOA1917239, compared without ASCII case; state empty with notice no_contexts | 1,200 bytes | evidence/doi.yaml |
+| 65 | Recommendations (PMID 34096690) | `article recommendations 34096690` | five items in the recorded order, 42745055 first; the query echo says the pool is Semantic Scholar's recent papers | 5,200 bytes | recommendations/single.yaml |
+| 66 | Recommendations with a negative seed | `article recommendations 34096690 32955176 --negative 33433946` | one POST whose body holds both positive IDs and the negative one; 42745055 first | 5,200 bytes | recommendations/multi.yaml |
+| 67 | No recommendations (PMID 17611497) | `article recommendations 17611497` | status complete; total 0; notice no_recommendations | 600 bytes | recommendations/source.yaml |
 | 68 | Semantic Scholar rate limit on a pivot | `article citations 33123537 --source semantic-scholar` with a recorded 429 on every try | failed with reason rate_limited; a `key` step naming semantic-scholar; no key appears anywhere in the output | 600 bytes | edges/failure-429.yaml |
 | 69 | PDF full text, outside the repo (PMID 41351423, CC BY) | `get article 41351423 pdf`, then `article text 41351423 --pdf --find E17K` | `pdf` state data with origin pdf, status gold, license cc_by, 16 pages and parts; hits name their pages and carry the `pdf_text` notice | 3,500 bytes, then 6,000 bytes | PDF design pending the PM ruling; no shipped assertion. |
 | 70 | PDF states | `get article 17611497 pdf`, `get article 22663011 pdf` and `get article 33377972 pdf` on recorded replies | `unavailable` with reasons not_open (no download request), rejected (HTTP 403) and not_pdf (HTML body) | 3,000 bytes each | PDF design pending the PM ruling; no shipped assertion. |
