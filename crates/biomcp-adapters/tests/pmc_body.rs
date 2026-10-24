@@ -18,7 +18,8 @@ fn bounded_parts_preserve_original_unicode_rows_and_escapes() -> Result<(), Box<
     assert_eq!(reconstructed, document.body.rows);
     assert!(reconstructed.contains(&format!("Large {}", "αβ\\\" ".repeat(5000))));
     assert!(reconstructed.contains(&"AXIN2 row\tValue".to_owned()));
-    assert_eq!(document.body.parts.last().ok_or("missing table")?.meta.kind, biodata::TextPartKind::Table);
+    assert!(reconstructed.contains(&format!("Large cell\t{}", "β".repeat(13000))));
+    assert!(reconstructed.contains(&"Trailing body text.".to_owned()));
     assert_eq!(document.version, 12);
     Ok(())
 }
