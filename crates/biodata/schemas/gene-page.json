@@ -1,0 +1,441 @@
+{
+  "$defs": {
+    "Cytoband": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "GeneHeader": {
+      "additionalProperties": false,
+      "description": "Enough gene identity to choose a search result.",
+      "properties": {
+        "hgnc_id": {
+          "$ref": "#/$defs/HgncId",
+          "description": "HGNC identifier."
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cytoband"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A single stated band, if available."
+        },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "HGNC locus group."
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Match"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Match information when this header answers an input."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Gene name."
+        },
+        "status": {
+          "$ref": "#/$defs/GeneStatus",
+          "description": "HGNC record status."
+        },
+        "symbol": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Source-preserved symbol."
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol",
+        "locus_group",
+        "status",
+        "name"
+      ],
+      "type": "object"
+    },
+    "GenePage": {
+      "additionalProperties": false,
+      "description": "One page of gene headers.",
+      "properties": {
+        "items": {
+          "description": "Headers after ranking and paging.",
+          "items": {
+            "$ref": "#/$defs/GeneHeader"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "GeneSearch": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "query"
+          ]
+        },
+        {
+          "required": [
+            "band"
+          ]
+        }
+      ],
+      "description": "Search genes by text, cytoband, or their intersection.",
+      "properties": {
+        "band": {
+          "$ref": "#/$defs/Cytoband",
+          "description": "A cytoband prefix."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Number of results per page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of results to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "Words matched against symbols, previous symbols, aliases and names.",
+          "x-positional": 0
+        }
+      },
+      "type": "object"
+    },
+    "GeneStatus": {
+      "description": "HGNC approval status.",
+      "enum": [
+        "approved",
+        "withdrawn"
+      ],
+      "type": "string"
+    },
+    "GeneSymbol": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "LocusGroup": {
+      "description": "HGNC locus group, separate from a missing source value.",
+      "enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
+      ],
+      "type": "string"
+    },
+    "Match": {
+      "additionalProperties": false,
+      "description": "A source-stated match, preserving the text that matched.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/MatchKind",
+          "description": "The match category."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "The source text that matched the input."
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "MatchKind": {
+      "description": "How a source matched a gene input.",
+      "enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
+      ],
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search page counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string"
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "rate_limited",
+        "unavailable",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing"
+      ],
+      "type": "string"
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "pubmed",
+        "europepmc",
+        "pubtator",
+        "ctgov",
+        "civic"
+      ],
+      "type": "string"
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.gene_page/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/GeneSearch",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GenePage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.gene_page/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

@@ -150,3 +150,41 @@ fn compatibility_tracks_array_items_and_each_tagged_variant() {
     let retyped = json!({"$id":"biodata.example/1","oneOf":[branch("a",json!({"name":{"type":"integer"}})),branch("b",json!({"name":{"type":"string"}}))]});
     assert!(check(&old, &retyped).is_err());
 }
+
+#[test]
+fn compatibility_preserves_consumed_boolean_and_array_bounds() {
+    let old = json!({"$id":"biodata.example/1","type":"array","minItems":1,"maxItems":20,"items":{"type":"boolean"}});
+    assert!(check(&old, &old).is_ok());
+    for (key, value) in [("minItems", json!(2)), ("maxItems", json!(19))] {
+        let mut new = old.clone();
+        new[key] = value;
+        assert!(check(&old, &new).is_err());
+    }
+    let mut relaxed = old.clone();
+    relaxed["minItems"] = json!(0);
+    relaxed["maxItems"] = json!(21);
+    assert!(check(&old, &relaxed).is_ok());
+}
+
+#[test]
+fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
+    let base = json!({"$id":"biodata.example/1","type":"object", "properties":{"query":{"type":"string"},"band":{"type":"string"}}, "anyOf":[{"required":["query"]},{"required":["band"]}]});
+    assert!(check(&base, &base).is_ok());
+    let mut narrow = base.clone();
+    narrow["anyOf"] = json!([{"required":["query"]}]);
+    assert!(check(&base, &narrow).is_err());
+    assert!(check(&narrow, &base).is_ok());
+    let referenced = |contract: &Value| json!({"$id":"biodata.example/1", "$defs":{"Search":contract}, "$ref":"#/$defs/Search"});
+    assert!(check(&referenced(&base), &referenced(&narrow)).is_err());
+    for branches in [
+        json!([]),
+        json!([{"required":[]}]),
+        json!([{"required":["missing"]}]),
+        json!([{"required":["query"], "type":"object"}]),
+        json!([{"properties":{}}]),
+    ] {
+        let mut invalid = base.clone();
+        invalid["anyOf"] = branches;
+        assert!(check(&invalid, &invalid).is_err());
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "feature": "gene-commands",
+  "story": "absent",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "NOTAGENE"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/result/items/0/answer/resolution": "not_found",
+        "/sources/*/source": [
+          "hgnc"
+        ]
+      },
+      "max_bytes": 400,
+      "exit": 1,
+      "is_error": true
+    }
+  ]
+}

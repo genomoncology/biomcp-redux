@@ -3,7 +3,9 @@
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
       "enum": [
-        "usage.schema"
+        "usage.schema",
+        "usage.arguments",
+        "local.failure"
       ],
       "type": "string"
     },
@@ -25,7 +27,9 @@
     },
     "ErrorMessage": {
       "enum": [
-        "expected schema <known artifact id>"
+        "expected schema <known artifact id>",
+        "expected a supported command with checked arguments",
+        "local configuration, cache or recording failed"
       ],
       "type": "string"
     },
@@ -38,7 +42,8 @@
     "ErrorStatus": {
       "description": "The status of an invalid schema request.",
       "enum": [
-        "usage"
+        "usage",
+        "local"
       ],
       "type": "string"
     }

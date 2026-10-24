@@ -32,15 +32,22 @@ struct Server {
     sender: mpsc::SyncSender<Event>,
     active: BTreeMap<String, Call>,
     legacy: bool,
+    globals: crate::grammar::Globals,
+    fetch: Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
 }
 
-pub(crate) fn serve() -> io::Result<()> {
+pub(crate) fn serve(
+    globals: crate::grammar::Globals,
+    fetch: Result<biomcp_fetch::Fetch, ()>,
+) -> io::Result<()> {
     let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);
     start_input(sender.clone())?;
     let mut server = Server {
         sender,
         active: BTreeMap::new(),
         legacy: false,
+        globals,
+        fetch: fetch.map(std::sync::Arc::new),
     };
     let mut output = io::stdout().lock();
     let mut eof = false;
@@ -177,10 +184,12 @@ impl Server {
         }
         let sender = self.sender.clone();
         let worker_key = key.clone();
+        let globals = self.globals.clone();
+        let fetch = self.fetch.clone();
         let worker = thread::Builder::new()
             .name("mcp-tool".into())
             .spawn(move || {
-                let outcome = crate::command::dispatch(&args);
+                let outcome = crate::command::tool(&args, &globals, &fetch);
                 let _ = sender.send(Event::Completed(worker_key, outcome));
             })?;
         self.active.insert(

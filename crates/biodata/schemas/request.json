@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "Cytoband": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.request/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One checked query. Housekeeping actions are separate.",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Get gene identities and annotations.",
+      "properties": {
+        "command": {
+          "const": "get_gene",
+          "type": "string"
+        },
+        "input": {
+          "description": "Gene symbols or checked identifiers, in input order.",
+          "items": {
+            "$ref": "#/$defs/GeneInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "query"
+          ]
+        },
+        {
+          "required": [
+            "band"
+          ]
+        }
+      ],
+      "description": "Search gene headers.",
+      "properties": {
+        "band": {
+          "$ref": "#/$defs/Cytoband",
+          "description": "A cytoband prefix."
+        },
+        "command": {
+          "const": "search_gene",
+          "type": "string"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Number of results per page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of results to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "Words matched against symbols, previous symbols, aliases and names.",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "Request"
+}

@@ -1,0 +1,27 @@
+{
+  "feature": "gene-commands",
+  "story": "mll",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "MLL"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:7132",
+        "/result/items/0/answer/gene/symbol": "KMT2A",
+        "/result/items/0/answer/match/kind": "previous_symbol",
+        "/sources/*/source": [
+          "hgnc",
+          "mygene"
+        ],
+        "/result/items/0/answer/match/text": "MLL"
+      },
+      "max_bytes": 3000
+    }
+  ]
+}

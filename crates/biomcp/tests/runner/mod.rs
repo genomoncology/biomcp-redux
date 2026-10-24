@@ -1,4 +1,6 @@
 mod assertions;
+mod configuration;
+mod held_proxy;
 mod launch;
 mod mcp;
 mod negative_cases;
@@ -24,6 +26,7 @@ struct Case {
     #[serde(rename = "covers", default)]
     _covers: Vec<String>,
     story: String,
+    replay: Option<String>,
     #[serde(rename = "harvest", default)]
     _harvest: Option<String>,
     #[serde(rename = "verified", default)]
@@ -35,6 +38,8 @@ struct Case {
 #[serde(deny_unknown_fields)]
 struct Step {
     run: Option<Vec<String>>,
+    #[serde(default)]
+    offline: bool,
     mcp: Option<Vec<String>>,
     #[serde(default)]
     is_error: bool,
@@ -110,9 +115,20 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<(), String> {
         })
         .collect::<Result<Vec<_>, _>>()?;
     let environment = launch::Environment::new().map_err(|error| error.to_string())?;
+    let replay = case.replay.as_ref().map(|name| {
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/replies")
+            .join(name)
+    });
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
-        run_step(step, &environment, expectations, registry)
-            .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
+        run_step(
+            step,
+            &environment,
+            expectations,
+            registry,
+            replay.as_deref(),
+        )
+        .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?;
     }
     Ok(())
 }
@@ -122,13 +138,17 @@ fn run_step(
     environment: &launch::Environment,
     expectations: &assertions::Expectations<'_>,
     registry: &schema::Registry,
+    replay: Option<&std::path::Path>,
 ) -> Result<(), String> {
+    let globals = environment.globals(replay, step.offline);
     let cli = step
         .run
         .as_ref()
         .map(|args| {
+            let mut command_args = args.clone();
+            command_args.extend_from_slice(&globals);
             let output = environment
-                .command(env!("CARGO_BIN_EXE_biomcp"), args)
+                .command(env!("CARGO_BIN_EXE_biomcp"), &command_args)
                 .output()
                 .map_err(|error| error.to_string())?;
             if output.status.code() != Some(step.exit) {
@@ -150,7 +170,7 @@ fn run_step(
         })
         .transpose()?;
     if let Some(args) = &step.mcp {
-        let result = mcp::call(environment, args, step.is_error)?;
+        let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
@@ -165,5 +185,10 @@ fn run_step(
 }
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
-    protocol::trials()
+    let mut trials = protocol::trials();
+    trials.extend(configuration::trials());
+    trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
+        held_proxy::check().map_err(Into::into)
+    }));
+    trials
 }

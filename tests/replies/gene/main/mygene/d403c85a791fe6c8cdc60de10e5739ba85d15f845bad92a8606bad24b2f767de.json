@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "876960d8f70debf466469a523ac35e91f02a71f8c32dd4d3cc0f3cdd241a1fc2"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 74,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"3845","HGNC":"6407","_id":"3845","_version":1,"entrezgene":"3845","genomic_pos":{"chr":"12","end":25326473,"ensemblgene":"ENSG00000133703","start":25205246,"strand":-1},"genomic_pos_hg19":{"chr":"12","end":25403870,"start":25357723,"strand":-1},"summary":"This gene, a Kirsten ras oncogene homolog from the mammalian ras gene family, encodes a protein that is a member of the small GTPase superfamily. A single amino acid substitution is responsible for an activating mutation. The transforming protein that results is implicated in various malignancies, including lung adenocarcinoma, mucinous adenoma, ductal carcinoma of the pancreas and colorectal carcinoma. Alternative splicing leads to variants encoding two isoforms that differ in the C-terminal region. [provided by RefSeq, Jul 2008]."}]
+      }
+    }
+  ]
+}

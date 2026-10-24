@@ -21,13 +21,13 @@ Each slice updates these counts when its accounting lands.
 - [x] Rust standards, lints and ratchets in the gate
 - [x] Minimal biodata core types and conventions
 - [x] Transport: deadlines, source-key rate limits, retries, keyed sources, reply checks, cache
-- [ ] Record, replay and offline modes
+- [x] Record, replay and offline modes
 - [ ] SQLite store: reply cache, pools, bundle rows
-- [ ] Bundle sync with lock and budget
-- [ ] Schema generation, checked-in schemas and the compatibility check
-- [ ] JSON envelope, statuses, exit codes and next steps
+- [x] Bundle sync with lock and budget
+- [x] Schema generation, checked-in schemas and the compatibility check
+- [x] JSON envelope, statuses, exit codes and next steps
 - [ ] Markdown view over JSON
-- [ ] Outside-in runner with size ceilings and coverage floor
+- [x] Outside-in runner with size ceilings and coverage floor
 - [x] The one MCP tool over the CLI grammar
 - [ ] Release pipeline carried over from 0.9
 
@@ -62,8 +62,8 @@ Each entity below repeats these steps.
 - [ ] 0.9 accounting
 
 Sources:
-- [ ] HGNC (bundle, identity and names)
-- [ ] MyGene.info
+- [x] HGNC (bundle, identity and names)
+- [x] MyGene.info
 - [ ] UniProt
 - [ ] Reactome
 - [ ] CIViC

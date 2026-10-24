@@ -131,6 +131,10 @@ name = "biomcp"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "biomcp-adapters",
+ "biomcp-fetch",
+ "biomcp-query",
+ "clap",
  "jsonschema",
  "libtest-mimic",
  "serde",
@@ -171,6 +175,7 @@ name = "biomcp-query"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "rusqlite",
  "biomcp-adapters",
  "biomcp-fetch",
  "serde_json",

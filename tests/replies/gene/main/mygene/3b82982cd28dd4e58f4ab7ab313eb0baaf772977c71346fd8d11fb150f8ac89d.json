@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "7ecefe2c9415774868e9246c7f8b87f3d959414abba8374cdbfe61e4b87f3a30"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 71,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"4297","HGNC":"7132","_id":"4297","_version":1,"entrezgene":"4297","genomic_pos":{"chr":"11","end":118526832,"ensemblgene":"ENSG00000118058","start":118436456,"strand":1},"genomic_pos_hg19":[{"chr":"11","end":118397539,"start":118307205,"strand":1},{"chr":"HG122_PATCH","end":118397539,"start":118307205,"strand":1}],"summary":"This gene encodes a transcriptional coactivator that plays an essential role in regulating gene expression during early development and hematopoiesis. The encoded protein contains multiple conserved functional domains. One of these domains, the SET domain, is responsible for its histone H3 lysine 4 (H3K4) methyltransferase activity which mediates chromatin modifications associated with epigenetic transcriptional activation. This protein is processed by the enzyme Taspase 1 into two fragments, MLL-C and MLL-N. These fragments reassociate and further assemble into different multiprotein complexes that regulate the transcription of specific target genes, including many of the HOX genes. Multiple chromosomal translocations involving this gene are the cause of certain acute lymphoid leukemias and acute myeloid leukemias. Alternate splicing results in multiple transcript variants.[provided by RefSeq, Oct 2010]."}]
+      }
+    }
+  ]
+}

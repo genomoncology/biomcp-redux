@@ -21,6 +21,28 @@ impl Environment {
         Ok(Self { root })
     }
 
+    pub(super) fn globals(&self, replay: Option<&Path>, offline: bool) -> Vec<String> {
+        if offline {
+            vec![
+                "--offline".into(),
+                "--case-cache".into(),
+                self.root.path().join("case-cache").to_string_lossy().into(),
+            ]
+        } else if let Some(replay) = replay {
+            vec![
+                "--replay".into(),
+                replay.to_string_lossy().into(),
+                "--case-cache".into(),
+                self.root.path().join("case-cache").to_string_lossy().into(),
+            ]
+        } else {
+            Vec::new()
+        }
+    }
+    pub(super) fn root(&self) -> &Path {
+        self.root.path()
+    }
+
     // All case steps and launch-boundary proofs use this child-only boundary.
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
         let mut command = Command::new(program.as_ref());

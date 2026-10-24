@@ -39,6 +39,12 @@ fn registry() -> Vec<Contract> {
     }
     contracts! {
         ErrorEnvelope => ("error", "biomcp.error/1"),
+        GeneGet => ("gene-get", "biodata.gene-get/1"),
+        GeneSearch => ("gene-search", "biodata.gene-search/1"),
+        Request => ("request", "biodata.request/1"),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/1"),
+        Envelope<GenePage> => ("gene-page", "biomcp.gene_page/1"),
+        Envelope<SyncResult> => ("sync", "biomcp.sync/1"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),
@@ -123,5 +129,60 @@ fn checked_in_schemas_match_types() {
                 path.display()
             );
         }
+    }
+}
+
+#[test]
+fn consumed_queries_stay_inside_the_flat_command_grammar() {
+    for schema in [generate::<GeneGet>(), generate::<GeneSearch>()] {
+        assert_eq!(schema["type"], "object");
+        assert!(schema.get("oneOf").is_none());
+        if schema.get("anyOf").is_some() {
+            assert!(
+                compatibility::selectors(&schema)
+                    .expect("selector union")
+                    .is_some()
+            );
+        }
+        for property in schema["properties"]
+            .as_object()
+            .expect("query properties")
+            .values()
+        {
+            flat_value(&schema, property);
+        }
+    }
+}
+#[expect(
+    clippy::expect_used,
+    reason = "The grammar contract must fail on unresolved generated schema references"
+)]
+fn flat_value(root: &Value, node: &Value) {
+    if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
+        flat_value(
+            root,
+            root.pointer(reference.strip_prefix('#').expect("local reference"))
+                .expect("resolved reference"),
+        );
+    } else if let Some(branches) = node.get("anyOf").and_then(Value::as_array) {
+        assert_eq!(branches.len(), 2);
+        assert_eq!(
+            branches
+                .iter()
+                .filter(|branch| branch["type"] == "null")
+                .count(),
+            1
+        );
+        for branch in branches.iter().filter(|branch| branch["type"] != "null") {
+            flat_value(root, branch);
+        }
+    } else if node["type"] == "array" {
+        let items = node.get("items").expect("array items");
+        assert_ne!(items["type"], "array");
+        flat_value(root, items);
+    } else {
+        assert!(
+            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
+        );
     }
 }

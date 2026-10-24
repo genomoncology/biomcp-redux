@@ -26,7 +26,7 @@ pub struct ReplayCache(Arc<CaseCache>);
 #[derive(Debug)]
 struct CaseCache {
     cache: Arc<Cache>,
-    _directory: tempfile::TempDir,
+    _directory: Option<tempfile::TempDir>,
 }
 impl std::fmt::Debug for ReplayCache {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -40,12 +40,90 @@ impl ReplayCache {
         let cache = Arc::new(Cache::open(&directory.path().join("replay.sqlite"))?);
         Ok(Self(Arc::new(CaseCache {
             cache,
-            _directory: directory,
+            _directory: Some(directory),
+        })))
+    }
+    /// Exclusively create a marked case directory with a fixed cache filename.
+    pub fn create_case(path: &Path) -> Result<Self, CacheError> {
+        safe_path(path)?;
+        fs::create_dir(path).map_err(|_| CacheError::Database)?;
+        let result = (|| {
+            fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(path.join(".biomcp-case"))?
+                .write_all(b"biomcp.replay-case/1\n")?;
+            Ok::<_, std::io::Error>(())
+        })();
+        if result.is_err() {
+            let _ = fs::remove_dir_all(path);
+            return Err(CacheError::Database);
+        }
+        let cache = Arc::new(Cache::open(&path.join("replay.sqlite"))?);
+        Ok(Self(Arc::new(CaseCache {
+            cache,
+            _directory: None,
+        })))
+    }
+    /// Open only an owned marked case directory, refusing foreign or linked files.
+    pub fn open_case(path: &Path) -> Result<Self, CacheError> {
+        safe_path(path)?;
+        if !fs::symlink_metadata(path).is_ok_and(|meta| meta.is_dir()) {
+            return Err(CacheError::Version);
+        }
+        for entry in fs::read_dir(path).map_err(|_| CacheError::Database)? {
+            let entry = entry.map_err(|_| CacheError::Database)?;
+            let name = entry.file_name();
+            if ![
+                ".biomcp-case",
+                "replay.sqlite",
+                "replay.sqlite-wal",
+                "replay.sqlite-shm",
+            ]
+            .iter()
+            .any(|allowed| name == *allowed)
+                || !entry
+                    .file_type()
+                    .map_err(|_| CacheError::Database)?
+                    .is_file()
+            {
+                return Err(CacheError::Version);
+            }
+        }
+        if fs::read(path.join(".biomcp-case")).map_err(|_| CacheError::Version)?
+            != b"biomcp.replay-case/1\n"
+            || !path.join("replay.sqlite").is_file()
+        {
+            return Err(CacheError::Version);
+        }
+        let cache = Arc::new(Cache::open(&path.join("replay.sqlite"))?);
+        Ok(Self(Arc::new(CaseCache {
+            cache,
+            _directory: None,
         })))
     }
     pub(crate) fn cache(&self) -> Arc<Cache> {
         self.0.cache.clone()
     }
+}
+
+fn safe_path(path: &Path) -> Result<(), CacheError> {
+    for ancestor in path.ancestors() {
+        if ancestor
+            .components()
+            .any(|part| matches!(part, std::path::Component::ParentDir))
+        {
+            return Err(CacheError::Version);
+        }
+        match fs::symlink_metadata(ancestor) {
+            Ok(meta) if meta.file_type().is_symlink() => return Err(CacheError::Version),
+            Err(error) if error.kind() != std::io::ErrorKind::NotFound => {
+                return Err(CacheError::Database);
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize)]

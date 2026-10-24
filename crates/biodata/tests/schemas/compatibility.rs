@@ -8,7 +8,10 @@ struct Shape {
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
     required: BTreeSet<String>,
+    selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
+    minimum_items: u64,
+    maximum_items: Option<u64>,
     pattern: Option<String>,
     minimum: Option<u64>,
     maximum: Option<u64>,
@@ -37,9 +40,19 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || new
                 .maximum
                 .is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
+            || new.selectors.as_ref().is_some_and(|new| {
+                old.selectors.as_ref().is_none_or(|old| {
+                    old.iter()
+                        .any(|old| !new.iter().any(|new| new.is_subset(old)))
+                })
+            })
             || old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
+            || new.minimum_items > old.minimum_items
+            || new
+                .maximum_items
+                .is_some_and(|bound| old.maximum_items.is_none_or(|old| bound < old))
             || (!old.closed && new.closed)
             || match (&old.values, &new.values) {
                 (Some(old), Some(new)) => !old.is_subset(new),
@@ -95,7 +108,9 @@ fn visit(
         )?;
         refs.remove(reference);
     }
-    if let Some(branches) = node.get("anyOf") {
+    if let Some(branches) = node.get("anyOf")
+        && selectors(node)?.is_none()
+    {
         for branch in optional_branches(branches)? {
             visit(root, branch, path, shapes, refs)?;
         }
@@ -120,6 +135,9 @@ fn visit(
 
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
+    if let Some(selectors) = selectors(node)? {
+        shape.selectors = Some(selectors);
+    }
     if let Some(kind) = node.get("type") {
         let kinds = kind
             .as_array()
@@ -127,7 +145,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null", "integer", "array"].contains(&kind) {
+            if !["string", "object", "null", "integer", "array", "boolean"].contains(&kind) {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
@@ -142,7 +160,10 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(maximum.as_u64().ok_or("unsupported maximum")?);
     }
-    if node.get("format").is_some_and(|format| format != "uint32") {
+    if node
+        .get("format")
+        .is_some_and(|format| format != "uint32" && format != "uint64")
+    {
         return Err("unsupported format".into());
     }
     if let Some(values) = node.get("enum") {
@@ -168,6 +189,12 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
                 .insert(name.as_str().ok_or("invalid required name")?.into());
         }
     }
+    if let Some(bound) = node.get("minItems") {
+        shape.minimum_items = bound.as_u64().ok_or("invalid minItems")?;
+    }
+    if let Some(bound) = node.get("maxItems") {
+        shape.maximum_items = Some(bound.as_u64().ok_or("invalid maxItems")?);
+    }
     if let Some(minimum) = node.get("minLength") {
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
@@ -177,6 +204,42 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .ok_or("unsupported additionalProperties")?;
     }
     Ok(())
+}
+
+// The only object-level union permits at least one named selector.
+pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
+    if node["type"] != "object" || node.get("anyOf").is_none() {
+        return Ok(None);
+    }
+    let properties = node["properties"]
+        .as_object()
+        .ok_or("missing selector properties")?;
+    let branches = node["anyOf"].as_array().ok_or("invalid selector anyOf")?;
+    if branches.is_empty() {
+        return Err("empty selector anyOf".into());
+    }
+    let mut result = Vec::new();
+    for branch in branches {
+        let object = branch.as_object().ok_or("invalid selector branch")?;
+        if object.len() != 1 {
+            return Err("selector branches contain only required".into());
+        }
+        let names = branch["required"]
+            .as_array()
+            .ok_or("missing selector required")?;
+        let mut required = BTreeSet::new();
+        for name in names {
+            let name = name.as_str().ok_or("invalid selector name")?;
+            if !properties.contains_key(name) || !required.insert(name.to_owned()) {
+                return Err("unknown or repeated selector".into());
+            }
+        }
+        if required.is_empty() || result.contains(&required) {
+            return Err("empty or repeated selector branch".into());
+        }
+        result.push(required);
+    }
+    Ok(Some(result))
 }
 
 // Nullable generated references and strings remain distinct from tagged unions.
@@ -271,6 +334,10 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "minimum",
             "maximum",
             "format",
+            "default",
+            "minItems",
+            "maxItems",
+            "x-positional",
         ]
         .contains(&key.as_str())
         {
@@ -282,9 +349,19 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
     // one constraint at each path; refuse them instead of merging incorrectly.
     for composition in ["$ref", "anyOf", "oneOf"] {
         if object.contains_key(composition)
+            && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
             && object.keys().any(|key| {
                 key != composition
-                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
+                    && ![
+                        "$schema",
+                        "$id",
+                        "$defs",
+                        "title",
+                        "description",
+                        "x-positional",
+                        "default",
+                    ]
+                    .contains(&key.as_str())
             })
         {
             return Err(format!(

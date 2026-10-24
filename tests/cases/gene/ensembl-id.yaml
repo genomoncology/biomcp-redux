@@ -1,0 +1,27 @@
+{
+  "feature": "gene-commands",
+  "story": "ensembl id",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "ENSG00000157764"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+        "/result/items/0/answer/gene/symbol": "BRAF",
+        "/result/items/0/answer/match/kind": "ensembl_id",
+        "/sources/*/source": [
+          "hgnc",
+          "mygene"
+        ],
+        "/result/items/0/answer/match/text": "ENSG00000157764"
+      },
+      "max_bytes": 2800
+    }
+  ]
+}

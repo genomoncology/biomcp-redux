@@ -1,0 +1,24 @@
+use serde::{Deserialize, Serialize};
+super::status::wire_enum! {
+/// Purpose of an available next command.
+StepKind {
+    /// Read another page.
+    Page => "page",
+    /// Retry without a cached reply.
+    Fresh => "fresh",
+    /// Select a canonical identity.
+    Disambiguate => "disambiguate",
+    /// Synchronize a missing or stale identity file.
+    Sync => "sync",
+}
+}
+/// A command argument list spelled from a typed action.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Step {
+    /// Purpose of the action.
+    pub kind: StepKind,
+    /// CLI and MCP arguments.
+    pub args: Box<[Box<str>]>,
+}

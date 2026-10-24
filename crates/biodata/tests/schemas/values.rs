@@ -247,3 +247,25 @@ fn mane_schema_enforces_its_curated_versioned_transcript_boundary() {
         assert_eq!(serde_json::from_value::<ManeSelect>(value).is_ok(), valid);
     }
 }
+
+#[test]
+fn search_schema_and_serde_require_a_present_nonnull_selector() {
+    let schema = validator::<GeneSearch>();
+    for (value, valid) in [
+        (json!({}), false),
+        (json!({"limit":10,"offset":0}), false),
+        (json!({"query":null}), false),
+        (json!({"band":null}), false),
+        (json!({"query":"BRAF"}), true),
+        (json!({"band":"9p21.3"}), true),
+        (json!({"query":"BRAF","band":"9p21.3"}), true),
+        (json!({"query":"BRAF","band":null}), false),
+    ] {
+        assert_eq!(schema.is_valid(&value), valid, "schema: {value}");
+        assert_eq!(
+            serde_json::from_value::<GeneSearch>(value.clone()).is_ok(),
+            valid,
+            "serde: {value}"
+        );
+    }
+}

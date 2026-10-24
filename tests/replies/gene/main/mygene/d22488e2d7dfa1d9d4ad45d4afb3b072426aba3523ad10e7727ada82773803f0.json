@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "fef00f0d8dfc0652ab9812e5d08fde3f78ada107f102fa2c3f8877cbee39a15d"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 71,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"54855","HGNC":"24712","_id":"54855","_version":1,"entrezgene":"54855","genomic_pos":{"chr":"1","end":117628389,"ensemblgene":"ENSG00000183508","start":117605926,"strand":1},"genomic_pos_hg19":{"chr":"1","end":118170994,"start":118148556,"strand":1},"summary":"Enables RNA adenylyltransferase activity. Involved in mRNA stabilization. Located in cytoplasm and nucleoplasm. [provided by Alliance of Genome Resources, Apr 2022]"}]
+      }
+    }
+  ]
+}

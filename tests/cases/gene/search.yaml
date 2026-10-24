@@ -1,0 +1,84 @@
+{
+  "feature": "gene-commands",
+  "story": "search",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "gene",
+        "KRAS"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/hgnc_id": "HGNC:6407",
+        "/result/items/0/match/kind": "symbol",
+        "/page/total": 1
+      },
+      "max_bytes": 528
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "p16"
+      ],
+      "expect": {
+        "/result/items/0/hgnc_id": "HGNC:1787",
+        "/result/items/*/hgnc_id": [
+          "HGNC:1787",
+          "HGNC:43802"
+        ]
+      },
+      "max_bytes": 780
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "p16",
+        "--band",
+        "9p21.3"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/hgnc_id": "HGNC:1787"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "9p21.3",
+        "--offset",
+        "4294967295"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "count": 0
+        },
+        "/page/total": 65
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "MLL2"
+      ],
+      "expect": {
+        "/result/items/*/hgnc_id": [
+          "HGNC:7133",
+          "HGNC:15840"
+        ],
+        "/result/items/*/match/kind": [
+          "previous_symbol",
+          "alias"
+        ],
+        "/page/total": 2
+      }
+    }
+  ]
+}

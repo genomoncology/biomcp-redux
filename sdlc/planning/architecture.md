@@ -347,7 +347,7 @@ pub enum GeneResolution {
 }
 
 /// One input of a get and its answer, in input order.
-pub struct GeneItem { pub input: Text, pub status: ItemStatus, pub answer: GeneResolution }
+pub struct GeneItem { pub input: GeneInput, pub status: ItemStatus, pub answer: Option<GeneResolution> }
 pub struct GeneCards { pub items: Box<[GeneItem]> }
 ```
 
@@ -487,15 +487,15 @@ Every command returns one envelope. Its body type changes by command, and each b
 
 ```rust
 /// Every response body names its schema and the query that produced it.
-pub trait Body: Serialize {
-    const SCHEMA: SchemaId;
+pub trait ResponseBody: Serialize {
+    const SCHEMA: &'static str;
     type Query: Serialize;
 }
 
 #[derive(Serialize)]
-#[serde(bound = "T: Body")]
-pub struct Envelope<T: Body> {
-    pub schema: SchemaId,                  // such as biomcp.gene_cards/1
+#[serde(bound = "T: ResponseBody")]
+pub struct Envelope<T: ResponseBody> {
+    schema: &'static str,                  // such as biomcp.gene_cards/1
     pub status: Status,
     pub query: T::Query,                   // the query as parsed and resolved
     pub result: Option<T>,
@@ -503,27 +503,26 @@ pub struct Envelope<T: Body> {
     pub sources: Box<[SourceOutcome]>,     // one per source asked
     pub problems: Box<[Problem]>,
     pub next: Box<[Step]>,                 // at most five
-    pub explain: Option<Explain>,          // only with --explain
 }
 
 pub struct SchemaId { pub name: &'static str, pub major: u16 }   // text form name/major
 pub enum Status { Complete, Partial, Absent, Failed }
 pub enum ItemStatus { Complete, Partial, Absent, Failed }
-pub struct PageInfo { pub offset: u32, pub returned: u32, pub total: Option<u64>, pub truncated: bool, pub pool: Option<PoolInfo> }
+pub struct PageInfo { pub offset: u32, pub returned: u32, pub total: u64 } // HGNC totals are known; pool metadata waits for a pooled source
 pub struct PoolInfo { pub id: PoolId, pub size: u32, pub created: Timestamp, pub expires: Timestamp }
 pub struct SourceOutcome { pub source: Source, pub state: SourceState, pub reason: Option<Reason>, pub count: Option<u64> }
-pub enum SourceState { Ok, Empty, Partial, Stale, Syncing, Failed, Skipped }
+pub enum SourceState { Ok, Stale, Syncing, Failed }
 
 /// One next command, with what it does.
 pub struct Step { pub kind: StepKind, pub args: Box<[Box<str>]> }
 #[non_exhaustive]
-pub enum StepKind { Page, Fresh, Section, Pivot, Disambiguate, Restart, Sync, Key }
+pub enum StepKind { Page, Fresh, Disambiguate, Sync }
 
 #[non_exhaustive]
 pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing }
 ```
 
-`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Request` into a `Step` through the grammar (section 8.3). The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
+`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Action` into a `Step` through the grammar (section 8.3). `Action::Run { request, fresh }` retains request policy; `Action::Sync { bundle }` names source-level housekeeping without inventing an entity request. The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
 
 ### 3.9 Schemas and versions
 
@@ -774,11 +773,13 @@ impl Deadline {
 
 The cache stores checked reply bodies keyed by reply key, in the `reply` table of the cache file (section 7). Each endpoint declares how long its replies stay fresh. A literature summary may stay fresh for thirty days and a trial's status for a day. `Freshness::Never` skips the cache.
 
-`--fresh` sets `Mode::Live { fresh: true }`. The leg skips step 4 and rewrites the entry. Decoding and the check run on every read, so a raw type change never needs a cache migration.
+`--fresh` sets `Mode::Live { fresh: true }` for a CLI process. Shared MCP calls set `Leg::fresh` on their own source legs. Both policies skip step 4 and rewrite the entry; a batch child inherits its leg policy. Decoding and the check run on every read, so a raw type change never needs a cache migration.
 
 ### 4.9 Record, replay and offline
 
 Offline, record and replay are user features, so no test hook exists in product code. `--offline` answers from the cache and bundles. `--record DIR` lets a user capture a failing command and attach the folder to a bug report. `--replay DIR` reruns it anywhere. The runner uses the same flags, and `biomcp serve --replay DIR` serves MCP over recordings.
+
+Replay uses a temporary owned cache by default. `--case-cache DIR` is an explicit process setting available only with replay or offline. `ReplayCache::create_case` exclusively creates a marked directory with its fixed cache filename; `open_case` refuses unmarked, foreign and symlinked paths or files. It never accepts an arbitrary SQLite filename or the ordinary user cache. Later offline processes may open the same marked directory. Tool arguments cannot select record, replay or case-cache paths.
 
 A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
@@ -1145,10 +1146,8 @@ These are estimates. The article slice measures its adapters first. If they aver
 /// What a command needs. The caller opens one Store per call.
 pub struct Ctx<'a> {
     pub fetch: &'a Fetch,
-    pub store: &'a Store,
     pub budget: Duration,
-    pub disabled: &'a BTreeSet<Source>,
-    pub explain: bool,
+    pub fresh: bool,
 }
 
 /// A response before the interface spells its next steps.
@@ -1158,22 +1157,21 @@ pub struct Outcome<T> {
     pub page: Option<PageInfo>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
-    pub next: Vec<(StepKind, Request)>,
-    pub explain: Option<Explain>,
+    pub next: Vec<(StepKind, Action)>,
 }
 
 /// Run one request. Source failures become statuses. Errors are input, pool or store failures.
-pub fn run(cx: &Ctx<'_>, req: &Request) -> Result<Outcome<Body>, QueryError>;
+pub fn run(cx: &Ctx<'_>, req: &Request) -> Result<Outcome<QueryBody>, QueryError>;
 
 #[derive(Serialize)]
 #[serde(untagged)]
 #[non_exhaustive]
-pub enum Body { GenePage(GenePage), GeneCards(GeneCards), ArticlePage(ArticlePage), ArticleCards(ArticleCards), TrialPage(TrialPage), TrialCards(TrialCards), TrialLocations(TrialLocationPage) }
+pub enum QueryBody { GenePage(GenePage), GeneCards(GeneCards) }
 ```
 
-`run` is one `match` from each `Request` variant to its entity function, such as `gene::get(cx, q)`. That match is the routing table, one line per command. `Body` lives in `biodata::response` beside the types it wraps.
+`run` is one `match` from each `Request` variant to its entity function, such as `gene::get(cx, q)`. That match is the routing table, one line per command. `QueryBody` lives in `biodata::response` beside the types it wraps.
 
-The binary opens one `Store` for each call. A CLI process makes one call. The MCP server opens a `Store` in each call's thread. SQLite's WAL mode lets these connections and other BioMCP processes share the file. A `Store` never crosses into the fan-out, which receives only `&Fetch`.
+The first gene commands need no query store. A CLI process makes one call. MCP calls share one process-owned `Fetch`, including its provider quotas, cache and replay cursors. A per-leg fresh override reaches batch children and cannot weaken process policy. An offline tool call uses a separate cache-only client. Query store ownership arrives with its first consumer.
 
 ### 6.2 Resolve
 
@@ -1288,7 +1286,7 @@ Link commands that equal a filter on the target's search do not exist. Drill-dow
 
 ### 6.10 Next steps
 
-Each response type has one pure `next` function in its entity's `next.rs`. It returns typed requests with their kinds, at most five, ordered by what the slice found agents need first:
+Each response type has one pure `next` function in its entity's `next.rs`. It returns typed actions with their kinds, at most five, ordered by what the slice found agents need first:
 
 | Kind | When |
 | --- | --- |
@@ -1482,7 +1480,7 @@ pub(crate) const RETIRED: &[Retired] = &[
 
 // crates/biomcp/src/spell.rs
 /// Spell a request back into the argument list that parses to it.
-pub(crate) fn spell(kind: StepKind, req: &Request) -> Step;
+pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::Error>;
 ```
 
 1. The first one or two words pick the request schema from the embedded set. Only that schema is read.
@@ -1637,7 +1635,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 ```rust
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ConfigFile { budget_ms: Option<u32>, format: Option<Format>, disable_sources: Option<Vec<Source>>, proxy: Option<ProxyUrl>, cache: Option<CacheConfig>, bundles: Option<BundleConfig>, keys: Option<KeysConfig>, sources: Option<BTreeMap<Source, SourceConfig>> }
+struct ConfigFile { proxy: Option<String> } // the first gene slice consumes only proxy; unknown keys refuse
 
 pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub format: Format, pub disabled: BTreeSet<Source>, pub explain: bool }
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;

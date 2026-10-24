@@ -6,6 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+clap.workspace = true
+serde.workspace = true
+biomcp-fetch = { path = "../biomcp-fetch" }
+biomcp-adapters = { path = "../biomcp-adapters" }
+biomcp-query = { path = "../biomcp-query" }
 serde_json.workspace = true
 biodata = { path = "../biodata", features = ["schema"] }
 
@@ -14,7 +19,6 @@ serde_json.workspace = true
 
 [dev-dependencies]
 jsonschema.workspace = true
-serde.workspace = true
 libtest-mimic.workspace = true
 serde-saphyr.workspace = true
 toml.workspace = true
