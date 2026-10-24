@@ -34,10 +34,11 @@ fn gwas_zero() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
-    if requests.len() != 1
-        || !requests[0].1.starts_with(
-            "GET /gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3 HTTP/1.1",
-        )
+    let [(_, request)] = requests.as_slice() else {
+        return Err(format!("expected one catalog request: {requests:?}"));
+    };
+    if !request
+        .starts_with("GET /gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3 HTTP/1.1")
     {
         return Err(format!("expected exact rsID v2 request only: {requests:?}"));
     }
@@ -107,10 +108,14 @@ fn population() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
-    if requests.len() != 2
-        || !requests[1].1.starts_with("POST /api HTTP/1.1")
-        || !requests[1].1.contains("gnomad_r4")
-        || !requests[1].1.contains("7-140753336-A-T")
+    let [_, (_, request)] = requests.as_slice() else {
+        return Err(format!(
+            "expected one CAR and one gnomAD request across warm pages: {requests:?}"
+        ));
+    };
+    if !request.starts_with("POST /api HTTP/1.1")
+        || !request.contains("gnomad_r4")
+        || !request.contains("7-140753336-A-T")
         || requests.iter().any(|(_, r)| r.contains("myvariant"))
     {
         return Err(format!(
