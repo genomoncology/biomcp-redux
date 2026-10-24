@@ -42,7 +42,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             ("q", Arg::Text(&term)),
             ("size", Arg::Num(u64::from(query.limit()))),
             ("from", Arg::Num(u64::from(query.offset()))),
-            ("fields", Arg::Text(super::FIELDS)),
+            ("fields", Arg::Text(&super::fields(leg))),
             (
                 "assembly",
                 Arg::Text(if query.build() == Build::Grch38 {
@@ -72,7 +72,12 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     };
     for hit in page.hits {
         let id = hit.id.clone();
-        let mapped = map::candidates(vec![hit], id.as_str(), query.build());
+        let mapped = map::candidates(
+            vec![hit],
+            id.as_str(),
+            query.build(),
+            !super::components::disabled_on_leg(leg, "clinvar"),
+        );
         rows.value.extend(mapped.value);
         rows.problems.extend(mapped.problems);
     }

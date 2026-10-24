@@ -638,6 +638,49 @@
         }
       ]
     },
+    "ComponentTerms": {
+      "additionalProperties": false,
+      "description": "Terms attached to one independently licensed source component.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms name."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms page."
+        },
+        "usage": {
+          "$ref": "#/$defs/Use",
+          "description": "Publisher use category."
+        }
+      },
+      "required": [
+        "usage",
+        "name",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ComponentUpload": {
+      "additionalProperties": false,
+      "description": "One source-named component upload timestamp.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/Text",
+          "description": "Unchanged source timestamp."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source subcollection name."
+        }
+      },
+      "required": [
+        "name",
+        "date"
+      ],
+      "type": "object"
+    },
     "Concept": {
       "additionalProperties": false,
       "description": "One source concept with its optional ontology identifier.",
@@ -1487,6 +1530,28 @@
         "impacts_function_of"
       ],
       "type": "string"
+    },
+    "PredictorContext": {
+      "additionalProperties": false,
+      "description": "Unchanged native context values associated with a source field path.",
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source field path."
+        },
+        "values": {
+          "description": "Every native value in source array order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "values"
+      ],
+      "type": "object"
     },
     "PredictorScore": {
       "additionalProperties": false,
@@ -3181,6 +3246,13 @@
       ],
       "type": "string"
     },
+    "SubjectQualification": {
+      "description": "Provenance of the subject's accession qualification, without allele normalization.",
+      "enum": [
+        "adapter_derived_reference"
+      ],
+      "type": "string"
+    },
     "Term": {
       "additionalProperties": false,
       "description": "A source label with optional explicitly supported coding.",
@@ -3247,6 +3319,16 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
     },
     "Variant": {
       "additionalProperties": false,
@@ -3524,6 +3606,10 @@
           ],
           "description": "Whole source snapshot warning."
         },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Independently reviewed publisher terms; no blanket aggregator grant."
+        },
         "uploaded": {
           "anyOf": [
             {
@@ -3534,6 +3620,13 @@
             }
           ],
           "description": "Component upload timestamp when the source states one."
+        },
+        "uploads": {
+          "description": "Source-named component upload timestamps when the publisher supplies a map.",
+          "items": {
+            "$ref": "#/$defs/ComponentUpload"
+          },
+          "type": "array"
         },
         "version": {
           "anyOf": [
@@ -3548,6 +3641,7 @@
         }
       },
       "required": [
+        "terms",
         "name",
         "license",
         "aggregator_build",
@@ -3566,15 +3660,27 @@
           },
           "type": "array"
         },
+        "context": {
+          "description": "Original context arrays, without inferred cross-field alignment.",
+          "items": {
+            "$ref": "#/$defs/PredictorContext"
+          },
+          "type": "array"
+        },
         "scores": {
           "description": "Every retained source measurement in declared field order.",
           "items": {
             "$ref": "#/$defs/PredictorScore"
           },
           "type": "array"
+        },
+        "subject_qualification": {
+          "$ref": "#/$defs/SubjectQualification",
+          "description": "How the source chromosome label was reference-qualified."
         }
       },
       "required": [
+        "subject_qualification",
         "scores",
         "components"
       ],
@@ -4009,15 +4115,27 @@
           },
           "type": "array"
         },
+        "context": {
+          "description": "Original context arrays, without inferred cross-field alignment.",
+          "items": {
+            "$ref": "#/$defs/PredictorContext"
+          },
+          "type": "array"
+        },
         "scores": {
           "description": "Every retained source score in declared field order.",
           "items": {
             "$ref": "#/$defs/PredictorScore"
           },
           "type": "array"
+        },
+        "subject_qualification": {
+          "$ref": "#/$defs/SubjectQualification",
+          "description": "How the source chromosome label was reference-qualified."
         }
       },
       "required": [
+        "subject_qualification",
         "scores",
         "components"
       ],

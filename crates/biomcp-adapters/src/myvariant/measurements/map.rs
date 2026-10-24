@@ -22,18 +22,21 @@ pub(super) fn project(
     cadd: bool,
     dbnsfp: bool,
 ) -> Result<Mapped<VariantPredictors>, RequestError> {
-    let (chromosome, suffix) = record
+    let subject = record
         .id
         .as_str()
         .split_once(':')
-        .ok_or_else(super::super::leg_bad)?;
-    let chromosome = chromosome
-        .strip_prefix("chr")
-        .ok_or_else(super::super::leg_bad)?
-        .parse::<biodata::Chromosome>()
-        .map_err(|_| super::super::leg_bad())?;
-    let qualified = format!("{}:{suffix}", chromosome.accession(build));
-    let subject = VariantRef::allele_hgvs(qualified.parse().map_err(|_| super::super::leg_bad())?);
+        .and_then(|(chromosome, suffix)| {
+            let chromosome = chromosome
+                .strip_prefix("chr")?
+                .parse::<biodata::Chromosome>()
+                .ok()?;
+            let qualified = format!("{}:{suffix}", chromosome.accession(build));
+            qualified.parse().ok().map(VariantRef::allele_hgvs)
+        });
+    let Some(subject) = subject else {
+        return Ok(unqualified(record.id));
+    };
     let mut out = Output {
         id: record.id,
         subject,
@@ -206,5 +209,22 @@ impl Output {
             });
         }
         Ok(())
+    }
+}
+
+fn unqualified(id: Text) -> Mapped<VariantPredictors> {
+    Mapped {
+        value: VariantPredictors {
+            subject_qualification: biodata::SubjectQualification::AdapterDerivedReference,
+            scores: Box::new([]),
+            components: Box::new([]),
+            context: Box::new([]),
+        },
+        problems: vec![Problem {
+            source: Source::MyVariant,
+            record: Some(id),
+            field: "subject_qualification".into(),
+            code: ProblemCode::ValueUnknown,
+        }],
     }
 }

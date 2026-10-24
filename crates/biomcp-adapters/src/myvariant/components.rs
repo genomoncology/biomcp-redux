@@ -77,9 +77,28 @@ pub fn all() -> Vec<Component> {
 }
 /// Whether source or component policy blocks a carried component.
 pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
-    fetch.disabled(Source::MyVariant)
-        || name == "clinvar" && fetch.disabled(Source::ClinVar)
-        || terms(name).is_some_and(|terms| fetch.disabled_use(terms.usage))
+    policy(
+        name,
+        |source| fetch.disabled(source),
+        |usage| fetch.disabled_use(usage),
+    )
+}
+/// Inspect that same component policy from a deadline-scoped adapter leg.
+pub fn disabled_on_leg(leg: &biomcp_fetch::Leg<'_>, name: &str) -> bool {
+    policy(
+        name,
+        |source| leg.disabled_source(source),
+        |usage| leg.disabled_use(usage),
+    )
+}
+fn policy(
+    name: &str,
+    source_disabled: impl Fn(Source) -> bool,
+    use_disabled: impl Fn(Use) -> bool,
+) -> bool {
+    source_disabled(Source::MyVariant)
+        || name == "clinvar" && source_disabled(Source::ClinVar)
+        || terms(name).is_some_and(|terms| use_disabled(terms.usage))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.
 pub fn restricted(fetch: &biomcp_fetch::Fetch) -> bool {
