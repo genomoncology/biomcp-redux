@@ -17,4 +17,15 @@ mod macros;
 pub use coord::{Position1, Span0};
 pub use date::PartialDate;
 pub use error::Error;
-pub use id::HgncId;
+pub use id::{
+    Cytoband, EnsemblGeneId, EnsemblTranscript, EntrezGeneId, GeneSymbol, HgncId, OmimId,
+    RefSeqTranscript, UniProtAcc,
+};
+
+mod gene;
+pub use gene::{
+    Gene, GeneHeader, GeneInput, GeneResolution, GeneStatus, HgncStatus, LocusGroup, LocusType,
+    ManeSelect, Match, MatchKind, Summary, SummarySource,
+};
+
+pub use coord::{Build, Contig, GenomicInterval, Strand};

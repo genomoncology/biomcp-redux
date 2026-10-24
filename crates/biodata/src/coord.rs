@@ -98,3 +98,6 @@ impl<'de> Deserialize<'de> for Span0 {
         deserializer.deserialize_map(Visitor)
     }
 }
+
+mod genomic;
+pub use genomic::{Build, Contig, GenomicInterval, Strand};

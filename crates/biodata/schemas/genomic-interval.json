@@ -1,0 +1,84 @@
+{
+  "$defs": {
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38",
+        "unstated"
+      ],
+      "type": "string"
+    },
+    "Contig": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "Span0": {
+      "additionalProperties": false,
+      "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+      "properties": {
+        "end": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "Strand": {
+      "description": "Source-stated forward or reverse strand.",
+      "enum": [
+        "+",
+        "-"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biodata.genomic-interval/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An assembly-qualified zero-based half-open source interval.",
+  "properties": {
+    "build": {
+      "$ref": "#/$defs/Build",
+      "description": "Source-stated assembly, explicitly unstated when absent."
+    },
+    "contig": {
+      "$ref": "#/$defs/Contig",
+      "description": "Source chromosome or scaffold name."
+    },
+    "span": {
+      "$ref": "#/$defs/Span0",
+      "description": "Checked zero-based half-open bounds; an empty span remains valid."
+    },
+    "strand": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Strand"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source-stated strand, if available."
+    }
+  },
+  "required": [
+    "build",
+    "contig",
+    "span"
+  ],
+  "title": "GenomicInterval",
+  "type": "object"
+}

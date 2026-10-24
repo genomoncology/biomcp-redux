@@ -75,46 +75,7 @@ fn visit(
     let object = node
         .as_object()
         .ok_or_else(|| format!("unsupported schema at {path}"))?;
-    for key in object.keys() {
-        if ![
-            "$schema",
-            "$id",
-            "$defs",
-            "$ref",
-            "title",
-            "description",
-            "type",
-            "enum",
-            "properties",
-            "required",
-            "additionalProperties",
-            "anyOf",
-            "minLength",
-            "pattern",
-            "minimum",
-            "maximum",
-            "format",
-        ]
-        .contains(&key.as_str())
-        {
-            return Err(format!("unsupported keyword {key} at {path}"));
-        }
-    }
-    // These generated forms carry annotations beside a reference or union,
-    // never assertions. Assertions would intersect, while Shape only records
-    // one constraint at each path; refuse them instead of merging incorrectly.
-    for composition in ["$ref", "anyOf"] {
-        if object.contains_key(composition)
-            && object.keys().any(|key| {
-                key != composition
-                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
-            })
-        {
-            return Err(format!(
-                "unsupported assertion sibling of {composition} at {path}"
-            ));
-        }
-    }
+    validate_keywords(object, path)?;
     if let Some(reference) = node.get("$ref") {
         let reference = reference.as_str().ok_or("invalid reference")?;
         let pointer = reference
@@ -139,7 +100,15 @@ fn visit(
             visit(root, branch, path, shapes, refs)?;
         }
     }
+    if let Some(branches) = node.get("oneOf") {
+        for (tag, branch) in tagged_branches(branches)? {
+            visit(root, branch, &format!("{path}/@{tag}"), shapes, refs)?;
+        }
+    }
     collect(node, path, shapes)?;
+    if let Some(items) = node.get("items") {
+        visit(root, items, &format!("{path}/[]"), shapes, refs)?;
+    }
     if let Some(properties) = node.get("properties") {
         for (name, child) in properties.as_object().ok_or("invalid properties")? {
             let name = name.replace('~', "~0").replace('/', "~1");
@@ -158,7 +127,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null", "integer"].contains(&kind) {
+            if !["string", "object", "null", "integer", "array"].contains(&kind) {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
@@ -186,6 +155,12 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
                 .collect(),
         );
     }
+    if let Some(value) = node.get("const") {
+        if !value.is_string() {
+            return Err("unsupported non-string const".into());
+        }
+        shape.values = Some(BTreeSet::from([value.to_string()]));
+    }
     if let Some(required) = node.get("required") {
         for name in required.as_array().ok_or("invalid required")? {
             shape
@@ -204,7 +179,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     Ok(())
 }
 
-// Core Option<Text> is the only union these types currently generate.
+// Nullable generated references and strings remain distinct from tagged unions.
 fn optional_branches(branches: &Value) -> Check<&[Value]> {
     let branches = branches.as_array().ok_or("invalid anyOf")?;
     if branches.len() != 2
@@ -224,4 +199,98 @@ fn optional_branches(branches: &Value) -> Check<&[Value]> {
         return Err("unsupported anyOf value".into());
     }
     Ok(branches)
+}
+
+// These unions are internally tagged objects. Branch identity includes both
+// discriminator field and value, so another branch cannot hide a removal.
+fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
+    let mut result = Vec::new();
+    let mut tags = BTreeSet::new();
+    let mut discriminator = None;
+    for branch in branches.as_array().ok_or("invalid oneOf")? {
+        if branch["type"] != "object" {
+            return Err("unsupported oneOf branch".into());
+        }
+        let properties = branch["properties"]
+            .as_object()
+            .ok_or("missing tagged properties")?;
+        let candidates: Vec<_> = properties
+            .iter()
+            .filter_map(|(key, value)| {
+                value
+                    .get("const")
+                    .and_then(Value::as_str)
+                    .map(|value| (key, value))
+            })
+            .collect();
+        let [(field, value)] = candidates.as_slice() else {
+            return Err("expected one discriminator".into());
+        };
+        if !branch["required"]
+            .as_array()
+            .is_some_and(|required| required.contains(&Value::String((*field).clone())))
+        {
+            return Err("optional discriminator".into());
+        }
+        if discriminator.is_some_and(|old| old != field.as_str()) {
+            return Err("inconsistent discriminator".into());
+        }
+        discriminator = Some(field.as_str());
+        let tag = format!("{field}={value}");
+        if !tags.insert(tag.clone()) {
+            return Err("duplicate discriminator".into());
+        }
+        result.push((tag, branch));
+    }
+    if result.is_empty() {
+        return Err("empty tagged union".into());
+    }
+    Ok(result)
+}
+
+fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Check<()> {
+    for key in object.keys() {
+        if ![
+            "$schema",
+            "$id",
+            "$defs",
+            "$ref",
+            "title",
+            "description",
+            "type",
+            "enum",
+            "properties",
+            "required",
+            "additionalProperties",
+            "anyOf",
+            "oneOf",
+            "const",
+            "items",
+            "minLength",
+            "pattern",
+            "minimum",
+            "maximum",
+            "format",
+        ]
+        .contains(&key.as_str())
+        {
+            return Err(format!("unsupported keyword {key} at {path}"));
+        }
+    }
+    // These generated forms carry annotations beside a reference or union,
+    // never assertions. Assertions would intersect, while Shape only records
+    // one constraint at each path; refuse them instead of merging incorrectly.
+    for composition in ["$ref", "anyOf", "oneOf"] {
+        if object.contains_key(composition)
+            && object.keys().any(|key| {
+                key != composition
+                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
+            })
+        {
+            return Err(format!(
+                "unsupported assertion sibling of {composition} at {path}"
+            ));
+        }
+    }
+    Ok(())
 }

@@ -1,8 +1,5 @@
 use super::generate;
-use biodata::{
-    ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0,
-    Text,
-};
+use biodata::*;
 use schemars::JsonSchema;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
@@ -20,13 +17,13 @@ fn validator<T: JsonSchema>() -> jsonschema::Validator {
     clippy::expect_used,
     reason = "Public enum schema table fails on invalid test fixtures"
 )]
-fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
+fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>(values: &[T]) {
     let validator = validator::<T>();
     for value in values {
         assert!(validator.is_valid(&serde_json::to_value(value).unwrap()));
     }
     for value in [
-        json!("unknown"),
+        json!("distinctive-unrecognized-value"),
         json!("HGNC"),
         json!(""),
         json!(123),
@@ -41,6 +38,7 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
         .expect("string enum")
     {
         let value: T = serde_json::from_value(spelling.clone()).expect("canonical spelling");
+        assert_eq!(value.to_string(), spelling.as_str().unwrap());
         assert_eq!(&serde_json::to_value(value).unwrap(), spelling);
     }
 }
@@ -70,6 +68,14 @@ fn enum_schemas_validate_canonical_public_values() {
         Reason::Syncing,
     ]);
     enum_values(&[ProblemCode::ValueUnknown]);
+    enum_values(&[GeneStatus::Approved]);
+    enum_values(&[LocusGroup::ProteinCoding]);
+    enum_values(&[LocusType::Readthrough]);
+    enum_values(&[MatchKind::Symbol]);
+    enum_values(&[SummarySource::RefSeq]);
+    enum_values(&[HgncStatus::EntryWithdrawn]);
+    enum_values(&[Build::Unstated]);
+    enum_values(&[Strand::Forward]);
 }
 
 #[test]
@@ -222,5 +228,22 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
             assert!(!schema.is_valid(&missing));
             assert!(serde_json::from_value::<ErrorEnvelope>(missing).is_err());
         }
+    }
+}
+
+#[test]
+fn mane_schema_enforces_its_curated_versioned_transcript_boundary() {
+    let schema = validator::<ManeSelect>();
+    for (refseq, ensembl, valid) in [
+        ("NM_004333.6", "ENST00000646891.2", true),
+        ("NR_123456.1", "ENST00000646891.2", true),
+        ("NM_004333", "ENST00000646891.2", false),
+        ("NM_004333.6", "ENST00000646891", false),
+        ("XM_004333.6", "ENST00000646891.2", false),
+        ("XR_004333.6", "ENST00000646891.2", false),
+    ] {
+        let value = json!({"refseq":refseq,"ensembl":ensembl});
+        assert_eq!(schema.is_valid(&value), valid, "{value}");
+        assert_eq!(serde_json::from_value::<ManeSelect>(value).is_ok(), valid);
     }
 }
