@@ -4,7 +4,11 @@ use biodata::{
     Build, Expression, ExpressionSyntax, Problem, ProblemCode, Representation, Source,
     SourceRecord, Text, Variant, VariantHeader, VariantId,
 };
-pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Vec<VariantHeader>> {
+pub(super) fn candidates(
+    hits: Vec<Hit>,
+    query: &str,
+    build: Option<Build>,
+) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
     for hit in hits {
@@ -48,12 +52,15 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
                 }
             }
         }
+        if build.is_none() {
+            problems.push(problem(hit.id.clone(), "representations.build"));
+        }
         let expression = Expression::new(ExpressionSyntax::HgvsG, hit.id.clone(), None);
         let representations = match expression {
             Ok(expression) => vec![Representation {
                 source: Source::MyVariant,
                 expression,
-                build: Some(build),
+                build,
                 allele: None,
             }],
             Err(_) => {

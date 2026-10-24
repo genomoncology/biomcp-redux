@@ -11,6 +11,9 @@ pub(super) struct Hit {
     pub id: biodata::Text,
     pub dbsnp: Option<Dbsnp>,
     pub clinvar: Option<Clinvar>,
+    pub chrom: Option<serde_json::Value>,
+    pub hg19: Option<serde_json::Value>,
+    pub hg38: Option<serde_json::Value>,
 }
 #[derive(Deserialize)]
 pub(super) struct Dbsnp {

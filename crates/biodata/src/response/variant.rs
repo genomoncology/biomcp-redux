@@ -59,11 +59,12 @@ pub struct VariantPage {
     /// Exact query sent to the named source, without rewriting raw query text.
     pub source_query: String,
     /// Assembly sent to the source, never inferred from a candidate label.
-    pub build: crate::Build,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub build: Option<crate::Build>,
     /// Native source order, preserving every candidate including repeated source identities.
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant_page/1";
+    const SCHEMA: &'static str = "biomcp.variant_page/2";
     type Query = crate::VariantSearch;
 }
