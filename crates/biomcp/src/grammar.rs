@@ -59,9 +59,7 @@ fn root() -> Result<Command, ()> {
                 .subcommand(command_for("gene", &schema)?),
         );
     }
-    root = root.subcommand(
-        Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])),
-    );
+    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])));
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -85,10 +83,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         });
     }
     let action = if verb == "sync" {
-        Action::Sync { bundle: Bundle::Hgnc }
-    } else {
-                Bundle::Hgnc
-            },
+        Action::Sync {
+            bundle: Bundle::Hgnc,
         }
     } else {
         let (_, matches) = matches.subcommand().ok_or(())?;

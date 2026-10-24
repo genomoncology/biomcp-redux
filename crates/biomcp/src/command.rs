@@ -135,10 +135,19 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let result = match bundle {
-        Bundle::Hgnc => biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete).and_then(|complete| {
-            let withdrawn = biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Withdrawn)?;
-            Ok(biodata::SyncResult { rows: complete.rows + withdrawn.rows, bytes: complete.bytes + withdrawn.bytes })
-        }),
+        Bundle::Hgnc => {
+            biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
+                .and_then(|complete| {
+                    let withdrawn = biomcp_adapters::hgnc::sync(
+                        fetch,
+                        biomcp_adapters::hgnc::HgncBundle::Withdrawn,
+                    )?;
+                    Ok(biodata::SyncResult {
+                        rows: complete.rows + withdrawn.rows,
+                        bytes: complete.bytes + withdrawn.bytes,
+                    })
+                })
+        }
     };
     let status = if result.is_ok() {
         Status::Complete
@@ -155,7 +164,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     });
     let mut envelope = Envelope::<biodata::SyncResult>::new(
         status,
-        biodata::SyncQuery { source: biodata::Source::Hgnc },
+        biodata::SyncQuery {
+            source: biodata::Source::Hgnc,
+        },
         result.ok(),
     );
     envelope.sources.push(biodata::SourceOutcome {
