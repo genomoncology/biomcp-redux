@@ -140,9 +140,10 @@ fn check(
             }
             let (expected, before) = invoke(&baseline, &args.0, Some(&replay), ordinal)?;
             let (actual, after) = invoke(&live, &args.1, None, ordinal)?;
-            std::thread::sleep(Duration::from_millis(
-                after.iter().map(|o| o.interval_ms).max().unwrap_or(0),
-            ));
+            std::thread::sleep(
+                Duration::from_millis(after.iter().map(|o| o.interval_ms).max().unwrap_or(0))
+                    .min(RUN_BUDGET.saturating_sub(started.elapsed())),
+            );
             if expected.get("status") != actual.get("status") {
                 changes.push("status changed from recorded result".into());
             }

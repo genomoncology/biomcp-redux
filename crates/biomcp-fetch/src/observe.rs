@@ -77,7 +77,19 @@ impl Shape {
                     if key.len() > 128 || self.fields.len() >= FIELDS {
                         break;
                     }
-                    let path = format!("{path}/{}", key.replace('~', "~0").replace('/', "~1"));
+                    let segment = if key
+                        .as_bytes()
+                        .first()
+                        .is_some_and(|b| b.is_ascii_alphabetic() || *b == b'_')
+                        && key
+                            .bytes()
+                            .all(|b| b.is_ascii_alphanumeric() || b"_-.".contains(&b))
+                    {
+                        key.as_str()
+                    } else {
+                        "*"
+                    };
+                    let path = format!("{path}/{segment}");
                     self.fields.insert(path.clone(), true);
                     if key.to_ascii_lowercase().contains("count")
                         && let Some(n) = value.as_u64().or_else(|| value.as_str()?.parse().ok())
@@ -166,8 +178,14 @@ impl crate::Leg<'_> {
                 source: self.spec.source,
                 status,
                 bytes: body.len() as u64,
-                interval_ms: u64::try_from(self.spec.quota.interval(false).as_millis())
-                    .unwrap_or(u64::MAX),
+                interval_ms: u64::try_from(
+                    self.spec
+                        .quota
+                        .interval(false)
+                        .as_nanos()
+                        .div_ceil(1_000_000),
+                )
+                .unwrap_or(u64::MAX),
                 elapsed_ms: u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX),
                 shape: Shape::inspect(body, media),
             });
