@@ -62,5 +62,5 @@ pub use response::{
 
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
 
-pub use query::ArticleEdges;
-pub use response::{ArticleEdgePage, Citations};
+pub use query::{ArticleEdges, EdgeSource};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, Citations};

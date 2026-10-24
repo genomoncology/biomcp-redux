@@ -93,7 +93,11 @@ fn create<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
-    let parent = order::fetch(cx, deadline, &[query.pmid()]);
+    if query.source() == biodata::EdgeSource::SemanticScholar {
+        return super::semantic_edges::create(cx, query, references, deadline, out);
+    }
+    let Some(pmid) = query.pmid() else { return Ok(None); };
+    let parent = order::fetch(cx, deadline, &[pmid]);
     out.sources.push(parent.source);
     if let Some(error) = parent.local {
         return Err(error);
@@ -106,7 +110,7 @@ fn create<'a>(
     let ids = parent
         .rows
         .into_iter()
-        .find(|row| row.pmid == query.pmid())
+        .find(|row| row.pmid == pmid)
         .and_then(|row| {
             if references {
                 row.references
@@ -132,7 +136,7 @@ fn create<'a>(
             key: ArticleKey::Pubmed(id),
             pmid: Some(id),
             header: None,
-            cited_by: None,
+            cited_by: None, intents: None, influential: None, contexts: None,
             found_by: Default::default(),
         })
         .collect();

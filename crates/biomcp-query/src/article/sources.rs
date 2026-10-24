@@ -85,7 +85,7 @@ fn pubmed_search<'a>(
                     key: ArticleKey::Pubmed(id),
                     pmid: Some(id),
                     header: None,
-                    cited_by: None,
+                    cited_by: None, intents: None, influential: None, contexts: None,
                     found_by: Default::default(),
                 })
                 .collect()

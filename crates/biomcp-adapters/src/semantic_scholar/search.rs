@@ -83,6 +83,6 @@ impl Paper {
             first_author: self.authors.as_ref().and_then(|a| a.first()).map(|a| a.name.clone()),
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
-        ArticleItem { key, pmid, header, cited_by: None, found_by: Default::default() }
+        ArticleItem { key, pmid, header, cited_by: None, intents: None, influential: None, contexts: None, found_by: Default::default() }
     }
 }
