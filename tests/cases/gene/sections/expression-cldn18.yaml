@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "CLDN18 reports HPA expression with source tissue names and separate RNA units",
   "replay": "gene/expression",

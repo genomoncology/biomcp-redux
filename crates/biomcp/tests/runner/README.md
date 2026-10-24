@@ -69,8 +69,7 @@ schedule. It never records or refreshes a fixture.
 
 Every public case is discovered. A case with reviewed real public provenance may
 set `live_check: public`; another string states its skip reason. Unreviewed cases
-are skipped explicitly. Configuration, offline and injected failure cases remain
-ineligible even with the public marker. Review source evidence before adding the
+are skipped explicitly. Configured cases remain ineligible even with the public marker. A public case skips its offline and local validation steps while retaining real absent-result requests. Injected failure and synthetic cases carry explicit skip markers. Review source evidence before adding the
 marker. Licensed, keyed, synthetic and external cases never receive it.
 
 Each case runs in an empty environment with cold isolated caches. Its commands retain only their own case state for continuation. The shared

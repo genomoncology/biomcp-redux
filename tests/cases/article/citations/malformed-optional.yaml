@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-citations",
   "story": "Synthetic malformed optional metrics preserve the count, report field problems and retain confirmed empty clinical lists.",
   "replay": "article/citations/synthetic-malformed",

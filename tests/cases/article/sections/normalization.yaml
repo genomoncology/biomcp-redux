@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-annotations",
   "story": "Annotation joins use own PMIDs, preserve duplicate cards, separate missing identifiers and retain valid entities after optional field faults.",
   "replay": "article/annotations/synthetic-normalization",

@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "PubMed author fields find the discovery paper without hiding native order.",
   "replay": "article/filters/author",

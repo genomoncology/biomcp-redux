@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "HGNC-listed CDKN2A proteins preserve accession order and whole function text",
   "replay": "gene/protein",

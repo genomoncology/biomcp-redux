@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-get",
   "story": "A synthetic one-item approved article search exposes a typed card action and follows it.",
   "replay": "article/search/synthetic-card-step",

@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-fulltext",
   "story": "no-pmcid",
   "replay": "article/fulltext/live-no-pmcid",

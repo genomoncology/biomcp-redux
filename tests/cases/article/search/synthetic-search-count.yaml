@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Malformed provider counts cannot publish a misleading pool.",
   "replay": "article/search/synthetic-search-count",

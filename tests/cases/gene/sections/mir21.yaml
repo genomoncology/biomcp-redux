@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "MIR21 rules constraint out without asking gnomAD",
   "replay": "gene/constraint",

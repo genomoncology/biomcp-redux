@@ -1,3 +1,4 @@
+live_check: local-only case
 feature: schema
 story: The error schema exposes its canonical artifact ID
 steps:

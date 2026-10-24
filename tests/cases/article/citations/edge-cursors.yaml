@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-citations",
   "story": "Synthetic graph edges deduplicate before counts and retain direction in warm snapshot identities.",
   "replay": "article/citations/synthetic-edges",

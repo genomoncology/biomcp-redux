@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "An omitted accession set is empty with source omission problems",
   "replay": "gene/protein/synthetic-empty",

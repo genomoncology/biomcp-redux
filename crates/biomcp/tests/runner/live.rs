@@ -69,7 +69,7 @@ pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
         }
         let result = check(&case, &registry, &mut sources, started);
         results.push(match result {
-            Ok(changes) => json!({"case": name, "drift": changes}),
+            Ok(report) => json!({"case": name, "result": report}),
             Err(error) => json!({"case": name, "error": error}),
         });
     }
@@ -95,24 +95,33 @@ fn eligibility(case: &Case) -> Option<&str> {
         Some("public")
             if case.replay.is_some()
                 && case.config.is_none()
-                && case
-                    .steps
-                    .iter()
-                    .all(|s| !s.offline && s.exit == 0 && !s.is_error) =>
+                && case.steps.iter().any(eligible_step) =>
         {
             None
         }
-        Some("public") => Some("local, configured or failure case"),
+        Some("public") => Some("configured, local-only or offline-only case"),
         Some(reason) => Some(reason),
         None => Some("provenance not reviewed for live use"),
     }
+}
+fn eligible_step(step: &Step) -> bool {
+    if step.offline || step.exit > 1 {
+        return false;
+    }
+    step.follow.is_some()
+        || step
+            .run
+            .as_ref()
+            .or(step.mcp.as_ref())
+            .and_then(|args| args.first())
+            .is_some_and(|verb| matches!(verb.as_str(), "get" | "search" | "sync" | "article"))
 }
 fn check(
     case: &Case,
     registry: &schema::Registry,
     sources: &mut BTreeMap<String, Value>,
     started: Instant,
-) -> Result<Vec<String>, String> {
+) -> Result<Value, String> {
     let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies")
         .join(case.replay.as_ref().ok_or("no recording")?);
@@ -121,7 +130,12 @@ fn check(
     let mut previous = (None, None);
     let mut changes = Vec::new();
     let mut ordinal = 0;
-    for step in &case.steps {
+    let mut skipped = Vec::new();
+    for (index, step) in case.steps.iter().enumerate() {
+        if !eligible_step(step) {
+            skipped.push(json!({"step": index + 1, "reason": "local validation or offline step"}));
+            continue;
+        }
         let mut args = (
             arguments(step, previous.0.as_ref())?,
             arguments(step, previous.1.as_ref())?,
@@ -175,7 +189,7 @@ fn check(
             }
         }
     }
-    Ok(changes)
+    Ok(json!({"drift": changes, "skipped_steps": skipped}))
 }
 fn arguments(step: &Step, previous: Option<&Value>) -> Result<Vec<String>, String> {
     match &step.follow {
