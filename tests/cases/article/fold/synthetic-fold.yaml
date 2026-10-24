@@ -280,12 +280,12 @@
         "--source",
         "europepmc"
       ],
-      "max_bytes": 663,
+      "max_bytes": 885,
       "expect": {
         "/sources/0/term": "BRAF AND V600E AND JOURNAL:Nature AND FIRST_PDATE:[2020 TO 2024] AND PUB_TYPE:\"clinical trial\"",
         "/page/total": 0
       },
-      "max_tokens": 166
+      "max_tokens": 222
     },
     {
       "run": [
@@ -303,5 +303,5 @@
       "max_tokens": 42
     }
   ],
-  "verified": "The synthetic Europe PMC-only page now measures869bytes with the approved citation-order step; its bounds add15percent. Synthetic pages have no0.9baseline."
+  "verified": "The synthetic Europe PMC-only page now measures869bytes with the approved citation-order step; its bounds add15percent. Synthetic pages have no0.9baseline. The empty fully-filtered synthetic page measures769bytes and its bounds also add15percent."
 }

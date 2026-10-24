@@ -51,7 +51,7 @@
         "--gene",
         "SUR1"
       ],
-      "max_bytes": 605,
+      "max_bytes": 719,
       "expect": {
         "/page/total": 0,
         "/sources/1/term": "(ABCC8 OR SUR1) AND R1437Q",
@@ -155,5 +155,6 @@
         ]
       }
     }
-  ]
+  ],
+  "verified": "The empty SUR1 search now measures625bytes with its approved citation-order next step. The719-byte ceiling adds15percent; the unfiltered0.9ABCC8 question is not a comparable page."
 }

@@ -171,7 +171,7 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         (
             "nonincreasing-wrong-order",
             "  - run: [schema, biodata.article-search/1]\n    expect: {'/properties/limit/maximum': {nonincreasing: true}}",
-            "nonincreasing requires an array",
+            "nonincreasing: expected an array",
         ),
         (
             "unique-duplicate",
