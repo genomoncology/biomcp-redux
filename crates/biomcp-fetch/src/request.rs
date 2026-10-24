@@ -21,15 +21,6 @@ enum Failure {
 }
 
 impl Leg<'_> {
-    /// Inspect the same source policy without opening another transport leg.
-    pub fn disabled_source(&self, source: biodata::Source) -> bool {
-        self.fetch.disabled(source)
-    }
-    /// Inspect the same component policy before choosing a source projection.
-    pub fn disabled_use(&self, usage: biodata::Use) -> bool {
-        self.fetch.disabled_use(usage)
-    }
-
     /// Read opaque bytes from an endpoint declaring its own bounded binary policy.
     pub fn bytes(
         &self,

@@ -317,6 +317,15 @@ pub struct LegReport {
     pub failures: Vec<SourceError>,
 }
 impl Leg<'_> {
+    /// Inspect the same source policy without opening another transport leg.
+    pub fn disabled_source(&self, source: biodata::Source) -> bool {
+        self.fetch.disabled(source)
+    }
+    /// Inspect the same component policy before choosing a source projection.
+    pub fn disabled_use(&self, usage: biodata::Use) -> bool {
+        self.fetch.disabled_use(usage)
+    }
+
     /// Bypass cached reads and stale fallback for this leg and its batch children.
     /// The process policy cannot be weakened by a call.
     pub fn fresh(mut self, fresh: bool) -> Self {

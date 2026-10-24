@@ -116,9 +116,12 @@ fn source_health() -> Check {
         {
             return Err("health lost publisher terms".into());
         }
-        let disabled = spec.source == biodata::Source::Hgnc
-            || spec.source == biodata::Source::Hpa
-            || spec.terms.usage == biodata::Use::Restricted;
+        let disabled = biomcp_adapters::registry::disabled(&[
+            "hgnc".into(),
+            "hpa".into(),
+            "restricted".into(),
+        ])?
+        .contains(&spec.source);
         if disabled
             && (row.get("state") != Some(&json!("skipped"))
                 || row.get("reason") != Some(&json!("disabled"))
@@ -221,7 +224,11 @@ fn no_request() -> Check {
         .filter(|s| s.terms.usage != biodata::Use::Restricted)
         .map(|s| s.source.to_string())
         .collect::<Vec<_>>();
-    disabled.extend(["restricted".into(), "noncommercial".into()]);
+    disabled.extend([
+        "restricted".into(),
+        "noncommercial".into(),
+        "myvariant".into(),
+    ]);
     let health = invoke(
         &env,
         vec![
