@@ -1,7 +1,7 @@
 //! Source assertions with independent row paging and exact record selection.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
-    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind,
+    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind,
     VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
     VariantId,
 };

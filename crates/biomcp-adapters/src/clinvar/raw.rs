@@ -28,7 +28,7 @@ impl XmlReply for Records {
         if archives.len() != 1 {
             return Err(BadReply);
         }
-        let archive = archives[0];
+        let archive = *archives.first().ok_or(BadReply)?;
         let id = archive.attr("VariationID")?.ok_or(BadReply)?;
         format!("clinvar:{id}")
             .parse::<biodata::VariantId>()
