@@ -34,7 +34,7 @@ fn filters() -> Result<(), String> {
     for extra in [vec!["--missing", "clinvar"], vec!["--significance", "x\" OR *"], vec!["--has", "cadd"]] {
         let mut args = vec!["search", "variant", "--query", "dbsnp.rsid:rs113488022", "--source", "myvariant"];
         args.extend(extra);
-        if command(&env, &args.into_iter().map(Into::into).collect::<Vec<_>>())?["status"] != "usage" {
+        if command(&env, &args.into_iter().map(Into::into).collect::<Vec<_>>())?.pointer("/error/code") != Some(&json!("usage.arguments")) {
             return Err("raw query/filter mix or unsupported component was accepted".into());
         }
     }

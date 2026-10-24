@@ -1,5 +1,5 @@
 use super::gene::{QueryInvalid, present};
-use crate::{Build, Chromosome, GeneSymbol, ProteinChange, macros::text_value};
+use crate::{Build, Chromosome, GeneSymbol, ProteinChange, Text, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 crate::macros::wire_enum! {
@@ -7,6 +7,13 @@ crate::macros::wire_enum! {
     VariantSearchSource {
         /// MyVariant.info candidate discovery.
         Myvariant => "myvariant",
+    }
+}
+crate::macros::wire_enum! {
+    /// Independently permitted component fields supported by the presence filters.
+    VariantSearchField {
+        /// Presence of MyVariant's ClinVar variant identifier, without interpreting its assertions.
+        Clinvar => "clinvar",
     }
 }
 /// MyVariant's one-based inclusive primary-chromosome region spelling, kept unchanged.
@@ -125,6 +132,26 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchSource"))]
     source: Option<VariantSearchSource>,
+    /// Literal MyVariant clinvar.rcv.clinical_significance value; no aliases or classification inference. Requires a declared protein or region selector.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    significance: Option<Text>,
+    /// Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    review_status: Option<Text>,
+    /// Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    condition: Option<Text>,
+    /// Require the selected component's identifier field. Only independently permitted, proven mappings are offered.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
+    has: Option<VariantSearchField>,
+    /// Require the selected component's identifier field to be missing; this states source coverage, not clinical absence.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
+    missing: Option<VariantSearchField>,
     /// Native candidates per page, default 10, maximum 50; all candidates remain candidates.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -155,6 +182,10 @@ impl TryFrom<Fields> for VariantSearch {
         if !(protein || region || raw)
             || !(1..=50).contains(&f.limit)
             || f.offset >= Self::MAX_RESULTS
+            || (raw && f.filtered())
+            || (f.has.is_some() && f.has == f.missing)
+            || [&f.significance, &f.review_status, &f.condition].into_iter().flatten()
+                .any(|v| v.as_str().len() > 256 || v.as_str().chars().any(char::is_control))
         {
             return Err(QueryInvalid);
         }
@@ -169,17 +200,18 @@ impl VariantSearch {
         if let Some(q) = &self.0.query {
             return q.to_string();
         }
-        if let Some(region) = &self.0.region {
-            return region.to_string();
-        }
-        match (&self.0.gene, &self.0.protein) {
+        let mut term = if let Some(region) = &self.0.region {
+            region.to_string()
+        } else { match (&self.0.gene, &self.0.protein) {
             (Some(g), Some(p)) => format!(
                 "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
                 literal(g.as_str()),
                 literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
             ),
             _ => String::new(),
-        }
+        }};
+        self.0.append_filters(&mut term);
+        term
     }
     /// Assembly declared in the request, including the documented default policy.
     pub fn build(&self) -> Build {
@@ -198,6 +230,28 @@ impl VariantSearch {
         let mut q = self.clone();
         q.0.offset = offset;
         q
+    }
+}
+impl Fields {
+    fn filtered(&self) -> bool {
+        self.significance.is_some() || self.review_status.is_some() || self.condition.is_some()
+            || self.has.is_some() || self.missing.is_some()
+    }
+    fn append_filters(&self, term: &mut String) {
+        for (field, value) in [
+            ("clinical_significance", &self.significance),
+            ("review_status", &self.review_status),
+            ("conditions.name", &self.condition),
+        ] {
+            if let Some(value) = value {
+                term.push_str(&format!(" AND clinvar.rcv.{field}:\"{}\"", literal(value.as_str())));
+            }
+        }
+        for (operator, field) in [("_exists_", self.has), ("_missing_", self.missing)] {
+            if let Some(VariantSearchField::Clinvar) = field {
+                term.push_str(&format!(" AND {operator}:clinvar.variant_id"));
+            }
+        }
     }
 }
 
