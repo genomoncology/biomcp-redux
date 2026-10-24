@@ -146,11 +146,13 @@ fn resolved(candidates: Vec<(Gene, Match)>) -> GeneResolution {
             gene.hgnc_id,
         )
     });
-    if values.len() == 1 && let Some((gene, matched)) = values.pop() {
-            return GeneResolution::Resolved {
-                gene: Box::new(gene),
-                r#match: matched,
-            };
+    if values.len() == 1
+        && let Some((gene, matched)) = values.pop()
+    {
+        return GeneResolution::Resolved {
+            gene: Box::new(gene),
+            r#match: matched,
+        };
     }
     GeneResolution::Ambiguous {
         candidates: values
