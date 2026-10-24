@@ -536,8 +536,7 @@
         "gene",
         "--",
         "--go"
-      ],
-      "is_error": true
+      ]
     },
     {
       "run": [
@@ -556,8 +555,7 @@
         "get",
         "gene",
         "go"
-      ],
-      "is_error": true
+      ]
     },
     {
       "run": [
@@ -589,8 +587,7 @@
         "diagnostics",
         "--section",
         "all"
-      ],
-      "is_error": true
+      ]
     },
     {
       "run": [
@@ -676,6 +673,28 @@
         "/query/input": [
           "hpa"
         ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "secret-input",
+        "--section",
+        "hpa"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "mcp": [
+        "get",
+        "gene",
+        "secret-input",
+        "--section",
+        "hpa"
+      ],
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "use: expression"
       }
     }
   ]
