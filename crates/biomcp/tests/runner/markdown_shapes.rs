@@ -9,6 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
     })]
 }
 fn shapes() -> Result<(), String> {
+    let mut measurements = Vec::new();
     for (args, replies, required) in [
         (
             vec!["get", "gene", "BRAF"],
@@ -77,13 +78,7 @@ fn shapes() -> Result<(), String> {
         if value.get("status").is_none() {
             return Err("JSON baseline missing status".into());
         }
-        if text.len() > 1 {
-            return Err(format!(
-                "MEASURE {} bytes: {}",
-                command.join(" "),
-                text.len()
-            ));
-        }
+        measurements.push(format!("{} bytes: {}", command.join(" "), text.len()));
         command.extend(["--format".into(), "json".into()]);
         let explicit = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -93,5 +88,5 @@ fn shapes() -> Result<(), String> {
             return Err("explicit JSON changed under Markdown configuration".into());
         }
     }
-    Ok(())
+    Err(measurements.join("\n"))
 }
