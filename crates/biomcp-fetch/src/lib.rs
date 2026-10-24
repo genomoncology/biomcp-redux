@@ -1,5 +1,6 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+mod batch;
 mod cache;
 mod cache_request;
 mod deadline;
@@ -13,6 +14,7 @@ mod retry;
 mod secret;
 pub mod xml;
 
+pub use batch::MAX_BATCH_WORKERS;
 pub use cache::VERSION;
 pub use deadline::Deadline;
 pub use declaration::{
@@ -164,7 +166,8 @@ impl Fetch {
             clock: deadline.fork(),
             wrong_clock: !deadline.matches(self.clock.as_ref()),
             no_key,
-            report: std::sync::Mutex::new(LegReport::default()),
+            report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
+            nested_batch: false,
         }
     }
 }
@@ -182,7 +185,8 @@ pub struct Leg<'a> {
     clock: Option<deadline::VirtualClock>,
     wrong_clock: bool,
     no_key: bool,
-    report: std::sync::Mutex<LegReport>,
+    report: std::sync::Arc<std::sync::Mutex<LegReport>>,
+    nested_batch: bool,
 }
 
 /// Request policy for live provider access.
@@ -230,8 +234,11 @@ impl Leg<'_> {
     }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
-        self.report
-            .into_inner()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
+        std::mem::take(
+            &mut *self
+                .report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        )
     }
 }

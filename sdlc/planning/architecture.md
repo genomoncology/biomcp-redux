@@ -630,12 +630,16 @@ impl Leg<'_> {
     pub fn post_json<B: Serialize, T: Reply>(&self, ep: &Endpoint, body: &B) -> Result<T, SourceError>;
     pub fn rows<R: Row>(&self, bundle: &'static Bundle<R>, find: Find<'_>) -> Result<Vec<R>, SourceError>;
     /// Run one call per chunk on scoped threads, each under the source's quota. Returns in chunk order.
-    pub fn batch<C: Sync, T: Send>(&self, chunks: &[C], call: impl Fn(&Leg<'_>, &C) -> Result<T, SourceError> + Sync) -> Vec<Result<T, SourceError>>;
+    pub fn batch<C: Sync, T: Send>(&self, chunks: &[C], call: impl Fn(&Leg<'_>, &C) -> Result<T, RequestError> + Sync) -> Vec<Result<T, RequestError>>;
     pub fn finish(self) -> LegReport;      // state, requests, cache hits, stale flag, elapsed, trace
 }
 
 pub enum Arg<'a> { Text(&'a str), Num(u64), Ids(&'a [Box<str>]) }   // Ids are sorted and joined with commas
 ```
+
+`Leg::batch` bounds scoped workers with `MAX_BATCH_WORKERS`, independently of provider quota admission. Each worker takes successive chunks in input order by its assigned stride; results return in input order. A callback leg runs a nested batch inline. Each outer invocation owns its worker bound, and independent invocations share the provider quota. Empty input returns empty. Otherwise missing credentials, a foreign clock domain and an exhausted budget refuse each chunk in that order before its callback runs. A source failure remains that chunk's normal `RequestError` result. A callback panic propagates after all scoped workers finish. Transport deadlines cannot interrupt arbitrary callback computation or blocking.
+
+Callback legs share the parent's retained stale report and absolute deadline. Replay workers fork at the parent's current instant, retain their clock across assigned chunks and join their greatest completion into the parent, including progress before a callback panic. Provider permits retain released virtual slot completion times. A later replay request cannot reuse a slot before that completion; it also observes token spacing and FIFO admission. Thread arrival can conservatively delay virtual work. No deterministic event scheduler or ideal parallel schedule is promised.
 
 A source and its endpoints are statics and constants built with `const fn`. A quota is one provider limit, named by a source key and shared by every source that draws on it.
 

@@ -102,11 +102,18 @@ impl Leg<'_> {
         )
     }
 
-    fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
+    pub(crate) fn check_source(&self) -> Result<(), RequestError> {
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
         }
-        if self.wrong_clock || !std::ptr::eq(self.spec, ep.spec) {
+        if self.wrong_clock {
+            return Err(self.failure(Reason::Rejected, None).into());
+        }
+        Ok(())
+    }
+    fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
+        self.check_source()?;
+        if !std::ptr::eq(self.spec, ep.spec) {
             return Err(self.failure(Reason::Rejected, None).into());
         }
         if (ep.method == Method::Json) != json_body {
