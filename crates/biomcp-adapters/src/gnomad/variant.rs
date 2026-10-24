@@ -63,7 +63,7 @@ impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
         let errors = self.errors.as_deref().unwrap_or_default();
         if self.data.variant.is_none() {
-            return if errors.len() == 1 && errors[0].message == "Variant not found" {
+            return if matches!(errors, [error] if error.message == "Variant not found") {
                 Ok(())
             } else {
                 Err(BadReply)

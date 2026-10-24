@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const ASSOCIATIONS: Endpoint = SPEC.get("/associations").fresh(Freshness::Days(1));
 /// Source-native page and its exact catalog denominator.
+#[derive(Debug)]
 pub struct Page {
     /// Selected source rows.
     pub rows: Vec<Association>,
