@@ -30,11 +30,6 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         }
         item.more = [
             (
-                ArticleSectionWord::Supplements,
-                ArticleSection::Supplements,
-                card.pmcid.is_some(),
-            ),
-            (
                 ArticleSectionWord::Annotations,
                 ArticleSection::Annotations,
                 card.pmid.is_some(),
@@ -42,6 +37,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             (
                 ArticleSectionWord::Fulltext,
                 ArticleSection::Fulltext,
+                card.pmcid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Supplements,
+                ArticleSection::Supplements,
                 card.pmcid.is_some(),
             ),
             (

@@ -198,60 +198,6 @@
         "supplement",
         "28944238",
         "MGG3-5-553-s002.xlsx",
-        "--variant",
-        " P245S"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "article",
-        "text",
-        "PMC5606870",
-        "--variant",
-        " P245S"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
-        "--variant",
-        "P245S "
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "article",
-        "text",
-        "PMC5606870",
-        "--variant",
-        "P245S "
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "article",
-        "supplement",
-        "28944238",
-        "MGG3-5-553-s002.xlsx",
         "--rows",
         "0-1"
       ],

@@ -39,6 +39,7 @@ const LIMITS: Limits = Limits {
 };
 /// Parse checked bytes under the command's remaining local deadline.
 pub fn read(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<Sheet>, Reason> {
+    check(end)?;
     match kind {
         FileKind::Xlsx => xlsx::read(bytes, end),
         FileKind::Csv | FileKind::Tsv => delimited(bytes, kind, end),

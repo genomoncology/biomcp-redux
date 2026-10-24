@@ -466,7 +466,7 @@
               "type": "null"
             }
           ],
-          "description": "Character offset of this row fragment in flattened cell text."
+          "description": "Sparse source cell fragment when the complete row exceeds the output bound."
         },
         "header": {
           "description": "First original row, including empty cells.",
