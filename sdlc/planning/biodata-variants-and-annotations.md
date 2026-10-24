@@ -6,7 +6,7 @@ The plan covers three crates:
 
 - **BioMCP biodata**, this repo's `crates/biodata`, including the variant identity work on its open ticket branch.
 - **The projecting crate**, the other consumer's `biodata`. It holds the HGVS grammar and its parsed form, alteration and cytogenetic notation, coordinates and an allele key. Its sibling crate holds normalization, projection and the annotation readers.
-- **The standalone crate**, the public `biodata` repository. It is the likely merge home.
+- **The standalone crate**, the public `biodata` repository.
 
 ## 1. What each crate has today
 
