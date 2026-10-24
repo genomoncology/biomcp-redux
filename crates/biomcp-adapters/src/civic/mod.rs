@@ -62,20 +62,45 @@ pub fn genes(
     let raw = fetch!(
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
     )?;
-    Ok(ids.into_iter().enumerate().map(|(index, (_, id))| mapped(&raw, index, id)).collect())
+    Ok(ids
+        .into_iter()
+        .enumerate()
+        .map(|(index, (_, id))| mapped(&raw, index, id))
+        .collect())
 }
 fn mapped(raw: &raw::Aliases, index: usize, id: EntrezGeneId) -> GeneCivic {
     let mut problems = Vec::new();
-    let gene = raw.0.iter().find(|(name, _)| *name == format!("g{index}")).and_then(|(_, gene)| gene.as_ref());
+    let gene = raw
+        .0
+        .iter()
+        .find(|(name, _)| *name == format!("g{index}"))
+        .and_then(|(_, gene)| gene.as_ref());
     let section = match gene {
-        None => Section::Empty { source: Source::Civic, record: None },
+        None => Section::Empty {
+            source: Source::Civic,
+            record: None,
+        },
         Some(gene) if gene.entrez_id != id => {
-            problems.push(Problem { source: Source::Civic, record: Text::new(&id.to_string()).ok(), field: "entrez_id".into(), code: ProblemCode::ValueUnknown });
-            Section::Unavailable { source: Source::Civic, reason: biodata::Reason::BadReply }
+            problems.push(Problem {
+                source: Source::Civic,
+                record: Text::new(&id.to_string()).ok(),
+                field: "entrez_id".into(),
+                code: ProblemCode::ValueUnknown,
+            });
+            Section::Unavailable {
+                source: Source::Civic,
+                reason: biodata::Reason::BadReply,
+            }
         }
         Some(gene) => map(gene),
     };
-    GeneCivic { id, civic: Mapped { value: section, problems } }
+    GeneCivic {
+        id,
+        civic: Mapped {
+            value: section,
+            problems,
+        },
+    }
 }
 
 fn map(gene: &raw::Gene) -> Section<CivicGene> {

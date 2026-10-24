@@ -48,7 +48,7 @@ fn capture() {
         civic::genes(&leg, &[(symbol.parse().unwrap(), id.parse().unwrap())]).unwrap();
     }
     let leg = fetch.leg(&HGNC, fetch.deadline(Duration::from_secs(30)));
-    let _: Raw = leg.get(&HGNC.get("/fetch/symbol/VSIR"), &[]).unwrap();
+    let _: Raw = leg.json(&HGNC.get("/fetch/symbol/VSIR"), &[]).unwrap();
     let leg = fetch.leg(&mygene::SPEC, fetch.deadline(Duration::from_secs(30)));
     for batch in mygene::genes(&leg, &["64115".parse().unwrap()]) {
         batch.result.unwrap();
