@@ -4,57 +4,79 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::Path;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("view/markdown-command-shapes", || {
+    vec![Trial::test("markdown-view/command-shapes", || {
         shapes().map_err(Into::into)
     })]
 }
+struct Shape {
+    args: &'static [&'static str],
+    replies: &'static str,
+    required: &'static [&'static str],
+    max_bytes: usize,
+}
+// Measured Markdown plus 15%; the protein ceiling also respects the matching
+// 0.9 JSON baseline. Reader and usage shapes have no comparable old output.
+const SHAPES: &[Shape] = &[
+    Shape {
+        args: &["get", "gene", "BRAF"],
+        replies: "gene/main",
+        required: &["# BRAF", "**status:**", "biomcp get gene BRAF"],
+        max_bytes: 2382,
+    },
+    Shape {
+        args: &["get", "gene", "CDKN2A", "protein"],
+        replies: "gene/protein",
+        required: &["# CDKN2A", "Protein", "**state:** data", "P42771", "Q8N726"],
+        max_bytes: 5328,
+    },
+    Shape {
+        args: &["search", "gene", "KRAS"],
+        replies: "gene/main",
+        required: &[
+            "| Symbol | Name | Hgnc id | Location | Status |",
+            "KRAS",
+            "biomcp get gene KRAS",
+        ],
+        max_bytes: 592,
+    },
+    Shape {
+        args: &["search", "article", "AKT1 E17K"],
+        replies: "article/search/live",
+        required: &[
+            "| Pmid | Title | Journal | Date |",
+            "biomcp search article 'AKT1 E17K'",
+            "biomcp get article 33377972",
+        ],
+        max_bytes: 3835,
+    },
+    Shape {
+        args: &["get", "article", "33123537"],
+        replies: "article/get/synthetic-derived",
+        required: &["# ", "**status:**", "biomcp"],
+        max_bytes: 2421,
+    },
+    Shape {
+        args: &["article", "text", "PMC5606870", "--part", "1"],
+        replies: "article/fulltext/synthetic",
+        required: &["## Introduction", "*text*", "**state:** data"],
+        max_bytes: 650,
+    },
+    Shape {
+        args: &["get", "gene"],
+        replies: "gene/main",
+        required: &["# Error", "**status:** usage", "usage.arguments"],
+        max_bytes: 151,
+    },
+];
 fn shapes() -> Result<(), String> {
-    let mut measurements = Vec::new();
-    for (args, replies, required) in [
-        (
-            vec!["get", "gene", "BRAF"],
-            "gene/main",
-            vec!["# BRAF", "**status:**", "biomcp get gene"],
-        ),
-        (
-            vec!["get", "gene", "CDKN2A", "protein"],
-            "gene/protein",
-            vec!["# CDKN2A", "Protein", "**state:**", "P42771", "Q8N726"],
-        ),
-        (
-            vec!["search", "gene", "KRAS"],
-            "gene/main",
-            vec!["| Symbol |", "Hgnc id", "KRAS"],
-        ),
-        (
-            vec!["search", "article", "AKT1 E17K"],
-            "article/search/live",
-            vec!["| Pmid |", "Title", "biomcp"],
-        ),
-        (
-            vec!["get", "article", "33123537"],
-            "article/get/synthetic-derived",
-            vec!["# ", "**status:**", "biomcp"],
-        ),
-        (
-            vec!["article", "text", "PMC5606870", "--part", "1"],
-            "article/fulltext/synthetic",
-            vec!["## Introduction", "*text*", "**state:** data"],
-        ),
-        (
-            vec!["get", "gene"],
-            "gene/main",
-            vec!["Error", "**status:**", "usage"],
-        ),
-    ] {
+    for shape in SHAPES {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../tests/replies")
-            .join(replies);
+            .join(shape.replies);
         let globals = env.globals(Some(&replay), false);
-        let tool_args: Vec<String> = args.into_iter().map(str::to_owned).collect();
         let mut command = globals.clone();
-        command.extend(tool_args.iter().cloned());
+        command.extend(shape.args.iter().map(|arg| (*arg).to_owned()));
         let json_output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
             .output()
@@ -68,15 +90,23 @@ fn shapes() -> Result<(), String> {
             .output()
             .map_err(|e| e.to_string())?;
         let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-        for required in required {
+        for required in shape.required {
             if !text.contains(required) {
                 return Err(format!("{command:?} lacks {required}: {text}"));
             }
         }
+        if text.len() > shape.max_bytes {
+            return Err(format!(
+                "{:?}: {} Markdown bytes exceed {}",
+                shape.args,
+                text.len(),
+                shape.max_bytes
+            ));
+        }
         if output.status != json_output.status || !output.stderr.is_empty() {
             return Err("Markdown changed command status or emitted diagnostics".into());
         }
-        let mut tool_args = tool_args;
+        let mut tool_args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
         tool_args.extend(["--format".into(), "md".into()]);
         let tool = super::mcp::call_with_globals(
             &env,
@@ -87,7 +117,6 @@ fn shapes() -> Result<(), String> {
         if tool != value {
             return Err("MCP changed JSON under Markdown configuration".into());
         }
-        measurements.push(format!("{} bytes: {}", command.join(" "), text.len()));
         command.extend(["--format".into(), "json".into()]);
         let explicit = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -97,5 +126,5 @@ fn shapes() -> Result<(), String> {
             return Err("explicit JSON changed under Markdown configuration".into());
         }
     }
-    Err(measurements.join("\n"))
+    Ok(())
 }
