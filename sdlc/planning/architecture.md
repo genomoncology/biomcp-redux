@@ -32,7 +32,7 @@ Five crates. Each exists because a rule needs a crate boundary to enforce it.
 | --- | --- | --- | --- |
 | `biodata` | Typed values for every entity, identifier, closed set, query, request and response. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json` | `ureq`, `rusqlite` |
 
@@ -1860,3 +1860,5 @@ Ian ruled on 2026-10-24, and this file applies each ruling:
 None. Section 8.7 settles the pinned MCP revisions.
 
 EFetch provenance uses `LegReport.replies`, keyed by the canonical credential-free request identity. `Leg::xml_received` returns the selected reply metadata alongside its checked value. Capture stores Unix seconds per exchange; replay restores them, and cached replies retain their original row fetch time. Legacy recordings without this field report zero. Replay cache freshness starts at import while provenance retains the captured time.
+
+Supplement readers use explicit JATS MIME declarations when present and supported. Missing or generic octet-stream declarations fall back to the exact filename suffix. Other explicit MIME declarations return unsupported. XLSX preflight bounds container metadata and actual expanded XML before calamine, then reads sparse cells without evaluating formulas or links. Binary recordings publish one relative sidecar per exchange. Binary parser validation occurs before cache admission.

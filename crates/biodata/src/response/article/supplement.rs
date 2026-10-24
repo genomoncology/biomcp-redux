@@ -1,7 +1,7 @@
 use crate::{License, Pmcid, Section, Text};
 use serde::{Deserialize, Serialize};
 crate::source::canonical_enum! {
-    /// Supplement format determined by the exact source filename suffix.
+    /// Supplement format from an explicit JATS MIME declaration, with suffix fallback.
     FileKind, SourceUnknown {
         /// Excel workbook.
         Xlsx => "xlsx",

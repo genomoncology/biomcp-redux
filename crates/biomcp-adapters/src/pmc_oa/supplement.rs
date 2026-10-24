@@ -43,6 +43,7 @@ pub(super) fn select(
                 "pdf" => FileKind::Pdf,
                 _ => FileKind::Other,
             };
+            let kind = item.kind.unwrap_or(kind);
             let public = format!(
                 "{}{}{}",
                 super::SPEC.base,

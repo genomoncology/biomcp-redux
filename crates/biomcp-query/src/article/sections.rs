@@ -1,7 +1,6 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
 pub(crate) mod fulltext;
-mod supplements;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSections, Section,
@@ -65,22 +64,10 @@ pub(super) fn run<'a>(
     }) {
         annotations(cx, deadline, out);
     }
-    if query.sections().iter().any(|s| {
-        matches!(
-            s,
-            biodata::ArticleSectionWord::Fulltext | biodata::ArticleSectionWord::All
-        )
-    }) {
-        fulltext::run(cx, deadline, out);
-    }
-    if query.sections().iter().any(|s| {
-        matches!(
-            s,
-            biodata::ArticleSectionWord::Supplements | biodata::ArticleSectionWord::All
-        )
-    }) {
-        supplements::run(cx, deadline, out);
-    }
+    let fulltext=query.sections().iter().any(|s|matches!(s,biodata::ArticleSectionWord::Fulltext|biodata::ArticleSectionWord::All));
+    let supplements=query.sections().iter().any(|s|matches!(s,biodata::ArticleSectionWord::Supplements|biodata::ArticleSectionWord::All));
+    if fulltext || supplements {fulltext::run(cx,deadline,out,fulltext,supplements);}
+
 }
 fn annotations<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
