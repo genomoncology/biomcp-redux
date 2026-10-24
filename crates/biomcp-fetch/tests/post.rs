@@ -1,6 +1,5 @@
 //! Declared POST bodies share the checked transport and modes.
 #![expect(
-    clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
@@ -288,49 +287,7 @@ fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_
                 place,
             }),
         );
-        let mut config = FetchConfig {
-            mode: Mode::Record {
-                dir: dir.path().to_owned(),
-            },
-            ..FetchConfig::default()
-        };
-        config
-            .secrets
-            .insert(SecretName::NcbiApiKey, Secret::new("configured-secret"));
-        let recording = Fetch::open(config).unwrap();
-        thread::scope(|scope| {
-            let worker = scope.spawn(|| {
-                recording
-                    .leg(spec, recording.deadline(Duration::from_secs(10)))
-                    .json::<Answer>(
-                        &spec.post_form("/answer"),
-                        &[
-                            ("q", Arg::Text("user-text")),
-                            ("api_key", Arg::Text("caller-secret")),
-                        ],
-                    )
-            });
-            let request = server.next();
-            let wire = request.text.to_ascii_lowercase();
-            assert!(wire.contains("configured-secret"));
-            match place {
-                KeyPlace::Query(_) => {
-                    assert!(
-                        request
-                            .text
-                            .starts_with("POST /answer?api_key=configured-secret ")
-                    );
-                    assert_eq!(request.body, b"q=user-text");
-                }
-                KeyPlace::Header(_) => {
-                    assert!(wire.contains("x-api-key: configured-secret\r\n"));
-                    assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
-                }
-            }
-            request.ok();
-            assert!(worker.join().unwrap().unwrap().answer);
-        });
-        drop(recording);
+        capture_credentials(&server, spec, dir.path(), place);
         let path = std::fs::read_dir(dir.path().join("pubmed"))
             .unwrap()
             .next()
@@ -390,4 +347,60 @@ fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_
         );
         assert!(server.requests.try_recv().is_err());
     }
+}
+
+#[expect(
+    clippy::unwrap_used,
+    reason = "Fixture construction and worker failures fail the contract"
+)]
+fn capture_credentials(
+    server: &Server,
+    spec: &'static biomcp_fetch::SourceSpec,
+    dir: &std::path::Path,
+    place: biomcp_fetch::KeyPlace,
+) {
+    use biomcp_fetch::{KeyPlace, Mode, Secret, SecretName};
+    let mut config = FetchConfig {
+        mode: Mode::Record {
+            dir: dir.to_owned(),
+        },
+        ..FetchConfig::default()
+    };
+    config
+        .secrets
+        .insert(SecretName::NcbiApiKey, Secret::new("configured-secret"));
+    let recording = Fetch::open(config).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            recording
+                .leg(spec, recording.deadline(Duration::from_secs(10)))
+                .json::<Answer>(
+                    &spec.post_form("/answer"),
+                    &[
+                        ("q", Arg::Text("user-text")),
+                        ("api_key", Arg::Text("caller-secret")),
+                    ],
+                )
+        });
+        let request = server.next();
+        let wire = request.text.to_ascii_lowercase();
+        assert!(wire.contains("configured-secret"));
+        match place {
+            KeyPlace::Query(_) => {
+                assert!(
+                    request
+                        .text
+                        .starts_with("POST /answer?api_key=configured-secret ")
+                );
+                assert_eq!(request.body, b"q=user-text");
+            }
+            KeyPlace::Header(_) => {
+                assert!(wire.contains("x-api-key: configured-secret\r\n"));
+                assert_eq!(request.body, b"q=user-text&api_key=caller-secret");
+            }
+        }
+        request.ok();
+        assert!(worker.join().unwrap().unwrap().answer);
+    });
+    drop(recording);
 }
