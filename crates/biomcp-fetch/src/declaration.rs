@@ -23,16 +23,43 @@ impl SourceSpec {
             spec: self,
             path,
             fresh: Freshness::Never,
+            method: Method::Get,
+            idempotent: true,
+        }
+    }
+    /// Declare a form POST endpoint. Retries require explicit idempotence.
+    pub const fn post_form(&'static self, path: &'static str) -> Endpoint {
+        Endpoint {
+            method: Method::Form,
+            idempotent: false,
+            ..self.get(path)
+        }
+    }
+    /// Declare a JSON POST endpoint. Retries require explicit idempotence.
+    pub const fn post_json(&'static self, path: &'static str) -> Endpoint {
+        Endpoint {
+            method: Method::Json,
+            idempotent: false,
+            ..self.get(path)
         }
     }
 }
 
-/// A declared GET endpoint, always attached to its source.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Method {
+    Get,
+    Form,
+    Json,
+}
+
+/// A declared endpoint, always attached to its source.
 #[derive(Debug)]
 pub struct Endpoint {
     pub(crate) spec: &'static SourceSpec,
     pub(crate) path: &'static str,
     pub(crate) fresh: Freshness,
+    pub(crate) method: Method,
+    pub(crate) idempotent: bool,
 }
 
 /// Whether a source requires a credential before sending.
@@ -121,6 +148,11 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Permit retries for a POST that only reads provider data.
+    pub const fn idempotent(mut self) -> Self {
+        self.idempotent = true;
+        self
+    }
     /// Set the checked reply's cache freshness.
     pub const fn fresh(mut self, fresh: Freshness) -> Self {
         self.fresh = fresh;

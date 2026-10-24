@@ -1,5 +1,6 @@
 use crate::record::{Body, Exchange};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
+use crate::{InputError, declaration::Method, prepared::Prepared};
 use biodata::Reason;
 use std::{
     io::Read,
@@ -18,22 +19,35 @@ enum Failure {
 }
 
 impl Leg<'_> {
-    /// Send a checked JSON GET. A missing record returns `not_found`.
+    /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
     pub fn json<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.send(ep, params)
+        self.validate(ep, false)?;
+        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let (url, body) = if ep.method == Method::Get {
+            (
+                crate::retry::canonical(&url, params, self.spec.key),
+                Vec::new(),
+            )
+        } else {
+            (
+                url,
+                crate::prepared::form(params, self.spec.key, self.fetch.config.max_body)?,
+            )
+        };
+        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent))
     }
 
-    /// Send a checked JSON GET, treating HTTP 404 as an absent record.
+    /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
     pub fn json_opt<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<Option<T>, RequestError> {
-        match self.send(ep, params) {
+        match self.json(ep, params) {
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => Ok(None),
             result => result.map(Some),
         }
@@ -48,31 +62,48 @@ impl Leg<'_> {
         }
     }
 
-    fn send<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, RequestError> {
+    /// Send checked JSON from a declared JSON POST endpoint.
+    pub fn post_json<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        body: &B,
+    ) -> Result<T, RequestError> {
+        self.validate(ep, true)?;
+        let body = crate::prepared::json(body, self.fetch.config.max_body)?;
+        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent))
+    }
+
+    fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
         if self.no_key {
             return Err(self.failure(Reason::NoKey, None).into());
         }
         if self.wrong_clock || !std::ptr::eq(self.spec, ep.spec) {
             return Err(self.failure(Reason::Rejected, None).into());
         }
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        let canonical = crate::retry::canonical(&url, params, self.spec.key);
-        let identity = crate::retry::identity(&canonical);
+        if (ep.method == Method::Json) != json_body {
+            return Err(InputError::Method.into());
+        }
+        if self.budget().expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, None).into());
+        }
+        Ok(())
+    }
+    fn send<T: Reply>(&self, ep: &Endpoint, prepared: Prepared) -> Result<T, RequestError> {
         let keyed = match self.spec.key {
             KeyUse::Optional(c) | KeyUse::Required(c) => {
                 self.fetch.config.secrets.get(c.secret).is_some()
             }
             KeyUse::None => false,
         };
-        self.cached(ep, &canonical, &identity, || {
-            self.attempts(&canonical, &identity, keyed)
+        self.cached(ep, &prepared.url, &prepared.identity, || {
+            self.attempts(&prepared, keyed)
         })
     }
 
     fn attempts<T: Reply>(
         &self,
-        url: &str,
-        identity: &[u8; 32],
+        prepared: &Prepared,
         keyed: bool,
     ) -> Result<(T, u16, Vec<u8>), RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
@@ -81,7 +112,7 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
-            let (mut error, retryable, delay) = match self.exchange(url, identity) {
+            let (mut error, retryable, delay) = match self.exchange(prepared) {
                 Ok(response) => {
                     let status = response.status;
                     if (200..300).contains(&status) {
@@ -118,14 +149,17 @@ impl Leg<'_> {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
             error.retry_after = delay;
-            if retryable && delay.is_some_and(|wait| wait >= self.budget().remaining()) {
+            if prepared.idempotent
+                && retryable
+                && delay.is_some_and(|wait| wait >= self.budget().remaining())
+            {
                 error.reason = Reason::RateLimited;
                 return Err(error.into());
             }
-            if !retryable || attempt + 1 == crate::retry::ATTEMPTS {
+            if !prepared.idempotent || !retryable || attempt + 1 == crate::retry::ATTEMPTS {
                 return Err(error.into());
             }
-            let wait = delay.unwrap_or_else(|| crate::retry::backoff(identity, attempt));
+            let wait = delay.unwrap_or_else(|| crate::retry::backoff(&prepared.identity, attempt));
             if !crate::retry::wait(wait, self.budget()) {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
@@ -134,12 +168,13 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn call(&self, url: &str) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        let mut request = self
-            .fetch
-            .agent
-            .get(url)
-            .header("Accept", "application/json");
+    fn call(&self, prepared: &Prepared) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        let mut request = if prepared.post.is_some() {
+            self.fetch.agent.post(&prepared.url)
+        } else {
+            self.fetch.agent.get(&prepared.url).force_send_body()
+        }
+        .header("Accept", "application/json");
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.config.secrets.get(c.secret)
         {
@@ -147,6 +182,9 @@ impl Leg<'_> {
                 KeyPlace::Query(name) => request.query(name, secret),
                 KeyPlace::Header(name) => request.header(name, secret),
             };
+        }
+        if let Some(post) = &prepared.post {
+            request = request.header("Content-Type", &post.request_content_type);
         }
         let remaining = self.budget().remaining();
         if remaining.is_zero() {
@@ -156,15 +194,21 @@ impl Leg<'_> {
             .config()
             .timeout_global(Some(remaining))
             .build()
-            .call()
+            .send(prepared.body.as_slice())
     }
 
-    fn exchange(&self, url: &str, identity: &[u8; 32]) -> Result<Wire, Failure> {
+    fn exchange(&self, prepared: &Prepared) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
         if let Some(exchange) = self
             .fetch
             .recordings
-            .replay(self.spec.source, identity, url, self.fetch.config.max_body)
+            .replay(
+                self.spec.source,
+                &prepared.identity,
+                &prepared.url,
+                prepared.post.as_ref(),
+                self.fetch.config.max_body,
+            )
             .map_err(local)?
         {
             if !self
@@ -184,7 +228,7 @@ impl Leg<'_> {
             });
         }
         let started = Instant::now();
-        let mut response = self.call(url).map_err(Failure::Transport)?;
+        let mut response = self.call(prepared).map_err(Failure::Transport)?;
         let status = response.status().as_u16();
         let content_type = response
             .headers()
@@ -212,7 +256,13 @@ impl Leg<'_> {
             };
             self.fetch
                 .recordings
-                .append(self.spec.source, identity, url, exchange)
+                .append(
+                    self.spec.source,
+                    &prepared.identity,
+                    &prepared.url,
+                    prepared.post.as_ref(),
+                    exchange,
+                )
                 .map_err(local)?;
         }
         Ok(Wire {

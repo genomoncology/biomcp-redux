@@ -5,6 +5,7 @@ mod cache_request;
 mod deadline;
 mod declaration;
 mod error;
+mod prepared;
 mod quota;
 mod record;
 mod request;
@@ -16,7 +17,9 @@ pub use deadline::Deadline;
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
 };
-pub use error::{BadReply, CacheError, FetchError, RecordError, RequestError, SourceError};
+pub use error::{
+    BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,
+};
 pub use quota::{Quota, Rate, SourceKey};
 pub use record::ReplayCache;
 pub use secret::{Secret, Secrets};
@@ -41,7 +44,7 @@ pub struct FetchConfig {
     pub replay_cache: Option<ReplayCache>,
     /// Explicit HTTP proxy URL, redacted when formatted.
     pub proxy: Option<Secret>,
-    /// Maximum decoded response body bytes.
+    /// Maximum encoded request and decoded response bytes, each bounded independently.
     pub max_body: u64,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biodata::Source, Duration>,

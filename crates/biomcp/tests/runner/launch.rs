@@ -33,6 +33,9 @@ impl Environment {
                     .map(|(key, path)| (key, self.root.path().join(path))),
             )
             .current_dir(self.root.path());
+        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
+            command.env("LLVM_PROFILE_FILE", profile);
+        }
         command
     }
 }

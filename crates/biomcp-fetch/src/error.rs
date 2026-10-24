@@ -77,6 +77,8 @@ impl std::error::Error for CacheError {}
 /// A provider failure or a distinct local cache failure.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RequestError {
+    /// Local request preparation failed before storage or HTTP.
+    Input(InputError),
     /// The provider request failed.
     Source(SourceError),
     /// Local cache access or validation failed.
@@ -97,6 +99,7 @@ impl From<CacheError> for RequestError {
 impl fmt::Display for RequestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Input(error) => error.fmt(f),
             Self::Source(error) => error.fmt(f),
             Self::Cache(error) => error.fmt(f),
             Self::Recording(error) => error.fmt(f),
@@ -140,5 +143,31 @@ impl std::error::Error for RecordError {}
 impl From<RecordError> for RequestError {
     fn from(error: RecordError) -> Self {
         Self::Recording(error)
+    }
+}
+
+/// Input failures retain no caller text or serializer diagnostics.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InputError {
+    /// The call does not match the endpoint's declared body encoding.
+    Method,
+    /// The caller's JSON serializer failed.
+    Serialization,
+    /// The encoded request exceeds the configured body limit.
+    BodyLimit,
+}
+impl fmt::Display for InputError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Method => "fetch.input_method",
+            Self::Serialization => "fetch.input_serialization",
+            Self::BodyLimit => "fetch.input_body_limit",
+        })
+    }
+}
+impl std::error::Error for InputError {}
+impl From<InputError> for RequestError {
+    fn from(error: InputError) -> Self {
+        Self::Input(error)
     }
 }
