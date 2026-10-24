@@ -3,26 +3,50 @@ use super::{network_stub::Stub, variant::source_environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant/assertions-native-drug-response-disease-relationship", || {
-        relationship().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "variant/assertions-native-drug-response-disease-relationship",
+        || relationship().map_err(Into::into),
+    )]
 }
 fn relationship() -> Result<(), String> {
     for present in [true, false] {
-        let stub = Stub::for_source_status("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
-            Ok(body(present))
-        }, |_| 200)?;
+        let stub = Stub::for_source_status(
+            "eutils.ncbi.nlm.nih.gov",
+            "application/xml",
+            move |_| Ok(body(present)),
+            |_| 200,
+        )?;
         let env = source_environment(&stub)?;
-        let args = ["variant", "assertions", "clinvar:666267", "--source", "clinvar", "--assertion", "SCV000965609", "--version", "1"].map(String::from);
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
-        if !output.status.success() { return Err(format!("assertion command failed: {output:?}")); }
+        let args = [
+            "variant",
+            "assertions",
+            "clinvar:666267",
+            "--source",
+            "clinvar",
+            "--assertion",
+            "SCV000965609",
+            "--version",
+            "1",
+        ]
+        .map(String::from);
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(format!("assertion command failed: {output:?}"));
+        }
         let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        let row = value.pointer("/result/assertions/0").ok_or("missing assertion")?;
+        let row = value
+            .pointer("/result/assertions/0")
+            .ok_or("missing assertion")?;
         check(row, present)?;
         if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
             return Err("disease relationship CLI/MCP mismatch".into());
         }
-        if stub.finish()?.len() != 1 {return Err("SCV detail did not reuse its checked reply".into());}
+        if stub.finish()?.len() != 1 {
+            return Err("SCV detail did not reuse its checked reply".into());
+        }
     }
     Ok(())
 }
@@ -41,11 +65,21 @@ fn check(row: &Value, present: bool) -> Result<(), String> {
             "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}]
         }]);
     }
-    if row != &expected {return Err(format!("native SCV facts differ: expected={expected}; actual={row}"));}
+    if row != &expected {
+        return Err(format!(
+            "native SCV facts differ: expected={expected}; actual={row}"
+        ));
+    }
     Ok(())
 }
 fn body(present: bool) -> String {
     // Entirely synthetic XML, shaped after the clinically reviewed native path. No source body is copied.
-    let relationship = if present {r#"<TraitRelationship Type="DrugResponseAndDisease"><Name><ElementValue Type="Preferred">Pancreatic Adenocarcinoma</ElementValue></Name></TraitRelationship>"#} else {""};
-    format!(r#"<ClinVarResult-Set><VariationArchive VariationID="666267" Accession="VCV000666267" Version="1"><ClassifiedRecord><ClinicalAssertionList><ClinicalAssertion ID="1893254"><ClinVarAccession Accession="SCV000965609" Version="1" SubmitterName="Synthetic submitter"/><Classification DateLastEvaluated="2019-05-21"><GermlineClassification>drug response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somatic</Origin></Sample></ObservedIn></ObservedInList><TraitSet Type="DrugResponse"><Trait><Name><ElementValue Type="Preferred">Dabrafenib response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"#)
+    let relationship = if present {
+        r#"<TraitRelationship Type="DrugResponseAndDisease"><Name><ElementValue Type="Preferred">Pancreatic Adenocarcinoma</ElementValue></Name></TraitRelationship>"#
+    } else {
+        ""
+    };
+    format!(
+        r#"<ClinVarResult-Set><VariationArchive VariationID="666267" Accession="VCV000666267" Version="1"><ClassifiedRecord><ClinicalAssertionList><ClinicalAssertion ID="1893254"><ClinVarAccession Accession="SCV000965609" Version="1" SubmitterName="Synthetic submitter"/><Classification DateLastEvaluated="2019-05-21"><GermlineClassification>drug response</GermlineClassification></Classification><ObservedInList><ObservedIn><Sample><Origin>somatic</Origin></Sample></ObservedIn></ObservedInList><TraitSet Type="DrugResponse"><Trait><Name><ElementValue Type="Preferred">Dabrafenib response</ElementValue></Name>{relationship}</Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"#
+    )
 }

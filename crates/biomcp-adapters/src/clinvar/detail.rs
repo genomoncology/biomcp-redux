@@ -105,7 +105,11 @@ fn trait_conditions(trait_: Element<'_>) -> Result<Vec<AssertionCondition>, BadR
         }
     }
     let label = preferred.or_else(|| {
-        if labels.len() == 1 { labels.pop() } else { None }
+        if labels.len() == 1 {
+            labels.pop()
+        } else {
+            None
+        }
     });
     let refs = trait_.children("XRef")?;
     if refs.is_empty() {
@@ -115,7 +119,7 @@ fn trait_conditions(trait_: Element<'_>) -> Result<Vec<AssertionCondition>, BadR
             Ok(Vec::new())
         };
     }
-    refs.into_iter().map(|reference| {
-        condition(reference.attr("DB")?, reference.attr("ID")?, label.clone())
-    }).collect()
+    refs.into_iter()
+        .map(|reference| condition(reference.attr("DB")?, reference.attr("ID")?, label.clone()))
+        .collect()
 }
