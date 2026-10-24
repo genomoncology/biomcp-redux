@@ -1,8 +1,4 @@
 //! Event-driven local HTTP server; each observed request owns its response release.
-#![expect(
-    dead_code,
-    reason = "Each integration target uses a different subset of shared fixtures"
-)]
 use biomcp_fetch::{BadReply, KeyUse, Quota, Reply, SourceSpec};
 use serde::Deserialize;
 use std::{
@@ -36,6 +32,10 @@ impl Request {
         );
         let _ = self.reply.send(response);
     }
+    #[allow(
+        dead_code,
+        reason = "Only retry contracts send malformed raw HTTP replies"
+    )]
     pub(super) fn raw(self, response: &str) {
         let _ = self.reply.send(response.to_owned());
     }
