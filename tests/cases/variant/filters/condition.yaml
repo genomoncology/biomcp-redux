@@ -1,0 +1,155 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic",
+  "replay": "variant/filters/condition",
+  "story": "The proved MyVariant condition filter keeps its literal field query and native candidates",
+  "harvest": "sdlc/planning/slices/variant.md",
+  "verified": "2026-10-24; direct MyVariant query and actual CLI record retained externally under0096-filter-captures; Git response is a synthetic identity-only projection",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant_page/1",
+        "/status": "complete",
+        "/query": {
+          "equals": {
+            "region": "chr7:140453136-140453136",
+            "build": "GRCh37",
+            "condition": "Carcinoma of colon (CRC)",
+            "limit": 10,
+            "offset": 0
+          }
+        },
+        "/result/source_query": "chr7:140453136-140453136 AND clinvar.rcv.conditions.name:\"Carcinoma of colon \\(CRC\\)\"",
+        "/result/items": {
+          "equals": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "equals": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)",
+        "--disable-sources",
+        "restricted"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/sources/0/reason": "disabled",
+        "/sources/0/state": "skipped",
+        "/result/items": []
+      }
+    }
+  ]
+}
