@@ -144,12 +144,17 @@ fn entity(
         AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),
         _ => identifier.map(|s| s.to_string()),
     };
-    let key = checked_identifier.unwrap_or_else(|| {
-        if value.hgvs.is_some() || value.rsid.is_some() {
-            format!("{:?}/{:?}/{:?}", value.entrez_id, value.hgvs, value.rsid)
-        } else {
-            value.name.to_string()
-        }
-    });
+    let key = checked_identifier
+        .map(|id| format!("id:{id}"))
+        .unwrap_or_else(|| {
+            if value.hgvs.is_some() || value.rsid.is_some() {
+                format!(
+                    "variant:{:?}/{:?}/{:?}",
+                    value.entrez_id, value.hgvs, value.rsid
+                )
+            } else {
+                format!("name:{}", value.name)
+            }
+        });
     Some((key, value))
 }
