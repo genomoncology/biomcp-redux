@@ -5,10 +5,77 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "variant-search/literal-filters-preserve-page-and-cache",
-        || filters().map_err(Into::into),
-    )]
+    vec![
+        Trial::test(
+            "variant-search/literal-filters-preserve-page-and-cache",
+            || filters().map_err(Into::into),
+        ),
+        Trial::test(
+            "variant-search/component-groups-survive-page-action",
+            || restricted_page().map_err(Into::into),
+        ),
+    ]
+}
+fn restricted_page() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", restricted_body)?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let ca = env.root().join("synthetic-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(
+        &json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,
+        "disable_sources":["noncommercial"]}),
+    )
+    .map_err(|e| e.to_string())?;
+    let initial = command(
+        &env,
+        &[
+            "search",
+            "variant",
+            "--region",
+            "chr7:140453136-140453136",
+            "--build",
+            "GRCh37",
+            "--limit",
+            "1",
+            "--disable-sources",
+            "restricted",
+        ]
+        .map(Into::into),
+    )?;
+    let args: Vec<String> = serde_json::from_value(
+        initial
+            .pointer("/next/0/args")
+            .cloned()
+            .ok_or("missing page action")?,
+    )
+    .map_err(|e| e.to_string())?;
+    let page = command(&env, &args)?;
+    let disabled = args
+        .windows(2)
+        .find(|v| v[0] == "--disable-sources")
+        .map(|v| v[1].split(',').collect::<Vec<_>>())
+        .unwrap_or_default();
+    if !disabled.contains(&"restricted")
+        || !disabled.contains(&"noncommercial")
+        || page.pointer("/page/offset") != Some(&json!(1))
+        || page
+            .pointer("/result/items/0/identity/aliases/clinvar")
+            .is_some()
+        || stub.finish()?.len() != 2
+    {
+        return Err(format!(
+            "page action lost component groups: {args:?} {page}"
+        ));
+    }
+    Ok(())
+}
+fn restricted_body(request: &str) -> Result<String, String> {
+    if request.contains("clinvar.variant_id") {
+        return Err(format!(
+            "page action reenabled ClinVar projection: {request}"
+        ));
+    }
+    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>T"}]}).to_string())
 }
 fn filters() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
