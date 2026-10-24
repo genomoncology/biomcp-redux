@@ -410,7 +410,13 @@ impl Leg<'_> {
                 prepared.post.as_ref(),
                 codec.limit.unwrap_or(self.fetch.config.max_body),
             )
-            .map_err(local)?
+            .map_err(|error| {
+                if codec.limit.is_some() && error == crate::RecordError::Limit {
+                    Failure::Local(self.failure(Reason::BadReply, None).into())
+                } else {
+                    local(error)
+                }
+            })?
         {
             if !self
                 .budget()

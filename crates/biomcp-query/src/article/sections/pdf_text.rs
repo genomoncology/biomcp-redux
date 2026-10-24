@@ -68,15 +68,26 @@ fn find(
         .iter()
         .map(|term| term.to_lowercase())
         .collect();
-    let rows: Vec<_> = document
+    let all: Vec<_> = document
         .parts
         .iter()
         .flat_map(|part| part.rows.iter().map(move |row| (part, row)))
-        .filter(|(_, row)| {
+        .collect();
+    let matching: std::collections::BTreeSet<_> = all
+        .chunk_by(|(_, a), (_, b)| a.paragraph == b.paragraph)
+        .filter_map(|rows| {
+            let text: String = rows.iter().map(|(_, row)| row.text.as_str()).collect();
+            let text = text.to_lowercase();
             needles
                 .iter()
-                .any(|needle| row.text.to_lowercase().contains(needle))
+                .any(|needle| text.contains(needle))
+                .then(|| rows.first().map(|(_, row)| row.paragraph))
+                .flatten()
         })
+        .collect();
+    let rows: Vec<_> = all
+        .into_iter()
+        .filter(|(_, row)| matching.contains(&row.paragraph))
         .collect();
     let offset = usize::try_from(query.offset()).ok()?;
     if offset > rows.len() {

@@ -14,6 +14,7 @@ pub(super) struct Part {
 }
 #[derive(Debug, Deserialize, Serialize)]
 pub(super) struct Row {
+    pub(super) paragraph: u32,
     pub(super) page: u32,
     pub(super) text: String,
 }
@@ -22,13 +23,15 @@ const ROW_BYTES: usize = 3_200;
 impl Document {
     pub(super) fn new(mut outline: PdfText, pages: Vec<String>) -> Option<Self> {
         let mut parts = Vec::<Part>::new();
-        let mut bytes = 0;
+        let mut bytes = 2;
+        let mut paragraph_number = 0_u32;
         for (index, page) in pages.into_iter().enumerate() {
             let number = u32::try_from(index + 1).ok()?;
             for paragraph in page.split("\n\n").filter(|text| !text.trim().is_empty()) {
+                paragraph_number = paragraph_number.checked_add(1)?;
                 for text in fragments(paragraph) {
                     let size = biomcp_adapters::jats::escaped_bytes(&text);
-                    if parts.is_empty() || bytes + size + 2 > PART_BYTES {
+                    if parts.is_empty() || bytes + size + 4 > PART_BYTES {
                         parts.push(Part {
                             meta: PdfPart {
                                 number: u32::try_from(parts.len() + 1).ok()?,
@@ -38,13 +41,17 @@ impl Document {
                             },
                             rows: Vec::new(),
                         });
-                        bytes = 0;
+                        bytes = 2;
                     }
                     let part = parts.last_mut()?;
                     part.meta.last_page = number;
-                    bytes += size + 2;
+                    bytes += size + if part.rows.is_empty() { 0 } else { 4 };
                     part.meta.tokens = u32::try_from(bytes.div_ceil(4)).ok()?;
-                    part.rows.push(Row { page: number, text });
+                    part.rows.push(Row {
+                        paragraph: paragraph_number,
+                        page: number,
+                        text,
+                    });
                 }
             }
         }
