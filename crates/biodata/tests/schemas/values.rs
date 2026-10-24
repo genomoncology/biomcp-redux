@@ -32,7 +32,11 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
         assert!(!validator.is_valid(&value));
     }
     let schema = generate::<T>();
-    for spelling in schema["enum"].as_array().expect("string enum") {
+    for spelling in schema
+        .get("enum")
+        .and_then(Value::as_array)
+        .expect("string enum")
+    {
         let value: T = serde_json::from_value(spelling.clone()).expect("canonical spelling");
         assert_eq!(&serde_json::to_value(value).unwrap(), spelling);
     }
