@@ -2,63 +2,51 @@ use biodata::{Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, HgncId};
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
 
+pub(super) fn cell(value: &Option<String>) -> &str { value.as_deref().unwrap_or("") }
+
 #[derive(Debug, Deserialize)]
 pub(super) struct Gene {
-    #[serde(default)]
-    pub hgnc_id: String,
-    #[serde(default)]
-    pub symbol: String,
-    #[serde(default)]
-    pub name: String,
-    #[serde(default)]
-    pub locus_group: String,
-    #[serde(default)]
-    pub locus_type: String,
-    #[serde(default)]
-    pub status: String,
-    #[serde(default)]
-    pub location: String,
-    #[serde(default)]
-    pub alias_symbol: String,
-    #[serde(default)]
-    pub prev_symbol: String,
-    #[serde(default)]
-    pub entrez_id: String,
-    #[serde(default)]
-    pub ensembl_gene_id: String,
-    #[serde(default)]
-    pub uniprot_ids: String,
-    #[serde(default)]
-    pub omim_id: String,
-    #[serde(default)]
-    pub mane_select: String,
+    pub hgnc_id: Option<String>,
+    pub symbol: Option<String>,
+    pub name: Option<String>,
+    pub locus_group: Option<String>,
+    pub locus_type: Option<String>,
+    pub status: Option<String>,
+    pub location: Option<String>,
+    pub alias_symbol: Option<String>,
+    pub prev_symbol: Option<String>,
+    pub entrez_id: Option<String>,
+    pub ensembl_gene_id: Option<String>,
+    pub uniprot_ids: Option<String>,
+    pub omim_id: Option<String>,
+    pub mane_select: Option<String>,
 }
 pub(super) fn parts(value: &str) -> impl Iterator<Item = &str> {
     value.split('|').filter(|v| !v.is_empty())
 }
 impl Row for Gene {
     fn keys(&self) -> Keys {
-        let mut keys = identity(&self.hgnc_id, &self.symbol);
+        let mut keys = identity(cell(&self.hgnc_id), cell(&self.symbol));
         for (kind, values) in [
-            (KeyKind::PreviousSymbol, &self.prev_symbol),
-            (KeyKind::Alias, &self.alias_symbol),
+            (KeyKind::PreviousSymbol, cell(&self.prev_symbol)),
+            (KeyKind::Alias, cell(&self.alias_symbol)),
         ] {
             keys.exact.extend(parts(values).map(|v| (kind, v.into())));
             keys.words.extend(parts(values).map(Into::into));
         }
-        if let Ok(id) = self.entrez_id.parse::<EntrezGeneId>() {
+        if let Ok(id) = cell(&self.entrez_id).parse::<EntrezGeneId>() {
             keys.exact
                 .push((KeyKind::Xref, format!("entrez:{id}").into()));
         }
-        if let Ok(id) = self.ensembl_gene_id.parse::<EnsemblGeneId>() {
+        if let Ok(id) = cell(&self.ensembl_gene_id).parse::<EnsemblGeneId>() {
             keys.exact
                 .push((KeyKind::Xref, format!("ensembl:{}", id.base()).into()));
         }
-        if Cytoband::new(&self.location).is_ok() {
+        if Cytoband::new(cell(&self.location)).is_ok() {
             keys.exact
-                .push((KeyKind::Band, self.location.clone().into()));
+                .push((KeyKind::Band, cell(&self.location).into()));
         }
-        keys.words.push(self.name.clone().into());
+        keys.words.push(cell(&self.name).into());
         keys
     }
 }
@@ -77,17 +65,17 @@ fn identity(id: &str, symbol: &str) -> Keys {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Withdrawn {
-    #[serde(default, rename = "HGNC_ID")]
-    pub hgnc_id: String,
-    #[serde(default, rename = "STATUS")]
-    pub status: String,
-    #[serde(default, rename = "WITHDRAWN_SYMBOL")]
-    pub symbol: String,
-    #[serde(default, rename = "MERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)")]
-    pub merged: String,
+    #[serde(rename = "HGNC_ID")]
+    pub hgnc_id: Option<String>,
+    #[serde(rename = "STATUS")]
+    pub status: Option<String>,
+    #[serde(rename = "WITHDRAWN_SYMBOL")]
+    pub symbol: Option<String>,
+    #[serde(rename = "MERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)")]
+    pub merged: Option<String>,
 }
 impl Row for Withdrawn {
     fn keys(&self) -> Keys {
-        identity(&self.hgnc_id, &self.symbol)
+        identity(cell(&self.hgnc_id), cell(&self.symbol))
     }
 }
