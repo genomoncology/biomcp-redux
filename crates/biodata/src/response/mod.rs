@@ -63,3 +63,11 @@ pub use article::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+
+mod trial;
+pub use trial::{TrialPage, TrialParameter};
+
+mod trial_get;
+pub use trial_get::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+};

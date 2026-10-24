@@ -86,4 +86,27 @@ pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+
+mod trial;
+pub use query::PhaseFilter;
+pub use query::SponsorType;
+pub use query::TrialSearch;
+pub use response::TrialPage;
+pub use response::TrialParameter;
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
+
+mod trial_detail;
+pub use trial_detail::{
+    TrialAgeBound, TrialArm, TrialCard, TrialEligibility, TrialIntervention, TrialOutcome,
+    TrialOutcomeKind,
+};
+
+pub use query::{TrialGet, TrialSection};
+pub use response::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+};
+
+pub use trial_detail::{TrialDate, TrialDateKind};
+
+pub use trial_detail::{TrialArmKind, TrialInterventionKind};

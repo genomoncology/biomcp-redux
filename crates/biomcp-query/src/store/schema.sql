@@ -12,3 +12,7 @@ CREATE TABLE IF NOT EXISTS pool_item (
 CREATE TABLE IF NOT EXISTS citation_evidence (
  id TEXT PRIMARY KEY, request_key BLOB NOT NULL, expires INTEGER NOT NULL, payload TEXT NOT NULL, outcomes TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS trial_snapshot (
+ id TEXT PRIMARY KEY, request_key BLOB NOT NULL, expires INTEGER NOT NULL, payload TEXT NOT NULL, outcomes TEXT NOT NULL
+);

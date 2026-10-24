@@ -167,6 +167,11 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
+        (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
         (_, QueryBody::ArticleSaveRefused(url)) => {
             usage_envelope(biodata::ErrorEnvelope::save_refused(url))
         }
@@ -284,6 +289,20 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
+    if root == Some("search") && words.next() == Some("trial") {
+        let flags: Vec<_> = args
+            .iter()
+            .filter_map(|arg| arg.to_str())
+            .map(|arg| arg.split('=').next().unwrap_or(arg))
+            .collect();
+        if flags.contains(&"--facility")
+            && flags
+                .iter()
+                .any(|flag| ["--lat", "--lon", "--distance"].contains(flag))
+        {
+            error = biodata::ErrorEnvelope::trial_facility_radius();
+        }
+    }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL
             .iter()

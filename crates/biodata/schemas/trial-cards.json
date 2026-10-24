@@ -1,0 +1,1616 @@
+{
+  "$defs": {
+    "Markdown": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "format": "markdown",
+      "minLength": 1,
+      "type": "string"
+    },
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialEligibilityPage",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialRecords",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section3": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialRecords2",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "StudyType": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "INTERVENTIONAL",
+        "OBSERVATIONAL",
+        "EXPANDED_ACCESS"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "TrialAgeBound": {
+      "description": "Source age limit; absence is explicit and never a fabricated number.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Registry supplied no limit.",
+          "properties": {
+            "state": {
+              "const": "no_limit",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Unchanged source value; no local age conversion.",
+          "properties": {
+            "raw": {
+              "description": "Registry age expression.",
+              "type": "string"
+            },
+            "state": {
+              "const": "source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "raw"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TrialArm": {
+      "additionalProperties": false,
+      "description": "Registry arm with source intervention relationships.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original arm description."
+        },
+        "intervention_names": {
+          "description": "Source intervention names, including their native prefixes.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialArmKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native arm type."
+        },
+        "label": {
+          "description": "Exact arm label.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "intervention_names"
+      ],
+      "type": "object"
+    },
+    "TrialArmKind": {
+      "description": "Native registry arm group type from the publisher enum metadata.",
+      "enum": [
+        "EXPERIMENTAL",
+        "ACTIVE_COMPARATOR",
+        "PLACEBO_COMPARATOR",
+        "SHAM_COMPARATOR",
+        "NO_INTERVENTION",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "TrialArmRecord": {
+      "description": "Source arm rows followed by source intervention rows, each in its native order.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Original arm with its intervention names.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialArm"
+            },
+            "record": {
+              "const": "arm",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Original intervention with aliases and arm labels.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialIntervention"
+            },
+            "record": {
+              "const": "intervention",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TrialCard": {
+      "additionalProperties": false,
+      "description": "Complete default registry card.",
+      "properties": {
+        "brief_summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole brief summary, preserving whitespace."
+        },
+        "completion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source completion date, when present."
+        },
+        "conditions": {
+          "description": "All registered condition names.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interventions": {
+          "description": "All registered intervention names.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "nct_id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity."
+        },
+        "phases": {
+          "description": "Source phases without inferred defaults.",
+          "items": {
+            "$ref": "#/$defs/TrialPhase"
+          },
+          "type": "array"
+        },
+        "primary_completion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source primary completion date, when present."
+        },
+        "sponsor": {
+          "description": "Lead sponsor as registered.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source start date, when present."
+        },
+        "status": {
+          "$ref": "#/$defs/TrialStatus",
+          "description": "Source overall status."
+        },
+        "study_type": {
+          "$ref": "#/$defs/StudyType",
+          "description": "Native study type."
+        },
+        "title": {
+          "description": "Complete brief title.",
+          "type": "string"
+        },
+        "updated": {
+          "$ref": "#/$defs/TrialDate",
+          "description": "Last posted registry update."
+        },
+        "url": {
+          "description": "Canonical publisher record URL.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nct_id",
+        "title",
+        "status",
+        "phases",
+        "study_type",
+        "conditions",
+        "interventions",
+        "updated",
+        "url"
+      ],
+      "type": "object"
+    },
+    "TrialCardItem": {
+      "additionalProperties": false,
+      "description": "Result for one exact requested NCT identity.",
+      "properties": {
+        "card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialCard"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source card, absent after confirmed 404 or failed lookup."
+        },
+        "fetched": {
+          "description": "Original record retrieval timestamp.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "input": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact requested identity."
+        },
+        "more": {
+          "description": "Available sections omitted from this request.",
+          "items": {
+            "$ref": "#/$defs/TrialSection"
+          },
+          "type": "array"
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicitly requested source sections."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Independent resolution state."
+        }
+      },
+      "required": [
+        "input",
+        "status"
+      ],
+      "type": "object"
+    },
+    "TrialCards": {
+      "additionalProperties": false,
+      "description": "Trial answers in original input order, retaining independent states.",
+      "properties": {
+        "attribution": {
+          "description": "Publisher attribution and scope.",
+          "type": "string"
+        },
+        "items": {
+          "description": "One answer per requested input, including absence and failure.",
+          "items": {
+            "$ref": "#/$defs/TrialCardItem"
+          },
+          "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Registry processing timestamp, distinct from each study's update and fetch times."
+        }
+      },
+      "required": [
+        "items",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "TrialDate": {
+      "additionalProperties": false,
+      "description": "A registry date retains its actual or estimated qualifier.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Checked source date at its original precision."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDateKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source qualifier, absent only if the registry omitted it."
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "type": "object"
+    },
+    "TrialDateKind": {
+      "description": "Registry date qualifier, without local interpretation.",
+      "enum": [
+        "ACTUAL",
+        "ESTIMATED"
+      ],
+      "type": "string"
+    },
+    "TrialEligibilityPage": {
+      "additionalProperties": false,
+      "description": "Character paging preserves source whitespace and counts Unicode scalar values.",
+      "properties": {
+        "criteria": {
+          "description": "Exact original text fragment, including whitespace.",
+          "type": "string"
+        },
+        "healthy_volunteers": {
+          "description": "Source healthy-volunteer field.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "maximum_age": {
+          "$ref": "#/$defs/TrialAgeBound",
+          "description": "Source maximum age."
+        },
+        "minimum_age": {
+          "$ref": "#/$defs/TrialAgeBound",
+          "description": "Source minimum age."
+        },
+        "offset": {
+          "description": "Original character offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialSex"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source sex field."
+        },
+        "total_characters": {
+          "description": "Complete original text length in Unicode scalar values.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "minimum_age",
+        "maximum_age",
+        "criteria",
+        "offset",
+        "total_characters"
+      ],
+      "type": "object"
+    },
+    "TrialGet": {
+      "additionalProperties": false,
+      "description": "Retrieve exact trial cards and bounded source sections in input order.",
+      "properties": {
+        "input": {
+          "description": "One to twenty exact NCT identifiers, in caller order.",
+          "items": {
+            "$ref": "#/$defs/NctId"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Checked stored source record, supplied by a continuation."
+        },
+        "section": {
+          "description": "Optional intact source sections. The default returns cards only.",
+          "items": {
+            "$ref": "#/$defs/TrialSection"
+          },
+          "type": "array",
+          "x-trailing-section": true
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
+    "TrialIntervention": {
+      "additionalProperties": false,
+      "description": "Registry intervention, retaining aliases and arm labels.",
+      "properties": {
+        "arm_group_labels": {
+          "description": "Source arm relationships.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original description."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialInterventionKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native intervention type."
+        },
+        "name": {
+          "description": "Exact source name.",
+          "type": "string"
+        },
+        "other_names": {
+          "description": "Source aliases, without invented expansion.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "arm_group_labels",
+        "other_names"
+      ],
+      "type": "object"
+    },
+    "TrialInterventionKind": {
+      "description": "Native registry intervention type from the publisher enum metadata.",
+      "enum": [
+        "BEHAVIORAL",
+        "BIOLOGICAL",
+        "COMBINATION_PRODUCT",
+        "DEVICE",
+        "DIAGNOSTIC_TEST",
+        "DIETARY_SUPPLEMENT",
+        "DRUG",
+        "GENETIC",
+        "PROCEDURE",
+        "RADIATION",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "TrialOutcome": {
+      "additionalProperties": false,
+      "description": "One whole registered outcome with its attached time frame.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original description."
+        },
+        "kind": {
+          "$ref": "#/$defs/TrialOutcomeKind",
+          "description": "Source collection."
+        },
+        "measure": {
+          "description": "Original measure text.",
+          "type": "string"
+        },
+        "time_frame": {
+          "description": "Original time frame.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "measure"
+      ],
+      "type": "object"
+    },
+    "TrialOutcomeKind": {
+      "description": "Registry outcome collection.",
+      "enum": [
+        "primary",
+        "secondary",
+        "other"
+      ],
+      "type": "string"
+    },
+    "TrialPhase": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "EARLY_PHASE1",
+        "PHASE1",
+        "PHASE2",
+        "PHASE3",
+        "PHASE4",
+        "NA"
+      ],
+      "type": "string"
+    },
+    "TrialRecords": {
+      "additionalProperties": false,
+      "description": "Whole-record page retaining collection order.",
+      "properties": {
+        "items": {
+          "description": "Complete records in source order.",
+          "items": {
+            "$ref": "#/$defs/TrialOutcome"
+          },
+          "type": "array"
+        },
+        "offset": {
+          "description": "Offset in the unchanged source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Original collection size.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
+    "TrialRecords2": {
+      "additionalProperties": false,
+      "description": "Whole-record page retaining collection order.",
+      "properties": {
+        "items": {
+          "description": "Complete records in source order.",
+          "items": {
+            "$ref": "#/$defs/TrialArmRecord"
+          },
+          "type": "array"
+        },
+        "offset": {
+          "description": "Offset in the unchanged source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Original collection size.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
+    "TrialSection": {
+      "description": "Available source protocol sections.",
+      "enum": [
+        "eligibility",
+        "outcomes",
+        "arms",
+        "all"
+      ],
+      "type": "string"
+    },
+    "TrialSections": {
+      "additionalProperties": false,
+      "description": "Independently bounded sections from the same source protocol snapshot.",
+      "properties": {
+        "arms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole source arm and intervention records."
+        },
+        "eligibility": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source eligibility fields and exact text fragment."
+        },
+        "outcomes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole registered outcomes."
+        }
+      },
+      "type": "object"
+    },
+    "TrialSex": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ALL",
+        "FEMALE",
+        "MALE"
+      ],
+      "type": "string"
+    },
+    "TrialStatus": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ACTIVE_NOT_RECRUITING",
+        "COMPLETED",
+        "ENROLLING_BY_INVITATION",
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "WITHDRAWN",
+        "AVAILABLE",
+        "NO_LONGER_AVAILABLE",
+        "APPROVED_FOR_MARKETING",
+        "WITHHELD",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.trial_cards/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/TrialGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TrialCards"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.trial_cards/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}
