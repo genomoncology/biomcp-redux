@@ -3,10 +3,14 @@ macro_rules! canonical_enum {
     ($(#[$doc:meta])* $name:ident, $error:ident { $($(#[$variant_doc:meta])* $variant:ident => $text:literal),+ $(,)? }) => {
         $(#[$doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", schemars(!try_from, !into))]
         #[non_exhaustive]
         #[serde(try_from = "String", into = "&'static str")]
         pub enum $name {
-            $($(#[$variant_doc])* $variant),+
+            $($(#[$variant_doc])*
+                #[cfg_attr(feature = "schema", schemars(rename = $text))]
+                $variant),+
         }
 
         impl From<$name> for &'static str {
