@@ -7,7 +7,7 @@
       "run": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "constraint",
         "all"
@@ -18,13 +18,13 @@
           "constraint",
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "data"
+        "/result/items/0/sections/constraint/state": "not_applicable"
       },
       "max_bytes": 3600,
       "mcp": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "constraint",
         "all"
@@ -72,7 +72,7 @@
       "run": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "--section",
         "constraint",
@@ -81,20 +81,20 @@
       ],
       "expect": {
         "/query/input": [
-          "TP53",
+          "MIR21",
           "constraint"
         ],
         "/query/section": [
           "constraint",
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "data",
+        "/result/items/0/sections/constraint/state": "not_applicable",
         "/result/items/1/answer/resolution": "not_found"
       },
       "mcp": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "--section",
         "constraint",
@@ -106,26 +106,26 @@
       "run": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "NOTAGENE",
         "all"
       ],
       "expect": {
         "/query/input": [
-          "TP53",
+          "MIR21",
           "constraint",
           "NOTAGENE"
         ],
         "/query/section": [
           "all"
         ],
-        "/result/items/0/sections/constraint/state": "data"
+        "/result/items/0/sections/constraint/state": "not_applicable"
       },
       "mcp": [
         "get",
         "gene",
-        "TP53",
+        "MIR21",
         "constraint",
         "NOTAGENE",
         "all"

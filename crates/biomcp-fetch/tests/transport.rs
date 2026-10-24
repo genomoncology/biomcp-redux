@@ -364,16 +364,35 @@ fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
 }
 
 #[test]
-#[expect(clippy::unwrap_used, reason = "Public endpoint regression fails immediately on fixture setup errors")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Public endpoint regression fails immediately on fixture setup errors"
+)]
 fn identity_encoding_is_explicit_and_does_not_change_default_requests() {
     let stub = Stub::new(200, "application/json", r#"{"answer":"ok"}"#, None);
     let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
     let fetch = fetch();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-    leg.json::<Answer>(&spec.get("/answer").identity_encoding(), &[]).unwrap();
+    leg.json::<Answer>(&spec.get("/answer").identity_encoding(), &[])
+        .unwrap();
     leg.json::<Answer>(&spec.get("/answer"), &[]).unwrap();
     let requests = stub.finish();
-    assert!(requests.first().unwrap().to_ascii_lowercase().contains("accept-encoding: identity"));
-    assert!(!requests.last().unwrap().to_ascii_lowercase().contains("accept-encoding: identity"));
-    assert_eq!(requests.first().unwrap().lines().next(), requests.last().unwrap().lines().next());
+    assert!(
+        requests
+            .first()
+            .unwrap()
+            .to_ascii_lowercase()
+            .contains("accept-encoding: identity")
+    );
+    assert!(
+        !requests
+            .last()
+            .unwrap()
+            .to_ascii_lowercase()
+            .contains("accept-encoding: identity")
+    );
+    assert_eq!(
+        requests.first().unwrap().lines().next(),
+        requests.last().unwrap().lines().next()
+    );
 }

@@ -20,7 +20,7 @@
           "excludes": "uniprot"
         },
         "/result/items/0/sections/protein/state": "not_applicable",
-        "/result/items/0/sections/protein/data/*/accession": []
+        "/result/items/0/answer/gene/uniprot": []
       },
       "max_bytes": 3100,
       "mcp": [
