@@ -28,7 +28,7 @@ for arch in amd64 arm64; do
       curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup.sh
       sh /tmp/rustup.sh -y --profile minimal --default-toolchain 1.95.0
       export PATH=/tmp/cargo/bin:/opt/python/cp311-cp311/bin:$PATH
-      python release/artifacts.py build --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
+      python release/artifacts.py build --manylinux --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
       python release/gate.py --prepare-only --artifacts "/output/linux-$BIOMCP_BUILD_ARCH" --scratch /tmp/proof
       cp -a /tmp/proof "/output/proof-$BIOMCP_BUILD_ARCH"
     '

@@ -37,13 +37,13 @@ def cargo(profile, tests=False):
     return found
 
 
-def platform_tag():
+def platform_tag(manylinux):
     arch = {"aarch64": "arm64", "AMD64": "x86_64"}.get(platform.machine(), platform.machine())
     if platform.system() == "Darwin":
         # Binary deployment floor comes from the producer's MACOSX_DEPLOYMENT_TARGET.
         return "macosx_11_0_" + arch
     if platform.system() == "Linux":
-        return "manylinux_2_28_" + {"arm64": "aarch64"}.get(arch, arch)
+        return ("manylinux_2_28_" if manylinux else "linux_") + {"arm64": "aarch64"}.get(arch, arch)
     if platform.system() == "Windows":
         return "win_amd64"
     raise ValueError("unsupported build platform")
@@ -111,7 +111,7 @@ def build(args):
     binary = Path(artifact["executable"])
     metadata = json.loads(run(["cargo", "metadata", "--locked", "--format-version", "1", "--no-deps"]))
     version = next(p["version"] for p in metadata["packages"] if p["name"] == "biomcp")
-    tag = platform_tag()
+    tag = platform_tag(args.manylinux)
     check_floor(binary, tag)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -143,6 +143,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     producer = commands.add_parser("build")
+    producer.add_argument("--manylinux", action="store_true", help="Inspect ELF requirements before claiming the manylinux floor")
     producer.add_argument("--revision", help="Source revision when building a git archive")
     producer.add_argument("--output", type=Path, required=True)
     producer.add_argument("--profile", choices=["release", "dev"], default="release")
