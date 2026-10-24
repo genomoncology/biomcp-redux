@@ -4,10 +4,10 @@
   "url": "https://myvariant.info/v1/metadata",
   "exchanges": [
     {
-      "fetched": 1792870837,
+      "fetched": 1792872677,
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 6,
+      "delay_ms": 4,
       "retry_after_ms": null,
       "body": {
         "kind": "json",
@@ -15,55 +15,23 @@
           "build_version": "synthetic-build",
           "build_date": "2020-01-01T00:00:00Z",
           "src": {
-            "cosmic": {
-              "version": "68",
+            "cadd": {
+              "version": null,
               "license_url": "https://example.org/synthetic-component-terms",
               "upload_date": "2019-01-01T00:00:00Z",
-              "note": "Explicit synthetic historical snapshot fixture"
-            }
-          }
-        }
-      }
-    },
-    {
-      "fetched": 1792870839,
-      "status": 200,
-      "content_type": "application/json",
-      "delay_ms": 6,
-      "retry_after_ms": null,
-      "body": {
-        "kind": "json",
-        "value": {
-          "build_version": "synthetic-build",
-          "build_date": "2020-01-01T00:00:00Z",
-          "src": {
-            "cosmic": {
-              "version": "68",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
               "license_url": "https://example.org/synthetic-component-terms",
               "upload_date": "2019-01-01T00:00:00Z",
-              "note": "Explicit synthetic historical snapshot fixture"
-            }
-          }
-        }
-      }
-    },
-    {
-      "fetched": 1792870841,
-      "status": 200,
-      "content_type": "application/json",
-      "delay_ms": 6,
-      "retry_after_ms": null,
-      "body": {
-        "kind": "json",
-        "value": {
-          "build_version": "synthetic-build",
-          "build_date": "2020-01-01T00:00:00Z",
-          "src": {
+              "note": "synthetic historical snapshot"
+            },
             "cosmic": {
-              "version": "68",
+              "version": "synthetic-68",
               "license_url": "https://example.org/synthetic-component-terms",
               "upload_date": "2019-01-01T00:00:00Z",
-              "note": "Explicit synthetic historical snapshot fixture"
+              "note": "synthetic historical snapshot"
             }
           }
         }

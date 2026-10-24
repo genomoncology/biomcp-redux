@@ -1,7 +1,7 @@
 {
   "feature": "variant-myvariant-sections",
   "live_check": "synthetic",
-  "story": "Every candidate keeps restricted components unavailable and historical fragments explicitly unverified",
+  "story": "Default component fields retain labels and matching groups prevent warm CLI and MCP disclosure",
   "replay": "variant/synthetic-components",
   "steps": [
     {
@@ -21,21 +21,112 @@
         "conservation",
         "cosmic"
       ],
-      "max_bytes": 5220,
-      "max_tokens": 1305,
+      "max_bytes": 32583,
+      "max_tokens": 8146,
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/result/candidates": {
           "count": 3
         },
-        "/result/candidates/0/sections/predict/reason": "restricted_terms",
-        "/result/candidates/0/sections/conservation/reason": "restricted_terms",
+        "/result/candidates/0/sections/predict/state": "data",
+        "/result/candidates/0/sections/predict/data/components/0/terms/usage": "noncommercial",
+        "/result/candidates/0/sections/conservation/state": "data",
         "/result/candidates/0/sections/cosmic/data/records/0/identity": "unverified",
         "/result/candidates/0/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>G",
-        "/result/candidates/1/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>T",
-        "/result/candidates/2/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>C",
-        "/result/candidates/1/sections/cosmic/data/components/0/license": "https://example.org/synthetic-component-terms",
-        "/result/candidates/1/sections/cosmic/data/components/0/version": "68"
+        "/result/candidates/0/sections/cosmic/data/records/0/mut_freq": 0,
+        "/result/candidates/0/component_terms/0/terms/usage": "restricted"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "max_bytes": 32583,
+      "max_tokens": 8146,
+      "expect": {
+        "/result/candidates/0/sections/predict/state": "skipped",
+        "/result/candidates/0/sections/predict/reason": "disabled",
+        "/result/candidates/0/sections/conservation/state": "skipped",
+        "/result/candidates/0/sections/cosmic/state": "data"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "restricted"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "restricted"
+      ],
+      "max_bytes": 32583,
+      "max_tokens": 8146,
+      "expect": {
+        "/result/candidates/0/sections/predict/state": "data",
+        "/result/candidates/0/sections/conservation/state": "data",
+        "/result/candidates/0/sections/cosmic/state": "skipped",
+        "/result/candidates/0/identity/ids": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "rs113488022",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "max_bytes": 32583,
+      "max_tokens": 8146,
+      "expect": {
+        "/result/resolution": "unavailable",
+        "/result/candidates": {
+          "count": 0
+        }
       }
     }
   ]
