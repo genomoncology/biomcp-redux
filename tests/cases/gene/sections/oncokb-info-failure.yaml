@@ -1,0 +1,41 @@
+{
+  "feature": "gene-sections",
+  "story": "Synthetic keyed OncoKB info-failure preserves checked identity",
+  "replay": "gene/oncokb-synthetic/info-failure",
+  "config": {
+    "keys": {
+      "oncokb_api_key": "synthetic-placeholder"
+    }
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "oncokb"
+      ],
+      "expect": {
+        "/result/items/0/answer/gene/symbol": "TP53",
+        "/status": "partial",
+        "/result/items/0/sections/oncokb/state": "data",
+        "/sources": {
+          "includes": {
+            "source": "oncokb",
+            "state": "failed",
+            "reason": "unavailable"
+          }
+        },
+        "/result/items/0/oncokb": {
+          "equals": {
+            "gene_type": "TSG",
+            "highest_sensitive_level": "SYNTHETIC_S",
+            "highest_resistance_level": "SYNTHETIC_R"
+          }
+        }
+      },
+      "exit": 0,
+      "max_bytes": 5000
+    }
+  ]
+}

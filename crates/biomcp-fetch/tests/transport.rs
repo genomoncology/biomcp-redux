@@ -286,7 +286,11 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
 #[test]
 fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
     let secret = "placeholder-only-abc123";
-    for place in [KeyPlace::Query("api_key"), KeyPlace::Header("x-api-key")] {
+    for place in [
+        KeyPlace::Query("api_key"),
+        KeyPlace::Header("x-api-key"),
+        KeyPlace::Bearer,
+    ] {
         let stub = Stub::new(500, "application/json", secret, None);
         let spec = stub.spec(KeyUse::Required(credential(place)), Duration::from_secs(10));
         let mut config = FetchConfig::default();

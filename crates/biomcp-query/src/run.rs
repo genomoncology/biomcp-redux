@@ -19,6 +19,8 @@ pub enum Action {
         #[doc = "Bypass cache reads."]
         fresh: bool,
     },
+    /// Explain configuration names for a keyed source.
+    KeyHelp,
     /// Synchronize one declared file.
     Sync {
         #[doc = "Bundle selector."]

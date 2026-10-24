@@ -282,7 +282,8 @@
         "europepmc",
         "pubtator",
         "ctgov",
-        "civic"
+        "civic",
+        "oncokb"
       ],
       "type": "string"
     },
@@ -322,7 +323,8 @@
         "ok",
         "stale",
         "syncing",
-        "failed"
+        "failed",
+        "skipped"
       ],
       "type": "string"
     },
@@ -365,7 +367,8 @@
         "page",
         "fresh",
         "disambiguate",
-        "sync"
+        "sync",
+        "key"
       ],
       "type": "string"
     },

@@ -1,0 +1,55 @@
+{
+  "feature": "gene-sections",
+  "story": "A missing user key skips OncoKB without changing gene status",
+  "replay": "gene/oncokb-synthetic/no-key",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "NOTCH1",
+        "oncokb"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "NOTCH1",
+        "oncokb"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/oncokb/state": "skipped",
+        "/result/items/0/sections/oncokb/reason": "no_key",
+        "/sources": {
+          "includes": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
+      },
+      "max_bytes": 3000,
+      "exit": 0
+    },
+    {
+      "run": [
+        "help",
+        "key",
+        "oncokb"
+      ],
+      "mcp": [
+        "help",
+        "key",
+        "oncokb"
+      ],
+      "expect": {
+        "/result/config": "keys.oncokb_api_key",
+        "/result/environment": "ONCOKB_API_KEY"
+      },
+      "max_bytes": 300
+    }
+  ]
+}

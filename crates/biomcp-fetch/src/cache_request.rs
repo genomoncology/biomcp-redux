@@ -65,7 +65,10 @@ impl Leg<'_> {
                 Err(error.into())
             }
             Err(RequestError::Source(error)) => {
-                if let Some(reply) = stale {
+                if let Some(reply) = stale
+                    && !(matches!(self.spec.key, crate::KeyUse::Required(_))
+                        && matches!(error.status, Some(401 | 403)))
+                {
                     let mut report = self
                         .report
                         .lock()

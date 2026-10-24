@@ -15,11 +15,23 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:7132",
         "/result/items/0/answer/gene/symbol": "KMT2A",
         "/result/items/0/answer/match/kind": "previous_symbol",
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
-        "/result/items/0/answer/match/text": "MLL"
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
+        "/result/items/0/answer/match/text": "MLL",
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       },
       "max_bytes": 3000
     }

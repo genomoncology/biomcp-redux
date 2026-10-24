@@ -13,9 +13,12 @@
         "/result/items/0/answer/resolution": "withdrawn",
         "/result/items/0/answer/hgnc_id": "HGNC:18617",
         "/result/items/0/answer/hgnc_status": "Entry Withdrawn",
-        "/sources/*/source": [
-          "hgnc"
-        ]
+        "/sources/*/source": {
+          "equals": [
+            "hgnc"
+          ],
+          "excludes": "oncokb"
+        }
       },
       "max_bytes": 400
     }

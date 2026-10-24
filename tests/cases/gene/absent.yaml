@@ -12,9 +12,12 @@
       "expect": {
         "/status": "absent",
         "/result/items/0/answer/resolution": "not_found",
-        "/sources/*/source": [
-          "hgnc"
-        ]
+        "/sources/*/source": {
+          "equals": [
+            "hgnc"
+          ],
+          "excludes": "oncokb"
+        }
       },
       "max_bytes": 400,
       "exit": 1,

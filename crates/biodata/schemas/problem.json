@@ -19,7 +19,8 @@
         "europepmc",
         "pubtator",
         "ctgov",
-        "civic"
+        "civic",
+        "oncokb"
       ],
       "type": "string"
     },

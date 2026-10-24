@@ -229,6 +229,7 @@ impl Leg<'_> {
             request = match c.place {
                 KeyPlace::Query(name) => request.query(name, secret),
                 KeyPlace::Header(name) => request.header(name, secret),
+                KeyPlace::Bearer => request.header("Authorization", format!("Bearer {secret}")),
             };
         }
         if let Some(post) = &prepared.post {

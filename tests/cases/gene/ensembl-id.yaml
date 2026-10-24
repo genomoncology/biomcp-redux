@@ -15,11 +15,23 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/gene/symbol": "BRAF",
         "/result/items/0/answer/match/kind": "ensembl_id",
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
-        "/result/items/0/answer/match/text": "ENSG00000157764"
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
+        "/result/items/0/answer/match/text": "ENSG00000157764",
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       },
       "max_bytes": 2800
     }

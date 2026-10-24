@@ -15,12 +15,24 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
         "/result/items/0/answer/gene/symbol": "ERBB2",
         "/result/items/0/answer/match/kind": "alias",
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
         "/result/items/0/answer/match/text": "HER2",
-        "/result/items/0/answer/gene/location": "17q12"
+        "/result/items/0/answer/gene/location": "17q12",
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       },
       "max_bytes": 3200
     }

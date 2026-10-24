@@ -157,6 +157,11 @@ impl Fetch {
         })
     }
 
+    /// Report whether a configured credential is nonempty without exposing it.
+    pub fn has_key(&self, name: SecretName) -> bool {
+        self.config.secrets.get(name).is_some()
+    }
+
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
         Deadline::start(budget, self.clock.as_ref())
