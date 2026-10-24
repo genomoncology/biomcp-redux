@@ -1,0 +1,32 @@
+{
+  "feature": "article-get",
+  "story": "live-capture",
+  "replay": "article/get/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "35440569",
+        "28944238",
+        "35061708",
+        "99999999",
+        "PMC5606870",
+        "10.1002/mgg3.317"
+      ],
+      "expect": {
+        "/result/items/*/status": [
+          "complete",
+          "complete",
+          "complete",
+          "complete",
+          "absent",
+          "complete",
+          "complete"
+        ]
+      },
+      "max_bytes": 17000
+    }
+  ]
+}

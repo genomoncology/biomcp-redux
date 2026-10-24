@@ -1,0 +1,47 @@
+{
+  "feature": "article-get",
+  "story": "card",
+  "replay": "article/get/synthetic-derived",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/match/kind": "pmid",
+        "/result/items/0/answer/fetched": 1792839535,
+        "/result/items/0/answer/card/doi": "10.3389/fcell.2020.573599",
+        "/result/items/0/answer/card/date": "2020",
+        "/result/items/0/answer/card/authors/total": 7,
+        "/result/items/0/answer/card/authors/items/0": "Chen Y",
+        "/result/items/0/answer/card/types": {
+          "includes": "systematic_review"
+        },
+        "/result/items/0/answer/card/abstract_parts/0/text": {
+          "includes": "E17K"
+        }
+      },
+      "mcp": [
+        "get",
+        "article",
+        "33123537"
+      ],
+      "max_bytes": 2900
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537"
+      ],
+      "expect": {
+        "/result/items/0/answer/fetched": 1792839535
+      },
+      "offline": true
+    }
+  ]
+}

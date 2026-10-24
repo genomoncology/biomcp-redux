@@ -1,0 +1,24 @@
+{
+  "feature": "article-get",
+  "story": "input-order",
+  "replay": "article/get/synthetic-derived",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "35440569",
+        "28944238"
+      ],
+      "expect": {
+        "/result/items/*/answer/card/pmid": [
+          "33123537",
+          "35440569",
+          "28944238"
+        ]
+      },
+      "max_bytes": 9000
+    }
+  ]
+}

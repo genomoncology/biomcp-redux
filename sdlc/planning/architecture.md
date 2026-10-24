@@ -1826,3 +1826,5 @@ Ian ruled on 2026-10-24, and this file applies each ruling:
 ## 14. Open questions
 
 None. Section 8.7 settles the pinned MCP revisions.
+
+EFetch provenance uses `LegReport.replies`, keyed by the canonical credential-free request identity. `Leg::xml_received` returns the selected reply metadata alongside its checked value. Capture stores Unix seconds per exchange; replay restores them, and cached replies retain their original row fetch time. Legacy recordings without this field report zero. Replay cache freshness starts at import while provenance retains the captured time.
