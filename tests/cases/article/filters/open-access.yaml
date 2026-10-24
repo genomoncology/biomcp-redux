@@ -17,12 +17,13 @@
         "AKT1 E17K",
         "--open-access"
       ],
-      "max_bytes": 4700,
+      "max_bytes": 3426,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K AND \"pubmed pmc open access\"[filter]",
         "/sources/0/count": 66
       }
     }
-  ]
+  ],
+  "verified": "Recorded request identity; response-only synthetic content. Whole-output ceiling follows the measured command plus15 percent."
 }

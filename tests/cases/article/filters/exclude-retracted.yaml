@@ -17,12 +17,13 @@
         "AKT1 E17K",
         "--exclude-retracted"
       ],
-      "max_bytes": 4700,
+      "max_bytes": 3337,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K NOT retracted publication[pt]",
         "/sources/0/count": 190
       }
     }
-  ]
+  ],
+  "verified": "Recorded request identity; response-only synthetic content. Whole-output ceiling follows the measured command plus15 percent."
 }

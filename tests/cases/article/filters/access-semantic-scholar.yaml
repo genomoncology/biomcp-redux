@@ -29,7 +29,8 @@
           "count": 0
         }
       },
-      "max_bytes": 1400
+      "max_bytes": 676
     }
-  ]
+  ],
+  "verified": "Recorded request identity; response-only synthetic content. Whole-output ceiling follows the measured command plus15 percent."
 }
