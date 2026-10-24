@@ -105,9 +105,11 @@ pub(super) fn read<'a>(
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
                 out.sources.push(source);
-                out.status = Status::Failed;
-                query.retry(Some(pool.info.id.clone()), out);
-                return Err(error);
+                if !matches!(error, RequestError::Source(e) if e.reason == biodata::Reason::Disabled) {
+                    out.status = Status::Failed;
+                    query.retry(Some(pool.info.id.clone()), out);
+                    return Err(error);
+                }
             }
         }
     }

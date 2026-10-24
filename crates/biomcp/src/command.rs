@@ -62,15 +62,11 @@ fn dispatch_using(
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch))
-            if !parsed.globals.offline
-                && parsed
-                    .globals
-                    .disable_sources
-                    .iter()
-                    .all(|s| shared.is_some_and(|(g, _)| g.disable_sources.contains(s))) =>
-        {
-            fetch.as_ref()
+        Some(Ok(fetch)) if !parsed.globals.offline => {
+            let disabled = biomcp_adapters::registry::disabled(&parsed.globals.disable_sources)
+                .map_err(|_| io::Error::other("unchecked source policy"))?;
+            owned = fetch.restrict_sources(disabled);
+            &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
             return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);

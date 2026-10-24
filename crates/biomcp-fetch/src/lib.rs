@@ -94,14 +94,16 @@ impl Default for FetchConfig {
     clippy::disallowed_types,
     reason = "Reserve each bundle replay import once per Fetch"
 )]
+#[derive(Clone)]
 pub struct Fetch {
-    agents: network::Agents,
-    limiters: quota::Limiters,
+    agents: std::sync::Arc<network::Agents>,
+    limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
-    recordings: record::Recordings,
-    clock: Option<deadline::VirtualClock>,
-    config: FetchConfig,
-    bundle_imports: std::sync::Mutex<std::collections::BTreeSet<&'static str>>,
+    recordings: std::sync::Arc<record::Recordings>,
+    clock: Option<std::sync::Arc<deadline::VirtualClock>>,
+    config: std::sync::Arc<FetchConfig>,
+    bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
+    disabled_sources: std::collections::BTreeSet<biodata::Source>,
 }
 
 impl fmt::Debug for Fetch {
@@ -148,19 +150,28 @@ impl Fetch {
         let clock =
             matches!(config.mode, Mode::Replay { .. }).then(deadline::VirtualClock::default);
         Ok(Self {
-            agents,
+            agents: std::sync::Arc::new(agents),
             cache,
-            recordings,
-            clock,
-            config,
-            limiters: quota::Limiters::default(),
-            bundle_imports: std::sync::Mutex::default(),
+            recordings: std::sync::Arc::new(recordings),
+            clock: clock.map(std::sync::Arc::new),
+            disabled_sources: config.disabled_sources.clone(),
+            config: std::sync::Arc::new(config),
+            limiters: std::sync::Arc::default(),
+            bundle_imports: std::sync::Arc::default(),
         })
     }
 
     /// Whether the explicit source policy prevents every read and request.
     pub fn disabled(&self, source: biodata::Source) -> bool {
-        self.config.disabled_sources.contains(&source)
+        self.disabled_sources.contains(&source)
+    }
+
+    /// Restrict a command while retaining shared quotas, clocks, recordings and connections.
+    /// Existing source restrictions cannot be removed.
+    pub fn restrict_sources(&self, disabled: std::collections::BTreeSet<biodata::Source>) -> Self {
+        let mut restricted = self.clone();
+        restricted.disabled_sources.extend(disabled);
+        restricted
     }
 
     /// Report whether a configured credential is nonempty without exposing it.
@@ -170,12 +181,12 @@ impl Fetch {
 
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
-        Deadline::start(budget, self.clock.as_ref())
+        Deadline::start(budget, self.clock.as_deref())
     }
 
     /// Own a sequential command's replay origin without changing independent leg consumers.
     pub fn command_deadline(&self, budget: Duration) -> CommandDeadline<'_> {
-        CommandDeadline::start(budget, self.clock.as_ref())
+        CommandDeadline::start(budget, self.clock.as_deref())
     }
 
     /// Start a leg capped by this source's budget.
@@ -204,7 +215,7 @@ impl Fetch {
             spec,
             deadline: deadline.child(cap),
             clock: deadline.fork(),
-            wrong_clock: !deadline.matches(self.clock.as_ref()),
+            wrong_clock: !deadline.matches(self.clock.as_deref()),
             no_key,
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,

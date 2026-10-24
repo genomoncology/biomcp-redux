@@ -193,14 +193,30 @@ fn no_request() -> Check {
     if result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("source did not report disabled".into());
     }
-    let mut disabled = biomcp_adapters::registry::SOURCES.iter()
+    let mut disabled = biomcp_adapters::registry::SOURCES
+        .iter()
         .filter(|s| s.terms.usage != biodata::Use::Restricted)
-        .map(|s| s.source.to_string()).collect::<Vec<_>>();
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>();
     disabled.extend(["restricted".into(), "noncommercial".into()]);
-    let health = invoke(&env, vec!["health".into(), "--disable-sources".into(),
-        disabled.join(","), "--record".into(), record.to_string_lossy().into()], 0)?;
-    if !health.pointer("/result/sources").and_then(Value::as_array)
-        .is_some_and(|rows| rows.iter().all(|row| row.get("reason") == Some(&json!("disabled"))))
+    let health = invoke(
+        &env,
+        vec![
+            "health".into(),
+            "--disable-sources".into(),
+            disabled.join(","),
+            "--record".into(),
+            record.to_string_lossy().into(),
+        ],
+        0,
+    )?;
+    if !health
+        .pointer("/result/sources")
+        .and_then(Value::as_array)
+        .is_some_and(|rows| {
+            rows.iter()
+                .all(|row| row.get("reason") == Some(&json!("disabled")))
+        })
     {
         return Err("terms group failed to skip its declared sources".into());
     }
@@ -249,19 +265,33 @@ fn enabled_fold() -> Check {
         .join("../../tests/replies/article/fold/synthetic-fold");
     let case = env.root().join("enabled-fold");
     let args = [
-        "search", "article", "AKT1 E17K", "--source", "pubmed,europepmc",
-        "--disable-sources", "pubmed", "--limit", "2",
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "pubmed,europepmc",
+        "--disable-sources",
+        "pubmed",
+        "--limit",
+        "2",
     ];
     for recording in [Some(fixture.as_path()), None] {
         let result = invoke(&env, cached(&args, &case, recording), 0)?;
-        if result.pointer("/sources/0/state") != Some(&json!("skipped"))
-            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
-            || result.pointer("/sources/1/state") != Some(&json!("ok"))
+        let sources = result.get("sources").and_then(Value::as_array).ok_or("missing sources")?;
+        let pubmed = sources.iter().find(|s| s.get("source") == Some(&json!("pubmed")))
+            .ok_or("missing disabled source")?;
+        let europe = sources.iter().find(|s| s.get("source") == Some(&json!("europepmc")))
+            .ok_or("missing enabled source")?;
+        if pubmed.get("state") != Some(&json!("skipped"))
+            || pubmed.get("reason") != Some(&json!("disabled"))
+            || europe.get("state") != Some(&json!("ok"))
             || result.pointer("/result/items/0/pmid") != Some(&json!("2222"))
         {
             return Err(format!("disabled leg hid enabled source rows: {result}"));
         }
-        let next = result.pointer("/next/0/args").and_then(Value::as_array)
+        let next = result
+            .pointer("/next/0/args")
+            .and_then(Value::as_array)
             .ok_or("missing continuation")?;
         if !next.iter().any(|a| a == "--disable-sources") {
             return Err("continuation lost source policy".into());

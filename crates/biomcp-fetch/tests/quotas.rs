@@ -106,6 +106,9 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         KeyUse::None,
     );
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    let restricted = fetch.restrict_sources([biodata::Source::Oncokb].into());
+    assert!(!fetch.disabled(biodata::Source::Oncokb));
+    assert!(restricted.restrict_sources(Default::default()).disabled(biodata::Source::Oncokb));
     thread::scope(|scope| {
         let holder = scope.spawn(|| {
             fetch
@@ -114,8 +117,8 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         });
         let held = server.next();
         let canceled = scope.spawn(|| {
-            fetch
-                .leg(second, fetch.deadline(Duration::from_millis(100)))
+            restricted
+                .leg(second, restricted.deadline(Duration::from_millis(100)))
                 .json::<Answer>(&second.get("/cancel"), &[])
         });
         // Completion with the holder still blocked proves the waiter exhausted its queue budget.
@@ -125,8 +128,8 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         );
         assert!(server.requests.try_recv().is_err());
         let successor = scope.spawn(|| {
-            fetch
-                .leg(second, fetch.deadline(Duration::from_secs(5)))
+            restricted
+                .leg(second, restricted.deadline(Duration::from_secs(5)))
                 .json::<Answer>(&second.get("/successor"), &[])
         });
         let other = scope.spawn(|| {
