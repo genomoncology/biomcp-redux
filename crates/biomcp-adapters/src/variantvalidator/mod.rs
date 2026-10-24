@@ -10,7 +10,7 @@ use std::{collections::BTreeMap, time::Duration};
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "VariantValidator service output terms require review",
-        url: "https://variantvalidator.org/",
+        url: "https://variantvalidator.org/help/about/",
         usage: biodata::Use::Restricted,
     },
     source: Source::VariantValidator,

@@ -42,12 +42,13 @@ impl Reply for Page {
         if self.total > 10_000 || self.hits.len() > 1000 || self.hits.len() as u64 > self.total {
             return Err(BadReply);
         }
-        if self.hits.iter().any(|h| {
-            !h.id.as_str().starts_with("chr")
-                || h.id.as_str().parse::<biodata::VariantInput>().is_err()
-        }) {
-            return Err(BadReply);
-        }
+        if self.hits.iter().any(|h| h.check().is_err()) { return Err(BadReply); }
         Ok(())
+    }
+}
+
+impl Reply for Hit {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.id.as_str().parse::<biodata::VariantInput>().is_ok_and(|i| i.namespace().ok() == Some(biodata::VariantNamespace::Chromosome)) { Ok(()) } else { Err(BadReply) }
     }
 }

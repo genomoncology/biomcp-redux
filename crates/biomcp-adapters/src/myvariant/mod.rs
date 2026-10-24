@@ -3,13 +3,13 @@ mod map;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
-use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "MyVariant.info terms and component data licenses",
-        url: "https://docs.myvariant.info/en/latest/terms.html",
+        url: "https://myvariant.info/terms",
         usage: biodata::Use::Restricted,
     },
     source: Source::MyVariant,
@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
+const VARIANT: Endpoint = SPEC.get("/variant").fresh(Freshness::Days(1));
 const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id";
 /// Resolve the exact published rsID or ClinVar ID, keeping every native candidate.
 /// Pages are bounded by the provider cap and source totals, never by taking its first hit.
@@ -27,6 +28,7 @@ pub fn lookup(
     query: &str,
     build: biodata::Build,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    if query.starts_with("chr") { return annotation(leg, query, build); }
     let assembly = if build == biodata::Build::Grch38 {
         "hg38"
     } else {
@@ -71,4 +73,11 @@ fn leg_bad() -> RequestError {
 pub fn genomic_id(chromosome: &str, notation: &Text) -> Option<String> {
     let (_, description) = notation.as_str().split_once(':')?;
     Some(format!("chr{chromosome}:{description}"))
+}
+
+fn annotation(leg: &Leg<'_>, id: &str, build: biodata::Build) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    let assembly = if build == biodata::Build::Grch38 { "hg38" } else { "hg19" };
+    let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
+    let hit = leg.json::<raw::Hit>(&endpoint, &[("fields", Arg::Text(FIELDS)), ("assembly", Arg::Text(assembly))])?;
+    Ok(map::candidates(vec![hit], id, build))
 }

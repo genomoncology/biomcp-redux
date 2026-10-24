@@ -19,7 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 const ALLELE: Endpoint = SPEC.get("/allele").json_rejections();
-const FIELDS: &str = "none @id communityStandardTitle genomicAlleles transcriptAlleles.MANE externalRecords.dbSNP externalRecords.ClinVarVariations";
+const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptAlleles.MANE+externalRecords.dbSNP+externalRecords.ClinVarVariations";
 /// Checked service result including a source validation code.
 #[derive(Debug)]
 pub enum Resolution {
