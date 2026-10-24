@@ -62,7 +62,7 @@ fn restricted_page() -> Result<(), String> {
         || !disabled.contains(&"noncommercial")
         || !disabled.contains(&"clinvar")
         || page.pointer("/page/offset") != Some(&json!(1))
-        || page.pointer("/result/items/0/identity/ids") != Some(&json!([]))
+        || page.pointer("/result/items/0/identity/ids").is_some()
         || stub.finish()?.len() != 2
     {
         return Err(format!(
