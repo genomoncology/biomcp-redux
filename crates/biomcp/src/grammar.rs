@@ -3,6 +3,7 @@
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
     ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
+    VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
 };
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -474,27 +475,21 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
-        ("variant", "assertions") => {
-            serde_json::from_value::<biomcp_types::VariantAssertionsGet>(value)
-                .map(Request::VariantAssertions)
-                .map_err(|_| ())
-        }
-        ("variant", "population") => {
-            serde_json::from_value::<biomcp_types::VariantPopulationQuery>(value)
-                .map(Request::VariantPopulation)
-                .map_err(|_| ())
-        }
+        ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
+            .map(Request::VariantAssertions)
+            .map_err(|_| ()),
+        ("variant", "population") => serde_json::from_value::<VariantPopulationQuery>(value)
+            .map(Request::VariantPopulation)
+            .map_err(|_| ()),
         ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
             .map(Request::VariantNormalize)
             .map_err(|_| ()),
         ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
             .map(Request::SearchVariant)
             .map_err(|_| ()),
-        ("variant", "recurrence") => {
-            serde_json::from_value::<biomcp_types::VariantRecurrenceQuery>(value)
-                .map(Request::VariantRecurrence)
-                .map_err(|_| ())
-        }
+        ("variant", "recurrence") => serde_json::from_value::<VariantRecurrenceQuery>(value)
+            .map(Request::VariantRecurrence)
+            .map_err(|_| ()),
         ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
             .map(Request::GetVariant)
             .map_err(|_| ()),
