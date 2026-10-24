@@ -52,16 +52,17 @@ fn restricted_page() -> Result<(), String> {
     let page = command(&env, &args)?;
     let disabled = args
         .windows(2)
-        .find(|v| v[0] == "--disable-sources")
-        .map(|v| v[1].split(',').collect::<Vec<_>>())
+        .find_map(|pair| match pair {
+            [flag, value] if flag == "--disable-sources" => Some(value),
+            _ => None,
+        })
+        .map(|value| value.split(',').collect::<Vec<_>>())
         .unwrap_or_default();
     if !disabled.contains(&"restricted")
         || !disabled.contains(&"noncommercial")
         || !disabled.contains(&"clinvar")
         || page.pointer("/page/offset") != Some(&json!(1))
-        || page
-            .pointer("/result/items/0/identity/aliases/clinvar")
-            .is_some()
+        || page.pointer("/result/items/0/identity/ids") != Some(&json!([]))
         || stub.finish()?.len() != 2
     {
         return Err(format!(
@@ -76,7 +77,10 @@ fn restricted_body(request: &str) -> Result<String, String> {
             "page action reenabled ClinVar projection: {request}"
         ));
     }
-    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>T"}]}).to_string())
+    Ok(
+        json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>T","clinvar":{"variant_id":123}}]})
+            .to_string(),
+    )
 }
 fn filters() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
