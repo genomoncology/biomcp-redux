@@ -108,7 +108,7 @@ fn fresh_hit_and_force_refresh_and_never_and_disabled_storage() {
         })
         .unwrap();
     }
-    let rows: usize = Connection::open(&path)
+    let rows: u32 = Connection::open(&path)
         .unwrap()
         .query_row("SELECT count(*) FROM reply", [], |r| r.get(0))
         .unwrap();
@@ -126,7 +126,7 @@ fn rejected_bodies_are_not_stored_and_negative_expiry_never_falls_back() {
     for body in ["{broken", r#"{"answer":false}"#] {
         let error = exchange(&server, 200, body, || get(&fetch, spec, &endpoint, &[])).unwrap_err();
         assert_eq!(source(error).reason, Reason::BadReply);
-        let rows: usize = Connection::open(&path)
+        let rows: u32 = Connection::open(&path)
             .unwrap()
             .query_row("SELECT count(*) FROM reply", [], |r| r.get(0))
             .unwrap();
@@ -179,29 +179,25 @@ fn stale_fallback_retains_original_failure_across_later_success() {
     })
     .unwrap();
     expire(&path);
-    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-    // Decode, check and provider errors each retain their own source failure.
-    for (status, body) in [
-        (200, "{broken"),
-        (200, r#"{"answer":false}"#),
-        (400, "error"),
-    ] {
-        assert!(
-            exchange(&server, status, body, || leg.json::<Answer>(&endpoint, &[]))
-                .unwrap()
-                .answer
-        );
-        let connection = Connection::open(&path).unwrap();
-        let body: String = connection
-            .query_row("SELECT CAST(body AS TEXT) FROM reply", [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(body, r#"{"answer":true}"#);
-    }
-    exchange(&server, 200, r#"{"answer":true}"#, || {
-        leg.json::<Answer>(&endpoint, &[])
-    })
-    .unwrap();
-    let report = leg.finish();
+    let report = thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+            for _ in 0..3 {
+                assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+            }
+            assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+            leg.finish()
+        });
+        for (status, body) in [
+            (200, "{broken"),
+            (200, r#"{"answer":false}"#),
+            (400, "error"),
+        ] {
+            server.next().respond(status, "", body);
+        }
+        server.next().ok();
+        worker.join().unwrap()
+    });
     assert!(report.stale);
     assert_eq!(
         report
@@ -420,4 +416,105 @@ fn ownership_is_checked_before_any_schema_or_journal_change() {
             .unwrap(),
         "keep"
     );
+}
+
+#[test]
+fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let quota = Box::leak(Box::new(Quota::new(
+        SourceKey::declare("cache-blocked"),
+        Rate::per_second(1000),
+        None,
+        1,
+    )));
+    let spec = server.spec(quota, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    thread::scope(|scope| {
+        let held =
+            scope.spawn(|| get(&fetch, spec, &spec.get("/answer"), &[("hold", Arg::Num(1))]));
+        let request = server.next();
+        assert!(
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_millis(100)))
+                .json::<Answer>(&endpoint, &[])
+                .unwrap()
+                .answer
+        );
+        expire(&path);
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_millis(100)));
+        assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+        let report = leg.finish();
+        assert!(report.stale);
+        assert_eq!(report.failures.len(), 1);
+        assert_eq!(report.failures[0].reason, Reason::DeadlineExceeded);
+        assert_eq!(report.failures[0].status, None);
+        assert!(server.requests.try_recv().is_err());
+        request.ok();
+        held.join().unwrap().unwrap();
+    });
+}
+
+#[test]
+fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    expire(&path);
+    let report = thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+            assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+            leg.finish()
+        });
+        server.next().raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
+        worker.join().unwrap()
+    });
+    assert_eq!(report.failures[0].reason, Reason::BadReply);
+    assert_eq!(report.failures[0].status, Some(200));
+    drop(server);
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+    assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+    assert_eq!(leg.finish().failures[0].reason, Reason::Unavailable);
+}
+
+#[test]
+fn local_write_busy_respects_deadline_and_never_uses_stale_fallback() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    expire(&path);
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let deadline = fetch.deadline(Duration::from_millis(500));
+    let (error, report) = exchange(&server, 200, r#"{"answer":true}"#, || {
+        let leg = fetch.leg(spec, deadline);
+        let error = leg.json::<Answer>(&endpoint, &[]).unwrap_err();
+        (error, leg.finish())
+    });
+    assert_eq!(error, RequestError::Cache(CacheError::Busy));
+    assert!(deadline.remaining() < Duration::from_millis(20));
+    assert!(!report.stale);
+    assert!(report.failures.is_empty());
+    connection.execute_batch("ROLLBACK").unwrap();
 }

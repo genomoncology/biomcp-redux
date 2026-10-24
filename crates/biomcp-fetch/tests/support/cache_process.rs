@@ -149,7 +149,7 @@ fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
     reader.finish();
     assert!(server.requests.try_recv().is_err());
     assert_eq!(
-        lock.query_row("SELECT count(*) FROM reply", [], |r| r.get::<_, usize>(0))
+        lock.query_row("SELECT count(*) FROM reply", [], |r| r.get::<_, u32>(0))
             .unwrap(),
         2
     );
