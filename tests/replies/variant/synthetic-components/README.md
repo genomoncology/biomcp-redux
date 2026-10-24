@@ -1,0 +1,1 @@
+These are explicit synthetic response-only edits over actual CLI recording identities from the local delivery of preserved public responses. They contain no captured component payload. Parent identifiers and request identities are unchanged. COSMIC values, dates, terms and warnings here are synthetic; actual source proof remains external.
