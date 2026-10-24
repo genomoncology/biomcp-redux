@@ -10,7 +10,7 @@ The generated table below lists decided leaf commands and their dropped options 
 | 0.9 command | Outcome | Dropped options | Migration ruling |
 | --- | --- | --- | --- |
 | `search article` | Ported or renamed | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | [Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling.](slices/article.md) |
-| `get article` | Ported or renamed | `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | [Section 5 moves parts into the reader and standard output replaces local file export; PDF remains pending the PM ruling.](slices/article.md) |
+| `get article` | Ported or renamed | `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | [Section 5 moves parts into the reader and standard output replaces local file export; PDF remains pending 0052 under the download-only ruling.](slices/article.md) |
 | `article authors` | Ported or renamed | — | [Section 1 maps author disclosure to the article card.](slices/article.md) |
 | `article entities` | Ported or renamed | `--limit`, `--full` | [Section 5 maps normalized entities to the annotations section with one bounded shape.](slices/article.md) |
 | `article batch` | Ported or renamed | — | [Section 1 maps repeated inputs to get article.](slices/article.md) |

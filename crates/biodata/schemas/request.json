@@ -602,7 +602,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.\neuropepmc: words in open full text and preprints; incidental mentions are possible.\nlitvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.\nsemantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.\nlitsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.\npubtator: entity and word search including full text; --gene uses HGNC Entrez identity and cannot run without that join.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.\neuropepmc: words in open full text and preprints; incidental mentions are possible.\nlitvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.\nsemantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.\nlitsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.\npubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
