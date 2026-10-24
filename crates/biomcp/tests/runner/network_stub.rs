@@ -39,22 +39,17 @@ impl Stub {
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
     ) -> Result<Self, String> {
-        Self::with_sources(vec![host], content_type, reply, length)
+        Self::with_hosts(&[host], content_type, reply, length)
     }
     pub(super) fn for_sources(
-        hosts: &[&'static str],
-        content_type: &'static str,
+        hosts: &[&str],
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
     ) -> Result<Self, String> {
-        Self::with_sources(
-            hosts.to_vec(),
-            move |_| content_type,
-            reply,
-            |_, bytes| bytes,
-        )
+        Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes)
     }
-    fn with_sources(
-        hosts: Vec<&'static str>,
+    fn with_hosts(
+        hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
@@ -62,7 +57,8 @@ impl Stub {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
-        let (certificate, config) = identity(&hosts)?;
+        let (certificate, config) = identity(hosts)?;
+        let hosts = hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
             for stream in listener.incoming() {
@@ -90,7 +86,7 @@ impl Stub {
                     ServerConnection::new(config.clone()).map_err(|e| e.to_string())?;
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
-                if let Ok(request) = source_request(&mut tls) {
+                if let Ok(request) = header(&mut tls) {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
                     write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
@@ -174,9 +170,8 @@ fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     ca.not_after = now + time::Duration::days(2);
     let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
     let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
-    let mut leaf =
-        CertificateParams::new(hosts.iter().map(|host| (*host).into()).collect::<Vec<_>>())
-            .map_err(|e| e.to_string())?;
+    let mut leaf = CertificateParams::new(hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>())
+        .map_err(|e| e.to_string())?;
     leaf.not_before = now - time::Duration::days(1);
     leaf.not_after = now + time::Duration::days(1);
     leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];
@@ -195,23 +190,4 @@ fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
             )
             .map_err(|e| e.to_string())?;
     Ok((ca.pem(), Arc::new(config)))
-}
-
-fn source_request(input: &mut impl Read) -> Result<String, String> {
-    let mut request = header(input)?;
-    let length = request
-        .lines()
-        .find_map(|line| {
-            line.split_once(':')
-                .filter(|(key, _)| key.eq_ignore_ascii_case("content-length"))
-                .and_then(|(_, v)| v.trim().parse::<usize>().ok())
-        })
-        .unwrap_or(0);
-    if length > 1024 * 1024 {
-        return Err("synthetic source request body exceeds bound".into());
-    }
-    let mut body = vec![0; length];
-    input.read_exact(&mut body).map_err(|e| e.to_string())?;
-    request.push_str(&String::from_utf8(body).map_err(|e| e.to_string())?);
-    Ok(request)
 }

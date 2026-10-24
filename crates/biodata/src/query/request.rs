@@ -7,6 +7,10 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Page source variant assertions.
     VariantAssertions(crate::VariantAssertionsGet),
+    /// Observe an exact allele in an explicitly selected cohort.
+    VariantRecurrence(crate::VariantRecurrenceQuery),
+    /// Send unchanged HGVS to explicit normalization services.
+    VariantNormalize(crate::VariantNormalize),
     /// Read a published variant identifier.
     GetVariant(crate::VariantGet),
     /// Read source ancestry observations.

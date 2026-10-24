@@ -95,7 +95,15 @@ mod variant;
 pub use variant::{Representation, Variant};
 
 pub use query::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
+pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
+pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+};
+pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
+pub use response::{VariantCard, VariantHeader, VariantResolution};
 pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
 pub use coord::Chromosome;

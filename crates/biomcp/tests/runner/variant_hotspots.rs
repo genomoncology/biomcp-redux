@@ -12,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn candidate() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["myvariant.info", "www.cancerhotspots.org"],
-        "application/json",
+        |_| "application/json",
         body,
     )?;
     let environment = Environment::new().map_err(|e| e.to_string())?;

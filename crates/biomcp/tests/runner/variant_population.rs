@@ -51,7 +51,7 @@ fn empty_gwas(_: &str) -> Result<String, String> {
 fn population() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["reg.genome.network", "gnomad.broadinstitute.org"],
-        "application/json",
+        |_| "application/json",
         population_body,
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;

@@ -62,14 +62,6 @@
       ],
       "type": "string"
     },
-    "AssertionSource": {
-      "description": "Native assertion provider.",
-      "enum": [
-        "clinvar",
-        "erepo"
-      ],
-      "type": "string"
-    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -81,14 +73,6 @@
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
       ]
-    },
-    "CivicClaimKind": {
-      "description": "CIViC native claim collection.",
-      "enum": [
-        "evidence",
-        "assertions"
-      ],
-      "type": "string"
     },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
@@ -134,6 +118,10 @@
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
     },
+    "HgvsText": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
+      "type": "string"
+    },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "enum": [
@@ -160,6 +148,16 @@
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
+    "NormalizationSource": {
+      "description": "Explicit normalization service selection.",
+      "enum": [
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "all"
+      ],
+      "type": "string"
+    },
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
@@ -180,6 +178,13 @@
     },
     "ProteinChange": {
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
+      "type": "string"
+    },
+    "RecurrenceSource": {
+      "description": "Source requiring explicit study, profile and sample set.",
+      "enum": [
+        "cbioportal"
+      ],
       "type": "string"
     },
     "RetractionFilter": {
@@ -305,36 +310,6 @@
         "myvariant"
       ],
       "type": "string"
-    },
-    "VariantSection": {
-      "description": "Named variant source sections, without automatic expansion of identity cards.",
-      "enum": [
-        "clinvar",
-        "erepo",
-        "population",
-        "gwas",
-        "civic",
-        "hotspots",
-        "predict",
-        "conservation",
-        "cosmic",
-        "oncokb",
-        "all"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " ClinVar native assertions.",
-        " ClinGen evidence repository assertions.",
-        " gnomAD population frequencies.",
-        " GWAS Catalog associations.",
-        " CIViC molecular-profile evidence.",
-        " Cancer Hotspots native residues and counts.",
-        " MyVariant source predictor scores.",
-        " MyVariant conservation scores.",
-        " Historical COSMIC fields carried by MyVariant.",
-        " Keyed OncoKB annotation with explicit tumor context and build.",
-        " Every implemented variant section."
-      ]
     }
   },
   "$id": "biodata.request/2",
@@ -343,31 +318,90 @@
   "oneOf": [
     {
       "additionalProperties": false,
-      "description": "Page source variant assertions.",
+      "description": "Observe an exact allele in an explicitly selected cohort.",
       "properties": {
-        "assertion": {
+        "command": {
+          "const": "variant_recurrence",
+          "type": "string"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "HGNC symbol resolved to the source's Entrez gene identifier."
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published variant identity; ambiguous identities are never selected silently.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Source mutation rows per page, including excluded alleles.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page": {
+          "default": 0,
+          "description": "Zero-based native source page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit mutation molecular profile."
+        },
+        "sample_set": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit sample list; selected size is never an allele denominator."
+        },
+        "source": {
+          "$ref": "#/$defs/RecurrenceSource",
+          "description": "Explicit cohort source."
+        },
+        "study": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit study; there is no default cohort."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "source",
+        "gene",
+        "study",
+        "profile",
+        "sample_set"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Send unchanged HGVS to explicit normalization services.",
+      "properties": {
+        "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Build"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Native assertion accession or document ID."
+          "description": "Caller assembly; required when VariantValidator is selected."
         },
         "command": {
-          "const": "variant_assertions",
+          "const": "variant_normalize",
           "type": "string"
         },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
-          "x-positional": 0
+        "hgvs": {
+          "$ref": "#/$defs/HgvsText",
+          "description": "Unchanged reference-qualified HGVS; no local molecular parse."
         },
         "limit": {
-          "default": 3,
-          "description": "Assertions per page.",
+          "default": 10,
+          "description": "Source mapping rows per service, with typed continuation for remaining rows.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -375,31 +409,20 @@
         },
         "offset": {
           "default": 0,
-          "description": "Assertions to skip in source order.",
+          "description": "Source mapping rows to skip per service.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/AssertionSource",
-          "description": "One native source; no fallback or text search."
-        },
-        "version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Selected record version, never borrowed from another record."
+          "$ref": "#/$defs/NormalizationSource",
+          "description": "Explicit service; all preserves independent results without consensus."
         }
       },
       "required": [
         "command",
-        "input",
-        "source"
+        "source",
+        "hgvs"
       ],
       "type": "object"
     },
@@ -417,38 +440,6 @@
             }
           ],
           "description": "Required for chromosome notation; no assembly is guessed."
-        },
-        "civic_cursor": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC cursor, retained unchanged."
-        },
-        "civic_kind": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/CivicClaimKind"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC claim collection within the selected profile."
-        },
-        "civic_profile": {
-          "description": "Selected CIViC molecular profile for native claim paging.",
-          "format": "uint64",
-          "maximum": 2147483647,
-          "minimum": 1,
-          "type": [
-            "integer",
-            "null"
-          ]
         },
         "command": {
           "const": "get_variant",
@@ -478,96 +469,6 @@
           "$ref": "#/$defs/VariantResolver",
           "default": "car",
           "description": "Resolver for reference-qualified notation; never repairs the input locally."
-        },
-        "section": {
-          "description": "Named source sections; omitted by default.",
-          "items": {
-            "$ref": "#/$defs/VariantSection"
-          },
-          "type": "array",
-          "x-positional": 1
-        },
-        "section_limit": {
-          "default": 3,
-          "description": "Rows per named source section page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "section_offset": {
-          "default": 0,
-          "description": "Source rows to skip independently of identity candidate paging.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "tumor_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Explicit tumor context for keyed OncoKB annotation."
-        }
-      },
-      "required": [
-        "command",
-        "input"
-      ],
-      "type": "object"
-    },
-    {
-      "additionalProperties": false,
-      "description": "Read source ancestry observations.",
-      "properties": {
-        "build": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Build"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Explicit source assembly when required by identity input."
-        },
-        "command": {
-          "const": "variant_population",
-          "type": "string"
-        },
-        "detail": {
-          "default": false,
-          "description": "Read source ancestry groups, preserving overlapping groups individually.",
-          "type": "boolean"
-        },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Exact published allele identity; ambiguous candidates must first be selected.",
-          "x-positional": 0
-        },
-        "limit": {
-          "default": 10,
-          "description": "Maximum rows per page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Native rows to skip.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "resolver": {
-          "$ref": "#/$defs/VariantResolver",
-          "default": "car",
-          "description": "Resolver for reference-qualified input."
         }
       },
       "required": [

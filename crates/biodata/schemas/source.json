@@ -29,7 +29,8 @@
     "myvariant",
     "car",
     "mutalyzer",
-    "variantvalidator"
+    "variantvalidator",
+    "cbioportal"
   ],
   "title": "Source",
   "type": "string",
@@ -60,6 +61,7 @@
     " MyVariant.info aggregation.",
     " ClinGen Allele Registry.",
     " Mutalyzer.",
-    " VariantValidator."
+    " VariantValidator.",
+    " Public cBioPortal with study-specific reuse terms."
   ]
 }
