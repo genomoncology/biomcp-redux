@@ -84,38 +84,72 @@ pub(super) fn extras(
         }
     }
     for id in ids {
-        if !hits.contains_key(id) { problems.push(problem(Some(*id), "query")); }
-    }
-    hits.into_iter().filter_map(|(id, mut hits)| {
-        if hits.len() != 1 {
-            problems.push(problem(Some(id), "query"));
-            return None;
+        if !hits.contains_key(id) {
+            problems.push(problem(Some(*id), "query"));
         }
-        map_hit(hits.pop()?, id, problems)
-    }).collect()
+    }
+    hits.into_iter()
+        .filter_map(|(id, mut hits)| {
+            if hits.len() != 1 {
+                problems.push(problem(Some(id), "query"));
+                return None;
+            }
+            map_hit(hits.pop()?, id, problems)
+        })
+        .collect()
 }
 
 fn map_hit(hit: Hit, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Option<Mapped<GeneExtras>> {
-    if hit.notfound == Some(true) { return None; }
-    let returned = hit.entrezgene.and_then(Field::value).and_then(|value| value.parse::<EntrezGeneId>().ok());
+    if hit.notfound == Some(true) {
+        return None;
+    }
+    let returned = hit
+        .entrezgene
+        .and_then(Field::value)
+        .and_then(|value| value.parse::<EntrezGeneId>().ok());
     if returned != Some(id) {
         problems.push(problem(Some(id), "entrez_id"));
         return None;
     }
     let hgnc_present = hit.hgnc.is_some();
-    let hgnc = hit.hgnc.and_then(Field::value).and_then(|value| format!("HGNC:{value}").parse::<HgncId>().ok());
+    let hgnc = hit
+        .hgnc
+        .and_then(Field::value)
+        .and_then(|value| format!("HGNC:{value}").parse::<HgncId>().ok());
     let mut mapped = Mapped {
-        value: GeneExtras { query_id: id, entrez_id: returned?, hgnc_id: hgnc, summary: None, spans: Box::new([]) },
+        value: GeneExtras {
+            query_id: id,
+            entrez_id: returned?,
+            hgnc_id: hgnc,
+            summary: None,
+            spans: Box::new([]),
+        },
         problems: Vec::new(),
     };
-    if hgnc_present && hgnc.is_none() { mapped.problems.push(problem(Some(id), "hgnc_id")); }
+    if hgnc_present && hgnc.is_none() {
+        mapped.problems.push(problem(Some(id), "hgnc_id"));
+    }
     if let Some(field) = hit.summary {
         mapped.value.summary = field.value().and_then(summary);
-        if mapped.value.summary.is_none() { mapped.problems.push(problem(Some(id), "summary")); }
+        if mapped.value.summary.is_none() {
+            mapped.problems.push(problem(Some(id), "summary"));
+        }
     }
     let mut spans = Vec::new();
-    positions(hit.genomic_pos, Build::Grch38, id, &mut spans, &mut mapped.problems);
-    positions(hit.genomic_pos_hg19, Build::Grch37, id, &mut spans, &mut mapped.problems);
+    positions(
+        hit.genomic_pos,
+        Build::Grch38,
+        id,
+        &mut spans,
+        &mut mapped.problems,
+    );
+    positions(
+        hit.genomic_pos_hg19,
+        Build::Grch37,
+        id,
+        &mut spans,
+        &mut mapped.problems,
+    );
     mapped.value.spans = spans.into_boxed_slice();
     Some(mapped)
 }
