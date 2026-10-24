@@ -53,7 +53,7 @@ struct Recording {
     method: String,
     source: biodata::Source,
     url: String,
-    #[serde(flatten)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     post: Option<crate::prepared::PostMetadata>,
     exchanges: Vec<Exchange>,
 }

@@ -169,19 +169,12 @@ impl Leg<'_> {
     }
 
     fn call(&self, prepared: &Prepared) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        let mut request = self
-            .fetch
-            .agent
-            .request(
-                if prepared.post.is_some() {
-                    "POST"
-                } else {
-                    "GET"
-                },
-                &prepared.url,
-            )
-            .force_send_body()
-            .header("Accept", "application/json");
+        let mut request = if prepared.post.is_some() {
+            self.fetch.agent.post(&prepared.url)
+        } else {
+            self.fetch.agent.get(&prepared.url).force_send_body()
+        }
+        .header("Accept", "application/json");
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.config.secrets.get(c.secret)
         {
