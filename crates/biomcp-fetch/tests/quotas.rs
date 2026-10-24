@@ -32,10 +32,13 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
 }
 
 mod support;
+#[path = "support/timing.rs"]
+mod timing;
 use biodata::Reason;
 use biomcp_fetch::{Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Secret, SecretName};
 use std::{sync::mpsc, thread, time::Duration};
-use support::{Answer, Server};
+use support::Answer;
+use timing::Server;
 
 fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &'static Quota {
     Box::leak(Box::new(Quota::new(
@@ -117,7 +120,7 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         });
         // Completion with the holder still blocked proves the waiter exhausted its queue budget.
         assert_eq!(
-            canceled.join().unwrap().unwrap_err().reason,
+            source(canceled.join().unwrap().unwrap_err()).reason,
             Reason::DeadlineExceeded
         );
         assert!(server.requests.try_recv().is_err());
@@ -209,7 +212,7 @@ fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
                 .json::<Answer>(&spec.get("/expired"), &[])
         });
         assert_eq!(
-            canceled.join().unwrap().unwrap_err().reason,
+            source(canceled.join().unwrap().unwrap_err()).reason,
             Reason::DeadlineExceeded
         );
         assert!(server.requests.try_recv().is_err());
@@ -265,4 +268,15 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
         assert!(second.join().unwrap().unwrap().answer);
         assert!(spacing >= Duration::from_millis(195), "{spacing:?}");
     });
+}
+
+#[expect(
+    clippy::panic,
+    reason = "A cache error must never satisfy a provider-failure assertion"
+)]
+fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
+    error
 }

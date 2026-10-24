@@ -4,13 +4,16 @@
     reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
 )]
 mod support;
+#[path = "support/timing.rs"]
+mod timing;
 use biodata::Reason;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
 use std::{
     thread,
     time::{Duration, SystemTime},
 };
-use support::{Answer, Server};
+use support::Answer;
+use timing::Server;
 
 fn quota() -> &'static Quota {
     Box::leak(Box::new(Quota::new(
@@ -50,6 +53,9 @@ fn only_approved_get_statuses_retry_and_exhaust_after_three_attempts() {
                     .respond(status, "Retry-After: 0\r\n", "untrusted provider text");
             }
             let error = worker.join().unwrap().unwrap_err();
+            let biomcp_fetch::RequestError::Source(error) = error else {
+                panic!("expected provider failure: {error}");
+            };
             assert_eq!((error.reason, error.status), (reason, Some(status)));
             assert!(server.requests.try_recv().is_err());
         });
@@ -105,6 +111,9 @@ fn provider_wait_beyond_budget_is_rate_limited_with_typed_duration() {
                 .next()
                 .respond(503, &format!("Retry-After: {value}\r\n"), "");
             let error = worker.join().unwrap().unwrap_err();
+            let biomcp_fetch::RequestError::Source(error) = error else {
+                panic!("expected provider failure: {error}");
+            };
             assert_eq!(
                 (error.reason, error.status),
                 (Reason::RateLimited, Some(503))
@@ -128,6 +137,9 @@ fn ordinary_backoff_expiry_is_deadline_exceeded_and_releases_permit() {
         });
         server.next().respond(503, "Retry-After: malformed\r\n", "");
         let error = worker.join().unwrap().unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
         assert_eq!(error.reason, Reason::DeadlineExceeded);
         assert_eq!(error.retry_after, None);
         assert!(server.requests.try_recv().is_err());
@@ -186,7 +198,10 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
                     .json::<Answer>(&spec.get("/bad"), &[])
             });
             server.next().raw(response);
-            assert_eq!(worker.join().unwrap().unwrap_err().reason, Reason::BadReply);
+            assert_eq!(
+                source(worker.join().unwrap().unwrap_err()).reason,
+                Reason::BadReply
+            );
             assert!(server.requests.try_recv().is_err());
             let peer = scope.spawn(|| {
                 fetch
@@ -197,4 +212,15 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
             assert!(peer.join().unwrap().unwrap().answer);
         });
     }
+}
+
+#[expect(
+    clippy::panic,
+    reason = "A cache error must never satisfy a provider-failure assertion"
+)]
+fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
+    error
 }

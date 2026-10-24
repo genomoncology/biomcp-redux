@@ -34,6 +34,8 @@ pub enum FetchError {
     Proxy,
     /// The body limit must allow one byte for overflow detection.
     BodyLimit,
+    /// The explicit cache could not be opened safely.
+    Cache(CacheError),
 }
 
 impl fmt::Display for FetchError {
@@ -41,8 +43,58 @@ impl fmt::Display for FetchError {
         f.write_str(match self {
             Self::Proxy => "fetch.proxy",
             Self::BodyLimit => "fetch.body_limit",
+            Self::Cache(error) => return error.fmt(f),
         })
     }
 }
 
 impl std::error::Error for FetchError {}
+
+/// Local cache failures carry no SQL, file paths or provider text.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CacheError {
+    /// Database access failed.
+    Database,
+    /// The file has no valid transport ownership or a different schema version.
+    Version,
+    /// The connection or database remained busy until the request deadline.
+    Busy,
+}
+impl fmt::Display for CacheError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Database => "fetch.cache_database",
+            Self::Version => "fetch.cache_version",
+            Self::Busy => "fetch.cache_busy",
+        })
+    }
+}
+impl std::error::Error for CacheError {}
+
+/// A provider failure or a distinct local cache failure.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RequestError {
+    /// The provider request failed.
+    Source(SourceError),
+    /// Local cache access or validation failed.
+    Cache(CacheError),
+}
+impl From<SourceError> for RequestError {
+    fn from(error: SourceError) -> Self {
+        Self::Source(error)
+    }
+}
+impl From<CacheError> for RequestError {
+    fn from(error: CacheError) -> Self {
+        Self::Cache(error)
+    }
+}
+impl fmt::Display for RequestError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Source(error) => error.fmt(f),
+            Self::Cache(error) => error.fmt(f),
+        }
+    }
+}
+impl std::error::Error for RequestError {}

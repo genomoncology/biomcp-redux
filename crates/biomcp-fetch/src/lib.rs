@@ -1,5 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+mod cache;
+mod cache_request;
 mod deadline;
 mod declaration;
 mod error;
@@ -8,9 +10,12 @@ mod request;
 mod retry;
 mod secret;
 
+pub use cache::VERSION;
 pub use deadline::Deadline;
-pub use declaration::{Arg, Credential, Endpoint, KeyPlace, KeyUse, SecretName, SourceSpec};
-pub use error::{BadReply, FetchError, SourceError};
+pub use declaration::{
+    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
+};
+pub use error::{BadReply, CacheError, FetchError, RequestError, SourceError};
 pub use quota::{Quota, Rate, SourceKey};
 pub use secret::{Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
@@ -26,6 +31,10 @@ pub trait Reply: serde::de::DeserializeOwned {
 pub struct FetchConfig {
     /// Configured credentials.
     pub secrets: Secrets,
+    /// Explicit SQLite cache path; absence disables storage.
+    pub cache: Option<std::path::PathBuf>,
+    /// Live request policy.
+    pub mode: Mode,
     /// Explicit HTTP proxy URL, redacted when formatted.
     pub proxy: Option<Secret>,
     /// Maximum decoded response body bytes.
@@ -38,6 +47,8 @@ impl Default for FetchConfig {
     fn default() -> Self {
         Self {
             secrets: Secrets::default(),
+            cache: None,
+            mode: Mode::default(),
             proxy: None,
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
@@ -50,6 +61,7 @@ pub struct Fetch {
     agent: ureq::Agent,
     config: FetchConfig,
     limiters: quota::Limiters,
+    cache: Option<cache::Cache>,
 }
 
 impl fmt::Debug for Fetch {
@@ -83,8 +95,15 @@ impl Fetch {
             )
             .build()
             .new_agent();
+        let cache = config
+            .cache
+            .as_deref()
+            .map(cache::Cache::open)
+            .transpose()
+            .map_err(FetchError::Cache)?;
         Ok(Self {
             agent,
+            cache,
             config,
             limiters: quota::Limiters::default(),
         })
@@ -96,6 +115,10 @@ impl Fetch {
     }
 
     /// Start a leg capped by this source's budget.
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Create the shared leg report lock without holding it during request work"
+    )]
     pub fn leg(&self, spec: &'static SourceSpec, deadline: Deadline) -> Leg<'_> {
         let cap = self
             .config
@@ -112,15 +135,53 @@ impl Fetch {
             spec,
             deadline: deadline.child(cap),
             no_key,
+            report: std::sync::Mutex::new(LegReport::default()),
         }
     }
 }
 
 /// One source's requests under a shared absolute deadline.
+#[expect(
+    clippy::disallowed_types,
+    reason = "Keep typed report state shared across concurrent requests; never hold its lock during request work"
+)]
 #[derive(Debug)]
 pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
     deadline: Deadline,
     no_key: bool,
+    report: std::sync::Mutex<LegReport>,
+}
+
+/// Request policy for live provider access.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Mode {
+    /// Force a provider refresh when `fresh` is true, while still writing results.
+    Live {
+        /// Skip cached reads and stale fallback.
+        fresh: bool,
+    },
+}
+impl Default for Mode {
+    fn default() -> Self {
+        Self::Live { fresh: false }
+    }
+}
+
+/// The retained stale state of a completed source leg.
+#[derive(Debug, Default)]
+pub struct LegReport {
+    /// Whether any request served a checked stale reply.
+    pub stale: bool,
+    /// Original typed provider failures that caused stale replies to be served.
+    pub failures: Vec<SourceError>,
+}
+impl Leg<'_> {
+    /// Finish the leg without clearing failures after later successful requests.
+    pub fn finish(self) -> LegReport {
+        self.report
+            .into_inner()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+    }
 }

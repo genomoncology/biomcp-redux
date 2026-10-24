@@ -1,4 +1,4 @@
-use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, SourceError};
+use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use biodata::Reason;
 use std::io::Read;
 
@@ -8,7 +8,7 @@ impl Leg<'_> {
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
-    ) -> Result<T, SourceError> {
+    ) -> Result<T, RequestError> {
         self.send(ep, params)
     }
 
@@ -17,9 +17,9 @@ impl Leg<'_> {
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
-    ) -> Result<Option<T>, SourceError> {
+    ) -> Result<Option<T>, RequestError> {
         match self.send(ep, params) {
-            Err(error) if error.reason == Reason::NotFound => Ok(None),
+            Err(RequestError::Source(error)) if error.reason == Reason::NotFound => Ok(None),
             result => result.map(Some),
         }
     }
@@ -33,41 +33,40 @@ impl Leg<'_> {
         }
     }
 
-    fn send<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError> {
+    fn send<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, RequestError> {
         if self.no_key {
-            return Err(self.failure(Reason::NoKey, None));
+            return Err(self.failure(Reason::NoKey, None).into());
         }
         if !std::ptr::eq(self.spec, ep.spec) {
-            return Err(self.failure(Reason::Rejected, None));
-        }
-        if self.deadline.expired() {
-            return Err(self.failure(Reason::DeadlineExceeded, None));
+            return Err(self.failure(Reason::Rejected, None).into());
         }
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        let identity = crate::retry::identity(&url, params, self.spec.key);
+        let canonical = crate::retry::canonical(&url, params, self.spec.key);
+        let identity = crate::retry::identity(&canonical);
         let keyed = match self.spec.key {
             KeyUse::Optional(c) | KeyUse::Required(c) => {
                 self.fetch.config.secrets.get(c.secret).is_some()
             }
             KeyUse::None => false,
         };
-        self.attempts(&url, params, &identity, keyed)
+        self.cached(ep, &canonical, &identity, || {
+            self.attempts(&canonical, &identity, keyed)
+        })
     }
 
     fn attempts<T: Reply>(
         &self,
         url: &str,
-        params: &[(&str, Arg<'_>)],
         identity: &[u8; 32],
         keyed: bool,
-    ) -> Result<T, SourceError> {
+    ) -> Result<(T, u16, Vec<u8>), SourceError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
                 .fetch
                 .limiters
                 .acquire(self.spec.quota, keyed, self.deadline)
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
-            let (mut error, retryable, delay) = match self.call(url, params) {
+            let (mut error, retryable, delay) = match self.call(url) {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
                     if (200..300).contains(&status) {
@@ -123,19 +122,12 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None))
     }
 
-    fn call(
-        &self,
-        url: &str,
-        params: &[(&str, Arg<'_>)],
-    ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+    fn call(&self, url: &str) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let mut request = self
             .fetch
             .agent
             .get(url)
             .header("Accept", "application/json");
-        for (name, value) in params {
-            request = request.query(name, value.value());
-        }
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.config.secrets.get(c.secret)
         {
@@ -159,7 +151,7 @@ impl Leg<'_> {
         &self,
         response: &mut ureq::http::Response<ureq::Body>,
         status: u16,
-    ) -> Result<T, SourceError> {
+    ) -> Result<(T, u16, Vec<u8>), SourceError> {
         let bad = || self.failure(Reason::BadReply, Some(status));
         let content_type = response
             .headers()
@@ -203,6 +195,6 @@ impl Leg<'_> {
         if self.deadline.expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
-        Ok(reply)
+        Ok((reply, status, bytes))
     }
 }

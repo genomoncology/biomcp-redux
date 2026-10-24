@@ -19,7 +19,11 @@ pub struct SourceSpec {
 impl SourceSpec {
     /// Declare a JSON GET endpoint belonging to this source.
     pub const fn get(&'static self, path: &'static str) -> Endpoint {
-        Endpoint { spec: self, path }
+        Endpoint {
+            spec: self,
+            path,
+            fresh: Freshness::Never,
+        }
     }
 }
 
@@ -28,6 +32,7 @@ impl SourceSpec {
 pub struct Endpoint {
     pub(crate) spec: &'static SourceSpec,
     pub(crate) path: &'static str,
+    pub(crate) fresh: Freshness,
 }
 
 /// Whether a source requires a credential before sending.
@@ -89,5 +94,36 @@ impl Arg<'_> {
                 values.join(",")
             }
         }
+    }
+}
+
+/// How long a checked endpoint reply remains fresh.
+#[derive(Clone, Copy, Debug, Default)]
+pub enum Freshness {
+    /// Bypass all cache reads and writes.
+    #[default]
+    Never,
+    /// Fresh for this many minutes.
+    Minutes(u16),
+    /// Fresh for this many hours.
+    Hours(u16),
+    /// Fresh for this many days.
+    Days(u16),
+}
+impl Freshness {
+    pub(crate) fn seconds(self) -> Option<u64> {
+        match self {
+            Self::Never => None,
+            Self::Minutes(n) => Some(u64::from(n) * 60),
+            Self::Hours(n) => Some(u64::from(n) * 3600),
+            Self::Days(n) => Some(u64::from(n) * 86400),
+        }
+    }
+}
+impl Endpoint {
+    /// Set the checked reply's cache freshness.
+    pub const fn fresh(mut self, fresh: Freshness) -> Self {
+        self.fresh = fresh;
+        self
     }
 }
