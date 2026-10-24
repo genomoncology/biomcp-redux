@@ -1,6 +1,7 @@
 # 0097 — Document the variant commands and close the variant accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 73c05e0a20b02d8fa6cff67b9671edbc2126c897
 
 Milestone: 2
 
