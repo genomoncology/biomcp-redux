@@ -5,6 +5,15 @@ use std::time::{Duration, Instant, SystemTime};
 pub(crate) const ATTEMPTS: u32 = 3;
 const BASE_BACKOFF: Duration = Duration::from_millis(250);
 
+pub(crate) fn status_reason(status: u16) -> biodata::Reason {
+    match status {
+        404 => biodata::Reason::NotFound,
+        429 => biodata::Reason::RateLimited,
+        500..=599 => biodata::Reason::Unavailable,
+        _ => biodata::Reason::Rejected,
+    }
+}
+
 pub(crate) fn retry_status(status: u16) -> bool {
     matches!(status, 429 | 500 | 502 | 503 | 504)
 }

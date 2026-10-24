@@ -19,7 +19,7 @@ const OPEN_WAIT: Duration = Duration::from_secs(5);
 // One connection is shared by source legs. Its lock covers only SQLite work;
 // callers decode and check owned bytes after the guard has been released.
 #[derive(Debug)]
-pub(crate) struct Cache(Mutex<Connection>);
+pub(crate) struct Cache(Mutex<Connection>, pub(crate) std::path::PathBuf);
 
 #[derive(Debug)]
 pub(crate) struct Entry {
@@ -53,7 +53,7 @@ impl Cache {
         connection
             .pragma_update(None, "journal_mode", "WAL")
             .map_err(db_error)?;
-        Ok(Self(Mutex::new(connection)))
+        Ok(Self(Mutex::new(connection), path.with_extension("parts")))
     }
 
     fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
@@ -97,6 +97,7 @@ impl Cache {
             CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
         )
         .map_err(db_error)?;
+        crate::bundle::store::initialize(&tx)?;
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
             (OWNER, VERSION),
@@ -107,7 +108,7 @@ impl Cache {
 
     // try_lock avoids an unbounded Rust mutex wait. SQLite's own busy handler
     // uses the remaining deadline after acquiring the connection.
-    fn sql<T>(
+    pub(crate) fn sql<T>(
         &self,
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
@@ -199,7 +200,7 @@ pub(crate) fn now() -> i64 {
     )
     .unwrap_or(i64::MAX)
 }
-fn db_error(error: rusqlite::Error) -> CacheError {
+pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {
     if matches!(
         error.sqlite_error_code(),
         Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)

@@ -15,6 +15,7 @@ use std::{
 };
 
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
+const MAX_BUNDLE_FILE_BYTES: u64 = crate::MAX_BUNDLE_BYTES * 6 + 64 * 1024;
 const MAX_METADATA_BYTES: usize = 8192;
 const MAX_EXCHANGES: usize = 128;
 const LOCK: &str = ".record-owner";
@@ -79,7 +80,18 @@ pub(crate) enum Body {
 }
 impl Body {
     pub(crate) fn capture(bytes: Vec<u8>) -> Result<Self, RecordError> {
-        if bytes.len() as u64 > MAX_FILE_BYTES {
+        Self::capture_bounded(bytes, MAX_FILE_BYTES)
+    }
+    pub(crate) fn capture_bundle(bytes: Vec<u8>) -> Result<Self, RecordError> {
+        if bytes.len() as u64 > crate::MAX_BUNDLE_BYTES {
+            return Err(RecordError::Limit);
+        }
+        Ok(Self::Text(
+            String::from_utf8(bytes).map_err(|_| RecordError::NonUtf8)?,
+        ))
+    }
+    fn capture_bounded(bytes: Vec<u8>, limit: u64) -> Result<Self, RecordError> {
+        if bytes.len() as u64 > limit {
             return Err(RecordError::Limit);
         }
         let text = String::from_utf8(bytes).map_err(|_| RecordError::NonUtf8)?;
@@ -125,6 +137,7 @@ pub(crate) struct Capture {
 #[derive(Debug)]
 pub(crate) struct Cursor {
     recording: Recording,
+    file_bytes: u64,
     next: usize,
 }
 impl Drop for Capture {
@@ -178,6 +191,32 @@ impl Recordings {
         post: Option<&crate::prepared::PostMetadata>,
         max_body: u64,
     ) -> Result<Option<Exchange>, RecordError> {
+        self.replay_bounded(source, key, url, post, max_body, MAX_FILE_BYTES)
+    }
+    pub(crate) fn replay_bundle(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+    ) -> Result<Option<Exchange>, RecordError> {
+        self.replay_bounded(
+            source,
+            key,
+            url,
+            None,
+            crate::MAX_BUNDLE_BYTES,
+            MAX_BUNDLE_FILE_BYTES,
+        )
+    }
+    fn replay_bounded(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
+        max_body: u64,
+        file_limit: u64,
+    ) -> Result<Option<Exchange>, RecordError> {
         let Self::Replay { dir, cursors } = self else {
             return Ok(None);
         };
@@ -185,10 +224,18 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let recording = read(&path(dir, source, key), source, url, post)?;
-                entry.insert(Cursor { recording, next: 0 })
+                let (recording, file_bytes) =
+                    read(&path(dir, source, key), source, url, post, file_limit)?;
+                entry.insert(Cursor {
+                    recording,
+                    file_bytes,
+                    next: 0,
+                })
             }
         };
+        if cursor.file_bytes > file_limit {
+            return Err(RecordError::Limit);
+        }
         let value = cursor
             .recording
             .exchanges
@@ -207,6 +254,26 @@ impl Recordings {
         url: &str,
         post: Option<&crate::prepared::PostMetadata>,
         exchange: Exchange,
+    ) -> Result<(), RecordError> {
+        self.append_bounded(source, key, url, post, exchange, MAX_FILE_BYTES)
+    }
+    pub(crate) fn append_bundle(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        exchange: Exchange,
+    ) -> Result<(), RecordError> {
+        self.append_bounded(source, key, url, None, exchange, MAX_BUNDLE_FILE_BYTES)
+    }
+    fn append_bounded(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
+        exchange: Exchange,
+        limit: u64,
     ) -> Result<(), RecordError> {
         let Self::Capture(capture) = self else {
             return Ok(());
@@ -228,7 +295,7 @@ impl Recordings {
             return Err(RecordError::Limit);
         }
         recording.exchanges.push(exchange);
-        let result = publish(&path(&capture.dir, source, key), recording);
+        let result = publish(&path(&capture.dir, source, key), recording, limit);
         if result.is_err() {
             recording.exchanges.pop();
         }
@@ -244,7 +311,8 @@ fn read(
     source: biodata::Source,
     url: &str,
     post: Option<&crate::prepared::PostMetadata>,
-) -> Result<Recording, RecordError> {
+    limit: u64,
+) -> Result<(Recording, u64), RecordError> {
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
@@ -253,10 +321,10 @@ fn read(
         }
     })?;
     let mut bytes = Vec::new();
-    file.take(MAX_FILE_BYTES + 1)
+    file.take(limit + 1)
         .read_to_end(&mut bytes)
         .map_err(|_| RecordError::Io)?;
-    if bytes.len() as u64 > MAX_FILE_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
     let value: Recording = serde_json::from_slice(&bytes).map_err(|_| RecordError::Malformed)?;
@@ -271,11 +339,11 @@ fn read(
     {
         return Err(RecordError::Malformed);
     }
-    Ok(value)
+    Ok((value, bytes.len() as u64))
 }
-fn publish(path: &Path, value: &Recording) -> Result<(), RecordError> {
+fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError> {
     let bytes = serde_json::to_vec_pretty(value).map_err(|_| RecordError::Malformed)?;
-    if bytes.len() as u64 > MAX_FILE_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
     let parent = path.parent().ok_or(RecordError::Io)?;

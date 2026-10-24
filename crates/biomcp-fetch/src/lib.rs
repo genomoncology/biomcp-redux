@@ -1,6 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
 mod batch;
+mod bundle;
 mod cache;
 mod cache_request;
 mod deadline;
@@ -15,6 +16,7 @@ mod secret;
 pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
+pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat};
 pub use cache::VERSION;
 pub use deadline::Deadline;
 pub use declaration::{
@@ -49,6 +51,10 @@ pub struct FetchConfig {
     pub proxy: Option<Secret>,
     /// Maximum encoded request and decoded response bytes, each bounded independently.
     pub max_body: u64,
+    /// Independent explicit bundle synchronization budget.
+    pub sync_budget: Duration,
+    /// Maximum automatically downloaded bundle bytes.
+    pub auto_sync_max_bytes: u64,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biodata::Source, Duration>,
 }
@@ -63,11 +69,17 @@ impl Default for FetchConfig {
             proxy: None,
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
+            sync_budget: Duration::from_secs(120),
+            auto_sync_max_bytes: 32 * 1024 * 1024,
         }
     }
 }
 
 /// One blocking client shared across source legs.
+#[expect(
+    clippy::disallowed_types,
+    reason = "Reserve each bundle replay import once per Fetch"
+)]
 pub struct Fetch {
     agent: ureq::Agent,
     limiters: quota::Limiters,
@@ -75,6 +87,7 @@ pub struct Fetch {
     recordings: record::Recordings,
     clock: Option<deadline::VirtualClock>,
     config: FetchConfig,
+    bundle_imports: std::sync::Mutex<std::collections::BTreeSet<&'static str>>,
 }
 
 impl fmt::Debug for Fetch {
@@ -87,7 +100,11 @@ impl fmt::Debug for Fetch {
 
 impl Fetch {
     /// Open a client using platform TLS roots and only the supplied proxy.
-    pub fn open(config: FetchConfig) -> Result<Self, FetchError> {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Initialize the Fetch-local bundle import reservation"
+    )]
+    pub fn open(mut config: FetchConfig) -> Result<Self, FetchError> {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
@@ -108,6 +125,9 @@ impl Fetch {
             )
             .build()
             .new_agent();
+        if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
+            config.replay_cache = Some(ReplayCache::temporary().map_err(FetchError::Cache)?);
+        }
         let recordings = record::Recordings::open(&config.mode).map_err(FetchError::Recording)?;
         let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline)
             && config.replay_cache.is_some()
@@ -133,6 +153,7 @@ impl Fetch {
             clock,
             config,
             limiters: quota::Limiters::default(),
+            bundle_imports: std::sync::Mutex::default(),
         })
     }
 
