@@ -88,6 +88,11 @@ impl Stub {
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            terms: biomcp_fetch::Terms {
+                name: "Synthetic test data",
+                url: "https://example.test/terms",
+                usage: biodata::Use::Open,
+            },
             source: Source::PubMed,
             base: self.base,
             key,
@@ -502,86 +507,33 @@ fn outgoing_contact_and_optional_key_never_enter_persistent_identity() {
 }
 
 #[test]
-fn checked_no_proxy_boundaries_select_direct_routes() {
-    for (rule, direct) in [
-        ("*", true),
-        ("127.0.0.1", true),
-        ("127.0.0.10", false),
-        ("127.0.0.1.evil", false),
-        (".0.0.1", false),
-        (".127.0.0.1", false),
-        ("localhost", true),
-        (".localhost", true),
-        ("*.localhost", false),
-        ("port", true),
-        ("wrong-port", false),
-    ] {
-        let stub = Stub::new(200, "application/json", r#"{"answer":"direct"}"#, None);
-        let address = stub.base.trim_start_matches("http://");
-        let port = address.rsplit_once(':').unwrap().1;
-        let closed = TcpListener::bind("127.0.0.1:0").unwrap();
-        let proxy = format!(
-            "http://user:synthetic-private@{}",
-            closed.local_addr().unwrap()
-        );
-        drop(closed);
-        let base = if rule.contains("localhost") {
-            stub.base.replace("127.0.0.1", "localhost")
-        } else {
-            stub.base.into()
-        };
-        let rule = match rule {
-            "port" => format!("127.0.0.1:{port}"),
-            "wrong-port" => "127.0.0.1:0".into(),
-            other => other.into(),
-        };
-        let network =
-            biomcp_fetch::Network::new(Some(Secret::new(proxy)), None, &rule, Default::default());
-        if rule == ".127.0.0.1" {
-            assert!(network.is_err());
-            drop(stub);
-            continue;
-        }
-        let fetch = Fetch::open(FetchConfig {
-            network: network.unwrap(),
-            ..Default::default()
-        })
-        .unwrap();
-        let original = stub.spec(KeyUse::None, Duration::from_secs(10));
-        let spec = Box::leak(Box::new(SourceSpec {
-            base: Box::leak(base.into_boxed_str()),
-            source: original.source,
-            key: original.key,
-            quota: original.quota,
-            deadline: original.deadline,
-        }));
-        let result = fetch
-            .leg(spec, fetch.deadline(Duration::from_secs(10)))
-            .json::<Answer>(&spec.get("/answer"), &[]);
-        if direct {
-            assert_eq!(result.unwrap().answer.as_deref(), Some("direct"));
-        } else {
-            let biomcp_fetch::RequestError::Source(error) = result.unwrap_err() else {
-                panic!("expected source error")
-            };
-            assert_eq!(error.reason, Reason::Proxy, "{rule}");
-        }
-        assert_eq!(stub.finish().len(), usize::from(direct));
-    }
-    for invalid in [
-        "example.org:abc",
-        "example.org:",
-        "example.org:65536",
-        "*.127.0.0.1",
-        "10.0.0.0/8",
-        "user@example.org",
-        "[::1]:abc",
-    ] {
-        assert!(
-            biomcp_fetch::Network::new(None, None, invalid, Default::default()).is_err(),
-            "{invalid}"
-        );
-    }
-    // IPv6 literals require brackets when a port is supplied.
-    assert!(biomcp_fetch::Network::new(None, None, "[::1]:443", Default::default()).is_ok());
+fn bounded_reachability_probes_share_policy_and_never_cache_data() {
+    let stub = Stub::new(200, "text/plain", "reachable", None);
+    let spec = stub.spec(KeyUse::None, Duration::from_secs(2));
+    let fetch = fetch();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
+    leg.probe(&spec.get("/probe"), &[]).unwrap();
+    leg.probe_json(
+        &spec.post_json("/probe").idempotent(),
+        &serde_json::json!({"query":"health"}),
+    )
+    .unwrap();
+    assert_eq!(stub.finish().len(), 2);
+    let stub = Stub::new(200, "application/json", "sensitive", None);
+    let spec = stub.spec(
+        KeyUse::Required(credential(KeyPlace::Bearer)),
+        Duration::from_secs(2),
+    );
+    let fetch = Fetch::open(FetchConfig {
+        disabled_sources: [spec.source].into(),
+        ..Default::default()
+    })
+    .unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
+    let error = leg.probe(&spec.get("/probe"), &[]).unwrap_err();
+    assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::Disabled));
+    assert!(stub.finish().is_empty());
 }
+
+#[path = "transport/network.rs"]
+mod network;

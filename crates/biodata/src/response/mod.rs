@@ -49,3 +49,8 @@ mod article_sections;
 pub use article_sections::{
     AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations, Tldr,
 };
+
+mod health;
+pub use health::{Health, SourceHealth};
+
+pub(crate) use status::wire_enum;

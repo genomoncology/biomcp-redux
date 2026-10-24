@@ -12,6 +12,8 @@ pub enum Bundle {
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
+    /// Probe source reachability and report publisher terms.
+    Health,
     /// Run a query, retaining fresh policy.
     Run {
         #[doc = "Checked query."]
