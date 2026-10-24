@@ -131,16 +131,31 @@ fn stratum(id: &Text) -> (Option<Text>, Option<PopulationSex>) {
     if ancestry.is_empty() {
         return (None, sex);
     }
+    // Source PopulationId keys and PopulationIdAndChromosome grammar:
+    // https://github.com/broadinstitute/gnomad-browser/blob/main/dataset-metadata/gnomadPopulations.ts
     if [
         "afr",
+        "ami",
         "amr",
         "asj",
         "eas",
-        "fin",
         "mid",
+        "eur",
         "nfe",
-        "remaining",
+        "fin",
+        "oth",
         "sas",
+        "rmi",
+        "remaining",
+        "eas_jpn",
+        "eas_kor",
+        "eas_oea",
+        "nfe_bgr",
+        "nfe_est",
+        "nfe_nwe",
+        "nfe_onf",
+        "nfe_seu",
+        "nfe_swe",
     ]
     .contains(&ancestry)
     {
