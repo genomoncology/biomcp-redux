@@ -18,7 +18,7 @@ fn boundaries() -> Check {
     let prefixed = ["search", "article", "--gene", "KRAS", "--variant", "p.G12C", "--source", "litvar"];
     checked_case("article/litvar/kras-g12c", &prefixed, |_, _| {}, json!({"/sources/1/term":"rs121913530"}), 0)?;
     for (kind, expected, exit) in [
-        ("empty",json!({"/status":"absent","/result/candidates":{"count":0}}),1),
+        ("empty",json!({"/status":"absent","/result/items":{"count":0}}),1),
         ("multiple",json!({"/status":"absent","/result/candidates":{"count":3}}),1),
         ("nearby",json!({"/status":"absent","/result/candidates":{"count":5},"/next":{"count":5}}),1),
         ("bad-id",json!({"/status":"failed","/sources/1/reason":"bad_reply"}),4),
