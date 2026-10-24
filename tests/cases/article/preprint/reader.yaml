@@ -1,0 +1,71 @@
+{
+  "feature": "article-preprints",
+  "live_check": "public",
+  "story": "Europe PMC JATS uses its core license and the shared Markdown reader",
+  "replay": "article/preprint/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1295425",
+        "fulltext"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "PPR1295425",
+        "fulltext"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/fulltext/data/license": "cc_by",
+        "/result/items/0/sections/fulltext/data/parts/0/title": "Introduction",
+        "/result/items/0/answer/card/authors/total": 10,
+        "/next/0/args": [
+          "article",
+          "text",
+          "PPR1295425",
+          "--part",
+          "1"
+        ]
+      },
+      "max_bytes": 4500
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/license": "cc_by",
+        "/result/content/data/part": 1,
+        "/result/content/data/markdown": {
+          "includes": "adenoma"
+        }
+      },
+      "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PPR1295425",
+        "--find",
+        "adenoma"
+      ],
+      "mcp": [
+        "article",
+        "text",
+        "PPR1295425",
+        "--find",
+        "adenoma"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/license": "cc_by"
+      },
+      "max_tokens": 4000
+    }
+  ],
+  "verified": "2026-10-24 actual command capture; core license cc by governs JATS whose license-p names CC BY without license-type. Markdown retains checked text and reader continuations."
+}

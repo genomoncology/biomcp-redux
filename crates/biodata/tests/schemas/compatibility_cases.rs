@@ -219,17 +219,3 @@ fn compatibility_preserves_markdown_rendering_contract() {
     assert!(check(&markdown, &plain).is_err());
     assert!(check(&markdown, &markdown).is_ok());
 }
-
-#[test]
-fn compatibility_accepts_explicit_pattern_union_and_refuses_narrowing() {
-    let old = json!({"$id":"biodata.example/1", "type":"string", "pattern":"^(?:a|b)$"});
-    let mut wider = old.clone();
-    wider["pattern"] = json!("(?:^(?:a|b)$)|(?:^PPR[1-9][0-9]*$)");
-    assert!(check(&old, &wider).is_ok());
-    assert!(check(&wider, &old).is_err());
-    for pattern in ["(?:^a$)|(?:^PPR[1-9][0-9]*$)", "(?:^(?:a|b)$)extra|(?:^PPR[1-9][0-9]*$)", "^(?:a|b|PPR[1-9][0-9]*)$"] {
-        let mut changed = old.clone();
-        changed["pattern"] = json!(pattern);
-        assert!(check(&old, &changed).is_err(), "{pattern}");
-    }
-}

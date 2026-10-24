@@ -19,9 +19,26 @@
         "/result/items/0/answer/match/kind": "europepmc_id",
         "/result/items/0/answer/card/europepmc_id": "PPR1064174",
         "/result/items/0/answer/card/doi": "10.21203/rs.3.rs-7293078/v1",
-        "/result/items/0/answer/card/authors/total": 33
+        "/result/items/0/answer/card/authors/total": 33,
+        "/result/items/0/answer/card/types": {
+          "includes": "preprint"
+        },
+        "/result/items/0/answer/card/date": "2025-08-06"
       },
-      "max_bytes": 2500
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1064174"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/card/europepmc_id": "PPR1064174"
+      }
     }
-  ]
+  ],
+  "verified": "2026-10-24 actual command capture: Europe PMC core license cc by, DOI and 33 authors. Complete source abstract exceeds original target; no comparable 0.9 preprint command. Ceiling will bind measured output plus 15%."
 }

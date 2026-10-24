@@ -35,7 +35,7 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
         if old.markdown && !new.markdown
-            || !extends_pattern(old.pattern.as_deref(), new.pattern.as_deref())
+            || old.pattern != new.pattern
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -413,18 +413,4 @@ fn bound(node: &Value, value: &Value) -> Check<Bound> {
         .filter(|value| value.is_finite())
         .map(Bound::Decimal)
         .ok_or_else(|| "unsupported decimal bound".into())
-}
-
-// A grouped, unchanged left alternative is an explicit compatibility witness.
-// Do not infer inclusion between arbitrary regular expressions.
-fn extends_pattern(old: Option<&str>, new: Option<&str>) -> bool {
-    if old == new { return true; }
-    match (old, new) {
-        (Some(old), Some(new)) if old.starts_with('^') && old.ends_with('$') => {
-            new.strip_prefix(&format!("(?:{old})|(?:"))
-                .and_then(|right| right.strip_suffix(')'))
-                .is_some_and(|right| right.starts_with('^') && right.ends_with('$'))
-        }
-        _ => false,
-    }
 }
