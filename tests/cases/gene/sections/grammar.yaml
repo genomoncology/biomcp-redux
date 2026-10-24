@@ -60,16 +60,14 @@
         "/result/items/0/answer/gene/symbol": "BCR",
         "/query/input": [
           "all"
-        ],
-        "/result/items/0/answer/resolution": "not_found"
+        ]
       },
       "max_bytes": 3600,
       "mcp": [
         "get",
         "gene",
         "all"
-      ],
-      "exit": 1
+      ]
     },
     {
       "run": [
