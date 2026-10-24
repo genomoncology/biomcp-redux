@@ -48,7 +48,7 @@ struct RawVariant {
     hgvs_refseqgene_variant: Option<String>,
     hgvs_predicted_protein_consequence: Option<BTreeMap<String, String>>,
     alt_genomic_loci: Option<Vec<BTreeMap<String, Locus>>>,
-    submitted_variant: Text,
+    submitted_variant: String,
     hgvs_transcript_variant: String,
     primary_assembly_loci: Option<BTreeMap<String, Locus>>,
 }

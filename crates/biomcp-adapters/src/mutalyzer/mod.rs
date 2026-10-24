@@ -42,7 +42,7 @@ struct Normalized {
     infos: Option<Vec<Message>>,
     warnings: Option<Vec<Message>>,
     version: Option<String>,
-    input_description: Option<Text>,
+    input_description: Option<String>,
     normalized_description: Option<String>,
     errors: Option<Vec<Message>>,
 }
@@ -103,7 +103,12 @@ fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
                     .input_description
                     .as_ref()
                     .is_none_or(|description| description.as_str() == input))
-                || reply.payload().input_description.as_ref().map(Text::as_str) == Some(input)
+                || reply
+                    .payload()
+                    .input_description
+                    .as_ref()
+                    .map(String::as_str)
+                    == Some(input)
             {
                 Ok(())
             } else {
