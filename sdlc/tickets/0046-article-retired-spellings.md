@@ -6,7 +6,7 @@ Milestone: 1
 
 ## Outcome
 
-Every 0.9 article spelling that article.md's keep, change or drop table renames, moves or drops, outside Ian's open question C, returns a `usage.retired` error envelope with exit 2 and a fixed message naming the 1.0 spelling or saying it was dropped, through the CLI and MCP.
+Every 0.9 article spelling that article.md's keep, change or drop table renames, moves or drops, outside the capabilities Ian retained in m4358, returns a `usage.retired` error envelope with exit 2 and a fixed message naming the 1.0 spelling or saying it was dropped, through the CLI and MCP.
 
 Depends on: 0038
 
