@@ -61,7 +61,11 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
         }
         if let Some(citations) = &effect.citations {
             out.value
-                .extend(abstracts("mutationEffect.citations", &citations.abstracts));
+                .extend(citations.abstracts.iter().map(|r| Record::Citation {
+                    field: "mutationEffect.citations".into(),
+                    text: r.abstract_content.as_deref().map(Into::into),
+                    link: r.link.clone(),
+                }));
         }
         narrative(
             &mut out.value,
