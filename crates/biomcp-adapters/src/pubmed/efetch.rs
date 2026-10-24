@@ -76,12 +76,13 @@ impl Reply for Records {
 impl XmlReply for Records {
     fn decode_xml(xml: &str) -> Result<Self, BadReply> {
         let mut reader = quick_xml::Reader::from_str(xml);
-        loop {
+        let start = loop {
+            let begin = reader.buffer_position() as usize;
             match reader.read_event().map_err(|_| BadReply)? {
                 quick_xml::events::Event::Start(tag)
                     if tag.name().as_ref() == "PubmedArticleSet" =>
                 {
-                    break;
+                    break begin;
                 }
                 quick_xml::events::Event::Empty(tag)
                     if tag.name().as_ref() == "PubmedArticleSet" =>
@@ -95,8 +96,8 @@ impl XmlReply for Records {
                 }
                 _ => {}
             }
-        }
-        let start = xml.find("<PubmedArticleSet").ok_or(BadReply)?;
+        };
+        if Element(&xml[start..]).child("ERROR")?.is_some() { return Err(BadReply); }
         let articles = Element(&xml[start..])
             .children("PubmedArticle")?
             .into_iter()

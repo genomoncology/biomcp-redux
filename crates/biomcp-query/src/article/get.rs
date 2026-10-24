@@ -1,3 +1,4 @@
+//! PubMed card resolution under one command deadline.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     Article, ArticleCardItem, ArticleCards, ArticleGet, ArticleInput, ArticleMatch,
