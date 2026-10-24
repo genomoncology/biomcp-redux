@@ -1,5 +1,7 @@
 mod assertions;
 mod launch;
+mod mcp;
+mod protocol;
 mod negative_cases;
 pub(super) mod proof;
 
@@ -29,7 +31,10 @@ struct Case {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Step {
-    run: Vec<String>,
+    run: Option<Vec<String>>,
+    mcp: Option<Vec<String>>,
+    #[serde(default)]
+    is_error: bool,
     #[serde(default)]
     exit: i32,
     max_bytes: Option<usize>,
@@ -88,6 +93,9 @@ fn run_case(path: &Path) -> Result<(), String> {
         .iter()
         .enumerate()
         .map(|(index, step)| {
+            if step.run.is_none() && step.mcp.is_none() {
+                return Err("step requires run or mcp".into());
+            }
             assertions::prepare(step)
                 .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
         })
@@ -105,20 +113,25 @@ fn run_step(
     environment: &launch::Environment,
     expectations: &assertions::Expectations<'_>,
 ) -> Result<(), String> {
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &step.run)
-        .output()
-        .map_err(|error| error.to_string())?;
-    if output.status.code() != Some(step.exit) {
-        return Err(format!(
-            "exit: expected {}, actual {:?}; stderr: {}",
-            step.exit,
-            output.status.code(),
-            String::from_utf8_lossy(&output.stderr)
-        ));
+    let cli = step.run.as_ref().map(|args| {
+        let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), args)
+            .output().map_err(|error| error.to_string())?;
+        if output.status.code() != Some(step.exit) {
+            return Err(format!("exit: expected {}, actual {:?}; stderr: {}", step.exit,
+                output.status.code(), String::from_utf8_lossy(&output.stderr)));
+        }
+        if !output.stderr.is_empty() { return Err("error output: expected empty stderr".into()); }
+        assertions::check(&output.stdout, step, expectations)?;
+        serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())
+    }).transpose()?;
+    if let Some(args) = &step.mcp {
+        let result = mcp::call(environment, args, step.is_error)?;
+        assertions::check(&serde_json::to_vec(&result).map_err(|error| error.to_string())?, step, expectations)?;
+        if cli.as_ref().is_some_and(|cli| cli != &result) {
+            return Err("CLI/MCP parity: unequal results".into());
+        }
     }
-    if !output.stderr.is_empty() {
-        return Err("error output: expected empty stderr".into());
-    }
-    assertions::check(&output.stdout, step, expectations)
+    Ok(())
 }
+
+pub(super) fn protocol_trials() -> Vec<Trial> { protocol::trials() }

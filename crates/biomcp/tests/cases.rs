@@ -44,6 +44,7 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
     let mut trials = runner::discover(&directory)?;
     if default {
         trials.extend(runner::proof::trials());
+        trials.extend(runner::protocol_trials());
     }
     Ok((Arguments::from_iter(cargo_args), trials))
 }
