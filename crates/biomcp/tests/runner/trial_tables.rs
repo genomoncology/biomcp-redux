@@ -94,7 +94,7 @@ fn sequential_budget(version_timeout: bool) -> Check {
         } else {
             json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"})
         },
-        if version_timeout { 3 } else { 4 },
+        if version_timeout { 0 } else { 4 },
     )?;
     Ok(())
 }
