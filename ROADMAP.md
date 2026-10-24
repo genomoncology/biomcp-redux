@@ -45,6 +45,12 @@ Each slice updates these counts when its accounting lands.
 - [x] Outside-in runner with size ceilings and coverage floor
 - [x] The one MCP tool over the CLI grammar
 - [ ] Release pipeline carried over from 0.9
+- [ ] MCP over streamable HTTP at `/mcp`, with a `/health` endpoint
+- [ ] `biomcp health`: each source's reachability, latency, terms and on or off state
+- [ ] Corporate networks: added certificate authorities and standard proxy settings
+- [ ] Source terms of use, and switching sources off by group
+- [ ] Scheduled live replay that reports source drift
+- [ ] Install test of every release artifact on each platform
 
 ## Every entity's checklist
 

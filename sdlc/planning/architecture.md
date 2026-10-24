@@ -1569,9 +1569,9 @@ Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and o
 
 Help is JSON by default and comes from the schemas. `biomcp help` lists the entities and the verbs that apply to each. `biomcp help get gene` lists the arguments, the sections and two examples drawn from cases. `biomcp help --all` lists every command and option, and the runner's surface check reads it.
 
-### 8.9 The web mode later
+### 8.9 The HTTP mode
 
-`biomcp serve --http` will serve MCP's streamable HTTP transport at `/mcp` and the wiki at `/`, bound to 127.0.0.1 by default. A small blocking HTTP server fits the thread model and arrives with the wiki. Its handlers call the same `grammar::parse` and `run`.
+`biomcp serve --http ADDR` serves MCP's streamable HTTP transport at `/mcp` and a health check at `/health`, bound to 127.0.0.1 by default, as `decisions/2026-10-24-1-0-serves-mcp-over-http.md` says. Hosted clients and reverse proxies use it, as they did in 0.9. A small blocking HTTP server fits the thread model. Its handlers call the same `grammar::parse` and `run` as stdio. A non-loopback bind needs an explicit host allowlist. The wiki comes later at `/` on the same server.
 
 ## 9. Configuration, observability and performance
 
