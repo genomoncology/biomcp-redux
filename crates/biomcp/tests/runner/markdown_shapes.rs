@@ -11,8 +11,8 @@ fn shapes() -> Result<(), String> {
         (vec!["get", "gene", "BRAF"], "gene/main", vec!["# BRAF", "**status:**", "biomcp get gene"]),
         (vec!["get", "gene", "BRAF", "protein"], "gene/main", vec!["# BRAF", "Protein", "**state:**"]),
         (vec!["search", "gene", "BRAF"], "gene/main", vec!["| Symbol |", "Hgnc id", "BRAF"]),
-        (vec!["search", "article", "AKT1 E17K"], "article/main", vec!["| Pmid |", "Title", "biomcp"]),
-        (vec!["get", "article", "33123537"], "article/main", vec!["# ", "**status:**", "biomcp"]),
+        (vec!["search", "article", "AKT1 E17K"], "article/search/live", vec!["| Pmid |", "Title", "biomcp"]),
+        (vec!["get", "article", "33123537"], "article/get/live", vec!["# ", "**status:**", "biomcp"]),
         (vec!["get", "gene"], "gene/main", vec!["Error", "**status:**", "usage"]),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
