@@ -62,9 +62,10 @@ impl VariantInput {
         {
             return Err(Error::VariantInputInvalid);
         }
-        if description.starts_with("g.") && reference
-            .strip_prefix("chr")
-            .is_some_and(|s| s == "M" || s.parse::<crate::Chromosome>().is_ok())
+        if description.starts_with("g.")
+            && reference
+                .strip_prefix("chr")
+                .is_some_and(|s| s == "M" || s.parse::<crate::Chromosome>().is_ok())
         {
             return Ok(VariantNamespace::Chromosome);
         }
