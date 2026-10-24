@@ -3,8 +3,12 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod labels;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/unpaired-native-labels-remain-context", || {
+            labels::check().map_err(Into::into)
+        }),
         Trial::test("variant/malformed-score-is-not-missing-identity", || {
             malformed_score().map_err(Into::into)
         }),

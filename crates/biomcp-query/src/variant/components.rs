@@ -63,7 +63,10 @@ pub(super) fn measurements(
     let section = match result {
         Ok(mapped) => {
             problems = mapped.problems;
-            if mapped.value.scores.is_empty() && !problems.is_empty() {
+            if mapped.value.scores.is_empty()
+                && mapped.value.context.is_empty()
+                && !problems.is_empty()
+            {
                 Section::Unavailable {
                     source: Source::MyVariant,
                     reason: if problems
@@ -75,7 +78,7 @@ pub(super) fn measurements(
                         Reason::BadReply
                     },
                 }
-            } else if mapped.value.scores.is_empty() {
+            } else if mapped.value.scores.is_empty() && mapped.value.context.is_empty() {
                 Section::Empty {
                     source: Source::MyVariant,
                     record: candidates.first().map(|c| c.record.clone()),
