@@ -72,6 +72,7 @@ pub(super) fn select(
         let header = sheet
             .rows
             .first()
+            .filter(|r| r.number == 1)
             .map(|r| r.cells.as_slice())
             .unwrap_or(&[]);
         let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;

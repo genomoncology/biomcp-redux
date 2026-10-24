@@ -28,6 +28,7 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
     .map_err(|_| Reason::BadReply)?;
     let mut sheets = Vec::new();
     let mut visited = 0usize;
+    let mut assembled = 0usize;
     for name in workbook.sheet_names() {
         check(end)?;
         let mut rows = Vec::<Row>::new();
@@ -56,6 +57,10 @@ pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reaso
             let column = usize::try_from(column).map_err(|_| Reason::TooLarge)?;
             if column < current.cells.len() {
                 return Err(Reason::BadReply);
+            }
+            assembled = assembled.checked_add(column + 1 - current.cells.len()).ok_or(Reason::TooLarge)?;
+            if assembled > LIMITS.cells {
+                return Err(Reason::TooLarge);
             }
             current.cells.resize(column, String::new());
             current.cells.push(value);
