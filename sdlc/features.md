@@ -43,3 +43,4 @@ trial-search: Search the registry with explicit native filters, exact totals and
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`.
 
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path. Cases: `tests/cases/trial/references.yaml`.
+trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.

@@ -1,3 +1,4 @@
+mod sites;
 use super::snapshot::Snapshot;
 use crate::{Action, Outcome};
 use biodata::{
@@ -5,10 +6,12 @@ use biodata::{
     TrialCardItem, TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
 use biomcp_fetch::{CacheError, RequestError};
-const SECTIONS: [TrialSection; 3] = [
+const SECTIONS: [TrialSection; 5] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,
     TrialSection::Arms,
+    TrialSection::Locations,
+    TrialSection::Contacts,
 ];
 pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
     let d = &snapshot.detail;
@@ -20,6 +23,8 @@ pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
             .map_or(0, |s| s.as_str().chars().count()),
         Some(TrialSection::Outcomes) => d.outcomes.len(),
         Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
+        Some(TrialSection::Locations) => d.locations.len(),
+        Some(TrialSection::Contacts) => d.contacts.len() + d.officials.len(),
         _ => 0,
     };
     query.offset() as usize <= total
@@ -38,48 +43,8 @@ pub(super) fn render(
     if requested(TrialSection::Eligibility) {
         sections.eligibility = Some(eligibility(query, &snapshot, pool.as_ref(), out));
     }
-    if requested(TrialSection::Outcomes) {
-        let items = &snapshot.detail.outcomes;
-        let page = records(query, items, 8000, serde_json::to_vec)?;
-        advance(
-            query,
-            id,
-            TrialSection::Outcomes,
-            pool.as_ref(),
-            page.offset + page.items.len() as u32,
-            page.total,
-            out,
-        );
-        sections.outcomes = Some(section(page, id));
-    }
-    if requested(TrialSection::Arms) {
-        let rows: Vec<_> = snapshot
-            .detail
-            .arms
-            .iter()
-            .cloned()
-            .map(TrialArmRecord::Arm)
-            .chain(
-                snapshot
-                    .detail
-                    .interventions
-                    .iter()
-                    .cloned()
-                    .map(TrialArmRecord::Intervention),
-            )
-            .collect();
-        let page = records(query, &rows, 4500, serde_json::to_vec)?;
-        advance(
-            query,
-            id,
-            TrialSection::Arms,
-            pool.as_ref(),
-            page.offset + page.items.len() as u32,
-            page.total,
-            out,
-        );
-        sections.arms = Some(section(page, id));
-    }
+    records_sections(query, &snapshot, pool.as_ref(), &mut sections, out)?;
+    sites::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
         out.next.push((
             StepKind::Section,
@@ -206,4 +171,60 @@ fn advance(
             },
         ));
     }
+}
+
+fn records_sections(
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    pool: Option<&Text>,
+    sections: &mut TrialSections,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let id = snapshot.detail.card.nct_id;
+    let requested = |section| {
+        query.sections().contains(&section) || query.sections().contains(&TrialSection::All)
+    };
+    if requested(TrialSection::Outcomes) {
+        let items = &snapshot.detail.outcomes;
+        let page = records(query, items, 8000, serde_json::to_vec)?;
+        advance(
+            query,
+            id,
+            TrialSection::Outcomes,
+            pool,
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        sections.outcomes = Some(section(page, id));
+    }
+    if requested(TrialSection::Arms) {
+        let rows: Vec<_> = snapshot
+            .detail
+            .arms
+            .iter()
+            .cloned()
+            .map(TrialArmRecord::Arm)
+            .chain(
+                snapshot
+                    .detail
+                    .interventions
+                    .iter()
+                    .cloned()
+                    .map(TrialArmRecord::Intervention),
+            )
+            .collect();
+        let page = records(query, &rows, 4500, serde_json::to_vec)?;
+        advance(
+            query,
+            id,
+            TrialSection::Arms,
+            pool,
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        sections.arms = Some(section(page, id));
+    }
+    Ok(())
 }
