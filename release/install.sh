@@ -126,6 +126,7 @@ esac
 [ -s "$scratch/executable" ] || fail 'Archive executable is empty'
 [ ! -L "$install_dir" ] || fail 'Refusing symbolic-link install directory'
 [ ! -L "$install_dir/$binary" ] || fail 'Refusing symbolic-link executable'
+[ ! -e "$install_dir/$binary" ] || [ -f "$install_dir/$binary" ] || fail 'Install target is not a regular file'
 mkdir -p "$install_dir"
 stage=$(mktemp "$install_dir/.biomcp-install.XXXXXX")
 cp "$scratch/executable" "$stage"

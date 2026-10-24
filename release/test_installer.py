@@ -135,6 +135,21 @@ class Installer(unittest.TestCase):
             self.assertNotEqual(self.install().returncode, 0)
             self.assertEqual(installed.read_bytes(), b"previous executable")
 
+    def test_local_install_refuses_directory_and_symbolic_link_targets(self):
+        archive, checksum = candidate(self.root, "local.tar.gz")
+        self.destination.mkdir()
+        target = self.destination / "biomcp"
+        target.mkdir()
+        result = self.install(str(archive), checksum, str(self.destination))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(list(target.iterdir()), [])
+        target.rmdir()
+        other = self.root / "existing"
+        other.write_bytes(b"keep")
+        target.symlink_to(other)
+        self.assertNotEqual(self.install(str(archive), checksum, str(self.destination)).returncode, 0)
+        self.assertEqual(other.read_bytes(), b"keep")
+
     def test_unknown_platform_names_failure_and_help_needs_no_download(self):
         for system, machine, message in [("Plan9", "x86_64", "Plan9"), ("Linux", "mips", "mips"), ("MSYS_NT", "arm64", "windows/arm64")]:
             self.platform(system, machine)
