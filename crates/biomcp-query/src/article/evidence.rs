@@ -9,6 +9,9 @@ use biodata::{
 };
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
+// Source stages leave a bounded part of the same command budget for publishing
+// successful independent evidence and its continuation after a source timeout.
+const SAVE_BUDGET: std::time::Duration = std::time::Duration::from_millis(100);
 pub(super) struct Snapshot {
     graph: Section<CitationContexts>,
     target: Option<graph::Target>,
@@ -99,6 +102,8 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
+    let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));
+    let started = stages.remaining();
     if graph_disabled {
         snapshot.graph = Section::unavailable(Source::SemanticScholar, biodata::Reason::Disabled);
         snapshot.terminal = true;
@@ -106,7 +111,7 @@ fn execute<'a>(
             .sources
             .retain(|s| s.source != Source::SemanticScholar);
     } else if !snapshot.terminal {
-        graph::read(cx, query, &mut snapshot, deadline, out)?;
+        graph::read(cx, query, &mut snapshot, &mut stages, out)?;
     }
     if query.fulltext() {
         if text_disabled {
@@ -116,9 +121,10 @@ fn execute<'a>(
             ));
             snapshot.sources.retain(|s| s.source != Source::PmcOa);
         } else if snapshot.fulltext.is_none() {
-            text::read(cx, query, &mut snapshot, deadline, out)?;
+            text::read(cx, query, &mut snapshot, &mut stages, out)?;
         }
     }
+    *deadline = super::consume(*deadline, started, stages.remaining());
     store.set_deadline(*deadline);
     // Resolver legs are dependencies of the saved content too. Admit every
     // contributing source before reading any continuation payload next time.
