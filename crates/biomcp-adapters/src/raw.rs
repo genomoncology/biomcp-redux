@@ -3,8 +3,9 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(crate) enum OneOrMany<T> {
-    One(T),
+    // Try the array first: T may itself accept malformed individual values.
     Many(Vec<T>),
+    One(T),
 }
 impl<T> OneOrMany<T> {
     pub(crate) fn values(self) -> Vec<T> {

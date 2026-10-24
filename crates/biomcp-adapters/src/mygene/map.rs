@@ -155,7 +155,7 @@ fn map_hit(hit: Hit, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Option<Ma
 }
 
 fn positions(
-    field: Option<Field<OneOrMany<Pos>>>,
+    field: Option<Field<OneOrMany<Field<Pos>>>>,
     build: Build,
     id: EntrezGeneId,
     spans: &mut Vec<GenomicInterval>,
@@ -172,7 +172,7 @@ fn positions(
         None => problems.push(problem(Some(id), name)),
         Some(values) => {
             for value in values.values() {
-                match interval(value, build) {
+                match value.value().and_then(|value| interval(value, build)) {
                     Some(value) => spans.push(value),
                     None => problems.push(problem(Some(id), name)),
                 }

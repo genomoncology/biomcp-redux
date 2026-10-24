@@ -23,8 +23,8 @@ pub(super) struct Hit {
     pub hgnc: Option<Field<String>>,
     pub summary: Option<Field<String>>,
     // MyGene returns one position object or several source-stated positions.
-    pub genomic_pos: Option<Field<OneOrMany<Pos>>>,
-    pub genomic_pos_hg19: Option<Field<OneOrMany<Pos>>>,
+    pub genomic_pos: Option<Field<OneOrMany<Field<Pos>>>>,
+    pub genomic_pos_hg19: Option<Field<OneOrMany<Field<Pos>>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Pos {
