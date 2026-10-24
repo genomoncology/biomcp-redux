@@ -8,12 +8,12 @@ pub(super) struct Snapshot {
     pub(super) version: Option<Text>,
     pub(super) sources: Vec<SourceOutcome>,
 }
-// Detail owns mandatory named fields; fixed query metadata follows it. The /2
-// key expires /1 positional payloads before decode without changing the table.
+// Detail owns mandatory named fields; fixed query metadata follows it. The
+// /3 key expires earlier named payloads before decode without changing the table.
 type Saved = (Detail, u64, Option<Text>, Vec<SourceOutcome>);
 impl Snapshot {
     pub(super) fn key(id: biodata::NctId) -> Vec<u8> {
-        Sha256::digest(format!("biomcp.trial_snapshot/2\0{id}").as_bytes()).to_vec()
+        Sha256::digest(format!("biomcp.trial_snapshot/3\0{id}").as_bytes()).to_vec()
     }
     pub(super) fn encode(&self) -> Result<String, CacheError> {
         serde_json::to_string(&(&self.detail, self.fetched, &self.version, &self.sources))

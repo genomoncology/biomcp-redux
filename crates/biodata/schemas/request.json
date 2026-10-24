@@ -186,6 +186,8 @@
         "arms",
         "locations",
         "contacts",
+        "references",
+        "documents",
         "all"
       ],
       "type": "string"
@@ -223,6 +225,42 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Save an exact registry document to an explicit destination.",
+      "properties": {
+        "command": {
+          "const": "trial_document",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "x-positional": 1
+        },
+        "input": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity.",
+          "x-positional": 0
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-owned file or existing folder."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "file",
+        "save"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Retrieve exact trial cards and source protocol sections.",

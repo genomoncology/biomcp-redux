@@ -72,3 +72,6 @@ pub use trial_get::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
     TrialRecords, TrialSections,
 };
+
+mod trial_document;
+pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};

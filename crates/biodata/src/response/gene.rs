@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Source trial document receipt.
+    TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.
     TrialCards(crate::TrialCards),
     /// Native registry search page.

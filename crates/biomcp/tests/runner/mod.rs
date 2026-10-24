@@ -36,6 +36,7 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
+mod trial_documents;
 mod trial_get;
 mod trial_sites;
 mod trial_tables;
@@ -259,6 +260,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(named_search::trials());
     trials.extend(trial_tables::trials());
     trials.extend(trial_get::trials());
+    trials.extend(trial_documents::trials());
     trials.extend(trial_sites::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())

@@ -17,6 +17,8 @@
         "arms",
         "locations",
         "contacts",
+        "references",
+        "documents",
         "all"
       ],
       "type": "string"

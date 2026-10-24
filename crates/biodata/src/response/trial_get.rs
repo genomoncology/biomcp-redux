@@ -46,6 +46,12 @@ pub struct TrialCardItem {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialSections {
+    /// Source publication records, without inferred roles.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<Section<TrialRecords<crate::TrialReference>>>,
+    /// Posted document manifest, without downloading its files.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub documents: Option<Section<TrialRecords<crate::TrialDocument>>>,
     /// Whole sites with their original contacts attached.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locations: Option<Section<TrialRecords<crate::TrialLocation>>>,
@@ -67,6 +73,9 @@ pub struct TrialSections {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
+    /// Checked request for the next intact fragment, absent when complete.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<crate::TrialGet>,
     /// Source minimum age.
     pub minimum_age: TrialAgeBound,
     /// Source maximum age.
@@ -87,6 +96,9 @@ pub struct TrialEligibilityPage {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
+    /// Checked request for the next intact records, absent when complete.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<crate::TrialGet>,
     /// Complete records in source order.
     pub items: Box<[T]>,
     /// Offset in the unchanged source collection.

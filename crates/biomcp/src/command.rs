@@ -167,6 +167,9 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (Request::TrialDocument(query), QueryBody::TrialDocument(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
@@ -284,7 +287,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             word => break word,
         }
     };
-    let mut error = if matches!(root, Some("get" | "search" | "sync" | "article" | "key")) {
+    let mut error = if matches!(root, Some("sync" | "key"))
+        || root.is_some_and(|root| {
+            crate::grammar::QUERIES
+                .iter()
+                .any(|(verb, _, _)| *verb == root)
+        }) {
         biodata::ErrorEnvelope::arguments()
     } else {
         biodata::ErrorEnvelope::schema_usage()
@@ -431,6 +439,7 @@ fn run_request(
         fresh,
     };
     Ok(match request {
+        Request::TrialDocument(query) => crate::save::trial::document(&cx, query, allow_save),
         Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),
         Request::ArticleText(query) if query.save().is_some() => {
             crate::save::article::text(&cx, query, allow_save)

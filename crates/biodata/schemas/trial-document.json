@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.trial-document/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Save one exact ClinicalTrials.gov manifest entry to the caller's destination.",
+  "properties": {
+    "file": {
+      "$ref": "#/$defs/Text",
+      "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+      "x-positional": 1
+    },
+    "input": {
+      "$ref": "#/$defs/NctId",
+      "description": "Exact registry identity.",
+      "x-positional": 0
+    },
+    "replace": {
+      "default": false,
+      "description": "Replace an existing file only when explicitly requested.",
+      "type": "boolean"
+    },
+    "save": {
+      "$ref": "#/$defs/Text",
+      "description": "Caller-owned file or existing folder."
+    }
+  },
+  "required": [
+    "input",
+    "file",
+    "save"
+  ],
+  "title": "TrialDocumentGet",
+  "type": "object"
+}
