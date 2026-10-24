@@ -51,7 +51,9 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
     {
         return Err("annotation credential leaked".into());
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
+    Ok(value)
 }
 fn wire() -> Result<(), String> {
     let stub = Stub::for_sources(

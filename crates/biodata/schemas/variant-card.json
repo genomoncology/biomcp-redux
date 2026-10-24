@@ -1210,6 +1210,31 @@
         }
       ]
     },
+    "OncokbCitation": {
+      "additionalProperties": false,
+      "description": "One native non-PubMed source citation.",
+      "properties": {
+        "link": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native citation link."
+        },
+        "text": {
+          "description": "Complete native citation content.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "OncokbLevelCode": {
       "description": "Source-defined OncoKB vocabulary.",
       "enum": [
@@ -1260,6 +1285,43 @@
           "required": [
             "kind",
             "statement"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Native non-PubMed citation, preserving source text and link.",
+          "properties": {
+            "field": {
+              "description": "Provider collection owning this citation.",
+              "type": "string"
+            },
+            "kind": {
+              "const": "citation",
+              "type": "string"
+            },
+            "link": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source link."
+            },
+            "text": {
+              "description": "Native text, without trimming.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "field"
           ],
           "type": "object"
         },
@@ -1334,6 +1396,13 @@
           "additionalProperties": false,
           "description": "Native therapeutic, diagnostic or prognostic implication.",
           "properties": {
+            "abstracts": {
+              "description": "Native non-PubMed citations, with their complete source content and links.",
+              "items": {
+                "$ref": "#/$defs/OncokbCitation"
+              },
+              "type": "array"
+            },
             "alterations": {
               "description": "Source alteration labels, which may describe a group or protein subject.",
               "items": {
@@ -4050,9 +4119,23 @@
           ],
           "description": "Native dataset version."
         },
+        "gene_exist": {
+          "description": "Source gene curation flag.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "hgvsg": {
           "$ref": "#/$defs/Text",
           "description": "Exact genomic query sent to OncoKB."
+        },
+        "hotspot": {
+          "description": "Source hotspot flag, without an actionability conclusion.",
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "last_update": {
           "anyOf": [
@@ -4094,6 +4177,13 @@
         "variant_exist": {
           "description": "Native exact variant curation flag; never a clinical conclusion.",
           "type": "boolean"
+        },
+        "vus": {
+          "description": "Source investigated-but-unknown flag, never used to create a classification.",
+          "type": [
+            "boolean",
+            "null"
+          ]
         }
       },
       "required": [
