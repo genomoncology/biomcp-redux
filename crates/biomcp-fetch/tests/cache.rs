@@ -1,5 +1,10 @@
 //! Checked reply cache through the public transport API and documented SQLite schema.
 #![expect(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "Fixture setup, child processes and failed source assertions must abort the contract test"
+)]
+#![expect(
     clippy::disallowed_methods,
     reason = "Scoped callers exercise public cache behavior against controlled local peers"
 )]

@@ -211,6 +211,10 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
     }
 }
 
+#[expect(
+    clippy::panic,
+    reason = "A cache error must never satisfy a provider-failure assertion"
+)]
 fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
     let biomcp_fetch::RequestError::Source(error) = error else {
         panic!("expected provider failure: {error}");

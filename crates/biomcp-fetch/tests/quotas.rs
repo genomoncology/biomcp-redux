@@ -267,6 +267,10 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
     });
 }
 
+#[expect(
+    clippy::panic,
+    reason = "A cache error must never satisfy a provider-failure assertion"
+)]
 fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
     let biomcp_fetch::RequestError::Source(error) = error else {
         panic!("expected provider failure: {error}");
