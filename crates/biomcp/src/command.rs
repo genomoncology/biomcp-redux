@@ -108,11 +108,15 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh)?;
-            response(request, result)
+            response(fetch, request, result)
         }
     }
 }
-fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outcome> {
+fn response(
+    fetch: &biomcp_fetch::Fetch,
+    request: Request,
+    result: biomcp_query::Outcome,
+) -> io::Result<Outcome> {
     let status = if result.local.is_some() {
         crate::exit::Status::Local
     } else {
@@ -123,6 +127,7 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .iter()
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
+    let steps = source_steps(fetch, steps);
     match (request, result.body) {
         (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
             biodata::ErrorEnvelope::arguments(),
@@ -348,4 +353,31 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
             crate::exit::Status::Expired
         },
     )
+}
+
+fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
+    let disabled = biomcp_adapters::registry::SOURCES
+        .iter()
+        .filter(|s| fetch.disabled(s.source))
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    if disabled.is_empty() {
+        return steps;
+    }
+    steps
+        .into_iter()
+        .map(|mut step| {
+            let mut args = step.args.into_vec();
+            args.splice(
+                0..0,
+                [
+                    "--disable-sources".into(),
+                    disabled.clone().into_boxed_str(),
+                ],
+            );
+            step.args = args.into();
+            step
+        })
+        .collect()
 }

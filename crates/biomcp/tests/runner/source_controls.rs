@@ -111,6 +111,7 @@ fn source_health() -> Check {
     )?;
     env.config(&json!({})).map_err(|e| e.to_string())?;
     let health = invoke(&env, vec!["health".into(), "--offline".into()], 0)?;
+    super::schema::Registry::embedded()?.validate(&health, &["health".into()], true)?;
     let oncokb = health
         .pointer("/result/sources")
         .and_then(Value::as_array)

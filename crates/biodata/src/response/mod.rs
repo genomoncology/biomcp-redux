@@ -50,3 +50,5 @@ pub use article_sections::{
 
 mod health;
 pub use health::{Health, SourceHealth};
+
+pub(crate) use status::wire_enum;
