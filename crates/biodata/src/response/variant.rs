@@ -56,6 +56,9 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
+    /// Independent publisher terms for the declared dbNSFP gene/protein selector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selector_terms: Option<crate::ComponentTerms>,
     /// Independent publisher terms for named ClinVar filters, present only when requested.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filter_terms: Option<crate::ComponentTerms>,

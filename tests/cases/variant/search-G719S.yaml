@@ -63,7 +63,12 @@
                   "id": "chr7:g.55241707G>A"
                 }
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {
@@ -114,7 +119,12 @@
                   "id": "chr7:g.55241707G>A"
                 }
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {

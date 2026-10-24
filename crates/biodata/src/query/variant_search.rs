@@ -2,6 +2,7 @@ use super::gene::{QueryInvalid, present};
 use crate::{Build, Chromosome, GeneSymbol, ProteinChange, Text, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
+const MAX_FILTER_CHARS: usize = 256;
 crate::macros::wire_enum! {
     /// The source-native query language exposed by variant search.
     VariantSearchSource {
@@ -10,7 +11,7 @@ crate::macros::wire_enum! {
     }
 }
 crate::macros::wire_enum! {
-    /// Independently permitted component fields supported by the presence filters.
+    /// Source-proven component fields supported by the presence filter.
     VariantSearchField {
         /// Presence of MyVariant's ClinVar variant identifier, without interpreting its assertions.
         Clinvar => "clinvar",
@@ -138,7 +139,7 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", length(max = MAX_FILTER_CHARS)))]
     review_status: Option<Text>,
     /// Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
     #[serde(
@@ -146,9 +147,9 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", length(max = MAX_FILTER_CHARS)))]
     condition: Option<Text>,
-    /// Require the selected component's identifier field. Only independently permitted, proven mappings are offered.
+    /// Require the selected component's identifier field. Only source-proven mappings are offered.
     #[serde(
         default,
         deserialize_with = "present",
@@ -190,7 +191,7 @@ impl TryFrom<Fields> for VariantSearch {
             || [&f.review_status, &f.condition]
                 .into_iter()
                 .flatten()
-                .any(|v| v.as_str().len() > 256 || v.as_str().chars().any(char::is_control))
+                .any(|v| v.as_str().chars().count() > MAX_FILTER_CHARS || v.as_str().chars().any(char::is_control))
         {
             return Err(QueryInvalid);
         }
@@ -207,6 +208,10 @@ impl VariantSearch {
     /// Whether the caller selected opaque source syntax rather than declared selectors.
     pub fn raw_query(&self) -> bool {
         self.0.query.is_some()
+    }
+    /// Whether the declared selector searches dbNSFP's gene and protein fields.
+    pub fn uses_dbnsfp_selector(&self) -> bool {
+        self.0.gene.is_some()
     }
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {
