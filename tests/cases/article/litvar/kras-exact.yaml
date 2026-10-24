@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "Exact KRAS G12C selects the second autocomplete candidate and preserves all native PMIDs",
   "replay": "article/litvar/kras-g12c",
-  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim.",
+  "verified": "Actual --record command on 2026-10-24 measured 4650 bytes. Bounds add15percent. The endpoint lists8915PMIDs; only its native sequence is claimed. No exact0.9 named LitVar-only JSON baseline exists.",
   "steps": [
     {
       "run": [
@@ -15,8 +15,8 @@
         "--source",
         "litvar"
       ],
-      "max_bytes": 6498,
-      "max_tokens": 1625,
+      "max_bytes": 5348,
+      "max_tokens": 1338,
       "expect": {
         "/status": "complete",
         "/sources/1/term": "rs121913530",
@@ -58,8 +58,8 @@
         "--source",
         "litvar"
       ],
-      "max_bytes": 6498,
-      "max_tokens": 1625,
+      "max_bytes": 5348,
+      "max_tokens": 1338,
       "expect": {
         "/page/total": 8915
       }

@@ -303,10 +303,10 @@ impl ArticleSearch {
         value.0.variant = Some(variant);
         value
     }
-    /// Restart on a checked source set.
-    pub fn with_sources(&self, sources: Box<[ArticleSource]>) -> Self {
+    /// Restart with the approved PubMed and LitVar discovery sources.
+    pub fn with_litvar(&self) -> Self {
         let mut value = self.page(0, None);
-        value.0.source = sources;
+        value.0.source = Box::new([ArticleSource::Pubmed, ArticleSource::Litvar]);
         value
     }
 }

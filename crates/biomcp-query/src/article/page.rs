@@ -213,10 +213,7 @@ fn variant_step(search: &ArticleSearch, out: &mut Outcome) {
         out.next.push((
             StepKind::Disambiguate,
             crate::Action::Run {
-                request: Request::SearchArticle(search.with_sources(Box::new([
-                    biodata::ArticleSource::Pubmed,
-                    biodata::ArticleSource::Litvar,
-                ]))),
+                request: Request::SearchArticle(search.with_litvar()),
                 fresh: false,
             },
         ));
