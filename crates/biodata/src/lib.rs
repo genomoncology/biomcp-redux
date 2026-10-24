@@ -7,12 +7,15 @@ pub use article::{
 };
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
-pub use query::{ArticleText, ArticleSupplement, SheetRows};
-pub use response::{ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent, SupplementFile, Supplements};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
+pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
+pub use response::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 pub use response::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,

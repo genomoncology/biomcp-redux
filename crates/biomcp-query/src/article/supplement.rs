@@ -105,10 +105,16 @@ fn execute<'a>(
             content.url = Some(file.url.clone());
             content.reason = Some(Reason::Unsupported);
         } else {
+            let local_end = std::time::Instant::now() + leg.remaining();
             let (bytes, sheets) = pmc_oa::download(&leg, file)?;
             content.sha256 = Some(
-                Text::new(&Sha256::digest(&bytes).iter().map(|v| format!("{v:02x}")).collect::<String>())
-                    .map_err(|_| failure(Reason::BadReply))?,
+                Text::new(
+                    &Sha256::digest(&bytes)
+                        .iter()
+                        .map(|v| format!("{v:02x}"))
+                        .collect::<String>(),
+                )
+                .map_err(|_| failure(Reason::BadReply))?,
             );
             if !page::select(
                 query,
@@ -116,7 +122,7 @@ fn execute<'a>(
                 &mut content,
                 out,
                 &selection.needles,
-                std::time::Instant::now() + leg.remaining(),
+                local_end,
             )
             .map_err(failure)?
             {

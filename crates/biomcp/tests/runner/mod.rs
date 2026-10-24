@@ -8,7 +8,6 @@ mod markdown_sources;
 mod mcp;
 mod negative_cases;
 mod pmc_tables;
-mod supplement_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
@@ -16,6 +15,7 @@ mod protocol;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod supplement_tables;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -219,7 +219,10 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
-    trials.push(Trial::test("article-supplements/ping-after-bounded-refusal", || supplement_tables::ping_after_refusal().map_err(Into::into)));
+    trials.push(Trial::test(
+        "article-supplements/ping-after-bounded-refusal",
+        || supplement_tables::ping_after_refusal().map_err(Into::into),
+    ));
     trials.extend(gene_tables::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())

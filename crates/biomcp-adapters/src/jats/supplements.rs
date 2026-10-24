@@ -49,8 +49,12 @@ pub(super) fn read(xml: &str) -> Result<Vec<Supplement>, BadReply> {
 
 fn mime(item: crate::xml_element::Element<'_>) -> Result<Option<biodata::FileKind>, BadReply> {
     use biodata::FileKind;
-    let Some(top) = item.attr("mimetype")? else { return Ok(None); };
-    let Some(sub) = item.attr("mime-subtype")? else { return Ok(Some(FileKind::Other)); };
+    let Some(top) = item.attr("mimetype")? else {
+        return Ok(None);
+    };
+    let Some(sub) = item.attr("mime-subtype")? else {
+        return Ok(Some(FileKind::Other));
+    };
     let kind = match format!("{top}/{sub}").to_ascii_lowercase().as_str() {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => FileKind::Xlsx,
         "text/csv" => FileKind::Csv,

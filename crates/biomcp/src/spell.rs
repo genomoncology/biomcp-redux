@@ -53,14 +53,16 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleSupplement(_) | Request::ArticleText(_)
+            Request::ArticleSupplement(_)
+            | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
             Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::ArticleSupplement(_)) { "supplement"
+        if matches!(request, Request::ArticleSupplement(_)) {
+            "supplement"
         } else if matches!(request, Request::ArticleText(_)) {
             "text"
         } else if matches!(request, Request::ArticleCitations(_)) {

@@ -184,11 +184,7 @@ fn find(
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<Box<[TextHit]>> {
-    let needles: Vec<_> = selection
-        .needles
-        .iter()
-        .map(|v| v.to_lowercase())
-        .collect();
+    let needles: Vec<_> = selection.needles.iter().map(|v| v.to_lowercase()).collect();
     let matching: Vec<_> = document
         .body
         .rows

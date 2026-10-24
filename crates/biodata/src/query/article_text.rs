@@ -84,7 +84,9 @@ impl ArticleText {
         self.0.find.as_ref()
     }
     /// Explicit variant selector; the reader validates its private notation before I/O.
-    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
+    pub fn variant(&self) -> Option<&Text> {
+        self.0.variant.as_ref()
+    }
     /// Checked hit offset.
     pub fn offset(&self) -> u32 {
         self.0.offset

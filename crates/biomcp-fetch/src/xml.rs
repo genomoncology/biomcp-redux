@@ -264,7 +264,10 @@ impl Reply for Bytes {
     }
 }
 impl<'a> Decoder<'a, Bytes> {
-    pub(crate) fn checked_bytes(limit: u64, check: &'a dyn Fn(&[u8]) -> Result<(), biodata::Reason>) -> Self {
+    pub(crate) fn checked_bytes(
+        limit: u64,
+        check: &'a dyn Fn(&[u8]) -> Result<(), biodata::Reason>,
+    ) -> Self {
         let mut codec = Self::bytes(limit);
         codec.validate = Some(check);
         codec

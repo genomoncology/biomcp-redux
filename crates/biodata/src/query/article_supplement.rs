@@ -124,9 +124,13 @@ impl ArticleSupplement {
         self.0.sheet.as_ref()
     }
     /// Literal case-insensitive selector.
-    pub fn find(&self) -> Option<&Text> { self.0.find.as_ref() }
+    pub fn find(&self) -> Option<&Text> {
+        self.0.find.as_ref()
+    }
     /// Explicit variant selector; the reader validates its private notation before I/O.
-    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
+    pub fn variant(&self) -> Option<&Text> {
+        self.0.variant.as_ref()
+    }
     /// Result offset.
     pub fn offset(&self) -> u32 {
         self.0.offset
@@ -141,7 +145,7 @@ impl ArticleSupplement {
     pub fn first_rows(&self, sheet: Text, last: u32) -> Self {
         let mut v = self.clone();
         v.0.sheet = Some(sheet);
-        v.0.rows = Some(SheetRows(1, last.min(20).max(1)));
+        v.0.rows = Some(SheetRows(1, last.clamp(1,20)));
         v.0.offset = 0;
         v
     }

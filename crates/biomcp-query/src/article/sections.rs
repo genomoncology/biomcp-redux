@@ -16,7 +16,9 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                supplements: (selected(query, ArticleSectionWord::Supplements) && card.pmcid.is_none()).then_some(Section::NotApplicable),
+                supplements: (selected(query, ArticleSectionWord::Supplements)
+                    && card.pmcid.is_none())
+                .then_some(Section::NotApplicable),
                 annotations: (selected(query, ArticleSectionWord::Annotations)
                     && card.pmid.is_none())
                 .then_some(Section::NotApplicable),
@@ -27,7 +29,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             });
         }
         item.more = [
-            (ArticleSectionWord::Supplements,ArticleSection::Supplements,card.pmcid.is_some()),
+            (
+                ArticleSectionWord::Supplements,
+                ArticleSection::Supplements,
+                card.pmcid.is_some(),
+            ),
             (
                 ArticleSectionWord::Annotations,
                 ArticleSection::Annotations,
@@ -57,9 +63,11 @@ pub(super) fn run<'a>(
     query: &ArticleGet,
     out: &mut crate::Outcome,
 ) {
-    let fulltext=selected(query,ArticleSectionWord::Fulltext);
-    let supplements=selected(query,ArticleSectionWord::Supplements);
-    if fulltext || supplements {fulltext::run(cx,deadline,out,fulltext,supplements);}
+    let fulltext = selected(query, ArticleSectionWord::Fulltext);
+    let supplements = selected(query, ArticleSectionWord::Supplements);
+    if fulltext || supplements {
+        fulltext::run(cx, deadline, out, fulltext, supplements);
+    }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };

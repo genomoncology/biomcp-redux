@@ -1,5 +1,8 @@
 mod article;
-pub use article::{ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent, SupplementFile, Supplements};
+pub use article::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 mod article_cards;
 mod article_text;
 pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage};

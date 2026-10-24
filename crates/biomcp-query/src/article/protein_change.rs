@@ -37,13 +37,8 @@ impl FromStr for ProteinChange {
     type Err = ();
     fn from_str(value: &str) -> Result<Self, ()> {
         let value = value.strip_prefix("p.").unwrap_or(value);
-        let first = value
-            .find(|c: char| c.is_ascii_digit())
-            .ok_or(())?;
-        let end = value
-            .rfind(|c: char| c.is_ascii_digit())
-            .ok_or(())?
-            + 1;
+        let first = value.find(|c: char| c.is_ascii_digit()).ok_or(())?;
+        let end = value.rfind(|c: char| c.is_ascii_digit()).ok_or(())? + 1;
         let residue = |v: &str| {
             AMINO
                 .iter()
@@ -84,8 +79,13 @@ pub(super) struct Selection {
 }
 impl Selection {
     pub(super) fn new(find: Option<&Text>, variant: Option<&Text>) -> Result<Self, ()> {
-        let forms = variant.map(|v| v.as_str().parse::<ProteinChange>().map(|p| p.forms())).transpose()?;
-        let needles = forms.clone().map(|v| v.to_vec()).unwrap_or_else(|| find.map(|v| vec![v.as_str().to_owned()]).unwrap_or_default());
+        let forms = variant
+            .map(|v| v.as_str().parse::<ProteinChange>().map(|p| p.forms()))
+            .transpose()?;
+        let needles = forms.clone().map(|v| v.to_vec()).unwrap_or_else(|| {
+            find.map(|v| vec![v.as_str().to_owned()])
+                .unwrap_or_default()
+        });
         Ok(Self { forms, needles })
     }
 }

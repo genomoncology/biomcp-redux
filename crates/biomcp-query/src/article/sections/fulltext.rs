@@ -1,69 +1,146 @@
-use crate::{Action,Ctx,Outcome,status};
-use biodata::{ArticleInput,ArticleResolution,ArticleText,ArticleSupplement,FullText,Supplements,Pmcid,Reason,Request,Section,Source,Status,StepKind};
+use crate::{Action, Ctx, Outcome, status};
+use biodata::{
+    ArticleInput, ArticleResolution, ArticleSupplement, ArticleText, FullText, Pmcid, Reason,
+    Request, Section, Source, Status, StepKind, Supplements,
+};
 use biomcp_adapters::pmc_oa;
-use biomcp_fetch::{Deadline,RequestError};
-type Identity=(Pmcid,Option<biodata::Pmid>);
-type Content=Result<Option<(FullText,Supplements)>,Reason>;
+use biomcp_fetch::{Deadline, RequestError};
+type Identity = (Pmcid, Option<biodata::Pmid>);
+type Content = Result<Option<(FullText, Supplements)>, Reason>;
 /// Load one document for both sections, preserving a single source request sequence.
-pub(super) fn run<'a>(cx:&Ctx<'a>,deadline:&mut Deadline<'a>,out:&mut Outcome,fulltext:bool,supplements:bool) {
-    let biodata::QueryBody::ArticleCards(cards)=&mut out.body else{return;};
-    let leg=cx.fetch.leg(&pmc_oa::SPEC,*deadline).fresh(cx.fresh);
-    let started=leg.remaining();let mut error=None;let mut loaded:Vec<(Identity,Content)>=Vec::new();
+pub(super) fn run<'a>(
+    cx: &Ctx<'a>,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+    fulltext: bool,
+    supplements: bool,
+) {
+    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
+        return;
+    };
+    let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let mut error = None;
+    let mut loaded: Vec<(Identity, Content)> = Vec::new();
     for item in &mut cards.items {
-        let Some(ArticleResolution::Resolved {card,..})=&item.answer else{continue;};
-        let Some(sections)=&mut item.sections else{continue;};
-        let Some(id)=card.pmcid else{continue;};
-        let identity=(id,card.pmid);
-        if !loaded.iter().any(|(found,_)|*found==identity) {
-            let result=pmc_oa::read(&leg,id,card.pmid);
-            if let Err(e)=result {error.get_or_insert(e);out.local=out.local.or(status::local(e));}
-            loaded.push((identity,content(result)));
+        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
+            continue;
+        };
+        let Some(sections) = &mut item.sections else {
+            continue;
+        };
+        let Some(id) = card.pmcid else {
+            continue;
+        };
+        let identity = (id, card.pmid);
+        if !loaded.iter().any(|(found, _)| *found == identity) {
+            let result = pmc_oa::read(&leg, id, card.pmid);
+            if let Err(e) = result {
+                error.get_or_insert(e);
+                out.local = out.local.or(status::local(e));
+            }
+            loaded.push((identity, content(result)));
         }
-        let Some((_,data))=loaded.iter().find(|(found,_)|*found==identity) else{continue;};
-        if data.is_err() || matches!(data,Ok(None)) {item.status=Status::Partial;}
+        let Some((_, data)) = loaded.iter().find(|(found, _)| *found == identity) else {
+            continue;
+        };
+        if data.is_err() || matches!(data, Ok(None)) {
+            item.status = Status::Partial;
+        }
         if fulltext && sections.fulltext.is_none() {
-            sections.fulltext=Some(section(data,|(text,_)|text.clone()));
-            if matches!(data,Ok(Some((text,_))) if !text.parts.is_empty()) && out.next.len()<5 {next(id,1,&mut out.next);}
+            sections.fulltext = Some(section(data, |(text, _)| text.clone()));
+            if matches!(data,Ok(Some((text,_))) if !text.parts.is_empty()) && out.next.len() < 5 {
+                next(id, 1, &mut out.next);
+            }
         }
         if supplements && sections.supplements.is_none() {
-            sections.supplements=Some(section(data,|(_,files)|files.clone()));
-            if let Ok(Some((_,files)))=data { supplement_next(id,files,&mut out.next); }
+            sections.supplements = Some(section(data, |(_, files)| files.clone()));
+            if let Ok(Some((_, files))) = data {
+                supplement_next(id, files, &mut out.next);
+            }
         }
     }
-    *deadline=deadline.after_stage(started.saturating_sub(leg.remaining()));
-    let source=status::source(Source::PmcOa,leg.finish(),error);
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    let source = status::source(Source::PmcOa, leg.finish(), error);
     if !loaded.is_empty() {
-        if source.state==biodata::SourceState::Stale {for item in &mut cards.items {
-            if item.sections.as_ref().is_some_and(|s|matches!(s.fulltext,Some(Section::Data {..}))||matches!(s.supplements,Some(Section::Data {..}))) {item.status=Status::Partial;}
-        }}
+        if source.state == biodata::SourceState::Stale {
+            for item in &mut cards.items {
+                if item.sections.as_ref().is_some_and(|s| {
+                    matches!(s.fulltext, Some(Section::Data { .. }))
+                        || matches!(s.supplements, Some(Section::Data { .. }))
+                }) {
+                    item.status = Status::Partial;
+                }
+            }
+        }
         out.sources.push(source);
     }
-    out.status=status::status(cards.items.iter().map(|i|i.status));
+    out.status = status::status(cards.items.iter().map(|i| i.status));
 }
-fn content(result:Result<Option<pmc_oa::Document>,RequestError>)->Content {
-    result.map(|doc|doc.map(|doc| {
-        let text=outline(&doc);
-        let files=Supplements {license:doc.license,files:doc.supplements.into_iter().map(|v|v.file).collect()};
-        (text,files)
-    })).map_err(|e|match e {RequestError::Source(e)=>e.reason,_=>Reason::Unavailable})
+fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
+    result
+        .map(|doc| {
+            doc.map(|doc| {
+                let text = outline(&doc);
+                let files = Supplements {
+                    license: doc.license,
+                    files: doc.supplements.into_iter().map(|v| v.file).collect(),
+                };
+                (text, files)
+            })
+        })
+        .map_err(|e| match e {
+            RequestError::Source(e) => e.reason,
+            _ => Reason::Unavailable,
+        })
 }
-fn section<T>(content:&Content,map:impl FnOnce(&(FullText,Supplements))->T)->Section<T> {
+fn section<T>(content: &Content, map: impl FnOnce(&(FullText, Supplements)) -> T) -> Section<T> {
     match content {
-        Ok(Some(data))=>Section::Data {source:Source::PmcOa,data:map(data)},
-        Ok(None)=>Section::Unavailable {source:Source::PmcOa,reason:Reason::NotOpen},
-        Err(reason)=>Section::Unavailable {source:Source::PmcOa,reason:*reason},
+        Ok(Some(data)) => Section::Data {
+            source: Source::PmcOa,
+            data: map(data),
+        },
+        Ok(None) => Section::Unavailable {
+            source: Source::PmcOa,
+            reason: Reason::NotOpen,
+        },
+        Err(reason) => Section::Unavailable {
+            source: Source::PmcOa,
+            reason: *reason,
+        },
     }
 }
-fn supplement_next(id:Pmcid,files:&Supplements,out:&mut Vec<(StepKind,Action)>) {
-    if let Some(file)=files.files.iter().find(|v|v.kind.readable()) && out.len()<5
-        && let Ok(query)=ArticleSupplement::new(ArticleInput::Pmcid(id),file.name.clone()) {
-        out.push((StepKind::Page,Action::Run {request:Request::ArticleSupplement(query),fresh:false}));
+fn supplement_next(id: Pmcid, files: &Supplements, out: &mut Vec<(StepKind, Action)>) {
+    if let Some(file) = files.files.iter().find(|v| v.kind.readable())
+        && out.len() < 5
+        && let Ok(query) = ArticleSupplement::new(ArticleInput::Pmcid(id), file.name.clone())
+    {
+        out.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::ArticleSupplement(query),
+                fresh: false,
+            },
+        ));
     }
 }
-pub(crate) fn outline(document:&pmc_oa::Document)->FullText {
-    FullText {license:document.license,processing_version:document.version,manuscript:document.manuscript,
-        parts:document.body.parts.iter().map(|p|p.meta.clone()).collect(),figures:document.body.figures.clone().into()}
+pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
+    FullText {
+        license: document.license,
+        processing_version: document.version,
+        manuscript: document.manuscript,
+        parts: document.body.parts.iter().map(|p| p.meta.clone()).collect(),
+        figures: document.body.figures.clone().into(),
+    }
 }
-pub(crate) fn next(id:Pmcid,part:u32,out:&mut Vec<(StepKind,Action)>) {
-    if let Ok(query)=ArticleText::part(ArticleInput::Pmcid(id),part) {out.push((StepKind::Page,Action::Run {request:Request::ArticleText(query),fresh:false}));}
+pub(crate) fn next(id: Pmcid, part: u32, out: &mut Vec<(StepKind, Action)>) {
+    if let Ok(query) = ArticleText::part(ArticleInput::Pmcid(id), part) {
+        out.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::ArticleText(query),
+                fresh: false,
+            },
+        ));
+    }
 }
