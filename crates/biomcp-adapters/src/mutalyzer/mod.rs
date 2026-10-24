@@ -91,8 +91,13 @@ impl Reply for Normalized {
 fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
     let (mut raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
-        if !reply.errors().is_empty()
-            || reply.input_description.as_ref().map(Text::as_str) == Some(input)
+        if (!reply.errors().is_empty()
+            && reply
+                .payload()
+                .input_description
+                .as_ref()
+                .is_none_or(|description| description.as_str() == input))
+            || reply.payload().input_description.as_ref().map(Text::as_str) == Some(input)
         {
             Ok(())
         } else {

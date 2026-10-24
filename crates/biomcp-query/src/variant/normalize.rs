@@ -1,3 +1,4 @@
+//! Explicit provider normalization with independent source outcomes.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
