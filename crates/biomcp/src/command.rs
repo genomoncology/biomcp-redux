@@ -180,7 +180,7 @@ pub(crate) fn tool(
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let error = if args
         .iter()
-        .any(|arg| arg == "get" || arg == "search" || arg == "sync")
+        .any(|arg| arg == "get" || arg == "search" || arg == "sync" || arg == "article")
     {
         biodata::ErrorEnvelope::arguments()
     } else {
