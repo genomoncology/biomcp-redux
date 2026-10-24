@@ -153,3 +153,9 @@ allow = ["Unicode-3.0"]
 name = "encoding_rs"
 version = "=0.8.42"
 allow = ["MIT", "Apache-2.0", "BSD-3-Clause"]
+
+# The approved PDF decoder uses the Unicode normalization tables.
+[[licenses.exceptions]]
+name = "unicode-normalization"
+version = "=0.1.26"
+allow = ["MIT", "Apache-2.0", "Unicode-3.0"]

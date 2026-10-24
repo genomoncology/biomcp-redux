@@ -7,6 +7,7 @@ mod help;
 mod mcp;
 mod output;
 mod paths;
+mod pdf_worker;
 mod retired;
 mod schema;
 mod spell;
@@ -16,6 +17,9 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = config::arguments();
+    if args.as_slice() == [pdf_worker::ARGUMENT] {
+        return pdf_worker::run();
+    }
     if let Ok(grammar::Parsed {
         action: None,
         globals,

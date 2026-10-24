@@ -29,6 +29,10 @@ httpdate = "1.0.3"
 quick-xml = { version = "0.42.0", default-features = false, features = ["serialize"] }
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 
+url = "2.5.8"
+pdf-extract = "=0.12.1"
+rlimit = "0.11.0"
+
 [workspace.lints.rust]
 unsafe_code = "deny"
 unreachable_pub = "deny"

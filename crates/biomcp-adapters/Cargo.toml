@@ -9,6 +9,7 @@ license.workspace = true
 biodata = { path = "../biodata" }
 biomcp-fetch = { path = "../biomcp-fetch" }
 serde.workspace = true
+pdf-extract.workspace = true
 quick-xml.workspace = true
 
 [dev-dependencies]

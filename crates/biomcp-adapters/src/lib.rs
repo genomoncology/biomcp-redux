@@ -33,3 +33,6 @@ pub mod litvar;
 mod xml_element;
 
 pub mod registry;
+
+/// Bounded PDF extraction inside the resource-limited child.
+pub mod pdf;

@@ -14,6 +14,9 @@ biomcp-query = { path = "../biomcp-query" }
 serde_json.workspace = true
 biodata = { path = "../biodata", features = ["schema"] }
 
+[target.'cfg(unix)'.dependencies]
+rlimit.workspace = true
+
 [build-dependencies]
 serde-saphyr.workspace = true
 serde_json.workspace = true
