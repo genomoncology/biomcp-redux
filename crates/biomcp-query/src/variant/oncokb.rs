@@ -92,7 +92,7 @@ fn genomic(row: &VariantHeader, build: Build) -> Option<String> {
         if r.build != Some(build) || r.expression.syntax() != biodata::ExpressionSyntax::HgvsG {
             return None;
         }
-        let (reference, body) = r.expression.value().split_once(':')?;
+        let (reference, body) = r.expression.value().as_str().split_once(':')?;
         let chromosome = if let Some(allele) = &r.allele {
             biodata::Chromosome::from_accession(allele.location().sequence, build).ok()?
         } else {

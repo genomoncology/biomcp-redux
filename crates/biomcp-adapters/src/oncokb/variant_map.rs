@@ -27,15 +27,16 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             }
         }
         .map(Coding::OncokbOncogenicity);
-        classification(
-            &mut out.value,
-            row,
-            "oncogenic",
-            label,
-            coding,
-            Proposition::Oncogenicity,
-            Vec::new(),
-        );
+        if let Ok(label) = Text::new(label) {
+            classification(
+                &mut out.value,
+                row,
+                "oncogenic",
+                Term { label, coding },
+                Proposition::Oncogenicity,
+                Vec::new(),
+            );
+        }
     }
     if let Some(effect) = &row.mutation_effect {
         if let Some(label) = &effect.known_effect {
@@ -44,15 +45,19 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 .as_ref()
                 .map(|c| pmids(&c.pmids, &mut out.problems))
                 .unwrap_or_default();
-            classification(
-                &mut out.value,
-                row,
-                "mutationEffect.knownEffect",
-                label,
-                None,
-                Proposition::FunctionalImpact,
-                citations,
-            );
+            if let Ok(label) = Text::new(label) {
+                classification(
+                    &mut out.value,
+                    row,
+                    "mutationEffect.knownEffect",
+                    Term {
+                        label,
+                        coding: None,
+                    },
+                    Proposition::FunctionalImpact,
+                    citations,
+                );
+            }
         }
         narrative(
             &mut out.value,
@@ -138,15 +143,10 @@ fn classification(
     out: &mut Vec<Record>,
     row: &Annotation,
     field: &str,
-    label: &str,
-    coding: Option<Coding>,
+    classification: Term,
     proposition: Proposition,
     citations: Vec<biodata::Pmid>,
 ) {
-    let Ok(label) = Text::new(label) else {
-        return;
-    };
-    let classification = Term { label, coding };
     if let Some(subject) = subject(&row.query) {
         out.push(Record::Statement {
             statement: Box::new(Statement {
