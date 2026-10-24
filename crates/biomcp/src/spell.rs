@@ -24,7 +24,8 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;
             if *fresh {
-                args.push("--fresh".into());
+                let position = args.iter().position(|arg| arg == "--").unwrap_or(args.len());
+                args.insert(position, "--fresh".into());
             }
             Ok(args)
         }
@@ -46,6 +47,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         .into(),
         "gene".into(),
     ];
+    let mut positional = Vec::new();
     if let Some(properties) = schema.get("properties").and_then(Value::as_object) {
         let mut fields: Vec<_> = properties.iter().collect();
         fields.sort_by_key(|(_, property)| {
@@ -69,13 +71,24 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
                 .map(Vec::as_slice)
                 .unwrap_or(std::slice::from_ref(value))
             {
-                args.push(
+                let target = if property.get("x-positional").is_some() {
+                    &mut positional
+                } else {
+                    &mut args
+                };
+                target.push(
                     value
                         .as_str()
                         .map_or_else(|| value.to_string(), str::to_owned),
                 );
             }
         }
+    }
+    if positional.iter().any(|arg| arg.starts_with('-')) {
+        args.push("--".into());
+        args.extend(positional);
+    } else {
+        args.splice(2..2, positional);
     }
     Ok(args)
 }
