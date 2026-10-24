@@ -115,10 +115,14 @@ fn candidate_walk() -> Result<(), String> {
                 .cloned()
                 .ok_or("candidate ID absent")?,
         );
-        let next = value.get("next")
+        let next = value
+            .get("next")
             .and_then(Value::as_array)
             .ok_or("candidate selection absent")?;
-        if !next.iter().any(|n| n.get("kind").and_then(Value::as_str) == Some("disambiguate")) {
+        if !next
+            .iter()
+            .any(|n| n.get("kind").and_then(Value::as_str) == Some("disambiguate"))
+        {
             return Err("candidate selection action absent".into());
         }
         if offset < 2 {
@@ -126,8 +130,12 @@ fn candidate_walk() -> Result<(), String> {
                 .iter()
                 .find(|n| n.get("kind").and_then(Value::as_str) == Some("page"))
                 .ok_or("next candidate page absent")?;
-            args = serde_json::from_value(page.get("args").cloned().ok_or("page args absent")?).map_err(|e| e.to_string())?;
-        } else if next.iter().any(|n| n.get("kind").and_then(Value::as_str) == Some("page")) {
+            args = serde_json::from_value(page.get("args").cloned().ok_or("page args absent")?)
+                .map_err(|e| e.to_string())?;
+        } else if next
+            .iter()
+            .any(|n| n.get("kind").and_then(Value::as_str) == Some("page"))
+        {
             return Err("unexpected fourth page".into());
         }
     }
