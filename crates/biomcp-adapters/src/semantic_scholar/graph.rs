@@ -86,7 +86,7 @@ pub struct Edge {
     /// Missing is distinct from false.
     pub is_influential: Option<bool>,
     /// Missing is distinct from a reported empty list.
-    pub contexts: Option<Vec<Text>>,
+    pub contexts: Option<Vec<String>>,
 }
 #[derive(Debug, Deserialize)]
 struct RawEdges {
@@ -101,6 +101,9 @@ impl Reply for RawEdges {
                 || data
                     .iter()
                     .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
+                || data.iter().any(|edge| edge.contexts.as_ref().is_some_and(|contexts| {
+                    contexts.iter().any(|text| text.trim().is_empty())
+                }))
         }) {
             return Err(BadReply);
         }
@@ -122,10 +125,14 @@ impl Edge {
         .item();
         item.intents = self.intents;
         item.influential = self.is_influential;
-        item.contexts = self.contexts.map(|contexts| Capped {
-            total: contexts.len() as u64,
-            items: contexts.into_iter().take(1).collect(),
-        });
+        item.contexts = self.contexts.map(|contexts| {
+            Ok(Capped {
+                total: contexts.len() as u64,
+                items: contexts.into_iter().take(1)
+                    .map(|text| Text::new(&text).map_err(|_| BadReply))
+                    .collect::<Result<_, _>>()?,
+            })
+        }).transpose()?;
         Ok(item)
     }
 }

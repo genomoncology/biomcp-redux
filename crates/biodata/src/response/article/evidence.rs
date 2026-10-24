@@ -1,4 +1,4 @@
-use crate::{Capped, CitationIntent, License, Markdown, Section, Text};
+use crate::{Capped, CitationIntent, License, Markdown, Section};
 use serde::{Deserialize, Serialize};
 /// One advancing piece of an original source citation context.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -10,7 +10,8 @@ pub struct EvidenceContext {
     /// Unicode character position within that context.
     pub character_offset: u32,
     /// Whole context, or an exact advancing fragment when the context exceeds a page.
-    pub text: Text,
+    #[cfg_attr(feature = "schema", schemars(length(min = 1)))]
+    pub text: Box<str>,
 }
 /// One source paragraph fragment with its own exact outline location.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

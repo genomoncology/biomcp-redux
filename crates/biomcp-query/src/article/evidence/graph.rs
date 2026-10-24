@@ -2,7 +2,7 @@ use super::{Snapshot, bad, source};
 use crate::{Ctx, Outcome, status};
 use biodata::{
     ArticleEvidence, ArticleInput, Capped, CitationContexts, Doi, EvidenceContext, EvidenceNotice,
-    Pmid, Section, Source, Text,
+    Pmid, Section, Source,
 };
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
@@ -159,11 +159,11 @@ fn retain(snapshot: &mut Snapshot, edge: semantic_scholar::Edge) -> Result<(), R
     snapshot.matched = true;
     let mut contexts = Vec::new();
     for (index, text) in edge.contexts.unwrap_or_default().into_iter().enumerate() {
-        for (offset, text) in super::page::split(text.as_str()) {
+        for (offset, text) in super::page::split(&text) {
             contexts.push(EvidenceContext {
                 position: u32::try_from(index + 1).map_err(|_| bad())?,
                 character_offset: offset,
-                text: Text::new(&text).map_err(|_| bad())?,
+                text: text.into(),
             });
         }
     }
