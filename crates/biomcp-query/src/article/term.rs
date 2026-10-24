@@ -50,12 +50,7 @@ pub(super) fn resolve(
         }
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
-                let value =
-                    serde_json::to_value(query).map_err(|_| biomcp_fetch::CacheError::Database)?;
-                let mut value = value;
-                value["gene"] = candidate.hgnc_id.to_string().into();
-                let checked = serde_json::from_value(value)
-                    .map_err(|_| biomcp_fetch::CacheError::Database)?;
+                let checked = query.with_gene(GeneInput::HgncId(candidate.hgnc_id));
                 out.next.push((
                     StepKind::Disambiguate,
                     Action::Run {
