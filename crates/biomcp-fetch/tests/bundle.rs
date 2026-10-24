@@ -411,6 +411,36 @@ fn interrupted_download_resumes_only_the_same_representation() {
                 assert!(result.is_err());
             }
         });
+        if ["changed", "offset", "total", "missing"].contains(&scenario) {
+            std::thread::scope(|scope| {
+                let call = scope.spawn(|| f.sync(&b));
+                let request = server.next();
+                assert!(
+                    !request.text.to_ascii_lowercase().contains("range:"),
+                    "unsafe resume metadata must force the next sync to restart"
+                );
+                request.respond(200, "ETag: \"new\"\r\n", TSV);
+                assert_eq!(call.join().unwrap().unwrap().rows, 1);
+            });
+        }
+    }
+}
+
+#[test]
+fn oversized_provider_length_does_not_poison_the_next_sync() {
+    let server = support::Server::new();
+    let b = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let f = cached(&dir.path().join("cache.sqlite"));
+    for length in [u64::from(u32::MAX) + 1, u64::MAX] {
+        std::thread::scope(|scope| {
+            let call = scope.spawn(|| f.sync(&b));
+            server.next().raw(&format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {length}\r\nETag: \"huge\"\r\nConnection: close\r\n\r\n"
+            ));
+            assert!(matches!(call.join().unwrap(), Err(biomcp_fetch::RequestError::Source(_))));
+        });
+        assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
     }
 }
 
@@ -611,6 +641,17 @@ fn release_large_bundle_capture_round_trips() {
     })
     .unwrap();
     assert_eq!(replay.sync(&b).unwrap().bytes, body.len() as u64);
+    // A larger ordinary response limit does not grant the bundle recording cap.
+    let ordinary = Fetch::open(FetchConfig {
+        mode: biomcp_fetch::Mode::Replay { dir: dir.path().join("recordings") },
+        max_body: biomcp_fetch::MAX_BUNDLE_BYTES,
+        ..Default::default()
+    }).unwrap();
+    assert!(matches!(
+        ordinary.leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
+            .json::<support::Answer>(&b.spec.get(b.path), &[]),
+        Err(biomcp_fetch::RequestError::Recording(biomcp_fetch::RecordError::Limit))
+    ));
 }
 
 #[test]
