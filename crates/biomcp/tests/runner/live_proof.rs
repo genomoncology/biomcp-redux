@@ -6,6 +6,9 @@ use std::{collections::BTreeMap, fs, path::Path};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("live-source-checks/cache-retries-and-request-plans", || {
+            comparison().map_err(|e| e.to_string().into())
+        }),
         Trial::test("live-source-checks/summary-retains-late-drift", || {
             summary().map_err(|e| e.to_string().into())
         }),
@@ -228,5 +231,57 @@ fn summary() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err(format!("late diagnostic hidden from bounded summary: {report}").into());
     }
+    Ok(())
+}
+
+fn comparison() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let original = super::launch::fixtures().join("replies/gene/main");
+    let retry = env.root().join("retried");
+    response_cases::copy_capture("gene/main", &retry, |source, record| {
+        if source == "mygene" {
+            if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
+                let mut error = exchanges[0].clone();
+                error["status"] = json!(429);
+                error["body"] = json!({"kind": "json", "value": {"error": "retry", "count": 2}});
+                error["retry_after_ms"] = json!(0);
+                exchanges.insert(0, error);
+            }
+        }
+    })?;
+    let before = observe(&env, &retry, "retry-before", &["get", "gene", "KRAS"])?;
+    let after = observe(&env, &original, "retry-after", &["get", "gene", "KRAS"])?;
+    if !before.iter().any(|item| item.status == Some(429)) { return Err("retry witness absent".into()); }
+    let mut changes = Vec::new();
+    let mut sources = BTreeMap::new();
+    live::compare(&before, &after, &mut changes, &mut sources);
+    if !changes.is_empty() { return Err(format!("successful retry caused false drift: {changes:?}").into()); }
+    // Changed result pools alter identities without removing the endpoint contract.
+    let mut dynamic = after.clone();
+    for item in &mut dynamic { item.identity = format!("different-{}", item.identity); }
+    live::compare(&after, &dynamic, &mut changes, &mut BTreeMap::new());
+    if !changes.iter().all(|item| item.contains("request-plan-changed")) || changes.is_empty() {
+        return Err(format!("request plan mislabeled: {changes:?}").into());
+    }
+    changes.clear();
+    let mut failed = after.clone();
+    failed[0].status = Some(503);
+    live::compare(&after, &failed, &mut changes, &mut BTreeMap::new());
+    if !changes.iter().any(|item| item.contains("Some(200) -> Some(503)")) { return Err("real HTTP status drift hidden".into()); }
+    // Reuse the actual warmed checked cache with networking refused.
+    let cache = env.root().join("explicit-cache");
+    let cache_arg = cache.to_str().ok_or("cache path")?;
+    observe(&env, &original, "warm", &["get", "gene", "KRAS", "--case-cache", cache_arg])?;
+    let report = env.root().join("cached.jsonl");
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &[
+        "get".into(), "gene".into(), "KRAS".into(), "--offline".into(),
+        "--case-cache".into(), cache_arg.into(), "--observe".into(), report.display().to_string(),
+    ]).output()?;
+    if !output.status.success() { return Err("warm offline cache failed".into()); }
+    let cached: Vec<Observation> = fs::read_to_string(report)?.lines().map(serde_json::from_str).collect::<Result<_, _>>()?;
+    if cached.is_empty() || !cached.iter().all(|item| item.cached) { return Err("cache reuse not observed".into()); }
+    changes.clear();
+    live::compare(&after, &cached, &mut changes, &mut BTreeMap::new());
+    if !changes.is_empty() { return Err(format!("cache reuse caused false drift: {changes:?}").into()); }
     Ok(())
 }
