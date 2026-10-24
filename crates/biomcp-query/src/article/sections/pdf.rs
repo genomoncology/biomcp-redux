@@ -19,8 +19,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             }
         };
         if matches!(section, Section::Data { .. }) && out.next.len() < 5 {
-            let name = filename(&input);
-            if let Ok(save) = Text::new(name) {
+            let name = ArticlePdf::filename(&input);
+            if let Ok(save) = Text::new(&name) {
                 out.next.push((StepKind::Section, Action::Run { request: Request::ArticlePdf(ArticlePdf {input, save, replace: false}), fresh: false }));
             }
         }
@@ -31,10 +31,6 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         }
     }
     if let QueryBody::ArticleCards(cards) = &out.body { out.status = status::status(cards.items.iter().map(|i| i.status)); }
-}
-pub(in crate::article) fn filename(input: &ArticleInput) -> String {
-    let name: String = input.to_string().chars().map(|c| if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {c} else {'_'}).collect();
-    format!("{name}.pdf")
 }
 pub(in crate::article) fn load<'a>(cx: &Ctx<'a>, input: &ArticleInput, deadline: &mut Deadline<'a>, out: &mut Outcome) -> Result<Section<PdfLink>, RequestError> {
     let leg = cx.fetch.leg(&semantic_scholar::SPEC, *deadline).fresh(cx.fresh);

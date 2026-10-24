@@ -60,13 +60,12 @@ impl SaveTarget {
 
 /// Keep destination policy and every filesystem mutation at the binary boundary.
 pub(crate) fn run(cx: &biomcp_query::Ctx<'_>, query: &biodata::ArticlePdf, allow_save: bool) -> biomcp_query::Outcome {
-    let name: String = query.input.to_string().chars().map(|c| if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {c} else {'_'}).collect();
-    let target = allow_save.then(|| SaveTarget::new(query.save.as_str(), &format!("{name}.pdf"), query.replace)).and_then(Result::ok);
+    let target = allow_save.then(|| SaveTarget::new(query.save.as_str(), &biodata::ArticlePdf::filename(&query.input), query.replace)).and_then(Result::ok);
     let download = biomcp_query::article::pdf::download(cx, query, target.is_some());
     let mut out = download.out;
     if let Some((link, bytes)) = download.file {
         out.body = match target.and_then(|target| target.write(&bytes).ok()) {
-            Some(saved) => match (biodata::Text::new(saved.path.to_string_lossy()), biodata::Text::new(saved.sha256)) {
+            Some(saved) => match (biodata::Text::new(&saved.path.to_string_lossy()), biodata::Text::new(&saved.sha256)) {
                 (Ok(path), Ok(sha256)) => biodata::QueryBody::ArticlePdf(biodata::ArticlePdfResult {file: biodata::Section::Data {source: biodata::Source::SemanticScholar, data: biodata::PdfSaved {path, bytes: saved.bytes, sha256, pdf: link}}}),
                 _ => biodata::QueryBody::PdfSaveRefused(link),
             },

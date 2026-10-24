@@ -31,7 +31,7 @@ Five crates. Each exists because a rule needs a crate boundary to enforce it.
 | Crate | Job | May import | May not import |
 | --- | --- | --- | --- |
 | `biodata` | Typed values for every entity, identifier, closed set, query, request and response. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
 | `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc` | `ureq`, `rusqlite` |

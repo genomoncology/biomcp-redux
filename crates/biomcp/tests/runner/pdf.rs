@@ -6,7 +6,8 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("article/pdf/atomic-explicit-saves", || saves().map_err(|e| e.to_string().into())),
+    vec![Trial::test("article/pdf/http-save-refused-with-link", || http_refusal().map_err(|e| e.to_string().into())),
+        Trial::test("article/pdf/atomic-explicit-saves", || saves().map_err(|e| e.to_string().into())),
         Trial::test("article/pdf/failed-download-leaves-nothing", || failures().map_err(|e| e.to_string().into()))]
 }
 fn command(env: &Environment, replay: &Path, args: &[String], exit: i32) -> Result<Value, Box<dyn std::error::Error>> {
@@ -63,5 +64,26 @@ fn failures() -> Check {
         assert_eq!(fs::read(&target)?, b"preserve on failure");
         assert_eq!(fs::read_dir(&folder)?.count(), 1);
     }
+    Ok(())
+}
+
+fn http_refusal() -> Check {
+    let env = Environment::new()?;
+    let target = env.root().join("never.pdf");
+    let source = fixtures().join("replies/article/pdf/synthetic/semantic-scholar");
+    let replay = env.root().join("link-only/semantic-scholar");
+    fs::create_dir_all(&replay)?;
+    // Only the API record exists: HTTP refusal cannot consume publisher bytes.
+    let name = "69475a488feb05ba4c86ed028e3791cdf3e218666f11ac7a1c145a9b60baf883.json";
+    fs::copy(source.join(name), replay.join(name))?;
+    let mut server = super::http::Server::start_replay(replay.parent().ok_or("replay parent")?.to_owned())?;
+    let call = super::mcp::request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":save_args(&target)}}));
+    let (status, reply) = server.request("POST", "/mcp", &call.to_string())?;
+    assert_eq!(status, 200);
+    assert_eq!(reply.pointer("/result/isError"), Some(&json!(true)));
+    assert_eq!(reply.pointer("/result/structuredContent/status"), Some(&json!("usage")));
+    assert!(reply.pointer("/result/structuredContent/error/url").and_then(Value::as_str).is_some_and(|s| s.ends_with("39100.pdf")));
+    assert!(!target.exists());
+    server.stop()?;
     Ok(())
 }

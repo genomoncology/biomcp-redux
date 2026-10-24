@@ -1,4 +1,4 @@
-//! Explicit PDF download orchestration; the transport owns atomic file I/O.
+//! Explicit PDF download orchestration; the binary owns atomic file I/O.
 use crate::{Ctx, Outcome, status};
 use super::sections::pdf::{bad, load, reason};
 use biodata::{ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status};

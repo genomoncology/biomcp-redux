@@ -14,3 +14,11 @@ pub struct ArticlePdf {
     #[serde(default)]
     pub replace: bool,
 }
+
+impl ArticlePdf {
+    /// Portable filename for an explicit folder destination or suggested next action.
+    pub fn filename(input: &ArticleInput) -> String {
+        let name: String = input.to_string().chars().map(|c| if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {c} else {'_'}).collect();
+        format!("{name}.pdf")
+    }
+}
