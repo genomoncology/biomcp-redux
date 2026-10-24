@@ -51,18 +51,7 @@ fn walks(oversized: bool) -> Check {
     Ok(())
 }
 fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Check {
-    let initial = [
-        "get",
-        "trial",
-        "NCT05136196",
-        section,
-        "--source",
-        "nci",
-        "--limit",
-        "10",
-    ]
-    .map(str::to_owned);
-    let mut args = initial.to_vec();
+    let mut args = selector(section);
     let mut rows = Vec::new();
     let mut text = String::new();
     let mut finished = false;
@@ -233,4 +222,19 @@ fn identity() -> Check {
         }
     }
     Ok(())
+}
+
+fn selector(section: &str) -> Vec<String> {
+    [
+        "get",
+        "trial",
+        "NCT05136196",
+        section,
+        "--source",
+        "nci",
+        "--limit",
+        "10",
+    ]
+    .map(str::to_owned)
+    .to_vec()
 }
