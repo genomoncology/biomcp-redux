@@ -508,6 +508,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         ("127.0.0.1", true),
         ("127.0.0.10", false),
         ("127.0.0.1.evil", false),
+        (".0.0.1", false),
         (".127.0.0.1", false),
         ("localhost", true),
         (".localhost", true),

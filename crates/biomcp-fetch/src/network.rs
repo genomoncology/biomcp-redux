@@ -156,6 +156,7 @@ impl Bypass {
         self.port.is_none_or(|required| required == port)
             && ((self.bare && host == self.host)
                 || (self.suffix
+                    && (self.host.is_empty() || host.parse::<std::net::IpAddr>().is_err())
                     && (self.host.is_empty()
                         || host
                             .strip_suffix(&self.host)
