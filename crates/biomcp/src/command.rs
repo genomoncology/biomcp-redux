@@ -188,11 +188,7 @@ fn response(
     };
     response_body(meta, request, result.body)
 }
-fn response_body(
-    meta: ResponseMeta,
-    request: Request,
-    body: QueryBody,
-) -> io::Result<Outcome> {
+fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
