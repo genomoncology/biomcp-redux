@@ -1,0 +1,68 @@
+use biomcp_fetch::{BadReply, xml::MixedText};
+use quick_xml::{Reader, events::Event};
+/// Borrowed element in the transport-checked document.
+#[derive(Clone, Copy)]
+pub(crate) struct Element<'a>(pub(crate) &'a str);
+impl<'a> Element<'a> {
+    pub(crate) fn children(self, wanted: &str) -> Result<Vec<Self>, BadReply> {
+        let mut reader = Reader::from_str(self.0);
+        let mut root = false;
+        let mut out = Vec::new();
+        loop {
+            let begin = reader.buffer_position() as usize;
+            match reader.read_event().map_err(|_| BadReply)? {
+                Event::Start(_) if !root => root = true,
+                Event::Start(tag) => {
+                    let matched = tag.name().as_ref() == wanted;
+                    reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
+                    if matched {
+                        out.push(Self(&self.0[begin..reader.buffer_position() as usize]));
+                    }
+                }
+                Event::Empty(tag) if root && tag.name().as_ref() == wanted => {
+                    out.push(Self(&self.0[begin..reader.buffer_position() as usize]))
+                }
+                Event::Eof => return Ok(out),
+                _ => {}
+            }
+        }
+    }
+    pub(crate) fn child(self, name: &str) -> Result<Option<Self>, BadReply> {
+        Ok(self.children(name)?.into_iter().next())
+    }
+    pub(crate) fn at(self, path: &[&str]) -> Result<Option<Self>, BadReply> {
+        let mut node = Some(self);
+        for part in path {
+            node = match node {
+                Some(n) => n.child(part)?,
+                None => None,
+            };
+        }
+        Ok(node)
+    }
+    pub(crate) fn text(self) -> Result<String, BadReply> {
+        Ok(MixedText::from_xml(self.0)?.as_str().to_owned())
+    }
+    pub(crate) fn value(self, path: &[&str]) -> Result<Option<String>, BadReply> {
+        self.at(path)?.map(Self::text).transpose()
+    }
+    pub(crate) fn attr(self, name: &str) -> Result<Option<String>, BadReply> {
+        let mut reader = Reader::from_str(self.0);
+        match reader.read_event().map_err(|_| BadReply)? {
+            Event::Start(tag) | Event::Empty(tag) => {
+                for attr in tag.attributes() {
+                    let attr = attr.map_err(|_| BadReply)?;
+                    if attr.key.as_ref() == name {
+                        return Ok(Some(
+                            attr.normalized_value(quick_xml::XmlVersion::Implicit1_0)
+                                .map_err(|_| BadReply)?
+                                .into_owned(),
+                        ));
+                    }
+                }
+                Ok(None)
+            }
+            _ => Err(BadReply),
+        }
+    }
+}

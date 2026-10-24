@@ -8,6 +8,7 @@ mod page;
 mod sections;
 mod sources;
 mod term;
+pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
 use biomcp_fetch::{CacheError, Deadline, RequestError};

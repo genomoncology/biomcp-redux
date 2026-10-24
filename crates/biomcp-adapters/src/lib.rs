@@ -23,7 +23,11 @@ pub mod hpa;
 pub mod europepmc;
 pub mod pubtator;
 
+pub mod jats;
+pub mod pmc_oa;
+
 pub mod icite;
 
 /// Exact variant publication lookup.
 pub mod litvar;
+mod xml_element;

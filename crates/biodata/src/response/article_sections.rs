@@ -44,6 +44,9 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// Licensed PMC body outline.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fulltext: Option<Section<crate::FullText>>,
     /// Citation counts from NIH iCite.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub citations: Option<Section<Citations>>,

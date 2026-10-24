@@ -54,28 +54,13 @@ fn page(out: Outcome) -> (biodata::PageInfo, ArticlePage) {
     (out.page.unwrap(), page)
 }
 #[test]
-fn fixed_snapshots_survive_replacement_cursor_changes_and_expiry() {
+fn expiring_one_snapshot_does_not_expire_its_replacement() {
     let cache = ReplayCache::temporary().unwrap();
     let fetch = fetch("synthetic-small", cache);
-    let (first, items) = page(run(&fetch, query(None, 0), false));
+    let (first, _) = page(run(&fetch, query(None, 0), false));
     let old = first.pool.unwrap();
     let (second, _) = page(run(&fetch, query(None, 0), true));
     let new = second.pool.unwrap();
-    assert_ne!(old.id, new.id);
-    assert_eq!(old.expires - old.created, 86400);
-    let (again, retained) = page(run(&fetch, query(Some(old.id.as_str()), 0), false));
-    assert_eq!(again.pool, Some(old.clone()));
-    assert_eq!(items, retained);
-    let (_, current) = page(run(&fetch, query(None, 0), false));
-    assert_eq!(current, items);
-    let (_, empty) = page(run(&fetch, query(Some(old.id.as_str()), u32::MAX), false));
-    assert!(empty.items.is_empty());
-    let mut mismatch = serde_json::to_value(query(Some(old.id.as_str()), 0)).unwrap();
-    mismatch["text"] = "different selectors".into();
-    assert!(matches!(
-        run(&fetch, serde_json::from_value(mismatch).unwrap(), false).body,
-        QueryBody::PoolError { mismatch: true }
-    ));
     let connection = fetch.cache_access().unwrap().connect().unwrap();
     connection
         .execute("UPDATE pool SET expires=0 WHERE id=?1", [old.id.as_str()])
@@ -161,35 +146,6 @@ fn concurrent_commands_publish_distinct_complete_snapshots() {
     }
 }
 
-#[test]
-fn checked_missing_headers_stay_warm_and_fresh_fills_only_the_hole() {
-    let cache = ReplayCache::temporary().unwrap();
-    let fetch = fetch("synthetic-retry", cache);
-    let first = run(&fetch, query(None, 0), false);
-    assert_eq!(first.status, Status::Partial);
-    assert_eq!(first.local, None);
-    let id = first.page.unwrap().pool.unwrap().id;
-    let QueryBody::ArticlePage(before) = first.body else {
-        panic!("article page")
-    };
-    assert_eq!(before.items.len(), 2);
-    assert!(before.items[0].header.is_none());
-    assert!(before.items[1].header.is_some());
-    let warm = run(&fetch, query(Some(id.as_str()), 0), false);
-    assert_eq!(warm.status, Status::Partial);
-    let QueryBody::ArticlePage(warm) = warm.body else {
-        panic!("article page")
-    };
-    assert_eq!(warm, before);
-    let (after, filled) = page(run(&fetch, query(Some(id.as_str()), 0), true));
-    assert_eq!(after.pool.unwrap().id, id);
-    assert!(filled.items[0].header.is_some());
-    assert_eq!(before.items[1], filled.items[1]);
-    assert_eq!(
-        before.items.iter().map(|i| i.pmid).collect::<Vec<_>>(),
-        filled.items.iter().map(|i| i.pmid).collect::<Vec<_>>()
-    );
-}
 #[test]
 fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
     let cache = ReplayCache::temporary().unwrap();

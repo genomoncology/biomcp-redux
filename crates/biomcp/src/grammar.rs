@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleEdges, ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
+use biodata::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -12,6 +12,12 @@ pub(crate) struct Globals {
     pub(crate) case_cache: Option<PathBuf>,
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
+    pub(crate) format: Option<Format>,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Format {
+    Json,
+    Md,
 }
 #[derive(Debug)]
 pub(crate) struct Parsed {
@@ -21,6 +27,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticleText(_) => "biodata.article-text/1",
         Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
@@ -33,6 +40,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
+    ("article", "text", "biodata.article-text/1"),
     ("article", "citations", "biodata.article-edges/1"),
     ("article", "references", "biodata.article-edges/1"),
 ];
@@ -43,6 +51,12 @@ fn root() -> Result<Command, ()> {
         .disable_version_flag(true)
         .arg_required_else_help(true)
         .subcommand_required(true);
+    root = root.arg(
+        Arg::new("format")
+            .long("format")
+            .global(true)
+            .value_parser(["json", "md"]),
+    );
     for name in ["replay", "record", "case-cache"] {
         root = root.arg(
             Arg::new(name)
@@ -102,6 +116,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
+        format: matches
+            .get_one::<String>("format")
+            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
     };
     globals.check()?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -219,6 +236,7 @@ impl Globals {
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
+        self.format = self.format.or(process.format);
         self.offline |= process.offline;
         self.check()
     }
@@ -274,6 +292,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("article", "text") => serde_json::from_value::<ArticleText>(value)
+            .map(Request::ArticleText)
+            .map_err(|_| ()),
         ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
             .map(Request::ArticleCitations)
             .map_err(|_| ()),

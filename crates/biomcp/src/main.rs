@@ -10,6 +10,7 @@ mod paths;
 mod retired;
 mod schema;
 mod spell;
+mod view;
 
 use std::process::ExitCode;
 
