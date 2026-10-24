@@ -31,6 +31,7 @@ pub(super) fn check() -> Check {
     overload()?;
     let mut server = Server::start()?;
     for bytes in [
+        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\nContent-Length: 0\r\n\r\n", server.address),
         format!(
             "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 65537\r\n\r\n",
             server.address
@@ -83,10 +84,13 @@ pub(super) fn check() -> Check {
         return Err("slow header retained a worker beyond the absolute deadline".into());
     }
     let mut held = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-    held.set_read_timeout(Some(Duration::from_secs(4))).map_err(|e| e.to_string())?;
+    held.set_read_timeout(Some(Duration::from_secs(4)))
+        .map_err(|e| e.to_string())?;
     server.stop()?;
     let mut byte = [0];
-    if !matches!(held.read(&mut byte), Ok(0)) { return Err("HTTP shutdown retained a client socket".into()); }
+    if !matches!(held.read(&mut byte), Ok(0)) {
+        return Err("HTTP shutdown retained a client socket".into());
+    }
     if TcpStream::connect(server.address).is_ok() {
         return Err("shutdown left a listener".into());
     }

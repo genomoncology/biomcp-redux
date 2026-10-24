@@ -47,11 +47,19 @@ impl Drop for Server {
 }
 impl Server {
     pub(super) fn stop(&mut self) -> Check {
-        if self.child.try_wait().map_err(|e| e.to_string())?.is_some() { return Ok(()); }
+        if self.child.try_wait().map_err(|e| e.to_string())?.is_some() {
+            return Ok(());
+        }
         #[cfg(unix)]
         {
             let args = vec!["-INT".to_owned(), self.child.id().to_string()];
-            if !self._environment.command("/bin/kill", &args).status().map_err(|e| e.to_string())?.success() {
+            if !self
+                ._environment
+                .command("/bin/kill", &args)
+                .status()
+                .map_err(|e| e.to_string())?
+                .success()
+            {
                 return Err("HTTP interrupt failed".into());
             }
         }
@@ -61,10 +69,14 @@ impl Server {
         let end = std::time::Instant::now() + Duration::from_secs(5);
         loop {
             if let Some(status) = self.child.try_wait().map_err(|e| e.to_string())? {
-                if cfg!(unix) && !status.success() { return Err(format!("HTTP shutdown: {status}")); }
+                if cfg!(unix) && !status.success() {
+                    return Err(format!("HTTP shutdown: {status}"));
+                }
                 return Ok(());
             }
-            if std::time::Instant::now() >= end { return Err("HTTP shutdown deadline".into()); }
+            if std::time::Instant::now() >= end {
+                return Err("HTTP shutdown deadline".into());
+            }
             std::thread::yield_now();
         }
     }
@@ -345,6 +357,7 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
 
 fn admission() -> Check {
     let server = Server::start()?;
+    metadata_cases(&server)?;
     let host = server.address.to_string();
     for (authority, headers) in [
         ("foreign.example", ""),
@@ -451,6 +464,29 @@ fn storage() -> Check {
         || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403
     {
         return Err("configured host allowlist was not enforced".into());
+    }
+    Ok(())
+}
+
+fn metadata_cases(server: &Server) -> Check {
+    let request = super::mcp::request(json!(9), "tools/call", json!({"name":"biomcp","arguments":{"args":["help"]}}));
+    let prefix = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\n";
+    for (name, expected) in [("=?base64?YmlvbWNw?=", 200), ("=?base64?***?=", 400), ("other", 400)] {
+        let headers = format!("{prefix}Mcp-Name: {name}\r\n");
+        let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), &headers, &request.to_string())?;
+        if status != expected || expected == 400 && reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32020)) {
+            return Err("encoded tool name did not match its body".into());
+        }
+    }
+    let request = super::mcp::request(json!(9), "unavailable-method", json!({}));
+    let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
+    if status != 404 || reply.pointer("/error/code") != Some(&json!(-32601)) {
+        return Err("unsupported modern method needs HTTP 404 and RPC -32601".into());
+    }
+    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2024-11-05\r\n";
+    let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), headers, &request.to_string())?;
+    if status != 400 || reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32022)) {
+        return Err("unsupported protocol version was not reported".into());
     }
     Ok(())
 }
