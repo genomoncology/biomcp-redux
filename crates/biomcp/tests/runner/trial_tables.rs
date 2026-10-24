@@ -46,10 +46,9 @@ fn missing_studies() -> Check {
                 if record["url"].as_str().is_some_and(|url| {
                     url.contains("/studies?") && (!continuation || url.contains("pageToken="))
                 }) {
-                    let body = &mut record["exchanges"][0]["body"]["value"];
-                    body.as_object_mut()
-                        .expect("captured registry object")
-                        .remove("studies");
+                    if let Some(body) = record["exchanges"][0]["body"]["value"].as_object_mut() {
+                        body.remove("studies");
+                    }
                 }
             },
             json!([
