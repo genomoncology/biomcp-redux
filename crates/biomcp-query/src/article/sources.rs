@@ -40,36 +40,7 @@ pub(super) fn search<'a>(
     );
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
-    let mut join_failures = Vec::new();
-    for result in &mut results {
-        if result.source == ArticleSource::SemanticScholar
-            && result.items.iter().any(|item| {
-                item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some())
-            })
-        {
-            let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
-            status::append(&mut out.problems, resolved.problems);
-            if let Some(error) = resolved.error {
-                if status::local(error).is_some() {
-                    return Err(error);
-                }
-                join_failures.push(resolved.source);
-            } else if !results_have_pubmed(query) {
-                out.sources.push(resolved.source);
-            }
-        }
-    }
-    for failure in join_failures {
-        if let Some(existing) = results
-            .iter_mut()
-            .find(|r| r.outcome.source == failure.source)
-        {
-            existing.outcome.state = failure.state;
-            existing.outcome.reason = failure.reason;
-        } else {
-            out.sources.push(failure);
-        }
-    }
+    resolve_rows(cx, query, &mut results, deadline, out)?;
     let failed_pubmed = results
         .iter()
         .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some());
@@ -92,6 +63,46 @@ pub(super) fn search<'a>(
         results.into_iter().map(|r| (r.source, r.items)).collect(),
         query.sources().len() > 1,
     )))
+}
+fn resolve_rows<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    results: &mut [ResultLeg],
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let mut join_failures = Vec::new();
+    for result in results.iter_mut() {
+        if result.source == ArticleSource::SemanticScholar
+            && result.items.iter().any(|item| {
+                item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some())
+            })
+        {
+            let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
+            status::append(&mut out.problems, resolved.problems);
+            if let Some(error) = resolved.error {
+                if status::local(error).is_some() {
+                    return Err(error);
+                }
+                join_failures.push(resolved.source);
+            } else if resolved.source.state != SourceState::Ok {
+                join_failures.push(resolved.source);
+            } else if !results_have_pubmed(query) {
+                out.sources.push(resolved.source);
+            }
+        }
+    }
+    for failure in join_failures {
+        if let Some(existing) = results
+            .iter_mut()
+            .find(|r| r.outcome.source == failure.source)
+        {
+            status::retain_source_state(&mut existing.outcome, &failure);
+        } else {
+            out.sources.push(failure);
+        }
+    }
+    Ok(())
 }
 fn pubmed_search<'a>(
     cx: &Ctx<'a>,

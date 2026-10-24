@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "Typed gene and cancer selectors map to Semantic Scholar words and a year interval without HGNC expansion",
   "replay": "article/semantic-scholar/synthetic-typed-year",
-  "verified": "Response-only synthetic copies of actual --record j9693 (S2 rate limiting), j9708 (PubMed search and exact two-ID summary) and j9753 (literal DOI expression). Successful S2 live capture remains0061. Native requests and IDs remain transport generated.",
+  "verified": "Measured CLI output on Gator at43f22fd: 1050 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",
   "steps": [
     {
       "run": [
@@ -41,7 +41,7 @@
         "--source",
         "semantic-scholar"
       ],
-      "max_bytes": 8000,
+      "max_bytes": 1208,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "EGFR T790M osimertinib lung cancer",
@@ -50,7 +50,8 @@
         "/sources/*/source": [
           "semantic-scholar"
         ]
-      }
+      },
+      "max_tokens": 302
     }
   ]
 }

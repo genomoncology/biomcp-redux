@@ -11,7 +11,7 @@
         "--source",
         "pubmed,semantic-scholar"
       ],
-      "max_bytes": 8000,
+      "max_bytes": 1953,
       "expect": {
         "/status": "partial",
         "/sources/1/source": "semantic-scholar",
@@ -19,7 +19,8 @@
         "/result/items/*/pmid": {
           "includes": "27959700"
         }
-      }
+      },
+      "max_tokens": 489
     },
     {
       "run": [
@@ -30,15 +31,16 @@
         "pubmed,semantic-scholar"
       ],
       "offline": true,
-      "max_bytes": 8000,
+      "max_bytes": 1953,
       "expect": {
         "/status": "partial",
         "/sources/1/reason": "rate_limited",
         "/next/*/kind": {
           "includes": "key"
         }
-      }
+      },
+      "max_tokens": 489
     }
   ],
-  "verified": "Synthetic responses copy canonical request identity from actual keyless --record j9693, which returned three429 responses. Successful live verification is tracked separately in0061. Budgets are provisional until replay measurement; no equivalent0.9 command includes this source."
+  "verified": "Measured CLI output on Gator at43f22fd: 1698,1698 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061."
 }
