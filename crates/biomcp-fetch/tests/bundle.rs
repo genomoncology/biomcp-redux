@@ -439,6 +439,5 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
     });
 }
 
-
 mod download;
 mod rows;

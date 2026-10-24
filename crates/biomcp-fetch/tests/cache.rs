@@ -76,7 +76,6 @@ fn source(error: RequestError) -> biomcp_fetch::SourceError {
     error
 }
 
-
 mod credentials;
 mod freshness;
 mod storage;

@@ -293,4 +293,3 @@ fn ownership_is_checked_before_any_schema_or_journal_change() {
         "keep"
     );
 }
-

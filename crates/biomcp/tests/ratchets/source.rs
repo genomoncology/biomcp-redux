@@ -60,7 +60,10 @@ pub(super) fn check(root: &Path) -> Check {
         for path in rust_files(&crate_root.join("tests"))? {
             let text = fs::read_to_string(&path)?;
             if text.lines().count() > FILE_LIMIT {
-                return fail(&path.strip_prefix(root)?.to_string_lossy(), "file line limit exceeded");
+                return fail(
+                    &path.strip_prefix(root)?.to_string_lossy(),
+                    "file line limit exceeded",
+                );
             }
         }
         for path in rust_files(&crate_root.join("src"))? {

@@ -192,4 +192,3 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
     assert_eq!(leg.rows(&b, Find::Words("kinase")).unwrap().len(), 1);
     assert!(leg.finish().stale);
 }
-

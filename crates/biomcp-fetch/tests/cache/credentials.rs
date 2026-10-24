@@ -124,4 +124,3 @@ fn keyed_cache_refuses_missing_credentials_and_never_masks_rejected_credentials(
         assert_eq!(source(failure).status, Some(status));
     }
 }
-
