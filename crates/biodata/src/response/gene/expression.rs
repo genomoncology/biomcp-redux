@@ -24,7 +24,7 @@ pub struct CancerPtpm {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct Expression {
+pub struct GeneExpression {
     /// Source RNA tissue specificity.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rna_tissue_specificity: Option<Text>,

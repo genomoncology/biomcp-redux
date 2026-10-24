@@ -87,6 +87,14 @@ canonical_enum! {
         Civic => "civic",
         /// OncoKB.
         Oncokb => "oncokb",
+        /// MyVariant.info aggregation.
+        MyVariant => "myvariant",
+        /// ClinGen Allele Registry.
+        AlleleRegistry => "car",
+        /// Mutalyzer.
+        Mutalyzer => "mutalyzer",
+        /// VariantValidator.
+        VariantValidator => "variantvalidator",
     }
 }
 

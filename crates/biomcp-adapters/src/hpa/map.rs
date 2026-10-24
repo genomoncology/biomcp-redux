@@ -1,16 +1,16 @@
 use super::raw;
 use crate::{Mapped, raw::Field};
 use biodata::{
-    CancerPtpm, EnsemblGeneId, Expression, Problem, ProblemCode, RnaAbundance, Source, Text,
+    CancerPtpm, EnsemblGeneId, GeneExpression, Problem, ProblemCode, RnaAbundance, Source, Text,
     TissueNtpm,
 };
 use std::collections::BTreeMap;
-pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<Expression> {
+pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpression> {
     let mut map = Mapper {
         id,
         problems: Vec::new(),
     };
-    let value = Expression {
+    let value = GeneExpression {
         rna_tissue_specificity: map.text(raw.tissue_specificity, "rna_tissue_specificity"),
         rna_tissue_distribution: map.text(raw.tissue_distribution, "rna_tissue_distribution"),
         rna_tissue_ntpm: map

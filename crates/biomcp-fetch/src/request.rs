@@ -124,7 +124,7 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::xml())
     }
 
-    fn parameters<T: Reply>(
+    pub(crate) fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
@@ -261,7 +261,8 @@ impl Leg<'_> {
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
         prepared.publisher = ep.publisher;
-        let codec = codec.octet_stream(ep.octet_stream);
+        let mut codec = codec.octet_stream(ep.octet_stream);
+        codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         let keyed = self.keyed();
         let (reply, fetched) =
             self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
@@ -303,7 +304,9 @@ impl Leg<'_> {
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
-                    if (200..300).contains(&status) {
+                    if (200..300).contains(&status)
+                        || codec.json_rejections && matches!(status, 400 | 422)
+                    {
                         return self.decode(response, codec).map_err(Into::into);
                     }
                     let delay = response.retry_after;
@@ -481,7 +484,7 @@ impl Leg<'_> {
         let body = self.read_body(
             &mut response,
             status,
-            recording,
+            recording || codec.json_rejections && matches!(status, 400 | 422),
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
         let wire = Wire {
@@ -580,6 +583,7 @@ impl Leg<'_> {
             .validate(&response.body)
             .map_err(|reason| self.failure(reason, Some(status)))?;
         let reply = codec.decode(&response.body).ok_or_else(bad)?;
+        reply.check_status(status).map_err(|_| bad())?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }

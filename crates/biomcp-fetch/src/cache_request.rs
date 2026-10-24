@@ -13,6 +13,18 @@ enum Checked<T> {
 }
 
 impl Leg<'_> {
+    /// Return checked JSON while withholding a response from cache when request identity differs.
+    /// The same predicate rejects pre-existing entries before either fresh or stale reuse.
+    pub fn json_checked_cache<T: Reply>(
+        &self,
+        endpoint: &Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<T, RequestError> {
+        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
+            .map(|(reply, _)| reply)
+    }
+
     pub(crate) fn cached<T: Reply>(
         &self,
         endpoint: &Endpoint,
@@ -45,7 +57,9 @@ impl Leg<'_> {
             Ok((reply, status, body, fetched)) => {
                 let mut entry = Entry::new(status, body, seconds, codec.name());
                 entry.fetched_at = fetched;
-                cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                if (200..300).contains(&status) && codec.cacheable(&reply) {
+                    cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                }
                 Ok((reply, fetched))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
@@ -142,7 +156,8 @@ impl Leg<'_> {
         let reply = (entry.content_type.as_deref() == Some(codec.name())
             && codec.validate(&entry.body).is_ok())
         .then(|| codec.decode(&entry.body))
-        .flatten();
+        .flatten()
+        .filter(|reply| codec.cacheable(reply));
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and
             // cannot become a stale fallback after the live request fails.

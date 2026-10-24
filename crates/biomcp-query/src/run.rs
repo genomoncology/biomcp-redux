@@ -50,6 +50,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::GetVariant(query) => crate::variant::get(cx, query),
         Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
         Request::GetTrial(query) => crate::trial::get::get(cx, query),
         Request::SearchTrial(query) => crate::trial::search(cx, query),

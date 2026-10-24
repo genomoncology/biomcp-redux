@@ -253,6 +253,9 @@ fn response(
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
             meta.encode(query, Some(body))
         }
+        (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
         _ => Err(io::Error::other("query response mismatch")),
@@ -329,7 +332,10 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
-    if root == Some("search") && words.next() == Some("trial") {
+    if root == Some("get") && words.next() == Some("variant") {
+        error = biodata::ErrorEnvelope::variant_arguments();
+    }
+    if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
         let flags: Vec<_> = args
             .iter()
             .filter_map(|arg| arg.to_str())

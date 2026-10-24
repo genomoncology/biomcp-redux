@@ -42,6 +42,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::GetVariant(query) => serde_json::to_value(query)?,
         Request::TrialDocument(query) => serde_json::to_value(query)?,
         Request::GetTrial(query) => serde_json::to_value(query)?,
         Request::SearchTrial(query) => serde_json::to_value(query)?,
@@ -68,7 +69,10 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetTrial(_) | Request::GetGene(_) | Request::GetArticle(_) => "get",
+            Request::GetVariant(_)
+            | Request::GetTrial(_)
+            | Request::GetGene(_)
+            | Request::GetArticle(_) => "get",
             Request::SearchTrial(_) | Request::SearchGene(_) | Request::SearchArticle(_) => {
                 "search"
             }
@@ -78,6 +82,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             "document"
         } else if matches!(request, Request::SearchTrial(_)) {
             "trial"
+        } else if matches!(request, Request::GetVariant(_)) {
+            "variant"
         } else if matches!(request, Request::ArticlePdf(_)) {
             "pdf"
         } else if matches!(request, Request::ArticleEvidence(_)) {

@@ -31,6 +31,7 @@ impl SourceSpec {
             octet_stream: false,
             publisher: false,
             byte_limit: None,
+            json_rejections: false,
         }
     }
     /// Declare a credential-free publisher download at a checked dynamic origin.
@@ -79,6 +80,7 @@ pub struct Endpoint {
     pub(crate) octet_stream: bool,
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
+    pub(crate) json_rejections: bool,
 }
 
 /// Whether a source requires a credential before sending.
@@ -178,6 +180,12 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Decode typed JSON validation rejections (HTTP 400/422), never admitting them to cache.
+    /// The reply type must check both success and rejection schemas. Other statuses retain normal retry semantics.
+    pub const fn json_rejections(mut self) -> Self {
+        self.json_rejections = true;
+        self
+    }
     /// Declare a bounded opaque binary reply independently of JSON/XML limits.
     pub const fn bytes(mut self, max_bytes: u64) -> Self {
         self.byte_limit = Some(max_bytes);

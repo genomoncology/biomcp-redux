@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "ExpressionSyntax": {
+      "description": "Published syntax label for a source-preserved expression.",
+      "enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGVS genomic description.",
+        " HGVS coding description.",
+        " HGVS noncoding transcript description.",
+        " HGVS RNA description.",
+        " HGVS protein description.",
+        " HGVS mitochondrial description.",
+        " HGVS circular genomic description.",
+        " NCBI SPDI interbase description.",
+        " gnomAD chromosome-position-reference-alternate identifier.",
+        " Padded VCF chromosome-position-reference-alternate text.",
+        " Source-preserved cytogenetic notation."
+      ]
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.expression/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Source expression checked for its declared published form, without normalization.",
+  "properties": {
+    "syntax": {
+      "$ref": "#/$defs/ExpressionSyntax"
+    },
+    "syntax_version": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "value": {
+      "$ref": "#/$defs/Text"
+    }
+  },
+  "required": [
+    "syntax",
+    "value"
+  ],
+  "title": "Expression",
+  "type": "object"
+}

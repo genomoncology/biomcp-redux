@@ -21,7 +21,11 @@
     "ctgov",
     "nci",
     "civic",
-    "oncokb"
+    "oncokb",
+    "myvariant",
+    "car",
+    "mutalyzer",
+    "variantvalidator"
   ],
   "title": "Source",
   "type": "string",
@@ -44,6 +48,10 @@
     " ClinicalTrials.gov.",
     " NCI Clinical Trials Search.",
     " CIViC.",
-    " OncoKB."
+    " OncoKB.",
+    " MyVariant.info aggregation.",
+    " ClinGen Allele Registry.",
+    " Mutalyzer.",
+    " VariantValidator."
   ]
 }

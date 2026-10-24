@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38."
+      ]
+    },
+    "VariantInput": {
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
+      "type": "string"
+    },
+    "VariantResolver": {
+      "description": "Explicit source service for reference-qualified notation.",
+      "enum": [
+        "car",
+        "mutalyzer",
+        "variantvalidator"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biodata.variant-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Read one published variant identifier; every source candidate is retained.",
+  "properties": {
+    "build": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Build"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Required for chromosome notation; no assembly is guessed."
+    },
+    "input": {
+      "$ref": "#/$defs/VariantInput",
+      "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+      "x-positional": 0
+    },
+    "limit": {
+      "default": 10,
+      "description": "Candidate rows per page; more remain reachable through typed next commands.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Candidate rows to skip in source order.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "resolver": {
+      "$ref": "#/$defs/VariantResolver",
+      "default": "car",
+      "description": "Resolver for reference-qualified notation; never repairs the input locally."
+    }
+  },
+  "required": [
+    "input"
+  ],
+  "title": "VariantGet",
+  "type": "object"
+}

@@ -24,6 +24,11 @@ mod article_recommend;
 pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
 
+mod variant;
+pub use variant::{VariantGet, VariantResolver};
+
+mod variant_input;
+pub use variant_input::{VariantInput, VariantNamespace};
 mod trial;
 pub use trial::{PhaseFilter, SponsorType, TrialFilter, TrialSearch, TrialSource};
 

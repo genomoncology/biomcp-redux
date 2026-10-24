@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.base/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^[ACGTNRYSWKMBDHV]$",
+  "title": "Base",
+  "type": "string"
+}

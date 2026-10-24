@@ -74,7 +74,7 @@ fn enum_schemas_validate_canonical_public_values() {
     enum_values(&[MatchKind::Symbol]);
     enum_values(&[SummarySource::RefSeq]);
     enum_values(&[HgncStatus::EntryWithdrawn]);
-    enum_values(&[Build::Unstated]);
+    enum_values(&[Build::Grch37, Build::Grch38]);
     enum_values(&[Strand::Forward]);
 }
 

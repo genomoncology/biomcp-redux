@@ -37,8 +37,27 @@ macro_rules! contracts {
         };
     }
 
+fn common_registry() -> Vec<Contract> {
+    contracts! {
+        Accession => ("accession", "biodata.accession/1"),
+        Chromosome => ("chromosome", "biodata.chromosome/1"),
+        Base => ("base", "biodata.base/1"),
+        Sequence => ("sequence", "biodata.sequence/1"),
+        SequenceLocation => ("sequence-location", "biodata.sequence-location/1"),
+        Allele => ("allele", "biodata.allele/1"),
+        HgvsText => ("hgvs-text", "biodata.hgvs-text/1"),
+        Expression => ("expression", "biodata.expression/1"),
+        ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
+        Representation => ("representation", "biodata.representation/1"),
+        VariantId => ("variant-id", "biodata.variant-id/1"),
+        Variant => ("variant", "biodata.variant/1"),
+    }
+}
+
 fn registry() -> Vec<Contract> {
-    let mut result = contracts! {
+    let mut contracts = contracts! {
+        VariantGet => ("variant-get", "biodata.variant-get/1"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -73,7 +92,7 @@ fn registry() -> Vec<Contract> {
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
         Request => ("request", "biodata.request/2"),
-        Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/1"),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/2"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/1"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/1"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
@@ -86,9 +105,9 @@ fn registry() -> Vec<Contract> {
         ProblemCode => ("problem-code", "biodata.problem-code/1"),
         Problem => ("problem", "biodata.problem/1"),
         GeneInput => ("gene-input", "biodata.gene-input/1"),
-        Gene => ("gene", "biodata.gene/1"),
+        Gene => ("gene", "biodata.gene/2"),
         GeneHeader => ("gene-header", "biomcp.gene_header/1"),
-        GeneResolution => ("gene-resolution", "biodata.gene-resolution/1"),
+        GeneResolution => ("gene-resolution", "biodata.gene-resolution/2"),
         EntrezGeneId => ("entrez-gene-id", "biodata.entrez-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/1"),
@@ -97,7 +116,7 @@ fn registry() -> Vec<Contract> {
         RefSeqTranscript => ("refseq-transcript", "biodata.refseq-transcript/1"),
         EnsemblTranscript => ("ensembl-transcript", "biodata.ensembl-transcript/1"),
         Cytoband => ("cytoband", "biodata.cytoband/1"),
-        GenomicInterval => ("genomic-interval", "biodata.genomic-interval/1"),
+        GenomicInterval => ("genomic-interval", "biodata.genomic-interval/2"),
         GeneStatus => ("gene-status", "biodata.gene-status/1"),
         LocusGroup => ("locus-group", "biodata.locus-group/1"),
         LocusType => ("locus-type", "biodata.locus-type/1"),
@@ -107,12 +126,13 @@ fn registry() -> Vec<Contract> {
         Summary => ("gene-summary", "biodata.gene-summary/1"),
         SummarySource => ("summary-source", "biodata.summary-source/1"),
         HgncStatus => ("hgnc-status", "biodata.hgnc-status/1"),
-        Build => ("build", "biodata.build/1"),
+        Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
         Contig => ("contig", "biodata.contig/1"),
     };
-    result.extend(trial_contracts());
-    result
+    contracts.extend(common_registry());
+    contracts.extend(trial_contracts());
+    contracts
 }
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
@@ -121,7 +141,7 @@ fn trial_contracts() -> Vec<Contract> {
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci_trial_page/1"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial_cards/1"),
         TrialSearch => ("trial-search", "biodata.trial-search/1"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/1"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/2"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }
