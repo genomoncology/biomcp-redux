@@ -507,7 +507,6 @@ fn outgoing_contact_and_optional_key_never_enter_persistent_identity() {
 }
 
 #[test]
-<<<<<<< HEAD
 fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     let stub = Stub::new(200, "text/plain", "reachable", None);
     let spec = stub.spec(KeyUse::None, Duration::from_secs(2));
@@ -534,7 +533,9 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     let error = leg.probe(&spec.get("/probe"), &[]).unwrap_err();
     assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::Disabled));
     assert!(stub.finish().is_empty());
-=======
+}
+
+#[test]
 fn checked_no_proxy_boundaries_select_direct_routes() {
     for (rule, direct) in [
         ("*", true),
@@ -617,5 +618,4 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
     }
     // IPv6 literals require brackets when a port is supplied.
     assert!(biomcp_fetch::Network::new(None, None, "[::1]:443", Default::default()).is_ok());
->>>>>>> main
 }

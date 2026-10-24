@@ -10,6 +10,9 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/disabled-leg-preserves-enabled-fold", || {
+            enabled_fold().map_err(Into::into)
+        }),
         Trial::test("sources/health-keeps-local-recording-errors-typed", || {
             health_local().map_err(Into::into)
         }),
@@ -225,6 +228,33 @@ fn health_local() -> Check {
     )?;
     if result.pointer("/error/code") != Some(&json!("local.failure")) {
         return Err("health lost its typed local error".into());
+    }
+    Ok(())
+}
+
+fn enabled_fold() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/article/fold/synthetic-fold");
+    let case = env.root().join("enabled-fold");
+    let args = [
+        "search", "article", "AKT1 E17K", "--source", "pubmed,europepmc",
+        "--disable-sources", "pubmed", "--limit", "2",
+    ];
+    for recording in [Some(fixture.as_path()), None] {
+        let result = invoke(&env, cached(&args, &case, recording), 0)?;
+        if result.pointer("/sources/0/state") != Some(&json!("skipped"))
+            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+            || result.pointer("/sources/1/state") != Some(&json!("ok"))
+            || result.pointer("/result/items/0/pmid") != Some(&json!("2222"))
+        {
+            return Err(format!("disabled leg hid enabled source rows: {result}"));
+        }
+        let next = result.pointer("/next/0/args").and_then(Value::as_array)
+            .ok_or("missing continuation")?;
+        if !next.iter().any(|a| a == "--disable-sources") {
+            return Err("continuation lost source policy".into());
+        }
     }
     Ok(())
 }

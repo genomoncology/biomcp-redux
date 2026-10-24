@@ -8,11 +8,8 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
-<<<<<<< HEAD
     disable_sources: Option<Vec<String>>,
-=======
     ca_bundle: Option<PathBuf>,
->>>>>>> main
     ncbi_email: Option<String>,
     keys: Option<Keys>,
 }
@@ -127,7 +124,6 @@ fn fetch_using(
     if let Some(key) = ncbi {
         secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
     }
-<<<<<<< HEAD
     let mut disabled = globals.disable_sources.clone();
     disabled.extend(
         file.as_ref()
@@ -135,7 +131,7 @@ fn fetch_using(
             .unwrap_or_default(),
     );
     let disabled_sources = biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())?;
-=======
+
     let scholar = variable("SEMANTIC_SCHOLAR_API_KEY")
         .map(|v| v.to_string_lossy().into_owned())
         .or_else(|| {
@@ -147,7 +143,6 @@ fn fetch_using(
         secrets.insert(SecretName::SemanticScholarApiKey, Secret::new(key));
     }
     let network = network(file.as_ref())?;
->>>>>>> main
     Fetch::open(FetchConfig {
         disabled_sources,
         cache_owners: vec![biomcp_query::store::OWNER],

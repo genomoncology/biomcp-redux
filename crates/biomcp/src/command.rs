@@ -117,11 +117,8 @@ fn response(
         .iter()
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
-<<<<<<< HEAD
-    let steps = source_steps(fetch, steps);
-=======
     network_steps(&mut steps, &result.sources);
->>>>>>> main
+    let steps = source_steps(fetch, steps);
     match (request, result.body) {
         (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
             biodata::ErrorEnvelope::arguments(),
@@ -350,7 +347,6 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
     )
 }
 
-<<<<<<< HEAD
 fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
     let disabled = biomcp_adapters::registry::SOURCES
         .iter()
@@ -386,7 +382,8 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
         ),
         Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
     }
-=======
+}
+
 fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
     for (reason, setting) in [
         (biodata::Reason::Tls, "ca_bundle"),
@@ -403,5 +400,4 @@ fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutco
         }
     }
     steps.truncate(5);
->>>>>>> main
 }

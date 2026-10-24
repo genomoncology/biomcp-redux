@@ -229,11 +229,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
-<<<<<<< HEAD
     trials.extend(source_controls::trials());
-=======
+
     trials.extend(corporate::trials());
->>>>>>> main
     trials.extend(markdown::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
