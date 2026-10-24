@@ -1,8 +1,4 @@
 //! Public checked query boundaries used by CLI and MCP.
-#![expect(
-    clippy::unwrap_used,
-    reason = "Contract fixture values are checked at setup"
-)]
 use biodata::{GeneGet, GeneInput, GeneSearch, Text};
 use serde_json::json;
 #[test]

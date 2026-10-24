@@ -7,4 +7,6 @@ pub struct Ctx<'a> {
     pub fetch: &'a Fetch,
     /// Absolute command budget shared by source legs.
     pub budget: Duration,
+    /// Bypass cached reads on this request only.
+    pub fresh: bool,
 }

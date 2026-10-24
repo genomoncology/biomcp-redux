@@ -8,7 +8,7 @@ use biomcp_adapters::{hgnc, mygene};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
-    let leg = cx.fetch.leg(&hgnc::SPEC, deadline);
+    let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let mut hgnc_error = None;
     let mut local = None;
@@ -56,7 +56,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         })
         .collect();
     if !ids.is_empty() {
-        let leg = cx.fetch.leg(&mygene::SPEC, deadline);
+        let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
         let batches = mygene::genes(&leg, &ids);
         let mut error = None;
         for batch in batches {

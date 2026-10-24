@@ -1,5 +1,4 @@
 //! Section state wire contract before the first section consumer arrives.
-#![expect(clippy::unwrap_used, reason = "Checked wire examples must round trip")]
 use biodata::{Reason, Section, Source, SourceRecord, Text};
 #[test]
 fn every_section_state_round_trips_without_conflating_data_and_failure() {

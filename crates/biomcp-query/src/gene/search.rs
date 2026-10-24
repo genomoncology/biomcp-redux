@@ -8,7 +8,10 @@ use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
-    let leg = cx.fetch.leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget));
+    let leg = cx
+        .fetch
+        .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
+        .fresh(cx.fresh);
     let mut problems = Vec::new();
     let result = collect(&leg, query, &mut problems);
     let error = result.as_ref().err().copied();

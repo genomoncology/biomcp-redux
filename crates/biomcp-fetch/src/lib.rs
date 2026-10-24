@@ -189,6 +189,7 @@ impl Fetch {
             no_key,
             report: std::sync::Arc::new(std::sync::Mutex::new(LegReport::default())),
             nested_batch: false,
+            fresh: matches!(self.config.mode, Mode::Live { fresh: true }),
         }
     }
 }
@@ -208,6 +209,7 @@ pub struct Leg<'a> {
     no_key: bool,
     report: std::sync::Arc<std::sync::Mutex<LegReport>>,
     nested_batch: bool,
+    fresh: bool,
 }
 
 /// Request policy for live provider access.
@@ -246,6 +248,12 @@ pub struct LegReport {
     pub failures: Vec<SourceError>,
 }
 impl Leg<'_> {
+    /// Bypass cached reads and stale fallback for this leg and its batch children.
+    /// The process policy cannot be weakened by a call.
+    pub fn fresh(mut self, fresh: bool) -> Self {
+        self.fresh |= fresh;
+        self
+    }
     pub(crate) fn budget(&self) -> Deadline<'_> {
         self.deadline.bind(self.clock.as_ref())
     }

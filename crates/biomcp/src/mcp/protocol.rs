@@ -68,5 +68,5 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
 pub(super) fn outcome(outcome: &crate::command::Outcome) -> Value {
     json!({"structuredContent":outcome.value,
         "content":[{"type":"text","text":outcome.value.to_string()}],
-        "isError":!matches!(outcome.status, crate::exit::Status::Success)})
+        "isError":!matches!(outcome.status, crate::exit::Status::Success | crate::exit::Status::Absent)})
 }

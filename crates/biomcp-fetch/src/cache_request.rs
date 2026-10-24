@@ -31,7 +31,7 @@ impl Leg<'_> {
             return live().map(|(reply, _, _)| reply);
         };
         let mut stale = None;
-        if self.fetch.config.mode == (Mode::Live { fresh: false }) {
+        if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, key, codec)? {
                 Some(Checked::Positive(reply, true)) => return Ok(reply),
                 Some(Checked::Positive(reply, false)) => stale = Some(reply),

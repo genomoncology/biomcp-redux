@@ -18,8 +18,11 @@ fn main() -> ExitCode {
         globals.remove(position);
         let mut probe = vec!["get".into(), "gene".into(), "BRAF".into()];
         probe.extend_from_slice(&globals);
-        if grammar::parse(&probe).is_ok() {
-            return exit::finish(mcp::serve(globals), exit::Status::Success);
+        if let Ok(parsed) = grammar::parse(&probe) {
+            return exit::finish(
+                mcp::serve(globals, config::fetch(&parsed.globals)),
+                exit::Status::Success,
+            );
         }
     }
     match command::dispatch(&args) {

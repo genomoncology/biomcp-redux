@@ -113,6 +113,7 @@ impl Leg<'_> {
 
     fn branch(&self) -> Leg<'_> {
         Leg {
+            fresh: self.fresh,
             fetch: self.fetch,
             spec: self.spec,
             deadline: self.deadline,

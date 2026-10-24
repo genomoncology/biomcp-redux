@@ -109,17 +109,14 @@ impl Leg<'_> {
         if offline && old.is_none() {
             return Err(self.failure(biodata::Reason::Offline, None).into());
         }
-        let forced = replay
-            || matches!(
-                self.fetch.config.mode,
-                Mode::Record { .. } | Mode::Live { fresh: true }
-            );
+        let forced = replay || self.fresh || matches!(self.fetch.config.mode, Mode::Record { .. });
         if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {
                 Ok(_) => {}
                 Err(RequestError::Source(error))
                     if old.is_some()
-                        && matches!(self.fetch.config.mode, Mode::Live { fresh: false }) =>
+                        && matches!(self.fetch.config.mode, Mode::Live { .. })
+                        && !self.fresh =>
                 {
                     let mut report = self
                         .report
