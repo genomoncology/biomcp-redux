@@ -62,14 +62,6 @@
       ],
       "type": "string"
     },
-    "AssertionSource": {
-      "description": "Native assertion provider.",
-      "enum": [
-        "clinvar",
-        "erepo"
-      ],
-      "type": "string"
-    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -81,14 +73,6 @@
         " Genome Reference Consortium human build 37.",
         " Genome Reference Consortium human build 38."
       ]
-    },
-    "CivicClaimKind": {
-      "description": "CIViC native claim collection.",
-      "enum": [
-        "evidence",
-        "assertions"
-      ],
-      "type": "string"
     },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
@@ -220,19 +204,7 @@
         "diseases",
         "summary"
       ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Intact criteria and structured age/sex fields.",
-        " Primary, secondary and other outcome records.",
-        " Arms and interventions with original relationships.",
-        " Whole source sites with their attached contacts.",
-        " Central contacts and overall officials in their original roles.",
-        " Registry publication identities and native reference types.",
-        " Posted document metadata and source URLs.",
-        " Every implemented trial section, each with independent continuations.",
-        " Native NCI disease concepts, including source enrichment metadata.",
-        " Complete NCI summary, paged by original character offsets."
-      ]
+      "type": "string"
     },
     "TrialSex": {
       "description": "Source-native registry value.",
@@ -282,104 +254,12 @@
         "variantvalidator"
       ],
       "type": "string"
-    },
-    "VariantSection": {
-      "description": "Named variant source sections, without automatic expansion of identity cards.",
-      "enum": [
-        "clinvar",
-        "erepo",
-        "population",
-        "gwas",
-        "civic",
-        "hotspots",
-        "predict",
-        "conservation",
-        "cosmic",
-        "oncokb",
-        "all"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " ClinVar native assertions.",
-        " ClinGen evidence repository assertions.",
-        " gnomAD population frequencies.",
-        " GWAS Catalog associations.",
-        " CIViC molecular-profile evidence.",
-        " Cancer Hotspots native residues and counts.",
-        " MyVariant source predictor scores.",
-        " MyVariant conservation scores.",
-        " Historical COSMIC fields carried by MyVariant.",
-        " Keyed OncoKB annotation with explicit tumor context and build.",
-        " Every implemented variant section."
-      ]
     }
   },
   "$id": "biodata.request/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
-    {
-      "additionalProperties": false,
-      "description": "Page source variant assertions.",
-      "properties": {
-        "assertion": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native assertion accession or document ID."
-        },
-        "command": {
-          "const": "variant_assertions",
-          "type": "string"
-        },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
-          "x-positional": 0
-        },
-        "limit": {
-          "default": 3,
-          "description": "Assertions per page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Assertions to skip in source order.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "source": {
-          "$ref": "#/$defs/AssertionSource",
-          "description": "One native source; no fallback or text search."
-        },
-        "version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Selected record version, never borrowed from another record."
-        }
-      },
-      "required": [
-        "command",
-        "input",
-        "source"
-      ],
-      "type": "object"
-    },
     {
       "additionalProperties": false,
       "description": "Read a published variant identifier.",
@@ -394,37 +274,6 @@
             }
           ],
           "description": "Required for chromosome notation; no assembly is guessed."
-        },
-        "civic_cursor": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC cursor, retained unchanged."
-        },
-        "civic_kind": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/CivicClaimKind"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC claim collection within the selected profile."
-        },
-        "civic_profile": {
-          "description": "Selected CIViC molecular profile for native claim paging.",
-          "format": "uint64",
-          "minimum": 1,
-          "type": [
-            "integer",
-            "null"
-          ]
         },
         "command": {
           "const": "get_variant",
@@ -454,40 +303,6 @@
           "$ref": "#/$defs/VariantResolver",
           "default": "car",
           "description": "Resolver for reference-qualified notation; never repairs the input locally."
-        },
-        "section": {
-          "description": "Named source sections; omitted by default.",
-          "items": {
-            "$ref": "#/$defs/VariantSection"
-          },
-          "type": "array",
-          "x-positional": 1
-        },
-        "section_limit": {
-          "default": 3,
-          "description": "Rows per named source section page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "section_offset": {
-          "default": 0,
-          "description": "Source rows to skip independently of identity candidate paging.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "tumor_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Explicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [
@@ -552,7 +367,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page; text fragments follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -560,7 +375,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -570,7 +385,7 @@
           "description": "Checked stored source record, supplied by a continuation."
         },
         "section": {
-          "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
+          "description": "Optional intact source sections. The default returns cards only.",
           "items": {
             "$ref": "#/$defs/TrialSection"
           },
@@ -613,7 +428,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Text",
-          "description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
+          "description": "Literal eligibility-field discovery text."
         },
         "distance": {
           "$ref": "#/$defs/Text",
@@ -625,7 +440,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
+          "description": "Resolve one checked gene before registry discovery."
         },
         "has_results": {
           "default": false,
@@ -707,7 +522,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Text",
-          "description": "Literal variant text for registry discovery only; no eligibility judgment."
+          "description": "Caller-supplied variant discovery text; no eligibility inference."
         }
       },
       "required": [
@@ -1213,7 +1028,7 @@
         },
         "since": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date."
+          "description": "Inclusive lower publication-date bound at the stated precision."
         },
         "sort": {
           "$ref": "#/$defs/ArticleSort",
@@ -1243,7 +1058,7 @@
         },
         "until": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date."
+          "description": "Inclusive upper publication-date bound at the stated precision."
         },
         "variant": {
           "$ref": "#/$defs/Text",
