@@ -285,3 +285,7 @@ fn candidate_page(
         truncated: None,
     })
 }
+
+mod gwas;
+mod population;
+pub(crate) mod population_detail;

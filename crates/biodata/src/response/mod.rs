@@ -106,3 +106,7 @@ pub use variant_assertions::{
 
 mod variant_oncokb;
 pub use variant_oncokb::{OncokbVariantRecord, VariantOncokb};
+
+pub use variant_population::VariantPopulationResult;
+
+pub use variant_population::GwasTrait;
