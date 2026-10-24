@@ -1,0 +1,65 @@
+{
+  "live_check": "public",
+  "feature": "article-litvar",
+  "story": "Citation ordering keeps the landmark paper within the stated native source pool",
+  "replay": "article/litvar/akt1-rsid-citations",
+  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim. Enlarged landmark-check page measured 11190 bytes; bounds add15percent. Seeded source reply cache from existing recordings; only new ESummary identifier sets were requested.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--variant",
+        "rs121434592",
+        "--source",
+        "litvar",
+        "--sort",
+        "citations"
+      ],
+      "max_bytes": 4675,
+      "max_tokens": 1169,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1590
+      },
+      "mcp": [
+        "search",
+        "article",
+        "--variant",
+        "rs121434592",
+        "--source",
+        "litvar",
+        "--sort",
+        "citations"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--variant",
+        "rs121434592",
+        "--source",
+        "litvar",
+        "--sort",
+        "citations",
+        "--limit",
+        "30"
+      ],
+      "max_bytes": 12869,
+      "max_tokens": 3218,
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/pmid": {
+          "includes": "17611497"
+        },
+        "/result/items": {
+          "count": 30
+        },
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      }
+    }
+  ]
+}

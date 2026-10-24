@@ -14,6 +14,7 @@ gene-retired: A caller using a retired gene spelling receives its fixed replacem
 article-search: A caller walks a stable PubMed relevance window with totals, checked gene terms and explicit failures. Cases: `tests/cases/article/search/*.yaml`.
 article-filters: A caller narrows article results by author, journal, dates and publication type before paging. Cases: `tests/cases/article/filters/*.yaml`.
 article-fold: A caller combines PubMed and Europe PMC results while retaining each source's native rank and missing-source outcomes. Cases: `tests/cases/article/fold/*.yaml`.
+article-litvar: A caller selects an exact variant, receives source candidates for ambiguity and combines its publications with other article sources in a stable pool. Cases: `tests/cases/article/litvar/*.yaml`, `crates/biomcp/tests/runner/litvar_tables.rs`.
 article-get: A caller retrieves article cards by PMID, PMCID or checked DOI with complete abstracts and retraction links. Cases: `tests/cases/article/get/*.yaml`.
 article-sections: A caller requests indexing and normalized entity annotations while preserving the article card when a source fails. Cases: `tests/cases/article/sections/*.yaml`.
 article-citations: A caller sorts by iCite citation counts and walks citing or referenced papers with explicit missing counts. Cases: `tests/cases/article/citations/*.yaml`.

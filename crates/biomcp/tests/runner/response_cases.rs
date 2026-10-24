@@ -15,9 +15,21 @@ pub(super) fn case(
 pub(super) fn checked_case(
     capture: &str,
     args: &[&str],
-    mut change: impl FnMut(&str, &mut Value),
+    change: impl FnMut(&str, &mut Value),
     expect: Value,
     exit: i32,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    checked_steps(
+        capture,
+        change,
+        json!([{"run": args, "expect": expect, "exit": exit}]),
+    )
+}
+
+pub(super) fn checked_steps(
+    capture: &str,
+    mut change: impl FnMut(&str, &mut Value),
+    steps: Value,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = tempfile::tempdir()?;
     let recordings = directory.path().join("recordings");
@@ -29,7 +41,7 @@ pub(super) fn checked_case(
             "feature": "gene-commands",
             "story": "A checked command keeps valid source facts and reports malformed siblings",
             "replay": recordings,
-            "steps": [{"run": args, "expect": expect, "exit": exit}]
+            "steps": steps
         }))?,
     )?;
     Ok(super::run_case(

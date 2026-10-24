@@ -3,7 +3,7 @@ use biodata::{
     ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
     SourceState, Status, Text,
 };
-use biomcp_adapters::{europepmc, pubmed};
+use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use std::time::Duration;
 struct ResultLeg {
@@ -17,24 +17,37 @@ pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     pubmed_term: &str,
+    gene: Option<&str>,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
+    let mut prepared = prepare_litvar(cx, query, gene, deadline, out);
+    if out.status == Status::Absent {
+        return Ok(None);
+    }
     let epmc_term = term(query);
     let start = *deadline;
-    let results = fan_out::run(
-        query
-            .sources()
-            .iter()
-            .map(|selector| {
-                let epmc_term = &epmc_term;
-                Box::new(move || match selector {
-                    ArticleSource::Pubmed => pubmed_search(cx, query, pubmed_term, start),
-                    ArticleSource::Europepmc => europe_search(cx, query, epmc_term, start),
-                }) as Box<dyn FnOnce() -> ResultLeg + Send>
-            })
-            .collect(),
-    );
+    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = query
+        .sources()
+        .iter()
+        .filter_map(|selector| {
+            let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
+                ArticleSource::Pubmed => {
+                    Box::new(move || pubmed_search(cx, query, pubmed_term, start))
+                }
+                ArticleSource::Europepmc => {
+                    let term = &epmc_term;
+                    Box::new(move || europe_search(cx, query, term, start))
+                }
+                ArticleSource::Litvar => {
+                    let prepared = prepared.take()?;
+                    Box::new(move || litvar_search(prepared))
+                }
+            };
+            Some(job)
+        })
+        .collect();
+    let results = fan_out::run(jobs);
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
     let failed_pubmed = results.iter().any(|r| {
@@ -169,6 +182,84 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
     parts.join(" AND ")
+}
+
+type PreparedLitvar<'a> = (biomcp_fetch::Leg<'a>, Result<litvar::Variant, RequestError>);
+fn prepare_litvar<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    gene: Option<&str>,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Option<PreparedLitvar<'a>> {
+    if !query.sources().contains(&ArticleSource::Litvar) {
+        return None;
+    }
+    let leg = cx.fetch.leg(&litvar::SPEC, *deadline).fresh(cx.fresh);
+    let start = leg.remaining();
+    let result = litvar::select(&leg, gene, query.variant().map_or("", Text::as_str));
+    *deadline = super::consume(*deadline, start, leg.remaining());
+    match result {
+        Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
+        Err(error) => Some((leg, Err(error))),
+        Ok(litvar::Selection::Candidates(candidates)) => {
+            out.status = Status::Absent;
+            out.sources
+                .push(status::source(Source::LitVar, leg.finish(), None));
+            for candidate in &candidates {
+                out.next.push((
+                    biodata::StepKind::Disambiguate,
+                    crate::Action::Run {
+                        request: biodata::Request::SearchArticle(
+                            query.with_variant(candidate.rsid.clone()),
+                        ),
+                        fresh: cx.fresh,
+                    },
+                ));
+            }
+            out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage {
+                items: Box::default(),
+                candidates,
+            });
+            None
+        }
+    }
+}
+fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
+    let start = leg.remaining();
+    let term = selected
+        .as_ref()
+        .ok()
+        .map(|selected| selected.rsid().clone());
+    let result = selected.and_then(|selected| litvar::publications(&leg, selected));
+    let elapsed = start.saturating_sub(leg.remaining());
+    let error = result.as_ref().err().copied();
+    let mut outcome = status::source(Source::LitVar, leg.finish(), error);
+    outcome.term = term;
+    let items = match result {
+        Ok(litvar::Search { rsid, count, ids }) => {
+            outcome.term = Some(rsid);
+            outcome.count = Some(count);
+            outcome.fetched = Some(ids.len() as u32);
+            ids.into_iter()
+                .map(|id| ArticleItem {
+                    key: ArticleKey::Pubmed(id),
+                    pmid: Some(id),
+                    header: None,
+                    cited_by: None,
+                    found_by: Default::default(),
+                })
+                .collect()
+        }
+        Err(_) => Vec::new(),
+    };
+    ResultLeg {
+        source: ArticleSource::Litvar,
+        outcome,
+        items,
+        elapsed,
+        error,
+    }
 }
 
 // Structured selectors are literal field values, not additional query syntax.
