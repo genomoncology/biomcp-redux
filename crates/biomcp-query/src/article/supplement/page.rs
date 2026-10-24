@@ -1,3 +1,4 @@
+mod fragments;
 use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_adapters::sheet;
@@ -6,7 +7,6 @@ use biomcp_types::{
     ArticleSupplement, PageInfo, Reason, Request, SheetInfo, SheetRow, StepKind, SupplementContent,
 };
 const PAGE_BYTES: usize = 4000;
-const FRAGMENT_BYTES: usize = 1000;
 struct Page {
     offset: u32,
     total: u32,
@@ -65,31 +65,25 @@ pub(super) fn select(
         full: false,
         end,
     };
-    for sheet in sheets {
-        if query.sheet().is_some_and(|v| v.as_str() != sheet.name) {
-            continue;
+    if needles.is_empty() {
+        collect(query, sheets, &needles, None, &mut page)?;
+    } else {
+        collect(query, sheets, &needles, Some(true), &mut page)?;
+        // A search page spends its budget on matches before returning context.
+        // The remaining fragments keep their source coordinates and page offsets.
+        if !page.rows.is_empty() {
+            page.full = true;
         }
-        let header = sheet
-            .rows
-            .first()
-            .filter(|r| r.number == 1)
-            .map(|r| r.cells.as_slice())
-            .unwrap_or(&[]);
-        let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;
-        for row in &sheet.rows {
-            if end.expired() {
-                return Err(Reason::DeadlineExceeded);
-            }
-            let included = if let Some(range) = query.rows() {
-                row.number >= range.start() && row.number <= range.end()
-            } else {
-                row.cells
-                    .iter()
-                    .any(|v| needles.iter().any(|n| v.to_lowercase().contains(n)))
-            };
-            if included {
-                fragments(&mut page, name.clone(), row, header)?;
-            }
+        collect(query, sheets, &needles, Some(false), &mut page)?;
+        if !page.rows.iter().any(|r| fragments::matches(r, &needles)) {
+            content.search_message = Some(
+                if page.total == 0 {
+                    "No row contains the search term."
+                } else {
+                    "No row fragment on this page contains the search term."
+                }
+                .into(),
+            );
         }
     }
     if query.offset() > page.total {
@@ -119,67 +113,39 @@ pub(super) fn select(
     content.rows = Some(page.rows.into());
     Ok(true)
 }
-fn fragments(
-    out: &mut Page,
-    sheet: Text,
-    row: &sheet::Row,
-    header: &[String],
+fn collect(
+    query: &ArticleSupplement,
+    sheets: &[sheet::Sheet],
+    needles: &[String],
+    matching: Option<bool>,
+    page: &mut Page,
 ) -> Result<(), Reason> {
-    let simple = SheetRow {
-        sheet: sheet.clone(),
-        row: row.number,
-        header: header.into(),
-        cells: row.cells.clone().into(),
-        fragment: None,
-    };
-    if serde_json::to_vec(&simple).is_ok_and(|v| v.len() <= FRAGMENT_BYTES) {
-        return out.push(simple);
-    }
-    // Preserve every original column and character through explicit sparse fragments.
-    for (is_header, cells) in [(true, header), (false, row.cells.as_slice())] {
-        for (column, value) in cells.iter().enumerate() {
-            let mut offset = 0;
-            for chunk in chunks(value) {
-                let length = chunk.chars().count() as u32;
-                out.push(SheetRow {
-                    sheet: sheet.clone(),
-                    row: row.number,
-                    header: Box::default(),
-                    cells: Box::default(),
-                    fragment: Some(biomcp_types::CellFragment {
-                        header: is_header,
-                        column: column as u32 + 1,
-                        offset,
-                        text: chunk,
-                    }),
-                })?;
-                offset += length;
+    for sheet in sheets {
+        if query.sheet().is_some_and(|v| v.as_str() != sheet.name) {
+            continue;
+        }
+        let header = sheet
+            .rows
+            .first()
+            .filter(|r| r.number == 1)
+            .map(|r| r.cells.as_slice())
+            .unwrap_or(&[]);
+        let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;
+        for row in &sheet.rows {
+            if page.end.expired() {
+                return Err(Reason::DeadlineExceeded);
+            }
+            let included = if let Some(range) = query.rows() {
+                row.number >= range.start() && row.number <= range.end()
+            } else {
+                row.cells.iter().any(|v| fragments::contains(v, needles))
+            };
+            if included {
+                fragments::push(page, name.clone(), row, header, needles, matching)?;
             }
         }
     }
     Ok(())
-}
-fn chunks(value: &str) -> Vec<String> {
-    let mut chunks = Vec::new();
-    let mut chunk = String::new();
-    let mut bytes = 0;
-    for c in value.chars() {
-        let cost = if c == '"' || c == '\\' || c.is_control() {
-            6
-        } else {
-            c.len_utf8()
-        };
-        if bytes + cost > FRAGMENT_BYTES && !chunk.is_empty() {
-            chunks.push(std::mem::take(&mut chunk));
-            bytes = 0;
-        }
-        chunk.push(c);
-        bytes += cost;
-    }
-    if !chunk.is_empty() || chunks.is_empty() {
-        chunks.push(chunk);
-    }
-    chunks
 }
 
 fn overview(

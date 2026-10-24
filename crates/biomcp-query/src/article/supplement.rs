@@ -116,6 +116,7 @@ fn execute<'a>(
 fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementContent {
     SupplementContent {
         saved: None,
+        search_message: None,
         license,
         sha256: None,
         url: None,

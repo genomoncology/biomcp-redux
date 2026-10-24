@@ -115,6 +115,9 @@ pub struct SupplementContent {
     /// Selected original rows.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rows: Option<Box<[SheetRow]>>,
+    /// Explicit absence of matching text from the returned search page.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub search_message: Option<String>,
     /// Explicit variant spellings searched.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forms: Option<[String; 4]>,
