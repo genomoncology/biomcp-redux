@@ -1,1 +1,0 @@
-{"feature":"article-semantic-sections","story":"A missing Semantic Scholar reply leaves the PubMed card intact and reports an unavailable TLDR.","replay":"article/annotations/live","steps":[{"run":["get","article","33123537","tldr"],"expect":{"/result/items/0/status":"partial","/result/items/0/sections/tldr/state":"unavailable","/result/items/0/answer/card/pmid":"33123537"}}]}
