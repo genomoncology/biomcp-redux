@@ -80,9 +80,14 @@ fn outgoing() -> Result<(), String> {
     std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({
         "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),
-        "keys":{"semantic_scholar_api_key":"placeholder-scholar-key"}
     }))
     .map_err(|e| e.to_string())?;
+    super::key_registration::invoke(
+        &env,
+        &["key", "set", "semantic-scholar"],
+        "placeholder-scholar-key\n",
+        0,
+    )?;
     let capture = env.root().join("capture");
     let args = vec![
         "search".into(),

@@ -78,7 +78,21 @@ impl Server {
     pub(super) fn start() -> Result<Self, String> {
         Self::configured("127.0.0.1:0", None, true)
     }
+    pub(super) fn environment(&self) -> &Environment {
+        &self._environment
+    }
+    pub(super) fn keys(config: Value, key: Option<&str>) -> Result<Self, String> {
+        Self::configured_key("127.0.0.1:0", Some(config), false, key)
+    }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
+        Self::configured_key(bind, config, replay, None)
+    }
+    fn configured_key(
+        bind: &str,
+        config: Option<Value>,
+        replay: bool,
+        key: Option<&str>,
+    ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
         if let Some(config) = config {
             environment.config(&config).map_err(|e| e.to_string())?;
@@ -91,8 +105,11 @@ impl Server {
                 false,
             ));
         }
-        let child = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+        if let Some(key) = key {
+            command.env("SEMANTIC_SCHOLAR_API_KEY", key);
+        }
+        let child = command
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::piped())
@@ -129,7 +146,12 @@ impl Server {
         Ok(server)
     }
 
-    fn request(&self, method: &str, path: &str, body: &str) -> Result<(u16, Value), String> {
+    pub(super) fn request(
+        &self,
+        method: &str,
+        path: &str,
+        body: &str,
+    ) -> Result<(u16, Value), String> {
         let value = serde_json::from_str::<Value>(body).ok();
         let method_header = value
             .as_ref()
