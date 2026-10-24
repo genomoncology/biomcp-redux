@@ -124,7 +124,11 @@ fn rejects(path: &str, content: &str, rule: &str) -> Check {
 #[test]
 fn quirks_require_cases_inside_case_directory() -> Check {
     let tree = tree()?;
-    put(tree.path(), "tests/cases/gene/example.yaml", "case: example")?;
+    put(
+        tree.path(),
+        "tests/cases/gene/example.yaml",
+        "case: example",
+    )?;
     let source = "crates/biodata/src/lib.rs";
     put(tree.path(), source, "// Quirk: gene/example.yaml\n")?;
     check(tree.path())?;
