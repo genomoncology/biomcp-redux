@@ -14,12 +14,12 @@
           "includes": "constraint"
         },
         "/next/0/kind": "section",
-        "/next/0/args": [
-          "get",
-          "gene",
-          "HGNC:11998",
-          "constraint"
-        ]
+        "/next/0/args": {
+          "includes": "constraint"
+        },
+        "/next/0/args/0": "get",
+        "/next/0/args/1": "gene",
+        "/next/0/args/2": "HGNC:11998"
       },
       "max_bytes": 3600
     },
