@@ -65,3 +65,10 @@ fn label<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Text, D::Error> {
     Text::new(&String::deserialize(d)?)
         .map_err(|_| serde::de::Error::custom(Error::GeneRefLabelEmpty))
 }
+
+impl TryFrom<crate::GeneSymbol> for GeneRef {
+    type Error = Error;
+    fn try_from(symbol: crate::GeneSymbol) -> Result<Self, Error> {
+        Self::new(Text::new(symbol.as_str())?, None, None, None)
+    }
+}

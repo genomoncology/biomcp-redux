@@ -11,6 +11,9 @@ pub(super) struct Hit {
     pub id: biodata::Text,
     pub dbsnp: Option<Dbsnp>,
     pub clinvar: Option<Clinvar>,
+    pub chrom: Option<SourceChromosome>,
+    pub hg19: Option<SourceSpan>,
+    pub hg38: Option<SourceSpan>,
 }
 #[derive(Deserialize)]
 pub(super) struct Dbsnp {
@@ -82,4 +85,17 @@ impl Hit {
             self.id.as_str() == query
         }
     }
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub(super) enum SourceChromosome {
+    Name(biodata::Text),
+    Malformed(serde::de::IgnoredAny),
+}
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub(super) enum SourceSpan {
+    Bounds { start: u64, end: u64 },
+    Malformed(serde::de::IgnoredAny),
 }

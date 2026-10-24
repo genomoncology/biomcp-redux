@@ -2,6 +2,7 @@
 mod map;
 mod raw;
 mod search;
+mod search_build;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -62,7 +63,7 @@ pub fn lookup(
             return Err(leg_bad());
         }
     }
-    Ok(map::candidates(hits, query, build))
+    Ok(map::candidates(hits, query, Some(build)))
 }
 fn leg_bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -105,5 +106,5 @@ fn annotation(
             }
         },
     )?;
-    Ok(map::candidates(vec![hit], id, build))
+    Ok(map::candidates(vec![hit], id, Some(build)))
 }

@@ -146,12 +146,13 @@ fn registry() -> Vec<Contract> {
 }
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
+        Statement => ("statement", "biodata.statement/2"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/2"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/2"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/2"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/2"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/3"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/2"),
     }

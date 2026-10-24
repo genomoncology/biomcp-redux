@@ -181,39 +181,6 @@ impl Leg<'_> {
         }
     }
 
-    /// Send checked JSON from a declared JSON POST endpoint.
-    pub fn post_json<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        body: &B,
-    ) -> Result<T, RequestError> {
-        self.post_json_with_args(ep, &[], body)
-    }
-
-    /// Send a checked JSON body with shared canonical query arguments.
-    pub fn post_json_with_args<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        body: &B,
-    ) -> Result<T, RequestError> {
-        self.validate(ep, true)?;
-        let codec = Decoder::json();
-        let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = if ep.publisher {
-            ep.path.to_string()
-        } else {
-            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
-        };
-        let url = crate::retry::canonical(&url, params, self.spec.key);
-        self.send(
-            ep,
-            Prepared::new(url, body, ep.method, ep.idempotent),
-            codec,
-        )
-        .map(|(reply, _)| reply)
-    }
-
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
         if self.fetch.disabled(self.spec.source) {
             return Err(self.failure(Reason::Disabled, None).into());
@@ -226,7 +193,7 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
+    pub(crate) fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
         self.check_source()?;
         if !std::ptr::eq(self.spec, ep.spec) {
             return Err(self.failure(Reason::Rejected, None).into());
@@ -253,7 +220,7 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn send<T: Reply>(
+    pub(crate) fn send<T: Reply>(
         &self,
         ep: &Endpoint,
         mut prepared: Prepared,

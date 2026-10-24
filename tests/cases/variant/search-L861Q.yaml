@@ -13,7 +13,9 @@
         "--gene",
         "EGFR",
         "--protein",
-        "L861Q"
+        "L861Q",
+        "--build",
+        "GRCh37"
       ],
       "mcp": [
         "search",
@@ -21,19 +23,22 @@
         "--gene",
         "EGFR",
         "--protein",
-        "L861Q"
+        "L861Q",
+        "--build",
+        "GRCh37"
       ],
       "max_bytes": 745,
       "max_tokens": 187,
       "expect": {
-        "/schema": "biomcp.variant_page/2",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/3",
+        "/status": "partial",
         "/query": {
           "equals": {
             "gene": "EGFR",
             "protein": "L861Q",
             "limit": 10,
-            "offset": 0
+            "offset": 0,
+            "build": "GRCh37"
           }
         },
         "/result": {
@@ -53,8 +58,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259524T>A"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ]
                 },
@@ -83,7 +87,9 @@
         "--gene",
         "EGFR",
         "--protein",
-        "L861Q"
+        "L861Q",
+        "--build",
+        "GRCh37"
       ],
       "offline": true,
       "expect": {
@@ -104,8 +110,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259524T>A"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ]
                 },
@@ -123,7 +128,8 @@
             "returned": 1,
             "total": 1
           }
-        }
+        },
+        "/status": "partial"
       }
     }
   ]

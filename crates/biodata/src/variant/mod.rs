@@ -16,3 +16,6 @@ pub use id::{
 };
 mod notation;
 pub use notation::{Expression, ExpressionSyntax, HgvsText};
+
+mod statement;
+pub use statement::*;

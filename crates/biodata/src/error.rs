@@ -2,6 +2,10 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A subject reference lacks its source identity or notation.
+    VariantRefInvalid,
+    /// A concept identifier lacks a checked prefix or local part.
+    CurieInvalid,
     /// The shared grammar refused the value.
     AccessionDigitsWidth,
     /// The shared grammar refused the value.
@@ -136,6 +140,8 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::VariantRefInvalid => "variant.reference.invalid",
+            Self::CurieInvalid => "concept.curie.invalid",
             Self::AccessionDigitsWidth => "accession.digits.width",
             Self::AccessionVersionMissing => "accession.version.missing",
             Self::AccessionVersionLeadingZero => "accession.version.leading_zero",

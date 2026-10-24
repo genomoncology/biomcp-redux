@@ -14,6 +14,9 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
+        Action::QueryHelp(request) => Ok(std::iter::once("help".into())
+            .chain(command_words(request))
+            .collect()),
         Action::Health => Ok(vec!["health".into()]),
         Action::KeyHelp(source) => Ok(vec!["help".into(), "key".into(), source.to_string()]),
         Action::Sync { bundle } => Ok(vec![
@@ -96,7 +99,7 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
         })
 }
 
-fn command_words(request: &Request) -> Vec<String> {
+pub(crate) fn command_words(request: &Request) -> Vec<String> {
     vec![
         match request {
             Request::VariantRecurrence(_) | Request::VariantNormalize(_) => "variant",

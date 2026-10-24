@@ -2,7 +2,7 @@ use crate::{Error, macros::text_value};
 use std::{fmt, str::FromStr};
 /// Published variant identifier grammar, without interpreting the allele expression.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct VariantInput(Box<str>);
+pub struct VariantInput(crate::Text);
 /// Namespace selected solely from the published identifier form.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum VariantNamespace {
@@ -25,12 +25,16 @@ impl VariantInput {
         if value.is_empty() || value.len() > 2048 || !value.bytes().all(|b| b.is_ascii_graphic()) {
             return Err(Error::VariantInputInvalid);
         }
-        let input = Self(value.into());
+        let input = Self(crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?);
         input.namespace()?;
         Ok(input)
     }
     /// Return the unchanged identifier.
     pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+    /// Borrow the already checked input text without reparsing or trimming it.
+    pub fn text(&self) -> &crate::Text {
         &self.0
     }
     /// Classify a published namespace, without parsing molecular meaning.

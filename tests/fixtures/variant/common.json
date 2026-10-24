@@ -640,7 +640,9 @@
     "record": "AID7",
     "subject": {
       "level": "protein",
-      "gene": "BRAF",
+      "gene": {
+        "label": "BRAF"
+      },
       "label": "V600E"
     },
     "condition": "melanoma",

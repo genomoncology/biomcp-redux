@@ -30,8 +30,8 @@
       "max_bytes": 1271,
       "max_tokens": 318,
       "expect": {
-        "/schema": "biomcp.variant_page/2",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/3",
+        "/status": "partial",
         "/query": {
           "equals": {
             "region": "chr7:55259515-55259515",
@@ -56,8 +56,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259515T>A"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -83,8 +82,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259515T>G"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -140,8 +138,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259515T>A"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -167,8 +164,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259515T>G"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -191,7 +187,8 @@
             "returned": 2,
             "total": 4
           }
-        }
+        },
+        "/status": "partial"
       }
     }
   ]

@@ -13,7 +13,9 @@
         "--query",
         "rs113488022",
         "--source",
-        "myvariant"
+        "myvariant",
+        "--build",
+        "GRCh37"
       ],
       "mcp": [
         "search",
@@ -21,19 +23,22 @@
         "--query",
         "rs113488022",
         "--source",
-        "myvariant"
+        "myvariant",
+        "--build",
+        "GRCh37"
       ],
       "max_bytes": 1504,
       "max_tokens": 376,
       "expect": {
-        "/schema": "biomcp.variant_page/2",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/3",
+        "/status": "partial",
         "/query": {
           "equals": {
             "query": "rs113488022",
             "source": "myvariant",
             "limit": 10,
-            "offset": 0
+            "offset": 0,
+            "build": "GRCh37"
           }
         },
         "/result": {
@@ -52,8 +57,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>G"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -79,8 +83,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>T"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -106,8 +109,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>C"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -141,7 +143,9 @@
         "--query",
         "rs113488022",
         "--source",
-        "myvariant"
+        "myvariant",
+        "--build",
+        "GRCh37"
       ],
       "offline": true,
       "expect": {
@@ -161,8 +165,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>G"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -188,8 +191,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>T"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -215,8 +217,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.140453136A>C"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ],
                   "genes": [
@@ -239,7 +240,8 @@
             "returned": 3,
             "total": 3
           }
-        }
+        },
+        "/status": "partial"
       }
     }
   ]

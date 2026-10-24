@@ -1,6 +1,7 @@
 # 0095 — Show OncoKB variant annotation with the user's key
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b62e916cdc94ce80375ef1a880071087d25eaac2
 
 Milestone: 2
 

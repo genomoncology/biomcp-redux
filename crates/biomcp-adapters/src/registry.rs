@@ -16,6 +16,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
+    &crate::hotspots::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
@@ -111,6 +112,7 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant => ("/metadata", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),

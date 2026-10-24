@@ -156,3 +156,16 @@ pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchSource, protein_query_forms,
 };
 pub use response::VariantPage;
+
+pub use query::{CivicClaimKind, VariantSection};
+pub use response::{
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
+    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
+};
+pub use variant::{
+    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
+    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
+    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement,
+    Term, VariantRef,
+};

@@ -52,3 +52,8 @@ trial-help: Discover trial commands through schema-generated help and executable
 
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
+
+variant-civic: Preserve CIViC exact profile membership and separate native claim pages. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
+variant-hotspots: Retain native transcript and residue counts without an inferred variant join. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
+
+variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups. Cases: `crates/biomcp/tests/runner/oncokb.rs`.

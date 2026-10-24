@@ -93,3 +93,15 @@ pub use nci_detail::{
 };
 mod trial_document;
 pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
+
+mod variant_civic;
+pub use variant_civic::{
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    VariantCivic,
+};
+mod variant_hotspots;
+pub use variant::VariantSections;
+pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
+
+mod variant_oncokb;
+pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
