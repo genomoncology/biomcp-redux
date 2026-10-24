@@ -66,7 +66,7 @@ fn connections(listener: TcpListener, service: Arc<Service>, stopped: std::sync:
     loop {
         if stopped.try_recv().is_ok() { break; }
         let stream = match listener.accept() {
-            Ok((stream, _)) => stream,
+            Ok((stream, _)) => { stream.set_nonblocking(false)?; stream },
             Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
                 match stopped.recv_timeout(ACCEPT_POLL) {
                     Ok(()) | Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,

@@ -47,6 +47,7 @@ impl Drop for Server {
 }
 impl Server {
     pub(super) fn stop(&mut self) -> Check {
+        if self.child.try_wait().map_err(|e| e.to_string())?.is_some() { return Ok(()); }
         #[cfg(unix)]
         {
             let args = vec!["-INT".to_owned(), self.child.id().to_string()];
@@ -60,8 +61,7 @@ impl Server {
         let end = std::time::Instant::now() + Duration::from_secs(5);
         loop {
             if let Some(status) = self.child.try_wait().map_err(|e| e.to_string())? {
-                #[cfg(unix)]
-                if !status.success() { return Err(format!("HTTP shutdown: {status}")); }
+                if cfg!(unix) && !status.success() { return Err(format!("HTTP shutdown: {status}")); }
                 return Ok(());
             }
             if std::time::Instant::now() >= end { return Err("HTTP shutdown deadline".into()); }
