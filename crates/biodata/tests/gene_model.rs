@@ -11,24 +11,24 @@ fn round_trip<T: Serialize + DeserializeOwned + PartialEq + Debug>(value: &T) ->
     );
     Ok(())
 }
-fn header() -> GeneHeader {
-    GeneHeader {
-        hgnc_id: HgncId::new(1097).unwrap(),
-        symbol: GeneSymbol::new("BRAF").unwrap(),
-        name: Text::new("BRAF name").unwrap(),
+fn header() -> Result<GeneHeader, Error> {
+    Ok(GeneHeader {
+        hgnc_id: HgncId::new(1097)?,
+        symbol: GeneSymbol::new("BRAF")?,
+        name: Text::new("BRAF name")?,
         locus_group: LocusGroup::ProteinCoding,
         location: None,
         status: GeneStatus::Approved,
         r#match: None,
-    }
+    })
 }
-fn gene() -> Gene {
-    Gene {
-        hgnc_id: HgncId::new(1097).unwrap(),
-        symbol: GeneSymbol::new("BRAF").unwrap(),
+fn gene() -> Result<Gene, Error> {
+    Ok(Gene {
+        hgnc_id: HgncId::new(1097)?,
+        symbol: GeneSymbol::new("BRAF")?,
         entrez_id: None,
         ensembl_id: None,
-        name: Text::new("BRAF name").unwrap(),
+        name: Text::new("BRAF name")?,
         status: GeneStatus::Approved,
         locus_group: LocusGroup::ProteinCoding,
         locus_type: None,
@@ -40,7 +40,7 @@ fn gene() -> Gene {
         mane_select: None,
         spans: Box::new([]),
         summary: None,
-    }
+    })
 }
 #[test]
 fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
@@ -48,7 +48,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         kind: MatchKind::Symbol,
         text: Text::new("BRAF")?,
     };
-    let mut entity = gene();
+    let mut entity = gene()?;
     entity.entrez_id = Some(EntrezGeneId::new(673)?);
     entity.ensembl_id = Some("ENSG00000157764.12".parse()?);
     entity.locus_type = Some(LocusType::GeneWithProteinProduct);
@@ -82,7 +82,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
             r#match: matching,
         },
         GeneResolution::Ambiguous {
-            candidates: vec![header(), header()].into_boxed_slice(),
+            candidates: vec![header()?, header()?].into_boxed_slice(),
         },
         GeneResolution::Withdrawn {
             hgnc_id: HgncId::new(18617)?,
@@ -94,7 +94,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     ] {
         round_trip(&resolution)?;
     }
-    let absent = serde_json::to_value(gene())?;
+    let absent = serde_json::to_value(gene()?)?;
     for field in [
         "locus_type",
         "location",
@@ -114,7 +114,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
             .is_err()
     );
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
-    round_trip(&header())?;
+    round_trip(&header()?)?;
     Ok(())
 }
 #[test]
