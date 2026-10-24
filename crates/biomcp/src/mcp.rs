@@ -106,11 +106,12 @@ impl Server {
             return Ok(Some(protocol::error(Value::Null, -32700, "Parse error")));
         };
         if !protocol::validate(&value) {
-            return Ok(Some(protocol::error(
-                Value::Null,
-                -32600,
-                "Invalid Request",
-            )));
+            let id = value
+                .get("id")
+                .filter(|id| protocol::valid_id(id))
+                .cloned()
+                .unwrap_or(Value::Null);
+            return Ok(Some(protocol::error(id, -32600, "Invalid Request")));
         }
         let method = value
             .get("method")

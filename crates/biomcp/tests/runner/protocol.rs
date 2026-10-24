@@ -105,6 +105,7 @@ fn validation_frames() -> Result<Vec<Value>, String> {
         json!({"name":"biomcp","arguments":{"args":null}}),
     ));
     frames.push(json!({"jsonrpc":"2.0","id":16,"method":"ping","params":[]}));
+    frames.push(json!({"jsonrpc":"2.0", "id":"invalid-method", "method":9}));
     Ok(frames)
 }
 
@@ -137,6 +138,9 @@ fn validation() -> Check {
     {
         return Err(format!("era adapters: {replies:?}"));
     }
+    if reply(&replies, &json!("invalid-method"))?.pointer("/error/code") != Some(&json!(-32600)) {
+        return Err("invalid request must preserve its valid correlation ID".into());
+    }
     let versions = json!(["2026-07-28", "2025-11-25"]);
     if reply(&replies, &json!(1))?.pointer("/result/supportedVersions") != Some(&versions)
         || reply(&replies, &json!(2))?.pointer("/error/data/supported") != Some(&versions)
@@ -147,7 +151,7 @@ fn validation() -> Check {
         .iter()
         .filter(|r| r.pointer("/error/code") == Some(&json!(-32600)))
         .count()
-        != 3
+        != 4
     {
         return Err("invalid IDs and batch must be refused".into());
     }
