@@ -310,7 +310,7 @@ impl ArticleSearch {
     }
 }
 
-crate::response::wire_enum! {
+crate::macros::wire_enum! {
     /// Source capability selectors checked before any lookup or transport request.
     ArticleFilter {
         /// Free text.
