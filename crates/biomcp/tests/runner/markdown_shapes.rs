@@ -15,7 +15,7 @@ struct Shape {
     max_bytes: usize,
 }
 // Measured Markdown plus 15%; the protein ceiling also respects the matching
-// 0.9 JSON baseline. Reader and usage shapes have no comparable old output.
+// 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "gene", "BRAF"],
@@ -96,7 +96,7 @@ const SHAPES: &[Shape] = &[
             "p.Pro245Ser",
             "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",
         ],
-        max_bytes: 0,
+        max_bytes: 4934,
     },
     Shape {
         args: &["get", "gene"],
