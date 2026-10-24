@@ -1,7 +1,7 @@
 use super::gene::{QueryInvalid, present};
 use crate::{NctId, Text, TrialSource};
 use serde::{Deserialize, Serialize};
-/// Retrieve exact trial cards and bounded source sections in input order.
+/// Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -14,7 +14,7 @@ struct Fields {
     /// One to twenty exact NCT identifiers, in caller order.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[NctId]>,
-    /// Optional intact source sections. The default returns cards only.
+    /// Optional intact source sections. Default cards only; diseases and summary require NCI. NCI references and documents are unsupported.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,

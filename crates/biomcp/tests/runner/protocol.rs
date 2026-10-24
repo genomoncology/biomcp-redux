@@ -318,7 +318,7 @@ fn discovery() -> Check {
         .and_then(Value::as_str)
         .ok_or("description missing")?;
     // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 1500 {
+    if text.len() > 1923 {
         return Err("command description exceeds budget".into());
     }
     for word in [

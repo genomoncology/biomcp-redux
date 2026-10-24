@@ -45,7 +45,10 @@
           "--updated-since",
           "--updated-until",
           "--variant"
-        ]
+        ],
+        "/result/commands/0/arguments/6/description": "Resolve one checked gene for registry text discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/25/description": "Literal variant text for registry discovery only; no eligibility judgment.",
+        "/result/commands/0/arguments/3/description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
       },
       "max_bytes": 10000
     },
