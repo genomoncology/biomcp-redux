@@ -64,4 +64,4 @@ pub use article::{
 };
 
 mod trial;
-pub use trial::TrialPage;
+pub use trial::{TrialPage, TrialParameter};

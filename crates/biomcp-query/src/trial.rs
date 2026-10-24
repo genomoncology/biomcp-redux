@@ -57,7 +57,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         }
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
-        body.request = params;
+        body.request = params
+            .into_iter()
+            .map(|(name, value)| biodata::TrialParameter { name, value })
+            .collect();
         body.source_updated = version.ok();
     }
     if matches!(

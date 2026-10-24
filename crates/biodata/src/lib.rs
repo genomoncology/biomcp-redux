@@ -92,4 +92,5 @@ pub use query::PhaseFilter;
 pub use query::SponsorType;
 pub use query::TrialSearch;
 pub use response::TrialPage;
+pub use response::TrialParameter;
 pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
