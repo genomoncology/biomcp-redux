@@ -52,7 +52,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleText(_) | Request::ArticleCitations(_) | Request::ArticleReferences(_) => "article",
+            Request::ArticleText(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => "article",
             Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }

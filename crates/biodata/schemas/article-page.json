@@ -107,6 +107,15 @@
       "additionalProperties": false,
       "description": "One original pool position, including a summary hole.",
       "properties": {
+        "cited_by": {
+          "description": "iCite citing-paper count, only under citation ordering.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "found_by": {
           "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
@@ -341,7 +350,7 @@
         "sort": {
           "$ref": "#/$defs/ArticleSort",
           "default": "rank",
-          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\nBoth pubmed and europepmc support rank and date."
+          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\ncitations: most cited first; costs about 1 s per 1,000 PMIDs.\nAll sources support citations."
         },
         "source": {
           "default": [
@@ -380,7 +389,8 @@
       "description": "Article ordering supported by this command.",
       "enum": [
         "rank",
-        "date"
+        "date",
+        "citations"
       ],
       "type": "string"
     },
@@ -654,6 +664,7 @@
         "pubmed",
         "europepmc",
         "pmc-oa",
+        "icite",
         "pubtator",
         "ctgov",
         "civic",
@@ -671,6 +682,7 @@
         " PubMed.",
         " Europe PMC.",
         " PMC Open Access bucket.",
+        " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",
@@ -818,6 +830,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",

@@ -104,18 +104,18 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
     match (request, result.body) {
-                (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
-                    biodata::ErrorEnvelope::arguments(),
-                    crate::exit::Status::Usage,
-                ),
-                (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
-                    let mut envelope = Envelope::new(result.status, query, Some(body));
-                    envelope.sources = result.sources;
-                    envelope.problems = result.problems;
-                    envelope.next = steps;
-                    envelope.page = result.page;
-                    encode(envelope, status)
-                }
+        (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
+            biodata::ErrorEnvelope::arguments(),
+            crate::exit::Status::Usage,
+        ),
+        (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
+            let mut envelope = Envelope::new(result.status, query, Some(body));
+            envelope.sources = result.sources;
+            envelope.problems = result.problems;
+            envelope.next = steps;
+            envelope.page = result.page;
+            encode(envelope, status)
+        }
 
         (_, QueryBody::TooManyPmids { count }) => encode(
             biodata::ErrorEnvelope::too_many_pmids(count),

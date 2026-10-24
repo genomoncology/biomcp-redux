@@ -1,7 +1,7 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
-pub(crate) mod fulltext;
 mod citations;
+pub(crate) mod fulltext;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
@@ -16,16 +16,36 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                annotations: (selected(query, ArticleSectionWord::Annotations) && card.pmid.is_none()).then_some(Section::NotApplicable),
-                citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none()).then_some(Section::NotApplicable),
-                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none()).then_some(Section::NotApplicable),
+                annotations: (selected(query, ArticleSectionWord::Annotations)
+                    && card.pmid.is_none())
+                .then_some(Section::NotApplicable),
+                citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none())
+                    .then_some(Section::NotApplicable),
+                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none())
+                    .then_some(Section::NotApplicable),
             });
         }
         item.more = [
-            (ArticleSectionWord::Annotations, ArticleSection::Annotations, card.pmid.is_some()),
-            (ArticleSectionWord::Fulltext, ArticleSection::Fulltext, card.pmcid.is_some()),
-            (ArticleSectionWord::Citations, ArticleSection::Citations, card.pmid.is_some()),
-        ].into_iter().filter(|(word, _, available)| *available && !selected(query, *word)).map(|(_, section, _)| section).collect();
+            (
+                ArticleSectionWord::Annotations,
+                ArticleSection::Annotations,
+                card.pmid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Fulltext,
+                ArticleSection::Fulltext,
+                card.pmcid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Citations,
+                ArticleSection::Citations,
+                card.pmid.is_some(),
+            ),
+        ]
+        .into_iter()
+        .filter(|(word, _, available)| *available && !selected(query, *word))
+        .map(|(_, section, _)| section)
+        .collect();
     }
     requested
 }
