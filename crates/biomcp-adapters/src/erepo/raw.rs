@@ -91,6 +91,8 @@ impl Record {
         };
         let conditions = match self.condition {
             Some(label) => vec![AssertionCondition {
+                database: None,
+                accession: None,
                 id: self
                     .mondo
                     .map(|v| v.parse().map_err(|_| super::bad()))
