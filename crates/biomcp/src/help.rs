@@ -87,12 +87,15 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
-        return flags.keys().map(|flag| {
-            let mut value = argument(flag, node, root);
-            value.value_type = "boolean".into();
-            value.choices.clear();
-            value
-        }).collect();
+        return flags
+            .keys()
+            .map(|flag| {
+                let mut value = argument(flag, node, root);
+                value.value_type = "boolean".into();
+                value.choices.clear();
+                value
+            })
+            .collect();
     }
     vec![argument(name, node, root)]
 }

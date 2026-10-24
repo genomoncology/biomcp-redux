@@ -223,9 +223,17 @@ fn compatibility_preserves_markdown_rendering_contract() {
 #[test]
 fn cli_flag_annotations_are_metadata_with_checked_shape() {
     let old = contract(json!({"name":{"type":"string"}}));
-    let new = contract(json!({"name":{"type":"string", "x-cli-flags":{"include-retracted":"include", "exclude-retracted":"exclude"}}}));
+    let new = contract(
+        json!({"name":{"type":"string", "x-cli-flags":{"include-retracted":"include", "exclude-retracted":"exclude"}}}),
+    );
     assert!(check(&old, &new).is_ok());
-    for flags in [json!(true), json!({}), json!({"--bad":"include"}), json!({"include":false}), json!({"include":""})] {
+    for flags in [
+        json!(true),
+        json!({}),
+        json!({"--bad":"include"}),
+        json!({"include":false}),
+        json!({"include":""}),
+    ] {
         let invalid = contract(json!({"name":{"type":"string", "x-cli-flags":flags}}));
         assert!(check(&old, &invalid).is_err());
     }
