@@ -6,6 +6,7 @@ use biodata::{
 };
 use biomcp_adapters::{jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
+/// Read a bounded part or find page through the same transport and command budget.
 pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();

@@ -223,19 +223,49 @@ fn unusable_success_replies_are_bad_reply() {
 #[test]
 fn octet_stream_requires_endpoint_permission_and_keeps_decode_and_body_limits() {
     for (declared, content, body, limit, accepted) in [
-        (true, "binary/octet-stream", r#"{"answer":"yes"}"#, 100, true),
-        (false, "binary/octet-stream", r#"{"answer":"yes"}"#, 100, false),
-        (true, "application/octet-stream", r#"{"answer":"yes"}"#, 100, false),
+        (
+            true,
+            "binary/octet-stream",
+            r#"{"answer":"yes"}"#,
+            100,
+            true,
+        ),
+        (
+            false,
+            "binary/octet-stream",
+            r#"{"answer":"yes"}"#,
+            100,
+            false,
+        ),
+        (
+            true,
+            "application/octet-stream",
+            r#"{"answer":"yes"}"#,
+            100,
+            false,
+        ),
         (true, "binary/octet-stream", "{broken", 100, false),
         (true, "binary/octet-stream", r#"{"answer":"yes"}"#, 5, false),
     ] {
         let stub = Stub::new(200, content, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
-        let fetch = Fetch::open(FetchConfig { max_body: limit, ..FetchConfig::default() }).unwrap();
-        let endpoint = if declared { spec.get("/answer").octet_stream() } else { spec.get("/answer") };
-        let result = fetch.leg(spec, fetch.deadline(Duration::from_secs(10))).json::<Answer>(&endpoint, &[]);
+        let fetch = Fetch::open(FetchConfig {
+            max_body: limit,
+            ..FetchConfig::default()
+        })
+        .unwrap();
+        let endpoint = if declared {
+            spec.get("/answer").octet_stream()
+        } else {
+            spec.get("/answer")
+        };
+        let result = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .json::<Answer>(&endpoint, &[]);
         assert_eq!(result.is_ok(), accepted);
-        if let Err(biomcp_fetch::RequestError::Source(error)) = result { assert_eq!(error.reason, Reason::BadReply); }
+        if let Err(biomcp_fetch::RequestError::Source(error)) = result {
+            assert_eq!(error.reason, Reason::BadReply);
+        }
     }
 }
 

@@ -1,9 +1,9 @@
 //! Source-specific JATS body mapping after the transport's bounded XML check.
 mod blocks;
 mod parts;
+use crate::xml_element::Element;
 use biodata::{FigureCaption, Pmcid, Text, TextPartKind};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
-use crate::xml_element::Element;
 pub use parts::{Part, TEXT_BYTES, escaped_bytes};
 use serde::{Deserialize, Deserializer};
 /// Body text with source row boundaries and deterministic reading order.
