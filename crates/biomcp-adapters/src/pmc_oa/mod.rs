@@ -81,7 +81,7 @@ pub fn read(
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
     }
-    let supplements = supplement::select(&body.supplements, &record.media_urls, &directory)?;
+    let supplements = supplement::select(&body.supplements, record.media_urls.as_deref().unwrap_or(&[]), &directory)?;
     Ok(Some(Document {
         supplements,
         license: license(&record.license_code),
