@@ -146,3 +146,10 @@ allow = ["Unicode-3.0"]
 name = "zerovec-derive"
 version = "=0.11.7"
 allow = ["Unicode-3.0"]
+
+# The approved build-time YAML parser reads encoded input through encoding_rs.
+# Its WHATWG tables retain the upstream BSD notice alongside MIT/Apache code.
+[[licenses.exceptions]]
+name = "encoding_rs"
+version = "=0.8.42"
+allow = ["MIT", "Apache-2.0", "BSD-3-Clause"]

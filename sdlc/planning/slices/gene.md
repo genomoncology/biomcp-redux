@@ -30,7 +30,7 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 | section `funding` | | NIH RePORTER | Grants naming the gene | Dropped: no harvested question needs grants. `dropped in 1.0`. |
 | `gene definition`, `gene get` | | Same as `get gene` | Same card | `get gene <input>`; both aliases return `use: get gene <gene>`. |
 | `gene <symbol>` | | Same as `get gene` | Same card, through an external-subcommand fallback | `get gene <input>`; fallback returns `use: get gene <gene>`. |
-| `gene trials <symbol>` | `--limit`, `--offset`, `--source ctgov|nci` | ClinicalTrials.gov or NCI CTS | Trials whose text names the symbol | Trial slice: `search trial --gene <gene>`; `use: search trial --gene <gene>`. Its paging and source options belong to that slice. |
+| `gene trials <symbol>` | `--limit`, `--offset`, `--source ctgov\|nci` | ClinicalTrials.gov or NCI CTS | Trials whose text names the symbol | Trial slice: `search trial --gene <gene>`; `use: search trial --gene <gene>`. Its paging and source options belong to that slice. |
 | `gene drugs <symbol>` | `--limit`, `--offset` | MyChem and drug sources | Drugs listing the gene as target | Drug slice: `search drug --target <gene>`; `use: search drug --target <gene>`. Its paging options belong to that slice. |
 | `gene articles <symbol>` | `--limit`, `--offset` | PubMed and article sources | Article rows | Article slice: `search article --gene <gene>`; `use: search article --gene <gene>`. Its paging options belong to that slice. |
 | `gene pathways <symbol>` | `--limit` 1-25, `--offset` | Reactome and KEGG | The whole gene card with the pathways section | `get gene <input> pathways`; `use: get gene <gene> pathways`. Old `--limit` and `--offset` belong to pathway paging in the pathway slice; this section returns its bounded list. |
@@ -245,7 +245,7 @@ Sections, a closed enum:
 | --- | --- | --- |
 | `biomcp search gene <text>` | `GeneHeader` page, ranked: exact symbol, previous symbol, alias, then name words; protein coding before other locus groups | Ambiguous aliases come back as several headers, each with its `match` |
 | `search gene --band 9p21.3` | Headers for genes in a cytoband | From HGNC `location` in the bundle; no live API filters by band. Answers "what else sits in this deleted band" (CDKN2A, CDKN2B, MTAP) |
-| `search gene --locus-group protein-coding` | Filter | Replaces 0.9 `--type` |
+| `search gene kinase --locus-group protein_coding` | Filter | Replaces 0.9 `--type` |
 | `biomcp get gene <input>...` | One card per input, with its `GeneResolution` | Accepts symbols, previous symbols, aliases, `HGNC:` IDs, Entrez IDs and Ensembl IDs. Several inputs at once (HRR and Lynch panels) |
 | `get gene <input> <section>...` | Card plus sections | `protein`, `civic`, `clingen`, `constraint`, `expression`, `pathways`, `oncokb`, `all` |
 
@@ -260,7 +260,7 @@ Sections, a closed enum:
 | `--chromosome` | Drop | `--band` covers it with a real case. 0.9's client-side filter broke totals |
 | `--region` | Drop | Coordinate search belongs to the variant slice's copy-number questions. 0.9's help example returns nothing |
 | `--pathway`, `--go` | Drop | No harvested example. Pathway membership belongs to the pathway slice |
-| `--limit`, `--offset` | Change | The shared cursor from `architecture.md` |
+| `--limit`, `--offset` | Keep | Bounded pages with an offset and a generated next step |
 | `get gene <symbol>` | Keep, change | Add IDs as input, report how the input matched, return candidates for ambiguous input and status for withdrawn records |
 | Default card fields | Change | Add HGNC ID, band, previous symbols, MANE, both builds, full summary. Drop the Open Targets drugs and diseases, which are unlabeled and miss the approved drugs |
 | `protein` | Keep, change | Fetch by HGNC accessions. Return every reviewed protein |
@@ -316,7 +316,7 @@ The original 1.0 design estimates below use bytes divided by 4. Before implement
 | 7. `pathways` | Reactome pathway IDs and names | 305 for BRAF (16 pathways) | Long lists that serve grouping questions, not the common question |
 | 8. `civic` | CIViC gene ID, description, variant count, link | 470 for BRAF, 735 for ERBB2 | Densest cancer evidence prose but long; variant-level evidence belongs to the variant slice |
 | 9. `oncokb` section, with a key | OncoKB gene summary and background, OncoKB transcript | about 400, estimated from the 1.9 MB curated-gene list across 1,144 genes | Long licensed prose, so it stays behind a named section even when the key is present |
-| Options | `--band`, `--locus-group`, several inputs, cursor | per header or per card | Each option narrows or batches; none adds fields |
+| Options | `--band`, `--locus-group`, several inputs, page offset | per header or per card | Each option narrows or batches; none adds fields |
 
 ### Token table, 1.0 against 0.9.3
 
