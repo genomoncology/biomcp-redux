@@ -331,10 +331,18 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
 }
 
 fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
-    for (reason, setting) in [(biodata::Reason::Tls, "ca_bundle"), (biodata::Reason::Proxy, "proxy")] {
+    for (reason, setting) in [
+        (biodata::Reason::Tls, "ca_bundle"),
+        (biodata::Reason::Proxy, "proxy"),
+    ] {
         if sources.iter().any(|source| source.reason == Some(reason)) {
-            steps.insert(0, biodata::Step { kind: biodata::StepKind::Configure,
-                args: vec!["help".into(), "network".into(), setting.into()].into() });
+            steps.insert(
+                0,
+                biodata::Step {
+                    kind: biodata::StepKind::Configure,
+                    args: vec!["help".into(), "network".into(), setting.into()].into(),
+                },
+            );
         }
     }
     steps.truncate(5);

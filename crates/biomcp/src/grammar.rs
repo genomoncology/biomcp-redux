@@ -87,7 +87,13 @@ fn root() -> Result<Command, ()> {
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
     root = root.subcommand(
         Command::new("help")
-            .subcommand(Command::new("network").arg(Arg::new("setting").required(true).value_parser(["ca_bundle", "proxy"])))
+            .subcommand(
+                Command::new("network").arg(
+                    Arg::new("setting")
+                        .required(true)
+                        .value_parser(["ca_bundle", "proxy"]),
+                ),
+            )
             .subcommand(
                 Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
             )
@@ -133,7 +139,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let help = if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
-            Some(("network", matches)) => Some(vec!["network".into(), matches.get_one::<String>("setting").ok_or(())?.clone()]),
+            Some(("network", matches)) => Some(vec![
+                "network".into(),
+                matches.get_one::<String>("setting").ok_or(())?.clone(),
+            ]),
             Some((verb, matches)) => {
                 Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
             }

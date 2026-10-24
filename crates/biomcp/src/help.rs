@@ -4,7 +4,9 @@ use serde_json::Value;
 use std::{collections::BTreeMap, io};
 
 pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
-    if let [category, setting] = path && category == "network" {
+    if let [category, setting] = path
+        && category == "network"
+    {
         return Ok(network(setting));
     }
     let commands = commands()?
@@ -177,12 +179,21 @@ fn section_words(schema: &Value) -> Vec<HelpWord> {
 
 fn network(setting: &str) -> Help {
     let description = match setting {
-        "ca_bundle" => "Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled.",
-        _ => "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional ports, or *. An explicit proxy overrides proxy environment settings.",
+        "ca_bundle" => {
+            "Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled."
+        }
+        _ => {
+            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional ports, or *. An explicit proxy overrides proxy environment settings."
+        }
     };
-    Help { commands: vec![HelpCommand {
-        command: vec!["help".into(), "network".into(), setting.into()],
-        description: description.into(), arguments: Vec::new(), sections: Vec::new(),
-        section_rule: None, examples: Vec::new(),
-    }] }
+    Help {
+        commands: vec![HelpCommand {
+            command: vec!["help".into(), "network".into(), setting.into()],
+            description: description.into(),
+            arguments: Vec::new(),
+            sections: Vec::new(),
+            section_rule: None,
+            examples: Vec::new(),
+        }],
+    }
 }

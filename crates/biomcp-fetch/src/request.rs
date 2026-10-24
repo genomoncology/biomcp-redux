@@ -238,7 +238,11 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        let agent = self.fetch.agents.for_url(&self.fetch.config.network, self.fetch.config.proxy.is_some(), &prepared.url);
+        let agent = self.fetch.agents.for_url(
+            &self.fetch.config.network,
+            self.fetch.config.proxy.is_some(),
+            &prepared.url,
+        );
         let mut request = if prepared.post.is_some() {
             agent.post(&prepared.url)
         } else {

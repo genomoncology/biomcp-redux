@@ -1,7 +1,6 @@
 mod assertions;
 mod configuration;
 mod corporate;
-mod network_stub;
 mod gene_tables;
 mod held_proxy;
 mod launch;
@@ -9,6 +8,7 @@ mod markdown;
 mod markdown_sources;
 mod mcp;
 mod negative_cases;
+mod network_stub;
 mod pmc_tables;
 mod pool_tables;
 mod process;
