@@ -44,9 +44,15 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// JATS supplementary files confirmed by the bucket record.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supplements: Option<Section<crate::Supplements>>,
     /// Licensed PMC body outline.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fulltext: Option<Section<crate::FullText>>,
+    /// Machine-written Semantic Scholar summary.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tldr: Option<Section<Tldr>>,
     /// Citation counts from NIH iCite.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub citations: Option<Section<Citations>>,
@@ -72,4 +78,23 @@ pub struct Citations {
     /// Relative citation ratio, only when confirmed non-provisional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rcr: Option<crate::FiniteNumber>,
+}
+
+/// Machine-written source summary with independently reported counts.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Tldr {
+    /// Complete one-sentence source summary.
+    pub text: Text,
+    /// Source model version.
+    pub model: Text,
+    /// Explicitly identifies generated prose.
+    pub machine_written: bool,
+    /// Total source citation count, when supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cited_by: Option<u64>,
+    /// Source influential citation count, when supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub influential_cited_by: Option<u64>,
 }

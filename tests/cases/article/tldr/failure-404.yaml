@@ -1,0 +1,36 @@
+{
+  "feature": "article-semantic-sections",
+  "story": "A Semantic Scholar404 stays a confirmed negative-cache result during a later offline call.",
+  "replay": "article/tldr/synthetic-404",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "tldr"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/answer/card/pmid": "33123537",
+        "/result/items/0/sections/tldr/reason": "not_found"
+      },
+      "exit": 0
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "tldr"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/tldr/reason": "not_found"
+      },
+      "exit": 0
+    }
+  ],
+  "verified": "Response-only edits of the exact command capture from2026-10-24; request filenames, methods, URLs and identities are unchanged."
+}

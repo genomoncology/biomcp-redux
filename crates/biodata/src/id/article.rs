@@ -118,3 +118,22 @@ impl fmt::Display for EuropePmcId {
     }
 }
 text_value!(EuropePmcId, "EuropePmcId", r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$");
+
+/// Semantic Scholar's stable 40-character hexadecimal paper identifier.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SemanticScholarId(Box<str>);
+impl FromStr for SemanticScholarId {
+    type Err = Error;
+    fn from_str(value: &str) -> Result<Self, Error> {
+        if value.len() != 40 || !value.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return Err(Error::ArticleIdInvalid);
+        }
+        Ok(Self(value.to_ascii_lowercase().into()))
+    }
+}
+impl fmt::Display for SemanticScholarId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+text_value!(SemanticScholarId, "SemanticScholarId", r"^[a-f0-9]{40}$");

@@ -159,3 +159,8 @@ allow = ["MIT", "Apache-2.0", "BSD-3-Clause"]
 name = "unicode-normalization"
 version = "=0.1.26"
 allow = ["MIT", "Apache-2.0", "Unicode-3.0"]
+# The approved ZIP deflate reader selects the pure Rust zlib backend.
+[[licenses.exceptions]]
+name = "zlib-rs"
+version = "=0.6.8"
+allow = ["Zlib"]

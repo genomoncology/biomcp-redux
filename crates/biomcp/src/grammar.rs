@@ -29,9 +29,10 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
-        Request::ArticleText(_) => "biodata.article-text/1",
-        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
-        Request::GetArticle(_) => "biodata.article-get/1",
+        Request::ArticleSupplement(_) => "biodata.article-supplement/1",
+        Request::ArticleText(_) => "biodata.article-text/2",
+        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/2",
+        Request::GetArticle(_) => "biodata.article-get/2",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
         Request::SearchGene(_) => "biodata.gene-search/1",
@@ -41,10 +42,11 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
-    ("get", "article", "biodata.article-get/1"),
-    ("article", "text", "biodata.article-text/1"),
-    ("article", "citations", "biodata.article-edges/1"),
-    ("article", "references", "biodata.article-edges/1"),
+    ("get", "article", "biodata.article-get/2"),
+    ("article", "supplement", "biodata.article-supplement/1"),
+    ("article", "text", "biodata.article-text/2"),
+    ("article", "citations", "biodata.article-edges/2"),
+    ("article", "references", "biodata.article-edges/2"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -106,7 +108,11 @@ fn root() -> Result<Command, ()> {
                 ),
             )
             .subcommand(
-                Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
+                Command::new("key").arg(
+                    Arg::new("source")
+                        .required(true)
+                        .value_parser(["oncokb", "semantic-scholar"]),
+                ),
             )
             .subcommand(
                 Command::new("get")
@@ -172,7 +178,13 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let action = if verb == "health" {
         Action::Health
     } else if verb == "help" {
-        Action::KeyHelp
+        let source = matches
+            .subcommand()
+            .filter(|(name, _)| *name == "key")
+            .and_then(|(_, m)| m.get_one::<String>("source"))
+            .map_or(Ok(biodata::Source::Oncokb), |s| s.parse())
+            .map_err(|_| ())?;
+        Action::KeyHelp(source)
     } else if verb == "sync" {
         Action::Sync {
             bundle: if matches
@@ -328,6 +340,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("article", "supplement") => serde_json::from_value::<biodata::ArticleSupplement>(value)
+            .map(Request::ArticleSupplement)
+            .map_err(|_| ()),
         ("article", "text") => serde_json::from_value::<ArticleText>(value)
             .map(Request::ArticleText)
             .map_err(|_| ()),

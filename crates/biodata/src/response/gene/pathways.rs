@@ -52,7 +52,7 @@ pub struct PathwayRef {
     pub name: Text,
 }
 /// A bounded list with the total before its cap was applied.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Capped<T> {

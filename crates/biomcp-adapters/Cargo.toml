@@ -11,6 +11,9 @@ biomcp-fetch = { path = "../biomcp-fetch" }
 serde.workspace = true
 pdf-extract.workspace = true
 quick-xml.workspace = true
+calamine.workspace = true
+csv.workspace = true
+zip.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

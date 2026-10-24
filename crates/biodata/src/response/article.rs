@@ -1,6 +1,11 @@
+mod supplement;
 use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+pub use supplement::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 /// Stable identity independent of whether citation metadata was accepted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "namespace", content = "id", rename_all = "snake_case")]
@@ -14,14 +19,18 @@ pub enum ArticleKey {
     Doi(Doi),
     /// Europe PMC local source identity.
     Europepmc(EuropePmcId),
+    /// Semantic Scholar local identity when no indexed identifier exists.
+    SemanticScholar(crate::SemanticScholarId),
 }
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleItem {
-    /// Stable checked pool key.
-    pub key: ArticleKey,
+    /// Stable checked paper identity when the provider supplies one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "ArticleKey"))]
+    pub key: Option<ArticleKey>,
     /// The selected PMID, retained when summary mapping fails.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
@@ -32,6 +41,15 @@ pub struct ArticleItem {
     /// iCite citing-paper count, only under citation ordering.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_by: Option<u64>,
+    /// Citation intents in provider order; absent means not reported.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intents: Option<Box<[CitationIntent]>>,
+    /// Provider's influential flag; absent is distinct from false.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub influential: Option<bool>,
+    /// First citation context and the source's complete context count.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub contexts: Option<crate::Capped<crate::Text>>,
     /// Citation metadata when accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<ArticleHeader>,
@@ -58,11 +76,26 @@ impl super::ResponseBody for ArticlePage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEdgePage {
     /// Papers in the fixed edge pool.
-    pub items: Box<[ArticleItem]>,
+    pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {
-    const SCHEMA: &'static str = "biomcp.article_edges/1";
+    const SCHEMA: &'static str = "biomcp.article_edges/2";
     type Query = crate::ArticleEdges;
+}
+
+/// Stored edge item shares checked identity and hydration with search items.
+pub type ArticleEdgeItem = ArticleItem;
+
+crate::source::canonical_enum! {
+    /// Source-reported reason for citing a paper.
+    CitationIntent, SourceUnknown {
+        /// The source cites background information.
+        Background => "background",
+        /// The source cites a reported result.
+        Result => "result",
+        /// The source cites a method.
+        Methodology => "methodology",
+    }
 }
 
 /// Public LitVar2 autocomplete candidate, without a clinical ranking claim.

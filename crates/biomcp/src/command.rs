@@ -57,8 +57,8 @@ fn dispatch_using(
             crate::exit::Status::Success,
         );
     }
-    if action == Action::KeyHelp {
-        return key_help();
+    if let Action::KeyHelp(source) = action {
+        return key_help(source);
     }
     if let Action::Run {
         request: Request::SearchArticle(query),
@@ -101,7 +101,7 @@ fn dispatch_using(
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
         Action::Health => health(fetch),
-        Action::KeyHelp => key_help(),
+        Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh)?;
@@ -109,82 +109,77 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
         }
     }
 }
+struct ResponseMeta {
+    status: Status,
+    sources: Vec<biodata::SourceOutcome>,
+    problems: Vec<biodata::Problem>,
+    next: Vec<biodata::Step>,
+    page: Option<biodata::PageInfo>,
+    exit: crate::exit::Status,
+}
+impl ResponseMeta {
+    fn encode<B: biodata::ResponseBody>(
+        self,
+        query: B::Query,
+        body: Option<B>,
+    ) -> io::Result<Outcome> {
+        let mut envelope = Envelope::new(self.status, query, body);
+        envelope.sources = self.sources;
+        envelope.problems = self.problems;
+        envelope.next = self.next;
+        envelope.page = self.page;
+        encode(envelope, self.exit)
+    }
+}
 fn response(
     fetch: &biomcp_fetch::Fetch,
     request: Request,
     result: biomcp_query::Outcome,
 ) -> io::Result<Outcome> {
-    let status = response_status(&result);
     let steps = next_steps(fetch, &result)?;
+    let meta = ResponseMeta {
+        exit: response_status(&result),
+        status: result.status,
+        next: steps,
+        page: result.page,
+        sources: result.sources,
+        problems: result.problems,
+    };
     match (request, result.body) {
         (_, QueryBody::UnsupportedFilter { source, option }) => {
             usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
         }
-        (Request::ArticleText(_), QueryBody::TextPositionError) => {
-            usage_envelope(biodata::ErrorEnvelope::arguments())
+        (_, QueryBody::TextPositionError) => encode(
+            biodata::ErrorEnvelope::arguments(),
+            crate::exit::Status::Usage,
+        ),
+        (Request::ArticleSupplement(query), QueryBody::ArticleSupplement(body)) => {
+            meta.encode(query, Some(body))
         }
         (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
+            meta.encode(query, Some(body))
         }
-
-        (_, QueryBody::TooManyPmids { count }) => {
-            usage_envelope(biodata::ErrorEnvelope::too_many_pmids(count))
-        }
-        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
+        (_, QueryBody::TooManyPmids { count }) => encode(
+            biodata::ErrorEnvelope::too_many_pmids(count),
+            crate::exit::Status::Usage,
+        ),
+        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, meta.next),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
             QueryBody::ArticleEdges(body),
         ) => {
-            let mut envelope = Envelope::new(
-                result.status,
-                query,
-                (result.status != Status::Failed).then_some(body),
-            );
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
         }
         (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
-            let mut envelope = Envelope::new(
-                result.status,
-                query,
-                (result.status != Status::Failed).then_some(body),
-            );
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
         }
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            encode(envelope, status)
+            meta.encode(query, Some(body))
         }
-        (Request::GetGene(query), QueryBody::GeneCards(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            encode(envelope, status)
-        }
-        (Request::SearchGene(query), QueryBody::GenePage(body)) => {
-            let mut envelope = Envelope::new(result.status, query, Some(body));
-            envelope.sources = result.sources;
-            envelope.problems = result.problems;
-            envelope.next = steps;
-            envelope.page = result.page;
-            encode(envelope, status)
-        }
+        (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
+        (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
         _ => Err(io::Error::other("query response mismatch")),
     }
 }
@@ -292,11 +287,22 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
     )
 }
-fn key_help() -> io::Result<Outcome> {
+fn key_help(source: biodata::Source) -> io::Result<Outcome> {
+    let (config, environment) = match source {
+        biodata::Source::SemanticScholar => {
+            ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY")
+        }
+        _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
+    };
     let data = biodata::KeyHelp {
-        source: biodata::Source::Oncokb,
-        config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?,
-        environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)?,
+        guidance: (source == biodata::Source::SemanticScholar)
+            .then(|| {
+                biodata::Text::new("a free key raises the request limit").map_err(io::Error::other)
+            })
+            .transpose()?,
+        source,
+        config: biodata::Text::new(config).map_err(io::Error::other)?,
+        environment: biodata::Text::new(environment).map_err(io::Error::other)?,
     };
     encode(
         Envelope::new(Status::Complete, (), Some(data)),

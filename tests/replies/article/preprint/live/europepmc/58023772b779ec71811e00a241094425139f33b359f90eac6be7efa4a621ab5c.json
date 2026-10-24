@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PPR1064174/fullTextXML",
+  "exchanges": [
+    {
+      "fetched": 1792854234,
+      "status": 500,
+      "content_type": "",
+      "delay_ms": 281,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    },
+    {
+      "fetched": 1792854235,
+      "status": 500,
+      "content_type": "",
+      "delay_ms": 461,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    },
+    {
+      "fetched": 1792854236,
+      "status": 500,
+      "content_type": "",
+      "delay_ms": 411,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    }
+  ]
+}

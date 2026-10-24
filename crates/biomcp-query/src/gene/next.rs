@@ -69,7 +69,7 @@ pub(crate) fn get(
             && source.state == SourceState::Skipped
             && source.reason == Some(biodata::Reason::NoKey)
     }) {
-        steps.push((StepKind::Key, Action::KeyHelp));
+        steps.push((StepKind::Key, Action::KeyHelp(biodata::Source::Oncokb)));
     }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
