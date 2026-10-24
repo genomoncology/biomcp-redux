@@ -3,7 +3,7 @@
   "live_check": "synthetic response metadata projection",
   "story": "PubTator preserves its native ten-page search window and exact HGNC Entrez join",
   "replay": "article/pubtator/pubtator-words",
-  "verified": "Actual command captured 2026-10-24. Search replies project only PMID fields and paging metadata to exclude publisher snippets. HGNC is a synthetic response subset. Canonical request identities and native paper order are unchanged. Output bounds are provisional until measured; no exact 0.9 named-source JSON comparison exists.",
+  "verified": "Actual command captured 2026-10-24. Search replies project only PMID fields and paging metadata to exclude publisher snippets. HGNC is a synthetic response subset. Canonical request identities and native paper order are unchanged. no exact 0.9 named-source JSON comparison exists. Measured page: 5011 bytes; ceiling: 5763 bytes, exactly ceil(actual * 1.15). No matching 0.9 single-source JSON baseline exists.",
   "steps": [
     {
       "run": [
@@ -13,8 +13,8 @@
         "--source",
         "pubtator"
       ],
-      "max_bytes": 10000,
-      "max_tokens": 2500,
+      "max_bytes": 5763,
+      "max_tokens": 1441,
       "expect": {
         "/status": "complete",
         "/page/total": 100,
@@ -52,8 +52,8 @@
         "--disable-sources",
         "pubmed"
       ],
-      "max_bytes": 10000,
-      "max_tokens": 2500,
+      "max_bytes": 5763,
+      "max_tokens": 1441,
       "expect": {
         "/result/items/*/pmid": {
           "equals_file": "pubtator-words-ids.json",
