@@ -73,5 +73,6 @@ Each ticket writes its cases first and watches them fail, then builds the least 
 
 - Add a source no example needs.
 - Interpret, classify or score clinical meaning.
+- Guess meaning from text with regexes, term lists, query rewriting or rerankers, as `decisions/2026-10-24-no-text-heuristics.md` says.
 - Keep a 0.9 behavior because it exists.
 - Write a ticket for a later slice. Later slices start from their own investigation.
