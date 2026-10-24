@@ -1,0 +1,30 @@
+{
+  "feature": "trial-search",
+  "story": "Registry search preserves native count and identity order without local screening.",
+  "replay": "trial/search",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--limit",
+        "10"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3780,
+        "/result/items/0/nct_id": "NCT04631731"
+      }
+    }
+  ]
+}
