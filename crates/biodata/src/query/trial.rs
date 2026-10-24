@@ -422,16 +422,13 @@ impl PhaseFilter {
 
 crate::macros::wire_enum! {
     /// Independent trial providers; results are never folded or used as fallbacks.
+    #[derive(Default)]
     TrialSource {
         /// ClinicalTrials.gov registry.
+        #[default]
         Ctgov => "ctgov",
         /// NCI Clinical Trials Search, requiring the user's key.
         Nci => "nci",
-    }
-}
-impl Default for TrialSource {
-    fn default() -> Self {
-        Self::Ctgov
     }
 }
 
