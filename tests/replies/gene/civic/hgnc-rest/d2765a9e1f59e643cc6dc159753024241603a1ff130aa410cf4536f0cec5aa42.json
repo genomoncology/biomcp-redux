@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/symbol/VSIR",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 541,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,"numFoundExact":true,"docs":[{"iuphar":"HGNC:30085","status":"Approved","name":"V-set immunoregulatory receptor","uuid":"90877744-e9e0-4dbf-a614-a8b64ae073ca","omim_id":["615608"],"uniprot_ids":["Q9H7M9"],"prev_name":["chromosome 10 open reading frame 54"],"location":"10q22.1","rgd_id":["RGD:1590938"],"ucsc_id":"uc001jsd.5","alias_symbol":["SISP1","GI24","B7-H5","B7H5","VISTA","PD-1H","Dies1"],"hgnc_id":"HGNC:30085","locus_type":"gene with protein product","alias_name":["stress induced secreted protein 1","V-domain Ig suppressor of T cell activation","PDCD1 homolog"],"date_modified":"2023-01-20T00:00:00Z","agr":"HGNC:30085","refseq_accession":["NM_022153"],"mane_select":["ENST00000394957.8","NM_022153.2"],"pubmed_id":[12975309,24691993,25279955],"ensembl_gene_id":"ENSG00000107738","ccds_id":["CCDS31218"],"mgd_id":["MGI:1921298"],"ena":["AF193048"],"gene_group":["V-set domain containing","B7 family"],"prev_symbol":["C10orf54"],"entrez_id":"64115","date_name_changed":"2016-11-24T00:00:00Z","date_approved_reserved":"2005-10-06T00:00:00Z","symbol":"VSIR","date_symbol_changed":"2016-11-24T00:00:00Z","gene_group_id":[590,1824],"locus_group":"protein-coding gene","vega_id":"OTTHUMG00000018426"}]}}
+      }
+    }
+  ]
+}

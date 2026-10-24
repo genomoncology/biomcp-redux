@@ -17,7 +17,9 @@
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
           "includes": "gnomad"
-        }
+        },
+        "/result/items/0/sections/civic/state": "data",
+        "/sources/3/source": "civic"
       },
       "max_bytes": 14200,
       "mcp": [

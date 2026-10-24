@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "4aff6666669bb76a531879860f8963caf2de235c0c225a75ab80c28e41d4dc30"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 582,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"g0":{"id":14308,"name":"VSIR","entrezId":64115,"description":null,"link":"/features/14308","variants":{"totalCount":0}}}}
+      }
+    }
+  ]
+}
