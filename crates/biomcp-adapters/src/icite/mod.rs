@@ -1,10 +1,10 @@
 //! Public iCite metadata; no abstracts or provider-specific scoring blend.
 use crate::{quotas, raw::Field};
 use biodata::{FiniteNumber, Pmid, Text};
-use biomcp_types::{Citations, Problem, ProblemCode, Source};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{Citations, Problem, ProblemCode, Source};
 use serde::Deserialize;
 use std::{collections::BTreeSet, time::Duration};
 /// Maximum documented PMID request size.

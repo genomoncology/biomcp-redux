@@ -1,9 +1,9 @@
 //! Intact native records page by source position within an immutable NCI snapshot.
 use super::get::Snapshot;
 use crate::{Action, Outcome};
-use biodata::{Text};
-use biomcp_types::{NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind, TrialGet, TrialSection, TrialSource};
+use biodata::Text;
 use biomcp_fetch::RequestError;
+use biomcp_types::{NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind, TrialGet, TrialSection, TrialSource};
 const SECTIONS: [TrialSection; 5] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,

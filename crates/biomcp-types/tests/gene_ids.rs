@@ -1,6 +1,8 @@
 //! Caller-visible checked gene identifier contracts.
-use biodata::{Accession, AccessionBase, Cytoband, EnsemblGeneId, GeneSymbol, NcbiGeneId, OmimId, UniProtAcc};
-use biomcp_types::{GeneInput};
+use biodata::{
+    Accession, AccessionBase, Cytoband, EnsemblGeneId, GeneSymbol, NcbiGeneId, OmimId, UniProtAcc,
+};
+use biomcp_types::GeneInput;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{collections::HashSet, fmt::Debug, str::FromStr};
 type Check = Result<(), Box<dyn std::error::Error>>;

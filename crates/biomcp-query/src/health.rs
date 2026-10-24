@@ -1,8 +1,8 @@
 //! Bounded source probes, never local storage or HTTP service liveness.
-use biodata::{Text};
-use biomcp_types::{Health, Reason, SourceHealth, SourceState};
+use biodata::Text;
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, KeyUse, RequestError};
+use biomcp_types::{Health, Reason, SourceHealth, SourceState};
 use std::time::Duration;
 const PROBE_BUDGET: Duration = Duration::from_secs(3);
 /// Probe every implemented source with one shared command deadline and short source caps.

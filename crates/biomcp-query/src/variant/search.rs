@@ -1,8 +1,8 @@
 //! Declared MyVariant searches keep native candidates, totals and page selectors.
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_types::{PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage, VariantResolver, VariantSearch};
 use biomcp_adapters::myvariant;
+use biomcp_types::{PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage, VariantResolver, VariantSearch};
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     if query.raw_query()

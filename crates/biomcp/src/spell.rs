@@ -1,7 +1,7 @@
 //! Reverse the same embedded query schema used by the parser.
 
-use biomcp_types::{Request, Step, StepKind};
 use biomcp_query::{Action, Bundle};
+use biomcp_types::{Request, Step, StepKind};
 use serde_json::Value;
 
 pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::Error> {

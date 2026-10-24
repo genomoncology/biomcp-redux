@@ -1,8 +1,8 @@
 use crate::xml_element::Element;
-use biodata::{Text};
-use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
-use biomcp_types::{Capped};
+use biodata::Text;
 use biomcp_fetch::BadReply;
+use biomcp_types::Capped;
+use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
 pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing, BadReply> {
     let mut mesh = Vec::new();
     if let Some(list) = citation.child("MeshHeadingList")? {

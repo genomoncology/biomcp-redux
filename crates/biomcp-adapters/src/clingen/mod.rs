@@ -1,11 +1,11 @@
 //! Published ClinGen validity and dosage bundles, keyed only by HGNC identity.
 mod raw;
 use crate::quotas;
-use biodata::{HgncId};
-use biomcp_types::{ClinGenGene, Source, SyncResult};
+use biodata::HgncId;
 use biomcp_fetch::{
     Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
 };
+use biomcp_types::{ClinGenGene, Source, SyncResult};
 use std::{marker::PhantomData, time::Duration};
 /// ClinGen published summaries are generated anew for each request.
 pub static SPEC: SourceSpec = SourceSpec {

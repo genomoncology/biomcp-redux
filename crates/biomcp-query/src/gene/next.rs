@@ -1,7 +1,7 @@
 use crate::{Action, Bundle};
 
-use biomcp_types::{GeneHeader, GeneResolution};
 use biomcp_types::{GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind};
+use biomcp_types::{GeneHeader, GeneResolution};
 fn retry(request: Request) -> (StepKind, Action) {
     (
         StepKind::Fresh,
@@ -52,10 +52,9 @@ pub(crate) fn get(
     }) {
         steps.push(sync());
     }
-    if sources
-        .iter()
-        .any(|source| source.source == biomcp_types::Source::ClinGen && source.state != SourceState::Ok)
-    {
+    if sources.iter().any(|source| {
+        source.source == biomcp_types::Source::ClinGen && source.state != SourceState::Ok
+    }) {
         steps.push((
             StepKind::Sync,
             Action::Sync {
@@ -91,9 +90,10 @@ pub(crate) fn get(
                 .iter()
                 .filter_map(|section| section.to_string().parse().ok())
                 .collect();
-            if let Ok(query) =
-                GeneGet::with_sections(vec![biomcp_types::GeneInput::HgncId(gene.hgnc_id)].into(), words)
-            {
+            if let Ok(query) = GeneGet::with_sections(
+                vec![biomcp_types::GeneInput::HgncId(gene.hgnc_id)].into(),
+                words,
+            ) {
                 let step = (
                     StepKind::Section,
                     Action::Run {

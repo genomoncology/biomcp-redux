@@ -2,9 +2,9 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{UniProtAcc};
-use biomcp_types::{Protein, Source};
+use biodata::UniProtAcc;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Protein, Source};
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
 pub static SPEC: SourceSpec = SourceSpec {

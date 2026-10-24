@@ -1,10 +1,10 @@
 //! LitSense2 sentence resemblance in the provider's original order.
 use crate::quotas;
-use biodata::{Text};
-use biomcp_types::{ArticleItem, ArticleKey, ArticleSentence, ArticleSource, Source};
+use biodata::Text;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSentence, ArticleSource, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public access does not grant rights in the sentences returned from publishers.

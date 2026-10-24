@@ -1,10 +1,10 @@
 use super::next;
 use crate::{Ctx, Outcome, status};
 use biodata::{Gene, LocusGroup, MatchKind, Text};
-use biomcp_types::{GeneHeader, Match};
-use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState, Status};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
+use biomcp_types::{GeneHeader, Match};
+use biomcp_types::{GeneSearch, PageInfo, QueryBody, Source, SourceState, Status};
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let leg = cx

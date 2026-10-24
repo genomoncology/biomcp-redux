@@ -12,8 +12,8 @@ pub use article::{
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
-    ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit,
-    TextPart, TextPartKind,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit, TextPart,
+    TextPartKind,
 };
 mod error;
 mod problem;
@@ -44,7 +44,7 @@ pub use step::{Step, StepKind};
 
 pub use gene::{SyncQuery, SyncResult};
 
-pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
+pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,

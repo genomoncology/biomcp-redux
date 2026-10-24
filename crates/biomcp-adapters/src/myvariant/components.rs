@@ -1,7 +1,7 @@
 //! Component terms have one home for queries, filters, labels and health.
 
-use biomcp_types::{Source, Use};
 use biomcp_fetch::Terms;
+use biomcp_types::{Source, Use};
 /// One aggregator component with independent publisher terms.
 #[derive(Clone, Copy, Debug)]
 pub struct Component {

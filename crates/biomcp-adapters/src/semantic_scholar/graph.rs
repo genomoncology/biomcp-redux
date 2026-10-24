@@ -1,8 +1,8 @@
 //! Bounded paper sections and native citation graph windows.
-use biodata::{Text};
-use biomcp_types::{ArticleInput};
-use biomcp_types::{Capped, Tldr};
+use biodata::Text;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{Capped, Tldr};
 use serde::Deserialize;
 const PAPER: Endpoint = super::SPEC.get("/paper").fresh(Freshness::Days(1));
 /// Independent machine-written summary and source counts.

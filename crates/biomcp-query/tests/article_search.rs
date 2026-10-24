@@ -8,9 +8,9 @@
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
 )]
 
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

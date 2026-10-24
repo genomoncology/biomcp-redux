@@ -1,7 +1,7 @@
-use biodata::{Text};
-use biomcp_types::{SourceOutcome};
+use biodata::Text;
 use biomcp_adapters::ctgov::detail::Detail;
 use biomcp_fetch::CacheError;
+use biomcp_types::SourceOutcome;
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: Detail,

@@ -2,9 +2,9 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EnsemblGeneId};
-use biomcp_types::{GeneExpression, Reason, Source};
+use biodata::EnsemblGeneId;
 use biomcp_fetch::{Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec};
+use biomcp_types::{GeneExpression, Reason, Source};
 use std::time::Duration;
 /// HPA source policy with a conservative local quota.
 pub static SPEC: SourceSpec = SourceSpec {

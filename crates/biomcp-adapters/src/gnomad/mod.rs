@@ -2,9 +2,9 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EnsemblGeneId};
-use biomcp_types::{Constraint, Source};
+use biodata::EnsemblGeneId;
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Constraint, Source};
 use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
 /// Source policy for the gnomAD browser GraphQL endpoint.

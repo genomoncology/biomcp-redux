@@ -1,11 +1,11 @@
 //! Confined supplement download, local parsing and bounded row selection.
 mod page;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{Text};
-use biomcp_types::{ArticleInput};
-use biomcp_types::{ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source, Status, StepKind, SupplementContent};
+use biodata::Text;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section, Source, Status, StepKind, SupplementContent};
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
 pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {

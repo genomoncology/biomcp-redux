@@ -1,7 +1,7 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
 
-use biomcp_types::{Source, Use};
 use biomcp_fetch::SourceSpec;
+use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[

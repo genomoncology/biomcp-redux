@@ -1,9 +1,9 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{PopulationDataType};
-use biomcp_types::{GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, VariantPopulationQuery, VariantPopulationResult};
+use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
+use biomcp_types::{GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, VariantPopulationQuery, VariantPopulationResult};
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

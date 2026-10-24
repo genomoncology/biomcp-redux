@@ -1,6 +1,6 @@
 use super::{LIMITS, Row, Sheet, check};
-use biomcp_types::Reason;
 use biomcp_fetch::LocalDeadline;
+use biomcp_types::Reason;
 use calamine::Reader;
 use std::io::{Cursor, Read, Seek, SeekFrom};
 struct Guarded<'a> {

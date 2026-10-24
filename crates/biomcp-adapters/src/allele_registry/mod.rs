@@ -2,9 +2,9 @@
 mod map;
 mod raw;
 use crate::quotas;
-use biodata::{Text};
-use biomcp_types::{Source, VariantHeader};
+use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_types::{Source, VariantHeader};
 use std::time::Duration;
 /// Public GET access; raw output redistribution rights remain unverified.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -81,7 +81,10 @@ fn bad() -> RequestError {
 }
 
 /// Preserve the registry's own mapped forms and validation rejection.
-pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<biomcp_types::NormalizationResult, RequestError> {
+pub fn normalize(
+    leg: &Leg<'_>,
+    input: &str,
+) -> Result<biomcp_types::NormalizationResult, RequestError> {
     let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
     let raw = read(leg, input, false)?;
     if let Some(code) = raw.error_type {

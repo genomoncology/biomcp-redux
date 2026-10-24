@@ -1,10 +1,10 @@
 //! Native transcript/residue counts; public reachability grants no redistribution rights.
 use crate::{Mapped, quotas};
 use biodata::{GeneSymbol, Text};
-use biomcp_types::{HotspotAlternate, HotspotMembership, HotspotRecord, Source};
 use biomcp_fetch::{
     BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{HotspotAlternate, HotspotMembership, HotspotRecord, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Publisher terms remain unverified; raw captures remain external.

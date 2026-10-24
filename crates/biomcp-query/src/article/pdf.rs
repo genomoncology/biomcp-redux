@@ -2,9 +2,9 @@
 use super::sections::pdf::{bad, load, reason};
 use crate::{Ctx, Outcome, status};
 
-use biomcp_types::{ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status};
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{ArticlePdf, ArticlePdfResult, PdfLink, QueryBody, Reason, Section, Source, Status};
 /// Download only when the caller supplied a path and the interface permits local writes.
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);

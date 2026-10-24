@@ -1,6 +1,6 @@
 use crate::{Action, Outcome};
 
-use biomcp_types::{ArticleInput};
+use biomcp_types::ArticleInput;
 use biomcp_types::{ArticleGet, ArticleResolution, QueryBody, Request, Status, StepKind};
 pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
     if matches!(out.status, Status::Failed | Status::Partial) {
@@ -71,7 +71,8 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             &mut out.next,
             StepKind::Disambiguate,
             Request::ArticleCitations(
-                biomcp_types::ArticleEdges::new(id).sourced(biomcp_types::EdgeSource::SemanticScholar),
+                biomcp_types::ArticleEdges::new(id)
+                    .sourced(biomcp_types::EdgeSource::SemanticScholar),
             ),
         );
         push(
@@ -95,7 +96,12 @@ fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
 }
 
 /// A short complete pool offers caller-controlled alternatives without running them.
-pub(super) fn search(query: &biomcp_types::ArticleSearch, total: u64, partial: bool, out: &mut Outcome) {
+pub(super) fn search(
+    query: &biomcp_types::ArticleSearch,
+    total: u64,
+    partial: bool,
+    out: &mut Outcome,
+) {
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (

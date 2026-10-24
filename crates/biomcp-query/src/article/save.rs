@@ -1,8 +1,8 @@
 //! Source bytes for explicit saves; the binary owns paths and filesystem writes.
 use crate::Outcome;
-use biodata::{Text};
-use biomcp_types::{ArticleInput};
+use biodata::Text;
 use biomcp_adapters::pmc_oa::Document;
+use biomcp_types::ArticleInput;
 /// Result before the binary installs a file.
 #[derive(Debug)]
 pub struct Download {

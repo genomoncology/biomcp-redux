@@ -1,8 +1,8 @@
 use super::Snapshot;
 use crate::{Action, Outcome};
-use biodata::{Text};
-use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, Status, StepKind};
+use biodata::Text;
 use biomcp_fetch::RequestError;
+use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, Status, StepKind};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut out = Vec::new();

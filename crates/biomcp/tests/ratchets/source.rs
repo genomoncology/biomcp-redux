@@ -3,7 +3,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
-    ("crates/biomcp-types/src/source.rs", "Convert closed nonempty source spellings into neutral provenance text"),
+    (
+        "crates/biomcp-types/src/source.rs",
+        "Convert closed nonempty source spellings into neutral provenance text",
+    ),
     (
         "crates/biomcp/src/mcp/http.rs",
         "Own bounded HTTP connection workers and join completed handles",

@@ -182,7 +182,9 @@ impl Leg<'_> {
     fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;
         if self.budget().expired() {
-            return Err(self.failure(biomcp_types::Reason::DeadlineExceeded, None).into());
+            return Err(self
+                .failure(biomcp_types::Reason::DeadlineExceeded, None)
+                .into());
         }
         if !std::ptr::eq(self.spec, bundle.spec) {
             return Err(self.failure(biomcp_types::Reason::Rejected, None).into());

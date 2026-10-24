@@ -118,7 +118,11 @@ impl Profiles {
             .as_ref()
             .is_some_and(|errors| !errors.is_empty())
     }
-    pub(super) fn progresses(&self, query: &biomcp_types::VariantGet, after: Option<&Text>) -> bool {
+    pub(super) fn progresses(
+        &self,
+        query: &biomcp_types::VariantGet,
+        after: Option<&Text>,
+    ) -> bool {
         use biomcp_types::CivicClaimKind;
         self.data.molecular_profiles.progresses(after)
             && self.data.molecular_profiles.nodes.iter().all(|profile| {

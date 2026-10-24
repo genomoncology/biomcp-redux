@@ -1,8 +1,8 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
 use crate::quotas;
 use biodata::{Representation, Text, Variant};
-use biomcp_types::{Source, SourceRecord, VariantHeader};
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
+use biomcp_types::{Source, SourceRecord, VariantHeader};
 use serde::Deserialize;
 mod normalization;
 use std::time::Duration;

@@ -6,8 +6,8 @@
 mod support;
 #[path = "support/timing.rs"]
 mod timing;
-use biomcp_types::Reason;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
+use biomcp_types::Reason;
 use std::{
     thread,
     time::{Duration, SystemTime},

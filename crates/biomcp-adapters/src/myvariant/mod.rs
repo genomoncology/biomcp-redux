@@ -11,9 +11,9 @@ mod raw;
 mod search;
 mod search_build;
 use crate::{Mapped, quotas};
-use biodata::{Text};
-use biomcp_types::{Source, VariantHeader};
+use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_types::{Source, VariantHeader};
 pub use search::{SearchPage, search};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.

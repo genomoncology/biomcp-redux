@@ -1,7 +1,7 @@
 //! Checked native registry replies and their small discovery projection.
 use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
-use biomcp_types::{TrialHeader};
 use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::TrialHeader;
 use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(transparent)]

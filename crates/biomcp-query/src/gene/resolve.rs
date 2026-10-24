@@ -1,8 +1,8 @@
 use biodata::{Gene, LocusGroup, MatchKind, Text};
-use biomcp_types::{GeneHeader, GeneInput, GeneResolution, Match};
-use biomcp_types::{Problem};
 use biomcp_adapters::{Mapped, hgnc};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
+use biomcp_types::Problem;
+use biomcp_types::{GeneHeader, GeneInput, GeneResolution, Match};
 use std::collections::BTreeMap;
 
 /// Resolve an input against approved HGNC identity before withdrawn identity.

@@ -136,7 +136,9 @@ pub(crate) fn reason(error: &Error) -> biomcp_types::Reason {
             biomcp_types::Reason::Rejected
         }
         Error::Tls(_) | Error::Rustls(_) => biomcp_types::Reason::Tls,
-        Error::Timeout(_) if !crate::retry::retry_error(error) => biomcp_types::Reason::DeadlineExceeded,
+        Error::Timeout(_) if !crate::retry::retry_error(error) => {
+            biomcp_types::Reason::DeadlineExceeded
+        }
         _ => biomcp_types::Reason::Unavailable,
     }
 }

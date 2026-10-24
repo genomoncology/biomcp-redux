@@ -1,8 +1,8 @@
 //! Bounded, explicit-cohort mutation observations; no inferred recurrence denominator.
 mod raw;
-use biodata::{NcbiGeneId};
-use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
+use biodata::NcbiGeneId;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_types::{RecurrenceStudy, Source, VariantRecurrenceQuery};
 pub use raw::Mutation;
 use std::time::Duration;
 /// Study-specific terms must be verified independently of public read access.

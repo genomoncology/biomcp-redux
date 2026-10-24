@@ -11,7 +11,7 @@ The gene sketches follow `planning/slices/gene.md` and `decisions/2026-10-24-gen
 | Goal | Mechanism |
 | --- | --- |
 | Far less code | One transport does every request step once. An adapter is a constant source description, serde raw types with one validity check and pure mapping functions. One grammar serves the CLI and MCP. One generic view renders Markdown from JSON. |
-| Easy upkeep | Five crates whose direction Cargo enforces. Lints and a ratchet test enforce size, state and dependency rules from the first commit. |
+| Easy upkeep | Six crates whose direction Cargo enforces. Lints and a ratchet test enforce size, state and dependency rules from the first commit. |
 | Very fast | Blocking I/O on threads with no async runtime. One leg per source, each with its own deadline, under a limiter keyed by the source key its adapter declares. A SQLite reply cache, pinned pools and indexed bundle rows make warm calls local. A budget per command, measured in replay. |
 | Right information in context | The densest facts sit at the top of the tree, as `decisions/2026-10-24-dense-facts-first-with-a-token-budget.md` says. Search returns capped headers. Get returns cards with requested sections. Every response names the sections it left out and typed next steps that go deeper. Nulls, empty lists and unrequested sections are omitted. Cases hold size ceilings per command and per section. |
 | JSON by default, shaped by biodata | Every response is one envelope type from `biomcp-types`, with a generated, checked-in and versioned JSON Schema. |
@@ -176,13 +176,13 @@ tests/
 
 `.gitattributes` sets `eol=lf` for every text file, so recordings, schemas and cases hash and diff the same on Windows.
 
-## 3. biodata
+## 3. Neutral values and consumer types
 
-`biodata` holds every value that crosses a layer or appears in output. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
+`biodata` holds reusable neutral entity values. `biomcp-types` holds the query, response, source and disclosure values that cross BioMCP layers. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
 
 Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `query` and `response` hold BioMCP's request and response contract, and a later split can lift them out without touching the core.
 
-A minimal set of these types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
+A minimal set of the consumer types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
 
 ### 3.1 Identifiers
 
@@ -329,7 +329,7 @@ pub enum GeneSectionWord { Constraint, All }
 
 ```
 
-No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Headers and entities are biodata core types. Cards and sections are BioMCP response types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
+No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Complete neutral entities are biodata types. Headers, cards and sections are BioMCP consumer types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
 
 ### 3.4 Resolution
 
@@ -548,7 +548,7 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 ### 3.9 Schemas and versions
 
 - `schemars` derives every schema behind the `schema` feature. The dialect is JSON Schema 2020-12, which `schemars` 1.x emits by default.
-- The binary depends on `biodata` with the `schema` feature on. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
+- The binary depends on `biomcp-types` with the `schema` feature on, which enables `biodata/schema`. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
 - The generated files sit in `crates/biomcp-types/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
 - `crates/biomcp-types/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
 - Generation must stay inside the compatibility checker's [supported subset](../../crates/biomcp-types/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
@@ -567,7 +567,7 @@ Progressive disclosure is a rule about where each fact sits in the types, so eve
 
 | Layer | Type | Returned by | Cost |
 | --- | --- | --- | --- |
-| Header | `<Entity>Header`, a biodata projection of the entity | search, ambiguous inputs | No request beyond the search |
+| Header | `<Entity>Header`, a consumer projection of the entity | search, ambiguous inputs | No request beyond the search |
 | Card | `<Entity>Card` holding the entity's core fields | get, by default | The identity source's request only |
 | Section | `Section<T>`, named in a closed enum | get with a section name | One source, one request |
 | Pivot or page | A `Step` to another search or the next page | `next` | A new command |

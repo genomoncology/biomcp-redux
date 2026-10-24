@@ -1,9 +1,9 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, HgncId, Text};
-use biomcp_types::{Problem, ProblemCode, Reason, Section, Source};
 use biomcp_adapters::civic;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{Problem, ProblemCode, Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let ids: Vec<_> = genes
         .iter()

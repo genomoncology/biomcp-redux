@@ -7,9 +7,9 @@ mod pathways;
 mod protein;
 use crate::Ctx;
 use biodata::{Gene, HgncId};
-use biomcp_types::{GeneResolution};
-use biomcp_types::{GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome, SourceState, Status};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::GeneResolution;
+use biomcp_types::{GeneGet, GeneItem, GeneSection, GeneSectionWord, GeneSections, Problem, Section, SourceOutcome, SourceState, Status};
 pub(super) struct SectionResult {
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
@@ -23,7 +23,11 @@ pub(super) enum SectionValue {
     Constraint(Section<biomcp_types::Constraint>),
     Expression(Section<biomcp_types::GeneExpression>),
     Pathways(Section<biomcp_types::Capped<biomcp_types::PathwayRef>>),
-    Oncokb(Section<biomcp_types::Oncokb>, Option<biomcp_types::OncokbCard>, bool),
+    Oncokb(
+        Section<biomcp_types::Oncokb>,
+        Option<biomcp_types::OncokbCard>,
+        bool,
+    ),
 }
 const SECTIONS: [GeneSection; 7] = [
     GeneSection::Protein,

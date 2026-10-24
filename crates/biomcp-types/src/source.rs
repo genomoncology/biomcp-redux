@@ -119,7 +119,10 @@ biodata::wire_enum! {
 
 impl Source {
     /// Preserve this consumer's canonical source spelling in neutral provenance.
-    #[expect(clippy::expect_used, reason = "The closed source declaration contains only nonempty canonical spellings")]
+    #[expect(
+        clippy::expect_used,
+        reason = "The closed source declaration contains only nonempty canonical spellings"
+    )]
     pub fn text(self) -> biodata::Text {
         biodata::Text::new(self.into()).expect("canonical source spelling is nonempty")
     }

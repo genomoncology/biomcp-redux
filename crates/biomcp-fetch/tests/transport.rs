@@ -1,10 +1,10 @@
 //! Public transport contract against isolated local servers.
 
-use biomcp_types::{Reason, Source};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Reply, Secret, SecretName,
     SourceSpec,
 };
+use biomcp_types::{Reason, Source};
 use serde::Deserialize;
 use std::{
     io::{Read, Write},

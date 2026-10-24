@@ -1,9 +1,9 @@
 //! Native GWAS Catalog v2 association pages, without clinical interpretation.
 mod raw;
 use crate::quotas;
-use biodata::{VariantId};
-use biomcp_types::{Source};
+use biodata::VariantId;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::Source;
 pub use raw::{Association, EffectAllele, Trait};
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.

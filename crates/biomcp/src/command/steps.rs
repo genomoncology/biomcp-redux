@@ -13,7 +13,10 @@ pub(super) fn next(
     Ok(source_steps(fetch, steps))
 }
 
-fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biomcp_types::Step>) -> Vec<biomcp_types::Step> {
+fn source_steps(
+    fetch: &biomcp_fetch::Fetch,
+    steps: Vec<biomcp_types::Step>,
+) -> Vec<biomcp_types::Step> {
     let registered = biomcp_adapters::registry::SOURCES;
     let sources = registered.iter().map(|spec| spec.source).chain(
         fetch
@@ -46,7 +49,10 @@ fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biomcp_types::Step>) -> 
         .collect()
 }
 
-pub(super) fn network_steps(steps: &mut Vec<biomcp_types::Step>, sources: &[biomcp_types::SourceOutcome]) {
+pub(super) fn network_steps(
+    steps: &mut Vec<biomcp_types::Step>,
+    sources: &[biomcp_types::SourceOutcome],
+) {
     for (reason, setting) in [
         (biomcp_types::Reason::Tls, "ca_bundle"),
         (biomcp_types::Reason::Proxy, "proxy"),

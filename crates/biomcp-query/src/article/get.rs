@@ -1,10 +1,10 @@
 //! PubMed card resolution under one command deadline.
 use crate::{Ctx, Outcome, status};
-use biodata::{Pmid};
-use biomcp_types::{Article, ArticleInput};
-use biomcp_types::{ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, QueryBody, Source, SourceState, Status};
+use biodata::Pmid;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::{Article, ArticleInput};
+use biomcp_types::{ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, QueryBody, Source, SourceState, Status};
 /// Resolve and hydrate article cards under one absolute command deadline.
 pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -163,7 +163,10 @@ fn append(
     }
 }
 
-fn sources(query: &ArticleGet, source: biomcp_types::SourceOutcome) -> Vec<biomcp_types::SourceOutcome> {
+fn sources(
+    query: &ArticleGet,
+    source: biomcp_types::SourceOutcome,
+) -> Vec<biomcp_types::SourceOutcome> {
     if query
         .input()
         .iter()

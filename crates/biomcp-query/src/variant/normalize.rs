@@ -1,9 +1,9 @@
 //! Explicit provider normalization with independent source outcomes.
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_types::{NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState, Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution};
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
+use biomcp_types::{NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState, Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution};
 type Row = (NormalizationResult, SourceOutcome, Option<RequestError>);
 /// Call each explicitly selected service independently under the shared deadline.
 pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
@@ -99,7 +99,9 @@ fn service(
 ) -> Row {
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let result = match spec.source {
-        biomcp_types::Source::AlleleRegistry => allele_registry::normalize(&leg, query.hgvs().as_str()),
+        biomcp_types::Source::AlleleRegistry => {
+            allele_registry::normalize(&leg, query.hgvs().as_str())
+        }
         biomcp_types::Source::Mutalyzer => mutalyzer::normalize(&leg, query.hgvs().as_str()),
         _ => query
             .build()

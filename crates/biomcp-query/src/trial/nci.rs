@@ -2,9 +2,9 @@
 mod get;
 mod page;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{Text};
-use biomcp_types::{NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, TrialSearch};
+use biodata::Text;
 use biomcp_adapters::nci;
+use biomcp_types::{NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, TrialSearch};
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";

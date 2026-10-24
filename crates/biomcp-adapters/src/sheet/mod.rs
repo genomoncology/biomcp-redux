@@ -2,8 +2,8 @@
 mod preflight;
 mod xlsx;
 
-use biomcp_types::{FileKind, Reason};
 use biomcp_fetch::LocalDeadline;
+use biomcp_types::{FileKind, Reason};
 /// An original sparse sheet row.
 #[derive(Debug)]
 pub struct Row {

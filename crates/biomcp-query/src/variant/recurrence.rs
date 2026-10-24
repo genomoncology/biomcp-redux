@@ -2,9 +2,9 @@
 mod matching;
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_types::{QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery};
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
+use biomcp_types::{QueryBody, Reason, Request, Source, Status, StepKind, VariantRecurrence, VariantRecurrenceQuery};
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
 pub fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -128,8 +128,12 @@ fn identity(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<biodata::Variant, RequestError> {
-    let q = biomcp_types::VariantGet::new(query.input().clone(), biomcp_types::VariantResolver::Car, None)
-        .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
+    let q = biomcp_types::VariantGet::new(
+        query.input().clone(),
+        biomcp_types::VariantResolver::Car,
+        None,
+    )
+    .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let result = super::resolve(&q, &leg, &mut out.problems);

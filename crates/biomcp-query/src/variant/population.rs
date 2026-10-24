@@ -1,9 +1,9 @@
 //! Exact GRCh38 source joins and bounded population observations.
 use crate::{Ctx, status};
 use biodata::{Build, Chromosome, PopulationDataType, PopulationSex, Text};
-use biomcp_types::{GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader, VariantPopulation};
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader, VariantPopulation};
 /// Read only gnomAD after one unambiguous source allele has been established.
 pub(super) fn section(
     cx: &Ctx<'_>,

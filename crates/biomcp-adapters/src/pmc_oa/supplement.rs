@@ -1,6 +1,6 @@
-use biodata::{Text};
-use biomcp_types::{FileKind, SupplementFile};
+use biodata::Text;
 use biomcp_fetch::{Arg, BadReply, Leg, RequestError};
+use biomcp_types::{FileKind, SupplementFile};
 /// Source-confirmed supplement with a confined bucket location.
 #[derive(Debug)]
 pub struct Supplement {

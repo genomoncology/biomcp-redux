@@ -1,10 +1,10 @@
 //! Independent machine-written summaries leave accepted article cards intact.
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_types::{ArticleInput};
-use biomcp_types::{ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::Deadline;
+use biomcp_types::ArticleInput;
+use biomcp_types::{ArticleResolution, QueryBody, Reason, Section, Source, Status, StepKind};
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
     let QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

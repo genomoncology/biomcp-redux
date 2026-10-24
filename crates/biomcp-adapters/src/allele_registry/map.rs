@@ -3,7 +3,9 @@ use super::{
     raw::{Allele as RawAllele, Genomic},
 };
 use crate::Mapped;
-use biodata::{Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId};
+use biodata::{
+    Allele, Build, Expression, Representation, SequenceLocation, Span0, Text, Variant, VariantId,
+};
 use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
 pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadReply> {
     if let Some(error) = raw.error_type {

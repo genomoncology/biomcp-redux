@@ -1,7 +1,7 @@
 //! Registry documents reuse the credential-free public download boundary.
-use biodata::{TrialDocument};
-use biomcp_types::{Reason};
+use biodata::TrialDocument;
 use biomcp_fetch::{Leg, RequestError, SourceError};
+use biomcp_types::Reason;
 /// Download only a source manifest entry produced by the checked registry projection.
 pub fn download(leg: &Leg<'_>, document: &TrialDocument) -> Result<Vec<u8>, RequestError> {
     if !document

@@ -1,9 +1,9 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
-use biodata::{Text};
-use biomcp_types::{GeneResolution};
-use biomcp_types::{GeneCards, GeneGet, GeneItem, Problem, ProblemCode, QueryBody, Source, SourceState, Status};
+use biodata::Text;
 use biomcp_adapters::{hgnc, mygene};
+use biomcp_types::GeneResolution;
+use biomcp_types::{GeneCards, GeneGet, GeneItem, Problem, ProblemCode, QueryBody, Source, SourceState, Status};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);

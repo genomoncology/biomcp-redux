@@ -1,9 +1,9 @@
 //! Semantic Scholar edge pools retain source order and per-edge evidence.
 use crate::{Action, Ctx, Outcome, status};
 
-use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::{ArticleEdges, ArticleItem, Reason, Source, Status, StepKind};
 pub(super) fn create<'a>(
     cx: &Ctx<'a>,
     query: &ArticleEdges,
@@ -44,15 +44,17 @@ pub(super) fn create<'a>(
     source.count = (!truncated).then_some(count);
     source.fetched = Some(count as u32);
     if truncated {
-        source.notices.push(biomcp_types::SourceNotice::GraphTruncated {
-            fallback: if references {
-                "article references <PMID> --source icite"
-            } else {
-                "article citations <PMID> --source icite"
-            }
-            .parse()
-            .map_err(|_| biomcp_fetch::CacheError::Database)?,
-        });
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::GraphTruncated {
+                fallback: if references {
+                    "article references <PMID> --source icite"
+                } else {
+                    "article citations <PMID> --source icite"
+                }
+                .parse()
+                .map_err(|_| biomcp_fetch::CacheError::Database)?,
+            });
     }
     out.sources.push(source);
     if items

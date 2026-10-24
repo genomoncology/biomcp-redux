@@ -37,8 +37,6 @@ macro_rules! text_value {
     };
 }
 
-
-
 /// Define one closed wire vocabulary.
 #[macro_export]
 macro_rules! wire_enum {
@@ -63,7 +61,6 @@ macro_rules! wire_enum {
     }
 }
 
-
 // Define each canonical spelling once for parsing, display and JSON.
 /// Define one canonical string vocabulary.
 #[macro_export]
@@ -86,18 +83,18 @@ macro_rules! canonical_enum {
         }
 
         impl std::str::FromStr for $name {
-            type Err = crate::Error;
+            type Err = $crate::Error;
 
             fn from_str(value: &str) -> Result<Self, Self::Err> {
                 match value {
                     $($text => Ok(Self::$variant),)+
-                    _ => Err(crate::Error::$error),
+                    _ => Err($crate::Error::$error),
                 }
             }
         }
 
         impl TryFrom<String> for $name {
-            type Error = crate::Error;
+            type Error = $crate::Error;
 
             fn try_from(value: String) -> Result<Self, Self::Error> {
                 value.parse()

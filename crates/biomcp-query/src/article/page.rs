@@ -4,10 +4,10 @@ use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
-use biodata::{Text};
-use biomcp_types::{ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody, Request, Source, Status, StepKind};
+use biodata::Text;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
+use biomcp_types::{ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody, Request, Source, Status, StepKind};
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
     Search(&'a ArticleSearch),
@@ -235,7 +235,9 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
                     Some(biomcp_types::ArticleKey::Doi(id)) => {
                         Some(biomcp_types::ArticleInput::Doi(id.clone()))
                     }
-                    Some(biomcp_types::ArticleKey::Pmc(id)) => Some(biomcp_types::ArticleInput::Pmcid(*id)),
+                    Some(biomcp_types::ArticleKey::Pmc(id)) => {
+                        Some(biomcp_types::ArticleInput::Pmcid(*id))
+                    }
                     _ => None,
                 });
         if let Some(input) = input {
@@ -247,7 +249,9 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             out.next.push((
                 StepKind::Disambiguate,
                 Action::Run {
-                    request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(citing, cited)),
+                    request: Request::ArticleEvidence(biomcp_types::ArticleEvidence::new(
+                        citing, cited,
+                    )),
                     fresh: false,
                 },
             ));
@@ -255,7 +259,8 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) = biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
+        && let Ok(query) =
+            biomcp_types::ArticleGet::new(vec![biomcp_types::ArticleInput::Pmid(id)].into())
     {
         out.next.push((
             StepKind::Disambiguate,

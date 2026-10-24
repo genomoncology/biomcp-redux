@@ -17,8 +17,8 @@ pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> 
 }
 use crate::xml_element::Element;
 use biodata::{Pmcid, Text};
-use biomcp_types::{FigureCaption};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
+use biomcp_types::FigureCaption;
 pub use parts::{Part, Row, TEXT_BYTES, escaped_bytes};
 use serde::{Deserialize, Deserializer};
 /// Body text with source row boundaries and deterministic reading order.

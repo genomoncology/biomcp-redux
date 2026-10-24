@@ -1,6 +1,6 @@
 //! Semantic Scholar graph metadata under one shared optional-key quota.
-use biomcp_types::Source;
 use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
+use biomcp_types::Source;
 use std::time::Duration;
 /// Shared policy for search, paper records, graph edges and recommendations.
 pub static SPEC: SourceSpec = SourceSpec {

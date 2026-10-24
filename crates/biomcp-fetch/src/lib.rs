@@ -192,7 +192,10 @@ impl Fetch {
 
     /// Restrict a command while retaining shared quotas, clocks, recordings and connections.
     /// Existing source restrictions cannot be removed.
-    pub fn restrict_sources(&self, disabled: std::collections::BTreeSet<biomcp_types::Source>) -> Self {
+    pub fn restrict_sources(
+        &self,
+        disabled: std::collections::BTreeSet<biomcp_types::Source>,
+    ) -> Self {
         let mut restricted = self.clone();
         restricted.disabled_sources.extend(disabled);
         restricted

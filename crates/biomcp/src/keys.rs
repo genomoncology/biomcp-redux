@@ -57,9 +57,10 @@ pub(crate) fn run(
             biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
-        Err(Failure::Local) => {
-            crate::command::encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local)
-        }
+        Err(Failure::Local) => crate::command::encode(
+            biomcp_types::ErrorEnvelope::local(),
+            crate::exit::Status::Local,
+        ),
     }
 }
 enum Failure {
@@ -136,7 +137,10 @@ fn state(value: &Value, name: SecretName) -> biomcp_types::KeyState {
         biomcp_types::KeyState::None
     }
 }
-fn entry(name: SecretName, state: biomcp_types::KeyState) -> Result<biomcp_types::RegisteredKey, Failure> {
+fn entry(
+    name: SecretName,
+    state: biomcp_types::KeyState,
+) -> Result<biomcp_types::RegisteredKey, Failure> {
     let text = |s: String| biodata::Text::new(&s).map_err(|_| Failure::Local);
     Ok(biomcp_types::RegisteredKey {
         source: text(name.source().into())?,

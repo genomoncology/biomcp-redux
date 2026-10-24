@@ -2,10 +2,10 @@
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
 use biodata::{Pmcid, Pmid};
-use biomcp_types::{ArticleInput};
-use biomcp_types::{Reason, Source};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{Reason, Source};
 
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,

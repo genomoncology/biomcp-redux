@@ -1,9 +1,9 @@
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
 
-use biomcp_types::{ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source};
 pub(super) fn read<'a>(
     cx: &Ctx<'a>,
     query: &ArticleEvidence,

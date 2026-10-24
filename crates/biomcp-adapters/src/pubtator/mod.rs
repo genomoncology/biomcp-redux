@@ -4,9 +4,9 @@ mod search;
 pub use search::{Search, search};
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Pmid};
-use biomcp_types::{Annotations, Section, Source};
+use biodata::Pmid;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Annotations, Section, Source};
 use std::time::Duration;
 /// Conservative application batch bound; DOI expansions are batched by the caller.
 pub const BATCH_LIMIT: usize = 20;

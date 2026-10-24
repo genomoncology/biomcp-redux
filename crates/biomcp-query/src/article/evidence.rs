@@ -5,8 +5,8 @@ mod page;
 mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 
-use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, CitationContexts, CitationParagraphs, QueryBody, Request, Section, Source, SourceOutcome, Status, StepKind};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{ArticleEvidence, ArticleEvidenceResult, CitationContexts, CitationParagraphs, QueryBody, Request, Section, Source, SourceOutcome, Status, StepKind};
 use sha2::{Digest, Sha256};
 // Source stages leave a bounded part of the same command budget for publishing
 // successful independent evidence and its continuation after a source timeout.
@@ -104,7 +104,8 @@ fn execute<'a>(
     let mut stages = deadline.child(deadline.remaining().saturating_sub(SAVE_BUDGET));
     let started = stages.remaining();
     if graph_disabled {
-        snapshot.graph = Section::unavailable(Source::SemanticScholar, biomcp_types::Reason::Disabled);
+        snapshot.graph =
+            Section::unavailable(Source::SemanticScholar, biomcp_types::Reason::Disabled);
         snapshot.terminal = true;
         snapshot
             .sources

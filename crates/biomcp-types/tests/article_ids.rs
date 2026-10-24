@@ -1,6 +1,6 @@
 //! Public article identifier and command input contracts.
 use biodata::{Doi, Pmcid, Pmid};
-use biomcp_types::{ArticleSearch};
+use biomcp_types::ArticleSearch;
 #[test]
 fn article_identifiers_check_namespaces_and_doi_equality() {
     for valid in ["PPR1295425", "MED17611497", "PMC6181777"] {

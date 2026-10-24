@@ -7,8 +7,8 @@ pub(in crate::article) mod pdf;
 mod tldr;
 use crate::{Ctx, status};
 
-use biomcp_types::{ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord, ArticleSections, Section};
 use biomcp_fetch::Deadline;
+use biomcp_types::{ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord, ArticleSections, Section};
 pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool {
     let requested = !query.sections().is_empty();
     for item in items {

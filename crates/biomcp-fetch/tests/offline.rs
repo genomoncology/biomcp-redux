@@ -5,11 +5,11 @@
     reason = "Controlled local peers seed explicit isolated caches"
 )]
 mod support;
-use biomcp_types::Reason;
 use biomcp_fetch::{
     Fetch, FetchConfig, Freshness, KeyUse, Mode, Quota, Rate, RecordError, ReplayCache,
     RequestError, SourceKey,
 };
+use biomcp_types::Reason;
 use std::{path::Path, thread, time::Duration};
 use support::Answer;
 type Server = support::Server<()>;

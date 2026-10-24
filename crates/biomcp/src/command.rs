@@ -2,8 +2,8 @@
 mod steps;
 mod variant;
 
-use biomcp_types::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
+use biomcp_types::{Envelope, QueryBody, Request, Status};
 use serde_json::Value;
 use std::{ffi::OsString, io};
 
@@ -80,20 +80,29 @@ fn dispatch_using(
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
                 Err(()) => {
-                    return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
+                    return encode(
+                        biomcp_types::ErrorEnvelope::local(),
+                        crate::exit::Status::Local,
+                    );
                 }
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
-            return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
+            return encode(
+                biomcp_types::ErrorEnvelope::local(),
+                crate::exit::Status::Local,
+            );
         }
         _ => {
             owned = match crate::config::fetch(&parsed.globals) {
                 Ok(fetch) => fetch,
                 Err(()) => {
-                    return encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local);
+                    return encode(
+                        biomcp_types::ErrorEnvelope::local(),
+                        crate::exit::Status::Local,
+                    );
                 }
             };
             &owned
@@ -208,7 +217,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biomcp_types::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),
-        (_, QueryBody::NciDiseaseError) => usage_envelope(biomcp_types::ErrorEnvelope::nci_disease()),
+        (_, QueryBody::NciDiseaseError) => {
+            usage_envelope(biomcp_types::ErrorEnvelope::nci_disease())
+        }
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))
         }
@@ -232,9 +243,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             usage_envelope(biomcp_types::ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
-        (_, QueryBody::UnsupportedFilter { source, option }) => {
-            usage_envelope(biomcp_types::ErrorEnvelope::unsupported_filter(source, option))
-        }
+        (_, QueryBody::UnsupportedFilter { source, option }) => usage_envelope(
+            biomcp_types::ErrorEnvelope::unsupported_filter(source, option),
+        ),
         (_, QueryBody::TextPositionError) => encode(
             biomcp_types::ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
@@ -409,8 +420,11 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         biomcp_fetch::RequestError::Source(error) => Some(error.reason),
         _ => None,
     });
-    let mut envelope =
-        Envelope::<biomcp_types::SyncResult>::new(status, biomcp_types::SyncQuery { source }, result.ok());
+    let mut envelope = Envelope::<biomcp_types::SyncResult>::new(
+        status,
+        biomcp_types::SyncQuery { source },
+        result.ok(),
+    );
     envelope.sources.push(biomcp_types::SourceOutcome {
         term: None,
         count: None,
@@ -530,7 +544,10 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
             Envelope::new(Status::Complete, (), Some(result)),
             crate::exit::Status::Success,
         ),
-        Err(_) => encode(biomcp_types::ErrorEnvelope::local(), crate::exit::Status::Local),
+        Err(_) => encode(
+            biomcp_types::ErrorEnvelope::local(),
+            crate::exit::Status::Local,
+        ),
     }
 }
 

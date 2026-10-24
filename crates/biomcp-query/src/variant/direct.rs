@@ -1,8 +1,8 @@
 //! Checked caller IDs can select one source without making an allele-identity claim.
 use crate::{Ctx, Outcome};
-use biodata::{Variant};
-use biomcp_types::{QueryBody, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution, VariantSection};
+use biodata::Variant;
 use biomcp_fetch::Deadline;
+use biomcp_types::{QueryBody, Source, Status, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution, VariantSection};
 pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     let [section] = query.sections() else {
         return None;

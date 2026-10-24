@@ -1,10 +1,10 @@
 //! Bounded body selection under one command budget, including PMID resolution.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{Pmcid, Text};
-use biomcp_types::{ArticleInput};
-use biomcp_types::{ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, TextContent, TextHit};
 use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{ArticleText, ArticleTextResult, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind, TextContent, TextHit};
 /// Read a bounded part or find page through the same transport and command budget.
 pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     download(cx, query, false).out

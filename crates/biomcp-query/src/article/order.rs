@@ -1,8 +1,8 @@
 use crate::{Ctx, Outcome, status};
-use biodata::{Pmid};
-use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome, Status};
+use biodata::Pmid;
 use biomcp_adapters::icite;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{ArticleItem, QueryBody, Source, SourceOutcome, Status};
 /// Application citation enrichment window, shared by searches and graph pages.
 const MAX_PMIDS: usize = 10_000;
 pub(super) struct Counts {

@@ -7,12 +7,12 @@ pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Pmid, Text};
-use biomcp_types::{ArticleHeader};
-use biomcp_types::{ArticleSort, Source, SourceNotice};
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, Secret, SecretName,
     SourceSpec,
 };
+use biomcp_types::ArticleHeader;
+use biomcp_types::{ArticleSort, Source, SourceNotice};
 use std::time::Duration;
 /// Shared NCBI E-utilities policy.
 pub static SPEC: SourceSpec = SourceSpec {

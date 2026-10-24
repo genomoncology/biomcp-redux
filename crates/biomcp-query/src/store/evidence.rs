@@ -1,6 +1,6 @@
 //! Checked evidence continuation state belongs to the existing per-command store.
 use super::{CacheError, Store, db};
-use biodata::{Text};
+use biodata::Text;
 use biomcp_types::{Source, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
 /// Source admission happens before the private snapshot payload is read.

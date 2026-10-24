@@ -1,7 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 
-use biomcp_types::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
+use biomcp_types::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
@@ -511,9 +511,11 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
                 .map(Request::ArticleRecommend)
                 .map_err(|_| ())
         }
-        ("article", "supplement") => serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
-            .map(Request::ArticleSupplement)
-            .map_err(|_| ()),
+        ("article", "supplement") => {
+            serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
+                .map(Request::ArticleSupplement)
+                .map_err(|_| ())
+        }
         ("article", "text") => serde_json::from_value::<ArticleText>(value)
             .map(Request::ArticleText)
             .map_err(|_| ()),

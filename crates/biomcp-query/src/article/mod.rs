@@ -20,9 +20,9 @@ pub mod supplement;
 mod term;
 pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{Text};
-use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind};
+use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
@@ -79,9 +79,15 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let resolved = if query.sources().contains(&biomcp_types::ArticleSource::Pubmed)
-                || query.sources().contains(&biomcp_types::ArticleSource::Litvar)
-                || query.sources().contains(&biomcp_types::ArticleSource::Pubtator)
+            let resolved = if query
+                .sources()
+                .contains(&biomcp_types::ArticleSource::Pubmed)
+                || query
+                    .sources()
+                    .contains(&biomcp_types::ArticleSource::Litvar)
+                || query
+                    .sources()
+                    .contains(&biomcp_types::ArticleSource::Pubtator)
                     && !cx.fetch.disabled(biomcp_types::Source::PubTator)
             {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
@@ -166,9 +172,10 @@ pub fn edges(cx: &Ctx<'_>, query: &biomcp_types::ArticleEdges, references: bool)
 }
 
 /// Check source capabilities before resolving inputs or opening a store.
-pub fn unsupported(query: &ArticleSearch) -> Option<(biomcp_types::Source, biomcp_types::ArticleFilter)> {
-
-use biomcp_types::{ArticleFilter as F, ArticleSource as S};
+pub fn unsupported(
+    query: &ArticleSearch,
+) -> Option<(biomcp_types::Source, biomcp_types::ArticleFilter)> {
+    use biomcp_types::{ArticleFilter as F, ArticleSource as S};
     if query.sources().contains(&S::Litvar) {
         let variant = query.variant().map_or("", Text::as_str);
         let rsid = biomcp_adapters::litvar::is_rsid(variant);

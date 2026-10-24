@@ -35,8 +35,8 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
 mod support;
 #[path = "support/timing.rs"]
 mod timing;
-use biomcp_types::Reason;
 use biomcp_fetch::{Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Secret, SecretName};
+use biomcp_types::Reason;
 use std::{sync::mpsc, thread, time::Duration};
 use support::Answer;
 use timing::Server;

@@ -1,6 +1,5 @@
-
-use biomcp_types::{Source, SourceOutcome, SourceState, Status};
 use biomcp_fetch::{LegReport, RequestError};
+use biomcp_types::{Source, SourceOutcome, SourceState, Status};
 /// Combine input outcomes without hiding a failed input behind a found one.
 pub(crate) fn status(items: impl Iterator<Item = Status>) -> Status {
     let values: Vec<_> = items.collect();

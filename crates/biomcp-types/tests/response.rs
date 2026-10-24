@@ -1,5 +1,5 @@
 //! Section state wire contract before the first section consumer arrives.
-use biodata::{Text};
+use biodata::Text;
 use biomcp_types::{Reason, Section, Source, SourceRecord};
 #[test]
 fn every_section_state_round_trips_without_conflating_data_and_failure() {

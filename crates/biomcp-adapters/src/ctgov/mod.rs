@@ -2,10 +2,10 @@
 pub mod detail;
 pub mod document;
 mod raw;
-use biodata::{Text};
-use biomcp_types::{TrialHeader};
-use biomcp_types::{TrialSearch};
+use biodata::Text;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::TrialHeader;
+use biomcp_types::TrialSearch;
 use raw::{FirstPage, RawPage, Version};
 use std::{collections::BTreeMap, time::Duration};
 /// Publisher terms apply to this registry; individual records are not a blanket CC0 grant.

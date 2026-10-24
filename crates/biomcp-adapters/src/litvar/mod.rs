@@ -1,10 +1,10 @@
 //! Exact LitVar2 candidate selection and source-ordered publication identifiers.
 use crate::quotas;
 use biodata::{Pmid, Text};
-use biomcp_types::{LitVarCandidate, Source};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{LitVarCandidate, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.

@@ -1,10 +1,10 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
 use biodata::{NctId, Text};
-use biomcp_types::{NciDisease, NciTrial, TrialSearch};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, Reply, RequestError,
     SecretName, SourceSpec,
 };
+use biomcp_types::{NciDisease, NciTrial, TrialSearch};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 /// NCI requires the user's own API key for every request, including health probes.
@@ -107,12 +107,14 @@ impl Trial {
             current_trial_status: self.current_trial_status.clone(),
             phase: self.phase.clone(),
             brief_summary: if summary {
-                self.brief_summary.as_ref().map(|s| biomcp_types::NciTextPage {
-                    continuation: None,
-                    text: s.chars().take(CARD_SUMMARY_CHARACTERS).collect(),
-                    offset: 0,
-                    total_characters: s.chars().count() as u32,
-                })
+                self.brief_summary
+                    .as_ref()
+                    .map(|s| biomcp_types::NciTextPage {
+                        continuation: None,
+                        text: s.chars().take(CARD_SUMMARY_CHARACTERS).collect(),
+                        offset: 0,
+                        total_characters: s.chars().count() as u32,
+                    })
             } else {
                 None
             },

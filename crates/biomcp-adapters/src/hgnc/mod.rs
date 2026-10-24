@@ -4,12 +4,12 @@ mod map;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Gene, GeneSymbol, HgncId, HgncStatus, MatchKind, Text};
-use biomcp_types::{GeneHeader, GeneInput, Match};
-use biomcp_types::{Source};
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
     SourceSpec,
 };
+use biomcp_types::Source;
+use biomcp_types::{GeneHeader, GeneInput, Match};
 use std::{marker::PhantomData, time::Duration};
 
 /// HGNC source declaration for published TSV bundles.
