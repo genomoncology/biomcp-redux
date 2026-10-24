@@ -1,6 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
-pub mod recurrence;
 pub mod normalize;
+pub mod recurrence;
 pub mod search;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
