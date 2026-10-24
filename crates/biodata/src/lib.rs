@@ -157,11 +157,12 @@ pub use response::VariantPage;
 pub use query::{CivicClaimKind, VariantSection};
 pub use response::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
-    HotspotAlternate, HotspotMembership, HotspotRecord, VariantCivic, VariantHotspots,
-    VariantSections, OncokbCitation, OncokbVariantRecord, VariantOncokb,
+    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
+    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
     CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
-    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement, Term, VariantRef,
+    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement,
+    Term, VariantRef,
 };

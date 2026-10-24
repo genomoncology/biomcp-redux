@@ -83,7 +83,11 @@ impl TryFrom<Fields> for VariantGet {
         {
             return Err(super::gene::QueryInvalid);
         }
-        if fields.section.contains(&VariantSection::Oncokb) && (fields.build.is_none() || fields.tumor_type.is_none()) { return Err(super::gene::QueryInvalid); }
+        if fields.section.contains(&VariantSection::Oncokb)
+            && (fields.build.is_none() || fields.tumor_type.is_none())
+        {
+            return Err(super::gene::QueryInvalid);
+        }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
         query.0.tumor_type = fields.tumor_type;
         query.0.civic_profile = fields.civic_profile;
@@ -136,7 +140,9 @@ impl VariantGet {
         self
     }
     /// Caller tumor context, never inferred from an allele or gene.
-    pub fn tumor_type(&self) -> Option<&crate::Text> { self.0.tumor_type.as_ref() }
+    pub fn tumor_type(&self) -> Option<&crate::Text> {
+        self.0.tumor_type.as_ref()
+    }
     /// Selected native CIViC profile.
     pub fn civic_profile(&self) -> Option<u64> {
         self.0.civic_profile
