@@ -18,7 +18,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::MUTALYZER,
     deadline: Duration::from_secs(15),
 };
-const NORMALIZE: Endpoint = SPEC.get("/normalize").json_rejections();
+const NORMALIZE: Endpoint = SPEC
+    .get("/normalize")
+    .json_rejections()
+    .fresh(biomcp_fetch::Freshness::Days(1));
 /// A source's exact outcome, never a local normalization.
 #[derive(Debug)]
 pub enum Resolution {
@@ -90,20 +93,25 @@ impl Reply for Normalized {
 /// Route only the explicitly selected service, preserving the supplied description.
 fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
-    let (mut raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
-        if (!reply.errors().is_empty()
-            && reply
-                .payload()
-                .input_description
-                .as_ref()
-                .is_none_or(|description| description.as_str() == input))
-            || reply.payload().input_description.as_ref().map(Text::as_str) == Some(input)
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let mut raw = leg.json_checked_admission::<Normalized>(
+        &endpoint,
+        &[],
+        |reply| {
+            if (!reply.errors().is_empty()
+                && reply
+                    .payload()
+                    .input_description
+                    .as_ref()
+                    .is_none_or(|description| description.as_str() == input))
+                || reply.payload().input_description.as_ref().map(Text::as_str) == Some(input)
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
+        |reply| reply.errors().is_empty(),
+    )?;
     Ok(if let Some(custom) = raw.custom.take() {
         *custom
     } else {

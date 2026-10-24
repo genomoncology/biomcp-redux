@@ -20,7 +20,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::VARIANT_VALIDATOR,
     deadline: Duration::from_secs(15),
 };
-const VALIDATE: Endpoint = SPEC.get("/variantvalidator").json_rejections();
+const VALIDATE: Endpoint = SPEC
+    .get("/variantvalidator")
+    .json_rejections()
+    .fresh(biomcp_fetch::Freshness::Days(1));
 /// Explicit service response, without a local consensus or preferred transcript.
 #[derive(Debug)]
 pub struct Resolution {
@@ -91,7 +94,7 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
         PathSegment::new(input)?,
         PathSegment::new("all")?,
     ]);
-    let (raw, _) = leg.json_received_checked::<Response>(
+    let raw = leg.json_checked_admission::<Response>(
         &endpoint,
         &[("content-type", Arg::Text("application/json"))],
         |reply| {
@@ -105,6 +108,7 @@ fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestEr
                 Err(BadReply)
             }
         },
+        |reply| reply.flag.as_str() != "warning",
     )?;
     Ok(raw)
 }
