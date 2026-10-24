@@ -198,8 +198,9 @@ impl PathSegment {
     /// Encode a raw identifier, rejecting pre-encoded input and path syntax.
     pub fn new(raw: &str) -> Result<Self, crate::InputError> {
         if raw.is_empty()
-            || matches!(raw, "." | "..")
-            || raw.starts_with("//") || raw.contains("://")
+            || raw.split('/').any(|part| matches!(part, "." | ".."))
+            || raw.starts_with("//")
+            || raw.contains("://")
             || raw
                 .chars()
                 .any(|c| c.is_control() || matches!(c, '\\' | '%'))

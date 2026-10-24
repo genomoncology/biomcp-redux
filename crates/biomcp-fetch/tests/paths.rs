@@ -139,11 +139,9 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
                 .json::<Answer>(&endpoint, &[])
         });
         let request = server.next();
-        assert!(
-            request.text.starts_with(
-                "GET /variant/get/litvar%40rs121913530%23%23%2Fpiece/publications HTTP/1.1\r\n"
-            )
-        );
+        assert!(request.text.starts_with(
+            "GET /variant/get/litvar%40rs121913530%23%23%2Fpiece/publications HTTP/1.1\r\n"
+        ));
         request.ok();
         assert!(worker.join().unwrap().unwrap().answer);
     });
