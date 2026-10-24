@@ -229,7 +229,9 @@ fn isolation() -> Check {
     for child in [&first_step, &next_step, &other_case] {
         let nested = child.get("nested").ok_or("nested probe missing")?;
         for values in [child, nested] {
-            if values.get("LLVM_PROFILE_FILE").and_then(serde_json::Value::as_str)
+            if values
+                .get("LLVM_PROFILE_FILE")
+                .and_then(serde_json::Value::as_str)
                 != profile.to_str()
             {
                 return Err("profiling must survive nested child launches".into());
