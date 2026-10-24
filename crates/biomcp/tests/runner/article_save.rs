@@ -7,6 +7,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn check() -> Check {
     text()?;
+    preprint()?;
     supplement()?;
     pdf()?;
     opaque()?;
@@ -265,6 +266,9 @@ fn opaque() -> Check {
             .join("pmc-oa/51c9ef213345bdbc7ed493ea19928bd900d5791413a6c5a65b60f2c50eac690f-0.bin"),
         bytes,
     )?;
+    let reader = vec!["article".into(), "supplement".into(), "28944238".into(), "MGG3-5-553-s002.xlsx".into()];
+    let unavailable = command_at(&env, &replay, &reader, 0)?;
+    assert_eq!(unavailable.pointer("/result/content/data/reason"), Some(&json!("unsupported")));
     let path = env.root().join("opaque.docx");
     let value = command_at(&env, &replay, &args("supplement", &path), 0)?;
     receipt(&value, &path, bytes, None)?;
@@ -336,6 +340,7 @@ fn cut_body() -> Check {
     let folder = env.root().join("cut");
     fs::create_dir(&folder)?;
     let path = folder.join("never.xlsx");
+    let mut failures = Vec::new();
     for replace in [false, true] {
         if replace {
             fs::write(&path, b"caller content")?;
@@ -352,6 +357,7 @@ fn cut_body() -> Check {
             "{}",
             String::from_utf8_lossy(&output.stdout)
         );
+        failures.push(String::from_utf8_lossy(&output.stdout).into_owned());
         if replace {
             assert_eq!(fs::read(&path)?, b"caller content");
             assert_eq!(fs::read_dir(&folder)?.count(), 1);
@@ -365,5 +371,21 @@ fn cut_body() -> Check {
             .iter()
             .any(|(_, request)| request.contains(".xlsx?"))
     );
+    Ok(())
+}
+
+fn preprint() -> Check {
+    let env = Environment::new()?;
+    let folder = env.root().join("preprints");
+    fs::create_dir(&folder)?;
+    let mut cli = args("text", &folder);
+    *cli.get_mut(2).ok_or("identity")? = "PPR1295425".into();
+    let value = command(&env, "article/preprint/live", &cli, 0)?;
+    let text = fs::read_to_string(folder.join("PPR1295425.md"))?;
+    assert!(text.contains("ID: PPR1295425"));
+    assert!(text.contains("License: cc_by"));
+    assert!(text.contains("Introduction"));
+    assert_eq!(value.pointer("/result/content/data/saved/url"), Some(&json!("https://www.ebi.ac.uk/europepmc/webservices/rest/PPR1295425/fullTextXML")));
+    assert!(value.pointer("/result/content/data/saved/parts").and_then(Value::as_u64).is_some_and(|n| n > 1));
     Ok(())
 }

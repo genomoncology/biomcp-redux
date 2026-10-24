@@ -35,7 +35,7 @@
       ]
     }
   ],
-  "description": "Read one bounded body part or a page of matching paragraphs and table rows.",
+  "description": "Read one bounded body part, find matching rows, or save the complete Markdown document.",
   "properties": {
     "find": {
       "$ref": "#/$defs/Text",
