@@ -197,8 +197,12 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
-fn is_false(v: &bool) -> bool { !v }
-fn is_include(v: &RetractionFilter) -> bool { *v == RetractionFilter::Include }
+fn is_false(v: &bool) -> bool {
+    !v
+}
+fn is_include(v: &RetractionFilter) -> bool {
+    *v == RetractionFilter::Include
+}
 crate::macros::wire_enum! {
     /// Native retraction inclusion policy.
     RetractionFilter {
@@ -208,7 +212,11 @@ crate::macros::wire_enum! {
         Exclude => "exclude",
     }
 }
-impl Default for RetractionFilter { fn default() -> Self { Self::Include } }
+impl Default for RetractionFilter {
+    fn default() -> Self {
+        Self::Include
+    }
+}
 fn sources() -> Box<[ArticleSource]> {
     Box::new([ArticleSource::Pubmed])
 }
@@ -255,11 +263,17 @@ impl TryFrom<Fields> for ArticleSearch {
 }
 impl ArticleSearch {
     /// Whether native open access is required.
-    pub fn open_access(&self) -> bool { self.0.open_access }
+    pub fn open_access(&self) -> bool {
+        self.0.open_access
+    }
     /// Whether native preprints must be excluded.
-    pub fn no_preprints(&self) -> bool { self.0.no_preprints }
+    pub fn no_preprints(&self) -> bool {
+        self.0.no_preprints
+    }
     /// Whether native retractions must be excluded.
-    pub fn exclude_retracted(&self) -> bool { self.0.retracted == RetractionFilter::Exclude }
+    pub fn exclude_retracted(&self) -> bool {
+        self.0.retracted == RetractionFilter::Exclude
+    }
     /// Sources in the caller’s turn order.
     pub fn sources(&self) -> &[ArticleSource] {
         &self.0.source

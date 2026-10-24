@@ -247,9 +247,15 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
     let mut term = parts.join(" AND ");
-    if query.open_access() { term.push_str(" AND OPEN_ACCESS:y"); }
-    if query.no_preprints() { term.push_str(" NOT SRC:PPR"); }
-    if query.exclude_retracted() { term.push_str(" NOT PUB_TYPE:\"retracted publication\""); }
+    if query.open_access() {
+        term.push_str(" AND OPEN_ACCESS:y");
+    }
+    if query.no_preprints() {
+        term.push_str(" NOT SRC:PPR");
+    }
+    if query.exclude_retracted() {
+        term.push_str(" NOT PUB_TYPE:\"retracted publication\"");
+    }
     term
 }
 

@@ -150,19 +150,22 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             }
         }
     }
-    Ok(FetchedArticle { indexing: super::indexing::parse(citation, row)?, article: Article {
-        europepmc_id: None,
-        pmid: Some(pmid),
-        doi,
-        pmcid,
-        title,
-        journal,
-        date,
-        types: types.into(),
-        corrections: corrections(citation)?.into(),
-        authors: authors(row)?.into(),
-        abstract_parts: abstracts(row)?.into(),
-    }})
+    Ok(FetchedArticle {
+        indexing: super::indexing::parse(citation, row)?,
+        article: Article {
+            europepmc_id: None,
+            pmid: Some(pmid),
+            doi,
+            pmcid,
+            title,
+            journal,
+            date,
+            types: types.into(),
+            corrections: corrections(citation)?.into(),
+            authors: authors(row)?.into(),
+            abstract_parts: abstracts(row)?.into(),
+        },
+    })
 }
 fn text(value: Option<String>) -> Result<Option<Text>, BadReply> {
     value

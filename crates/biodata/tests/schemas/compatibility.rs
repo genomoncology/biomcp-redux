@@ -347,11 +347,19 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "x-positional",
             "x-trailing-section",
             "x-comma-separated",
+            "x-cli-flags",
         ]
         .contains(&key.as_str())
         {
             return Err(format!("unsupported keyword {key} at {path}"));
         }
+    }
+    if let Some(flags) = object.get("x-cli-flags") {
+        let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
+        if flags.is_empty() || flags.iter().any(|(name, value)| {
+            name.is_empty() || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'-')
+                || value.as_str().is_none_or(str::is_empty)
+        }) { return Err("unsupported CLI flag annotation".into()); }
     }
     if object
         .get("x-trailing-section")
@@ -383,6 +391,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "x-positional",
                         "x-trailing-section",
                         "x-comma-separated",
+            "x-cli-flags",
                         "default",
                     ]
                     .contains(&key.as_str())

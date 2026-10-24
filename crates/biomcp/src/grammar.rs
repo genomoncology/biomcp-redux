@@ -224,8 +224,12 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
     for (name, property) in properties(schema)? {
         if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
             for flag in flags.keys() {
-                command = command.arg(Arg::new(flag.clone()).long(flag.clone()).action(ArgAction::SetTrue)
-                    .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()));
+                command = command.arg(
+                    Arg::new(flag.clone())
+                        .long(flag.clone())
+                        .action(ArgAction::SetTrue)
+                        .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()),
+                );
             }
             continue;
         }
@@ -254,9 +258,13 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
                 argument.num_args(1..).action(ArgAction::Append)
             };
         }
-        command = command.arg(if property.get("type").and_then(Value::as_str) == Some("boolean") {
-            argument.action(ArgAction::SetTrue)
-        } else { argument.value_parser(clap::builder::StringValueParser::new()) });
+        command = command.arg(
+            if property.get("type").and_then(Value::as_str) == Some("boolean") {
+                argument.action(ArgAction::SetTrue)
+            } else {
+                argument.value_parser(clap::builder::StringValueParser::new())
+            },
+        );
     }
     Ok(command)
 }
@@ -265,12 +273,16 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     for (name, property) in properties(schema)? {
         if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
             for (flag, value) in flags {
-                if matches.get_flag(flag) { result.insert(name.clone(), value.clone()); }
+                if matches.get_flag(flag) {
+                    result.insert(name.clone(), value.clone());
+                }
             }
             continue;
         }
         if property.get("type").and_then(Value::as_str) == Some("boolean") {
-            if matches.get_flag(name) { result.insert(name.clone(), Value::Bool(true)); }
+            if matches.get_flag(name) {
+                result.insert(name.clone(), Value::Bool(true));
+            }
             continue;
         }
         let Some(values) = matches.get_many::<String>(name) else {

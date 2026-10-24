@@ -1,15 +1,41 @@
 use biodata::{ArticleGet, ArticleResolution, ArticleSectionWord, QueryBody, Section, Source};
-pub(in crate::article) fn join(query: &ArticleGet, records: &[super::super::get::Record], out: &mut crate::Outcome) {
-    if !super::selected(query, ArticleSectionWord::Indexing) { return; }
-    let QueryBody::ArticleCards(cards) = &mut out.body else { return; };
+pub(in crate::article) fn join(
+    query: &ArticleGet,
+    records: &[super::super::get::Record],
+    out: &mut crate::Outcome,
+) {
+    if !super::selected(query, ArticleSectionWord::Indexing) {
+        return;
+    }
+    let QueryBody::ArticleCards(cards) = &mut out.body else {
+        return;
+    };
     for item in &mut cards.items {
-        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else { continue; };
-        let Some(section) = &mut item.sections else { continue; };
+        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
+            continue;
+        };
+        let Some(section) = &mut item.sections else {
+            continue;
+        };
         if let Some((record, _)) = records.iter().find(|(r, _)| r.article.pmid == card.pmid) {
             let data = record.indexing.clone();
-            section.indexing = Some(if data.mesh.is_empty() && data.keywords.is_empty() && data.affiliations.total == 0 && data.orcids.is_empty() {
-                Section::Empty { source: Source::PubMed, record: None }
-            } else { Section::Data { source: Source::PubMed, data } });
+            section.indexing = Some(
+                if data.mesh.is_empty()
+                    && data.keywords.is_empty()
+                    && data.affiliations.total == 0
+                    && data.orcids.is_empty()
+                {
+                    Section::Empty {
+                        source: Source::PubMed,
+                        record: None,
+                    }
+                } else {
+                    Section::Data {
+                        source: Source::PubMed,
+                        data,
+                    }
+                },
+            );
         }
     }
 }

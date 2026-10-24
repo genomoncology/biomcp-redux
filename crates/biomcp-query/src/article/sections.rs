@@ -1,8 +1,8 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
-pub(super) mod indexing;
 mod citations;
 pub(crate) mod fulltext;
+pub(super) mod indexing;
 mod tldr;
 use crate::{Ctx, status};
 use biodata::{
@@ -18,7 +18,8 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                indexing: (selected(query, ArticleSectionWord::Indexing) && card.pmid.is_none()).then_some(Section::NotApplicable),
+                indexing: (selected(query, ArticleSectionWord::Indexing) && card.pmid.is_none())
+                    .then_some(Section::NotApplicable),
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
                 .then_some(Section::NotApplicable),
@@ -38,7 +39,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             });
         }
         item.more = [
-            (ArticleSectionWord::Indexing, ArticleSection::Indexing, card.pmid.is_some()),
+            (
+                ArticleSectionWord::Indexing,
+                ArticleSection::Indexing,
+                card.pmid.is_some(),
+            ),
             (
                 ArticleSectionWord::Annotations,
                 ArticleSection::Annotations,

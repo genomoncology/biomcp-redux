@@ -198,9 +198,9 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
                 F::Until,
                 F::Type,
                 F::DateSort,
-            F::OpenAccess,
-            F::NoPreprints,
-            F::ExcludeRetracted,
+                F::OpenAccess,
+                F::NoPreprints,
+                F::ExcludeRetracted,
             ])
         {
             return Some((source, option));
@@ -208,7 +208,14 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
     }
     if query.sources().contains(&S::SemanticScholar) {
         return query
-            .rejects(&[F::Author, F::Journal, F::Type, F::DateSort, F::NoPreprints, F::ExcludeRetracted])
+            .rejects(&[
+                F::Author,
+                F::Journal,
+                F::Type,
+                F::DateSort,
+                F::NoPreprints,
+                F::ExcludeRetracted,
+            ])
             .map(|filter| (biodata::Source::SemanticScholar, filter));
     }
     None

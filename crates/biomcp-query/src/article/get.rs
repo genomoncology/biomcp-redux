@@ -86,7 +86,9 @@ fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure
             Ok((rows, metadata)) => {
                 for row in rows {
                     if row.article.pmid.is_some_and(|id| ids.contains(&id))
-                        && !records.iter().any(|(r, _): &Record| r.article.pmid == row.article.pmid)
+                        && !records
+                            .iter()
+                            .any(|(r, _): &Record| r.article.pmid == row.article.pmid)
                     {
                         records.push((row, metadata.fetched));
                     }
