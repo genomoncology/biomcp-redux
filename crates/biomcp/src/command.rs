@@ -405,13 +405,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         biomcp_types::SyncQuery { source },
         result.ok(),
     );
-    envelope.sources.push(biomcp_types::SourceOutcome {
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
+    envelope.sources.push(biomcp_adapters::registry::outcome(
         source,
-        state: if reason == Some(biomcp_types::Reason::Disabled) {
+        if reason == Some(biomcp_types::Reason::Disabled) {
             biomcp_types::SourceState::Skipped
         } else if status == Status::Complete {
             biomcp_types::SourceState::Ok
@@ -419,7 +415,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
             biomcp_types::SourceState::Failed
         },
         reason,
-    });
+    ));
     steps::network_steps(&mut envelope.next, &envelope.sources);
     encode(
         envelope,

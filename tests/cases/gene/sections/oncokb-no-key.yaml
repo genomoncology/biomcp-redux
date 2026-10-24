@@ -25,7 +25,10 @@
           "includes": {
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key"
+            "reason": "no_key",
+            "use": "restricted",
+            "terms": "OncoKB license",
+            "terms_url": "https://faq.oncokb.org/licensing"
           }
         },
         "/next/*/kind": {

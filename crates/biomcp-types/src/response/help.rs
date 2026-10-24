@@ -8,7 +8,7 @@ pub struct Help {
     pub commands: Vec<HelpCommand>,
 }
 impl super::ResponseBody for Help {
-    const SCHEMA: &'static str = "biomcp.help/1";
+    const SCHEMA: &'static str = "biomcp.help/2";
     type Query = Vec<String>;
 }
 /// One command and its generated arguments.

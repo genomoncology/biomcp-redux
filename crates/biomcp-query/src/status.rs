@@ -25,13 +25,9 @@ pub(crate) fn source(
         Some(RequestError::Source(error)) => Some(error.reason),
         _ => report.failures.first().map(|failure| failure.reason),
     };
-    SourceOutcome {
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
+    biomcp_adapters::registry::outcome(
         source,
-        state: if matches!(
+        if matches!(
             reason,
             Some(biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey)
         ) {
@@ -46,7 +42,7 @@ pub(crate) fn source(
             SourceState::Ok
         },
         reason,
-    }
+    )
 }
 pub(crate) fn local(error: RequestError) -> Option<RequestError> {
     (!matches!(error, RequestError::Source(_))).then_some(error)

@@ -30,6 +30,7 @@ fn isolated_trees_reject_structural_violations() -> Check {
     let valid = tree()?;
     check(valid.path())?;
     let cases = [
+        ("crates/biomcp-query/src/example.rs", "fn response() { SourceOutcome { source: Source::Hgnc } }", "source outcomes require registry terms"),
         (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nbiomcp-types={path='../biomcp-types'}\n",

@@ -22,6 +22,13 @@ SourceState {
 pub struct SourceOutcome {
     /// Asked source.
     pub source: Source,
+    /// Reviewed source use category; publisher terms remain authoritative.
+    #[serde(rename = "use")]
+    pub usage: crate::Use,
+    /// Publisher terms name from the source registry.
+    pub terms: Box<str>,
+    /// Publisher page documenting the terms.
+    pub terms_url: Box<str>,
     /// Retained state.
     pub state: SourceState,
     /// Failure or stale-fallback reason.

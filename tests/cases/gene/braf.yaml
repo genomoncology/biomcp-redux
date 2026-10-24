@@ -34,15 +34,26 @@
           "-"
         ],
         "/sources/0/source": "hgnc",
-        "/sources/*/use": ["open", "open", "restricted"],
-        "/sources/*/terms": {"count": 3},
-        "/sources/*/terms_url": {"count": 3},
+        "/sources/*/use": [
+          "open",
+          "restricted",
+          "restricted"
+        ],
+        "/sources/*/terms": {
+          "count": 3
+        },
+        "/sources/*/terms_url": {
+          "count": 3
+        },
         "/sources/1/source": "mygene",
         "/sources/2": {
           "equals": {
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key"
+            "reason": "no_key",
+            "use": "restricted",
+            "terms": "OncoKB license",
+            "terms_url": "https://faq.oncokb.org/licensing"
           }
         },
         "/next/*/kind": {
@@ -108,7 +119,10 @@
           "equals": {
             "source": "oncokb",
             "state": "skipped",
-            "reason": "no_key"
+            "reason": "no_key",
+            "use": "restricted",
+            "terms": "OncoKB license",
+            "terms_url": "https://faq.oncokb.org/licensing"
           }
         },
         "/next/*/kind": {

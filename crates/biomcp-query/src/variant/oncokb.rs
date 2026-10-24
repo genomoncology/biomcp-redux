@@ -128,16 +128,7 @@ fn unavailable(reason: Reason) -> super::sections::Result<VariantOncokb> {
         None,
     )
 }
-fn source(state: SourceState, reason: Reason) -> SourceOutcome {
-    SourceOutcome {
-        source: Source::Oncokb,
-        state,
-        reason: Some(reason),
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
-    }
+fn source(state: SourceState, reason: Reason) -> biomcp_adapters::registry::outcome(Source::Oncokb, state, Some(reason))
 }
 
 pub(super) fn input_genomic(query: &VariantGet, build: Build) -> Option<String> {
