@@ -9,6 +9,14 @@ use biomcp_fetch::{
     xml::XmlReply,
 };
 use serde::Deserialize;
+/// One citation and its separately requested indexing facts.
+#[derive(Deserialize)]
+pub struct FetchedArticle {
+    /// Full article for the default card.
+    pub article: Article,
+    /// Facts from that same citation.
+    pub indexing: biodata::Indexing,
+}
 const FETCH: Endpoint = SPEC
     .post_form("/efetch.fcgi")
     .idempotent()
@@ -46,7 +54,7 @@ pub fn fetch_articles(
     leg: &Leg<'_>,
     ids: &[Pmid],
     email: Option<&Secret>,
-) -> Result<(Vec<Article>, ReplyMetadata), RequestError> {
+) -> Result<(Vec<FetchedArticle>, ReplyMetadata), RequestError> {
     if ids.len() > 200 || ids.is_empty() {
         return Err(biomcp_fetch::InputError::Method.into());
     }
@@ -68,7 +76,7 @@ pub fn fetch_articles(
 }
 #[derive(Deserialize)]
 struct Records {
-    articles: Vec<Article>,
+    articles: Vec<FetchedArticle>,
 }
 impl Reply for Records {
     fn check(&self) -> Result<(), BadReply> {
@@ -110,7 +118,7 @@ impl XmlReply for Records {
         Ok(Self { articles })
     }
 }
-fn article(root: Element<'_>) -> Result<Article, BadReply> {
+fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
     let citation = root.child("MedlineCitation")?.ok_or(BadReply)?;
     let row = citation.child("Article")?.ok_or(BadReply)?;
     let pmid = citation
@@ -142,7 +150,7 @@ fn article(root: Element<'_>) -> Result<Article, BadReply> {
             }
         }
     }
-    Ok(Article {
+    Ok(FetchedArticle { indexing: super::indexing::parse(citation, row)?, article: Article {
         europepmc_id: None,
         pmid: Some(pmid),
         doi,
@@ -154,7 +162,7 @@ fn article(root: Element<'_>) -> Result<Article, BadReply> {
         corrections: corrections(citation)?.into(),
         authors: authors(row)?.into(),
         abstract_parts: abstracts(row)?.into(),
-    })
+    }})
 }
 fn text(value: Option<String>) -> Result<Option<Text>, BadReply> {
     value

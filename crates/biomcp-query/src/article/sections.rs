@@ -1,5 +1,6 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
+pub(super) mod indexing;
 mod citations;
 pub(crate) mod fulltext;
 mod tldr;
@@ -17,6 +18,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
+                indexing: (selected(query, ArticleSectionWord::Indexing) && card.pmid.is_none()).then_some(Section::NotApplicable),
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
                 .then_some(Section::NotApplicable),
@@ -36,6 +38,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             });
         }
         item.more = [
+            (ArticleSectionWord::Indexing, ArticleSection::Indexing, card.pmid.is_some()),
             (
                 ArticleSectionWord::Annotations,
                 ArticleSection::Annotations,
