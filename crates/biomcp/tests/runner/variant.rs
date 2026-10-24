@@ -266,7 +266,10 @@ fn components() -> Result<(), String> {
         || cosmic.pointer("/records/0/identity") != Some(&json!("unverified"))
         || cosmic.pointer("/records/0/reference") != Some(&json!("T"))
         || cosmic.pointer("/records/0/alternate") != Some(&json!("A"))
-        || cosmic.pointer("/records/0/mut_freq") != Some(&json!(0))
+        || cosmic
+            .pointer("/records/0/mut_freq")
+            .and_then(Value::as_f64)
+            != Some(0.0)
         || cosmic.pointer("/components/0/version") != Some(&json!("synthetic-68"))
         || requests.len() != 3
     {
