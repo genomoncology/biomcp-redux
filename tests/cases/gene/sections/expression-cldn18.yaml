@@ -1,0 +1,36 @@
+{
+  "feature": "gene-sections",
+  "story": "CLDN18 reports HPA expression with source tissue names and separate RNA units",
+  "replay": "gene/expression",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "CLDN18",
+        "expression"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/gene/symbol": "CLDN18",
+        "/result/items/0/sections/expression/state": "data",
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/*/tissue": {
+          "includes": "stomach 1"
+        },
+        "/result/items/0/sections/expression": {
+          "max_tokens": 150
+        },
+        "/sources/*/source": {
+          "includes": "hpa"
+        }
+      },
+      "max_bytes": 3500,
+      "mcp": [
+        "get",
+        "gene",
+        "CLDN18",
+        "expression"
+      ]
+    }
+  ]
+}
