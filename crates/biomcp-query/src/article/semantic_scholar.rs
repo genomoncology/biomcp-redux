@@ -80,7 +80,7 @@ pub fn resolve_dois<'a>(
         for batch in dois.chunks(100) {
             let term = batch
                 .iter()
-                .map(|doi| format!("\"{doi}\"[doi]"))
+                .map(|doi| format!("\"{}\"[doi]", doi.to_string().replace('\\', "\\\\").replace('"', "\\\"")))
                 .collect::<Vec<_>>()
                 .join(" OR ");
             let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
