@@ -3,7 +3,7 @@
     clippy::indexing_slicing,
     reason = "Checked captures fail directly when a fixture shape changes"
 )]
-use super::response_cases::checked_case;
+use super::response_cases::checked_steps;
 use libtest_mimic::Trial;
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
@@ -22,9 +22,8 @@ fn failures() -> Check {
         ("error", "bad_reply"),
         ("deadline", "deadline_exceeded"),
     ] {
-        let output = checked_case(
+        let output = checked_steps(
             "trial/condition",
-            &args,
             |_, record| {
                 if !record["url"]
                     .as_str()
@@ -35,7 +34,10 @@ fn failures() -> Check {
                 let mut exchange = record["exchanges"][0].clone();
                 exchange["delay_ms"] = json!(0);
                 match kind {
-                    "429" => exchange["status"] = json!(429),
+                    "429" => {
+                        exchange["status"] = json!(429);
+                        exchange["retry_after_ms"] = json!(1);
+                    }
                     "500" => exchange["status"] = json!(500),
                     "cut" => exchange["body"] = json!({"kind":"text","value":"{\"studies\":["}),
                     "error" => {
@@ -49,8 +51,10 @@ fn failures() -> Check {
                     if matches!(kind, "429" | "500") { 3 } else { 1 }
                 ]);
             },
-            json!({"/status":"failed","/sources/0/source":"ctgov","/sources/0/reason":reason}),
-            4,
+            json!([
+                {"run":args,"exit":4,"expect":{"/status":"failed","/sources/0/source":"ctgov","/sources/0/reason":reason}},
+                {"run":args,"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
+            ]),
         )?;
         if output.get("page").is_some()
             || output.get("result").is_some()

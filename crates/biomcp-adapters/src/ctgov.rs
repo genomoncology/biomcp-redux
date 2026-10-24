@@ -264,15 +264,13 @@ impl Protocol {
             title: self.identification_module.brief_title,
             status: self.status_module.overall_status,
             phases: self.design_module.phases,
-            conditions: self
-                .conditions_module
-                .map_or_else(Box::default, |v| v.conditions),
-            interventions: self
-                .arms_interventions_module
-                .map_or_else(Vec::new, |v| {
-                    v.interventions.into_iter().map(|i| i.name).collect()
-                })
-                .into(),
+            conditions: names(
+                self.conditions_module
+                    .map_or_else(Vec::new, |v| v.conditions.into_vec()),
+            ),
+            interventions: names(self.arms_interventions_module.map_or_else(Vec::new, |v| {
+                v.interventions.into_iter().map(|i| i.name).collect()
+            })),
             updated: self.status_module.last_update_post_date_struct.date,
         })
     }
@@ -286,4 +284,15 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+// Header lists stop here; get and its sections retain the full source record.
+const HEADER_NAMES: usize = 3;
+fn names(mut values: Vec<Text>) -> biodata::Capped<Text> {
+    let total = values.len() as u64;
+    values.truncate(HEADER_NAMES);
+    biodata::Capped {
+        items: values.into(),
+        total,
+    }
 }

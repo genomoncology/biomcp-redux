@@ -110,9 +110,9 @@ pub struct TrialHeader {
     /// Source phases; absent phases remain absent.
     pub phases: Box<[TrialPhase]>,
     /// Source condition names.
-    pub conditions: Box<[Text]>,
+    pub conditions: crate::Capped<Text>,
     /// Source intervention names.
-    pub interventions: Box<[Text]>,
+    pub interventions: crate::Capped<Text>,
     /// Last posted registry update.
     pub updated: PartialDate,
     /// Publisher's canonical record URL.
