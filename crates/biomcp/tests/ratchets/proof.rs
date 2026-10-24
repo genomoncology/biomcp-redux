@@ -178,3 +178,12 @@ fn rejects_unlisted_integration_test_folders() -> Check {
         "test outside listed locations",
     )
 }
+
+#[test]
+fn rejects_conditional_integration_test_attributes() -> Check {
+    rejects(
+        "crates/biomcp-adapters/tests/unlisted/conditional.rs",
+        "#[cfg_attr(test, test)]\nfn hidden() {}",
+        "test outside listed locations",
+    )
+}
