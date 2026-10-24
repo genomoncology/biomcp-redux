@@ -5,7 +5,6 @@ use super::{
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test(
@@ -56,25 +55,23 @@ fn release() -> Result<(), String> {
             return Err(format!("same-response versions and count checks not requested: {request}"));
         }
         if problem.is_none() {
-            let files = fs::read_dir(record.join("gnomad"))
-                .map_err(|e| e.to_string())?
-                .collect::<Result<Vec<_>, _>>()
+            let replay = env
+                .command(
+                    env!("CARGO_BIN_EXE_biomcp"),
+                    &[
+                        "variant".into(),
+                        "population".into(),
+                        "CA123643".into(),
+                        "--detail".into(),
+                        "--replay".into(),
+                        record.to_string_lossy().into(),
+                    ],
+                )
+                .output()
                 .map_err(|e| e.to_string())?;
-            let [file] = files.as_slice() else {
-                return Err("expected one gnomAD recording".into());
-            };
-            let mut recorded: Value =
-                serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
-                    .map_err(|e| e.to_string())?;
-            recorded
-                .as_object_mut()
-                .ok_or("record object absent")?
-                .remove("exchanges");
-            eprintln!(
-                "GNOMAD_REQUEST_IDENTITY={} {}",
-                file.file_name().to_string_lossy(),
-                recorded
-            );
+            let replayed: Value =
+                serde_json::from_slice(&replay.stdout).map_err(|e| e.to_string())?;
+            check(&replayed, None)?;
         }
     }
     Ok(())
@@ -107,6 +104,7 @@ fn check(value: &Value, problem: Option<&str>) -> Result<(), String> {
     } else if data.pointer("/exome/frequency/dataset_version")
         != Some(&json!("synthetic-exome-8.7"))
         || data.pointer("/exome/frequency/allele_count") != Some(&json!(2))
+        || data.pointer("/exome/frequency/dataset") != Some(&json!("gnomad"))
         || data.pointer("/exome/frequency/allele_number") != Some(&json!(1460618))
         || data.pointer("/exome/frequency/subject/id") != Some(&json!("CA123643"))
         || data.pointer("/exome/frequency/allele_frequency").is_some()
@@ -123,40 +121,53 @@ fn published(request: &str) -> Result<String, String> {
     let mut body: Value =
         serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
     if !request.starts_with("GET /allele/") {
-        body["data"]["variant"]["genome"] = json!({"ac":0,"an":50,"filters":[],"populations":[]});
+        *body
+            .pointer_mut("/data/variant/genome")
+            .ok_or("missing synthetic genome")? =
+            json!({"ac":0,"an":50,"filters":[],"populations":[]});
         // ALL is identified by its cohort, never by array order or a matching count.
-        body["data"]["variant"]["va"] = json!({
+        let variant = body
+            .pointer_mut("/data/variant")
+            .and_then(Value::as_object_mut)
+            .ok_or("missing synthetic variant")?;
+        variant.insert("va".into(), json!({
             "exome":[{"derivedFrom":{"version":"synthetic-subgroup"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"nfe"}},
                 {"derivedFrom":{"version":"synthetic-exome-8.7"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"ALL"}}],
             "genome":[{"derivedFrom":{"version":"synthetic-genome-9.2"},"focusAlleleCount":0,"locusAlleleCount":50,"cohort":{"id":"ALL"}}]
-        });
+        }));
     }
     Ok(body.to_string())
 }
-fn edited(request: &str, edit: fn(&mut Value)) -> Result<String, String> {
+fn edited(request: &str, field: &str, value: Value) -> Result<String, String> {
     let mut body: Value = serde_json::from_str(&published(request)?).map_err(|e| e.to_string())?;
     if !request.starts_with("GET /allele/") {
-        edit(&mut body);
+        *body
+            .pointer_mut(field)
+            .ok_or("missing synthetic VA field")? = value;
     }
     Ok(body.to_string())
 }
 fn missing_release(request: &str) -> Result<String, String> {
-    edited(request, |b| {
-        b["data"]["variant"]["va"]["exome"][1]["derivedFrom"]["version"] = Value::Null
-    })
+    edited(
+        request,
+        "/data/variant/va/exome/1/derivedFrom/version",
+        Value::Null,
+    )
 }
 fn wrong_counts(request: &str) -> Result<String, String> {
-    edited(request, |b| {
-        b["data"]["variant"]["va"]["exome"][1]["focusAlleleCount"] = json!(3)
-    })
+    edited(
+        request,
+        "/data/variant/va/exome/1/focusAlleleCount",
+        json!(3),
+    )
 }
 fn wrong_denominator(request: &str) -> Result<String, String> {
-    edited(request, |b| {
-        b["data"]["variant"]["va"]["exome"][1]["locusAlleleCount"] = json!(1460619)
-    })
+    edited(
+        request,
+        "/data/variant/va/exome/1/locusAlleleCount",
+        json!(1460619),
+    )
 }
 fn duplicate_total(request: &str) -> Result<String, String> {
-    edited(request, |b| {
-        b["data"]["variant"]["va"]["exome"][0]["cohort"]["id"] = json!("ALL")
-    })
+    edited(request, "/data/variant/va/exome/0/cohort/id", json!("ALL"))
 }

@@ -30,7 +30,7 @@ pub(super) fn frequency(
             return None;
         }
     };
-    let dataset = Text::new(biomcp_adapters::gnomad::variant::DATASET).ok()?;
+    let dataset = Text::new(Source::Gnomad.into()).ok()?;
     PopulationFrequency::new(
         subject.clone(),
         Build::Grch38,

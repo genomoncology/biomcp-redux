@@ -771,6 +771,17 @@
           },
           "type": "array"
         },
+        "frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationFrequency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked total from a release supplied alongside matching source counts."
+        },
         "group_id": {
           "anyOf": [
             {
@@ -1513,6 +1524,133 @@
         "joint"
       ],
       "type": "string"
+    },
+    "PopulationFrequency": {
+      "additionalProperties": false,
+      "description": "One checked stratum of one source dataset release.",
+      "properties": {
+        "allele_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "allele_frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allele_number": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "ancestry_group": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attribution": {
+          "$ref": "#/$defs/Attribution"
+        },
+        "build": {
+          "$ref": "#/$defs/Build"
+        },
+        "data_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationDataType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataset": {
+          "$ref": "#/$defs/Text"
+        },
+        "dataset_version": {
+          "$ref": "#/$defs/Text"
+        },
+        "faf95": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filters": {
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "hemizygote_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "homozygote_count": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationSex"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/VariantRef"
+        },
+        "subset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "subject",
+        "build",
+        "dataset",
+        "dataset_version",
+        "attribution"
+      ],
+      "type": "object"
     },
     "PopulationSex": {
       "description": "Sex stratum stated by a population source.",
