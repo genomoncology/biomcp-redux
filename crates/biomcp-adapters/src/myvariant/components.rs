@@ -64,3 +64,27 @@ pub fn label(terms: Terms) -> Result<biodata::ComponentTerms, biomcp_fetch::Inpu
         url: biodata::Text::new(terms.url).map_err(|_| biomcp_fetch::InputError::Serialization)?,
     })
 }
+
+/// All carried components, reusing a direct source's terms where it has one.
+pub fn all() -> Vec<Component> {
+    let mut components = COMPONENTS.to_vec();
+    components.push(Component {
+        source: Source::MyVariant,
+        name: "clinvar",
+        terms: crate::clinvar::SPEC.terms,
+    });
+    components
+}
+/// Whether source or component policy blocks a carried component.
+pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
+    fetch.disabled(Source::MyVariant)
+        || name == "clinvar" && fetch.disabled(Source::ClinVar)
+        || terms(name).is_some_and(|terms| fetch.disabled_use(terms.usage))
+}
+/// Opaque source queries cannot be safely scoped when a component is switched off.
+pub fn restricted(fetch: &biomcp_fetch::Fetch) -> bool {
+    !fetch.disabled(Source::MyVariant)
+        && all()
+            .iter()
+            .any(|component| disabled(fetch, component.name))
+}

@@ -73,7 +73,7 @@ fn component_health(
     source: biodata::Source,
     fetch: &Fetch,
 ) -> Result<Vec<biodata::ComponentHealth>, RequestError> {
-    biomcp_adapters::myvariant::components::COMPONENTS
+    biomcp_adapters::myvariant::components::all()
         .iter()
         .filter(|component| component.source == source)
         .map(|component| {
@@ -81,7 +81,7 @@ fn component_health(
                 name: Text::new(component.name)
                     .map_err(|_| biomcp_fetch::InputError::Serialization)?,
                 terms: biomcp_adapters::myvariant::components::label(component.terms)?,
-                disabled: fetch.disabled(source) || fetch.disabled_use(component.terms.usage),
+                disabled: biomcp_adapters::myvariant::components::disabled(fetch, component.name),
             })
         })
         .collect()
