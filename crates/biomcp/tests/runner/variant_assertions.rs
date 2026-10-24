@@ -6,6 +6,10 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "variant/assertions-erepo-invalid-document-never-caches",
+            || history(2).map_err(Into::into),
+        ),
+        Trial::test(
             "variant/assertions-erepo-invalid-fields-never-cache",
             || invalid_fields().map_err(Into::into),
         ),
@@ -27,11 +31,11 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
         Trial::test(
             "variant/assertions-erepo-selected-version-uses-only-document",
-            || history(false).map_err(Into::into),
+            || history(0).map_err(Into::into),
         ),
         Trial::test(
             "variant/assertions-erepo-wrong-version-is-never-cached",
-            || history(true).map_err(Into::into),
+            || history(1).map_err(Into::into),
         ),
         Trial::test(
             "variant/assertions-erepo-source-zero-is-not-unknown-allele",
@@ -170,7 +174,9 @@ fn invalid_fields() -> Result<(), String> {
                 let mut reply: Value =
                     serde_json::from_str(&body("CA000434")).map_err(|e| e.to_string())?;
                 if count == 1 {
-                    reply["data"][0][field] = json!(invalid);
+                    *reply
+                        .pointer_mut(&format!("/data/0/{field}"))
+                        .ok_or("missing synthetic field")? = json!(invalid);
                 }
                 Ok(reply.to_string())
             },
@@ -195,8 +201,9 @@ fn invalid_fields() -> Result<(), String> {
     Ok(())
 }
 
-fn history(wrong: bool) -> Result<(), String> {
-    let stub = history_stub(wrong)?;
+fn history(mode: u8) -> Result<(), String> {
+    let wrong = mode != 0;
+    let stub = history_stub(mode)?;
     let env = environment(&stub)?;
     let args = [
         "variant",
@@ -355,7 +362,7 @@ fn disabled() -> Result<(), String> {
     Ok(())
 }
 
-fn history_stub(wrong: bool) -> Result<Stub, String> {
+fn history_stub(mode: u8) -> Result<Stub, String> {
     Stub::for_source_status(
         "erepo.clinicalgenome.org",
         "application/json",
@@ -377,11 +384,11 @@ fn history_stub(wrong: bool) -> Result<Stub, String> {
             "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
             "id":"CG-PCER-VARINT:synthetic-history",
             "type":"VariantPathogenicityInterpretation",
-            "metadata":{"version":if wrong {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
+            "metadata":{"version":if mode == 1 {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
             "variant":{"id":"CAR:CA000434"},
             "condition":{"label":"Synthetic historical condition"},
             "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
-            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":"PM2","id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030","defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
+            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":if mode == 2 {""} else {"PM2"},"id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030","defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
         }}).to_string())
         },
         |_| 200,

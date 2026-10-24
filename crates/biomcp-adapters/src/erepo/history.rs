@@ -26,6 +26,7 @@ pub(super) fn fetch(
         if data.uuid == uuid
             && data.metadata.version == version
             && data.variant.id == format!("CAR:{caid}")
+            && data.clone().map(caid, record, version).is_ok()
         {
             Ok(())
         } else {
@@ -34,7 +35,7 @@ pub(super) fn fetch(
     })?;
     reply.data.map(caid, record, version)
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct DocumentReply {
     data: Document,
 }
@@ -50,7 +51,7 @@ impl Reply for DocumentReply {
         }
     }
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Document {
     uuid: String,
     id: String,
@@ -64,27 +65,27 @@ struct Document {
     #[serde(rename = "evidenceLine")]
     lines: Option<Vec<Line>>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Metadata {
     version: String,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Identifier {
     id: String,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Label {
     label: String,
     id: Option<String>,
     #[serde(rename = "@id")]
     iri: Option<String>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Line {
     #[serde(rename = "evidenceItem")]
     items: Option<Vec<Assessment>>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Assessment {
     #[serde(rename = "type")]
     kind: String,
@@ -92,7 +93,7 @@ struct Assessment {
     #[serde(rename = "statementOutcome")]
     outcome: Option<Label>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct Criterion {
     label: String,
     id: Option<String>,
