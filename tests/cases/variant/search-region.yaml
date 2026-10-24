@@ -33,7 +33,7 @@
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",
         "/query": {
-          "eq": {
+          "equals": {
             "region": "chr7:55259515-55259515",
             "build": "GRCh37",
             "limit": 2,
@@ -41,7 +41,7 @@
           }
         },
         "/result": {
-          "eq": {
+          "equals": {
             "source_query": "chr7:55259515-55259515",
             "build": "GRCh37",
             "items": [
@@ -98,7 +98,7 @@
           }
         },
         "/page": {
-          "eq": {
+          "equals": {
             "offset": 0,
             "returned": 2,
             "total": 4
@@ -121,7 +121,7 @@
       "offline": true,
       "expect": {
         "/result": {
-          "eq": {
+          "equals": {
             "source_query": "chr7:55259515-55259515",
             "build": "GRCh37",
             "items": [
@@ -178,7 +178,7 @@
           }
         },
         "/page": {
-          "eq": {
+          "equals": {
             "offset": 0,
             "returned": 2,
             "total": 4
