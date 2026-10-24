@@ -3,6 +3,7 @@ use std::{fs, path::Path};
 
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
+    ("crates/biodata/tests/variant_values.rs", "Exercise copied common variant values and constructor boundaries through the public library API."),
     (
         "crates/biodata/tests/article_ids.rs",
         "Exercise checked values and schema contracts through the public library API.",

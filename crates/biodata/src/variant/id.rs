@@ -24,8 +24,8 @@ impl FromStr for VariantId {
     fn from_str(value: &str) -> Result<Self, Error> {
         for (prefix, make) in [
             ("rs", Self::Rs as fn(u64) -> Self),
-            ("CA", Self::Ca),
-            ("PA", Self::Pa),
+            
+            
             ("clinvar:", Self::ClinVarVariation),
             ("clinvar.allele:", Self::ClinVarAllele),
         ] {
@@ -36,6 +36,13 @@ impl FromStr for VariantId {
                 } else {
                     Err(Error::VariantIdInvalid)
                 };
+            }
+        }
+        for (prefix, make) in [("CA", Self::Ca as fn(u64) -> Self), ("PA", Self::Pa)] {
+            if let Some(number) = value.strip_prefix(prefix) {
+                let n = number.parse::<u64>().map_err(|_| Error::VariantIdInvalid)?;
+                let id = make(n);
+                return if n > 0 && id.to_string() == value { Ok(id) } else { Err(Error::VariantIdInvalid) };
             }
         }
         if let Some(digest) = value.strip_prefix("ga4gh:VA.") {
@@ -69,8 +76,8 @@ impl fmt::Display for VariantId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Rs(n) => write!(f, "rs{n}"),
-            Self::Ca(n) => write!(f, "CA{n}"),
-            Self::Pa(n) => write!(f, "PA{n}"),
+            Self::Ca(n) => write!(f, "CA{n:06}"),
+            Self::Pa(n) => write!(f, "PA{n:06}"),
             Self::ClinVarVariation(n) => write!(f, "clinvar:{n}"),
             Self::ClinVarAllele(n) => write!(f, "clinvar.allele:{n}"),
             Self::ClinVarAccession(s) | Self::Vrs(s) => f.write_str(s),
@@ -80,5 +87,5 @@ impl fmt::Display for VariantId {
 text_value!(
     VariantId,
     "VariantId",
-    r"^((rs|CA|PA|clinvar:|clinvar\.allele:)[1-9][0-9]*|(VCV|RCV|SCV)[0-9]{9}(\.[1-9][0-9]*)?|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
+    r"^(((rs|clinvar:|clinvar\.allele:)[1-9][0-9]*|(CA|PA)[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\.[1-9][0-9]*)?|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
 );

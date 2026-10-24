@@ -99,7 +99,7 @@ fn registry() -> Vec<Contract> {
         GeneInput => ("gene-input", "biodata.gene-input/1"),
         Gene => ("gene", "biodata.gene/2"),
         GeneHeader => ("gene-header", "biomcp.gene_header/1"),
-        GeneResolution => ("gene-resolution", "biodata.gene-resolution/1"),
+        GeneResolution => ("gene-resolution", "biodata.gene-resolution/2"),
         EntrezGeneId => ("entrez-gene-id", "biodata.entrez-gene-id/1"),
         EnsemblGeneId => ("ensembl-gene-id", "biodata.ensembl-gene-id/1"),
         GeneSymbol => ("gene-symbol", "biodata.gene-symbol/1"),

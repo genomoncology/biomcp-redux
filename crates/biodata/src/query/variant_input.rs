@@ -44,7 +44,7 @@ impl VariantInput {
                 _ => Ok(VariantNamespace::Unsupported),
             };
         }
-        if positive(value) {
+        if positive(value) && value.parse::<u64>().is_ok() {
             return Ok(VariantNamespace::ClinVar);
         }
         if value.parse::<crate::HgvsText>().is_ok() {
@@ -64,7 +64,7 @@ impl VariantInput {
         }
         if reference
             .strip_prefix("chr")
-            .is_some_and(|s| matches!(s, "X" | "Y" | "M") || positive(s))
+            .is_some_and(|s| s == "M" || s.parse::<crate::Chromosome>().is_ok())
         {
             return Ok(VariantNamespace::Chromosome);
         }

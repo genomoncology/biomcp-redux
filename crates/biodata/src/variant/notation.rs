@@ -115,7 +115,7 @@ impl Expression {
                 .as_str()
                 .strip_prefix("chr")
                 .and_then(|v| v.split_once(':'))
-                .is_some_and(|(c, _)| c.parse::<crate::Chromosome>().is_ok());
+                .is_some_and(|(c, _)| c == "M" || c.parse::<crate::Chromosome>().is_ok());
         if (!qualified && !chromosome)
             || !body.starts_with(&format!("{expected}."))
             || body.len() < 3
