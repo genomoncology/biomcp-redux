@@ -60,6 +60,17 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         body.request = params;
         body.source_updated = version.ok();
     }
+    if matches!(
+        error,
+        Some(biomcp_fetch::RequestError::Source(
+            biomcp_fetch::SourceError {
+                status: Some(400),
+                ..
+            }
+        ))
+    ) {
+        outcome.body = QueryBody::TextPositionError;
+    }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome

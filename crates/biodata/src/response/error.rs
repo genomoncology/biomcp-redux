@@ -42,6 +42,13 @@ singleton! {
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+        TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
+        TrialVariant => "retired; use: --variant for explicit discovery text",
+        TrialSince => "renamed; use: --updated-since",
+        TrialUntil => "renamed; use: --updated-until",
+        TrialResults => "renamed; use: --has-results",
+        TrialPage => "renamed; use: --next-page with the opaque registry cursor",
+        TrialNoExpansion => "retired; registry discovery never invents chemical aliases",
         Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
