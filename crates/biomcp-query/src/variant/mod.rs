@@ -98,7 +98,8 @@ fn resolve(
             } else {
                 input.to_owned()
             };
-            let found = myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::Grch37))?;
+            let found =
+                myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::Grch37))?;
             problems.extend(found.problems);
             Ok((found.value, None))
         }
@@ -171,36 +172,46 @@ fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
             },
         }
     }
-
 }
 
-fn enrich(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, candidates: &mut [VariantHeader], problems: &mut Vec<biodata::Problem>) -> (biodata::SourceOutcome, Option<RequestError>) {
+fn enrich(
+    cx: &Ctx<'_>,
+    deadline: biomcp_fetch::Deadline<'_>,
+    candidates: &mut [VariantHeader],
+    problems: &mut Vec<biodata::Problem>,
+) -> (biodata::SourceOutcome, Option<RequestError>) {
     let mut local = None;
-        let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
-        let mut join_error = None;
-        for candidate in candidates {
-            if let Some(id) = join_id(candidate) {
-                match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
-                    Ok(found) => {
-                        problems.extend(found.problems);
-                        for row in found.value {
-                            let mut facts = candidate.facts.to_vec();
-                            facts.extend(row.facts);
-                            candidate.facts = facts.into();
-                        }
+    let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+    let mut join_error = None;
+    for candidate in candidates {
+        if let Some(id) = join_id(candidate) {
+            match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
+                Ok(found) => {
+                    problems.extend(found.problems);
+                    for row in found.value {
+                        let mut facts = candidate.facts.to_vec();
+                        facts.extend(row.facts);
+                        candidate.facts = facts.into();
                     }
-                    Err(e) => {
-                        join_error = Some(e);
-                        local = local.or(status::local(e));
-                    }
+                }
+                Err(e) => {
+                    join_error = Some(e);
+                    local = local.or(status::local(e));
                 }
             }
         }
-    (status::source(Source::MyVariant, leg.finish(), join_error), local)
-
+    }
+    (
+        status::source(Source::MyVariant, leg.finish(), join_error),
+        local,
+    )
 }
 
-fn next(query: &VariantGet, resolution: VariantResolution, candidates: &[VariantHeader]) -> Vec<(StepKind, Action)> {
+fn next(
+    query: &VariantGet,
+    resolution: VariantResolution,
+    candidates: &[VariantHeader],
+) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates {
         for row in candidates {

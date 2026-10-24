@@ -22,8 +22,16 @@ const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
 const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,cosmic.cosmic_id";
 /// Resolve the exact published rsID or ClinVar ID, keeping every native candidate.
 /// Pages are bounded by the provider cap and source totals, never by taking its first hit.
-pub fn lookup(leg: &Leg<'_>, query: &str, build: biodata::Build) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
-    let assembly = if build == biodata::Build::Grch38 { "hg38" } else { "hg19" };
+pub fn lookup(
+    leg: &Leg<'_>,
+    query: &str,
+    build: biodata::Build,
+) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    let assembly = if build == biodata::Build::Grch38 {
+        "hg38"
+    } else {
+        "hg19"
+    };
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
