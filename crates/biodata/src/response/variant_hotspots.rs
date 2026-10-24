@@ -20,10 +20,13 @@ pub struct VariantHotspots {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HotspotRecord {
+    /// Whether transcript and consequence were linked by the identity source.
+    pub membership: HotspotMembership,
     /// Gene as stated by the source.
     pub gene: GeneSymbol,
     /// Native transcript spelling, without an inferred accession version.
-    pub transcript: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transcript: Option<Text>,
     /// Native residue label; no genomic allele is inferred.
     pub residue: Text,
     /// Tumors reported for this residue by the source.
@@ -41,4 +44,14 @@ pub struct HotspotAlternate {
     pub amino_acid: Text,
     /// Source count, without deriving a frequency.
     pub count: u64,
+}
+
+crate::macros::wire_enum! {
+    /// Source transcript and consequence join state.
+    HotspotMembership {
+        /// Provider-qualified transcript and consequence matched.
+        Exact => "exact",
+        /// A native source row with no established transcript/consequence join.
+        Candidate => "candidate",
+    }
 }

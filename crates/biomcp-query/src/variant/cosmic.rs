@@ -7,7 +7,7 @@ pub(super) fn section(
     query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
-) -> super::components::Result<VariantCosmic> {
+) -> super::sections::Result<VariantCosmic> {
     let [candidate] = candidates else {
         return (Section::NotApplicable, Vec::new(), Vec::new(), None);
     };

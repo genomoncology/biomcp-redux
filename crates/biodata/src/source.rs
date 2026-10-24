@@ -59,6 +59,8 @@ canonical_enum! {
         Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
+        /// GWAS Catalog v2.
+        Gwas => "gwas",
         /// gnomAD.
         Gnomad => "gnomad",
         /// ClinVar assertions.
@@ -89,6 +91,8 @@ canonical_enum! {
         Nci => "nci",
         /// CIViC.
         Civic => "civic",
+        /// Cancer Hotspots residue recurrence.
+        CancerHotspots => "hotspots",
         /// OncoKB.
         Oncokb => "oncokb",
         /// MyVariant.info aggregation.

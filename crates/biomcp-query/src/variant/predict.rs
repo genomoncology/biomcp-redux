@@ -7,6 +7,6 @@ pub(super) fn section(
     _query: &VariantGet,
     _candidates: &[VariantHeader],
     _deadline: Deadline<'_>,
-) -> super::components::Result<VariantPredictors> {
+) -> super::sections::Result<VariantPredictors> {
     super::components::restricted()
 }

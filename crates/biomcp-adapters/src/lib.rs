@@ -45,6 +45,8 @@ pub mod allele_registry;
 /// ClinicalTrials.gov native search.
 pub mod ctgov;
 
+/// Cancer Hotspots source-attributed residue recurrence.
+pub mod hotspots;
 pub mod mutalyzer;
 pub mod myvariant;
 /// Explicit keyed NCI native trials.
@@ -53,3 +55,7 @@ pub mod variantvalidator;
 
 mod assertion;
 pub mod erepo;
+
+pub mod clinvar;
+/// GWAS Catalog v2 exact rsID associations.
+pub mod gwas;

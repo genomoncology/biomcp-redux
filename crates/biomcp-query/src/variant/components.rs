@@ -1,13 +1,6 @@
 //! Component restrictions are decided before reading replies or caches.
-use biodata::{Problem, Reason, Section, Source, SourceOutcome, SourceState};
-use biomcp_fetch::RequestError;
-pub(super) type Result<T> = (
-    Section<T>,
-    Vec<SourceOutcome>,
-    Vec<Problem>,
-    Option<RequestError>,
-);
-pub(super) fn restricted<T>() -> Result<T> {
+use biodata::{Reason, Section, Source, SourceOutcome, SourceState};
+pub(super) fn restricted<T>() -> super::sections::Result<T> {
     (
         Section::Unavailable {
             source: Source::MyVariant,

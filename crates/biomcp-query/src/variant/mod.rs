@@ -1,4 +1,5 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub(crate) mod assertions;
 mod components;
 mod conservation;
 mod cosmic;
@@ -53,20 +54,11 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
-    let (section_sources, section_problems, section_local) =
+    let (section_sources, section_problems, section_error) =
         sections::apply(cx, query, &mut candidates, deadline);
-    for incoming in section_sources {
-        if let Some(existing) = sources
-            .iter_mut()
-            .find(|source| source.source == incoming.source)
-        {
-            status::retain_source_state(existing, &incoming);
-        } else {
-            sources.push(incoming);
-        }
-    }
+    sources.extend(section_sources);
     problems.extend(section_problems);
-    local = local.or(section_local);
+    local = local.or(section_error);
     let next = next(query, resolution, &candidates, page.as_ref());
     let overall = if matches!(
         resolution,
@@ -304,3 +296,7 @@ fn candidate_page(
         truncated: None,
     })
 }
+
+mod gwas;
+mod population;
+pub(crate) mod population_detail;
