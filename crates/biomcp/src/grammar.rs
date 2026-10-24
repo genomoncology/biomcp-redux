@@ -160,6 +160,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let action = if verb == "help" {
         let source = matches
             .subcommand()
+            .filter(|(name, _)| *name == "key")
             .and_then(|(_, m)| m.get_one::<String>("source"))
             .map_or(Ok(biodata::Source::Oncokb), |s| s.parse())
             .map_err(|_| ())?;
