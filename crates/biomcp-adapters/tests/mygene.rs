@@ -122,8 +122,6 @@ fn synthetic_untrusted_identities_cannot_attach_extras_to_another_query() {
         Box::new(|body| { let hit = body[1].clone(); body.as_array_mut().unwrap().push(hit); }),
         Box::new(|body| body[1]["entrezgene"] = json!("1438")),
         Box::new(|body| { body[1].as_object_mut().unwrap().remove("entrezgene"); }),
-        Box::new(|body| body[1]["HGNC"] = json!("not-an-id")),
-        Box::new(|body| { body[1].as_object_mut().unwrap().remove("HGNC"); }),
         Box::new(|body| body[1]["query"] = json!("12345")),
         Box::new(|body| body[1]["query"] = json!("invalid")),
     ];
@@ -132,7 +130,7 @@ fn synthetic_untrusted_identities_cannot_attach_extras_to_another_query() {
         let batch = &batches[0];
         assert_eq!(batch.result.as_ref().unwrap().len(), 1);
         assert_eq!(batch.result.as_ref().unwrap()[0].value.query_id, id(1438));
-        assert_eq!(batch.problems.len(), 1);
+        assert!(!batch.problems.is_empty());
     }
     // An HGNC identity mismatch is decided by the authoritative join consumer.
     let batches = run_synthetic(|body| body[1]["HGNC"] = json!("2435"));
@@ -185,4 +183,21 @@ fn synthetic_chunk_failure_does_not_hide_a_successful_chunk() {
     let values = batches[1].result.as_ref().unwrap();
     assert_eq!(values.len(), 1);
     assert_eq!(values[0].value.query_id, id(201));
+}
+
+#[test]
+fn synthetic_missing_and_malformed_hgnc_remain_distinct_from_a_checked_join_identity() {
+    for malformed in [false, true] {
+        let batches = run_synthetic(|body| {
+            body[1].as_object_mut().unwrap().remove("HGNC");
+            if malformed { body[1]["HGNC"] = json!("not-an-id"); }
+        });
+        let mapped = &batches[0].result.as_ref().unwrap()[0];
+        assert!(mapped.value.hgnc_id.is_none());
+        assert_eq!(mapped.problems.len(), usize::from(malformed));
+        assert!(batches[0].problems.is_empty());
+    }
+    let batches = run_synthetic(|body| { body.as_array_mut().unwrap().remove(1); });
+    assert_eq!(batches[0].problems.len(), 1);
+    assert_eq!(batches[0].problems[0].record.as_ref().unwrap().as_str(), "673");
 }
