@@ -197,7 +197,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
     ) -> Result<T, RequestError> {
-        self.post_json_received_checked(ep, params, body, |_| Ok(()))
+        self.post_json_decoded(ep, params, body, Decoder::json())
             .map(|(reply, _)| reply)
     }
 
@@ -209,8 +209,29 @@ impl Leg<'_> {
         body: &B,
         check: impl Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.post_json_decoded(ep, params, body, Decoder::checked_json(&check))
+    }
+
+    /// Keep valid source rows while denying cache admission for mixed request identities.
+    /// The same predicate rejects pre-existing entries before fresh or stale reuse.
+    pub fn post_json_checked_cache<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        body: &B,
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<T, RequestError> {
+        self.post_json_decoded(ep, &[], body, Decoder::json().cache_if(&cache_if))
+            .map(|(reply, _)| reply)
+    }
+
+    fn post_json_decoded<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        body: &B,
+        codec: Decoder<'_, T>,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, true)?;
-        let codec = Decoder::checked_json(&check);
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
             ep.path.to_string()
