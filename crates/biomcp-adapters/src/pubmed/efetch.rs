@@ -160,12 +160,21 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             title,
             journal,
             date,
+            electronic_date: electronic_date(row, date)?,
             types: types.into(),
             corrections: corrections(citation)?.into(),
             authors: authors(row)?.into(),
             abstract_parts: abstracts(row)?.into(),
         },
     })
+}
+fn electronic_date(row: Element<'_>, print: Option<PartialDate>) -> Result<Option<PartialDate>, BadReply> {
+    for date in row.children("ArticleDate")? {
+        if date.attr("DateType")?.as_deref() == Some("Electronic") {
+            return Ok(pubdate(Some(date))?.filter(|electronic| Some(*electronic) != print));
+        }
+    }
+    Ok(None)
 }
 fn text(value: Option<String>) -> Result<Option<Text>, BadReply> {
     value

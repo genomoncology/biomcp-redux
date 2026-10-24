@@ -105,6 +105,7 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
             title: raw.title,
             journal: raw.book_or_report_details.and_then(|p| p.publisher),
             date: raw.first_publication_date,
+            electronic_date: None,
             types: raw
                 .pub_type_list
                 .pub_type

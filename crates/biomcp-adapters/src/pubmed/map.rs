@@ -47,6 +47,8 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         .and_then(Field::value)
         .and_then(|s| Text::new(&s).ok());
     let date = row.pubdate.and_then(Field::value).and_then(|s| date(&s));
+    let electronic_date = row.epubdate.and_then(Field::value).and_then(|s| self::date(&s))
+        .filter(|electronic| Some(*electronic) != date);
     let authors = row.authors.and_then(Field::value).unwrap_or_default();
     let author_count = u32::try_from(authors.len()).ok()?;
     let first_author = authors
@@ -93,6 +95,7 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         title,
         journal,
         date,
+        electronic_date,
         types,
         types_unknown: false,
         first_author,

@@ -311,7 +311,7 @@ Every legacy ordinary section is kept: `eligibility`, `contacts`, `locations`, `
 
 ## Evidence location and review boundary
 
-Raw responses, exact request manifests, released-product outputs, official specification documents, baseline archive/checksum/provenance, proposed JSON projections and the size analysis script live on Yellow at `data/biomcp-redux/0079-trial-investigation/`. `SHA256SUMS` covers the retained files. The local failure is labeled synthetic and remains separate from actual provider replies. The source question bank and design are the only new Git content; raw captures and executables stay outside Git.
+Raw responses, exact request manifests, released-product outputs, official specification documents, baseline archive/checksum/provenance, proposed JSON projections and the size analysis script live on Yellow at the evidence store under ticket 0079. `SHA256SUMS` covers the retained files. The local failure is labeled synthetic and remains separate from actual provider replies. The source question bank and design are the only new Git content; raw captures and executables stay outside Git.
 
 The clinical review covered all 24 questions and the bounded age-metadata clarification. It confirmed publication facts and the no-limit convention, kept recruitment and count claims tied to captured registry data, and rejected clinical eligibility conclusions from text search or a structured age match. The investigator read both results before using them.
 

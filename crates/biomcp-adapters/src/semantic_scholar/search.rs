@@ -133,6 +133,7 @@ impl Paper {
             title,
             journal: self.venue.and_then(|s| Text::new(&s).ok()),
             date: self
+            electronic_date: None,
                 .publication_date
                 .or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
             types: Box::default(),

@@ -182,6 +182,12 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     actions(query, pool, returned, total, out);
     if let Cursor::Search(search) = query {
         variant_step(search, out);
+        if !partial && total < u64::from(search.limit()) {
+            out.next.extend(search.term_drops().into_iter().map(|query| (
+                StepKind::Disambiguate,
+                Action::Run { request: Request::SearchArticle(query), fresh: false },
+            )));
+        }
     }
     if partial {
         query.retry(
