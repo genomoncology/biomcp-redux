@@ -322,6 +322,7 @@ fn article_input_schema_preserves_preprint_local_identifiers() {
 }
 
 #[test]
+#[expect(clippy::expect_used, reason = "The public contract check requires a valid query fixture")]
 fn article_access_filter_schema_and_serde_share_the_native_policy() {
     let schema = validator::<ArticleSearch>();
     for policy in ["include", "exclude"] {
