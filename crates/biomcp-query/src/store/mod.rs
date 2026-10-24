@@ -34,30 +34,33 @@ impl<'a> Store<'a> {
         let wall_end = started.checked_add(deadline.remaining()).unwrap_or(started);
         let mut connection = access.connect()?;
         connection.busy_timeout(deadline.remaining()).map_err(db)?;
-        biomcp_fetch::check_owners(
-            &connection,
-            &[
-                SchemaOwner {
-                    name: "biomcp-fetch",
-                    version: biomcp_fetch::VERSION,
-                    tables: &["reply", "bundle"],
-                },
-                OWNER,
-            ],
-        )?;
-        let tx = connection
-            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        access.admit(deadline, || {
+            biomcp_fetch::check_owners(
+                &connection,
+                &[
+                    SchemaOwner {
+                        name: "biomcp-fetch",
+                        version: biomcp_fetch::VERSION,
+                        tables: &["reply", "bundle"],
+                    },
+                    OWNER,
+                ],
+            )?;
+            let tx = connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db)?;
+            tx.execute_batch(include_str!("schema.sql")).map_err(db)?;
+            tx.execute(
+                "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
+                params![OWNER.name, VERSION],
+            )
             .map_err(db)?;
-        tx.execute_batch(include_str!("schema.sql")).map_err(db)?;
-        tx.execute(
-            "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
-            params![OWNER.name, VERSION],
-        )
-        .map_err(db)?;
-        tx.commit().map_err(db)?;
-        connection
-            .pragma_update(None, "journal_mode", "WAL")
-            .map_err(db)?;
+            tx.commit().map_err(db)?;
+            connection
+                .pragma_update(None, "journal_mode", "WAL")
+                .map_err(db)?;
+            Ok(())
+        })?;
         Ok(Self {
             connection,
             deadline,
@@ -72,6 +75,30 @@ impl<'a> Store<'a> {
         self.connection
             .busy_timeout(self.deadline().remaining())
             .map_err(db)
+    }
+    pub(super) fn read<T>(
+        &self,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self.prepare()?;
+        self._access
+            .admit(self.deadline(), || operation(&self.connection))
+    }
+    pub(super) fn write<T>(
+        &mut self,
+        operation: impl FnOnce(&rusqlite::Transaction<'_>) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self.prepare()?;
+        let deadline = self.deadline();
+        self._access.admit(deadline, || {
+            let tx = self
+                .connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db)?;
+            let result = operation(&tx)?;
+            tx.commit().map_err(db)?;
+            Ok(result)
+        })
     }
     pub(crate) fn set_deadline(&mut self, deadline: Deadline<'a>) {
         self.deadline = deadline;

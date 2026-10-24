@@ -13,6 +13,15 @@ impl std::fmt::Debug for CacheAccess {
     }
 }
 impl CacheAccess {
+    /// Serialize SQL across schema owners sharing this Fetch, without holding admission during HTTP.
+    pub fn admit<T>(
+        &self,
+        deadline: crate::Deadline<'_>,
+        operation: impl FnOnce() -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self._cache.sql(deadline, |_| operation())
+    }
+
     /// Open the selected owned file; callers validate their metadata before writes.
     pub fn connect(&self) -> Result<rusqlite::Connection, CacheError> {
         rusqlite::Connection::open(&self.path).map_err(|_| CacheError::Database)
