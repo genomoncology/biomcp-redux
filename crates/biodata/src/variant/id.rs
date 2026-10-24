@@ -8,8 +8,6 @@ pub enum VariantId {
     Rs(u64),
     /// ClinGen canonical nucleotide allele.
     Ca(u64),
-    /// ClinGen canonical protein allele.
-    Pa(u64),
     /// ClinVar Variation ID.
     ClinVarVariation(u64),
     /// ClinVar Allele ID.
@@ -38,7 +36,7 @@ impl FromStr for VariantId {
                 };
             }
         }
-        for (prefix, make) in [("CA", Self::Ca as fn(u64) -> Self), ("PA", Self::Pa)] {
+        for (prefix, make) in [("CA", Self::Ca as fn(u64) -> Self)] {
             if let Some(number) = value.strip_prefix(prefix) {
                 let n = number.parse::<u64>().map_err(|_| Error::VariantIdInvalid)?;
                 let id = make(n);
@@ -77,7 +75,6 @@ impl fmt::Display for VariantId {
         match self {
             Self::Rs(n) => write!(f, "rs{n}"),
             Self::Ca(n) => write!(f, "CA{n:06}"),
-            Self::Pa(n) => write!(f, "PA{n:06}"),
             Self::ClinVarVariation(n) => write!(f, "clinvar:{n}"),
             Self::ClinVarAllele(n) => write!(f, "clinvar.allele:{n}"),
             Self::ClinVarAccession(s) | Self::Vrs(s) => f.write_str(s),
@@ -87,5 +84,5 @@ impl fmt::Display for VariantId {
 text_value!(
     VariantId,
     "VariantId",
-    r"^(((rs|clinvar:|clinvar\.allele:)[1-9][0-9]*|(CA|PA)[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\.[1-9][0-9]*)?|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
+    r"^(((rs|clinvar:|clinvar\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\.[1-9][0-9]*)?|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
 );
