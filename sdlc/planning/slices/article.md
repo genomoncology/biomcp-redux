@@ -528,9 +528,11 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 
 `ArticleHeader` (schema `biodata.article_header/1`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
 
-`ArticleItem` (response type, per `architecture.md` section 3.6): `header`, `found_by`, `cited_by: Option<u32>`, `sentence: Option<MatchedSentence>`. `found_by` prints as a map from source to native rank and appears only when the pool has several sources. `cited_by` comes from iCite and appears only under `--sort citations`. `sentence` holds `{ section, text }` and appears only on an item LitSense2 found. All three sit on the item and never on the biodata header, because they come from other sources.
+`ArticleItem` holds an optional checked `key`, an optional `pmid`, an optional hydrated `header`, `found_by`, optional iCite `cited_by`, and an optional source `sentence`. A source row survives missing header metadata; DOI joins retain the raw secondary DOI even when another identifier wins key priority. `found_by` records native ranks only for a multi-source fold. The sentence is the first matching sentence returned in LitSense2 order. These source facts belong to the item, not the hydrated header.
 
-`ArticleEdgeItem` (response type for `article citations` and `article references`): `header`, and with `--source semantic-scholar` also `intents: Box<[CitationIntent]>`, `influential: bool` and `contexts: Capped<Text>`, the sentences where the citing paper cites the cited one. A page holds the first context of each item with the total; `article citation-evidence` returns them all.
+`ArticleEdgeItem` shares that item shape. With Semantic Scholar, optional `intents`, optional `influential` and optional capped `contexts` distinguish an unreported value from an empty list or false. A page gives the first context and the source total; the pair reader pages every exact source context. Anonymous edges keep no key, receive no fabricated action and never deduplicate against other anonymous edges.
+
+The iCite `citations` section carries optional `cited_by`, `cited_by_clinical`, `references` and `rcr`. Clinical and reference counts count distinct IDs from present source lists. An absent list leaves its count absent, while a present empty list gives zero. The relative citation ratio appears only when the source confirms it is not provisional.
 
 `Markdown` is a `Text` newtype whose content is Markdown. It tells the Markdown view to print the field as it is.
 

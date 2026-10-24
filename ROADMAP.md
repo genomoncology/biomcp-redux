@@ -128,13 +128,16 @@ Sources:
 - [x] Semantic Scholar graph, summaries and recommendations (optional key; successful live search and access-filter capture remain unchecked below)
 - [x] PMC Open Access full-text records and JATS
 - Replaced NCBI ID converter: PubMed checked DOI/PMC joins preserve the capability
-- [x] NCBI EFetch (optional key)
+- [x] NCBI EFetch for PubMed cards (optional key)
+- Replaced NCBI EFetch for PMC: PMC Open Access supplies JATS full text
+- [x] iCite citation counts and PubMed graph
 - [x] LitVar
 - [x] LitSense2 named search, source order and explicit failures
 - Replaced OpenCitations: iCite supplies the PubMed graph and Semantic Scholar supplies contexts
 - Replaced Figshare: PMC Open Access metadata and confirmed JATS links supply supplements
 
 Live source checks retained as open proof boundaries:
+
 - [ ] Successful Semantic Scholar search and native open-access filter capture
 - [ ] Positive Semantic Scholar TLDR for 17611497
 - [ ] Successful LitSense2 AKT1 search
