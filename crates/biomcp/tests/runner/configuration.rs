@@ -36,6 +36,9 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("gene/next-commands-preserve-hyphen-positionals", || {
+            next_positionals().map_err(Into::into)
+        }),
         Trial::test("gene/persistent-case-cache-owns-all-writes", || {
             ownership().map_err(Into::into)
         }),
@@ -195,6 +198,27 @@ fn boundaries() -> Check {
         )?;
         if value.to_string().contains("sensitive") {
             return Err("configuration echoed input".into());
+        }
+    }
+    Ok(())
+}
+
+fn next_positionals() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for command in ["get", "search"] {
+        let original = invoke(
+            &env,
+            [command, "gene", "--offline", "--", "-BRAF"]
+                .into_iter().map(str::to_owned).collect(),
+            4,
+        )?;
+        let args = original.pointer("/next/0/args")
+            .and_then(Value::as_array).ok_or("missing fresh command")?;
+        let mut args = args.iter().map(|value| value.as_str().ok_or("invalid command argument").map(str::to_owned)).collect::<Result<Vec<_>, _>>()?;
+        args.insert(0, "--offline".into());
+        let repeated = invoke(&env, args, 4)?;
+        if repeated.get("query") != original.get("query") {
+            return Err("next command changed its positional query".into());
         }
     }
     Ok(())
