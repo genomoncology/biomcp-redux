@@ -24,12 +24,12 @@
       "expect": {
         "/status": "failed",
         "/result/resolution": "unresolved",
-        "/result/candidates/0/identity/ids": {
-          "equals": []
-        },
         "/sources/0/source": "erepo",
         "/sources/0/state": "failed",
-        "/sources/0/reason": "rate_limited"
+        "/sources/0/reason": "rate_limited",
+        "/result/candidates/0/identity": {
+          "equals": {}
+        }
       }
     },
     {
@@ -51,12 +51,12 @@
       "expect": {
         "/status": "failed",
         "/result/resolution": "unresolved",
-        "/result/candidates/0/identity/ids": {
-          "equals": []
-        },
         "/sources/0/source": "erepo",
         "/sources/0/state": "failed",
-        "/sources/0/reason": "offline"
+        "/sources/0/reason": "offline",
+        "/result/candidates/0/identity": {
+          "equals": {}
+        }
       }
     }
   ]
