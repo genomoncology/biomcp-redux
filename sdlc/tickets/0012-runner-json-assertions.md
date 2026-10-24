@@ -1,6 +1,7 @@
 # 0012 — Validate and extend the runner assertions its cases use
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 18bc8b5986efe1db0649ff460034032b691c57fd
 
 Milestone: 1
 
