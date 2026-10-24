@@ -1,4 +1,5 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
+mod sites;
 use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
@@ -8,6 +9,12 @@ use serde::Deserialize;
 /// Whole source protocol projection; query owns section paging.
 #[derive(Clone, Debug)]
 pub struct Detail {
+    /// Whole sites with attached contacts.
+    pub locations: Box<[biodata::TrialLocation]>,
+    /// Registry-wide central contacts.
+    pub contacts: Box<[biodata::TrialContact]>,
+    /// Overall officials, separate from contacts.
+    pub officials: Box<[biodata::TrialOfficial]>,
     /// Whole card.
     pub card: TrialCard,
     /// Complete source eligibility module.
@@ -60,6 +67,7 @@ struct Protocol {
     eligibility_module: Option<Eligibility>,
     outcomes_module: Option<Outcomes>,
     arms_interventions_module: Option<Arms>,
+    contacts_locations_module: Option<sites::ContactsLocations>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -165,6 +173,7 @@ struct Intervention {
 impl Protocol {
     fn detail(self) -> Detail {
         let arms = self.arms_interventions_module;
+        let (locations, contacts, officials) = self.contacts_locations_module.map_or_else(|| (Box::default(), Box::default(), Box::default()), sites::ContactsLocations::rows);
         let card = TrialCard {
             nct_id: self.identification_module.nct_id,
             url: format!(
@@ -206,6 +215,7 @@ impl Protocol {
         let (arm_rows, interventions) =
             arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
         Detail {
+            locations, contacts, officials,
             card,
             eligibility: self.eligibility_module.map(|v| TrialEligibility {
                 minimum_age: age(v.minimum_age),

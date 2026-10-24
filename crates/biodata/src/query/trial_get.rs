@@ -18,11 +18,11 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Record count per outcomes or arms page; eligibility pages follow the text budget.
+    /// Record count per source collection page; eligibility pages follow the text budget.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Character offset for eligibility or whole-record offset for outcomes and arms.
+    /// Character offset for eligibility or whole-record offset for a source collection.
     #[serde(default)]
     offset: u32,
     /// Checked stored source record, supplied by a continuation.
@@ -108,6 +108,10 @@ crate::macros::wire_enum! {
         Outcomes => "outcomes",
         /// Arms and interventions with original relationships.
         Arms => "arms",
+        /// Whole source sites with their attached contacts.
+        Locations => "locations",
+        /// Central contacts and overall officials in their original roles.
+        Contacts => "contacts",
         /// Every implemented trial section, each with independent continuations.
         All => "all",
     }

@@ -4,7 +4,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 /// Trial answers in original input order, retaining independent states.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCards {
@@ -20,7 +20,7 @@ impl super::ResponseBody for TrialCards {
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCardItem {
@@ -42,10 +42,16 @@ pub struct TrialCardItem {
     pub more: Box<[TrialSection]>,
 }
 /// Independently bounded sections from the same source protocol snapshot.
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialSections {
+    /// Whole sites with their original contacts attached.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub locations: Option<Section<TrialRecords<crate::TrialLocation>>>,
+    /// Central contacts followed by overall officials, each in source order.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contacts: Option<Section<TrialRecords<TrialContactRecord>>>,
     /// Source eligibility fields and exact text fragment.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eligibility: Option<Section<TrialEligibilityPage>>,
@@ -57,7 +63,7 @@ pub struct TrialSections {
     pub arms: Option<Section<TrialRecords<TrialArmRecord>>>,
 }
 /// Character paging preserves source whitespace and counts Unicode scalar values.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
@@ -77,7 +83,7 @@ pub struct TrialEligibilityPage {
     pub total_characters: u32,
 }
 /// Whole-record page retaining collection order.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
@@ -89,7 +95,7 @@ pub struct TrialRecords<T> {
     pub total: u32,
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(
     tag = "record",
     content = "data",
@@ -102,4 +108,15 @@ pub enum TrialArmRecord {
     Arm(TrialArm),
     /// Original intervention with aliases and arm labels.
     Intervention(TrialIntervention),
+}
+
+/// Distinct registry-wide contact collections; site contacts stay on locations.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "record", content = "data", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum TrialContactRecord {
+    /// A central contact for this trial.
+    Central(crate::TrialContact),
+    /// An overall official for this trial.
+    Official(crate::TrialOfficial),
 }

@@ -104,9 +104,12 @@ pub use trial_detail::{
 
 pub use query::{TrialGet, TrialSection};
 pub use response::{
-    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+    TrialArmRecord, TrialContactRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
 };
 
 pub use trial_detail::{TrialDate, TrialDateKind};
 
 pub use trial_detail::{TrialArmKind, TrialInterventionKind};
+
+mod trial_sites;
+pub use trial_sites::{TrialLocation, TrialContact, TrialOfficial, TrialSiteStatus, TrialContactRole, TrialOfficialRole, TrialCoordinates};
