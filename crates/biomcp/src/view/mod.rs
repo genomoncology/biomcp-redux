@@ -229,15 +229,32 @@ fn member<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Value>
             .find_map(|n| member(n, name, root))
     })
 }
+fn alternatives(node: &Value) -> impl Iterator<Item = &Value> {
+    ["anyOf", "oneOf"]
+        .into_iter()
+        .filter_map(|key| node.get(key).and_then(Value::as_array))
+        .flatten()
+}
 fn property<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Value> {
-    member(node, "properties", root).and_then(|properties| properties.get(name))
+    let node = resolve(node, root);
+    node.get("properties")
+        .and_then(|properties| properties.get(name))
+        .or_else(|| alternatives(node).find_map(|branch| property(branch, name, root)))
 }
 fn marked(node: &Value, root: &Value) -> bool {
-    member(node, "format", root).and_then(Value::as_str) == Some("markdown")
+    let node = resolve(node, root);
+    node.get("format").and_then(Value::as_str) == Some("markdown")
+        || alternatives(node).any(|branch| marked(branch, root))
 }
 fn contains_markdown(node: &Value, root: &Value) -> bool {
+    let node = resolve(node, root);
     marked(node, root)
-        || member(node, "properties", root)
+        || node
+            .get("properties")
             .and_then(Value::as_object)
             .is_some_and(|properties| properties.values().any(|p| contains_markdown(p, root)))
+        || node
+            .get("items")
+            .is_some_and(|item| contains_markdown(item, root))
+        || alternatives(node).any(|branch| contains_markdown(branch, root))
 }

@@ -52,7 +52,11 @@ const SHAPES: &[Shape] = &[
     Shape {
         args: &["get", "article", "33123537"],
         replies: "article/get/synthetic-derived",
-        required: &["# ", "**status:**", "biomcp"],
+        required: &[
+            "# Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.",
+            "**status:**",
+            "biomcp",
+        ],
         max_bytes: 2421,
     },
     Shape {
