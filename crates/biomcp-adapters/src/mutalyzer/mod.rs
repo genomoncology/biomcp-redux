@@ -1,6 +1,6 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
 use crate::quotas;
-use biodata::{Source, Text, VariantHeader, Variant, Representation, SourceRecord};
+use biodata::{Representation, Source, SourceRecord, Text, Variant, VariantHeader};
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
 use serde::Deserialize;
 use std::time::Duration;
@@ -63,8 +63,23 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let notation = raw.normalized_description.ok_or_else(bad)?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
-        identity: Variant { ids: Box::default(), representations: vec![Representation { source: Source::Mutalyzer, expression, build: None, allele: None }].into(), genes: Box::default() },
-        source: Source::Mutalyzer, record: SourceRecord { id: notation, url: None }, myvariant: None,
+        identity: Variant {
+            ids: Box::default(),
+            representations: vec![Representation {
+                source: Source::Mutalyzer,
+                expression,
+                build: None,
+                allele: None,
+            }]
+            .into(),
+            genes: Box::default(),
+        },
+        source: Source::Mutalyzer,
+        record: SourceRecord {
+            id: notation,
+            url: None,
+        },
+        myvariant: None,
     }))
 }
 

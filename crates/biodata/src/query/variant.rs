@@ -40,7 +40,8 @@ impl VariantGet {
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
-        if input.namespace().ok() == Some(VariantNamespace::Unsupported) || resolver == VariantResolver::Variantvalidator && build.is_none()
+        if input.namespace().ok() == Some(VariantNamespace::Unsupported)
+            || resolver == VariantResolver::Variantvalidator && build.is_none()
             || build.is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38))
             || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none()
         {
@@ -80,6 +81,10 @@ crate::macros::wire_enum! {
 impl VariantResolver {
     /// Declared source policy for the selected service.
     pub fn source(self) -> crate::Source {
-        match self { Self::Car => crate::Source::AlleleRegistry, Self::Mutalyzer => crate::Source::Mutalyzer, Self::Variantvalidator => crate::Source::VariantValidator }
+        match self {
+            Self::Car => crate::Source::AlleleRegistry,
+            Self::Mutalyzer => crate::Source::Mutalyzer,
+            Self::Variantvalidator => crate::Source::VariantValidator,
+        }
     }
 }

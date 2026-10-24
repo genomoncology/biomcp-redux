@@ -1,7 +1,12 @@
 //! Accession grammar and display copied from the owning value module; no molecular parser.
 use crate::{Error, macros::text_value};
 use std::{fmt, str::FromStr};
-use winnow::{ModalResult, Parser, ascii::digit1, combinator::{alt, cut_err, opt, preceded}, error::{ContextError, ErrMode}};
+use winnow::{
+    ModalResult, Parser,
+    ascii::digit1,
+    combinator::{alt, cut_err, opt, preceded},
+    error::{ContextError, ErrMode},
+};
 /// A reference sequence accession: RefSeq or Ensembl with its version, or LRG.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Accession {
@@ -157,16 +162,31 @@ impl fmt::Display for Accession {
     }
 }
 
-
 impl RefSeqPrefix {
-    fn parse(input: &mut &str) -> ModalResult<Self> { winnow::token::take(3usize).try_map(str::parse).parse_next(input) }
+    fn parse(input: &mut &str) -> ModalResult<Self> {
+        winnow::token::take(3usize)
+            .try_map(str::parse)
+            .parse_next(input)
+    }
 }
 impl EnsemblFeature {
-    fn parse(input: &mut &str) -> ModalResult<Self> { winnow::token::take(4usize).try_map(str::parse).parse_next(input) }
+    fn parse(input: &mut &str) -> ModalResult<Self> {
+        winnow::token::take(4usize)
+            .try_map(str::parse)
+            .parse_next(input)
+    }
 }
-fn decimal<T: FromStr>(input: &mut &str) -> ModalResult<T> { digit1.try_map(str::parse).parse_next(input) }
+fn decimal<T: FromStr>(input: &mut &str) -> ModalResult<T> {
+    digit1.verify_map(|text: &str| text.parse().ok()).parse_next(input)
+}
 impl FromStr for Accession {
     type Err = Error;
-    fn from_str(text: &str) -> Result<Self, Error> { accession.parse(text).map_err(|_| Error::AccessionInvalid) }
+    fn from_str(text: &str) -> Result<Self, Error> {
+        accession.parse(text).map_err(|_| Error::AccessionInvalid)
+    }
 }
-text_value!(Accession, "Accession", r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$");
+text_value!(
+    Accession,
+    "Accession",
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$"
+);

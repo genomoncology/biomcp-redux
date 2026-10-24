@@ -1,6 +1,6 @@
 //! Explicit VariantValidator GET reads; warning envelopes never resolve identity.
 use crate::quotas;
-use biodata::{Build, Source, Text, VariantHeader, Variant, Representation, SourceRecord};
+use biodata::{Build, Representation, Source, SourceRecord, Text, Variant, VariantHeader};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
@@ -99,11 +99,30 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
         let key = Text::new(&v.hgvs_transcript_variant).map_err(|_| bad())?;
         let mut representations = Vec::new();
         for (assembly, locus) in v.primary_assembly_loci {
-            let expression = biodata::Expression::hgvs(locus.hgvs_genomic_description).map_err(|_| bad())?;
-            let source_build = match assembly.as_str() { "grch37" | "hg19" => Some(Build::Grch37), "grch38" | "hg38" => Some(Build::Grch38), _ => None };
-            representations.push(Representation { source: Source::VariantValidator, expression, build: source_build, allele: None });
+            let expression =
+                biodata::Expression::hgvs(locus.hgvs_genomic_description).map_err(|_| bad())?;
+            let source_build = match assembly.as_str() {
+                "grch37" | "hg19" => Some(Build::Grch37),
+                "grch38" | "hg38" => Some(Build::Grch38),
+                _ => None,
+            };
+            representations.push(Representation {
+                source: Source::VariantValidator,
+                expression,
+                build: source_build,
+                allele: None,
+            });
         }
-        candidates.push(VariantHeader { identity: Variant { ids: Box::default(), representations: representations.into(), genes: Box::default() }, source: Source::VariantValidator, record: SourceRecord { id: key, url: None }, myvariant: None });
+        candidates.push(VariantHeader {
+            identity: Variant {
+                ids: Box::default(),
+                representations: representations.into(),
+                genes: Box::default(),
+            },
+            source: Source::VariantValidator,
+            record: SourceRecord { id: key, url: None },
+            myvariant: None,
+        });
     }
     Ok(Resolution {
         rejected: false,

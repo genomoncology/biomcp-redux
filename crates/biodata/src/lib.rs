@@ -88,16 +88,18 @@ pub use response::{
 };
 
 mod variant;
-pub use variant::{Variant, Representation};
+pub use variant::{Representation, Variant};
 
 pub use query::{VariantGet, VariantResolver};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{VariantCard, VariantHeader, VariantResolution};
 
 pub use coord::Chromosome;
 
-pub use variant::{Accession, EnsemblFeature, LrgPart, RefSeqPrefix, Base, Sequence, Allele, SequenceLocation};
+pub use variant::{
+    Accession, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence, SequenceLocation,
+};
 
-pub use variant::{VariantId, HgvsText, Expression, ExpressionSyntax};
+pub use variant::{Expression, ExpressionSyntax, HgvsText, VariantId};
 
 pub use query::{VariantInput, VariantNamespace};

@@ -140,15 +140,22 @@ fn car(
     problems: &mut Vec<biodata::Problem>,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     Ok(match result {
-        allele_registry::Resolution::Found(row) => { problems.extend(row.problems); (vec![row.value], None) },
+        allele_registry::Resolution::Found(row) => {
+            problems.extend(row.problems);
+            (vec![row.value], None)
+        }
         allele_registry::Resolution::Rejected(code) => (Vec::new(), Some(code)),
     })
 }
 fn join_id(row: &VariantHeader) -> Option<String> {
     row.identity.representations.iter().find_map(|r| {
-        if r.build != Some(biodata::Build::Grch37) { return None; }
+        if r.build != Some(biodata::Build::Grch37) {
+            return None;
+        }
         let allele = r.allele.as_ref()?;
-        let chromosome = biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::Grch37).ok()?;
+        let chromosome =
+            biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::Grch37)
+                .ok()?;
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }
@@ -185,7 +192,9 @@ fn enrich(
             match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
                 Ok(found) => {
                     problems.extend(found.problems);
-                    for row in found.value { candidate.myvariant = Some(row.identity); }
+                    for row in found.value {
+                        candidate.myvariant = Some(row.identity);
+                    }
                 }
                 Err(e) => {
                     join_error = Some(e);
@@ -209,8 +218,15 @@ fn next(
     if resolution == VariantResolution::Candidates {
         for row in candidates {
             if let Ok(input) = row.record.id.as_str().parse()
-                && let Ok(q) =
-                    VariantGet::new(input, query.resolver(), row.identity.representations.iter().find_map(|r| r.build).or(query.build()))
+                && let Ok(q) = VariantGet::new(
+                    input,
+                    query.resolver(),
+                    row.identity
+                        .representations
+                        .iter()
+                        .find_map(|r| r.build)
+                        .or(query.build()),
+                )
             {
                 next.push((
                     StepKind::Disambiguate,

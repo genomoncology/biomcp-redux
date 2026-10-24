@@ -37,10 +37,19 @@ impl VariantInput {
     pub fn namespace(&self) -> Result<VariantNamespace, Error> {
         let value = self.as_str();
         if let Ok(id) = value.parse::<crate::VariantId>() {
-            return match id { crate::VariantId::Rs(_) => Ok(VariantNamespace::Rs), crate::VariantId::Ca(_) => Ok(VariantNamespace::Ca), crate::VariantId::ClinVarVariation(_) => Ok(VariantNamespace::ClinVar), _ => Ok(VariantNamespace::Unsupported) };
+            return match id {
+                crate::VariantId::Rs(_) => Ok(VariantNamespace::Rs),
+                crate::VariantId::Ca(_) => Ok(VariantNamespace::Ca),
+                crate::VariantId::ClinVarVariation(_) => Ok(VariantNamespace::ClinVar),
+                _ => Ok(VariantNamespace::Unsupported),
+            };
         }
-        if positive(value) { return Ok(VariantNamespace::ClinVar); }
-        if value.parse::<crate::HgvsText>().is_ok() { return Ok(VariantNamespace::Hgvs); }
+        if positive(value) {
+            return Ok(VariantNamespace::ClinVar);
+        }
+        if value.parse::<crate::HgvsText>().is_ok() {
+            return Ok(VariantNamespace::Hgvs);
+        }
         let Some((reference, description)) = value.split_once(':') else {
             return Err(Error::VariantInputInvalid);
         };

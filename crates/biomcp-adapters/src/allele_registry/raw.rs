@@ -48,7 +48,17 @@ pub(super) struct Coordinate {
 impl Reply for Allele {
     fn check(&self) -> Result<(), BadReply> {
         if let Some(code) = &self.error_type {
-            return if self.id.is_none() && code.as_str().len() <= 128 && code.as_str().bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_') { Ok(()) } else { Err(BadReply) };
+            return if self.id.is_none()
+                && code.as_str().len() <= 128
+                && code
+                    .as_str()
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b == b'_')
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            };
         }
         let key = self
             .id
@@ -74,10 +84,23 @@ impl Reply for Allele {
 }
 
 #[derive(Deserialize)]
-pub(super) struct Transcript { #[serde(rename = "MANE")] pub mane: Option<Mane> }
+pub(super) struct Transcript {
+    #[serde(rename = "MANE")]
+    pub mane: Option<Mane>,
+}
 #[derive(Deserialize)]
-pub(super) struct Mane { pub nucleotide: Option<ManeForms>, pub protein: Option<ManeForms> }
+pub(super) struct Mane {
+    pub nucleotide: Option<ManeForms>,
+    pub protein: Option<ManeForms>,
+}
 #[derive(Deserialize)]
-pub(super) struct ManeForms { #[serde(rename = "Ensembl")] pub ensembl: Option<Hgvs>, #[serde(rename = "RefSeq")] pub refseq: Option<Hgvs> }
+pub(super) struct ManeForms {
+    #[serde(rename = "Ensembl")]
+    pub ensembl: Option<Hgvs>,
+    #[serde(rename = "RefSeq")]
+    pub refseq: Option<Hgvs>,
+}
 #[derive(Deserialize)]
-pub(super) struct Hgvs { pub hgvs: Text }
+pub(super) struct Hgvs {
+    pub hgvs: Text,
+}

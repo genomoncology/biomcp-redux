@@ -1,5 +1,5 @@
 //! Primary chromosome and assembly accessions copied from the owning reference module.
-use crate::{Accession, RefSeqPrefix, Build, Error, macros::text_value};
+use crate::{Accession, Build, Error, RefSeqPrefix, macros::text_value};
 use std::{fmt, str::FromStr};
 const VERSIONS: [[u16; 24]; 2] = [
     [
@@ -53,9 +53,18 @@ impl Chromosome {
     }
     /// Read only a canonical primary chromosome spelling.
     pub fn parse(text: &str) -> Result<Self, Error> {
-        let number = match text { "X" => 23, "Y" => 24, "MT" => 25, _ => text.parse().map_err(|_| Error::ChromosomeInvalid)? };
+        let number = match text {
+            "X" => 23,
+            "Y" => 24,
+            "MT" => 25,
+            _ => text.parse().map_err(|_| Error::ChromosomeInvalid)?,
+        };
         let value = Self::new(number).ok_or(Error::ChromosomeInvalid)?;
-        if value.name() == text { Ok(value) } else { Err(Error::ChromosomeInvalid) }
+        if value.name() == text {
+            Ok(value)
+        } else {
+            Err(Error::ChromosomeInvalid)
+        }
     }
     /// Numeric primary chromosome identifier (1–25).
     pub const fn number(self) -> u8 {
@@ -70,12 +79,15 @@ impl Chromosome {
     }
 }
 
-
 impl FromStr for Chromosome {
     type Err = Error;
-    fn from_str(text: &str) -> Result<Self, Error> { Self::parse(text) }
+    fn from_str(text: &str) -> Result<Self, Error> {
+        Self::parse(text)
+    }
 }
 impl fmt::Display for Chromosome {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.name()) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.name())
+    }
 }
 text_value!(Chromosome, "Chromosome", r"^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$");

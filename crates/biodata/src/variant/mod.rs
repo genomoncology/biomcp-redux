@@ -12,4 +12,4 @@ pub use allele::{Allele, SequenceLocation};
 mod id;
 pub use id::VariantId;
 mod notation;
-pub use notation::{HgvsText, Expression, ExpressionSyntax};
+pub use notation::{Expression, ExpressionSyntax, HgvsText};
