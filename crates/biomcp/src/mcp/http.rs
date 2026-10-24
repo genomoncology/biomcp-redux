@@ -48,7 +48,7 @@ pub(crate) fn serve(
     });
     let mut ready = serde_json::to_vec(&json!({"listening":address.to_string()})).map_err(|_| StartError::Local)?;
     ready.push(b'\n');
-    crate::output::diagnostic(&ready);
+    std::io::Write::write_all(&mut std::io::stderr().lock(), &ready).map_err(|_| StartError::Local)?;
     connections(listener, service).map_err(|_| StartError::Local)
 }
 #[expect(
