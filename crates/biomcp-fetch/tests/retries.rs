@@ -1,4 +1,8 @@
 //! Approved retries and deadline distinctions through the public transport API.
+#![expect(
+    clippy::disallowed_methods,
+    reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
+)]
 mod support;
 use biodata::Reason;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};

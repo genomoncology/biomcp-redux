@@ -146,6 +146,9 @@ fn references(
         let declaration = source_keys.contains(token)
             && tail.starts_with(&[":".into(), ":".into(), "declare".into(), "(".into()]);
         let quota = token == "static"
+            && i.checked_sub(1)
+                .and_then(|i| tokens.get(i))
+                .is_none_or(|v| v != "\'")
             && tail
                 .iter()
                 .take_while(|v| v.as_str() != "=")
