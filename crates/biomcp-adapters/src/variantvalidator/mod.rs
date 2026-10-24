@@ -142,6 +142,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             record: SourceRecord { id: key, url: None },
             myvariant: None,
             sections: None,
+            requested: None,
         });
     }
     Ok(Resolution {

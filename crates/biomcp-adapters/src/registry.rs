@@ -19,6 +19,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
+    &crate::hotspots::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
@@ -137,6 +138,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
+        Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
         Source::PubMed => (
             "/einfo.fcgi",

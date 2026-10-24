@@ -106,6 +106,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         },
         myvariant: None,
         sections: None,
+            requested: None,
     }))
 }
 

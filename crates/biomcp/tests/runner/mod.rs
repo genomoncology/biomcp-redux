@@ -43,8 +43,8 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
-mod variant_population;
 mod variant_civic;
+mod variant_population;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
