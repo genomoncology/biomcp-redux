@@ -46,9 +46,11 @@ pub(crate) fn serve(
         fetch: crate::config::fetch(&globals).map(Arc::new),
         globals,
     });
-    let mut ready = serde_json::to_vec(&json!({"listening":address.to_string()})).map_err(|_| StartError::Local)?;
+    let mut ready = serde_json::to_vec(&json!({"listening":address.to_string()}))
+        .map_err(|_| StartError::Local)?;
     ready.push(b'\n');
-    std::io::Write::write_all(&mut std::io::stderr().lock(), &ready).map_err(|_| StartError::Local)?;
+    std::io::Write::write_all(&mut std::io::stderr().lock(), &ready)
+        .map_err(|_| StartError::Local)?;
     connections(listener, service).map_err(|_| StartError::Local)
 }
 #[expect(
@@ -94,7 +96,8 @@ impl Service {
             .map(|v| serde_json::to_vec(&v))
             .transpose()?
             .unwrap_or_default();
-        wire::write(&mut stream, status, &body, revision)
+        let allow = (status == 405).then_some(if request.path == "/health" { "GET" } else { "POST" });
+        wire::write(&mut stream, status, &body, revision, allow)
     }
     fn route(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
         if !self.allowed(request) {

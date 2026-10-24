@@ -129,8 +129,10 @@ fn root() -> Result<Command, ()> {
                     .subcommand(Command::new("article")),
             ),
     );
-    Ok(root.subcommand(
-        Command::new("serve")
+    Ok(root.subcommand(serve_command()))
+}
+fn serve_command() -> Command {
+    Command::new("serve")
             .arg(
                 Arg::new("http")
                     .long("http")
@@ -142,32 +144,15 @@ fn root() -> Result<Command, ()> {
                     .long("allow-host")
                     .action(ArgAction::Append)
                     .requires("http"),
-            ),
-    ))
+            )
 }
+
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;
     let matches = root
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
-    let globals = Globals {
-        disable_sources: matches
-            .get_many::<String>("disable-sources")
-            .into_iter()
-            .flatten()
-            .cloned()
-            .collect(),
-        replay: matches.get_one::<PathBuf>("replay").cloned(),
-        observe: matches.get_one::<PathBuf>("observe").cloned(),
-        record: matches.get_one::<PathBuf>("record").cloned(),
-        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
-        offline: matches.get_flag("offline"),
-        fresh: matches.get_flag("fresh"),
-        format: matches
-            .get_one::<String>("format")
-            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
-    };
-    globals.check()?;
+    let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
@@ -238,6 +223,28 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         help,
     })
 }
+fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
+    let globals = Globals {
+        disable_sources: matches
+            .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
+        replay: matches.get_one::<PathBuf>("replay").cloned(),
+        observe: matches.get_one::<PathBuf>("observe").cloned(),
+        record: matches.get_one::<PathBuf>("record").cloned(),
+        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
+        offline: matches.get_flag("offline"),
+        fresh: matches.get_flag("fresh"),
+        format: matches
+            .get_one::<String>("format")
+            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
+    };
+    globals.check()?;
+    Ok(globals)
+}
+
 fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
     schema
         .get("properties")

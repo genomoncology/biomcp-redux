@@ -28,9 +28,55 @@ impl Request {
 }
 pub(super) fn read(stream: &mut TcpStream) -> io::Result<Request> {
     let end = Instant::now() + READ_BUDGET;
+    let (mut request, bytes, offset) = head(stream, end)?;
+    let mut buffer = [0; 4096];
+    let encoding = request.one("transfer-encoding").map_err(|_| malformed())?;
+    let length = request.one("content-length").map_err(|_| malformed())?;
+    if let Some(encoding) = encoding {
+        if length.is_some() || !encoding.eq_ignore_ascii_case("chunked") {
+            return Err(malformed());
+        }
+        request.body = super::chunked::read(
+            stream,
+            bytes.get(offset..).ok_or_else(malformed)?.to_vec(),
+            end,
+        )?;
+        return Ok(request);
+    }
+    let length = length
+        .map(|n| {
+            if n.bytes().all(|c| c.is_ascii_digit()) {
+                n.parse::<usize>().map_err(|_| malformed())
+            } else {
+                Err(malformed())
+            }
+        })
+        .transpose()?
+        .unwrap_or(0);
+    if length > MAX_BODY {
+        return Err(malformed());
+    }
+    request.body = bytes.get(offset..).ok_or_else(malformed)?.to_vec();
+    if request.body.len() > length {
+        return Err(malformed());
+    }
+    while request.body.len() < length {
+        timeout(stream, end)?;
+        let available = buffer.len().min(length - request.body.len());
+        let n = stream.read(buffer.get_mut(..available).ok_or_else(malformed)?)?;
+        if n == 0 {
+            return Err(malformed());
+        }
+        request
+            .body
+            .extend_from_slice(buffer.get(..n).ok_or_else(malformed)?);
+    }
+    Ok(request)
+}
+fn head(stream: &mut TcpStream, end: Instant) -> io::Result<(Request, Vec<u8>, usize)> {
     let mut bytes = Vec::with_capacity(MAX_HEAD);
     let mut buffer = [0; 4096];
-    let (mut request, offset) = loop {
+    let (request, offset) = loop {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut parsed = httparse::Request::new(&mut headers);
         match parsed.parse(&bytes).map_err(|_| malformed())? {
@@ -71,34 +117,9 @@ pub(super) fn read(stream: &mut TcpStream) -> io::Result<Request> {
             }
         }
     };
-    let encoding = request.one("transfer-encoding").map_err(|_| malformed())?;
-    let length = request.one("content-length").map_err(|_| malformed())?;
-    if let Some(encoding) = encoding {
-        if length.is_some() || !encoding.eq_ignore_ascii_case("chunked") { return Err(malformed()); }
-        request.body = super::chunked::read(stream, bytes.get(offset..).ok_or_else(malformed)?.to_vec(), end)?;
-        return Ok(request);
-    }
-    let length = length
-        .map(|n| if n.bytes().all(|c| c.is_ascii_digit()) { n.parse::<usize>().map_err(|_| malformed()) }
-            else { Err(malformed()) }).transpose()?.unwrap_or(0);
-    if length > MAX_BODY { return Err(malformed()); }
-    request.body = bytes.get(offset..).ok_or_else(malformed)?.to_vec();
-    if request.body.len() > length {
-        return Err(malformed());
-    }
-    while request.body.len() < length {
-        timeout(stream, end)?;
-        let available = buffer.len().min(length - request.body.len());
-        let n = stream.read(buffer.get_mut(..available).ok_or_else(malformed)?)?;
-        if n == 0 {
-            return Err(malformed());
-        }
-        request
-            .body
-            .extend_from_slice(buffer.get(..n).ok_or_else(malformed)?);
-    }
-    Ok(request)
+    Ok((request, bytes, offset))
 }
+
 fn timeout(stream: &TcpStream, end: Instant) -> io::Result<()> {
     let left = end
         .checked_duration_since(Instant::now())
@@ -106,38 +127,60 @@ fn timeout(stream: &TcpStream, end: Instant) -> io::Result<()> {
         .ok_or_else(|| io::Error::new(io::ErrorKind::TimedOut, "HTTP read budget"))?;
     stream.set_read_timeout(Some(left))
 }
-pub(super) fn malformed() -> io::Error { io::Error::new(io::ErrorKind::InvalidData, "Invalid HTTP request") }
-pub(super) fn write(stream: &mut TcpStream, status: u16, body: &[u8], revision: Option<&str>) -> io::Result<()> {
+pub(super) fn malformed() -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidData, "Invalid HTTP request")
+}
+pub(super) fn write(
+    stream: &mut TcpStream,
+    status: u16,
+    body: &[u8],
+    revision: Option<&str>,
+    allow: Option<&str>,
+) -> io::Result<()> {
     let end = Instant::now() + READ_BUDGET;
     let revision = revision
         .map(|revision| format!("MCP-Protocol-Version: {revision}\r\n"))
         .unwrap_or_default();
+    let allow = allow.map(|method| format!("Allow: {method}\r\n")).unwrap_or_default();
     let head = format!(
-        "HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: close\r\nCache-Control: no-store\r\n{revision}Content-Length: {}\r\n\r\n",
+        "HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: close\r\nCache-Control: no-store\r\n{allow}{revision}Content-Length: {}\r\n\r\n",
         body.len()
     );
     write_part(stream, head.as_bytes(), end)?;
     write_part(stream, body, end)
 }
 
-pub(super) fn read_more(stream: &mut TcpStream, bytes: &mut Vec<u8>, cap: usize, end: Instant) -> io::Result<()> {
-    if bytes.len() >= cap { return Err(malformed()); }
+pub(super) fn read_more(
+    stream: &mut TcpStream,
+    bytes: &mut Vec<u8>,
+    cap: usize,
+    end: Instant,
+) -> io::Result<()> {
+    if bytes.len() >= cap {
+        return Err(malformed());
+    }
     timeout(stream, end)?;
     let mut buffer = [0; 4096];
     let available = buffer.len().min(cap - bytes.len());
     let read = stream.read(buffer.get_mut(..available).ok_or_else(malformed)?)?;
-    if read == 0 { return Err(malformed()); }
+    if read == 0 {
+        return Err(malformed());
+    }
     bytes.extend_from_slice(buffer.get(..read).ok_or_else(malformed)?);
     Ok(())
 }
 
 fn write_part(stream: &mut TcpStream, mut bytes: &[u8], end: Instant) -> io::Result<()> {
     while !bytes.is_empty() {
-        let left = end.checked_duration_since(Instant::now()).filter(|left| !left.is_zero())
+        let left = end
+            .checked_duration_since(Instant::now())
+            .filter(|left| !left.is_zero())
             .ok_or_else(|| io::Error::new(io::ErrorKind::TimedOut, "HTTP write budget"))?;
         stream.set_write_timeout(Some(left))?;
         let written = stream.write(bytes)?;
-        if written == 0 { return Err(io::Error::from(io::ErrorKind::WriteZero)); }
+        if written == 0 {
+            return Err(io::Error::from(io::ErrorKind::WriteZero));
+        }
         bytes = bytes.get(written..).ok_or_else(malformed)?;
     }
     Ok(())

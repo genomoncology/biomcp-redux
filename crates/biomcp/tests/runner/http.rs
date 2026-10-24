@@ -44,15 +44,22 @@ impl Drop for Server {
     }
 }
 impl Server {
-    pub(super) fn start() -> Result<Self, String> { Self::configured("127.0.0.1:0", None, true) }
+    pub(super) fn start() -> Result<Self, String> {
+        Self::configured("127.0.0.1:0", None, true)
+    }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
-        if let Some(config) = config { environment.config(&config).map_err(|e| e.to_string())?; }
+        if let Some(config) = config {
+            environment.config(&config).map_err(|e| e.to_string())?;
+        }
         let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
-        if replay { args.extend(environment.globals(
-            Some(&super::launch::fixtures().join("replies/gene/main")), false,
-        )); }
+        if replay {
+            args.extend(environment.globals(
+                Some(&super::launch::fixtures().join("replies/gene/main")),
+                false,
+            ));
+        }
         let child = environment
             .command(env!("CARGO_BIN_EXE_biomcp"), &args)
             .stdin(Stdio::null())
@@ -60,21 +67,34 @@ impl Server {
             .stderr(Stdio::piped())
             .spawn()
             .map_err(|e| e.to_string())?;
-        let mut server = Self { child, address, _environment: environment };
+        let mut server = Self {
+            child,
+            address,
+            _environment: environment,
+        };
         let stderr = server.child.stderr.take().ok_or("HTTP stderr missing")?;
         let (sender, receiver) = std::sync::mpsc::sync_channel(1);
         let reader = std::thread::spawn(move || {
             use std::io::BufRead;
             let mut line = String::new();
-            let result = std::io::BufReader::new(stderr).read_line(&mut line).map(|_| line);
+            let result = std::io::BufReader::new(stderr)
+                .read_line(&mut line)
+                .map(|_| line);
             let _ = sender.send(result);
         });
-        let event = receiver.recv_timeout(Duration::from_secs(5)).map_err(|_| "HTTP readiness event timed out")?
+        let event = receiver
+            .recv_timeout(Duration::from_secs(5))
+            .map_err(|_| "HTTP readiness event timed out")?
             .map_err(|e| e.to_string())?;
         reader.join().map_err(|_| "HTTP readiness reader stopped")?;
-        let event: Value = serde_json::from_str(&event).map_err(|e| format!("HTTP readiness: {e}"))?;
-        server.address = event.get("listening").and_then(Value::as_str).ok_or("missing listening address")?
-            .parse().map_err(|_| "invalid listening address")?;
+        let event: Value =
+            serde_json::from_str(&event).map_err(|e| format!("HTTP readiness: {e}"))?;
+        server.address = event
+            .get("listening")
+            .and_then(Value::as_str)
+            .ok_or("missing listening address")?
+            .parse()
+            .map_err(|_| "invalid listening address")?;
         Ok(server)
     }
 
@@ -150,11 +170,16 @@ fn lifecycle() -> Check {
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));
     }
-    let schema = super::schema::ARTIFACTS.iter().find(|(id, _)| *id == "biomcp.http-health/1")
-        .ok_or("HTTP health schema missing")?.1;
+    let schema = super::schema::ARTIFACTS
+        .iter()
+        .find(|(id, _)| *id == "biomcp.http-health/1")
+        .ok_or("HTTP health schema missing")?
+        .1;
     let schema: Value = serde_json::from_str(schema).map_err(|e| e.to_string())?;
-    jsonschema::validator_for(&schema).map_err(|e| e.to_string())?
-        .validate(&health).map_err(|e| e.to_string())?;
+    jsonschema::validator_for(&schema)
+        .map_err(|e| e.to_string())?
+        .validate(&health)
+        .map_err(|e| e.to_string())?;
     let request = json!({"jsonrpc":"2.0","id":1,"method":"server/discover","params":{
         "_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28",
         "io.modelcontextprotocol/clientCapabilities":{}}}});
@@ -229,37 +254,35 @@ fn protocols() -> Check {
     if status != 200 || reply.pointer("/result/structuredContent") != Some(&expected) {
         return Err("replayed HTTP call lost stdio parity".into());
     }
-    // A recording contains one exchange. Reusing it for concurrent source calls
-    // tests recording exhaustion, which has its own transport owner. HTTP ID
-    // isolation is exercised with source-free calls on the same actual sockets.
-    let args = vec!["help".to_string()];
-    let expected = super::mcp::call_with_globals(&server._environment, &args, false, &globals)?;
-    let call = super::mcp::request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":args}}));
+    concurrent(&server, &globals)
+}
+fn concurrent(server: &Server, globals: &[String]) -> Check {
+    // Distinct replies expose cross-client ID and protocol state mistakes.
+    let modern_args = vec!["help".to_string()];
+    let old_args = vec!["help".to_string(), "get".into(), "gene".into()];
+    let modern_expected = super::mcp::call_with_globals(&server._environment, &modern_args, false, globals)?;
+    let old_expected = super::mcp::call_with_globals(&server._environment, &old_args, false, globals)?;
+    let modern = super::mcp::request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":modern_args}}));
+    let old = legacy(7, "tools/call", json!({"name":"biomcp","arguments":{"args":old_args}}));
     let barrier = std::sync::Barrier::new(2);
-    let results = std::thread::scope(|scope| {
-        let a = scope.spawn(|| {
-            barrier.wait();
-            server.request("POST", "/mcp", &call.to_string())
-        });
-        let b = scope.spawn(|| {
-            barrier.wait();
-            server.request("POST", "/mcp", &call.to_string())
-        });
+    let (modern, old) = std::thread::scope(|scope| {
+        let a = scope.spawn(|| { barrier.wait(); server.request("POST", "/mcp", &modern.to_string()) });
+        let b = scope.spawn(|| { barrier.wait(); server.raw("POST", "/mcp", &server.address.to_string(), legacy_headers(), &old.to_string()) });
         (a.join().unwrap(), b.join().unwrap())
     });
-    for result in [results.0, results.1] {
-        let (status, value) = result?;
-        if status != 200 || value.pointer("/result/structuredContent") != Some(&expected) {
-            let actual = value.pointer("/result/structuredContent").unwrap_or(&value);
-            let changed = expected.as_object().into_iter().flatten().filter(|(key, old)| actual.get(*key) != Some(*old))
-                .map(|(key, old)| format!("{key}: expected={} actual={}", old.to_string().chars().take(400).collect::<String>(),
-                    actual.get(key).unwrap_or(&Value::Null).to_string().chars().take(400).collect::<String>()))
-                .collect::<Vec<_>>().join("; ");
-            return Err(format!("concurrent equal IDs lost stdio parity: status={status}; {changed}"));
-        }
+    let (modern_status, modern) = modern?;
+    let (old_status, old, _) = old?;
+    let old = old.ok_or("legacy response missing")?;
+    if modern_status != 200 || old_status != 200
+        || modern.pointer("/result/structuredContent") != Some(&modern_expected)
+        || old.pointer("/result/structuredContent") != Some(&old_expected)
+        || modern.pointer("/result/resultType") != Some(&json!("complete"))
+        || old.pointer("/result/resultType").is_some() {
+        return Err("concurrent equal IDs crossed client results or protocol state".into());
     }
     Ok(())
 }
+
 fn admission() -> Check {
     let server = Server::start()?;
     let host = server.address.to_string();
@@ -293,8 +316,9 @@ fn admission() -> Check {
         return Err("forwarded headers affected admission".into());
     }
     for method in ["GET", "DELETE", "OPTIONS", "PUT"] {
-        if server.raw(method, "/mcp", &host, "", "")?.0 != 405 {
-            return Err(format!("method {method} admitted"));
+        let (status, _, headers) = server.raw(method, "/mcp", &host, "", "")?;
+        if status != 405 || !headers.contains("Allow: POST\r\n") {
+            return Err(format!("method {method} admitted or missing Allow"));
         }
     }
     let request = super::mcp::request(json!(1), "tools/list", json!({}));
@@ -339,7 +363,11 @@ fn storage() -> Check {
             return Err("unsafe bind must fail with usage status".into());
         }
     }
-    let failed = Server::configured("127.0.0.1:0", Some(json!({"ca_bundle":"missing-private-ca.pem"})), false)?;
+    let failed = Server::configured(
+        "127.0.0.1:0",
+        Some(json!({"ca_bundle":"missing-private-ca.pem"})),
+        false,
+    )?;
     let (status, body, _) = failed.raw("GET", "/health", &failed.address.to_string(), "", "")?;
     if status != 503 || body != Some(json!({"version":env!("CARGO_PKG_VERSION"),"store":false})) {
         return Err("local initialization failure leaked details or passed health".into());
@@ -349,10 +377,15 @@ fn storage() -> Check {
     if ipv6.raw("GET", "/health", &authority, "", "")?.0 != 200 {
         return Err("equivalent IPv6 authority was rejected".into());
     }
-    let mut exposed = Server::configured("0.0.0.0:0", Some(json!({"http":{"allowed_hosts":["local.example"]}})), true)?;
+    let mut exposed = Server::configured(
+        "0.0.0.0:0",
+        Some(json!({"http":{"allowed_hosts":["local.example"]}})),
+        true,
+    )?;
     exposed.address = SocketAddr::new("127.0.0.1".parse().unwrap(), exposed.address.port());
     if exposed.raw("GET", "/health", "LOCAL.EXAMPLE", "", "")?.0 != 200
-        || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403 {
+        || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403
+    {
         return Err("configured host allowlist was not enforced".into());
     }
     Ok(())
