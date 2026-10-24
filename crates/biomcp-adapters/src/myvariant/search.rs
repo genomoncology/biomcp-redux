@@ -18,26 +18,55 @@ struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.hits.len() > 50 || self.hits.len() as u64 > self.total || self.hits.iter().any(|h|h.check().is_err()) { return Err(BadReply); }
+        if self.hits.len() > 50
+            || self.hits.len() as u64 > self.total
+            || self.hits.iter().any(|h| h.check().is_err())
+        {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }
 /// Send one declared native query window and validate it before cache admission.
-pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage,RequestError> {
+pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let page = leg.json_checked_cache::<Page>(&QUERY, &[
-        ("q",Arg::Text(&term)),
-        ("size",Arg::Num(u64::from(query.limit()))),
-        ("from",Arg::Num(u64::from(query.offset()))),
-        ("fields",Arg::Text(super::FIELDS)),
-        ("assembly",Arg::Text(if query.build()==Build::Grch38 {"hg38"} else {"hg19"})),
-    ], |page| page.hits.len() <= query.limit() as usize && (page.hits.len() as u64 == page.total.saturating_sub(u64::from(query.offset())).min(u64::from(query.limit()))))?;
-    let mut rows = Mapped {value:Vec::new(),problems:Vec::new()};
+    let page = leg.json_checked_cache::<Page>(
+        &QUERY,
+        &[
+            ("q", Arg::Text(&term)),
+            ("size", Arg::Num(u64::from(query.limit()))),
+            ("from", Arg::Num(u64::from(query.offset()))),
+            ("fields", Arg::Text(super::FIELDS)),
+            (
+                "assembly",
+                Arg::Text(if query.build() == Build::Grch38 {
+                    "hg38"
+                } else {
+                    "hg19"
+                }),
+            ),
+        ],
+        |page| {
+            page.hits.len() <= query.limit() as usize
+                && (page.hits.len() as u64
+                    == page
+                        .total
+                        .saturating_sub(u64::from(query.offset()))
+                        .min(u64::from(query.limit())))
+        },
+    )?;
+    let mut rows = Mapped {
+        value: Vec::new(),
+        problems: Vec::new(),
+    };
     for hit in page.hits {
         let id = hit.id.clone();
         let mapped = map::candidates(vec![hit], id.as_str(), query.build());
         rows.value.extend(mapped.value);
         rows.problems.extend(mapped.problems);
     }
-    Ok(SearchPage { total:page.total, rows })
+    Ok(SearchPage {
+        total: page.total,
+        rows,
+    })
 }

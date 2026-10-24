@@ -39,8 +39,13 @@ impl FromStr for ProteinChange {
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         let original = value;
         let value = value.strip_prefix("p.").unwrap_or(value);
-        let first = value.find(|c: char| c.is_ascii_digit()).ok_or(super::gene::QueryInvalid)?;
-        let end = value.rfind(|c: char| c.is_ascii_digit()).ok_or(super::gene::QueryInvalid)? + 1;
+        let first = value
+            .find(|c: char| c.is_ascii_digit())
+            .ok_or(super::gene::QueryInvalid)?;
+        let end = value
+            .rfind(|c: char| c.is_ascii_digit())
+            .ok_or(super::gene::QueryInvalid)?
+            + 1;
         let residue = |v: &str| {
             AMINO
                 .iter()
@@ -77,15 +82,29 @@ impl ProteinChange {
 }
 
 impl std::fmt::Display for ProteinChange {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str(&self.original) }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.original)
+    }
 }
 impl ProteinChange {
     /// Exact caller spelling, without converting amino-acid notation.
-    pub fn as_str(&self) -> &str { &self.original }
+    pub fn as_str(&self) -> &str {
+        &self.original
+    }
 }
 text_value!(ProteinChange, "ProteinChange", {
-    let residues = AMINO.iter().flat_map(|(one,three)| [regex_escape(one),(*three).to_owned()]).collect::<Vec<_>>().join("|");
+    let residues = AMINO
+        .iter()
+        .flat_map(|(one, three)| [regex_escape(one), (*three).to_owned()])
+        .collect::<Vec<_>>()
+        .join("|");
     format!("^(p\\.)?({residues})[1-9][0-9]*({residues})$")
 });
 #[cfg(feature = "schema")]
-fn regex_escape(value: &str) -> String { if value == "*" { "\\*".into() } else { value.into() } }
+fn regex_escape(value: &str) -> String {
+    if value == "*" {
+        "\\*".into()
+    } else {
+        value.into()
+    }
+}

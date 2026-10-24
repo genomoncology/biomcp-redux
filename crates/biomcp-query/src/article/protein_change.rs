@@ -8,7 +8,12 @@ pub(super) struct Selection {
 impl Selection {
     pub(super) fn new(find: Option<&Text>, variant: Option<&Text>) -> Result<Self, ()> {
         let forms = variant
-            .map(|v| v.as_str().parse::<ProteinChange>().map(|p| p.forms()).map_err(|_| ()))
+            .map(|v| {
+                v.as_str()
+                    .parse::<ProteinChange>()
+                    .map(|p| p.forms())
+                    .map_err(|_| ())
+            })
             .transpose()?;
         let needles = forms.clone().map(|v| v.to_vec()).unwrap_or_else(|| {
             find.map(|v| vec![v.as_str().to_owned()])

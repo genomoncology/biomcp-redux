@@ -146,5 +146,5 @@ pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
 
-pub use query::{ProteinChange, VariantSearch, VariantSearchSource, VariantRegion};
+pub use query::{ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
 pub use response::VariantPage;
