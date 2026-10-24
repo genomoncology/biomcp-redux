@@ -10,7 +10,7 @@ pub(crate) use pool::{Pool, StoredItem};
 use rusqlite::{Connection, params};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 /// Query schema version used in the binary's shared cache filename.
-pub const VERSION: u32 = 1;
+pub const VERSION: u32 = 2;
 /// Query-owned metadata checked by transport before any journal or schema mutation.
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",

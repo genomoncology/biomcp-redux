@@ -2323,6 +2323,7 @@
         "pubmed",
         "europepmc",
         "pmc-oa",
+        "icite",
         "pubtator",
         "ctgov",
         "civic",
@@ -2340,6 +2341,7 @@
         " PubMed.",
         " Europe PMC.",
         " PMC Open Access bucket.",
+        " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",
@@ -2535,6 +2537,7 @@
       "enum": [
         "restart",
         "section",
+        "sort",
         "page",
         "fresh",
         "disambiguate",

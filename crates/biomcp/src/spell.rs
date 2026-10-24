@@ -42,6 +42,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     )?;
     let query = match request {
         Request::ArticleText(query) => serde_json::to_value(query)?,
+        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
+            serde_json::to_value(query)?
+        }
         Request::GetArticle(query) => serde_json::to_value(query)?,
         Request::SearchArticle(query) => serde_json::to_value(query)?,
         Request::GetGene(query) => serde_json::to_value(query)?,
@@ -49,13 +52,19 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleText(_) => "article",
+            Request::ArticleText(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => "article",
             Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
         if matches!(request, Request::ArticleText(_)) {
             "text"
+        } else if matches!(request, Request::ArticleCitations(_)) {
+            "citations"
+        } else if matches!(request, Request::ArticleReferences(_)) {
+            "references"
         } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
             "article"
         } else {
@@ -114,6 +123,18 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {
                 args.push(format!("--{}", name.replace('_', "-")));
+            }
+            if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
+                args.push(
+                    value
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(Value::as_str)
+                        .collect::<Vec<_>>()
+                        .join(","),
+                );
+                continue;
             }
             for value in value
                 .as_array()

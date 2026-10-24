@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
+use biodata::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -28,6 +28,7 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::ArticleText(_) => "biodata.article-text/1",
+        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
@@ -40,6 +41,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
     ("article", "text", "biodata.article-text/1"),
+    ("article", "citations", "biodata.article-edges/1"),
+    ("article", "references", "biodata.article-edges/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -152,7 +155,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let request = query(verb, entity, matches)?;
+        let request = request(verb, entity, matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -189,7 +192,12 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
             argument = argument.required(true);
         }
         if property.get("type").and_then(Value::as_str) == Some("array") {
-            argument = if property.get("x-trailing-section").is_some() {
+            argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
+                argument
+                    .num_args(1)
+                    .value_delimiter(',')
+                    .action(ArgAction::Append)
+            } else if property.get("x-trailing-section").is_some() {
                 argument.num_args(1).action(ArgAction::Append)
             } else {
                 argument.num_args(1..).action(ArgAction::Append)
@@ -275,30 +283,36 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
     Ok(())
 }
 
-fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let id = if verb == "article" && entity == "text" {
-        "biodata.article-text/1"
-    } else if entity == "article" && verb == "get" {
-        "biodata.article-get/1"
-    } else if entity == "article" {
-        "biodata.article-search/1"
-    } else if verb == "get" {
-        "biodata.gene-get/1"
-    } else {
-        "biodata.gene-search/1"
-    };
+fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
+    let id = QUERIES
+        .iter()
+        .find(|(v, e, _)| *v == verb && *e == entity)
+        .map(|(_, _, id)| *id)
+        .ok_or(())?;
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
-    let request = if verb == "article" && entity == "text" {
-        Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
-    } else if entity == "article" && verb == "get" {
-        Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
-    } else if entity == "article" {
-        Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
-    } else if verb == "get" {
-        Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
-    } else {
-        Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
-    };
-    Ok(request)
+    match (verb, entity) {
+        ("article", "text") => serde_json::from_value::<ArticleText>(value)
+            .map(Request::ArticleText)
+            .map_err(|_| ()),
+        ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
+            .map(Request::ArticleCitations)
+            .map_err(|_| ()),
+        ("article", "references") => serde_json::from_value::<ArticleEdges>(value)
+            .map(Request::ArticleReferences)
+            .map_err(|_| ()),
+        ("get", "article") => serde_json::from_value::<ArticleGet>(value)
+            .map(Request::GetArticle)
+            .map_err(|_| ()),
+        ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
+            .map(Request::SearchArticle)
+            .map_err(|_| ()),
+        ("get", "gene") => serde_json::from_value::<GeneGet>(value)
+            .map(Request::GetGene)
+            .map_err(|_| ()),
+        ("search", "gene") => serde_json::from_value::<GeneSearch>(value)
+            .map(Request::SearchGene)
+            .map_err(|_| ()),
+        _ => Err(()),
+    }
 }
