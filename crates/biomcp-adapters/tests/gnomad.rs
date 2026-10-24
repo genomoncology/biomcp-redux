@@ -58,6 +58,7 @@ fn malformed_aliases_errors_and_required_fields_never_become_confirmed_absence()
     bad_transcript["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad");
     for (name, body) in [
         ("missing alias", json!({"data":{}})),
+        ("wrong data type", json!({"data":17})),
         ("unexpected alias", json!({"data":{"extra":null}})),
         ("wrong type alias", json!({"data":{"g0":7}})),
         ("unexplained null", json!({"data":{"g0":null}})),
@@ -118,6 +119,12 @@ fn source_preferred_transcript_fallback_and_mapping_problems_remain_independent(
             .to_string(),
         "ENST00000269305"
     );
+    for flags in [Value::Null, json!({"unexpected":"value"})] {
+        let mut changed = body.clone(); changed["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
+        let values = call(recording.clone(), changed).unwrap();
+        assert!(values[0].constraint.value.as_ref().unwrap().flags.is_empty());
+        assert_eq!(values[0].constraint.problems.is_empty(), flags.is_null());
+    }
     body["data"]["g0"]["gnomad_constraint"] = Value::Null;
     assert!(
         call(recording.clone(), body).unwrap()[0]
@@ -136,4 +143,15 @@ fn source_preferred_transcript_fallback_and_mapping_problems_remain_independent(
     wrong_identity["data"]["g0"]["gene_id"] = json!("ENSG00000157764");
     let values = call(recording, wrong_identity).unwrap();
     assert_eq!(values[0].constraint.problems[0].field.as_ref(), "gene_id");
+}
+
+#[test]
+fn the_public_constraint_batch_refuses_empty_and_oversized_distinct_queries_before_io() {
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig { mode: Mode::Replay { dir: directory.path().into() }, ..Default::default() }).unwrap();
+    let leg = fetch.leg(&gnomad::SPEC, fetch.deadline(Duration::from_secs(20)));
+    for count in [0, 21] {
+        let ids: Vec<_> = (0..count).map(|id| format!("ENSG{id:011}").parse().unwrap()).collect();
+        assert!(matches!(gnomad::constraints(&leg, &ids), Err(RequestError::Source(error)) if error.reason == Reason::BadReply));
+    }
 }
