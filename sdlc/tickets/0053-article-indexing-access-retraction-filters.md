@@ -1,6 +1,7 @@
 # 0053 — Keep the indexing section and the open-access, preprint and retraction filters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 47c9cc7511a0c5bfe06158594f836329dada32f9
 
 Milestone: 1
 
