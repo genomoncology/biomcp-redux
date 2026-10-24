@@ -214,14 +214,17 @@ fn summary() -> Result<(), Box<dyn std::error::Error>> {
     cases.push(json!({"case": "late-error", "error": "command did not return JSON"}));
     cases.push(json!({"case": "not-public", "skipped": "synthetic response case"}));
     let report = live::summary(cases, BTreeMap::new(), 0, false);
-    let sample = report["case_sample"].as_array().ok_or("missing sample")?;
-    if report["drift_cases"] != 1
-        || report["error_cases"] != 1
-        || report["checked"] != 27
-        || report["omitted"] != 7
+    let sample = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("missing sample")?;
+    if report.get("drift_cases") != Some(&json!(1))
+        || report.get("error_cases") != Some(&json!(1))
+        || report.get("checked") != Some(&json!(27))
+        || report.get("omitted") != Some(&json!(7))
         || sample.len() != 20
-        || sample[0]["case"] != "late-drift"
-        || sample[1]["case"] != "late-error"
+        || report.pointer("/case_sample/0/case") != Some(&json!("late-drift"))
+        || report.pointer("/case_sample/1/case") != Some(&json!("late-error"))
     {
         return Err(format!("late diagnostic hidden from bounded summary: {report}").into());
     }
