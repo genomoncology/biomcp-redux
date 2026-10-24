@@ -36,7 +36,6 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
             let (source, reason) = match error {
                 RequestError::Source(e) => (e.source, e.reason),
                 _ => (default_source, Reason::Unavailable),
-
             };
             body.content = Section::unavailable(source, reason);
         }
