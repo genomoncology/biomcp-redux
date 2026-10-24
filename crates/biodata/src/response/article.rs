@@ -112,3 +112,6 @@ pub struct LitVarCandidate {
     /// Number of associated publications reported by LitVar2.
     pub count: u64,
 }
+
+mod evidence;
+pub use evidence::{ArticleEvidenceResult,CitationContexts,CitationParagraphs,EvidenceContext,EvidenceParagraph,EvidenceNotice,ArticleRecommendations};

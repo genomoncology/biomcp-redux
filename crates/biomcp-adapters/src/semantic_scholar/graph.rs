@@ -51,12 +51,7 @@ impl PaperSummary {
 }
 /// Bind a checked article identity to the shared graph source without accepting a free URL.
 pub fn paper_endpoint(input: &ArticleInput) -> Result<Endpoint, RequestError> {
-    let value = match input {
-        ArticleInput::Pmid(id) => format!("PMID:{id}"),
-        ArticleInput::Pmcid(id) => format!("PMCID:{id}"),
-        ArticleInput::Doi(id) => format!("DOI:{id}"),
-        ArticleInput::EuropePmc(_) => return Err(biomcp_fetch::InputError::Path.into()),
-    };
+    let value = super::paper_id(input)?;
     let part = PathSegment::new(&value).map_err(RequestError::Input)?;
     Ok(PAPER.clone().with_segments(&[part]))
 }

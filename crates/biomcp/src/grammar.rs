@@ -29,6 +29,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticleEvidence(_) => "biodata.article-evidence/1",
+        Request::ArticleRecommend(_) => "biodata.article-recommend/1",
         Request::ArticleSupplement(_) => "biodata.article-supplement/1",
         Request::ArticleText(_) => "biodata.article-text/2",
         Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/2",
@@ -39,6 +41,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("article", "citation-evidence", "biodata.article-evidence/1"),
+    ("article", "recommendations", "biodata.article-recommend/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -246,6 +250,10 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
                 argument.num_args(1..).action(ArgAction::Append)
             };
         }
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            command = command.arg(argument.action(ArgAction::SetTrue));
+            continue;
+        }
         command = command.arg(argument.value_parser(clap::builder::StringValueParser::new()));
     }
     Ok(command)
@@ -253,6 +261,10 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
+        if property.get("type").and_then(Value::as_str) == Some("boolean") {
+            if matches.get_flag(name) { result.insert(name.clone(),Value::Bool(true)); }
+            continue;
+        }
         let Some(values) = matches.get_many::<String>(name) else {
             continue;
         };
@@ -340,6 +352,8 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("article", "citation-evidence") => serde_json::from_value::<biodata::ArticleEvidence>(value).map(Request::ArticleEvidence).map_err(|_|()),
+        ("article", "recommendations") => serde_json::from_value::<biodata::ArticleRecommend>(value).map(Request::ArticleRecommend).map_err(|_|()),
         ("article", "supplement") => serde_json::from_value::<biodata::ArticleSupplement>(value)
             .map(Request::ArticleSupplement)
             .map_err(|_| ()),

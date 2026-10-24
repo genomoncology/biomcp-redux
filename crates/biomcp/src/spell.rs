@@ -42,6 +42,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::ArticleEvidence(query) => serde_json::to_value(query)?,
+        Request::ArticleRecommend(query) => serde_json::to_value(query)?,
         Request::ArticleSupplement(query) => serde_json::to_value(query)?,
         Request::ArticleText(query) => serde_json::to_value(query)?,
         Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
@@ -54,7 +56,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleSupplement(_)
+            Request::ArticleEvidence(_) | Request::ArticleRecommend(_) | Request::ArticleSupplement(_)
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
@@ -62,7 +64,11 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::ArticleSupplement(_)) {
+        if matches!(request, Request::ArticleEvidence(_)) {
+            "citation-evidence"
+        } else if matches!(request, Request::ArticleRecommend(_)) {
+            "recommendations"
+        } else if matches!(request, Request::ArticleSupplement(_)) {
             "supplement"
         } else if matches!(request, Request::ArticleText(_)) {
             "text"
@@ -124,6 +130,10 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             else {
                 continue;
             };
+            if value.is_boolean() {
+                if value == &Value::Bool(true) { args.push(format!("--{}",name.replace('_',"-"))); }
+                continue;
+            }
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));
             let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {
