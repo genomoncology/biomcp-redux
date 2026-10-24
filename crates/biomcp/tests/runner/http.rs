@@ -467,6 +467,10 @@ fn metadata_cases(server: &Server) -> Check {
     let request = super::mcp::request(json!(9), "tools/list", json!({}));
     for (accept, expected) in [
         ("Application/JSON, Text/Event-Stream", 200),
+        ("application/*, text/*", 200),
+        ("*/*;q=1, application/json;q=0, text/event-stream", 400),
+        ("*/*;q=0, application/json, text/event-stream", 200),
+        ("application/*;q=0, */*;q=1, application/json;q=1", 200),
         ("application/json; q=1.000, text/event-stream; q=0.5", 200),
         ("application/json; q=0.001, text/event-stream", 200),
         ("application/json; q=0, text/event-stream", 400),
