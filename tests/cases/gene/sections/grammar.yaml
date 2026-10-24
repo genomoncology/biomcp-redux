@@ -1,7 +1,7 @@
 {
   "feature": "gene-sections",
   "story": "Parsed suffixes preserve input words, explicit flags and repetitions",
-  "replay": "gene/constraint",
+  "replay": "gene/all",
   "steps": [
     {
       "run": [

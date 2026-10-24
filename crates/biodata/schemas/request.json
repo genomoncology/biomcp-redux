@@ -13,6 +13,7 @@
       "enum": [
         "protein",
         "constraint",
+        "pathways",
         "all"
       ],
       "type": "string"

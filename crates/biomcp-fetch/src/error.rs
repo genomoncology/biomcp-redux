@@ -149,6 +149,8 @@ impl From<RecordError> for RequestError {
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputError {
+    /// A runtime endpoint path is not canonical or attempts to supply URL parts.
+    Path,
     /// The call does not match the endpoint's declared body encoding.
     Method,
     /// The caller's JSON serializer failed.
@@ -159,6 +161,7 @@ pub enum InputError {
 impl fmt::Display for InputError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::Path => "fetch.input_path",
             Self::Method => "fetch.input_method",
             Self::Serialization => "fetch.input_serialization",
             Self::BodyLimit => "fetch.input_body_limit",

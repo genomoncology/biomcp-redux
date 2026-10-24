@@ -161,6 +161,8 @@ crate::source::canonical_enum! {
         Protein => "protein",
         /// Population constraint metrics.
         Constraint => "constraint",
+        /// Lowest-level human Reactome pathways.
+        Pathways => "pathways",
         /// Every landed section.
         All => "all",
     }
@@ -172,5 +174,7 @@ crate::source::canonical_enum! {
         Protein => "protein",
         /// Population constraint metrics.
         Constraint => "constraint",
+        /// Lowest-level human Reactome pathways.
+        Pathways => "pathways",
     }
 }
