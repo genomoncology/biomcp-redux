@@ -1,0 +1,182 @@
+{
+  "live_check": "synthetic local TLS response",
+  "feature": "article-search",
+  "story": "A short nonzero pool keeps all four ordered term drops and the card action within five steps, preserving every other selector.",
+  "replay": "article/search/synthetic-four-term-short",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "words",
+        "--gene",
+        "NF2",
+        "--variant",
+        "K322",
+        "--disease",
+        "meningioma",
+        "--drug",
+        "drug words",
+        "--author",
+        "author words",
+        "--journal",
+        "journal words",
+        "--since",
+        "2000",
+        "--until",
+        "2020",
+        "--type",
+        "review",
+        "--limit",
+        "7"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "words",
+        "--gene",
+        "NF2",
+        "--variant",
+        "K322",
+        "--disease",
+        "meningioma",
+        "--drug",
+        "drug words",
+        "--author",
+        "author words",
+        "--journal",
+        "journal words",
+        "--since",
+        "2000",
+        "--until",
+        "2020",
+        "--type",
+        "review",
+        "--limit",
+        "7"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/page/returned": 1,
+        "/next": [
+          {
+            "kind": "disambiguate",
+            "args": [
+              "get",
+              "article",
+              "33123537"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "article",
+              "--author",
+              "author words",
+              "--disease",
+              "meningioma",
+              "--drug",
+              "drug words",
+              "--gene",
+              "NF2",
+              "--journal",
+              "journal words",
+              "--limit",
+              "7",
+              "--since",
+              "2000",
+              "--type",
+              "review",
+              "--until",
+              "2020",
+              "--variant",
+              "K322"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "article",
+              "words",
+              "--author",
+              "author words",
+              "--disease",
+              "meningioma",
+              "--drug",
+              "drug words",
+              "--gene",
+              "NF2",
+              "--journal",
+              "journal words",
+              "--limit",
+              "7",
+              "--since",
+              "2000",
+              "--type",
+              "review",
+              "--until",
+              "2020"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "article",
+              "words",
+              "--author",
+              "author words",
+              "--drug",
+              "drug words",
+              "--gene",
+              "NF2",
+              "--journal",
+              "journal words",
+              "--limit",
+              "7",
+              "--since",
+              "2000",
+              "--type",
+              "review",
+              "--until",
+              "2020",
+              "--variant",
+              "K322"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "article",
+              "words",
+              "--author",
+              "author words",
+              "--disease",
+              "meningioma",
+              "--gene",
+              "NF2",
+              "--journal",
+              "journal words",
+              "--limit",
+              "7",
+              "--since",
+              "2000",
+              "--type",
+              "review",
+              "--until",
+              "2020",
+              "--variant",
+              "K322"
+            ]
+          }
+        ]
+      },
+      "max_bytes": 2211,
+      "max_tokens": 553
+    }
+  ]
+}

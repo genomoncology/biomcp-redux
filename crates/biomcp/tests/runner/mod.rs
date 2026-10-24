@@ -46,6 +46,7 @@ mod variant;
 mod variant_civic;
 mod variant_hotspots;
 mod variant_population;
+mod variant_search;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -289,6 +290,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_population::trials());
     trials.extend(variant_civic::trials());
     trials.extend(variant_hotspots::trials());
+    trials.extend(variant_search::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());

@@ -679,7 +679,7 @@
     },
     "TrialDocumentGet": {
       "additionalProperties": false,
-      "description": "Save one exact ClinicalTrials.gov manifest entry to the caller's destination.",
+      "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.",
       "properties": {
         "file": {
           "$ref": "#/$defs/Text",

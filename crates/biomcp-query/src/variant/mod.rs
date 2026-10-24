@@ -4,6 +4,7 @@ mod civic;
 mod continuations;
 mod direct;
 mod hotspots;
+pub mod search;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{

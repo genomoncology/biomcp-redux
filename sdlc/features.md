@@ -11,8 +11,8 @@ gene-clingen: A caller sees ClinGen validity and dosage records from a synchroni
 gene-constraint: A caller sees population constraint metrics with the source version. Cases: `tests/cases/gene/sections/constraint.yaml`.
 gene-oncokb: A caller sees OncoKB gene roles with their own key or a skipped-source explanation without one. Cases: `tests/cases/gene/sections/oncokb-*.yaml`.
 gene-retired: A caller using a retired gene spelling receives its fixed replacement or removal explanation. Cases: `tests/cases/gene/retired.yaml`.
-article-search: A caller walks stable native source windows with totals, checked selectors, optional source keys and explicit failures. Cases: `tests/cases/article/search/*.yaml`, `tests/cases/article/fold/*.yaml`, `tests/cases/article/semantic-scholar/*.yaml`, `crates/biomcp/tests/runner/scholar.rs`.
-article-filters: A caller narrows article results by author, journal, dates and publication type before paging. Cases: `tests/cases/article/filters/*.yaml`.
+article-search: A caller walks stable native source windows with totals, checked selectors, optional source keys and explicit failures, and chooses explicit term drops for a short complete pool. Cases: `tests/cases/article/search/*.yaml`, `tests/cases/article/fold/*.yaml`, `tests/cases/article/semantic-scholar/*.yaml`, `crates/biomcp/tests/runner/scholar.rs`.
+article-filters: A caller narrows article results by author, journal, dates and publication type before paging, and sees a distinct electronic publication date. Cases: `tests/cases/article/filters/*.yaml`.
 article-fold: A caller combines PubMed and Europe PMC results while retaining each source's native rank and missing-source outcomes. Cases: `tests/cases/article/fold/*.yaml`.
 article-litvar: A caller selects an exact variant, receives source candidates for ambiguity and combines its publications with other article sources in a stable pool. Cases: `tests/cases/article/litvar/*.yaml`, `crates/biomcp/tests/runner/litvar_tables.rs`.
 article-get: A caller retrieves article cards by PMID, PMCID or checked DOI with complete abstracts and retraction links. Cases: `tests/cases/article/get/*.yaml`.
@@ -48,3 +48,6 @@ trial-publications: Retrieve native registry references and document manifests a
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
 variant-civic: Retrieve exact CIViC molecular-profile evidence and assertions, preserve compound context and native labels, and page independent source streams. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
 variant-hotspots: Show source transcript and residue/alternate recurrence counts with explicit candidate state when no exact transcript join exists. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
+
+variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
+trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.

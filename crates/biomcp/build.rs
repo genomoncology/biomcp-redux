@@ -62,6 +62,12 @@ fn embed_examples() -> Result<(), Box<dyn Error>> {
         ("article/evidence/source.yaml", 1),
         ("article/recommendations/single.yaml", 0),
         ("article/recommendations/multi.yaml", 0),
+        ("trial/condition.yaml", 0),
+        ("trial/intervention.yaml", 0),
+        ("trial/get/NCT04303780.yaml", 0),
+        ("trial/documents.yaml", 0),
+        ("trial/document-examples.yaml", 0),
+        ("trial/document-examples.yaml", 1),
     ] {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());

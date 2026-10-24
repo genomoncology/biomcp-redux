@@ -42,3 +42,7 @@ mod variant_assertions;
 pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
 mod variant_population;
 pub use variant_population::VariantPopulationQuery;
+mod protein_change;
+pub use protein_change::ProteinChange;
+mod variant_search;
+pub use variant_search::{MyVariantQuery, VariantRegion, VariantSearch, VariantSearchSource};

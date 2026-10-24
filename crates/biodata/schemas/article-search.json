@@ -170,7 +170,7 @@
     },
     "since": {
       "$ref": "#/$defs/PartialDate",
-      "description": "Inclusive lower publication-date bound at the stated precision."
+      "description": "Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date."
     },
     "sort": {
       "$ref": "#/$defs/ArticleSort",
@@ -200,7 +200,7 @@
     },
     "until": {
       "$ref": "#/$defs/PartialDate",
-      "description": "Inclusive upper publication-date bound at the stated precision."
+      "description": "Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date."
     },
     "variant": {
       "$ref": "#/$defs/Text",
