@@ -2,13 +2,10 @@
   "$defs": {
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
-      "oneOf": [
-        {
-          "const": "usage.schema",
-          "description": "The command requires a known schema artifact ID.",
-          "type": "string"
-        }
-      ]
+      "enum": [
+        "usage.schema"
+      ],
+      "type": "string"
     },
     "ErrorDetail": {
       "additionalProperties": false,
@@ -40,13 +37,10 @@
     },
     "ErrorStatus": {
       "description": "The status of an invalid schema request.",
-      "oneOf": [
-        {
-          "const": "usage",
-          "description": "The request cannot be used.",
-          "type": "string"
-        }
-      ]
+      "enum": [
+        "usage"
+      ],
+      "type": "string"
     }
   },
   "$id": "biomcp.error/1",

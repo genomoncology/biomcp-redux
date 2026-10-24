@@ -1,36 +1,37 @@
 //! The fixed schema usage response, including its checked wire literals.
 use serde::{Deserialize, Serialize};
 
-/// The status of an invalid schema request.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum ErrorStatus {
-    /// The request cannot be used.
-    #[serde(rename = "usage")]
-    Usage,
+// One literal defines both serde and schema, including the fixed message.
+macro_rules! singleton {
+    ($(#[$doc:meta])* $visibility:vis $name:ident { $variant:ident => $literal:literal }) => {
+        $(#[$doc])*
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$literal])))]
+        $visibility enum $name {
+            $(#[$doc])*
+            #[serde(rename = $literal)]
+            $variant,
+        }
+    };
 }
 
-/// The stable error code for an invalid schema request.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum ErrorCode {
-    /// The command requires a known schema artifact ID.
-    #[serde(rename = "usage.schema")]
-    SchemaUsage,
+singleton! {
+    /// The status of an invalid schema request.
+    pub ErrorStatus { Usage => "usage" }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-enum ErrorSchema {
-    #[serde(rename = "biomcp.error/1")]
-    V1,
+singleton! {
+    /// The stable error code for an invalid schema request.
+    pub ErrorCode { SchemaUsage => "usage.schema" }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-enum ErrorMessage {
-    #[serde(rename = "expected schema <known artifact id>")]
-    SchemaUsage,
+singleton! {
+    ErrorSchema { V1 => "biomcp.error/1" }
+}
+
+singleton! {
+    ErrorMessage { SchemaUsage => "expected schema <known artifact id>" }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
