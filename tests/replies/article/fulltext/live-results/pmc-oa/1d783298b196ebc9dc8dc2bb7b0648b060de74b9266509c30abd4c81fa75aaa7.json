@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pmc-oa",
+  "url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC9018718.1/PMC9018718.1.json",
+  "exchanges": [
+    {
+      "fetched": 1792842758,
+      "status": 200,
+      "content_type": "binary/octet-stream",
+      "delay_ms": 59,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"pmcid": "PMC9018718", "version": 1, "pmid": 35440569, "doi": "10.1038/s41467-022-29638-1", "mid": null, "title": "AKT mutant allele-specific activation dictates pharmacologic sensitivities", "citation": "Nat Commun. 2022 Apr 19;13:2111. doi: 10.1038/s41467-022-29638-1", "is_pmc_openaccess": true, "is_manuscript": false, "is_historical_ocr": false, "is_retracted": false, "license_code": "CC BY", "pdf_url": "s3://pmc-oa-opendata/PMC9018718.1/PMC9018718.1.pdf?md5=cc1e6539cbbcfa15eee799d2a95ccb22", "text_url": "s3://pmc-oa-opendata/PMC9018718.1/PMC9018718.1.txt?md5=ad6d6ece50a6b111d45bb4d46a0e39c4", "xml_url": "s3://pmc-oa-opendata/PMC9018718.1/PMC9018718.1.xml?md5=2eb3f8be6e8f68e5a18d1d5b1cd218b7", "media_urls": ["s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_Fig1_HTML.jpg?md5=368a03383dd57a964f31d07b22a5720a", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_Fig2_HTML.jpg?md5=e83484bd5d6bdd82b1a3c49325263897", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_Fig3_HTML.jpg?md5=afc2d889fb750260671b4175b4fbe89a", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_Fig4_HTML.jpg?md5=5bbfa38a759c26cf65386c7a44f67683", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_Fig5_HTML.jpg?md5=c6ee14fb567f84bdad9295b64fac4536", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_MOESM1_ESM.pdf?md5=5e5de90d40c9896700ed59f23acba3a9", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_MOESM2_ESM.pdf?md5=a6eeeaf5e877d9b0802e54fe2774282e", "s3://pmc-oa-opendata/PMC9018718.1/41467_2022_29638_MOESM3_ESM.pdf?md5=ca387bfa0f3320e692f2cf0d158e759e"]}
+      }
+    }
+  ]
+}

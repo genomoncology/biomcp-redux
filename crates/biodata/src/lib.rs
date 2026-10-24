@@ -7,10 +7,15 @@ pub use article::{
 };
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid};
+pub use query::ArticleText;
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
+pub use response::{
+    ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
+    TextPartKind,
+};
 mod response;
 mod source;
 mod text;
@@ -61,3 +66,6 @@ pub use response::{
 };
 
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
+
+mod markdown;
+pub use markdown::Markdown;

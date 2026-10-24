@@ -50,3 +50,7 @@ pub(crate) static NCBI: Quota = Quota::new(
 // Conservative local PubTator3 policy; no published numeric provider limit checked.
 pub(crate) static PUBTATOR: Quota =
     Quota::new(SourceKey::declare("pubtator"), Rate::per_second(3), None, 3);
+
+// Local bucket policy, not a published provider rate.
+pub(crate) static PMC_OA: Quota =
+    Quota::new(SourceKey::declare("pmc-oa"), Rate::per_second(10), None, 2);

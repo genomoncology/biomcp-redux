@@ -8,11 +8,13 @@
       "description": "Article section request including all landed sections.",
       "enum": [
         "annotations",
+        "fulltext",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
+        " Licensed PMC body outline.",
         " Every landed article section."
       ]
     },
@@ -108,6 +110,55 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "part"
+          ]
+        },
+        {
+          "required": [
+            "find"
+          ]
+        }
+      ],
+      "description": "Read licensed PMC body text.",
+      "properties": {
+        "command": {
+          "const": "article_text",
+          "type": "string"
+        },
+        "find": {
+          "$ref": "#/$defs/Text",
+          "description": "Case-insensitive literal text to find."
+        },
+        "input": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "PubMed or PMC identity. DOI selectors are not accepted by the reader.",
+          "x-positional": 0
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of matching rows already returned.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "part": {
+          "description": "One-based outline part number.",
+          "format": "uint32",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Retrieve PubMed article cards.",

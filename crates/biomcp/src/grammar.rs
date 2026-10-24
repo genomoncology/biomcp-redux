@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
+use biodata::{ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -12,6 +12,12 @@ pub(crate) struct Globals {
     pub(crate) case_cache: Option<PathBuf>,
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
+    pub(crate) format: Option<Format>,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Format {
+    Json,
+    Md,
 }
 #[derive(Debug)]
 pub(crate) struct Parsed {
@@ -21,6 +27,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticleText(_) => "biodata.article-text/1",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
@@ -32,6 +39,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
+    ("article", "text", "biodata.article-text/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -40,6 +48,12 @@ fn root() -> Result<Command, ()> {
         .disable_version_flag(true)
         .arg_required_else_help(true)
         .subcommand_required(true);
+    root = root.arg(
+        Arg::new("format")
+            .long("format")
+            .global(true)
+            .value_parser(["json", "md"]),
+    );
     for name in ["replay", "record", "case-cache"] {
         root = root.arg(
             Arg::new(name)
@@ -57,7 +71,7 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for verb in ["get", "search"] {
+    for verb in ["get", "search", "article"] {
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
@@ -99,6 +113,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
+        format: matches
+            .get_one::<String>("format")
+            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
     };
     globals.check()?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -135,27 +152,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if entity == "article" && verb == "get" {
-            "biodata.article-get/1"
-        } else if entity == "article" {
-            "biodata.article-search/1"
-        } else if verb == "get" {
-            "biodata.gene-get/1"
-        } else {
-            "biodata.gene-search/1"
-        };
-        let schema: Value =
-            serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-        let value = arguments(matches, &schema)?;
-        let request = if entity == "article" && verb == "get" {
-            Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
-        } else if entity == "article" {
-            Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
-        } else if verb == "get" {
-            Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
-        } else {
-            Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
-        };
+        let request = query(verb, entity, matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -231,6 +228,7 @@ impl Globals {
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
+        self.format = self.format.or(process.format);
         self.offline |= process.offline;
         self.check()
     }
@@ -275,4 +273,32 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
         }
     }
     Ok(())
+}
+
+fn query(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
+    let id = if verb == "article" && entity == "text" {
+        "biodata.article-text/1"
+    } else if entity == "article" && verb == "get" {
+        "biodata.article-get/1"
+    } else if entity == "article" {
+        "biodata.article-search/1"
+    } else if verb == "get" {
+        "biodata.gene-get/1"
+    } else {
+        "biodata.gene-search/1"
+    };
+    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+    let value = arguments(matches, &schema)?;
+    let request = if verb == "article" && entity == "text" {
+        Request::ArticleText(serde_json::from_value::<ArticleText>(value).map_err(|_| ())?)
+    } else if entity == "article" && verb == "get" {
+        Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
+    } else if entity == "article" {
+        Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)
+    } else if verb == "get" {
+        Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
+    } else {
+        Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)
+    };
+    Ok(request)
 }

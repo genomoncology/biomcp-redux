@@ -60,7 +60,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     };
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
     if requested {
-        super::sections::run(cx, &mut deadline, &mut out);
+        super::sections::run(cx, &mut deadline, query, &mut out);
     }
     super::next::get(query, &mut out);
     command.finish(deadline.remaining());
