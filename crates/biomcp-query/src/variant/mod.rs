@@ -3,6 +3,7 @@ pub(crate) mod assertions;
 mod civic;
 mod components;
 mod conservation;
+mod continuations;
 mod cosmic;
 mod direct;
 mod hotspots;
@@ -286,6 +287,7 @@ fn next(
             },
         ));
     }
+    continuations::collect(candidates, &mut next);
     next
 }
 

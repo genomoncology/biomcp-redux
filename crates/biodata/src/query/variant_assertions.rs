@@ -94,6 +94,14 @@ impl VariantAssertionsGet {
         }
         .try_into()
     }
+    /// Select an existing native assertion and its exact source version.
+    pub fn select(&self, record: Text, version: Option<Text>) -> Self {
+        let mut q = self.clone();
+        q.0.assertion = Some(record);
+        q.0.version = version;
+        q.0.offset = 0;
+        q
+    }
     /// Retain the identity while selecting a page size and offset.
     pub fn page(mut self, limit: u32, offset: u32) -> Result<Self, super::gene::QueryInvalid> {
         self.0.limit = limit;
