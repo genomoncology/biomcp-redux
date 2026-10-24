@@ -19,7 +19,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             item.sections = Some(ArticleSections {
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
-.then_some(Section::NotApplicable),
+                .then_some(Section::NotApplicable),
                 tldr: (selected(query, ArticleSectionWord::Tldr)
                     && card.pmid.is_none()
                     && card.doi.is_none())

@@ -121,7 +121,8 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
-            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out) else {
+            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out)
+            else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
