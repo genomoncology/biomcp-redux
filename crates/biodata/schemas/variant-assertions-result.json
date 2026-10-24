@@ -156,6 +156,13 @@
           },
           "type": "array"
         },
+        "comments": {
+          "description": "Native classification comments, without extracting clinical claims.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
         "conditions": {
           "description": "All source conditions; ID-only conditions stay ID-only.",
           "items": {
@@ -173,6 +180,39 @@
             }
           ],
           "description": "Source document facts for an explicitly selected historical version."
+        },
+        "impact_assertion_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native somatic impact assertion type, without deriving a predicate."
+        },
+        "impact_clinical_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native somatic significance, independent of the tier label."
+        },
+        "impact_therapies": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native therapy text, without splitting or assigning it to a predicate."
         },
         "methods": {
           "description": "Assertion method labels, not inferred from clinical testing.",

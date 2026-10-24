@@ -12,21 +12,7 @@ pub(crate) fn row(
     detail: AssertionDetail,
     review: Option<Text>,
 ) -> VariantAssertion {
-    let proposition = match domain {
-        AssertionDomain::SomaticClinicalImpact => Some(Proposition::ClinicalSignificance),
-        AssertionDomain::Oncogenicity => Some(Proposition::Oncogenicity),
-        AssertionDomain::Germline => match label.as_str() {
-            "Pathogenic"
-            | "Likely pathogenic"
-            | "Uncertain significance"
-            | "Likely benign"
-            | "Benign"
-            | "Pathogenic/Likely pathogenic"
-            | "Benign/Likely benign"
-            | "Conflicting classifications of pathogenicity" => Some(Proposition::Pathogenicity),
-            _ => None,
-        },
-    };
+    let proposition = proposition(domain, &label);
     let mut row = VariantAssertion {
         kind,
         domain,
@@ -69,6 +55,32 @@ pub(crate) fn row(
         });
     }
     row
+}
+// Native category mapping follows NCBI's germline vocabulary and ClinGen GKM G.01.
+// https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/
+// https://dataexchange.clinicalgenome.org/clinvar-gkm/profiles/classifications/
+// Whole-label ASCII casing tolerance applies only to proposition selection.
+fn proposition(domain: AssertionDomain, label: &Text) -> Option<Proposition> {
+    match domain {
+        AssertionDomain::SomaticClinicalImpact => Some(Proposition::ClinicalSignificance),
+        AssertionDomain::Oncogenicity => Some(Proposition::Oncogenicity),
+        AssertionDomain::Germline => match label.as_str().to_ascii_lowercase().as_str() {
+            "pathogenic"
+            | "likely pathogenic"
+            | "uncertain significance"
+            | "likely benign"
+            | "benign"
+            | "pathogenic/likely pathogenic"
+            | "benign/likely benign"
+            | "conflicting classifications of pathogenicity"
+            | "pathogenic, low penetrance"
+            | "likely pathogenic, low penetrance"
+            | "established risk allele"
+            | "likely risk allele"
+            | "uncertain risk allele" => Some(Proposition::Pathogenicity),
+            _ => None,
+        },
+    }
 }
 fn acmg(label: &Text, detail: Option<&AssertionDetail>) -> Option<Coding> {
     let detail = detail?;

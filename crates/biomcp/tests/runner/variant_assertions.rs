@@ -148,36 +148,7 @@ fn wrong_identity() -> Result<(), String> {
 }
 
 fn history(wrong: bool) -> Result<(), String> {
-    let stub = Stub::for_source_status(
-        "erepo.clinicalgenome.org",
-        "application/json",
-        move |request| {
-            if request.starts_with("GET /evrepo/api/summary/classifications?") {
-                let mut summary: Value =
-                    serde_json::from_str(&body("CA000434")).map_err(|e| e.to_string())?;
-                summary
-                    .pointer_mut("/data/0")
-                    .and_then(Value::as_object_mut)
-                    .ok_or("synthetic summary row")?
-                    .insert("uuid".into(), json!("8d32df42-16ac-41f2-9bf1-e2b9ce206190"));
-                return Ok(summary.to_string());
-            }
-            if !request.starts_with("GET /evrepo/api/summary/classification/8d32df42-16ac-41f2-9bf1-e2b9ce206190/doc/sepio/version/1.0.0 HTTP/1.1") {
-            return Err(format!("unexpected historical source request: {request}"));
-        }
-            Ok(json!({"data":{
-            "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
-            "id":"CG-PCER-VARINT:synthetic-history",
-            "type":"VariantPathogenicityInterpretation",
-            "metadata":{"version":if wrong {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
-            "variant":{"id":"CAR:CA000434"},
-            "condition":{"label":"Synthetic historical condition"},
-            "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
-            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":"PM2","defaultStrength":{"label":"Pathogenic Supporting"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
-        }}).to_string())
-        },
-        |_| 200,
-    )?;
+    let stub = history_stub(wrong)?;
     let env = environment(&stub)?;
     let args = [
         "variant",
@@ -237,11 +208,11 @@ fn history(wrong: bool) -> Result<(), String> {
 }
 
 fn native_walk() -> Result<(), String> {
-    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        let xml = super::variant::clinvar_body(request)?;
-        // Explicit synthetic XML retains this public record's native not-provided classification.
-        Ok(xml.replace("</ClinicalAssertionList>",r#"<ClinicalAssertion><ClinVarAccession Accession="SCV000607207" Version="3" SubmitterName="GenomeConnect, ClinGen"/><Classification><ReviewStatus>no classification provided</ReviewStatus><GermlineClassification>not provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"#))
-    })?;
+    let stub = Stub::for_source(
+        "eutils.ncbi.nlm.nih.gov",
+        "application/xml",
+        native_walk_body,
+    )?;
     let env = environment(&stub)?;
     let mut args = [
         "get",
@@ -254,7 +225,7 @@ fn native_walk() -> Result<(), String> {
     .map(String::from)
     .to_vec();
     let mut records = Vec::new();
-    for offset in 0..3 {
+    for offset in 0..4 {
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &args)
             .output()
@@ -263,39 +234,14 @@ fn native_walk() -> Result<(), String> {
         if super::mcp::call_with_globals(&env, &args, false, &[])? != value {
             return Err("native assertion CLI/MCP mismatch".into());
         }
-        let data = value
-            .pointer("/result/candidates/0/sections/clinvar/data")
-            .unwrap_or(&value["result"]);
-        if data.pointer("/page/offset") != Some(&json!(offset))
-            || data.pointer("/page/total") != Some(&json!(3))
-        {
-            return Err(format!("native assertion page lost bounds: {value}"));
-        }
-        let row = data
-            .pointer("/assertions/0")
-            .ok_or("missing native assertion")?;
-        let record = row
-            .pointer("/statement/attribution/record")
-            .or_else(|| row.pointer("/unmapped/attribution/record"))
-            .ok_or("missing source record")?;
-        records.push(record.clone());
-        if offset == 2
-            && (row.get("statement_unmapped") != Some(&json!(true))
-                || row.pointer("/unmapped/classification") != Some(&json!("not provided"))
-                || row.get("statement").is_some()
-                || value.get("problems").is_some())
-        {
-            return Err(format!(
-                "unsupported category invented a proposition or problem: {value}"
-            ));
-        }
+        records.push(native_row(&value, offset)?);
         let page = value
             .get("next")
             .and_then(Value::as_array)
             .into_iter()
             .flatten()
             .find(|n| n.get("kind") == Some(&json!("page")));
-        if offset < 2 {
+        if offset < 3 {
             args = serde_json::from_value(
                 page.and_then(|p| p.get("args"))
                     .cloned()
@@ -308,13 +254,14 @@ fn native_walk() -> Result<(), String> {
                 return Err(format!("invalid continuation spelling: {args:?}"));
             }
         } else if page.is_some() {
-            return Err("unexpected fourth assertion page".into());
+            return Err("unexpected fifth assertion page".into());
         }
     }
     if records
         != [
             json!("VCV000128042"),
             json!("SCV000611258"),
+            json!("SCV000601142"),
             json!("SCV000607207"),
         ]
         || stub.finish()?.len() != 1
@@ -356,4 +303,82 @@ fn disabled() -> Result<(), String> {
         return Err("disabled assertion source attempted provider work".into());
     }
     Ok(())
+}
+
+fn history_stub(wrong: bool) -> Result<Stub, String> {
+    Stub::for_source_status(
+        "erepo.clinicalgenome.org",
+        "application/json",
+        move |request| {
+            if request.starts_with("GET /evrepo/api/summary/classifications?") {
+                let mut summary: Value =
+                    serde_json::from_str(&body("CA000434")).map_err(|e| e.to_string())?;
+                summary
+                    .pointer_mut("/data/0")
+                    .and_then(Value::as_object_mut)
+                    .ok_or("synthetic summary row")?
+                    .insert("uuid".into(), json!("8d32df42-16ac-41f2-9bf1-e2b9ce206190"));
+                return Ok(summary.to_string());
+            }
+            if !request.starts_with("GET /evrepo/api/summary/classification/8d32df42-16ac-41f2-9bf1-e2b9ce206190/doc/sepio/version/1.0.0 HTTP/1.1") {
+            return Err(format!("unexpected historical source request: {request}"));
+        }
+            Ok(json!({"data":{
+            "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
+            "id":"CG-PCER-VARINT:synthetic-history",
+            "type":"VariantPathogenicityInterpretation",
+            "metadata":{"version":if wrong {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
+            "variant":{"id":"CAR:CA000434"},
+            "condition":{"label":"Synthetic historical condition"},
+            "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
+            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":"PM2","defaultStrength":{"label":"Pathogenic Supporting"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
+        }}).to_string())
+        },
+        |_| 200,
+    )
+}
+
+fn native_walk_body(request: &str) -> Result<String, String> {
+    let xml = super::variant::clinvar_body(request)?;
+    // Explicit synthetic XML retains the public record's native not-provided classification.
+    Ok(xml.replace("</ClinicalAssertionList>",r#"<ClinicalAssertion><ClinVarAccession Accession="SCV000601142" Version="6"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classification></ClinicalAssertion><ClinicalAssertion><ClinVarAccession Accession="SCV000607207" Version="3" SubmitterName="GenomeConnect, ClinGen"/><Classification><ReviewStatus>no classification provided</ReviewStatus><GermlineClassification>not provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"#))
+}
+
+fn native_row(value: &Value, offset: u32) -> Result<Value, String> {
+    let data = value
+        .pointer("/result/candidates/0/sections/clinvar/data")
+        .or_else(|| value.get("result"))
+        .ok_or("missing assertion body")?;
+    if data.pointer("/page/offset") != Some(&json!(offset))
+        || data.pointer("/page/total") != Some(&json!(4))
+    {
+        return Err(format!("native assertion page lost bounds: {value}"));
+    }
+    let row = data
+        .pointer("/assertions/0")
+        .ok_or("missing native assertion")?;
+    let record = row
+        .pointer("/statement/attribution/record")
+        .or_else(|| row.pointer("/unmapped/attribution/record"))
+        .ok_or("missing source record")?;
+    if offset == 3
+        && (row.get("statement_unmapped") != Some(&json!(true))
+            || row.pointer("/unmapped/classification") != Some(&json!("not provided"))
+            || row.get("statement").is_some()
+            || value.get("problems").is_some())
+    {
+        return Err(format!(
+            "unsupported category invented a proposition or problem: {value}"
+        ));
+    }
+    if offset == 2
+        && (row.pointer("/statement/classification/label") != Some(&json!("pathogenic"))
+            || row.pointer("/statement/proposition") != Some(&json!("pathogenicity"))
+            || row.pointer("/statement/classification/coding").is_some())
+    {
+        return Err(format!(
+            "native casing changed label or inferred framework: {value}"
+        ));
+    }
+    Ok(record.clone())
 }
