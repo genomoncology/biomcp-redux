@@ -79,8 +79,14 @@ pub(super) fn apply(
                     super::population::section(cx, query, candidates, deadline)
                 ),
                 S::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
-                S::Civic => attach!(civic, pending(Source::Civic)),
-                S::Hotspots => attach!(hotspots, pending(Source::CancerHotspots)),
+                S::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                S::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
                 S::Predict => attach!(predict, pending(Source::MyVariant)),
                 S::Conservation => attach!(conservation, pending(Source::MyVariant)),
                 S::Cosmic => attach!(cosmic, pending(Source::MyVariant)),
