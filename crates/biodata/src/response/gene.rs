@@ -1,8 +1,8 @@
 mod constraint;
-pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
+pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -20,7 +20,7 @@ pub struct GeneItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sections: Option<GeneSections>,
     /// Applicable sections left out of this request.
-    #[serde(default, skip_serializing_if = "Box::is_empty")]
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub more: Box<[GeneSection]>,
 }
 /// Gene answers in input order.

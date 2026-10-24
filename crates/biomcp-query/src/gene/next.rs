@@ -58,11 +58,27 @@ pub(crate) fn get(
         }
     }
     for item in items {
-        if !item.more.is_empty() && let Some(GeneResolution::Resolved { gene, .. }) = &item.answer {
-            let words = item.more.iter().filter_map(|section| section.to_string().parse().ok()).collect();
-            if let Ok(query) = GeneGet::with_sections(vec![biodata::GeneInput::HgncId(gene.hgnc_id)].into(), words) {
-                let step = (StepKind::Section, Action::Run { request: Request::GetGene(query), fresh: false });
-                if steps.len() < 5 && !steps.contains(&step) { steps.push(step); }
+        if !item.more.is_empty()
+            && let Some(GeneResolution::Resolved { gene, .. }) = &item.answer
+        {
+            let words = item
+                .more
+                .iter()
+                .filter_map(|section| section.to_string().parse().ok())
+                .collect();
+            if let Ok(query) =
+                GeneGet::with_sections(vec![biodata::GeneInput::HgncId(gene.hgnc_id)].into(), words)
+            {
+                let step = (
+                    StepKind::Section,
+                    Action::Run {
+                        request: Request::GetGene(query),
+                        fresh: false,
+                    },
+                );
+                if steps.len() < 5 && !steps.contains(&step) {
+                    steps.push(step);
+                }
             }
         }
     }

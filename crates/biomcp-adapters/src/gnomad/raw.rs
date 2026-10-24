@@ -1,7 +1,10 @@
-use biomcp_fetch::{BadReply, Reply};
-use serde::{Deserialize, de::{MapAccess, Visitor}};
-use biodata::{EnsemblGeneId, EnsemblTranscript, FiniteNumber};
 use crate::raw::Field;
+use biodata::{EnsemblGeneId, EnsemblTranscript, FiniteNumber};
+use biomcp_fetch::{BadReply, Reply};
+use serde::{
+    Deserialize,
+    de::{MapAccess, Visitor},
+};
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Genes<const N: usize> {
@@ -9,7 +12,9 @@ pub(super) struct Genes<const N: usize> {
     pub errors: Option<Vec<GraphError>>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct GraphError { message: String }
+pub(super) struct GraphError {
+    message: String,
+}
 #[derive(Debug)]
 pub(super) struct Aliases(pub Vec<(String, Option<Gene>)>);
 impl<'de> Deserialize<'de> for Aliases {
@@ -17,10 +22,14 @@ impl<'de> Deserialize<'de> for Aliases {
         struct Map;
         impl<'de> Visitor<'de> for Map {
             type Value = Aliases;
-            fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str("gene aliases") }
+            fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str("gene aliases")
+            }
             fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Aliases, A::Error> {
                 let mut aliases = Vec::new();
-                while let Some(pair) = map.next_entry()? { aliases.push(pair); }
+                while let Some(pair) = map.next_entry()? {
+                    aliases.push(pair);
+                }
                 Ok(Aliases(aliases))
             }
         }
@@ -29,17 +38,39 @@ impl<'de> Deserialize<'de> for Aliases {
 }
 impl<const N: usize> Reply for Genes<N> {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.0.len() != N { return Err(BadReply); }
-        for index in 0..N {
-            if self.data.0.iter().filter(|(name, _)| *name == format!("g{index}")).count() != 1 { return Err(BadReply); }
+        if self.data.0.len() != N {
+            return Err(BadReply);
         }
-        let missing = self.data.0.iter().filter(|(_, gene)| gene.is_none()).count();
+        for index in 0..N {
+            if self
+                .data
+                .0
+                .iter()
+                .filter(|(name, _)| *name == format!("g{index}"))
+                .count()
+                != 1
+            {
+                return Err(BadReply);
+            }
+        }
+        let missing = self
+            .data
+            .0
+            .iter()
+            .filter(|(_, gene)| gene.is_none())
+            .count();
         let errors = self.errors.as_deref().unwrap_or_default();
-        if errors.len() != missing || errors.iter().any(|error| error.message != "Gene not found") { return Err(BadReply); }
+        if errors.len() != missing || errors.iter().any(|error| error.message != "Gene not found") {
+            return Err(BadReply);
+        }
         for (_, gene) in &self.data.0 {
             if let Some(gene) = gene {
-                gene.gene_id.parse::<EnsemblGeneId>().map_err(|_| BadReply)?;
-                if gene.gnomad_constraint.is_some() { gene.transcript().ok_or(BadReply)?; }
+                gene.gene_id
+                    .parse::<EnsemblGeneId>()
+                    .map_err(|_| BadReply)?;
+                if gene.gnomad_constraint.is_some() {
+                    gene.transcript().ok_or(BadReply)?;
+                }
             }
         }
         Ok(())
@@ -53,10 +84,16 @@ pub(super) struct Gene {
     pub gnomad_constraint: Option<Constraint>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Mane { pub ensembl_id: String }
+pub(super) struct Mane {
+    pub ensembl_id: String,
+}
 impl Gene {
     pub fn transcript(&self) -> Option<EnsemblTranscript> {
-        let text = self.mane_select_transcript.as_ref().map(|mane| mane.ensembl_id.as_str()).or(self.canonical_transcript_id.as_deref())?;
+        let text = self
+            .mane_select_transcript
+            .as_ref()
+            .map(|mane| mane.ensembl_id.as_str())
+            .or(self.canonical_transcript_id.as_deref())?;
         let id: EnsemblTranscript = text.parse().ok()?;
         id.base().parse().ok()
     }

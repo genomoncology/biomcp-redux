@@ -1,14 +1,18 @@
+use super::SectionResult;
+use crate::{Ctx, status};
 use biodata::{Gene, GeneSection, HgncId, LocusGroup, Reason, Section, Source};
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
-use crate::{Ctx, status};
-use super::SectionResult;
 
 pub(super) fn applicable(gene: &Gene) -> bool {
     gene.locus_group == LocusGroup::ProteinCoding && gene.ensembl_id.is_some()
 }
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
-    let ids: Vec<_> = genes.iter().filter(|(_, gene)| applicable(gene)).filter_map(|(_, gene)| gene.ensembl_id.clone()).collect();
+    let ids: Vec<_> = genes
+        .iter()
+        .filter(|(_, gene)| applicable(gene))
+        .filter_map(|(_, gene)| gene.ensembl_id.clone())
+        .collect();
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let result = gnomad::constraints(&leg, &ids);
     let error = result.as_ref().err().copied();
@@ -18,22 +22,57 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     for (id, gene) in genes.iter().filter(|(_, gene)| applicable(gene)) {
         let section = match &result {
             Ok(values) => {
-                let value = values.iter().find(|value| gene.ensembl_id.as_ref().is_some_and(|id| id.base() == value.id.base()));
+                let value = values.iter().find(|value| {
+                    gene.ensembl_id
+                        .as_ref()
+                        .is_some_and(|id| id.base() == value.id.base())
+                });
                 match value {
                     Some(value) => {
                         status::append(&mut problems, value.constraint.problems.clone());
-                        if value.constraint.problems.iter().any(|problem| problem.field.as_ref() == "gene_id") {
-                            Section::Unavailable { source: Source::Gnomad, reason: Reason::BadReply }
+                        if value
+                            .constraint
+                            .problems
+                            .iter()
+                            .any(|problem| problem.field.as_ref() == "gene_id")
+                        {
+                            Section::Unavailable {
+                                source: Source::Gnomad,
+                                reason: Reason::BadReply,
+                            }
                         } else if let Some(data) = &value.constraint.value {
-                            Section::Data { source: Source::Gnomad, data: data.clone() }
-                        } else { Section::Empty { source: Source::Gnomad, record: None } }
+                            Section::Data {
+                                source: Source::Gnomad,
+                                data: data.clone(),
+                            }
+                        } else {
+                            Section::Empty {
+                                source: Source::Gnomad,
+                                record: None,
+                            }
+                        }
                     }
-                    None => Section::Unavailable { source: Source::Gnomad, reason: Reason::BadReply },
+                    None => Section::Unavailable {
+                        source: Source::Gnomad,
+                        reason: Reason::BadReply,
+                    },
                 }
             }
-            Err(error) => Section::Unavailable { source: Source::Gnomad, reason: match error { RequestError::Source(error) => error.reason, _ => Reason::Unavailable } },
+            Err(error) => Section::Unavailable {
+                source: Source::Gnomad,
+                reason: match error {
+                    RequestError::Source(error) => error.reason,
+                    _ => Reason::Unavailable,
+                },
+            },
         };
         sections.push((*id, section));
     }
-    SectionResult { section: GeneSection::Constraint, values: sections, source, problems, local: error.and_then(status::local) }
+    SectionResult {
+        section: GeneSection::Constraint,
+        values: sections,
+        source,
+        problems,
+        local: error.and_then(status::local),
+    }
 }

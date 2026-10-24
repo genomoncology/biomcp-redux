@@ -10,7 +10,10 @@ const INLINE_TESTS: &[&str] = &[
 ];
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
-    ("crates/biomcp-query/src/fan_out.rs", "Join scoped source jobs before returning the command result"),
+    (
+        "crates/biomcp-query/src/fan_out.rs",
+        "Join scoped source jobs before returning the command result",
+    ),
     (
         "crates/biomcp-fetch/src/batch.rs",
         "Own bounded scoped callback threads and join their clocks before returning",

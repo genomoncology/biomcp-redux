@@ -27,18 +27,31 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     let mut sources = vec![hgnc];
     let genes = sections::prepare(query, &mut items);
-    let ids: Vec<_> = genes.iter().filter_map(|(_, gene)| gene.entrez_id).collect();
+    let ids: Vec<_> = genes
+        .iter()
+        .filter_map(|(_, gene)| gene.entrez_id)
+        .collect();
     let mut jobs = sections::jobs(cx, deadline, query, &genes);
     if !ids.is_empty() {
-        jobs.insert(0, Box::new(|| {
-            let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
-            let batches = mygene::genes(&leg, &ids);
-            Job::MyGene(batches, leg.finish())
-        }));
+        jobs.insert(
+            0,
+            Box::new(|| {
+                let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
+                let batches = mygene::genes(&leg, &ids);
+                Job::MyGene(batches, leg.finish())
+            }),
+        );
     }
     for job in crate::fan_out::run(jobs) {
         match job {
-            Job::MyGene(batches, report) => mygene_join(&mut items, batches, report, &mut sources, &mut problems, &mut local),
+            Job::MyGene(batches, report) => mygene_join(
+                &mut items,
+                batches,
+                report,
+                &mut sources,
+                &mut problems,
+                &mut local,
+            ),
             Job::Section(result) => {
                 sections::join(&mut items, &result);
                 sources.push(result.source);
@@ -135,16 +148,31 @@ pub(super) enum Job {
     MyGene(Vec<mygene::GeneBatch>, biomcp_fetch::LegReport),
     Section(sections::SectionResult),
 }
-fn mygene_join(items: &mut [GeneItem], batches: Vec<mygene::GeneBatch>, report: biomcp_fetch::LegReport, sources: &mut Vec<biodata::SourceOutcome>, problems: &mut Vec<Problem>, local: &mut Option<biomcp_fetch::RequestError>) {
+fn mygene_join(
+    items: &mut [GeneItem],
+    batches: Vec<mygene::GeneBatch>,
+    report: biomcp_fetch::LegReport,
+    sources: &mut Vec<biodata::SourceOutcome>,
+    problems: &mut Vec<Problem>,
+    local: &mut Option<biomcp_fetch::RequestError>,
+) {
     let mut error = None;
     for batch in batches {
         status::append(problems, batch.problems);
         match batch.result {
-            Ok(extras) => { for item in &mut *items { join(item, &extras, &batch.ids, problems); } }
-            Err(failure) => {
-                error = Some(failure); *local = local.or(status::local(failure));
+            Ok(extras) => {
                 for item in &mut *items {
-                    if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id))) { item.status = Status::Partial; }
+                    join(item, &extras, &batch.ids, problems);
+                }
+            }
+            Err(failure) => {
+                error = Some(failure);
+                *local = local.or(status::local(failure));
+                for item in &mut *items {
+                    if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
+                    {
+                        item.status = Status::Partial;
+                    }
                 }
             }
         }
@@ -152,7 +180,10 @@ fn mygene_join(items: &mut [GeneItem], batches: Vec<mygene::GeneBatch>, report: 
     let source = status::source(Source::MyGene, report, error);
     if source.state == SourceState::Stale {
         for item in items {
-            if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some()) { item.status = Status::Partial; }
+            if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some())
+            {
+                item.status = Status::Partial;
+            }
         }
     }
     sources.push(source);

@@ -145,7 +145,11 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .unwrap_or_else(|| vec![kind.clone()]);
         for kind in kinds {
             let kind = kind.as_str().ok_or("invalid type")?;
-            if !["string", "object", "null", "integer", "array", "boolean", "number"].contains(&kind) {
+            if ![
+                "string", "object", "null", "integer", "array", "boolean", "number",
+            ]
+            .contains(&kind)
+            {
                 return Err(format!("unsupported type {kind} at {path}"));
             }
             shape.types.insert(kind.into());
@@ -345,7 +349,10 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
-    if object.get("x-trailing-section").is_some_and(|value| value != &Value::Bool(true)) {
+    if object
+        .get("x-trailing-section")
+        .is_some_and(|value| value != &Value::Bool(true))
+    {
         return Err("unsupported trailing-section annotation".into());
     }
     // These generated forms carry annotations beside a reference or union,
@@ -363,7 +370,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-positional",
-            "x-trailing-section",
+                        "x-trailing-section",
                         "default",
                     ]
                     .contains(&key.as_str())

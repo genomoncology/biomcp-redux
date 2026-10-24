@@ -84,7 +84,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
                 } else {
                     &mut args
                 };
-                if explicit { target.push(format!("--{name}")); }
+                if explicit {
+                    target.push(format!("--{name}"));
+                }
                 target.push(
                     value
                         .as_str()
@@ -104,10 +106,23 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 }
 
 fn value_for(request: &Request) -> Result<Value, serde_json::Error> {
-    match request { Request::GetGene(q) => serde_json::to_value(q), Request::SearchGene(q) => serde_json::to_value(q) }
+    match request {
+        Request::GetGene(q) => serde_json::to_value(q),
+        Request::SearchGene(q) => serde_json::to_value(q),
+    }
 }
 fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
     let item = &property["items"];
-    let item = item.get("$ref").and_then(Value::as_str).and_then(|s| schema.pointer(s.trim_start_matches('#'))).unwrap_or(item);
-    query["input"].as_array().is_some_and(|inputs| inputs.iter().any(|input| item["enum"].as_array().is_some_and(|words| words.contains(input))))
+    let item = item
+        .get("$ref")
+        .and_then(Value::as_str)
+        .and_then(|s| schema.pointer(s.trim_start_matches('#')))
+        .unwrap_or(item);
+    query["input"].as_array().is_some_and(|inputs| {
+        inputs.iter().any(|input| {
+            item["enum"]
+                .as_array()
+                .is_some_and(|words| words.contains(input))
+        })
+    })
 }

@@ -9,11 +9,17 @@ pub struct FiniteNumber(f64);
 impl TryFrom<f64> for FiniteNumber {
     type Error = FiniteNumberError;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
-        if value.is_finite() { Ok(Self(value)) } else { Err(FiniteNumberError) }
+        if value.is_finite() {
+            Ok(Self(value))
+        } else {
+            Err(FiniteNumberError)
+        }
     }
 }
 impl From<FiniteNumber> for f64 {
-    fn from(value: FiniteNumber) -> Self { value.0 }
+    fn from(value: FiniteNumber) -> Self {
+        value.0
+    }
 }
 /// Source constraint metrics for the source's preferred transcript.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -31,7 +37,7 @@ pub struct Constraint {
     /// Synonymous Z score.
     pub syn_z: FiniteNumber,
     /// Source flags, omitted when empty.
-    #[serde(default, skip_serializing_if = "Box::is_empty")]
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub flags: Box<[Text]>,
     /// Source MANE Select transcript, otherwise the source canonical transcript.
     pub transcript: EnsemblTranscript,
@@ -43,6 +49,8 @@ pub struct Constraint {
 #[derive(Clone, Copy, Debug)]
 pub struct FiniteNumberError;
 impl std::fmt::Display for FiniteNumberError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str("number.non_finite") }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("number.non_finite")
+    }
 }
 impl std::error::Error for FiniteNumberError {}
