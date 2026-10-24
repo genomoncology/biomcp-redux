@@ -13,6 +13,23 @@
       "expect": {
         "/result/items/0/sections/fulltext/state": "not_applicable"
       }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "21217686",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/content/state": "not_applicable",
+        "/sources/*/source": [
+          "pubmed"
+        ]
+      },
+      "max_bytes": 400
     }
   ]
 }

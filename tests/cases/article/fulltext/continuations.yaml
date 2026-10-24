@@ -34,6 +34,10 @@
           "PMC9018718",
           "--part",
           "4"
+        ],
+        "/result/content/data/heading_path": [
+          "Results",
+          "Identification of candidate driver mutations in AKT1, AKT2, and AKT3"
         ]
       },
       "max_tokens": 4000

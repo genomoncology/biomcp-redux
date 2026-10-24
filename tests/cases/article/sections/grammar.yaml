@@ -28,7 +28,8 @@
     {
       "follow": "section",
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data"
       },
       "max_bytes": 8907
     },
@@ -55,7 +56,8 @@
         "all"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data"
       },
       "mcp": [
         "get",
@@ -74,7 +76,8 @@
         "all"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data"
       },
       "max_bytes": 8907
     },
@@ -114,5 +117,6 @@
       },
       "exit": 2
     }
-  ]
+  ],
+  "verified": "2026-10-24: amended Markdown outline plus annotations measures 8698 bytes and fits the approved 8907-byte ceiling. No comparable 0.9 text baseline exists because its fulltext command returned a file path; dedicated component ceilings remain unchanged."
 }
