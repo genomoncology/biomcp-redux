@@ -4,6 +4,7 @@ mod next;
 mod sections;
 mod term;
 pub mod text;
+pub mod supplement;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},

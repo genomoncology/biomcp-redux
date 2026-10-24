@@ -1,5 +1,5 @@
 mod supplement;
-pub use supplement::{ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
+pub use supplement::{CellFragment, ArticleSupplementResult, SupplementContent, SupplementFile, Supplements, SheetRow, SheetInfo, FileKind};
 use crate::{ArticleHeader, ArticleSearch, Pmid};
 use serde::{Deserialize, Serialize};
 /// Stable identity independent of whether citation metadata was accepted.

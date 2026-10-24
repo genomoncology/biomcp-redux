@@ -46,13 +46,13 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     }
     out
 }
-fn resolve<'a>(
+pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
-    query: &ArticleText,
+    input: &ArticleInput,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Pmcid>, RequestError> {
-    match query.input() {
+    match input {
         ArticleInput::Pmcid(id) => Ok(Some(*id)),
         ArticleInput::Pmid(id) => {
             let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
@@ -85,11 +85,11 @@ fn resolve<'a>(
 }
 fn execute<'a>(
     cx: &Ctx<'a>,
-    query: &ArticleText,
+    input: &ArticleInput,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let Some(id) = resolve(cx, query, deadline, out)? else {
+    let Some(id) = resolve(cx, query.input(), deadline, out)? else {
         return Ok(());
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);

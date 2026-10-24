@@ -62,7 +62,21 @@ pub struct SheetRow {
     pub cells: Box<[String]>,
     /// Character offset of this row fragment in flattened cell text.
     #[serde(skip_serializing_if="Option::is_none")]
-    pub fragment: Option<u32>,
+    pub fragment: Option<CellFragment>,
+}
+/// A bounded portion of one original header or data cell.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+pub struct CellFragment {
+    /// Whether the cell belongs to the first source row.
+    pub header: bool,
+    /// Original one-based column.
+    pub column: u32,
+    /// Unicode character offset within this cell.
+    pub offset: u32,
+    /// Original cell text at this offset.
+    pub text: String,
 }
 /// Source sheet with its maximum original row number.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
