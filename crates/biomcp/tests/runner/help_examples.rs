@@ -83,8 +83,11 @@ fn source_description(commands: &[Value]) -> Result<(), String> {
         .and_then(|c| c["arguments"].as_array())
         .ok_or("article search help missing")?;
     for name in ["--since", "--until"] {
-        let description = arguments.iter().find(|v| v["name"] == name)
-            .and_then(|v| v["description"].as_str()).ok_or("date help missing")?;
+        let description = arguments
+            .iter()
+            .find(|v| v["name"] == name)
+            .and_then(|v| v["description"].as_str())
+            .ok_or("date help missing")?;
         if !description.contains("either electronic or print date") {
             return Err(format!("{name} help omits PubMed's two dates"));
         }

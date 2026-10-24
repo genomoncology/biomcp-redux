@@ -70,7 +70,10 @@ fn term_drops_preserve_every_other_selector_and_restart_the_pool() {
         fields.insert("offset".into(), json!(0));
         assert_eq!(serde_json::to_value(next).unwrap(), expected);
     }
-    for request in [json!({"gene":"NF2"}), json!({"text":"two words", "gene":"NF2"})] {
+    for request in [
+        json!({"gene":"NF2"}),
+        json!({"text":"two words", "gene":"NF2"}),
+    ] {
         let query: biodata::ArticleSearch = serde_json::from_value(request).unwrap();
         assert!(query.term_drops().is_empty());
     }
