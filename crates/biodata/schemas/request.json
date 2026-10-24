@@ -220,19 +220,7 @@
         "diseases",
         "summary"
       ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Intact criteria and structured age/sex fields.",
-        " Primary, secondary and other outcome records.",
-        " Arms and interventions with original relationships.",
-        " Whole source sites with their attached contacts.",
-        " Central contacts and overall officials in their original roles.",
-        " Registry publication identities and native reference types.",
-        " Posted document metadata and source URLs.",
-        " Every implemented trial section, each with independent continuations.",
-        " Native NCI disease concepts, including source enrichment metadata.",
-        " Complete NCI summary, paged by original character offsets."
-      ]
+      "type": "string"
     },
     "TrialSex": {
       "description": "Source-native registry value.",
@@ -609,7 +597,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page; text fragments follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -617,7 +605,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -627,7 +615,7 @@
           "description": "Checked stored source record, supplied by a continuation."
         },
         "section": {
-          "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
+          "description": "Optional intact source sections. The default returns cards only.",
           "items": {
             "$ref": "#/$defs/TrialSection"
           },
@@ -670,7 +658,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Text",
-          "description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
+          "description": "Literal eligibility-field discovery text."
         },
         "distance": {
           "$ref": "#/$defs/Text",
@@ -682,7 +670,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Resolve one checked gene for registry text discovery only; no eligibility judgment."
+          "description": "Resolve one checked gene before registry discovery."
         },
         "has_results": {
           "default": false,
@@ -764,7 +752,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Text",
-          "description": "Literal variant text for registry discovery only; no eligibility judgment."
+          "description": "Caller-supplied variant discovery text; no eligibility inference."
         }
       },
       "required": [
@@ -1270,7 +1258,7 @@
         },
         "since": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date."
+          "description": "Inclusive lower publication-date bound at the stated precision."
         },
         "sort": {
           "$ref": "#/$defs/ArticleSort",
@@ -1300,7 +1288,7 @@
         },
         "until": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date."
+          "description": "Inclusive upper publication-date bound at the stated precision."
         },
         "variant": {
           "$ref": "#/$defs/Text",

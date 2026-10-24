@@ -1,0 +1,130 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic",
+  "replay": "variant/search/G719A",
+  "story": "Explicit MyVariant G719A candidates retain the source identities and query",
+  "harvest": "sdlc/planning/slices/variant.md",
+  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "G719A"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "G719A"
+      ],
+      "max_bytes": 743,
+      "max_tokens": 186,
+      "expect": {
+        "/schema": "biomcp.variant_page/1",
+        "/status": "complete",
+        "/query": {
+          "equals": {
+            "gene": "EGFR",
+            "protein": "G719A",
+            "limit": 10,
+            "offset": 0
+          }
+        },
+        "/result": {
+          "equals": {
+            "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.G719A\"",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121913428",
+                    "clinvar:45225"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55241708G>C"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55241708G>C"
+                }
+              }
+            ]
+          }
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
+        },
+        "/sources/0/source": "myvariant"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "G719A"
+      ],
+      "offline": true,
+      "expect": {
+        "/result": {
+          "equals": {
+            "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.G719A\"",
+            "build": "GRCh37",
+            "items": [
+              {
+                "identity": {
+                  "ids": [
+                    "rs121913428",
+                    "clinvar:45225"
+                  ],
+                  "representations": [
+                    {
+                      "source": "myvariant",
+                      "expression": {
+                        "syntax": "hgvs.g",
+                        "value": "chr7:g.55241708G>C"
+                      },
+                      "build": "GRCh37"
+                    }
+                  ]
+                },
+                "source": "myvariant",
+                "record": {
+                  "id": "chr7:g.55241708G>C"
+                }
+              }
+            ]
+          }
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
+        }
+      }
+    }
+  ]
+}

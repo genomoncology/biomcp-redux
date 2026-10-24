@@ -35,6 +35,9 @@ fn candidate() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
+    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 1536 {
+        return Err("hotspots default envelope exceeded its measured ceiling".into());
+    }
     let base = "/result/candidates/0/sections/hotspots/data";
     for (path, expected) in [
         ("/reason", json!("no_join_id")),
@@ -52,6 +55,26 @@ fn candidate() -> Result<(), String> {
     if mcp.get("result") != value.get("result") {
         return Err("hotspots CLI/MCP source mapping differs".into());
     }
+    let disabled_args = [
+        "get",
+        "variant",
+        "chr7:g.140753336A>T",
+        "--build",
+        "GRCh38",
+        "hotspots",
+        "--disable-sources",
+        "hotspots",
+    ]
+    .map(Into::into);
+    let disabled = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &disabled_args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let disabled: Value = serde_json::from_slice(&disabled.stdout).map_err(|e| e.to_string())?;
+    if disabled.pointer("/result/candidates/0/sections/hotspots/reason") != Some(&json!("disabled"))
+    {
+        return Err("disabled hotspots did not skip before joins".into());
+    }
     let requests = stub.finish()?;
     if requests.len() != 2
         || !requests.iter().any(|(_, request)| {
@@ -67,6 +90,6 @@ fn body(request: &str) -> Result<String, String> {
         Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
     } else {
         // Counts are deliberately synthetic; provider data rights remain unverified.
-        Ok(json!([{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"V600","tumorCount":12,"variantAminoAcid":{"E":8,"K":4}}]).to_string())
+        Ok(json!([{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"V600","tumorCount":12,"variantAminoAcid":{"E":8,"K":4}},{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"D594","tumorCount":5,"variantAminoAcid":{"G":5}},{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"G466","tumorCount":3,"variantAminoAcid":{"A":3}}]).to_string())
     }
 }

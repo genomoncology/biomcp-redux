@@ -36,8 +36,12 @@ pub(super) fn section(
         });
     let mut rows = Vec::new();
     let mut problems = Vec::new();
-    let mut error = None;
+    let disabled = cx.fetch.disabled(Source::CancerHotspots);
+    let mut error = disabled.then_some(failure(Reason::Disabled));
     for gene in &genes {
+        if disabled {
+            break;
+        }
         match biomcp_adapters::hotspots::gene(&leg, gene) {
             Ok(mapped) => {
                 rows.extend(mapped.value);
@@ -49,16 +53,11 @@ pub(super) fn section(
             }
         }
     }
-    if genes.is_empty() {
-        error = Some(
-            biomcp_fetch::SourceError {
-                source: Source::CancerHotspots,
-                reason: Reason::NoJoinId,
-                status: None,
-                retry_after: None,
-            }
-            .into(),
-        );
+    if genes.is_empty() && !disabled {
+        error = Some(failure(Reason::NoJoinId));
+    }
+    if rows.is_empty() && !problems.is_empty() && error.is_none() {
+        error = Some(failure(Reason::BadReply));
     }
     let source = status::source(Source::CancerHotspots, leg.finish(), error);
     let value = disclose(query, rows, error, &mut problems);
@@ -119,4 +118,14 @@ fn disclose(
             },
         }
     }
+}
+
+fn failure(reason: Reason) -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::CancerHotspots,
+        reason,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }

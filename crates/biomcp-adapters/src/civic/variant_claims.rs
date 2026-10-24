@@ -116,6 +116,7 @@ fn build(
     let id = Text::new(&format!("{prefix}{}", row.id)).map_err(|_| failure(Reason::BadReply))?;
     let url = Text::new(&format!("https://civicdb.org/{path}/{}", row.id))
         .map_err(|_| failure(Reason::BadReply))?;
+    let native = native_claim(&row, &id, &url);
     let proposition = proposition(row.kind.as_str());
     let statement = subject
         .zip(proposition)
@@ -128,40 +129,17 @@ fn build(
                 "DOES_NOT_SUPPORT" => Some(Direction::Disputes),
                 _ => None,
             },
-            classification: row.classification,
-            strength: row.level,
-            condition: row.disease.map(|d| Concept {
-                id: d
-                    .doid
-                    .as_ref()
-                    .and_then(|id| format!("DOID:{id}").parse().ok()),
-                label: d.name.clone(),
-            }),
-            therapies: row
-                .therapies
-                .iter()
-                .map(|t| Concept {
-                    id: None,
-                    label: t.name.clone(),
-                })
-                .collect(),
-            allele_origin: row.origin.map(|label| Term {
-                label: label.clone(),
-                coding: None,
-            }),
+            classification: native.classification.clone(),
+            strength: native.strength.clone(),
+            condition: native.condition.clone(),
+            therapies: native.therapies.clone(),
+            allele_origin: native.allele_origin.clone(),
             gene_context: None,
             criteria: Box::new([]),
-            citations: row.citations,
-            attribution: Attribution {
-                source: Source::Civic,
-                record: Some(id.clone()),
-                version: None,
-                release: None,
-                submitter: None,
-                evaluated: None,
-                url: Some(url.clone()),
-            },
+            citations: native.citations.clone(),
+            attribution: native.attribution.clone(),
         });
+    let native = statement.is_none().then_some(native);
     if statement.is_none() {
         problems.push(Problem {
             source: Source::Civic,
@@ -172,12 +150,48 @@ fn build(
     }
     Ok(CivicStatement {
         statement,
+        native,
         record: SourceRecord { id, url: Some(url) },
         kind: row.kind.clone(),
         status: row.status.clone(),
         direction: Some(row.direction.clone()),
         significance: Some(row.significance.clone()),
     })
+}
+fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biodata::CivicNativeClaim {
+    biodata::CivicNativeClaim {
+        classification: row.classification.clone(),
+        strength: row.level.clone(),
+        condition: row.disease.map(|d| Concept {
+            id: d
+                .doid
+                .as_ref()
+                .and_then(|id| format!("DOID:{id}").parse().ok()),
+            label: d.name.clone(),
+        }),
+        therapies: row
+            .therapies
+            .iter()
+            .map(|t| Concept {
+                id: None,
+                label: t.name.clone(),
+            })
+            .collect(),
+        allele_origin: row.origin.map(|label| Term {
+            label: label.clone(),
+            coding: None,
+        }),
+        citations: row.citations.clone(),
+        attribution: Attribution {
+            source: Source::Civic,
+            record: Some(id.clone()),
+            version: None,
+            release: None,
+            submitter: None,
+            evaluated: None,
+            url: Some(url.clone()),
+        },
+    }
 }
 fn proposition(kind: &str) -> Option<Proposition> {
     // https://docs.civicdb.org/en/latest/model/evidence/type.html

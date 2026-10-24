@@ -261,9 +261,11 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn variant_registry() -> Vec<Contract> {
     contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
-        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
+        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
+        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
     }
 }

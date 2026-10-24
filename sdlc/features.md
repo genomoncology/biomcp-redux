@@ -53,3 +53,5 @@ variant-civic: Retrieve exact CIViC molecular-profile evidence and assertions, p
 variant-hotspots: Show source transcript and residue/alternate recurrence counts with explicit candidate state when no exact transcript join exists. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
 
 variant-assertions: Retrieve source-native ClinVar and ClinGen assertions without merging classification domains or mistaking source absence for unknown allele identity. Cases: `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/variant_assertions.rs`.
+
+variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
