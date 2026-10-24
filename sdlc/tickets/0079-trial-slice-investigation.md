@@ -1,6 +1,7 @@
 # 0079 — Investigate the trial slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b431bd6536f98650a8d8c4eaa245821d7cecf32b
 
 Milestone: 2
 
