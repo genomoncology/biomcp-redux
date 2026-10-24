@@ -83,7 +83,9 @@ Sources:
 - [ ] Questions answered by Ian
 - [x] Plain PubMed search types and schema
 - [x] Plain PubMed search with stable stored pages
-- [ ] Get, full text, supplementary material and citations
+- [x] PubMed author, journal, date and publication-type filters and date order
+- [x] Get by PMID, PMCID and DOI with article cards
+- [ ] Full text, supplementary material and citations
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
 - [x] Plain PubMed search MCP parity
@@ -96,7 +98,7 @@ Sources:
 - [ ] Europe PMC
 - [ ] Semantic Scholar (optional key)
 - [ ] PMC Open Access and NCBI ID converter (optional key)
-- [ ] NCBI EFetch (optional key)
+- [x] NCBI EFetch (optional key)
 - [ ] LitVar (investigate)
 - [ ] LitSense2 (investigate)
 - [ ] OpenCitations (investigate)

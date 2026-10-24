@@ -37,9 +37,9 @@
           "unique": true,
           "equals_file": "her2-floor.json"
         },
-        "/next": {
-          "count": 0
-        }
+        "/next/*/kind": [
+          "disambiguate"
+        ]
       }
     },
     {

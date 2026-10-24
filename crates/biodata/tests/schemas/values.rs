@@ -269,3 +269,33 @@ fn search_schema_and_serde_require_a_present_nonnull_selector() {
         );
     }
 }
+
+#[test]
+fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
+    let base = json!({
+        "title": "A checked article", "types": [], "corrections": [],
+        "authors": [], "abstract_parts": []
+    });
+    let schema = validator::<Article>();
+    for (field, id) in [
+        ("pmid", "33123537"),
+        ("pmcid", "PMC7573235"),
+        ("doi", "10.3389/fcell.2020.573599"),
+    ] {
+        let mut value = base.clone();
+        value[field] = json!(id);
+        assert!(schema.is_valid(&value), "schema rejected {field}");
+        let article: Article = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(article).unwrap(), value);
+    }
+    for value in [base.clone(), {
+        let mut value = base;
+        for field in ["pmid", "pmcid", "doi"] {
+            value[field] = Value::Null;
+        }
+        value
+    }] {
+        assert!(!schema.is_valid(&value));
+        assert!(serde_json::from_value::<Article>(value).is_err());
+    }
+}

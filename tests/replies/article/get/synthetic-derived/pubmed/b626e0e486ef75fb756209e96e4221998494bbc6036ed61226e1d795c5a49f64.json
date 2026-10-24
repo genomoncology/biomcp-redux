@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "3038703ae636bffafe7444095a5d5e03b1364a577076122ec34ed8445a7c5b96"
+  },
+  "exchanges": [
+    {
+      "fetched": 1792839535,
+      "status": 200,
+      "content_type": "text/xml; charset=UTF-8",
+      "delay_ms": 208,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<PubmedArticleSet></PubmedArticleSet>"
+      }
+    }
+  ]
+}

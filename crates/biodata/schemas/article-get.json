@@ -1,0 +1,29 @@
+{
+  "$defs": {
+    "ArticleInput": {
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "type": "string"
+    }
+  },
+  "$id": "biodata.article-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Get one to twenty article inputs in caller order.",
+  "properties": {
+    "input": {
+      "description": "PubMed, PMC or DOI identifiers in input order.",
+      "items": {
+        "$ref": "#/$defs/ArticleInput"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "type": "array",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "input"
+  ],
+  "title": "ArticleGet",
+  "type": "object"
+}

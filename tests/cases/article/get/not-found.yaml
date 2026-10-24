@@ -1,0 +1,35 @@
+{
+  "feature": "article-get",
+  "story": "not-found",
+  "replay": "article/get/synthetic-derived",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "99999999"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/result/items/0/status": "absent",
+        "/result/items/0/answer/resolution": "not_found",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1,
+      "max_bytes": 400
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "99999999"
+      ],
+      "expect": {
+        "/status": "absent"
+      },
+      "exit": 1,
+      "offline": true,
+      "max_bytes": 400
+    }
+  ]
+}

@@ -9,6 +9,7 @@ use std::{
 };
 
 struct Wire {
+    fetched: i64,
     status: u16,
     content_type: String,
     body: Vec<u8>,
@@ -27,6 +28,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
         self.parameters(ep, params, Decoder::json())
+            .map(|(reply, _)| reply)
     }
 
     /// Send checked XML from a GET or form POST.
@@ -36,6 +38,16 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
         self.parameters(ep, params, Decoder::xml())
+            .map(|(reply, _)| reply)
+    }
+
+    /// Read XML and its own original fetch time without borrowing another reply's metadata.
+    pub fn xml_received<T: XmlReply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.parameters(ep, params, Decoder::xml())
     }
 
     fn parameters<T: Reply>(
@@ -43,7 +55,7 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
         codec: Decoder<T>,
-    ) -> Result<T, RequestError> {
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, false)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         let (url, body) = if ep.method == Method::Get {
@@ -106,6 +118,7 @@ impl Leg<'_> {
             Prepared::new(url, body, ep.method, ep.idempotent),
             codec,
         )
+        .map(|(reply, _)| reply)
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
@@ -135,12 +148,23 @@ impl Leg<'_> {
         ep: &Endpoint,
         mut prepared: Prepared,
         codec: Decoder<T>,
-    ) -> Result<T, RequestError> {
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
         let keyed = self.keyed();
-        self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
-            self.attempts(&prepared, keyed, &codec)
-        })
+        let (reply, fetched) =
+            self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
+                self.attempts(&prepared, keyed, &codec)
+            })?;
+        let metadata = crate::ReplyMetadata {
+            identity: prepared.identity,
+            fetched,
+        };
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .replies
+            .push(metadata);
+        Ok((reply, metadata))
     }
 
     pub(crate) fn keyed(&self) -> bool {
@@ -156,7 +180,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         keyed: bool,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>), RequestError> {
+    ) -> Result<(T, u16, Vec<u8>, i64), RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
                 .fetch
@@ -279,6 +303,7 @@ impl Leg<'_> {
                 ));
             }
             return Ok(Wire {
+                fetched: exchange.fetched,
                 status: exchange.status,
                 content_type: exchange.content_type,
                 body: exchange.body.bytes().to_vec(),
@@ -301,10 +326,12 @@ impl Leg<'_> {
             .get("retry-after")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
+        let fetched = crate::cache::now();
         let recording = matches!(self.fetch.config.mode, crate::Mode::Record { .. });
         let body = self.read_body(&mut response, status, recording)?;
         if recording {
             let exchange = Exchange {
+                fetched,
                 status,
                 content_type: content_type.clone(),
                 body: Body::capture(body.clone()).map_err(local)?,
@@ -326,6 +353,7 @@ impl Leg<'_> {
                 .map_err(local)?;
         }
         Ok(Wire {
+            fetched,
             status,
             content_type,
             body,
@@ -374,7 +402,7 @@ impl Leg<'_> {
         &self,
         response: Wire,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>), SourceError> {
+    ) -> Result<(T, u16, Vec<u8>, i64), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {
@@ -387,6 +415,6 @@ impl Leg<'_> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
-        Ok((reply, status, response.body))
+        Ok((reply, status, response.body, response.fetched))
     }
 }

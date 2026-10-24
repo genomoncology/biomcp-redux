@@ -166,6 +166,8 @@ struct Recording {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Exchange {
+    #[serde(default)]
+    pub(crate) fetched: i64,
     pub(crate) status: u16,
     pub(crate) content_type: String,
     pub(crate) delay_ms: u64,

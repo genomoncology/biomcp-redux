@@ -8,7 +8,7 @@ use biodata::Reason;
 
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
-    Positive(T, bool),
+    Positive(T, bool, i64),
     Absent,
 }
 
@@ -19,8 +19,8 @@ impl Leg<'_> {
         url: &str,
         key: &[u8; 32],
         codec: &Decoder<T>,
-        live: impl FnOnce() -> Result<(T, u16, Vec<u8>), RequestError>,
-    ) -> Result<T, RequestError> {
+        live: impl FnOnce() -> Result<(T, u16, Vec<u8>, i64), RequestError>,
+    ) -> Result<(T, i64), RequestError> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
@@ -28,13 +28,13 @@ impl Leg<'_> {
             return self.offline(endpoint, key, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _)| reply);
+            return live().map(|(reply, _, _, fetched)| (reply, fetched));
         };
         let mut stale = None;
         if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, key, codec)? {
-                Some(Checked::Positive(reply, true)) => return Ok(reply),
-                Some(Checked::Positive(reply, false)) => stale = Some(reply),
+                Some(Checked::Positive(reply, true, fetched)) => return Ok((reply, fetched)),
+                Some(Checked::Positive(reply, false, fetched)) => stale = Some((reply, fetched)),
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
@@ -42,15 +42,11 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body)) => {
-                cache.write(
-                    key,
-                    self.spec.source,
-                    url,
-                    &Entry::new(status, body, seconds, codec.name()),
-                    self.budget(),
-                )?;
-                Ok(reply)
+            Ok((reply, status, body, fetched)) => {
+                let mut entry = Entry::new(status, body, seconds, codec.name());
+                entry.fetched_at = fetched;
+                cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                Ok((reply, fetched))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
@@ -89,7 +85,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         key: &[u8; 32],
         codec: &Decoder<T>,
-    ) -> Result<T, RequestError> {
+    ) -> Result<(T, i64), RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
@@ -97,14 +93,14 @@ impl Leg<'_> {
             .filter(|_| endpoint.fresh.seconds().is_some())
         {
             match self.checked_cached(cache, key, codec)? {
-                Some(Checked::Positive(reply, fresh)) => {
+                Some(Checked::Positive(reply, fresh, fetched)) => {
                     if !fresh {
                         self.report
                             .lock()
                             .unwrap_or_else(std::sync::PoisonError::into_inner)
                             .stale = true;
                     }
-                    return Ok(reply);
+                    return Ok((reply, fetched));
                 }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
@@ -142,6 +138,6 @@ impl Leg<'_> {
                 .failure(Reason::DeadlineExceeded, Some(entry.status))
                 .into());
         }
-        Ok(Some(Checked::Positive(reply, fresh)))
+        Ok(Some(Checked::Positive(reply, fresh, entry.fetched_at)))
     }
 }

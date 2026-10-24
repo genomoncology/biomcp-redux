@@ -38,6 +38,9 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        ArticleGet => ("article-get", "biodata.article-get/1"),
+        Article => ("article", "biodata.article/1"),
+        Envelope<ArticleCards> => ("article-cards", "biomcp.article_cards/1"),
         ArticleSearch => ("article-search", "biodata.article-search/1"),
         ArticleHeader => ("article-header", "biodata.article_header/1"),
         Envelope<ArticlePage> => ("article-page", "biomcp.article_page/1"),

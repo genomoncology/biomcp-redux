@@ -112,7 +112,7 @@ fn date(s: &str) -> Option<PartialDate> {
     let day = words.next().and_then(|d| d.parse().ok());
     PartialDate::new(year, month, if month.is_some() { day } else { None }).ok()
 }
-fn publication_type(s: &str) -> Option<P> {
+pub(super) fn publication_type(s: &str) -> Option<P> {
     Some(match s {
         "Randomized Controlled Trial" => P::RandomizedControlledTrial,
         "Clinical Trial" => P::ClinicalTrial,

@@ -37,7 +37,12 @@
             "33030203"
           ],
           "includes": "33123537"
-        }
+        },
+        "/next/1/args": [
+          "get",
+          "article",
+          "33377972"
+        ]
       }
     },
     {
@@ -84,9 +89,9 @@
           "includes_all_of": "akt1-floor.json",
           "equals_file": "akt1-floor.json"
         },
-        "/next": {
-          "count": 0
-        }
+        "/next/*/kind": [
+          "disambiguate"
+        ]
       }
     },
     {
@@ -106,9 +111,9 @@
         "/result/items/*/pmid": {
           "equals_file": "akt1-floor.json"
         },
-        "/next": {
-          "count": 0
-        }
+        "/next/*/kind": [
+          "disambiguate"
+        ]
       }
     },
     {

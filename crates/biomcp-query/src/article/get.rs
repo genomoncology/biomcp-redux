@@ -1,0 +1,162 @@
+//! PubMed card resolution under one command deadline.
+use crate::{Action, Ctx, Outcome, status};
+use biodata::{
+    Article, ArticleCardItem, ArticleCards, ArticleGet, ArticleInput, ArticleMatch,
+    ArticleResolution, Pmid, QueryBody, Request, Source, SourceState, Status, StepKind,
+};
+use biomcp_adapters::pubmed;
+use biomcp_fetch::{Leg, RequestError};
+/// Resolve and hydrate article cards under one absolute command deadline.
+pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let mut resolutions = Vec::new();
+    let mut ids = Vec::new();
+    let mut error = None;
+    let mut local = None;
+    for input in query.input() {
+        let result = pubmed::resolve_ids(&leg, input, cx.ncbi_email.as_ref());
+        if let Err(e) = result {
+            error.get_or_insert(e);
+            local = local.or(status::local(e));
+        }
+        if let Ok(found) = &result {
+            for id in found {
+                if !ids.contains(id) {
+                    ids.push(*id);
+                }
+            }
+        }
+        resolutions.push(result);
+    }
+    let (records, failures) = fetch(&leg, &ids, cx);
+    for (_, e) in &failures {
+        error.get_or_insert(*e);
+        local = local.or(status::local(*e));
+    }
+    let remaining = leg.remaining();
+    let source = status::source(Source::PubMed, leg.finish(), error);
+    let stale = source.state == SourceState::Stale;
+    let mut items = Vec::new();
+    for (input, resolution) in query.input().iter().zip(resolutions) {
+        match resolution {
+            Err(_) => items.push(item(input, Status::Failed, None)),
+            Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
+        }
+    }
+    let overall = status::status(items.iter().map(|i| i.status));
+    let mut next = Vec::new();
+    if matches!(overall, Status::Failed | Status::Partial) {
+        next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: Request::GetArticle(query.clone()),
+                fresh: true,
+            },
+        ));
+    }
+    command.finish(
+        deadline
+            .after_stage(started.saturating_sub(remaining))
+            .remaining(),
+    );
+    Outcome {
+        status: overall,
+        body: QueryBody::ArticleCards(ArticleCards {
+            items: items.into(),
+        }),
+        sources: vec![source],
+        page: None,
+        problems: Vec::new(),
+        next,
+        local,
+    }
+}
+type Record = (Article, i64);
+type Failure = (Pmid, RequestError);
+fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure>) {
+    let chunks: Vec<_> = ids.chunks(200).collect();
+    let results = leg.batch(&chunks, |child, ids| {
+        pubmed::fetch_articles(child, ids, cx.ncbi_email.as_ref())
+    });
+    let mut records = Vec::new();
+    let mut failures = Vec::new();
+    for (ids, result) in chunks.into_iter().zip(results) {
+        match result {
+            Ok((rows, metadata)) => {
+                for row in rows {
+                    if row.pmid.is_some_and(|id| ids.contains(&id))
+                        && !records.iter().any(|(r, _): &Record| r.pmid == row.pmid)
+                    {
+                        records.push((row, metadata.fetched));
+                    }
+                }
+            }
+            Err(error) => failures.extend(ids.iter().map(|id| (*id, error))),
+        }
+    }
+    (records, failures)
+}
+fn agrees(input: &ArticleInput, card: &Article) -> bool {
+    match input {
+        ArticleInput::Pmid(id) => Some(*id) == card.pmid,
+        ArticleInput::Pmcid(id) => card.pmcid.as_ref() == Some(id),
+        ArticleInput::Doi(id) => card.doi.as_ref() == Some(id),
+    }
+}
+fn item(
+    input: &ArticleInput,
+    status: Status,
+    answer: Option<ArticleResolution>,
+) -> ArticleCardItem {
+    ArticleCardItem {
+        input: input.clone(),
+        status,
+        answer,
+    }
+}
+fn append(
+    input: &ArticleInput,
+    ids: &[Pmid],
+    records: &[Record],
+    failures: &[Failure],
+    stale: bool,
+    items: &mut Vec<ArticleCardItem>,
+) {
+    let mut found = false;
+    for id in ids {
+        if let Some((card, fetched)) = records
+            .iter()
+            .find(|(card, _)| card.pmid == Some(*id) && agrees(input, card))
+        {
+            found = true;
+            items.push(item(
+                input,
+                if stale {
+                    Status::Partial
+                } else {
+                    Status::Complete
+                },
+                Some(ArticleResolution::Resolved {
+                    card: card.clone().card(),
+                    r#match: ArticleMatch { kind: input.kind() },
+                    fetched: u64::try_from(*fetched).unwrap_or_default(),
+                }),
+            ));
+        }
+    }
+    let failed = ids
+        .iter()
+        .any(|id| failures.iter().any(|(failed, _)| id == failed));
+    if failed {
+        items.push(item(input, Status::Failed, None));
+    } else if !found {
+        items.push(item(
+            input,
+            Status::Absent,
+            Some(ArticleResolution::NotFound),
+        ));
+    }
+}

@@ -1,5 +1,8 @@
 //! PubMed native search order and citation metadata, without abstracts.
+mod efetch;
+mod element;
 mod map;
+pub use efetch::{fetch_articles, resolve_ids};
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{ArticleHeader, Pmid, Source, SourceNotice, Text};

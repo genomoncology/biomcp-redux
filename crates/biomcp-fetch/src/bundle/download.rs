@@ -283,6 +283,7 @@ impl Leg<'_> {
         );
         if matches!(self.fetch.config.mode, Mode::Record { .. }) {
             let exchange = Exchange {
+                fetched: crate::cache::now(),
                 status: 200,
                 content_type: b.format.media().into(),
                 delay_ms: crate::record::millis(t.started.elapsed())

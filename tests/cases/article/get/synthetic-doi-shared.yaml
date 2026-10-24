@@ -1,0 +1,21 @@
+{
+  "feature": "article-get",
+  "story": "synthetic-doi-shared",
+  "replay": "article/get/synthetic-doi-shared",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "10.1002/mgg3.317"
+      ],
+      "expect": {
+        "/result/items/*/answer/card/pmid": [
+          "28944238",
+          "28944239"
+        ]
+      },
+      "exit": 0
+    }
+  ]
+}
