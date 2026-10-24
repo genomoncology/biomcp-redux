@@ -66,32 +66,42 @@ pub(super) fn submission(record: Element<'_>) -> Result<AssertionDetail, BadRepl
     detail.origins = origins.into();
     Ok(detail)
 }
-fn conditions(record: Element<'_>) -> Result<Vec<AssertionCondition>, BadReply> {
-    let Some(set) = record.child("TraitSet")? else {
-        return Ok(Vec::new());
-    };
+pub(super) fn conditions(record: Element<'_>) -> Result<Vec<AssertionCondition>, BadReply> {
     let mut conditions = Vec::new();
-    for trait_ in set.children("Trait")? {
-        let mut label = None;
-        for name in trait_.children("Name")? {
-            if let Some(value) = name.value(&["ElementValue"])? {
-                label = Some(value);
-                break;
+    for set in record.children("TraitSet")? {
+        for trait_ in set.children("Trait")? {
+            let mut preferred = None;
+            let mut labels = Vec::new();
+            for name in trait_.children("Name")? {
+                if let Some(value) = name.child("ElementValue")? {
+                    let label = value.text()?;
+                    if value.attr("Type")?.as_deref() == Some("Preferred") {
+                        preferred = Some(label.clone());
+                    }
+                    labels.push(label);
+                }
             }
-        }
-        let refs = trait_.children("XRef")?;
-        if refs.is_empty() {
-            if label.is_some() {
-                conditions.push(condition(None, None, label)?);
+            let label = preferred.or_else(|| {
+                if labels.len() == 1 {
+                    labels.pop()
+                } else {
+                    None
+                }
+            });
+            let refs = trait_.children("XRef")?;
+            if refs.is_empty() {
+                if label.is_some() {
+                    conditions.push(condition(None, None, label)?);
+                }
+                continue;
             }
-            continue;
-        }
-        for reference in refs {
-            conditions.push(condition(
-                reference.attr("DB")?,
-                reference.attr("ID")?,
-                label.clone(),
-            )?);
+            for reference in refs {
+                conditions.push(condition(
+                    reference.attr("DB")?,
+                    reference.attr("ID")?,
+                    label.clone(),
+                )?);
+            }
         }
     }
     Ok(conditions)

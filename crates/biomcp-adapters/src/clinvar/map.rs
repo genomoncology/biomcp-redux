@@ -36,7 +36,11 @@ pub(super) fn aggregate(
                 .map(|s| text(&s))
                 .transpose()?;
             let detail = AssertionDetail {
-                conditions: conditions.clone().into(),
+                conditions: if let Some(list) = group.child("ConditionList")? {
+                    super::detail::conditions(list)?.into()
+                } else {
+                    conditions.clone().into()
+                },
                 ..Default::default()
             };
             rows.push(crate::assertion::row(

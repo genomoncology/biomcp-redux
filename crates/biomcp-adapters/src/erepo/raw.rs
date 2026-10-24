@@ -14,6 +14,8 @@ pub(super) struct ReplyBody {
 struct Status {
     code: u16,
     name: String,
+    #[serde(default)]
+    msg: Option<String>,
 }
 impl Reply for ReplyBody {
     fn check(&self) -> Result<(), BadReply> {
@@ -28,7 +30,8 @@ impl Reply for ReplyBody {
             {
                 Ok(())
             }
-            404 if self.status.name == "No Records Found"
+            404 if self.status.name == "Not Found"
+                && self.status.msg.as_deref() == Some("No records were found for given query")
                 && self.data.as_ref().is_none_or(Vec::is_empty) =>
             {
                 Ok(())

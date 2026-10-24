@@ -57,7 +57,7 @@ fn erepo_absence() -> Result<(), String> {
         "application/json",
         move |_| {
             Ok(if body_empty.load(Ordering::SeqCst) {
-                json!({"status":{"code":404,"name":"No Records Found"}}).to_string()
+                json!({"status":{"code":404,"name":"Not Found","msg":"No records were found for given query"}}).to_string()
             } else {
                 body("CA000434")
             })

@@ -35,6 +35,28 @@
       "additionalProperties": false,
       "description": "A native condition with independently optional identifier and label.",
       "properties": {
+        "accession": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native accession text, preserved even when no CURIE namespace is recognized."
+        },
+        "database": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native database name without inventing a CURIE prefix."
+        },
         "id": {
           "anyOf": [
             {
