@@ -1,6 +1,6 @@
 use crate::{Build, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
-/// Read one published variant identifier; every source candidate is retained.
+/// Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -13,7 +13,7 @@ struct Fields {
     /// Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
-    /// Named source sections; omitted by default.
+    /// Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[VariantSection]>,
@@ -254,13 +254,13 @@ biodata::canonical_enum! {
         Civic => "civic",
         /// Keyed OncoKB annotation with explicit tumor context and build.
         Oncokb => "oncokb",
-        /// Cancer Hotspots native residues and counts.
+        /// Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.
         Hotspots => "hotspots",
         /// MyVariant source predictor scores.
         Predict => "predict",
         /// MyVariant conservation scores.
         Conservation => "conservation",
-        /// Historical COSMIC fields carried by MyVariant.
+        /// Historical COSMIC fragments carried by MyVariant; parent-to-fragment allele identity remains unverified.
         Cosmic => "cosmic",
         /// Every implemented variant section.
         All => "all",

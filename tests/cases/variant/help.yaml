@@ -1,0 +1,123 @@
+{
+  "feature": "variant-help",
+  "live_check": "local-only generated command help",
+  "story": "Variant help names accepted identifiers, explicit search selectors and bounded source drill-downs without clinical interpretation.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "get",
+        "variant"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "variant"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
+      },
+      "max_bytes": 4257,
+      "max_tokens": 1065
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "variant"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "variant"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 2994,
+      "max_tokens": 749
+    },
+    {
+      "run": [
+        "help",
+        "variant",
+        "assertions"
+      ],
+      "mcp": [
+        "help",
+        "variant",
+        "assertions"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 1438,
+      "max_tokens": 360
+    },
+    {
+      "run": [
+        "help",
+        "variant",
+        "population"
+      ],
+      "mcp": [
+        "help",
+        "variant",
+        "population"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 1481,
+      "max_tokens": 371
+    },
+    {
+      "run": [
+        "help",
+        "variant",
+        "normalize"
+      ],
+      "mcp": [
+        "help",
+        "variant",
+        "normalize"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 1469,
+      "max_tokens": 368
+    },
+    {
+      "run": [
+        "help",
+        "variant",
+        "recurrence"
+      ],
+      "mcp": [
+        "help",
+        "variant",
+        "recurrence"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 2150,
+      "max_tokens": 538
+    }
+  ],
+  "verified": "Measured compact CLI help bytes in j11310 at 6a8478cf: get variant 3701, search variant 2603, assertions 1250, population 1287, normalize 1277, recurrence 1869. Each cap is measured bytes plus 15 percent. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains the existing 1923-byte description cap."
+}

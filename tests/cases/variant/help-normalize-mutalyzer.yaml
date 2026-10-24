@@ -1,0 +1,31 @@
+{
+  "feature": "variant-help",
+  "live_check": "synthetic response recorded from existing local TLS case",
+  "replay": "variant/normalization/mutalyzer",
+  "story": "Help sends unchanged reference-qualified notation to an explicit normalization service.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "mcp": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "expect": {
+        "/result/results/0/source": "mutalyzer",
+        "/result/results/0/outcome": "resolved",
+        "/result/results/0/total_mappings": 3
+      }
+    }
+  ]
+}
