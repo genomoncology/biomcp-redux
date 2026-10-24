@@ -77,7 +77,13 @@ fn shapes() -> Result<(), String> {
         if value.get("status").is_none() {
             return Err("JSON baseline missing status".into());
         }
-        eprintln!("Markdown bytes {}: {}", command.join(" "), text.len());
+        if text.len() > 1 {
+            return Err(format!(
+                "MEASURE {} bytes: {}",
+                command.join(" "),
+                text.len()
+            ));
+        }
         command.extend(["--format".into(), "json".into()]);
         let explicit = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
