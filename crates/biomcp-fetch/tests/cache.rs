@@ -581,29 +581,55 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
     let directory = tempfile::tempdir().unwrap();
     let records = directory.path().join("pubmed");
     std::fs::create_dir(&records).unwrap();
-    let spec = Box::leak(Box::new(SourceSpec {
-        source: biodata::Source::PubMed, base: "https://example.invalid", key:KeyUse::None,
-        quota: Box::leak(Box::new(Quota::new(SourceKey::declare("parallel-cache"), Rate::new(1000, 1000), None, 8))),
+    let spec: &'static SourceSpec = Box::leak(Box::new(SourceSpec {
+        source: biodata::Source::PubMed,
+        base: "https://example.invalid",
+        key: KeyUse::None,
+        quota: Box::leak(Box::new(Quota::new(
+            SourceKey::declare("parallel-cache"),
+            Rate::new(1000, 1000),
+            None,
+            8,
+        ))),
         deadline: Duration::from_secs(10),
     }));
     let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
     for index in 0..8 {
         let url = format!("https://example.invalid/answer?index={index}");
-        let key = Sha256::digest(url.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect::<String>();
+        let key = Sha256::digest(url.as_bytes())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
         let recording = serde_json::json!({"method":"GET","source":"pubmed","url":url,"exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]});
-        std::fs::write(records.join(format!("{key}.json")),serde_json::to_vec(&recording).unwrap()).unwrap();
+        std::fs::write(
+            records.join(format!("{key}.json")),
+            serde_json::to_vec(&recording).unwrap(),
+        )
+        .unwrap();
     }
-    let fetch = Fetch::open(FetchConfig { mode:Mode::Replay { dir:directory.path().into() }, ..Default::default() }).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().into(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
     let start = std::sync::Barrier::new(8);
     thread::scope(|scope| {
-        let workers: Vec<_> = (0..8).map(|index| {
-            let fetch = &fetch; let start = &start; let endpoint = &endpoint;
-            scope.spawn(move || {
-                let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
-                start.wait();
-                leg.json::<Answer>(endpoint, &[("index",Arg::Num(index))])
+        let workers: Vec<_> = (0..8)
+            .map(|index| {
+                let fetch = &fetch;
+                let start = &start;
+                let endpoint = &endpoint;
+                scope.spawn(move || {
+                    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+                    start.wait();
+                    leg.json::<Answer>(endpoint, &[("index", Arg::Num(index))])
+                })
             })
-        }).collect();
-        for worker in workers { assert!(worker.join().unwrap().unwrap().answer); }
+            .collect();
+        for worker in workers {
+            assert!(worker.join().unwrap().unwrap().answer);
+        }
     });
 }
