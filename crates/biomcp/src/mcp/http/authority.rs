@@ -16,12 +16,12 @@ impl Authority {
             let port = if suffix.is_empty() {
                 None
             } else {
-                Some(suffix.strip_prefix(':')?.parse().ok()?)
+                Some(port(suffix.strip_prefix(':')?)?)
             };
             (ip.to_string(), port)
         } else {
             let (name, port) = match value.split_once(':') {
-                Some((name, port)) => (name, Some(port.parse().ok()?)),
+                Some((name, value)) => (name, Some(port(value)?)),
                 None => (value, None),
             };
             if name.is_empty()
@@ -52,4 +52,9 @@ impl Authority {
         (self.name == "localhost" || self.name.parse::<IpAddr>().is_ok_and(|ip| ip.is_loopback()))
             && self.port.unwrap_or(80) == address.port()
     }
+}
+
+fn port(value: &str) -> Option<u16> {
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) { return None; }
+    value.parse().ok().filter(|port| *port != 0)
 }

@@ -274,8 +274,8 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
         "tools/call",
         json!({"name":"biomcp","arguments":{"args":old_args}}),
     );
-    let barrier = std::sync::Barrier::new(2);
-    let (modern, old) = std::thread::scope(|scope| {
+    let barrier = std::sync::Barrier::new(3);
+    let (modern, old, health) = std::thread::scope(|scope| {
         let a = scope.spawn(|| {
             barrier.wait();
             server.request("POST", "/mcp", &modern.to_string())
@@ -290,9 +290,17 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
                 &old.to_string(),
             )
         });
-        Ok::<_, String>((a.join().map_err(|_| "modern HTTP caller stopped")?,
-            b.join().map_err(|_| "legacy HTTP caller stopped")?))
+        let health = scope.spawn(|| { barrier.wait(); server.request("GET", "/health", "") });
+        Ok::<_, String>((
+            a.join().map_err(|_| "modern HTTP caller stopped")?,
+            b.join().map_err(|_| "legacy HTTP caller stopped")?,
+            health.join().map_err(|_| "HTTP health caller stopped")?,
+        ))
     })?;
+    let (health_status, health) = health?;
+    if health_status != 200 || health.get("store") != Some(&json!(true)) {
+        return Err("concurrent local store health failed".into());
+    }
     let (modern_status, modern) = modern?;
     let (old_status, old, _) = old?;
     let old = old.ok_or("legacy response missing")?;
@@ -318,6 +326,7 @@ fn admission() -> Check {
         ("user@localhost", ""),
         ("[::1]extra", ""),
         ("localhost:65536", ""),
+        ("localhost:+8080", ""),
         (&host, "Host: foreign.example\r\n"),
         (&host, "Origin: http://localhost\r\n"),
         (&host, "Origin: null\r\n"),
@@ -407,7 +416,10 @@ fn storage() -> Check {
         Some(json!({"http":{"allowed_hosts":["local.example"]}})),
         true,
     )?;
-    exposed.address = SocketAddr::new(std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST), exposed.address.port());
+    exposed.address = SocketAddr::new(
+        std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST),
+        exposed.address.port(),
+    );
     if exposed.raw("GET", "/health", "LOCAL.EXAMPLE", "", "")?.0 != 200
         || exposed.raw("GET", "/health", "other.example", "", "")?.0 != 403
     {
