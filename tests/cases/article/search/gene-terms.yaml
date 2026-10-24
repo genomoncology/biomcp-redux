@@ -38,7 +38,8 @@
           "equals_file": "her2-floor.json"
         },
         "/next/*/kind": [
-          "disambiguate"
+          "disambiguate",
+          "sort"
         ]
       }
     },

@@ -90,7 +90,8 @@
           "equals_file": "akt1-floor.json"
         },
         "/next/*/kind": [
-          "disambiguate"
+          "disambiguate",
+          "sort"
         ]
       }
     },
@@ -112,7 +113,8 @@
           "equals_file": "akt1-floor.json"
         },
         "/next/*/kind": [
-          "disambiguate"
+          "disambiguate",
+          "sort"
         ]
       }
     },

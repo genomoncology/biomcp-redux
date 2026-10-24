@@ -153,6 +153,17 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
             out,
         );
     }
+    if let Cursor::Search(search) = query
+        && search.sort() != ArticleSort::Citations
+    {
+        out.next.push((
+            StepKind::Sort,
+            Action::Run {
+                request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
+                fresh: false,
+            },
+        ));
+    }
 }
 
 fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut Outcome) {
@@ -186,15 +197,5 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             },
         ));
     }
-    if let Cursor::Search(search) = query
-        && search.sort() != ArticleSort::Citations
-    {
-        out.next.push((
-            StepKind::Sort,
-            Action::Run {
-                request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
-                fresh: false,
-            },
-        ));
-    }
+
 }
