@@ -9,12 +9,16 @@
         "get",
         "article",
         "33123537",
+        "35440569",
+        "28944238",
         "indexing"
       ],
       "mcp": [
         "get",
         "article",
         "33123537",
+        "35440569",
+        "28944238",
         "indexing"
       ],
       "expect": {
@@ -22,9 +26,34 @@
         "/result/items/0/sections/indexing/data/mesh": {
           "count": 0
         },
-        "/result/items/0/sections/indexing/data/affiliations/total": 7
+        "/result/items/0/sections/indexing/data/affiliations/total": 7,
+        "/result/items/1/sections/indexing/data/mesh": {
+          "count": 8,
+          "includes_all_of": [
+            {
+              "descriptor": "Neoplasms",
+              "major": true,
+              "qualifiers": []
+            },
+            {
+              "descriptor": "Proto-Oncogene Proteins c-akt",
+              "major": true,
+              "qualifiers": []
+            }
+          ]
+        },
+        "/result/items/1/sections/indexing/data/affiliations/total": 36,
+        "/result/items/1/sections/indexing/data/affiliations/items": {
+          "count": 10
+        },
+        "/result/items/1/sections/indexing/data/orcids": {
+          "count": 6
+        },
+        "/result/items/1/sections/indexing": {
+          "max_bytes": 4500
+        }
       },
-      "max_bytes": 5500
+      "max_bytes": 21000
     }
   ]
 }
