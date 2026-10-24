@@ -67,9 +67,13 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         ));
     }
     // Disabled policy wins even when replay would open a hostile sidecar.
-    let disabled = replay.restrict_sources([Source::Pubmed]);
-    assert!(matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled));
-    assert!(matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| panic!("disabled parser ran")), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled));
+    let disabled = replay.restrict_sources([biodata::Source::Pubmed]);
+    assert!(
+        matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
+    );
+    assert!(
+        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| panic!("disabled parser ran")), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
+    );
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
     std::fs::remove_file(&sidecar).unwrap();
