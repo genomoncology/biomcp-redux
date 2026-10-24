@@ -29,12 +29,13 @@
     "ArticleSource": {
       "description": "Source selectors supported by article search.",
       "enum": [
-        "pubmed"
+        "pubmed",
+        "europepmc"
       ],
       "type": "string"
     },
     "ArticleType": {
-      "description": "Publication-type selectors sent to PubMed.",
+      "description": "Publication-type selectors sent to the named sources.",
       "enum": [
         "trial",
         "randomized",
@@ -266,7 +267,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Gene input resolved through HGNC."
+          "description": "Gene input; PubMed resolves it through HGNC."
         },
         "journal": {
           "$ref": "#/$defs/Text",
@@ -298,23 +299,24 @@
         "sort": {
           "$ref": "#/$defs/ArticleSort",
           "default": "rank",
-          "description": "Native provider order."
+          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\nBoth pubmed and europepmc support rank and date."
         },
         "source": {
           "default": [
             "pubmed"
           ],
-          "description": "Sources in caller order; defaults to PubMed.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 1,
+          "maxItems": 2,
           "minItems": 1,
-          "type": "array"
+          "type": "array",
+          "x-comma-separated": true
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Words sent to PubMed in its default fields.",
+          "description": "Words sent to each named source in its default fields.",
           "x-positional": 0
         },
         "type": {

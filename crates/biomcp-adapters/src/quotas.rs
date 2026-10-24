@@ -47,6 +47,13 @@ pub(crate) static NCBI: Quota = Quota::new(
     3,
 );
 
+// Conservative local policy; no numeric provider rate has been verified.
+pub(crate) static EUROPEPMC: Quota = Quota::new(
+    SourceKey::declare("europepmc"),
+    Rate::per_second(1),
+    None,
+    1,
+);
 // Conservative local PubTator3 policy; no published numeric provider limit checked.
 pub(crate) static PUBTATOR: Quota =
     Quota::new(SourceKey::declare("pubtator"), Rate::per_second(3), None, 3);

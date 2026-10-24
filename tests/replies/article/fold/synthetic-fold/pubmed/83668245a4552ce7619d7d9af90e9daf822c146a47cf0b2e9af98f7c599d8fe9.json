@@ -1,0 +1,58 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "result": {
+            "uids": [
+              "3333",
+              "4444"
+            ],
+            "3333": {
+              "uid": "3333",
+              "title": "Synthetic citation 3333",
+              "fulljournalname": "Synthetic journal",
+              "pubdate": "2024",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "authors": [
+                {
+                  "name": "Example A"
+                }
+              ],
+              "articleids": []
+            },
+            "4444": {
+              "uid": "4444",
+              "title": "Synthetic citation 4444",
+              "fulljournalname": "Synthetic journal",
+              "pubdate": "2024",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "authors": [
+                {
+                  "name": "Example A"
+                }
+              ],
+              "articleids": []
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "3292de2a95e66365a47629fb919923406b04be97d6aac2a34b844a6c4fab1597"
+  }
+}

@@ -86,13 +86,15 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         }
     }
     Some(ArticleHeader {
-        pmid: id,
+        pmid: Some(id),
+        europepmc_id: None,
         doi,
         pmcid,
         title,
         journal,
         date,
         types,
+        types_unknown: false,
         first_author,
         author_count,
     })

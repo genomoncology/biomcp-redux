@@ -47,6 +47,7 @@ fn registry() -> Vec<Contract> {
         ArticleSearch => ("article-search", "biodata.article-search/1"),
         ArticleHeader => ("article-header", "biodata.article_header/1"),
         Envelope<ArticlePage> => ("article-page", "biomcp.article_page/1"),
+        EuropePmcId => ("europepmc-id", "biodata.europepmc-id/1"),
         Pmid => ("pmid", "biodata.pmid/1"),
         Pmcid => ("pmcid", "biodata.pmcid/1"),
         Doi => ("doi", "biodata.doi/1"),
