@@ -30,5 +30,7 @@ impl schemars::JsonSchema for Markdown {
 
 impl TryFrom<String> for Markdown {
     type Error = Error;
-    fn try_from(value: String) -> Result<Self, Error> { Self::new(&value) }
+    fn try_from(value: String) -> Result<Self, Error> {
+        Self::new(&value)
+    }
 }

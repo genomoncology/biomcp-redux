@@ -87,7 +87,7 @@ fn citations(xml: &str) -> Result<bool, BadReply> {
 /// Validate at the same mixed-text boundary before interpreting source markup.
 pub(super) fn checked(xml: &str) -> Result<biodata::Markdown, BadReply> {
     MixedText::from_xml(xml)?;
-    biodata::Markdown::new(&inline(xml)?).map_err(|_| BadReply)
+    biodata::Markdown::new(inline(xml)?.trim()).map_err(|_| BadReply)
 }
 
 fn list(node: Element<'_>) -> Result<String, BadReply> {

@@ -25,6 +25,7 @@ pub(super) struct Group {
     pub(super) kind: TextPartKind,
     pub(super) context: Option<String>,
     pub(super) rows: Vec<BodyRow>,
+    pub(super) table_refs: Vec<Text>,
 }
 impl Group {
     pub(super) fn separator(&self) -> &'static str {
@@ -41,6 +42,7 @@ impl Group {
             kind: TextPartKind::Section,
             context: None,
             rows: Vec::new(),
+            table_refs: Vec::new(),
         }
     }
 }
@@ -65,6 +67,9 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
     }
     let mut out = Vec::new();
     for (name, child) in blocks::body_nodes(node.0)? {
+        if !matches!(name.as_str(), "sec" | "table-wrap" | "table-wrap-group") {
+            group.table_refs.extend(super::references::table_ids(child.0)?);
+        }
         match name.as_str() {
             "title" | "table-wrap" | "table-wrap-group" => {}
             "sec" => {
@@ -122,15 +127,28 @@ pub(super) fn append(parts: &mut Vec<Part>, group: Group, rows: &mut Rows) -> Re
 }
 
 pub(super) fn groups(name: &str, node: Element<'_>) -> Result<Vec<Group>, BadReply> {
-    if name == "sec" { return section(node, &[]); }
+    if name == "sec" {
+        return section(node, &[]);
+    }
     let mut group = Group::section(Vec::new());
-    let rendered = if name == "fig" { figure(node)? } else {
+    group.table_refs = super::references::table_ids(node.0)?.into_vec();
+    let rendered = if name == "fig" {
+        figure(node)?
+    } else {
         let plain = node.text()?;
-        if plain.trim().is_empty() { None } else { Some(BodyRow {
-            plain, markdown: markdown::inline(node.0)?.trim().to_owned(), context: false,
-            references: super::references::ids(node.0)?,
-        }) }
+        if plain.trim().is_empty() {
+            None
+        } else {
+            Some(BodyRow {
+                plain,
+                markdown: markdown::inline(node.0)?.trim().to_owned(),
+                context: false,
+                references: super::references::ids(node.0)?,
+            })
+        }
     };
-    if let Some(row) = rendered { group.rows.push(row); }
+    if let Some(row) = rendered {
+        group.rows.push(row);
+    }
     Ok(vec![group])
 }

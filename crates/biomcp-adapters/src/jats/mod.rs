@@ -3,6 +3,7 @@ mod blocks;
 mod body;
 mod parts;
 mod references;
+mod render;
 const MAX_MARKDOWN_BYTES: usize = 8 * 1024 * 1024;
 mod table;
 pub use body::BodyRow;
@@ -50,41 +51,7 @@ impl XmlReply for Body {
         let metadata = root.at(&["front", "article-meta"])?;
         let pmcid = own_id(metadata)?;
         let body = root.child("body")?.ok_or(BadReply)?;
-        let tables = blocks::descendants(body.0, "table-wrap")?;
-        let mut emitted = Vec::new();
-        let mut parts = Vec::new();
-        let mut rows = body::Rows::default();
-        for (name, node) in blocks::body_nodes(body.0)? {
-            if matches!(name.as_str(), "table-wrap" | "table-wrap-group") {
-                continue;
-            }
-            let groups = body::groups(&name, node)?;
-            let start = parts.len();
-            for group in groups {
-                body::append(&mut parts, group, &mut rows)?;
-            }
-            if name == "sec" {
-                let end = parts.len();
-                for (index, part) in parts.iter_mut().enumerate().skip(start) {
-                    part.continuation = index + 1 < end;
-                }
-            }
-            for table in &tables {
-                let mentioned = match table.attr("id")? {
-                    Some(id) => cited(node, &id)?,
-                    None => false,
-                };
-                if mentioned && !emitted.contains(&table.0) {
-                    body::append(&mut parts, table::group(*table, &[])?, &mut rows)?;
-                    emitted.push(table.0);
-                }
-            }
-        }
-        for table in tables {
-            if !emitted.contains(&table.0) {
-                body::append(&mut parts, table::group(table, &[])?, &mut rows)?;
-            }
-        }
+        let (parts, rows) = render::body(body)?;
         let figures = blocks::descendants(body.0, "fig")?
             .into_iter()
             .map(|fig| {
@@ -98,7 +65,7 @@ impl XmlReply for Body {
         Ok(Self {
             pmcid,
             parts,
-            rows: rows.values,
+            rows,
             references: references::rows(root.0)?,
             figures,
         })
@@ -125,18 +92,4 @@ fn own_id(metadata: Option<Element<'_>>) -> Result<Option<Pmcid>, BadReply> {
         }
     }
     Ok(own)
-}
-fn cited(sec: Element<'_>, id: &str) -> Result<bool, BadReply> {
-    for node in blocks::descendants(sec.0, "xref")? {
-        if matches!(
-            node.attr("ref-type")?.as_deref(),
-            Some("table" | "table-wrap")
-        ) && node
-            .attr("rid")?
-            .is_some_and(|v| v.split_whitespace().any(|v| v == id))
-        {
-            return Ok(true);
-        }
-    }
-    Ok(false)
 }

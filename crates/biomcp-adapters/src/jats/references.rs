@@ -36,9 +36,15 @@ pub(super) fn rows(xml: &str) -> Result<Vec<Reference>, BadReply> {
     Ok(out)
 }
 pub(super) fn ids(xml: &str) -> Result<Box<[Text]>, BadReply> {
+    typed_ids(xml, &["bibr", "ref"])
+}
+pub(super) fn table_ids(xml: &str) -> Result<Box<[Text]>, BadReply> {
+    typed_ids(xml, &["table", "table-wrap"])
+}
+fn typed_ids(xml: &str, kinds: &[&str]) -> Result<Box<[Text]>, BadReply> {
     let mut out = Vec::new();
     for node in blocks::descendants(xml, "xref")? {
-        if !matches!(node.attr("ref-type")?.as_deref(), Some("bibr" | "ref")) {
+        if !node.attr("ref-type")?.is_some_and(|kind| kinds.contains(&kind.as_str())) {
             continue;
         }
         if let Some(ids) = node.attr("rid")? {

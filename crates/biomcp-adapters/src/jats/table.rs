@@ -78,6 +78,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         kind: TextPartKind::Table,
         context: Some(context),
         rows,
+        table_refs: Vec::new(),
     })
 }
 fn cells(row: Element<'_>) -> Result<Cells, BadReply> {
