@@ -62,6 +62,8 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
             }
         };
         value.push(VariantHeader {
+            requested: None,
+            sections: None,
             identity: Variant {
                 ids: ids.into(),
                 representations: representations.into(),

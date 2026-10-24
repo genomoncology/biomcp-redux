@@ -147,6 +147,8 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             });
         }
         candidates.push(VariantHeader {
+            requested: None,
+            sections: None,
             identity: Variant {
                 ids: Box::default(),
                 representations: representations.into(),

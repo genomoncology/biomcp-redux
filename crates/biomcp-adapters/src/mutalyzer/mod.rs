@@ -129,6 +129,8 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     let notation = Text::new(&raw.normalized_description.ok_or_else(bad)?).map_err(|_| bad())?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
+        requested: None,
+        sections: None,
         identity: Variant {
             ids: Box::default(),
             representations: vec![Representation {
