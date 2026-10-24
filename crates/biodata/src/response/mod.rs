@@ -93,3 +93,5 @@ pub use variant_population::{
     GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
     VariantPopulation, VariantPopulationDetail,
 };
+
+pub use variant_population::VariantPopulationResult;

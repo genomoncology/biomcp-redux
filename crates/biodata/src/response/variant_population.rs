@@ -107,3 +107,18 @@ pub struct GwasEffectAllele {
     /// Source allele text.
     pub allele: Text,
 }
+/// Population summary and one explicitly requested ancestry-detail page.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantPopulationResult {
+    /// Source population state; missing datasets stay absent within its summary.
+    pub population: crate::Section<VariantPopulation>,
+    /// Selected native groups, qualified by sequencing subset.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub groups: Box<[PopulationGroup]>,
+}
+impl super::ResponseBody for VariantPopulationResult {
+    const SCHEMA: &'static str = "biomcp.variant_population/1";
+    type Query = crate::VariantPopulationQuery;
+}
