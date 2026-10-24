@@ -35,7 +35,8 @@
         "pubmed,litvar",
         "--sort",
         "citations"
-      ]
+      ],
+      "is_error": true
     }
   ]
 }

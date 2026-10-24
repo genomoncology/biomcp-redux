@@ -33,24 +33,19 @@ pub enum Search {
 }
 /// Select by exact case-insensitive gene/change or rsID, never by hit position.
 pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search, RequestError> {
-    let is_rsid = variant
-        .get(..2)
-        .is_some_and(|s| s.eq_ignore_ascii_case("rs"))
-        && variant
-            .get(2..)
-            .is_some_and(|s| !s.is_empty() && s.bytes().all(|c| c.is_ascii_digit()));
+    let rsid = is_rsid(variant);
     let change = variant
         .get(..2)
         .filter(|s| s.eq_ignore_ascii_case("p."))
         .map_or(variant, |_| variant.get(2..).unwrap_or(variant));
-    let term = if is_rsid {
+    let term = if rsid {
         variant.to_owned()
     } else {
         format!("{} {change}", gene.unwrap_or_default())
     };
     let candidates = leg.json::<Candidates>(&AUTOCOMPLETE, &[("query", Arg::Text(&term))])?;
     let mut matching = candidates.0.iter().filter(|row| {
-        if is_rsid {
+        if rsid {
             row.rsid.as_str().eq_ignore_ascii_case(variant)
         } else {
             gene.is_some_and(|gene| {
@@ -112,7 +107,12 @@ impl Candidate {
 }
 impl Reply for Candidates {
     fn check(&self) -> Result<(), BadReply> {
-        if self.0.len() > 10_000 || self.0.iter().any(|c| PathSegment::new(&c.id).is_err()) {
+        if self.0.len() > 10_000
+            || self
+                .0
+                .iter()
+                .any(|c| PathSegment::new(&c.id).is_err() || !is_rsid(c.rsid.as_str()))
+        {
             return Err(BadReply);
         }
         Ok(())
@@ -130,4 +130,14 @@ impl Reply for Publications {
         }
         Ok(())
     }
+}
+
+/// Recognize the exact rsID spelling accepted by variant lookup.
+pub fn is_rsid(value: &str) -> bool {
+    value
+        .get(..2)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("rs"))
+        && value.get(2..).is_some_and(|digits| {
+            !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit())
+        })
 }

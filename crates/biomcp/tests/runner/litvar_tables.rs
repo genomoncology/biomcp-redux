@@ -95,6 +95,11 @@ fn boundaries() -> Check {
             4,
         ),
         (
+            "bad-rsid",
+            json!({"/status":"failed","/sources/1/reason":"bad_reply"}),
+            4,
+        ),
+        (
             "zero-pmid",
             json!({"/status":"failed","/sources/1/reason":"bad_reply"}),
             4,
@@ -197,6 +202,7 @@ fn boundary_edit(source: &str, record: &mut Value, kind: &str) {
                     *rows = vec![row; 6];
                 }
                 "bad-id" => rows[1]["_id"] = json!("bad%23id"),
+                "bad-rsid" => rows[1]["rsid"] = json!("not-an-rsid"),
                 _ => {}
             }
         } else if kind == "zero-pmid" {

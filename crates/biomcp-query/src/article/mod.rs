@@ -143,12 +143,7 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
     use biodata::{ArticleFilter as F, ArticleSource as S};
     if query.sources().contains(&S::Litvar) {
         let variant = query.variant().map_or("", Text::as_str);
-        let rsid = variant
-            .get(..2)
-            .is_some_and(|v| v.eq_ignore_ascii_case("rs"))
-            && variant
-                .get(2..)
-                .is_some_and(|v| !v.is_empty() && v.bytes().all(|c| c.is_ascii_digit()));
+        let rsid = biomcp_adapters::litvar::is_rsid(variant);
         if variant.is_empty() || (!rsid && query.gene().is_none()) {
             return Some((biodata::Source::LitVar, F::Variant));
         }
