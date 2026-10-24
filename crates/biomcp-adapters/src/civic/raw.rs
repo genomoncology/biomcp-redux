@@ -7,12 +7,8 @@ use serde::{
 #[derive(Debug, Deserialize)]
 pub(super) struct Genes<const N: usize> {
     pub data: Aliases,
-    #[serde(default, deserialize_with = "errors_present")]
-    errors: bool,
-}
-fn errors_present<'de, D: serde::Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
-    serde::de::IgnoredAny::deserialize(d)?;
-    Ok(true)
+    #[serde(flatten)]
+    extra: std::collections::BTreeMap<String, serde::de::IgnoredAny>,
 }
 #[derive(Debug)]
 pub(super) struct Aliases(pub Vec<(String, Option<Gene>)>);
@@ -37,7 +33,7 @@ impl<'de> Deserialize<'de> for Aliases {
 }
 impl<const N: usize> Reply for Genes<N> {
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors || self.data.0.len() != N {
+        if self.extra.contains_key("errors") || self.data.0.len() != N {
             return Err(BadReply);
         }
         for index in 0..N {
