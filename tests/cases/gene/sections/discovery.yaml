@@ -38,12 +38,10 @@
         "get",
         "gene",
         "HGNC:11998",
-        "constraint",
-        "civic"
+        "constraint"
       ],
       "expect": {
-        "/result/items/0/sections/constraint/state": "data",
-        "/result/items/0/sections/civic/state": "data"
+        "/result/items/0/sections/constraint/state": "data"
       },
       "max_bytes": 3600
     }

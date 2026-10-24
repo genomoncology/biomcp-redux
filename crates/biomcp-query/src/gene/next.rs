@@ -53,13 +53,6 @@ pub(crate) fn get(
     }) {
         steps.push(sync());
     }
-    if sources.iter().any(|source| {
-        source.source == biodata::Source::Oncokb
-            && source.state == SourceState::Skipped
-            && source.reason == Some(biodata::Reason::NoKey)
-    }) {
-        steps.push((StepKind::Key, Action::KeyHelp));
-    }
     if sources
         .iter()
         .any(|source| source.source == biodata::Source::ClinGen && source.state != SourceState::Ok)
@@ -70,6 +63,13 @@ pub(crate) fn get(
                 bundle: Bundle::ClinGen,
             },
         ));
+    }
+    if sources.iter().any(|source| {
+        source.source == biodata::Source::Oncokb
+            && source.state == SourceState::Skipped
+            && source.reason == Some(biodata::Reason::NoKey)
+    }) {
+        steps.push((StepKind::Key, Action::KeyHelp));
     }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
