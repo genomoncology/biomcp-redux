@@ -194,3 +194,46 @@ fn source_predictor_contract_keeps_zero_and_native_labels() {
         .expect("an absent record field has no fabricated score");
     assert!(empty.scores.is_empty());
 }
+
+#[test]
+fn shared_clinvar_and_clingen_fixture_rows_become_statements() -> Check {
+    let rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("../../../tests/fixtures/variant/common.json"))?;
+    let mut checked = 0;
+    for row in rows.iter().filter(|r| {
+        matches!(
+            r["owner"].as_str(),
+            Some("clinvar-assertions" | "clingen-assertions")
+        )
+    }) {
+        let clinvar = row["owner"] == "clinvar-assertions";
+        let subject = if clinvar {
+            &row["variation_id"]
+        } else {
+            &row["subject"]
+        };
+        let mut statement = json!({
+            "subject":{"level":"allele","id":subject},
+            "proposition":"pathogenicity",
+            "classification":{"label":row["classification"]},
+            "attribution":{"source":if clinvar {"clinvar"} else {"erepo"},"record":row["record"],"submitter":row["submitter"]}
+        });
+        if clinvar {
+            statement["classification"]["coding"] =
+                json!({"system":"acmg_amp_2015","code":"pathogenic"});
+            statement["attribution"]["evaluated"] = row["evaluated"].clone();
+            statement["allele_origin"] = json!({"label":row["allele_origin"]});
+            statement["strength"] = json!({"label":row["review_status"]});
+            statement["citations"] = json!([row["method_citation"]]);
+        } else {
+            statement["attribution"]["version"] = row["version"].clone();
+            statement["condition"] = row["condition"].clone();
+            statement["criteria"] = row["criteria"].clone();
+        }
+        let parsed: Statement = serde_json::from_value(statement.clone())?;
+        assert_eq!(serde_json::to_value(parsed)?, statement);
+        checked += 1;
+    }
+    assert_eq!(checked, 2);
+    Ok(())
+}

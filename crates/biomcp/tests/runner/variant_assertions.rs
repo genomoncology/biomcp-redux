@@ -191,12 +191,18 @@ fn history(wrong: bool) -> Result<(), String> {
             .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))?;
         if wrong {
             if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
-                return Err(format!("wrong historical version accepted: {value}"));
+                return Err(format!(
+                    "wrong historical version accepted: {value}; wire={:?}",
+                    stub.finish()
+                ));
             }
         } else {
-            let row = value
-                .pointer("/result/assertions/0")
-                .ok_or_else(|| format!("no historical row: {value}"))?;
+            let Some(row) = value.pointer("/result/assertions/0") else {
+                return Err(format!(
+                    "no historical row: {value}; wire={:?}",
+                    stub.finish()
+                ));
+            };
             if row.pointer("/statement/attribution/version") != Some(&json!("1.0.0"))
                 || row.pointer("/statement/condition/label")
                     != Some(&json!("Synthetic historical condition"))
