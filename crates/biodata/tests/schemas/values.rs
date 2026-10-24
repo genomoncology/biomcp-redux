@@ -186,7 +186,12 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
     let schema = validator::<ErrorEnvelope>();
     assert!(schema.is_valid(&value));
     for pointer in ["/schema", "/status", "/error/code", "/error/message"] {
-        for replacement in [json!("unsupported"), Value::Null, json!(42)] {
+        for replacement in [
+            json!("unsupported"),
+            Value::Null,
+            json!(42),
+            json!({value.pointer(pointer).unwrap().as_str().unwrap(): null}),
+        ] {
             let mut changed = value.clone();
             *changed.pointer_mut(pointer).unwrap() = replacement;
             assert!(!schema.is_valid(&changed), "{pointer}: {changed}");
