@@ -6,6 +6,11 @@ pub(super) struct Hint {
 }
 const HINTS: &[Hint] = &[
     Hint {
+        schema: "biomcp.article_supplement/1",
+        title: "",
+        columns: &["sheet", "row", "header", "cells", "fragment"],
+    },
+    Hint {
         schema: "biomcp.gene_cards/1",
         title: "/answer/gene/symbol",
         columns: &[],

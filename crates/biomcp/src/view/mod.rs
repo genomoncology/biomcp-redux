@@ -92,7 +92,11 @@ impl View<'_> {
     }
 }
 fn heading(name: &str, depth: usize, out: &mut String) {
-    out.push_str(&format!("{} {}\n\n", "#".repeat(depth.min(6)), label(name)));
+    out.push_str(&format!(
+        "{} {}\n\n",
+        "#".repeat(depth.min(6)),
+        escape(&label(name))
+    ));
 }
 fn label(name: &str) -> String {
     let name = name.rsplit('/').next().unwrap_or(name).replace('_', " ");
@@ -183,6 +187,9 @@ fn steps(value: &Value, out: &mut String) {
         let Some(args) = step.get("args").and_then(Value::as_array) else {
             continue;
         };
+        if let Some(kind) = step.get("kind") {
+            out.push_str(&format!("**{}:**\n\n", scalar(kind)));
+        }
         let args = args
             .iter()
             .filter_map(Value::as_str)
