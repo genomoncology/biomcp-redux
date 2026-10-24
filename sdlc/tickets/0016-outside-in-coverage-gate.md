@@ -1,6 +1,7 @@
 # 0016 — Enforce coverage from the owning outside-in suites
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6cda4801cae31ebbc8bf35c943b1a4558feccabb
 
 Milestone: 1
 

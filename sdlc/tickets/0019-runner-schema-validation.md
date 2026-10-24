@@ -1,6 +1,7 @@
 # 0019 — Validate every case result against its checked-in schema
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8529543405c5b41067d4ce252bdb534a9233df05
 
 Milestone: 1
 
