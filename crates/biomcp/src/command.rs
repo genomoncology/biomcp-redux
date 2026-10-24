@@ -109,12 +109,7 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
     } else {
         crate::exit::Status::from(result.status)
     };
-    let mut steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    network_steps(&mut steps, &result.sources);
+    let steps = response_steps(&result)?;
     match (request, result.body) {
         (_, QueryBody::UnsupportedFilter { source, option }) => encode(
             biodata::ErrorEnvelope::unsupported_filter(source, option),
@@ -189,6 +184,16 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         }
         _ => Err(io::Error::other("query response mismatch")),
     }
+}
+
+fn response_steps(result: &biomcp_query::Outcome) -> io::Result<Vec<biodata::Step>> {
+    let mut steps = result
+        .next
+        .iter()
+        .map(|(kind, action)| crate::spell::step(*kind, action))
+        .collect::<Result<Vec<_>, _>>()?;
+    network_steps(&mut steps, &result.sources);
+    Ok(steps)
 }
 
 pub(crate) fn tool(

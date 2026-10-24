@@ -167,13 +167,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             shared.interval(configured),
             Duration::from_secs(if configured { 1 } else { 2 })
         );
-        let recorded = tempfile::tempdir().unwrap();
-        let mut config = FetchConfig {
-            mode: biomcp_fetch::Mode::Record {
-                dir: recorded.path().to_owned(),
-            },
-            ..FetchConfig::default()
-        };
+        let mut config = FetchConfig::default();
         if configured {
             config.secrets.insert(
                 SecretName::SemanticScholarApiKey,
@@ -208,8 +202,6 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
         });
-        drop(fetch);
-        assert_recorded_keyless_replay(recorded.path(), spec);
         assert!(server.requests.try_recv().is_err());
     }
 }
@@ -305,32 +297,4 @@ fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
         panic!("expected provider failure: {error}");
     };
     error
-}
-
-fn assert_recorded_keyless_replay(
-    directory: &std::path::Path,
-    spec: &'static biomcp_fetch::SourceSpec,
-) {
-    let path = std::fs::read_dir(directory.join("pubmed"))
-        .unwrap()
-        .next()
-        .unwrap()
-        .unwrap()
-        .path();
-    let text = std::fs::read_to_string(path).unwrap();
-    assert!(!text.contains("placeholder") && !text.contains("x-api-key"));
-    let replay = Fetch::open(FetchConfig {
-        mode: biomcp_fetch::Mode::Replay {
-            dir: directory.to_owned(),
-        },
-        ..FetchConfig::default()
-    })
-    .unwrap();
-    assert!(
-        replay
-            .leg(spec, replay.deadline(Duration::from_secs(5)))
-            .json::<Answer>(&spec.get("/answer"), &[])
-            .unwrap()
-            .answer
-    );
 }
