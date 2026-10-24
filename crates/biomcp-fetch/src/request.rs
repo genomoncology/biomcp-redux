@@ -197,8 +197,20 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
     ) -> Result<T, RequestError> {
+        self.post_json_received_checked(ep, params, body, |_| Ok(()))
+            .map(|(reply, _)| reply)
+    }
+
+    /// Check request-bound JSON POST identity before admission and on cache/replay reads.
+    pub fn post_json_received_checked<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        body: &B,
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, true)?;
-        let codec = Decoder::json();
+        let codec = Decoder::checked_json(&check);
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
             ep.path.to_string()
@@ -211,7 +223,6 @@ impl Leg<'_> {
             Prepared::new(url, body, ep.method, ep.idempotent),
             codec,
         )
-        .map(|(reply, _)| reply)
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {

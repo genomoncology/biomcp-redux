@@ -108,3 +108,6 @@ pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(
 
 // Conservative serial NCI policy; no published numeric quota was established.
 pub(crate) static NCI: Quota = Quota::new(SourceKey::declare("nci"), Rate::per_second(1), None, 1);
+
+// Conservative policy within the documented 100 requests/minute quota.
+pub(crate) static GWAS: Quota = Quota::new(SourceKey::declare("gwas"), Rate::per_second(1), None, 1);

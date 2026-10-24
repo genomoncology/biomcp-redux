@@ -50,3 +50,6 @@ pub mod myvariant;
 /// Explicit keyed NCI native trials.
 pub mod nci;
 pub mod variantvalidator;
+
+/// GWAS Catalog v2 exact rsID associations.
+pub mod gwas;

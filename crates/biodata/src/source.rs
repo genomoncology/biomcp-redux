@@ -59,6 +59,8 @@ canonical_enum! {
         Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
+        /// GWAS Catalog v2.
+        Gwas => "gwas",
         /// gnomAD.
         Gnomad => "gnomad",
         /// ClinGen.
