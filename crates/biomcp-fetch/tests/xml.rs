@@ -32,7 +32,6 @@ impl Reply for Answer {
     }
 }
 fn spec(server: &Server) -> &'static biomcp_fetch::SourceSpec {
-    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
     server.spec(
         Box::leak(Box::new(Quota::new(
             SourceKey::declare("xml"),

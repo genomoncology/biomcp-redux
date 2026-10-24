@@ -28,13 +28,10 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
-            body.content = Section::Unavailable {
-                source: Source::PmcOa,
-                reason: match error {
+            body.content = Section::unavailable(Source::PmcOa, match error {
                     RequestError::Source(e) => e.reason,
                     _ => Reason::Unavailable,
-                },
-            };
+                });
         }
         out.next.push((
             StepKind::Fresh,
@@ -108,10 +105,7 @@ fn execute<'a>(
     }
     out.sources.push(source);
     let content = match result? {
-        None => Section::Unavailable {
-            source: Source::PmcOa,
-            reason: Reason::NotOpen,
-        },
+        None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
             let Some(content) = select(query, id, &document, out) else {
                 out.body = QueryBody::TextPositionError;

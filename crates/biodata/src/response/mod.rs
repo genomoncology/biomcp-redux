@@ -47,3 +47,6 @@ mod article_sections;
 pub use article_sections::{
     AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations,
 };
+
+mod health;
+pub use health::{Health, SourceHealth};

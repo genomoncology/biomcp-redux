@@ -9,18 +9,21 @@ const NESTING: usize = 64;
 pub(crate) enum Codec {
     Json,
     Xml,
+    Probe,
 }
 impl Codec {
     pub(crate) fn name(self) -> &'static str {
         match self {
             Self::Json => "application/json",
             Self::Xml => "application/xml",
+            Self::Probe => "*/*",
         }
     }
     pub(crate) fn accepts(self, media: &str) -> bool {
         let mut parts = media.split(';');
         let name = parts.next().unwrap_or("").trim().to_ascii_lowercase();
         match self {
+            Self::Probe => true,
             Self::Json => {
                 name == self.name() || name.starts_with("application/") && name.ends_with("+json")
             }
@@ -240,3 +243,14 @@ impl MixedText {
 #[cfg(test)]
 #[path = "xml_tests.rs"]
 mod tests;
+
+#[derive(serde::Deserialize)]
+pub(crate) struct Probe;
+impl Reply for Probe {
+    fn check(&self) -> Result<(), crate::BadReply> { Ok(()) }
+}
+impl Decoder<Probe> {
+    pub(crate) fn probe() -> Self {
+        Self { codec: Codec::Probe, octet_stream: false, parse: |_| Some(Probe) }
+    }
+}

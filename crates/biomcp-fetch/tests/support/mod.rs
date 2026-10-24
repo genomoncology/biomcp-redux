@@ -155,7 +155,6 @@ impl<T: Default + Send + 'static> Server<T> {
         request
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
-    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
         Box::leak(Box::new(SourceSpec {
     terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
             source: biodata::Source::PubMed,

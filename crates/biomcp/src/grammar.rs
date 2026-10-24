@@ -88,6 +88,7 @@ fn root() -> Result<Command, ()> {
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
+    root = root.subcommand(Command::new("health"));
     root = root.subcommand(
         Command::new("help")
             .subcommand(
@@ -144,7 +145,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else {
         None
     };
-    let action = if verb == "help" {
+    let action = if verb == "health" {
+        Action::Health
+    } else if verb == "help" {
         Action::KeyHelp
     } else if verb == "sync" {
         Action::Sync {

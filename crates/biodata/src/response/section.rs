@@ -48,3 +48,14 @@ pub enum Section<T> {
     /// Entity facts rule this section out.
     NotApplicable,
 }
+
+impl<T> Section<T> {
+    /// Preserve policy skips when a source cannot supply a requested section.
+    pub fn unavailable(source: Source, reason: Reason) -> Self {
+        if matches!(reason, Reason::Disabled | Reason::NoKey) {
+            Self::Skipped { source, reason }
+        } else {
+            Self::Unavailable { source, reason }
+        }
+    }
+}

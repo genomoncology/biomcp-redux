@@ -22,13 +22,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 Err(failure) => {
                     error = Some(failure);
                     local = local.or(status::local(failure));
-                    Section::Unavailable {
-                        source: Source::ClinGen,
-                        reason: match failure {
+                    Section::unavailable(Source::ClinGen, match failure {
                             RequestError::Source(failure) => failure.reason,
                             _ => Reason::Unavailable,
-                        },
-                    }
+                        })
                 }
             };
             (*id, SectionValue::ClinGen(section))
@@ -42,10 +39,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             .first()
             .map_or(Reason::Unavailable, |e| e.reason);
         for (_, value) in &mut values {
-            *value = SectionValue::ClinGen(Section::Unavailable {
-                source: Source::ClinGen,
-                reason,
-            });
+            *value = SectionValue::ClinGen(Section::unavailable(Source::ClinGen, reason));
         }
     }
     SectionResult {

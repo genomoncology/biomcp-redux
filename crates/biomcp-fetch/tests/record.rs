@@ -21,7 +21,6 @@ fn quota(key: &'static str, rate: u16, in_flight: u8) -> &'static Quota {
     )))
 }
 fn spec(server: &Server) -> &'static SourceSpec {
-    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
     server.spec(quota("record", 1000, 4), KeyUse::None)
 }
 fn fetch(mode: Mode) -> Fetch {

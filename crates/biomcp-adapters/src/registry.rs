@@ -28,3 +28,29 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, ()> {
     }
     Ok(disabled)
 }
+
+/// One bounded read-only endpoint for each implemented source; never a data synchronization.
+/// Paths stay relative to the source declaration, and replies bypass the data cache.
+pub fn probe(spec: &'static SourceSpec, leg: &biomcp_fetch::Leg<'_>) -> Result<(), biomcp_fetch::RequestError> {
+    use biomcp_fetch::Arg;
+    let (path, params) = match spec.source {
+        Source::Hgnc => ("/withdrawn.txt", vec![]),
+        Source::MyGene => ("/metadata", vec![]),
+        Source::Oncokb => ("/info", vec![]),
+        Source::UniProt => ("/uniprotkb/P15056.json", vec![("fields", Arg::Text("accession"))]),
+        Source::Reactome => ("/data/database/version", vec![]),
+        Source::Hpa => ("/ENSG00000157764.json", vec![]),
+        Source::ClinGen => ("/kb/gene-validity/download", vec![]),
+        Source::PubMed => ("/einfo.fcgi", vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))]),
+        Source::EuropePmc => ("/search", vec![("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")), ("format", Arg::Text("json")), ("pageSize", Arg::Num(1))]),
+        Source::PubTator => ("/publications/export/biocjson", vec![("pmids", Arg::Text("17611497"))]),
+        Source::PmcOa => ("/", vec![("list-type", Arg::Num(2)), ("prefix", Arg::Text("PMC5606870.")), ("max-keys", Arg::Num(1))]),
+        Source::Icite => ("/pubs", vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))]),
+        Source::Gnomad | Source::Civic => {
+            let path = if spec.source == Source::Gnomad { "/api" } else { "/api/graphql" };
+            return leg.probe_json(&spec.post_json(path).idempotent(), &serde_json::json!({"query":"{ __typename }"}));
+        }
+        _ => return Err(biomcp_fetch::SourceError { source: spec.source, reason: biodata::Reason::Rejected, status: None, retry_after: None }.into()),
+    };
+    leg.probe(&spec.get(path), &params)
+}

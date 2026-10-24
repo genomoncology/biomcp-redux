@@ -87,7 +87,6 @@ impl Stub {
         }
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
-    terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
         Box::leak(Box::new(SourceSpec {
     terms: biomcp_fetch::Terms { name: "Synthetic test data", url: "https://example.test/terms", usage: biodata::Use::Open },
             source: Source::PubMed,

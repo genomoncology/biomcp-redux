@@ -39,7 +39,7 @@ pub(super) fn search<'a>(
     *deadline = deadline.after_stage(elapsed);
     let failed_pubmed = results
         .iter()
-        .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some());
+        .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some() && r.outcome.reason != Some(biodata::Reason::Disabled));
     let answered = results.iter().any(|r| r.error.is_none());
     let error = results
         .iter()

@@ -57,10 +57,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -
                 values.extend(chunk.iter().map(|id| {
                     (
                         *id,
-                        Section::Unavailable {
-                            source: Source::PubTator,
-                            reason,
-                        },
+                        Section::unavailable(Source::PubTator, reason),
                     )
                 }));
             }

@@ -33,13 +33,10 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
             data: row.counts.clone(),
         }
     } else if let Some((_, error)) = result.failures.iter().find(|(pmid, _)| *pmid == id) {
-        Section::Unavailable {
-            source: Source::Icite,
-            reason: match error {
+        Section::unavailable(Source::Icite, match error {
                 biomcp_fetch::RequestError::Source(error) => error.reason,
                 _ => Reason::Unavailable,
-            },
-        }
+            })
     } else {
         Section::Empty {
             source: Source::Icite,

@@ -84,6 +84,7 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
+        Action::Health => encode(Envelope::new(Status::Complete, (), Some(biomcp_query::health::run(fetch, crate::config::BUDGET).map_err(io::Error::other)?)), crate::exit::Status::Success),
         Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {

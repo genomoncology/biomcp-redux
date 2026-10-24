@@ -71,3 +71,5 @@ mod markdown;
 pub use markdown::Markdown;
 pub use query::ArticleEdges;
 pub use response::{ArticleEdgePage, Citations};
+
+pub use response::{Health, SourceHealth};
