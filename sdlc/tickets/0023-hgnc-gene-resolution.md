@@ -1,6 +1,7 @@
 # 0023 — Resolve gene inputs from the HGNC bundles
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 750515b9811255dc442c598b0a07619163a56c70
 
 Milestone: 1
 
