@@ -208,16 +208,25 @@ fn next_positionals() -> Check {
     for input in [
         vec!["get", "gene", "--offline", "--", "-BRAF"],
         vec!["search", "gene", "--offline", "--", "-BRAF"],
-        vec!["get", "gene", "--offline", "--section", "constraint", "--", "-BRAF"],
-        vec!["get", "gene", "--offline", "--section", "constraint", "constraint"],
+        vec![
+            "get",
+            "gene",
+            "--offline",
+            "--section",
+            "constraint",
+            "--",
+            "-BRAF",
+        ],
+        vec![
+            "get",
+            "gene",
+            "--offline",
+            "--section",
+            "constraint",
+            "constraint",
+        ],
     ] {
-        let original = invoke(
-            &env,
-            input.into_iter()
-                .map(str::to_owned)
-                .collect(),
-            4,
-        )?;
+        let original = invoke(&env, input.into_iter().map(str::to_owned).collect(), 4)?;
         let args = original
             .pointer("/next/0/args")
             .and_then(Value::as_array)
@@ -231,7 +240,9 @@ fn next_positionals() -> Check {
                     .map(str::to_owned)
             })
             .collect::<Result<Vec<_>, _>>()?;
-        if !args.iter().any(|arg| arg == "--fresh") { return Err("fresh policy was lost".into()); }
+        if !args.iter().any(|arg| arg == "--fresh") {
+            return Err("fresh policy was lost".into());
+        }
         args.insert(0, "--offline".into());
         let repeated = invoke(&env, args, 4)?;
         if repeated.get("query") != original.get("query") {
