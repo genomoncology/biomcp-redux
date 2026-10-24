@@ -8,7 +8,7 @@ pub(super) fn section(
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
 ) -> super::components::Result<VariantCosmic> {
-    let Some(candidate) = candidates.first() else { return (Section::NotApplicable, Vec::new(), Vec::new(), None); };
+    let [candidate] = candidates else { return (Section::NotApplicable, Vec::new(), Vec::new(), None); };
     let target = if candidate.source == Source::MyVariant {
         candidate.identity.representations.iter().find_map(|r| r.build)
             .map(|build| (candidate.record.id.to_string(), build))
