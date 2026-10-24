@@ -133,6 +133,8 @@ canonical_enum! {
         Offline => "offline",
         /// A required credential was absent.
         NoKey => "no_key",
+        /// Component terms do not permit this application to offer its values.
+        RestrictedTerms => "restricted_terms",
         /// The source was disabled.
         Disabled => "disabled",
         /// No recording matched the request.
