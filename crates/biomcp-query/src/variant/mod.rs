@@ -1,9 +1,11 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
+mod civic;
 mod components;
 mod conservation;
 mod cosmic;
 mod direct;
+mod hotspots;
 mod predict;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};

@@ -20,7 +20,15 @@ pub(super) fn page(
     for profile in raw.nodes {
         profiles.push(map(profile, query, allele, &mut problems)?);
     }
-    let page = bounds(query.section_offset(), profiles.len(), raw.total_count);
+    let page = bounds(
+        if query.civic_profile().is_some() {
+            0
+        } else {
+            query.section_offset()
+        },
+        profiles.len(),
+        raw.total_count,
+    );
     let next = if query.civic_profile().is_none() && raw.page_info.has_next_page {
         Some(
             query.at_section_offset(
@@ -98,8 +106,20 @@ fn map(
         evidence_count: raw.evidence_items.total_count,
         assertion_count: raw.assertions.total_count,
         statements: statements.into(),
-        evidence_page: claim_page(&raw.evidence_items, query, raw.id, CivicClaimKind::Evidence)?,
-        assertion_page: claim_page(&raw.assertions, query, raw.id, CivicClaimKind::Assertions)?,
+        evidence_page: claim_page(
+            &raw.evidence_items,
+            query,
+            raw.id,
+            CivicClaimKind::Evidence,
+            exact,
+        )?,
+        assertion_page: claim_page(
+            &raw.assertions,
+            query,
+            raw.id,
+            CivicClaimKind::Assertions,
+            exact,
+        )?,
     })
 }
 fn claim_page<T>(
@@ -107,18 +127,20 @@ fn claim_page<T>(
     query: &VariantGet,
     profile: u64,
     kind: CivicClaimKind,
+    exact: bool,
 ) -> Result<CivicClaimPage, RequestError> {
-    let next = if raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0 {
-        Some(
-            query
-                .with_civic_page(profile, kind, raw.page_info.end_cursor.clone())
-                .map_err(|_| failure(Reason::BadReply))?,
-        )
-    } else {
-        None
-    };
+    let next =
+        if exact && (raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0) {
+            Some(
+                query
+                    .with_civic_page(profile, kind, raw.page_info.end_cursor.clone())
+                    .map_err(|_| failure(Reason::BadReply))?,
+            )
+        } else {
+            None
+        };
     Ok(CivicClaimPage {
-        returned: raw.nodes.len() as u32,
+        returned: if exact { raw.nodes.len() as u32 } else { 0 },
         total: raw.total_count,
         next,
     })

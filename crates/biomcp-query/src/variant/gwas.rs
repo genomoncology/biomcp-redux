@@ -2,7 +2,7 @@
 use crate::{Ctx, status};
 use biodata::{
     GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source,
-    SourceOutcome, VariantGet, VariantGwas, VariantHeader, VariantId,
+    VariantGet, VariantGwas, VariantHeader, VariantId,
 };
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, RequestError};
@@ -12,12 +12,7 @@ pub(super) fn section(
     query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
-) -> (
-    Section<VariantGwas>,
-    Vec<SourceOutcome>,
-    Vec<Problem>,
-    Option<RequestError>,
-) {
+) -> super::sections::Result<VariantGwas> {
     let Some(id) = rs_id(query, candidates) else {
         return (
             Section::Unavailable {
