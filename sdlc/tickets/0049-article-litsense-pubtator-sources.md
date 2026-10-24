@@ -20,3 +20,5 @@ Depends on: 0041
 - Defers: PubTator3 entity IDs for diseases and chemicals wait for the disease and drug slices, whose sources resolve those names.
 
 - Reviewed expansion boundary, 2026-10-24: The CC BY-only LitSense reply is an edited subset: mark it synthetic and run unmodified ordering/depth proof outside Git. Best sentence means first in provider order, retaining native rank, without local score sorting. Check PubTator page size/paging before promising 100 results: stop at local bound, terminal pagination or typed source failure; bound repeated cursors and retain actual depth. Specify the no-Entrez gene outcome before constructing normalized gene queries. Claim actual generalized pool/store consumers and preserve single schema ownership.
+
+- PM ruling m4389: a gene without an Entrez ID yields PubTator unavailable with reason no_join_id and no request, following CIViC. It is not a usage error.
