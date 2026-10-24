@@ -135,6 +135,7 @@ fn paging() -> Check {
             );
         }
     }
+    native_duplicates()?;
     join()?;
     Ok(())
 }
@@ -239,6 +240,7 @@ fn sentences() -> Check {
         folded["result"]["items"][1]["sentence"]["text"],
         first["result"]["items"][0]["sentence"]["text"]
     );
+    merged_sentence()?;
     policies()?;
     Ok(())
 }
@@ -308,5 +310,54 @@ fn invalid_sentences(args: &[&str]) -> Check {
             4,
         )?;
     }
+    Ok(())
+}
+
+fn merged_sentence() -> Check {
+    checked_case(
+        "article/litsense/combined",
+        &["search", "article", NONSENSE, "--source", "pubmed,litsense"],
+        |source, record| {
+            if source != "pubmed" || !record["url"].as_str().unwrap().contains("esearch") {
+                return;
+            }
+            let ids = record["exchanges"][0]["body"]["value"]["esearchresult"]["idlist"]
+                .as_array_mut()
+                .unwrap();
+            ids.retain(|id| id != "34718584");
+            ids.insert(0, json!("34718584"));
+            if ids.len() > 9999 {
+                ids.pop();
+            }
+        },
+        json!({"/status":"complete","/result/items/0/pmid":"34718584","/result/items/0/sentence/section":"METHODS","/result/items/0/found_by/pubmed":1,"/result/items/0/found_by/litsense":1}),
+        0,
+    )?;
+    Ok(())
+}
+fn native_duplicates() -> Check {
+    checked_case(
+        "article/pubtator/pubtator-words",
+        &[
+            "search",
+            "article",
+            WORDS,
+            "--source",
+            "pubmed,pubtator",
+            "--disable-sources",
+            "pubmed",
+        ],
+        |source, record| {
+            if source != "pubtator" {
+                return;
+            }
+            let body = &mut record["exchanges"][0]["body"]["value"];
+            if body["current"] == 1 {
+                body["results"][1] = body["results"][0].clone();
+            }
+        },
+        json!({"/status":"partial","/page/total":99,"/sources/1/fetched":100,"/result/items/0/found_by/pubtator":1,"/result/items/1/found_by/pubtator":3}),
+        0,
+    )?;
     Ok(())
 }
