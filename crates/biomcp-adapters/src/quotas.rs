@@ -122,4 +122,5 @@ pub(crate) static HOTSPOTS: Quota =
     Quota::new(SourceKey::declare("hotspots"), Rate::per_second(1), None, 1);
 
 // Conservative policy within the documented 100 requests/minute quota.
-pub(crate) static GWAS: Quota = Quota::new(SourceKey::declare("gwas"), Rate::per_second(1), None, 1);
+pub(crate) static GWAS: Quota =
+    Quota::new(SourceKey::declare("gwas"), Rate::per_second(1), None, 1);

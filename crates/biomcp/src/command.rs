@@ -202,7 +202,9 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
-        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => meta.encode(query, Some(body)),
+        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
+            meta.encode(query, Some(body))
+        }
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),

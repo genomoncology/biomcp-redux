@@ -168,5 +168,8 @@ pub use variant::{
 };
 
 pub use query::VariantPopulationQuery;
-pub use response::{GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation, VariantPopulationResult};
+pub use response::{
+    GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    VariantPopulationResult,
+};
 pub use variant::{PopulationDataType, PopulationFrequency, PopulationSex};

@@ -36,8 +36,26 @@ pub(super) fn apply(
             }
             let candidates = std::slice::from_ref(&*candidate);
             match section {
-                VariantSection::Population => sections.population = Some(retain(permitted(cx, section, || super::population::section(cx, query, candidates, deadline)), &mut sources, &mut problems, &mut local)),
-                VariantSection::Gwas => sections.gwas = Some(retain(permitted(cx, section, || super::gwas::section(cx, query, candidates, deadline)), &mut sources, &mut problems, &mut local)),
+                VariantSection::Population => {
+                    sections.population = Some(retain(
+                        permitted(cx, section, || {
+                            super::population::section(cx, query, candidates, deadline)
+                        }),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
+                VariantSection::Gwas => {
+                    sections.gwas = Some(retain(
+                        permitted(cx, section, || {
+                            super::gwas::section(cx, query, candidates, deadline)
+                        }),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 VariantSection::Civic => {
                     sections.civic = Some(retain(
                         permitted(cx, section, || {

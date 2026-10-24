@@ -113,7 +113,10 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
-        Source::Gwas => ("/associations", vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))]),
+        Source::Gwas => (
+            "/associations",
+            vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))],
+        ),
         Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant => ("/metadata", vec![]),

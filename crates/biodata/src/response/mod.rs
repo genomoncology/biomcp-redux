@@ -107,4 +107,7 @@ mod variant_oncokb;
 pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
 
 mod variant_population;
-pub use variant_population::{GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation, VariantPopulationResult};
+pub use variant_population::{
+    GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    VariantPopulationResult,
+};
