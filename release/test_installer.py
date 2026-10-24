@@ -1,7 +1,6 @@
 """Feature install-script: exercise the actual installer with isolated downloads."""
-from contextlib import contextmanager
-from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from release.artifacts import binary_archive
+from release.local_server import server
 import hashlib
 import io
 import os
@@ -9,29 +8,10 @@ from pathlib import Path
 import subprocess
 import tarfile
 import tempfile
-from threading import Thread
 import unittest
 import zipfile
 
 SCRIPT = Path(__file__).with_name("install.sh").resolve()
-
-
-class QuietHandler(SimpleHTTPRequestHandler):
-    def log_message(self, *_args):
-        pass
-
-
-@contextmanager
-def server(directory):
-    http = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=str(directory)))
-    thread = Thread(target=http.serve_forever, daemon=True)
-    thread.start()
-    try:
-        yield "http://127.0.0.1:" + str(http.server_port)
-    finally:
-        http.shutdown()
-        thread.join()
-        http.server_close()
 
 
 def candidate(directory, name, content=b"#!/bin/sh\necho candidate\n", member=None):
@@ -76,7 +56,17 @@ class Installer(unittest.TestCase):
                 self.platform(system, machine)
                 release = self.root / "releases/download/v1.0.0"
                 release.mkdir(parents=True, exist_ok=True)
-                candidate(release, "biomcp-" + platform + suffix)
+                payload = self.root / "candidate"
+                payload.write_bytes(b"#!/bin/sh\necho candidate\n")
+                payload.chmod(0o755)
+                if platform.startswith("windows"):
+                    tag = "win_amd64"
+                elif platform.startswith("darwin"):
+                    tag = "macosx_11_0_" + platform.removeprefix("darwin-")
+                else:
+                    tag = "manylinux_2_28_" + ("aarch64" if platform.endswith("arm64") else "x86_64")
+                archive = binary_archive(release, payload, tag)
+                self.assertEqual(archive.name, "biomcp-" + platform + suffix)
                 with server(self.root) as base:
                     self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
                     result = self.install("--version", "1.0.0")

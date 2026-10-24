@@ -12,7 +12,7 @@ import zipfile
 
 from artifacts import cargo, inspect
 from smoke import environment, smoke
-from test_installer import server
+from local_server import server
 
 
 def install_wheel(wheel, venv, root, host_python, name="biomcp"):
