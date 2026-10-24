@@ -3,6 +3,8 @@ use biodata::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
 use serde_json::Value;
 use std::{ffi::OsString, io};
+mod next;
+use next::{next_steps, source_steps};
 
 pub(crate) struct Outcome {
     pub(crate) value: Value,
@@ -534,46 +536,6 @@ fn usage_envelope(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 
-fn next_steps(
-    fetch: &biomcp_fetch::Fetch,
-    result: &biomcp_query::Outcome,
-) -> io::Result<Vec<biodata::Step>> {
-    let mut steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    network_steps(&mut steps, &result.sources);
-    Ok(source_steps(fetch, steps))
-}
-
-fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
-    let disabled = biomcp_adapters::registry::SOURCES
-        .iter()
-        .filter(|s| fetch.disabled(s.source))
-        .map(|s| s.source.to_string())
-        .collect::<Vec<_>>()
-        .join(",");
-    if disabled.is_empty() {
-        return steps;
-    }
-    steps
-        .into_iter()
-        .map(|mut step| {
-            let mut args = step.args.into_vec();
-            args.splice(
-                0..0,
-                [
-                    "--disable-sources".into(),
-                    disabled.clone().into_boxed_str(),
-                ],
-            );
-            step.args = args.into();
-            step
-        })
-        .collect()
-}
-
 fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
     match biomcp_query::health::run(fetch, crate::config::BUDGET) {
         Ok(result) => encode(
@@ -582,24 +544,6 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
         ),
         Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
     }
-}
-
-fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
-    for (reason, setting) in [
-        (biodata::Reason::Tls, "ca_bundle"),
-        (biodata::Reason::Proxy, "proxy"),
-    ] {
-        if sources.iter().any(|source| source.reason == Some(reason)) {
-            steps.insert(
-                0,
-                biodata::Step {
-                    kind: biodata::StepKind::Configure,
-                    args: vec!["help".into(), "network".into(), setting.into()].into(),
-                },
-            );
-        }
-    }
-    steps.truncate(5);
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
