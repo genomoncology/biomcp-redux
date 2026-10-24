@@ -96,7 +96,9 @@ fn create<'a>(
     if query.source() == biodata::EdgeSource::SemanticScholar {
         return super::semantic_edges::create(cx, query, references, deadline, out);
     }
-    let Some(pmid) = query.pmid() else { return Ok(None); };
+    let Some(pmid) = query.pmid() else {
+        return Ok(None);
+    };
     let parent = order::fetch(cx, deadline, &[pmid]);
     out.sources.push(parent.source);
     if let Some(error) = parent.local {
@@ -136,7 +138,10 @@ fn create<'a>(
             key: ArticleKey::Pubmed(id),
             pmid: Some(id),
             header: None,
-            cited_by: None, intents: None, influential: None, contexts: None,
+            cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
             found_by: Default::default(),
         })
         .collect();

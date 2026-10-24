@@ -97,7 +97,8 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: None,
                 code: ErrorCode::SchemaUsage,
                 message: ErrorMessage::SchemaUsage,
@@ -114,7 +115,8 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: None,
                 code: ErrorCode::Retired,
                 message,
@@ -128,7 +130,8 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: None,
                 code: ErrorCode::Arguments,
                 message: ErrorMessage::Arguments,
@@ -142,7 +145,8 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Local,
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: None,
                 code: ErrorCode::Local,
                 message: ErrorMessage::Local,
@@ -162,7 +166,8 @@ impl ErrorEnvelope {
                 ErrorStatus::Expired
             },
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: None,
                 code: if mismatch {
                     ErrorCode::PoolMismatch
@@ -187,7 +192,8 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
-                source: None, option: None,
+                source: None,
+                option: None,
                 count: Some(count),
                 code: ErrorCode::TooManyPmids,
                 message: ErrorMessage::TooManyPmids,

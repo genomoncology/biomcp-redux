@@ -1,4 +1,6 @@
-use biodata::{ArticleHeader, ArticleItem, ArticleKey, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biodata::{
+    ArticleHeader, ArticleItem, ArticleKey, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text,
+};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
 const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));
@@ -50,7 +52,9 @@ pub struct Author {
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 100 || self.data.len() as u64 > self.total { return Err(BadReply); }
+        if self.data.len() > 100 || self.data.len() as u64 > self.total {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }
@@ -59,9 +63,14 @@ pub fn search(leg: &Leg<'_>, term: &str, year: Option<&str>) -> Result<Search, R
     let mut args = vec![
         ("query", Arg::Text(term)),
         ("limit", Arg::Num(100)),
-        ("fields", Arg::Text("externalIds,title,venue,year,publicationDate,authors")),
+        (
+            "fields",
+            Arg::Text("externalIds,title,venue,year,publicationDate,authors"),
+        ),
     ];
-    if let Some(year) = year { args.push(("year", Arg::Text(year))); }
+    if let Some(year) = year {
+        args.push(("year", Arg::Text(year)));
+    }
     leg.json(&SEARCH, &args)
 }
 impl Paper {
@@ -71,18 +80,43 @@ impl Paper {
         let pmid = ids.as_ref().and_then(|v| v.pubmed);
         let pmcid = ids.as_ref().and_then(|v| v.pmc);
         let doi = ids.and_then(|v| v.doi);
-        let key = if let Some(id) = pmid { ArticleKey::Pubmed(id) }
-            else if let Some(id) = pmcid { ArticleKey::Pmc(id) }
-            else if let Some(id) = doi.clone() { ArticleKey::Doi(id) }
-            else { ArticleKey::SemanticScholar(self.paper_id) };
+        let key = if let Some(id) = pmid {
+            ArticleKey::Pubmed(id)
+        } else if let Some(id) = pmcid {
+            ArticleKey::Pmc(id)
+        } else if let Some(id) = doi.clone() {
+            ArticleKey::Doi(id)
+        } else {
+            ArticleKey::SemanticScholar(self.paper_id)
+        };
         let header = self.title.map(|title| ArticleHeader {
-            pmid, pmcid, doi, europepmc_id: None, title,
+            pmid,
+            pmcid,
+            doi,
+            europepmc_id: None,
+            title,
             journal: self.venue,
-            date: self.publication_date.or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
-            types: Box::default(), types_unknown: true,
-            first_author: self.authors.as_ref().and_then(|a| a.first()).map(|a| a.name.clone()),
+            date: self
+                .publication_date
+                .or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
+            types: Box::default(),
+            types_unknown: true,
+            first_author: self
+                .authors
+                .as_ref()
+                .and_then(|a| a.first())
+                .map(|a| a.name.clone()),
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
-        ArticleItem { key, pmid, header, cited_by: None, intents: None, influential: None, contexts: None, found_by: Default::default() }
+        ArticleItem {
+            key,
+            pmid,
+            header,
+            cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
+            found_by: Default::default(),
+        }
     }
 }

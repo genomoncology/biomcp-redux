@@ -39,7 +39,9 @@ fn limit() -> u32 {
 impl TryFrom<Fields> for ArticleEdges {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&v.limit) || (v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_))) {
+        if !(1..=50).contains(&v.limit)
+            || (v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_)))
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -58,14 +60,26 @@ impl ArticleEdges {
     }
     /// Parent paper.
     pub fn pmid(&self) -> Option<Pmid> {
-        if let ArticleInput::Pmid(id) = self.0.pmid { Some(id) } else { None }
+        if let ArticleInput::Pmid(id) = self.0.pmid {
+            Some(id)
+        } else {
+            None
+        }
     }
     /// Checked article identity for the selected provider.
-    pub fn input(&self) -> &ArticleInput { &self.0.pmid }
+    pub fn input(&self) -> &ArticleInput {
+        &self.0.pmid
+    }
     /// Graph provider.
-    pub fn source(&self) -> EdgeSource { self.0.source }
+    pub fn source(&self) -> EdgeSource {
+        self.0.source
+    }
     /// Select another graph provider and restart its pool.
-    pub fn sourced(&self, source: EdgeSource) -> Self { let mut q=self.page(0,None); q.0.source=source; q }
+    pub fn sourced(&self, source: EdgeSource) -> Self {
+        let mut q = self.page(0, None);
+        q.0.source = source;
+        q
+    }
     /// Page length.
     pub fn limit(&self) -> u32 {
         self.0.limit
@@ -87,7 +101,9 @@ impl ArticleEdges {
     }
     /// Canonical selectors for one edge direction.
     pub fn identity(&self) -> Self {
-        let mut q=self.page(0,None); q.0.limit=limit(); q
+        let mut q = self.page(0, None);
+        q.0.limit = limit();
+        q
     }
 }
 

@@ -23,15 +23,29 @@ pub struct Summary {
     pub model: Text,
 }
 impl Reply for PaperSummary {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 impl PaperSummary {
     /// Preserve missing counts independently from an available summary.
     pub fn section(self) -> biodata::Section<Tldr> {
-        self.tldr.map_or(biodata::Section::Empty { source: biodata::Source::SemanticScholar, record: None }, |summary| biodata::Section::Data {
-            source: biodata::Source::SemanticScholar, data: Tldr { text: summary.text, model: summary.model, machine_written: true,
-                cited_by: self.citation_count, influential_cited_by: self.influential_citation_count }
-        })
+        self.tldr.map_or(
+            biodata::Section::Empty {
+                source: biodata::Source::SemanticScholar,
+                record: None,
+            },
+            |summary| biodata::Section::Data {
+                source: biodata::Source::SemanticScholar,
+                data: Tldr {
+                    text: summary.text,
+                    model: summary.model,
+                    machine_written: true,
+                    cited_by: self.citation_count,
+                    influential_cited_by: self.influential_citation_count,
+                },
+            },
+        )
     }
 }
 fn paper(input: &ArticleInput) -> Result<Endpoint, RequestError> {
@@ -40,13 +54,18 @@ fn paper(input: &ArticleInput) -> Result<Endpoint, RequestError> {
         ArticleInput::Pmcid(id) => format!("PMCID:{id}"),
         ArticleInput::Doi(id) => format!("DOI:{id}"),
     };
-    let parts = value.split('/').map(PathSegment::new).collect::<Result<Vec<_>, _>>()
-        .map_err(RequestError::Input)?;
-    Ok(PAPER.clone().with_segments(&parts))
+    let part = PathSegment::new(&value).map_err(RequestError::Input)?;
+    Ok(PAPER.clone().with_segments(&[part]))
 }
 /// Read the summary under the shared optional-key source declaration.
 pub fn summary(leg: &Leg<'_>, input: &ArticleInput) -> Result<PaperSummary, RequestError> {
-    leg.json(&paper(input)?, &[("fields", Arg::Text("tldr,citationCount,influentialCitationCount"))])
+    leg.json(
+        &paper(input)?,
+        &[(
+            "fields",
+            Arg::Text("tldr,citationCount,influentialCitationCount"),
+        )],
+    )
 }
 /// One source graph page; `next` is a provider offset, never a client guess.
 #[derive(Debug, Deserialize)]
@@ -73,7 +92,12 @@ pub struct Edge {
 }
 impl Reply for Edges {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 1000 || self.data.iter().any(|e| e.citing_paper.is_some() == e.cited_paper.is_some()) {
+        if self.data.len() > 1000
+            || self
+                .data
+                .iter()
+                .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
+        {
             return Err(BadReply);
         }
         Ok(())
@@ -82,7 +106,13 @@ impl Reply for Edges {
 impl Edge {
     /// Keep the selected direction's paper and first whole context.
     pub fn item(self, references: bool) -> Result<biodata::ArticleEdgeItem, BadReply> {
-        let mut item = if references { self.cited_paper } else { self.citing_paper }.ok_or(BadReply)?.item();
+        let mut item = if references {
+            self.cited_paper
+        } else {
+            self.citing_paper
+        }
+        .ok_or(BadReply)?
+        .item();
         item.intents = self.intents;
         item.influential = self.is_influential;
         item.contexts = self.contexts.map(|contexts| Capped {
@@ -93,10 +123,28 @@ impl Edge {
     }
 }
 /// Read at most one thousand edges without sorting the provider's rows.
-pub fn edges(leg: &Leg<'_>, input: &ArticleInput, references: bool, offset: Option<u32>) -> Result<Edges, RequestError> {
-    let suffix = PathSegment::new(if references { "references" } else { "citations" }).map_err(RequestError::Input)?;
+pub fn edges(
+    leg: &Leg<'_>,
+    input: &ArticleInput,
+    references: bool,
+    offset: Option<u32>,
+) -> Result<Edges, RequestError> {
+    let suffix = PathSegment::new(if references {
+        "references"
+    } else {
+        "citations"
+    })
+    .map_err(RequestError::Input)?;
     let endpoint = paper(input)?.with_segments(&[suffix]);
-    let mut args = vec![("limit", Arg::Num(1000)), ("fields", Arg::Text("contexts,intents,isInfluential,externalIds,title,year"))];
-    if let Some(offset) = offset { args.push(("offset", Arg::Num(u64::from(offset)))); }
+    let mut args = vec![
+        ("limit", Arg::Num(1000)),
+        (
+            "fields",
+            Arg::Text("contexts,intents,isInfluential,externalIds,title,year"),
+        ),
+    ];
+    if let Some(offset) = offset {
+        args.push(("offset", Arg::Num(u64::from(offset))));
+    }
     leg.json(&endpoint, &args)
 }

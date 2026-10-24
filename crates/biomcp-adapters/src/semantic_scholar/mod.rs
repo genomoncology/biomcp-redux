@@ -18,4 +18,4 @@ mod search;
 pub use search::{Paper, Search, search};
 
 mod graph;
-pub use graph::{Edges, Edge, PaperSummary, edges, summary};
+pub use graph::{Edge, Edges, PaperSummary, edges, summary};

@@ -58,7 +58,11 @@ impl Rate {
     /// A zero interval fails during construction, including constant evaluation.
     pub const fn every_seconds(seconds: u16) -> Self {
         assert!(seconds > 0, "zero rate interval");
-        Self { per_second: 1, seconds, burst: 1 }
+        Self {
+            per_second: 1,
+            seconds,
+            burst: 1,
+        }
     }
 
     /// Declare a rate and burst allowance.
@@ -67,7 +71,11 @@ impl Rate {
     /// Zero rates or bursts fail during construction, including constant evaluation.
     pub const fn new(per_second: u16, burst: u16) -> Self {
         assert!(per_second > 0 && burst > 0, "zero rate or burst");
-        Self { per_second, seconds: 1, burst }
+        Self {
+            per_second,
+            seconds: 1,
+            burst,
+        }
     }
 }
 

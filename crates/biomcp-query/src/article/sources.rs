@@ -31,7 +31,9 @@ pub(super) fn search<'a>(
                 Box::new(move || match selector {
                     ArticleSource::Pubmed => pubmed_search(cx, query, pubmed_term, start),
                     ArticleSource::Europepmc => europe_search(cx, query, epmc_term, start),
-                    ArticleSource::SemanticScholar => super::semantic_scholar::search(cx, query, start),
+                    ArticleSource::SemanticScholar => {
+                        super::semantic_scholar::search(cx, query, start)
+                    }
                 }) as Box<dyn FnOnce() -> ResultLeg + Send>
             })
             .collect(),
@@ -85,7 +87,10 @@ fn pubmed_search<'a>(
                     key: ArticleKey::Pubmed(id),
                     pmid: Some(id),
                     header: None,
-                    cited_by: None, intents: None, influential: None, contexts: None,
+                    cited_by: None,
+                    intents: None,
+                    influential: None,
+                    contexts: None,
                     found_by: Default::default(),
                 })
                 .collect()

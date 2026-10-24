@@ -36,8 +36,13 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             StepKind::Disambiguate,
             Request::ArticleCitations(biodata::ArticleEdges::new(id)),
         );
-        push(&mut out.next, StepKind::Disambiguate,
-            Request::ArticleCitations(biodata::ArticleEdges::new(id).sourced(biodata::EdgeSource::SemanticScholar)));
+        push(
+            &mut out.next,
+            StepKind::Disambiguate,
+            Request::ArticleCitations(
+                biodata::ArticleEdges::new(id).sourced(biodata::EdgeSource::SemanticScholar),
+            ),
+        );
     }
 }
 fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {

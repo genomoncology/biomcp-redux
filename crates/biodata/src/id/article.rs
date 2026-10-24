@@ -132,6 +132,8 @@ impl FromStr for SemanticScholarId {
     }
 }
 impl fmt::Display for SemanticScholarId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 text_value!(SemanticScholarId, "SemanticScholarId", r"^[a-f0-9]{40}$");

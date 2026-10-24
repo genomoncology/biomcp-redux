@@ -88,7 +88,11 @@ fn root() -> Result<Command, ()> {
     root = root.subcommand(
         Command::new("help")
             .subcommand(
-                Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb", "semantic-scholar"])),
+                Command::new("key").arg(
+                    Arg::new("source")
+                        .required(true)
+                        .value_parser(["oncokb", "semantic-scholar"]),
+                ),
             )
             .subcommand(
                 Command::new("get")
@@ -141,8 +145,11 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         None
     };
     let action = if verb == "help" {
-        let source = matches.subcommand().and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biodata::Source::Oncokb), |s| s.parse()).map_err(|_| ())?;
+        let source = matches
+            .subcommand()
+            .and_then(|(_, m)| m.get_one::<String>("source"))
+            .map_or(Ok(biodata::Source::Oncokb), |s| s.parse())
+            .map_err(|_| ())?;
         Action::KeyHelp(source)
     } else if verb == "sync" {
         Action::Sync {

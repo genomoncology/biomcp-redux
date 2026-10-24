@@ -145,7 +145,10 @@ impl Row {
             key,
             pmid,
             header,
-            cited_by: None, intents: None, influential: None, contexts: None,
+            cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
             found_by: Default::default(),
         })
     }
