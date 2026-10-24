@@ -1,6 +1,7 @@
 # 0063 — Measure coverage from the cases and cap test file length
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 80705648acb7647146ba7df8b9f248c91cb3424d
 
 Milestone: 1
 
