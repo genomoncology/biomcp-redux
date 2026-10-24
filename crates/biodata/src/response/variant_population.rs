@@ -1,4 +1,4 @@
-use crate::{Build, FiniteNumber, PopulationFrequency, Text, VariantId};
+use crate::{Build, FiniteNumber, PopulationDataType, PopulationSex, Text, VariantId};
 use serde::{Deserialize, Serialize};
 /// Bounded population summary with independent optional sequencing datasets.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -13,10 +13,34 @@ pub struct VariantPopulation {
     pub build: Build,
     /// Exome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub exome: Option<Box<PopulationFrequency>>,
+    pub exome: Option<Box<GnomadCounts>>,
     /// Genome observation; omitted when the source dataset is null.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub genome: Option<Box<PopulationFrequency>>,
+    pub genome: Option<Box<GnomadCounts>>,
+}
+/// Native gnomAD counts retained when a dataset release cannot be established.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GnomadCounts {
+    /// Source sequencing sample set.
+    pub data_type: PopulationDataType,
+    /// Complete native group ID, including its source sex suffix when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub group_id: Option<Text>,
+    /// Source ancestry code decoded only by the documented source grammar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ancestry_group: Option<Text>,
+    /// Source sex stratum decoded only by the documented source grammar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sex: Option<PopulationSex>,
+    /// Native allele count, including reported zero.
+    pub ac: u64,
+    /// Native allele denominator.
+    pub an: u64,
+    /// Native source filters, never converted to a classification.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub filters: Box<[Text]>,
 }
 /// One page of exact rsID catalog associations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -86,7 +110,7 @@ pub struct VariantPopulationResult {
     pub population: crate::Section<VariantPopulation>,
     /// Selected native groups, qualified by sequencing subset.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub groups: Box<[PopulationFrequency]>,
+    pub groups: Box<[GnomadCounts]>,
 }
 impl super::ResponseBody for VariantPopulationResult {
     const SCHEMA: &'static str = "biomcp.variant_population/1";

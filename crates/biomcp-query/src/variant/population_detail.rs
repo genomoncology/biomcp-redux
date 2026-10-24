@@ -1,7 +1,7 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
-    PageInfo, PopulationDataType, PopulationFrequency, QueryBody, Reason, Request, Section, Source,
+    GnomadCounts, PageInfo, PopulationDataType, QueryBody, Reason, Request, Section, Source,
     Status, StepKind, VariantPopulationQuery, VariantPopulationResult,
 };
 use biomcp_adapters::gnomad;
@@ -36,7 +36,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Vec::new()
     };
     let status = match population {
-        Section::Data { .. } => Status::Complete,
+        Section::Data { .. } if problems.is_empty() => Status::Complete,
+        Section::Data { .. } => Status::Partial,
         Section::Empty { .. } => Status::Absent,
         _ => Status::Failed,
     };
@@ -54,7 +55,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
 }
 type PopulationRead = (
     Section<biodata::VariantPopulation>,
-    Vec<PopulationFrequency>,
+    Vec<GnomadCounts>,
     Vec<biodata::SourceOutcome>,
     Vec<biodata::Problem>,
     Option<RequestError>,
@@ -100,7 +101,7 @@ fn read(
             );
         }
     }
-    let Some((id, subject)) = super::population::join(&rows) else {
+    let Some(id) = super::population::join(&rows) else {
         problems.push(biodata::Problem {
             source: Source::Gnomad,
             record: None,
@@ -118,7 +119,8 @@ fn read(
             local,
         );
     };
-    let (section, groups, source, error) = load(cx, query, &id, &subject, deadline);
+    let (section, groups, source, error) = load(cx, query, &id, deadline);
+    problems.extend(projection_problems(&section, &groups));
     sources.push(source);
     (section, groups, sources, problems, local.or(error))
 }
@@ -126,11 +128,10 @@ fn load(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     id: &str,
-    subject: &biodata::VariantRef,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> (
     Section<biodata::VariantPopulation>,
-    Vec<PopulationFrequency>,
+    Vec<GnomadCounts>,
     biodata::SourceOutcome,
     Option<RequestError>,
 ) {
@@ -138,9 +139,9 @@ fn load(
     let mut groups = Vec::new();
     let result = gnomad::variant::population(&leg, id).and_then(|raw| {
         raw.map(|raw| {
-            let summary = super::population::summary(&raw, subject)?;
+            let summary = super::population::summary(&raw)?;
             if query.detail() {
-                groups = ancestry(&raw, subject)?;
+                groups = ancestry(&raw);
             }
             Ok(summary)
         })
@@ -168,28 +169,38 @@ fn load(
     (section, groups, source, error.and_then(status::local))
 }
 
-fn ancestry(
-    raw: &gnomad::variant::Variant,
-    subject: &biodata::VariantRef,
-) -> Result<Vec<PopulationFrequency>, RequestError> {
+fn ancestry(raw: &gnomad::variant::Variant) -> Vec<GnomadCounts> {
     let mut groups = Vec::new();
-    for (subset, data) in [
+    for (data_type, data) in [
         (PopulationDataType::Exomes, &raw.exome),
         (PopulationDataType::Genomes, &raw.genome),
     ] {
         if let Some(data) = data {
             for group in &data.populations {
-                groups.push(super::population::observation(
-                    &raw.variant_id,
-                    subject,
-                    subset,
-                    Some(group.id.clone()),
-                    group.ac,
-                    group.an,
-                    &data.filters,
-                )?);
+                groups.push(super::population::counts(data, data_type, Some(group)));
             }
         }
     }
-    Ok(groups)
+    groups
+}
+
+fn projection_problems(
+    section: &Section<biodata::VariantPopulation>,
+    groups: &[GnomadCounts],
+) -> Vec<biodata::Problem> {
+    let mut problems = Vec::new();
+    if let Section::Data { data, .. } = &section {
+        problems.push(super::population::release_unknown(&data.variant));
+        for group in &groups {
+            if group.group_id.is_some() && group.ancestry_group.is_none() && group.sex.is_none() {
+                problems.push(biodata::Problem {
+                    source: Source::Gnomad,
+                    record: group.group_id.clone(),
+                    field: "population_group".into(),
+                    code: biodata::ProblemCode::ValueUnknown,
+                });
+            }
+        }
+    }
+    problems
 }

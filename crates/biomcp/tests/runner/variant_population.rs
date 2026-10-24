@@ -82,8 +82,12 @@ fn population() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
     if !out.status.success()
-        || value.pointer("/result/population/data/exome/allele_count") != Some(&json!(2))
-        || value.pointer("/result/population/data/exome/allele_number") != Some(&json!(1460618))
+        || value.pointer("/result/population/data/exome/ac") != Some(&json!(2))
+        || value.pointer("/result/population/data/exome/an") != Some(&json!(1460618))
+        || value.pointer("/problems/0/field") != Some(&json!("dataset_version"))
+        || value
+            .pointer("/result/population/data/exome/subject")
+            .is_some()
         || value.pointer("/result/population/data/genome").is_some()
         || value
             .pointer("/result/population/data/exome/allele_frequency")

@@ -156,7 +156,7 @@ pub use response::VariantPage;
 
 pub use query::{VariantPopulationQuery, VariantSection};
 pub use response::{
-    GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
     VariantPopulationResult, VariantSections,
 };
 pub use variant::{
