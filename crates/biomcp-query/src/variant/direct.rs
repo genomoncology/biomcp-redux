@@ -84,6 +84,7 @@ pub(super) fn get(
     } else {
         Status::Complete
     };
+    let next = super::next(query, VariantResolution::Unresolved, &candidates, None);
     Outcome {
         status,
         body: QueryBody::VariantCard(VariantCard {
@@ -95,7 +96,7 @@ pub(super) fn get(
         page: None,
         sources,
         problems,
-        next: Vec::new(),
+        next,
         local,
     }
 }

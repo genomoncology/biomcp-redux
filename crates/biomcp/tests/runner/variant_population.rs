@@ -15,6 +15,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/population-unpadded-indel-is-unjoinable", || {
             unjoinable().map_err(Into::into)
         }),
+        Trial::test("variant/gwas-native-pages-preserve-effects", || {
+            gwas_walk().map_err(Into::into)
+        }),
         Trial::test("variant/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
@@ -203,4 +206,72 @@ fn indel_body(request: &str) -> Result<String, String> {
     body["genomicAlleles"][0]["coordinates"] =
         json!([{"start":140753336,"end":140753336,"referenceAllele":"","allele":"T"}]);
     Ok(body.to_string())
+}
+
+fn gwas_walk() -> Result<(), String> {
+    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", gwas_page)?;
+    let env = environment(&stub)?;
+    let mut args = [
+        "get",
+        "variant",
+        "rs113488022",
+        "gwas",
+        "--section-limit",
+        "2",
+    ]
+    .map(String::from)
+    .to_vec();
+    let mut ids = Vec::new();
+    for page in 0..2 {
+        let out = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
+        let data = value
+            .pointer("/result/candidates/0/sections/gwas/data")
+            .ok_or_else(|| format!("catalog data absent: {value}"))?;
+        if data.pointer("/page/offset") != Some(&json!(page * 2))
+            || data.pointer("/page/total") != Some(&json!(3))
+        {
+            return Err(format!("source catalog bounds lost: {value}"));
+        }
+        for row in data["associations"]
+            .as_array()
+            .ok_or("associations absent")?
+        {
+            if row.get("beta") != Some(&json!("0.036833 kg decrease"))
+                || row.pointer("/alleles/0/allele") != Some(&json!("T"))
+                || row.pointer("/ontology_traits/0/id") != Some(&json!("EFO_0004344"))
+            {
+                return Err(format!("source association effect/trait changed: {row}"));
+            }
+            ids.push(row["id"].clone());
+        }
+        if page == 0 {
+            args = serde_json::from_value(
+                value
+                    .pointer("/next/0/args")
+                    .cloned()
+                    .ok_or("catalog next command absent")?,
+            )
+            .map_err(|e| e.to_string())?;
+        } else if value.get("next").is_some() {
+            return Err("catalog walk created a third page".into());
+        }
+    }
+    if ids != [json!(101), json!(102), json!(103)] || stub.finish()?.len() != 2 {
+        return Err(
+            "catalog walk duplicated/dropped source rows or made extra source requests".into(),
+        );
+    }
+    Ok(())
+}
+fn gwas_page(request: &str) -> Result<String, String> {
+    // Synthetic response-only associations exercise the source v2 schema and native page order.
+    let second = request.contains("&page=1&");
+    let ids = if second { vec![103] } else { vec![101, 102] };
+    let rows:Vec<_>=ids.into_iter().map(|id|json!({"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344","efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":4e-10,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]","pubmed_id":"40210729"})).collect();
+    let number = if second { 1 } else { 0 };
+    Ok(json!({"_embedded":{"associations":rows},"_links":{"self":{"href":format!("https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page={number}&size=2")}},"page":{"size":2,"totalElements":3,"totalPages":2,"number":number}}).to_string())
 }
