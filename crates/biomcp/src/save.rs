@@ -1,4 +1,5 @@
 //! Atomic explicit file saves shared by download commands. No saved-file registry exists.
+pub(crate) mod article;
 use sha2::{Digest, Sha256};
 use std::{
     fs,
