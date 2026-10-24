@@ -65,12 +65,11 @@ pub struct RecurrenceTerms {
 
 crate::macros::wire_enum! {
     /// Source fields required for a recurrence observation.
+    #[derive(Default)]
     RecurrenceGranularity {
         /// Source build, chromosome, genomic bounds, reference and alternate all agree.
+        #[default]
         ExactGenomicAllele => "exact_genomic_allele",
     }
 }
 
-impl Default for RecurrenceGranularity {
-    fn default() -> Self { Self::ExactGenomicAllele }
-}
