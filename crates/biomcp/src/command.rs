@@ -174,7 +174,6 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
                 .and_then(|complete| {
                     let withdrawn = biomcp_adapters::hgnc::sync(
-                        ncbi_email: crate::config::ncbi_email().map_err(|()|io::Error::other("local configuration failed"))?,
                     fetch,
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
