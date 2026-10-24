@@ -13,6 +13,7 @@
         "tldr",
         "citations",
         "indexing",
+        "pdf",
         "all"
       ],
       "type": "string",
@@ -23,6 +24,7 @@
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
+        " Publisher PDF link without downloading.",
         " Every landed article section."
       ]
     },
@@ -144,6 +146,36 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Save a publisher PDF to an explicit destination.",
+      "properties": {
+        "command": {
+          "const": "article_pdf",
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "Article identity.",
+          "x-positional": 0
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Destination file or existing folder."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "save"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Read source citation evidence.",

@@ -17,6 +17,28 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
+        if item.sections.as_ref().is_some_and(|s| {
+            matches!(
+                s.fulltext,
+                Some(
+                    biodata::Section::NotApplicable
+                        | biodata::Section::Unavailable {
+                            reason: biodata::Reason::NotOpen,
+                            ..
+                        }
+                )
+            )
+        }) && let Some(input) = card
+            .pmid
+            .map(ArticleInput::Pmid)
+            .or_else(|| card.doi.clone().map(ArticleInput::Doi))
+            && let Ok(query) = ArticleGet::with_sections(
+                vec![input].into(),
+                vec![biodata::ArticleSectionWord::Pdf].into(),
+            )
+        {
+            push(&mut out.next, StepKind::Section, Request::GetArticle(query));
+        }
         let input = card
             .pmid
             .map(ArticleInput::Pmid)

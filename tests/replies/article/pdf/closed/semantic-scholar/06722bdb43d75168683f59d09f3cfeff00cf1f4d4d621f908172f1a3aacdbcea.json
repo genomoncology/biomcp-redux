@@ -1,0 +1,24 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A17611497?fields=openAccessPdf",
+  "exchanges": [
+    {
+      "fetched": 1792858367,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 179,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "openAccessPdf": {
+            "url": "",
+            "status": "CLOSED",
+            "license": null
+          }
+        }
+      }
+    }
+  ]
+}

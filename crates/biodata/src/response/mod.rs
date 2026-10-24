@@ -1,4 +1,5 @@
 mod article;
+pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,

@@ -33,6 +33,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticlePdf(_) => "biodata.article-pdf/1",
         Request::ArticleEvidence(_) => "biodata.article-evidence/1",
         Request::ArticleRecommend(_) => "biodata.article-recommend/1",
         Request::ArticleSupplement(_) => "biodata.article-supplement/1",
@@ -50,6 +51,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/2"),
     ("article", "supplement", "biodata.article-supplement/1"),
+    ("article", "pdf", "biodata.article-pdf/1"),
     ("article", "text", "biodata.article-text/2"),
     ("article", "citations", "biodata.article-edges/2"),
     ("article", "references", "biodata.article-edges/2"),
@@ -438,6 +440,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value)
+            .map(Request::ArticlePdf)
+            .map_err(|_| ()),
         ("article", "citation-evidence") => {
             serde_json::from_value::<biodata::ArticleEvidence>(value)
                 .map(Request::ArticleEvidence)

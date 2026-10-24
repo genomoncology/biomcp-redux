@@ -63,7 +63,11 @@ impl Leg<'_> {
         let ep = ep.clone().fresh(crate::Freshness::Never);
         self.validate(&ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         self.send(
             &ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
@@ -117,7 +121,11 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, false)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         let (url, body) = if ep.method == Method::Get {
             (
                 crate::retry::canonical(&url, params, self.spec.key),
@@ -182,7 +190,11 @@ impl Leg<'_> {
         self.validate(ep, true)?;
         let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = if ep.publisher {
+            ep.path.to_string()
+        } else {
+            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
+        };
         let url = crate::retry::canonical(&url, params, self.spec.key);
         self.send(
             ep,
@@ -212,6 +224,20 @@ impl Leg<'_> {
         if (ep.method == Method::Json) != json_body {
             return Err(InputError::Method.into());
         }
+        if ep.publisher {
+            let uri = ep
+                .path
+                .parse::<ureq::http::Uri>()
+                .map_err(|_| InputError::Path)?;
+            if self
+                .fetch
+                .config
+                .network
+                .requires_proxy(self.fetch.config.proxy.is_some(), &uri)
+            {
+                return Err(self.failure(Reason::Proxy, None).into());
+            }
+        }
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
@@ -224,6 +250,7 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
+        prepared.publisher = ep.publisher;
         let codec = codec.octet_stream(ep.octet_stream);
         let keyed = self.keyed();
         let (reply, fetched) =
@@ -340,6 +367,9 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        if prepared.publisher {
+            return self.publisher_call(&prepared.url, accept);
+        }
         let agent = self.fetch.agents.for_url(
             &self.fetch.config.network,
             self.fetch.config.proxy.is_some(),
@@ -395,7 +425,13 @@ impl Leg<'_> {
                 prepared.post.as_ref(),
                 codec.limit.unwrap_or(self.fetch.config.max_body),
             )
-            .map_err(local)?
+            .map_err(|error| {
+                if codec.limit.is_some() && error == crate::RecordError::Limit {
+                    Failure::Local(self.failure(Reason::BadReply, None).into())
+                } else {
+                    local(error)
+                }
+            })?
         {
             if !self
                 .budget()

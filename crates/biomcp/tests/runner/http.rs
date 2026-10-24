@@ -82,15 +82,23 @@ impl Server {
         &self._environment
     }
     pub(super) fn keys(config: Value, key: Option<&str>) -> Result<Self, String> {
-        Self::configured_key("127.0.0.1:0", Some(config), false, key)
+        Self::configured_key("127.0.0.1:0", Some(config), None, key)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
-        Self::configured_key(bind, config, replay, None)
+        Self::configured_key(
+            bind,
+            config,
+            replay.then(|| super::launch::fixtures().join("replies/gene/main")),
+            None,
+        )
+    }
+    pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
+        Self::configured_key("127.0.0.1:0", None, Some(path), None)
     }
     fn configured_key(
         bind: &str,
         config: Option<Value>,
-        replay: bool,
+        replay: Option<std::path::PathBuf>,
         key: Option<&str>,
     ) -> Result<Self, String> {
         let environment = Environment::new().map_err(|e| e.to_string())?;
@@ -99,11 +107,8 @@ impl Server {
         }
         let address: SocketAddr = bind.parse().map_err(|_| "local address")?;
         let mut args = vec!["serve".into(), "--http".into(), address.to_string()];
-        if replay {
-            args.extend(environment.globals(
-                Some(&super::launch::fixtures().join("replies/gene/main")),
-                false,
-            ));
+        if let Some(path) = replay {
+            args.extend(environment.globals(Some(&path), false));
         }
         let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
         if let Some(key) = key {

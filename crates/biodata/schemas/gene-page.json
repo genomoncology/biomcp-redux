@@ -338,6 +338,7 @@
       "enum": [
         "not_found",
         "not_open",
+        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -358,6 +359,7 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",

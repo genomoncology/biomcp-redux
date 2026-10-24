@@ -132,6 +132,9 @@ impl Transport for TlsTransport {
 pub(crate) fn reason(error: &Error) -> biodata::Reason {
     match error {
         Error::ConnectProxyFailed(_) => biodata::Reason::Proxy,
+        Error::Io(error) if error.kind() == std::io::ErrorKind::PermissionDenied => {
+            biodata::Reason::Rejected
+        }
         Error::Tls(_) | Error::Rustls(_) => biodata::Reason::Tls,
         Error::Timeout(_) if !crate::retry::retry_error(error) => biodata::Reason::DeadlineExceeded,
         _ => biodata::Reason::Unavailable,

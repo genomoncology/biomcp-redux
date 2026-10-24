@@ -81,8 +81,9 @@ mod markdown;
 pub use markdown::Markdown;
 pub use response::{Health, HttpHealth, SourceHealth};
 
-pub use query::{ArticleEvidence, ArticleRecommend};
+pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};

@@ -13,6 +13,7 @@
         "tldr",
         "citations",
         "indexing",
+        "pdf",
         "all"
       ],
       "type": "string",
@@ -23,6 +24,7 @@
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
+        " Publisher PDF link without downloading.",
         " Every landed article section."
       ]
     }

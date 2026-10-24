@@ -90,3 +90,17 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     }
     assert!(server.requests.try_recv().is_err());
 }
+
+pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
+    let server = Server::new();
+    let spec = spec(&server);
+    let fetch = fetch(Mode::default());
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| bytes(&fetch, spec));
+        server.next().raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
+        assert!(
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+        );
+    });
+    assert!(server.requests.try_recv().is_err());
+}

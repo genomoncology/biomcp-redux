@@ -4,7 +4,7 @@ use rustls::pki_types::{CertificateDer, pem::PemObject};
 use std::{fmt, sync::Arc};
 
 /// Checked additional trust anchors. Formatting never exposes certificate bytes.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Certificates(Vec<CertificateDer<'static>>);
 impl Certificates {
     /// Decode an explicit PEM bundle and reject empty or malformed certificate sets.
@@ -32,7 +32,7 @@ impl fmt::Debug for Certificates {
     }
 }
 /// Owned, checked routing and trust settings; construction never reads the environment.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Network {
     http: Option<ureq::Proxy>,
     https: Option<ureq::Proxy>,
@@ -47,6 +47,20 @@ impl fmt::Debug for Network {
     }
 }
 impl Network {
+    pub(crate) fn requires_proxy(&self, explicit: bool, uri: &ureq::http::Uri) -> bool {
+        if explicit {
+            return true;
+        }
+        if self.bypass.iter().any(|rule| rule.matches(uri)) {
+            return false;
+        }
+        if uri.scheme_str() == Some("https") {
+            self.https.is_some()
+        } else {
+            self.http.is_some()
+        }
+    }
+
     /// Check HTTP/HTTPS proxy URLs, comma-separated bypass rules and additive roots.
     /// Bypass supports exact hosts/IPs, .domain (including the domain), *.domain
     /// (subdomains only), optional ports, and a lone * for every destination.
@@ -80,6 +94,7 @@ fn proxy(value: Option<&Secret>) -> Result<Option<ureq::Proxy>, FetchError> {
         })
         .transpose()
 }
+#[derive(Clone)]
 struct Bypass {
     host: String,
     port: Option<u16>,
@@ -165,6 +180,7 @@ impl Bypass {
 }
 pub(crate) struct Agents {
     direct: ureq::Agent,
+    publisher: ureq::Agent,
     http: ureq::Agent,
     https: ureq::Agent,
 }
@@ -188,11 +204,31 @@ impl Agents {
                     .chain(crate::tls::TlsConnector(tls.clone()));
             ureq::Agent::with_parts(config, connector, DefaultResolver::default())
         };
+        let publisher = {
+            use ureq::unversioned::transport::{Connector, TcpConnector};
+            let config = ureq::Agent::config_builder()
+                .proxy(None)
+                .http_status_as_error(false)
+                .max_redirects(0)
+                .build();
+            let connector =
+                ().chain(TcpConnector::default())
+                    .chain(crate::tls::TlsConnector(tls.clone()));
+            ureq::Agent::with_parts(
+                config,
+                connector,
+                crate::destination::PublicResolver::new(network.clone(), explicit.is_some()),
+            )
+        };
         Ok(Self {
             direct: make(None),
+            publisher,
             http: make(explicit.clone().or_else(|| network.http.clone())),
             https: make(explicit.or_else(|| network.https.clone())),
         })
+    }
+    pub(crate) fn publisher(&self) -> &ureq::Agent {
+        &self.publisher
     }
     pub(crate) fn for_url(&self, network: &Network, explicit: bool, url: &str) -> &ureq::Agent {
         let Ok(uri) = url.parse::<ureq::http::Uri>() else {
