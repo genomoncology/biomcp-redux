@@ -1,6 +1,7 @@
 # 0024 — Fetch gene summaries and spans from MyGene.info
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8b35181fd342774e7d36cf774468eefee1c69853
 
 Milestone: 1
 

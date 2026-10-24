@@ -1,6 +1,7 @@
 # 0022 — Sync local data bundles into indexed rows
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c9dd6b766103c65938b5e6d0e91018236271c5dc
 
 Milestone: 1
 
