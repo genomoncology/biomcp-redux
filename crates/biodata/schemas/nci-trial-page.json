@@ -828,7 +828,19 @@
         "diseases",
         "summary"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Intact criteria and structured age/sex fields.",
+        " Primary, secondary and other outcome records.",
+        " Arms and interventions with original relationships.",
+        " Whole source sites with their attached contacts.",
+        " Central contacts and overall officials in their original roles.",
+        " Registry publication identities and native reference types.",
+        " Posted document metadata and source URLs.",
+        " Every implemented trial section, each with independent continuations.",
+        " Native NCI disease concepts, including source enrichment metadata.",
+        " Complete NCI summary, paged by original character offsets."
+      ]
     },
     "TrialSex": {
       "description": "Source-native registry value.",

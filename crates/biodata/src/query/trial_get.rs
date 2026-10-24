@@ -119,6 +119,7 @@ impl TrialGet {
     }
 }
 crate::macros::wire_enum! {
+    described
     /// Available source protocol sections.
     TrialSection {
         /// Intact criteria and structured age/sex fields.
