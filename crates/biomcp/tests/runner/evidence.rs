@@ -279,6 +279,10 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
             "summary-failure",
             json!({"/status":"partial","/result/semantic_scholar/data/contexts/total":6,"/result/fulltext/data/paragraphs/total":7}),
         ),
+        (
+            "text-deadline",
+            json!({"/status":"partial","/result/semantic_scholar/data/contexts/total":6,"/result/fulltext/state":"unavailable","/result/fulltext/reason":"deadline_exceeded"}),
+        ),
     ] {
         let command = if mode == "empty" {
             json!(["article", "citation-evidence", "33123537", "17611497"])
@@ -294,6 +298,13 @@ fn independence() -> Result<(), Box<dyn std::error::Error>> {
         checked_steps(
             "article/evidence/source",
             |source, record| {
+                if mode == "text-deadline" {
+                    if source == "semantic-scholar" {
+                        record["exchanges"][0]["delay_ms"] = json!(10000);
+                    } else if source == "pmc-oa" {
+                        record["exchanges"][0]["delay_ms"] = json!(30000);
+                    }
+                }
                 if mode == "empty" && source == "semantic-scholar" {
                     record["exchanges"][0]["body"]["value"]["data"] = json!([]);
                 }
