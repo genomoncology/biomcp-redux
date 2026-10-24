@@ -1,6 +1,7 @@
 # 0115 — Capture a positive Cancer Hotspots candidate row
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1524efb90a59bf9a09ed3056e0f1947486df81cc
 
 Milestone: 2
 

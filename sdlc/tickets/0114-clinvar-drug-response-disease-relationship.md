@@ -1,6 +1,7 @@
 # 0114 — Preserve the native ClinVar drug-response disease relationship
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4f524654c179f15b713331f4500670c403f02cd8
 
 Milestone: 2
 

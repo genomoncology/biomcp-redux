@@ -1,6 +1,7 @@
 # 0108 — Label every source outcome with its terms
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 46c384acd94c64f24f59e8abadd6c792d9b5fbcc
 
 Milestone: 2
 

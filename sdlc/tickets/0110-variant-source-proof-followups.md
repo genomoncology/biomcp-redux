@@ -1,6 +1,7 @@
 # 0110 — Capture positive CIViC, Cancer Hotspots and gnomAD release proof
 
 Status: COMPLETE.
+Landed: fa8eab46a51eff190b3a6ed0833569c9c2176231
 
 Milestone: 2
 
