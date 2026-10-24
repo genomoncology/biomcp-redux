@@ -106,11 +106,11 @@ impl Record {
             unmet_criteria: strings(self.unmet.unwrap_or_default())?,
             published: self
                 .published
-                .map(|s| biodata::GeneRef::new(text(&s)?, None, None, None).map_err(|_| super::bad()))
+                .map(|s| s.parse().map_err(|_| super::bad()))
                 .transpose()?,
             approved: self
                 .approved
-                .map(|s| biodata::GeneRef::new(text(&s)?, None, None, None).map_err(|_| super::bad()))
+                .map(|s| s.parse().map_err(|_| super::bad()))
                 .transpose()?,
             versions: strings(self.versions.unwrap_or_default())?,
             ..Default::default()
@@ -128,7 +128,9 @@ impl Record {
             statement.criteria = strings(self.criteria.unwrap_or_default())?;
             statement.gene_context = self
                 .gene
-                .map(|s| biodata::GeneRef::new(text(&s)?, None, None, None).map_err(|_| super::bad()))
+                .map(|s| {
+                    biodata::GeneRef::new(text(&s)?, None, None, None).map_err(|_| super::bad())
+                })
                 .transpose()?;
         }
         Ok(row)

@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "AssertionSource": {
+      "description": "Native assertion provider.",
+      "enum": [
+        "clinvar",
+        "erepo"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "VariantInput": {
+      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+      "type": "string"
+    }
+  },
+  "$id": "biodata.variant-assertions/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Page assertions from one explicitly selected evidence source.",
+  "properties": {
+    "assertion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native assertion accession or document ID."
+    },
+    "input": {
+      "$ref": "#/$defs/VariantInput",
+      "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
+      "x-positional": 0
+    },
+    "limit": {
+      "default": 3,
+      "description": "Assertions per page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Assertions to skip in source order.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/AssertionSource",
+      "description": "One native source; no fallback or text search."
+    },
+    "version": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "VCV archive or ERepo document version; RCV/SCV selectors match a returned native version."
+    }
+  },
+  "required": [
+    "input",
+    "source"
+  ],
+  "title": "VariantAssertionsGet",
+  "type": "object"
+}

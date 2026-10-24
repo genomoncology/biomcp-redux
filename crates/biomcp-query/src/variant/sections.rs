@@ -1,8 +1,8 @@
 //! Candidate-specific source sections under one command deadline.
 use crate::Ctx;
 use biodata::{
-    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
-    VariantSection, VariantSections,
+    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
+    VariantHeader, VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
@@ -44,8 +44,26 @@ pub(super) fn apply(
                 };
             }
             match section {
-                VariantSection::Clinvar => attach!(clinvar, super::assertions::section(cx, query, candidates, *deadline, AssertionSource::Clinvar)),
-                VariantSection::Erepo => attach!(erepo, super::assertions::section(cx, query, candidates, *deadline, AssertionSource::Erepo)),
+                VariantSection::Clinvar => attach!(
+                    clinvar,
+                    super::assertions::section(
+                        cx,
+                        query,
+                        candidates,
+                        *deadline,
+                        AssertionSource::Clinvar
+                    )
+                ),
+                VariantSection::Erepo => attach!(
+                    erepo,
+                    super::assertions::section(
+                        cx,
+                        query,
+                        candidates,
+                        *deadline,
+                        AssertionSource::Erepo
+                    )
+                ),
                 VariantSection::Predict => attach!(
                     predict,
                     super::predict::section(cx, query, candidates, deadline)
@@ -121,7 +139,14 @@ fn permitted<T>(
 ) -> Result<T> {
     if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
         return (
-            if matches!(section, VariantSection::Clinvar | VariantSection::Erepo) { Section::Skipped { source, reason: Reason::Disabled } } else { Section::unavailable(source, Reason::Disabled) },
+            if matches!(section, VariantSection::Clinvar | VariantSection::Erepo) {
+                Section::Skipped {
+                    source,
+                    reason: Reason::Disabled,
+                }
+            } else {
+                Section::unavailable(source, Reason::Disabled)
+            },
             vec![SourceOutcome {
                 source,
                 state: SourceState::Skipped,

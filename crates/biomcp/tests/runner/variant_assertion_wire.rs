@@ -1,7 +1,11 @@
-use super::{network_stub::Stub};
+use super::network_stub::Stub;
 use libtest_mimic::Trial;
-use serde_json::{Value,json};
-pub(super) fn trials()->Vec<Trial>{vec![Trial::test("variant/assertions-source-wire", || assertions_wire().map_err(Into::into))]}
+use serde_json::{Value, json};
+pub(super) fn trials() -> Vec<Trial> {
+    vec![Trial::test("variant/assertions-source-wire", || {
+        assertions_wire().map_err(Into::into)
+    })]
+}
 fn assertions_wire() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", clinvar_body)?;
     let environment = super::variant::source_environment(&stub)?;
