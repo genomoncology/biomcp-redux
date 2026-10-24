@@ -93,7 +93,7 @@ Sources:
 
 Sources:
 - [x] PubMed search and page summaries (optional key)
-- [ ] PubTator3 (optional key)
+- [x] PubTator3 export for annotations
 - [ ] Europe PMC
 - [ ] Semantic Scholar (optional key)
 - [ ] PMC Open Access and NCBI ID converter (optional key)

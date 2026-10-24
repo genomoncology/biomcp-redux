@@ -143,6 +143,13 @@
                         "identifier": "303"
                       },
                       "text": ""
+                    },
+                    {
+                      "infons": {
+                        "type": "Gene",
+                        "name": "Other invalid",
+                        "identifier": "bad"
+                      }
                     }
                   ]
                 }
