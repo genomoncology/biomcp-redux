@@ -22,7 +22,9 @@
         "/result/groups/9/observation/group": "synthetic-09",
         "/page/total": 29,
         "/page/returned": 10,
-        "/page/offset": 0
+        "/page/offset": 0,
+        "/result/groups/0/observation/allele_count": 0,
+        "/result/groups/0/observation/allele_number": 100
       },
       "mcp": [
         "variant",
