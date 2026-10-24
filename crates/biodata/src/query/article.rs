@@ -23,7 +23,7 @@ pub enum ArticleSort {
     /// PubMed most recently added order.
     Date,
 }
-/// Publication-type selectors sent to PubMed.
+/// Publication-type selectors sent to the named sources.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -54,7 +54,7 @@ pub struct ArticleSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Words sent to PubMed in its default fields.
+    /// Words sent to each named source in its default fields.
     #[serde(
         default,
         deserialize_with = "present",
@@ -74,7 +74,7 @@ struct Fields {
     /// Both pubmed and europepmc support rank and date.
     #[serde(default = "sort")]
     sort: ArticleSort,
-    /// Gene input resolved through HGNC.
+    /// Gene input; PubMed resolves it through HGNC.
     #[serde(
         default,
         deserialize_with = "present",

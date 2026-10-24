@@ -200,9 +200,12 @@ fn compatibility_checks_consumed_decimal_bounds_and_section_annotation() {
         new["maximum"] = json!(maximum);
         assert_eq!(check(&old, &new).is_ok(), expected);
     }
-    let annotation = json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"},"x-trailing-section":true});
-    assert!(check(&annotation, &annotation).is_ok());
-    let mut bad = annotation.clone();
-    bad["x-trailing-section"] = json!("all");
-    assert!(check(&bad, &bad).is_err());
+    for name in ["x-trailing-section", "x-comma-separated"] {
+        let mut annotation =
+            json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"}});
+        annotation[name] = json!(true);
+        assert!(check(&annotation, &annotation).is_ok());
+        annotation[name] = json!("all");
+        assert!(check(&annotation, &annotation).is_err());
+    }
 }

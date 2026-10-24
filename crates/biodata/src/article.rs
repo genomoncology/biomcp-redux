@@ -51,7 +51,7 @@ crate::source::canonical_enum! {
         Erratum => "erratum",
     }
 }
-/// Citation metadata owned by PubMed.
+/// Citation metadata from PubMed or Europe PMC.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

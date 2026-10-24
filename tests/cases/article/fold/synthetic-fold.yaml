@@ -22,7 +22,7 @@
         "--limit",
         "2"
       ],
-      "max_bytes": 2500,
+      "max_bytes": 1394,
       "expect": {
         "/status": "complete",
         "/page/total": 7,
@@ -36,11 +36,12 @@
           }
         },
         "/result/items/1/header/title": "Synthetic citation 2222"
-      }
+      },
+      "max_tokens": 349
     },
     {
       "follow": "page",
-      "max_bytes": 2500,
+      "max_bytes": 1430,
       "expect": {
         "/result/items/*/pmid": [
           "3333",
@@ -51,7 +52,8 @@
             "europepmc": 3
           }
         }
-      }
+      },
+      "max_tokens": 358
     },
     {
       "run": [
@@ -67,7 +69,7 @@
         "items": "/result/items",
         "max_pages": 8
       },
-      "max_bytes": 2500,
+      "max_bytes": 1430,
       "expect": {
         "/result/items/*/key": [
           {
@@ -125,7 +127,8 @@
         ],
         "/result/items/4/header/types_unknown": true,
         "/result/items/6/header/europepmc_id": "PPR8888"
-      }
+      },
+      "max_tokens": 358
     },
     {
       "run": [
@@ -141,7 +144,7 @@
         "items": "/result/items",
         "max_pages": 8
       },
-      "max_bytes": 2500,
+      "max_bytes": 1430,
       "expect": {
         "/result/items/*/key": [
           {
@@ -173,7 +176,8 @@
             "id": "PPR8888"
           }
         ]
-      }
+      },
+      "max_tokens": 358
     },
     {
       "run": [
@@ -186,7 +190,7 @@
         "2"
       ],
       "offline": true,
-      "max_bytes": 2500,
+      "max_bytes": 1394,
       "expect": {
         "/result/items/*/key": [
           {
@@ -198,7 +202,8 @@
             "id": "2222"
           }
         ]
-      }
+      },
+      "max_tokens": 349
     },
     {
       "run": [
@@ -210,14 +215,15 @@
         "--limit",
         "2"
       ],
-      "max_bytes": 2500,
+      "max_bytes": 1394,
       "expect": {
         "/result/items/*/pmid": [
           "2222",
           "1111"
         ],
         "/sources/0/source": "europepmc"
-      }
+      },
+      "max_tokens": 349
     },
     {
       "run": [
@@ -231,12 +237,13 @@
         "--limit",
         "2"
       ],
-      "max_bytes": 2500,
+      "max_bytes": 1355,
       "expect": {
         "/result/items/0/pmid": "3333",
         "/result/items/1/key/namespace": "europepmc",
         "/sources/1/term": "AKT1 E17K"
-      }
+      },
+      "max_tokens": 340
     },
     {
       "run": [
@@ -248,11 +255,12 @@
         "pubmed,europepmc",
         "AKT1"
       ],
-      "max_bytes": 2500,
+      "max_bytes": 848,
       "expect": {
         "/sources/1/term": "AKT1 AND AUTH:Carpten",
         "/result/items/0/key/id": "PPR8888"
-      }
+      },
+      "max_tokens": 212
     },
     {
       "run": [
@@ -272,11 +280,12 @@
         "--source",
         "europepmc"
       ],
-      "max_bytes": 2000,
+      "max_bytes": 663,
       "expect": {
         "/sources/0/term": "BRAF AND V600E AND JOURNAL:Nature AND FIRST_PDATE:[2020 TO 2024] AND PUB_TYPE:\"clinical trial\"",
         "/page/total": 0
-      }
+      },
+      "max_tokens": 166
     },
     {
       "run": [
@@ -287,10 +296,12 @@
         "pubmed,pubmed"
       ],
       "exit": 2,
-      "max_bytes": 1000,
+      "max_bytes": 166,
       "expect": {
         "/error/code": "usage.arguments"
-      }
+      },
+      "max_tokens": 42
     }
-  ]
+  ],
+  "verified": "No exact 0.9 baseline exists for these synthetic boundary replies. Per-step ceilings are measured CLI output plus 15 percent from M5 replay j9294; every walked page is measured independently."
 }

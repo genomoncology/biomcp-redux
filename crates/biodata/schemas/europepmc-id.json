@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.europepmc-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+  "title": "EuropePmcId",
+  "type": "string"
+}

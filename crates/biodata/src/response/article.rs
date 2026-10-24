@@ -33,7 +33,7 @@ pub struct ArticleItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<ArticleHeader>,
 }
-/// A page in PubMed's original relevance order.
+/// A slice of the stored article source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
