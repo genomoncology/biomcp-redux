@@ -1,4 +1,5 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub(crate) mod assertions;
 mod civic;
 mod components;
 mod conservation;
@@ -326,3 +327,4 @@ pub(crate) fn overall(
 mod gwas;
 mod population;
 pub(crate) mod population_detail;
+mod population_release;

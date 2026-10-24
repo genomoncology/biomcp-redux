@@ -1,5 +1,6 @@
 use crate::raw::Field;
 use biodata::{AccessionBase, EnsemblGeneId, FiniteNumber};
+
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
     Deserialize,

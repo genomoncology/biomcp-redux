@@ -1,6 +1,7 @@
 use super::raw::{Genes, Hit, OneOrMany};
 use crate::Mapped;
 use biodata::{Build, Expression, ExpressionSyntax, Representation, Text, Variant, VariantId};
+
 use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
 pub(super) fn candidates(
     hits: Vec<Hit>,

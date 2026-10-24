@@ -1,4 +1,5 @@
 use biodata::{Markdown, Text};
+
 use biomcp_fetch::BadReply;
 /// Explicit JATS supplement declaration before the bucket intersection.
 #[derive(Debug)]

@@ -89,7 +89,7 @@ fn population() -> Result<(), String> {
         || value.pointer("/result/population/data/exome/an") != Some(&json!(1460618))
         || value.pointer("/problems/0/field") != Some(&json!("dataset_version"))
         || value
-            .pointer("/result/population/data/exome/subject")
+            .pointer("/result/population/data/exome/frequency")
             .is_some()
         || value.pointer("/result/population/data/genome").is_some()
         || value
@@ -139,14 +139,14 @@ fn population() -> Result<(), String> {
     }
     Ok(())
 }
-fn population_body(request: &str) -> Result<String, String> {
+pub(super) fn population_body(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/") {
         return Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38","referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string());
     }
     Ok(json!({"data":{"variant":{"variant_id":"7-140753336-A-T","exome":{"ac":2,"an":1460618,"filters":[],"populations":[{"id":"nfe","ac":1,"an":1111098},{"id":"sas","ac":1,"an":86244}]},"genome":null}}}).to_string())
 }
 
-fn environment(stub: &Stub) -> Result<Environment, String> {
+pub(super) fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;

@@ -1,5 +1,6 @@
 use crate::raw::Field;
 use biodata::{NcbiGeneId, Text};
+
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 use serde::Deserialize;

@@ -1,6 +1,7 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
 use biodata::{Text, UniProtAcc};
+
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
 use biomcp_types::{PathwayRef, Problem, ProblemCode, Source};
 use serde::Deserialize;

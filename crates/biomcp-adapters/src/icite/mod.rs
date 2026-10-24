@@ -1,6 +1,7 @@
 //! Public iCite metadata; no abstracts or provider-specific scoring blend.
 use crate::{quotas, raw::Field};
 use biodata::{FiniteNumber, Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };

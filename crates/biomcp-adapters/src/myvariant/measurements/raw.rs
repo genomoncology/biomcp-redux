@@ -1,5 +1,6 @@
 use crate::raw::{Field, OneOrMany};
 use biodata::{FiniteNumber, Text};
+
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 pub(super) type Numbers = Option<Field<OneOrMany<FiniteNumber>>>;

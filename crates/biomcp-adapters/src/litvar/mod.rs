@@ -1,6 +1,7 @@
 //! Exact LitVar2 candidate selection and source-ordered publication identifiers.
 use crate::quotas;
 use biodata::{Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };

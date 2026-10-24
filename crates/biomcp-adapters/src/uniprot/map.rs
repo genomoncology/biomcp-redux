@@ -1,6 +1,7 @@
 use super::raw;
 use crate::{Mapped, raw::Field};
 use biodata::{Text, UniProtAcc};
+
 use biomcp_types::{Problem, ProblemCode, Protein, Source};
 pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Protein>> {
     let mut problems = Vec::new();

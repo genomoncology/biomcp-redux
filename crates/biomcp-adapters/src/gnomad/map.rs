@@ -1,6 +1,7 @@
 use super::{GeneConstraint, raw};
 use crate::Mapped;
 use biodata::{EnsemblGeneId, Text};
+
 use biomcp_types::{Constraint, Problem, ProblemCode, Source};
 
 pub(super) fn constraints(raw: raw::Aliases, ids: &[EnsemblGeneId]) -> Vec<GeneConstraint> {

@@ -1,6 +1,7 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
+
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
 use biomcp_types::{Reason, Section, Source, SourceOutcome, SourceState};

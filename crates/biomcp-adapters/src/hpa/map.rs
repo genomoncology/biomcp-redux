@@ -1,6 +1,7 @@
 use super::raw;
 use crate::{Mapped, raw::Field};
 use biodata::{EnsemblGeneId, Text};
+
 use biomcp_types::{
     CancerPtpm, GeneExpression, Problem, ProblemCode, RnaAbundance, Source, TissueNtpm,
 };

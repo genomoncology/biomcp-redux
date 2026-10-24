@@ -1,6 +1,7 @@
 # 0089 — Show ClinVar and ClinGen evidence repository assertions for a variant
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5c55f2efe84c6bc0112962658d730891af3c4f9e
 
 Milestone: 2
 

@@ -1,6 +1,7 @@
 //! Explicit VariantValidator GET reads; warning envelopes never resolve identity.
 use crate::quotas;
 use biodata::{Build, Representation, Text, Variant};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };

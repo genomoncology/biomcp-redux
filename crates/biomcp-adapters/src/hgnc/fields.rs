@@ -1,4 +1,5 @@
 use biodata::{HgncId, LocusGroup, LocusType, Mane, Text};
+
 use biomcp_types::{Problem, ProblemCode, Source};
 use std::str::FromStr;
 

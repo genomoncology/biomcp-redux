@@ -1,6 +1,7 @@
 //! Preserve explicit source reference identities for later joins; perform no citation lookup.
 use super::blocks;
 use biodata::{Doi, Pmid, Text};
+
 use biomcp_fetch::BadReply;
 /// One JATS reference's own checked identifiers.
 #[derive(Debug)]

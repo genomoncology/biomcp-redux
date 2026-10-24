@@ -17,6 +17,8 @@ canonical_enum! {
         Gnomad => "gnomad",
         /// ClinVar component source policy.
         ClinVar => "clinvar",
+        /// ClinGen Evidence Repository.
+        Erepo => "erepo",
         /// GWAS Catalog v2.
         Gwas => "gwas",
         /// ClinGen.

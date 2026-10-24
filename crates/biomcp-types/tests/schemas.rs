@@ -147,6 +147,8 @@ fn registry() -> Vec<Contract> {
 }
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
+        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
+        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/2"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/3"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/2"),
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/2"),

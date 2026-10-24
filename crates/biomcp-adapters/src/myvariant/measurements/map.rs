@@ -5,6 +5,7 @@ use crate::{
 };
 use biodata::PredictorScore;
 use biodata::{Attribution, Build, Text, VariantRef};
+
 use biomcp_fetch::RequestError;
 use biomcp_types::{PredictorContext, Problem, ProblemCode, Source, VariantPredictors};
 struct Output {

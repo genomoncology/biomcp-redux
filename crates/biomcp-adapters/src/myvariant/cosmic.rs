@@ -1,5 +1,6 @@
 //! Historical fragments retain their original spellings and unverified association.
 use biodata::{Build, FiniteNumber, Text};
+
 use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::{CosmicCoordinates, CosmicIdentity, CosmicRecord, VariantCosmic};
 use serde::Deserialize;

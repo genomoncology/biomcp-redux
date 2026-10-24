@@ -1,6 +1,7 @@
 use super::raw::{Annotation, Document};
 use crate::{Mapped, raw::Field};
 use biodata::{Pmid, Text};
+
 use biomcp_types::{
     AnnotatedEntity, AnnotationKind, Annotations, Capped, Problem, ProblemCode, Section, Source,
 };

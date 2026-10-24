@@ -7,6 +7,17 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         let Some(sections) = candidate.sections.as_deref() else {
             continue;
         };
+        for section in [&sections.clinvar, &sections.erepo].into_iter().flatten() {
+            if let Section::Data { data, .. } = section
+                && let Some(query) = &data.next
+            {
+                push(
+                    next,
+                    StepKind::Page,
+                    Request::VariantAssertions(query.clone()),
+                );
+            }
+        }
         if let Some(query) = data(&sections.gwas).and_then(|gwas| gwas.continuation.as_ref()) {
             push(next, StepKind::Page, Request::GetVariant(query.clone()));
         }

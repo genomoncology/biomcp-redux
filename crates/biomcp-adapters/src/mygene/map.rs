@@ -1,6 +1,7 @@
 use super::raw::Pos;
 use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
 
+
 pub(super) fn summary(value: String) -> Option<Summary> {
     let parsed = value.strip_suffix("].").and_then(|text| {
         let (body, marker) = text.rsplit_once(" [provided by RefSeq, ")?;
@@ -58,6 +59,7 @@ use crate::{
     raw::{Field, OneOrMany},
 };
 use biodata::{HgncId, NcbiGeneId};
+
 use biomcp_types::{Problem, ProblemCode, Source};
 use std::collections::BTreeMap;
 

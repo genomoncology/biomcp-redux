@@ -230,6 +230,7 @@ impl Leg<'_> {
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
+        codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
         let (reply, fetched) = self.cached(ep, &prepared, &codec, || {
             self.attempts(&prepared, keyed, &codec)
@@ -266,6 +267,7 @@ impl Leg<'_> {
                     let status = response.status;
                     if (200..300).contains(&status)
                         || codec.json_rejections && matches!(status, 400 | 422)
+                        || codec.json_absence && status == 404
                     {
                         return self.decode(response, codec).map_err(Into::into);
                     }
@@ -432,7 +434,8 @@ impl Leg<'_> {
             recording
                 || self.keyed()
                 || !prepared.outgoing.is_empty()
-                || codec.json_rejections && matches!(status, 400 | 422),
+                || codec.json_rejections && matches!(status, 400 | 422)
+                || codec.json_absence && status == 404,
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
         let wire = Wire {

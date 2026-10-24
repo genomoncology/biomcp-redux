@@ -19,6 +19,8 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
     &crate::hotspots::SPEC,
+    &crate::clinvar::SPEC,
+    &crate::erepo::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
@@ -196,11 +198,32 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/pubs",
             vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
         ),
-        _ => return None,
+        _ => return assertion_probe(source),
     })
 }
 
 #[derive(serde::Serialize)]
 struct ProbeQuery {
     query: &'static str,
+}
+
+fn assertion_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::ClinVar => (
+            "/einfo.fcgi",
+            vec![("db", Arg::Text("clinvar")), ("retmode", Arg::Text("json"))],
+        ),
+        Source::Erepo => (
+            "/evrepo/api/summary/classifications",
+            vec![
+                ("columns", Arg::Text("caId")),
+                ("values", Arg::Text("CA000434")),
+                ("matchTypes", Arg::Text("exact")),
+                ("pgSize", Arg::Num(1)),
+                ("pg", Arg::Num(1)),
+            ],
+        ),
+        _ => return None,
+    })
 }

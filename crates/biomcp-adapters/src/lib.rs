@@ -54,6 +54,9 @@ pub mod variantvalidator;
 /// Explicit cohort sample observations.
 pub mod cbioportal;
 
+mod assertion;
+pub mod clinvar;
+pub mod erepo;
 pub mod hotspots;
 
 /// GWAS Catalog v2 exact rsID associations.

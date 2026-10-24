@@ -4,6 +4,7 @@ use super::{
 };
 use crate::Mapped;
 use biodata::{GeneSymbol, HgvsText, Text, VariantRef};
+
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     CivicClaimKind, CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement,

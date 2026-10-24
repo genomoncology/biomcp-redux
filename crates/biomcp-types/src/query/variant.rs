@@ -242,6 +242,10 @@ impl VariantResolver {
 biodata::canonical_enum! {
     /// Named variant source sections, without automatic expansion of identity cards.
     VariantSection, SourceUnknown {
+        /// ClinVar native assertions.
+        Clinvar => "clinvar",
+        /// ClinGen native assertions.
+        Erepo => "erepo",
         /// gnomAD population observations.
         Population => "population",
         /// GWAS Catalog associations.

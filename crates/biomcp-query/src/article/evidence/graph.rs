@@ -1,6 +1,7 @@
 use super::{Snapshot, bad, source};
 use crate::{Ctx, Outcome, status};
 use biodata::{Doi, Pmid};
+
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;

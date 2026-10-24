@@ -7,6 +7,7 @@ mod pathways;
 mod protein;
 use crate::Ctx;
 use biodata::{Gene, HgncId};
+
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::GeneResolution;
 use biomcp_types::{

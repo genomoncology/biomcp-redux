@@ -4,6 +4,7 @@ mod map;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Gene, GeneSymbol, HgncId, HgncStatus, MatchKind, Text};
+
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
     SourceSpec,

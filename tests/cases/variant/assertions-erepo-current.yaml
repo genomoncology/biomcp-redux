@@ -1,0 +1,34 @@
+{
+  "feature": "variant-assertions",
+  "live_check": "synthetic response case",
+  "story": "The TP53 expert-panel current version retains its source identity and panel",
+  "replay": "variant/assertions/erepo-current",
+  "verified": "Explicit synthetic response projection of reviewed PCER000001171 version1.1.0 source fields. Actual CLI request identity at c8f9d899 is unchanged. Complete retained actual default reply measured969 bytes; ceiling=ceil(969*1.15). The prototype258-byte section omitted the common Statement and provenance envelope.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA000434",
+        "erepo"
+      ],
+      "mcp": [
+        "get",
+        "variant",
+        "CA000434",
+        "erepo"
+      ],
+      "max_bytes": 1115,
+      "max_tokens": 279,
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "unresolved",
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/record": "PCER000001171",
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version": "1.1.0",
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/submitter": "TP53 VCEP",
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/classification/label": "Pathogenic",
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/proposition": "pathogenicity"
+      }
+    }
+  ]
+}

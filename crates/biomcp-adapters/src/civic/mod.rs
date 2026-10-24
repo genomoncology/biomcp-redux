@@ -6,6 +6,7 @@ mod variant_map;
 mod variant_raw;
 use crate::{Mapped, quotas, raw::Field};
 use biodata::{GeneSymbol, NcbiGeneId, Text};
+
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::{CivicGene, Problem, ProblemCode, Section, Source, SourceRecord};
 use serde::Serialize;

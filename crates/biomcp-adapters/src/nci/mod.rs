@@ -1,5 +1,6 @@
 //! Explicit keyed NCI trial access, without registry vocabulary translation.
 use biodata::{NctId, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, Reply, RequestError,
     SecretName, SourceSpec,

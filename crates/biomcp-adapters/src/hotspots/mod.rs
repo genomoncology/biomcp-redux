@@ -1,6 +1,7 @@
 //! Native transcript/residue counts; public reachability grants no redistribution rights.
 use crate::{Mapped, quotas};
 use biodata::{GeneSymbol, Text};
+
 use biomcp_fetch::{
     BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };

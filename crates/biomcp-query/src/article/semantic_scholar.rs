@@ -1,6 +1,7 @@
 //! Shared Semantic Scholar search metadata and PubMed DOI joins.
 use crate::{Ctx, status};
 use biodata::{Doi, Text};
+
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Source};

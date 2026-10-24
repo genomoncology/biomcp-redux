@@ -77,6 +77,12 @@ pub struct VariantSections {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 
+    /// ClinVar native assertion rows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clinvar: Option<crate::Section<crate::VariantAssertions>>,
+    /// ClinGen native assertion rows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub erepo: Option<crate::Section<crate::VariantAssertions>>,
     /// Explicit population source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub population: Option<crate::Section<crate::VariantPopulation>>,

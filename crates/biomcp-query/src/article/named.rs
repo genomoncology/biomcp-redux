@@ -1,6 +1,7 @@
 use super::sources::ResultLeg;
 use crate::{Ctx, status};
 use biodata::{NcbiGeneId, Text};
+
 use biomcp_adapters::{litsense, pubtator};
 use biomcp_fetch::Deadline;
 use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSource, Reason, Source};

@@ -1,8 +1,7 @@
 //! Only the cited source vocabulary maps into the approved common claim model.
 use super::{variant::failure, variant_raw as raw};
-use biodata::{
-    Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef,
-};
+use biodata::{Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef};
+
 use biomcp_fetch::RequestError;
 use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord};
 
@@ -221,6 +220,7 @@ fn predicate(kind: &str, significance: &str) -> Option<Predicate> {
 }
 fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
     use biodata::{AmpAscoCap2017LevelCode as L, AmpAscoCap2017TierCode as T, Coding};
+
     let label = label?;
     let (tier, level) = match label.as_str() {
         "TIER_I_LEVEL_A" => (T::TierI, Some(L::LevelA)),
