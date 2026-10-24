@@ -205,16 +205,13 @@ fn is_include(v: &RetractionFilter) -> bool {
 }
 crate::macros::wire_enum! {
     /// Native retraction inclusion policy.
+    #[derive(Default)]
     RetractionFilter {
         /// Preserve every source row, including retractions.
+        #[default]
         Include => "include",
         /// Ask the source to omit retracted publications.
         Exclude => "exclude",
-    }
-}
-impl Default for RetractionFilter {
-    fn default() -> Self {
-        Self::Include
     }
 }
 fn sources() -> Box<[ArticleSource]> {
