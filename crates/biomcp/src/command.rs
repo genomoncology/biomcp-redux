@@ -539,7 +539,7 @@ fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<b
     let disabled = fetch
         .disabled_sources()
         .map(|source| source.to_string())
-        .chain(fetch.disabled_uses().map(|usage| usage.to_string()))
+        .chain(fetch.disabled_uses().map(|usage| usage.as_str().to_owned()))
         .collect::<Vec<_>>()
         .join(",");
     if disabled.is_empty() {
