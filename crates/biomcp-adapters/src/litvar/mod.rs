@@ -16,23 +16,32 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const AUTOCOMPLETE: Endpoint = SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));
 const PUBLICATIONS: Endpoint = SPEC.get("/variant/get").fresh(Freshness::Days(1));
-/// One checked result, or nearby candidates when exact selection was impossible.
+/// Exact source identity retained between autocomplete and publications.
 #[derive(Debug)]
-pub enum Search {
-    /// Exactly one matched variant's native publication order.
-    Selected {
-        /// Selected exact rsID.
-        rsid: Text,
-        /// Whole source publication count.
-        count: u64,
-        /// Native publication sequence capped at the pool limit.
-        ids: Vec<Pmid>,
-    },
-    /// No publications call was made.
+pub struct Variant {
+    id: String,
+    rsid: Text,
+}
+/// Result of exact autocomplete selection, before any publication search.
+#[derive(Debug)]
+pub enum Selection {
+    /// Exactly one source variant matched.
+    Exact(Variant),
+    /// No publications call may be made.
     Candidates(Vec<LitVarCandidate>),
 }
+/// One selected variant's whole source count and bounded native sequence.
+#[derive(Debug)]
+pub struct Search {
+    /// Selected exact rsID.
+    pub rsid: Text,
+    /// Whole source publication count.
+    pub count: u64,
+    /// Native publication sequence capped at the pool limit.
+    pub ids: Vec<Pmid>,
+}
 /// Select by exact case-insensitive gene/change or rsID, never by hit position.
-pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search, RequestError> {
+pub fn select(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Selection, RequestError> {
     let rsid = is_rsid(variant);
     let change = variant
         .get(..2)
@@ -59,7 +68,7 @@ pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search
         }
     });
     let Some(selected) = matching.next().filter(|_| matching.next().is_none()) else {
-        return Ok(Search::Candidates(
+        return Ok(Selection::Candidates(
             candidates
                 .0
                 .into_iter()
@@ -68,12 +77,19 @@ pub fn search(leg: &Leg<'_>, gene: Option<&str>, variant: &str) -> Result<Search
                 .collect(),
         ));
     };
+    Ok(Selection::Exact(Variant {
+        id: selected.id.clone(),
+        rsid: selected.rsid.clone(),
+    }))
+}
+/// Fetch publications only after exact source identity selection.
+pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestError> {
     let segments = [&selected.id, "publications"]
         .into_iter()
         .map(PathSegment::new)
         .collect::<Result<Vec<_>, _>>()?;
     let reply = leg.json::<Publications>(&PUBLICATIONS.clone().with_segments(&segments), &[])?;
-    Ok(Search::Selected {
+    Ok(Search {
         rsid: selected.rsid.clone(),
         count: reply.pmids_count,
         ids: reply

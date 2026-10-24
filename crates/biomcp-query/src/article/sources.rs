@@ -12,7 +12,6 @@ struct ResultLeg {
     items: Vec<ArticleItem>,
     elapsed: Duration,
     error: Option<RequestError>,
-    candidates: Vec<biodata::LitVarCandidate>,
 }
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
@@ -22,22 +21,33 @@ pub(super) fn search<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
+    let mut prepared = prepare_litvar(cx, query, gene, deadline, out);
+    if out.status == Status::Absent {
+        return Ok(None);
+    }
     let epmc_term = term(query);
     let start = *deadline;
-    let results = fan_out::run(
-        query
-            .sources()
-            .iter()
-            .map(|selector| {
-                let epmc_term = &epmc_term;
-                Box::new(move || match selector {
-                    ArticleSource::Pubmed => pubmed_search(cx, query, pubmed_term, start),
-                    ArticleSource::Europepmc => europe_search(cx, query, epmc_term, start),
-                    ArticleSource::Litvar => litvar_search(cx, query, gene, start),
-                }) as Box<dyn FnOnce() -> ResultLeg + Send>
-            })
-            .collect(),
-    );
+    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = query
+        .sources()
+        .iter()
+        .filter_map(|selector| {
+            let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
+                ArticleSource::Pubmed => {
+                    Box::new(move || pubmed_search(cx, query, pubmed_term, start))
+                }
+                ArticleSource::Europepmc => {
+                    let term = &epmc_term;
+                    Box::new(move || europe_search(cx, query, term, start))
+                }
+                ArticleSource::Litvar => {
+                    let prepared = prepared.take()?;
+                    Box::new(move || litvar_search(prepared))
+                }
+            };
+            Some(job)
+        })
+        .collect();
+    let results = fan_out::run(jobs);
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
     let failed_pubmed = results
@@ -56,31 +66,6 @@ pub(super) fn search<'a>(
     }
     if failed_pubmed || !answered {
         out.status = Status::Failed;
-        return Ok(None);
-    }
-    if query.sources().len() == 1
-        && results.iter().any(|r| {
-            !r.candidates.is_empty()
-                || (r.source == ArticleSource::Litvar && r.outcome.term.is_none())
-        })
-    {
-        out.status = Status::Absent;
-        let candidates: Vec<_> = results.into_iter().flat_map(|r| r.candidates).collect();
-        for candidate in &candidates {
-            out.next.push((
-                biodata::StepKind::Disambiguate,
-                crate::Action::Run {
-                    request: biodata::Request::SearchArticle(
-                        query.with_variant(candidate.rsid.clone()),
-                    ),
-                    fresh: cx.fresh,
-                },
-            ));
-        }
-        out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage {
-            items: Box::default(),
-            candidates,
-        });
         return Ok(None);
     }
     Ok(Some(super::fold::fold(
@@ -125,7 +110,6 @@ fn pubmed_search<'a>(
         items,
         elapsed,
         error,
-        candidates: Vec::new(),
     }
 }
 fn europe_search<'a>(
@@ -155,7 +139,6 @@ fn europe_search<'a>(
         items,
         elapsed,
         error,
-        candidates: Vec::new(),
     }
 }
 pub(super) fn failed(sources: &[SourceOutcome]) -> bool {
@@ -199,21 +182,55 @@ fn term(query: &ArticleSearch) -> String {
     parts.join(" AND ")
 }
 
-fn litvar_search<'a>(
+type PreparedLitvar<'a> = (biomcp_fetch::Leg<'a>, Result<litvar::Variant, RequestError>);
+fn prepare_litvar<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     gene: Option<&str>,
-    deadline: Deadline<'a>,
-) -> ResultLeg {
-    let leg = cx.fetch.leg(&litvar::SPEC, deadline).fresh(cx.fresh);
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Option<PreparedLitvar<'a>> {
+    if !query.sources().contains(&ArticleSource::Litvar) {
+        return None;
+    }
+    let leg = cx.fetch.leg(&litvar::SPEC, *deadline).fresh(cx.fresh);
     let start = leg.remaining();
-    let result = litvar::search(&leg, gene, query.variant().map_or("", Text::as_str));
+    let result = litvar::select(&leg, gene, query.variant().map_or("", Text::as_str));
+    *deadline = super::consume(*deadline, start, leg.remaining());
+    match result {
+        Ok(litvar::Selection::Exact(selected)) => Some((leg, Ok(selected))),
+        Err(error) => Some((leg, Err(error))),
+        Ok(litvar::Selection::Candidates(candidates)) => {
+            out.status = Status::Absent;
+            out.sources
+                .push(status::source(Source::LitVar, leg.finish(), None));
+            for candidate in &candidates {
+                out.next.push((
+                    biodata::StepKind::Disambiguate,
+                    crate::Action::Run {
+                        request: biodata::Request::SearchArticle(
+                            query.with_variant(candidate.rsid.clone()),
+                        ),
+                        fresh: cx.fresh,
+                    },
+                ));
+            }
+            out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage {
+                items: Box::default(),
+                candidates,
+            });
+            None
+        }
+    }
+}
+fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
+    let start = leg.remaining();
+    let result = selected.and_then(|selected| litvar::publications(&leg, selected));
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
     let mut outcome = status::source(Source::LitVar, leg.finish(), error);
-    let mut candidates = Vec::new();
     let items = match result {
-        Ok(litvar::Search::Selected { rsid, count, ids }) => {
+        Ok(litvar::Search { rsid, count, ids }) => {
             outcome.term = Some(rsid);
             outcome.count = Some(count);
             outcome.fetched = Some(ids.len() as u32);
@@ -227,10 +244,6 @@ fn litvar_search<'a>(
                 })
                 .collect()
         }
-        Ok(litvar::Search::Candidates(nearby)) => {
-            candidates = nearby;
-            Vec::new()
-        }
         Err(_) => Vec::new(),
     };
     ResultLeg {
@@ -239,18 +252,5 @@ fn litvar_search<'a>(
         items,
         elapsed,
         error,
-        candidates,
-    }
-}
-
-// Structured selectors are literal field values, not additional query syntax.
-fn field(value: &str) -> String {
-    if value
-        .bytes()
-        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'.' | b'_'))
-    {
-        value.to_owned()
-    } else {
-        format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
     }
 }
