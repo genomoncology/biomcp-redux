@@ -12,6 +12,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("trial/wider-search/short-pages-only", || {
             short_pages().map_err(Into::into)
         }),
+        Trial::test("trial/wider-search/active-policy", || {
+            policy().map_err(Into::into)
+        }),
         Trial::test("trial/wider-search/typed-option-contract", || {
             options().map_err(Into::into)
         }),
@@ -141,5 +144,42 @@ fn options() -> Check {
             return Err("wider search changed another option or order".into());
         }
     }
+    Ok(())
+}
+
+fn policy() -> Check {
+    let args = [
+        "--disable-sources",
+        "pubmed",
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--gene",
+        "BRAF",
+        "--fresh",
+    ];
+    checked_steps(
+        "trial/gene",
+        |source, record| {
+            if source == "ctgov"
+                && record["url"]
+                    .as_str()
+                    .is_some_and(|url| url.contains("/studies?"))
+            {
+                let body = &mut record["exchanges"][0]["body"]["value"];
+                body["totalCount"] = json!(0);
+                body["studies"] = json!([]);
+                if let Some(body) = body.as_object_mut() {
+                    body.remove("nextPageToken");
+                }
+            }
+        },
+        json!([{"run":args, "mcp":args,"expect":{
+            "/status":"complete", "/result/items":{"count":0}, "/next":[{
+                "kind":"disambiguate", "args":["--disable-sources","pubmed","search","trial","--condition","melanoma","--criteria","BRAF","--fresh"]
+            }]
+        }}]),
+    )?;
     Ok(())
 }

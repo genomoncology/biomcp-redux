@@ -103,7 +103,7 @@ fn apply_page(
     if short && outcome.status == Status::Complete {
         outcome.next.extend(
             query
-                .wider_searches(symbol.and_then(|value| biomcp_types::Text::new(value).ok()))
+                .wider_searches(symbol.and_then(|value| biodata::Text::new(value).ok()))
                 .into_iter()
                 .map(|query| {
                     (
