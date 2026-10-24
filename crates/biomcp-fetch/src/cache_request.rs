@@ -5,7 +5,7 @@ use crate::{
 };
 use biodata::Reason;
 
-const NEGATIVE_SECONDS: i64 = 600;
+const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
     Positive(T, bool),
     Absent,
@@ -38,16 +38,11 @@ impl Leg<'_> {
         }
         match live() {
             Ok((reply, status, body)) => {
-                let fresh_until = now().saturating_add(i64::try_from(seconds).unwrap_or(i64::MAX));
                 cache.write(
                     key,
                     self.spec.source,
                     url,
-                    &Entry {
-                        status,
-                        body,
-                        fresh_until,
-                    },
+                    &Entry::new(status, body, seconds),
                     self.deadline,
                 )?;
                 Ok(reply)
@@ -59,11 +54,7 @@ impl Leg<'_> {
                     key,
                     self.spec.source,
                     url,
-                    &Entry {
-                        status: 404,
-                        body: Vec::new(),
-                        fresh_until: now().saturating_add(NEGATIVE_SECONDS),
-                    },
+                    &Entry::new(404, Vec::new(), NEGATIVE_SECONDS),
                     self.deadline,
                 )?;
                 Err(error.into())

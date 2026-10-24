@@ -69,6 +69,7 @@ impl Worker {
                 }
             }
         };
+        control.set_nonblocking(false).unwrap();
         control
             .set_read_timeout(Some(Duration::from_secs(15)))
             .unwrap();
