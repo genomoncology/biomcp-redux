@@ -75,49 +75,7 @@ fn visit(
     let object = node
         .as_object()
         .ok_or_else(|| format!("unsupported schema at {path}"))?;
-    for key in object.keys() {
-        if ![
-            "$schema",
-            "$id",
-            "$defs",
-            "$ref",
-            "title",
-            "description",
-            "type",
-            "enum",
-            "properties",
-            "required",
-            "additionalProperties",
-            "anyOf",
-            "oneOf",
-            "const",
-            "items",
-            "minLength",
-            "pattern",
-            "minimum",
-            "maximum",
-            "format",
-        ]
-        .contains(&key.as_str())
-        {
-            return Err(format!("unsupported keyword {key} at {path}"));
-        }
-    }
-    // These generated forms carry annotations beside a reference or union,
-    // never assertions. Assertions would intersect, while Shape only records
-    // one constraint at each path; refuse them instead of merging incorrectly.
-    for composition in ["$ref", "anyOf", "oneOf"] {
-        if object.contains_key(composition)
-            && object.keys().any(|key| {
-                key != composition
-                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
-            })
-        {
-            return Err(format!(
-                "unsupported assertion sibling of {composition} at {path}"
-            ));
-        }
-    }
+    validate_keywords(object, path)?;
     if let Some(reference) = node.get("$ref") {
         let reference = reference.as_str().ok_or("invalid reference")?;
         let pointer = reference
@@ -261,4 +219,51 @@ fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
     }
     if result.is_empty() { return Err("empty tagged union".into()); }
     Ok(result)
+}
+
+fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Check<()> {
+    for key in object.keys() {
+        if ![
+            "$schema",
+            "$id",
+            "$defs",
+            "$ref",
+            "title",
+            "description",
+            "type",
+            "enum",
+            "properties",
+            "required",
+            "additionalProperties",
+            "anyOf",
+            "oneOf",
+            "const",
+            "items",
+            "minLength",
+            "pattern",
+            "minimum",
+            "maximum",
+            "format",
+        ]
+        .contains(&key.as_str())
+        {
+            return Err(format!("unsupported keyword {key} at {path}"));
+        }
+    }
+    // These generated forms carry annotations beside a reference or union,
+    // never assertions. Assertions would intersect, while Shape only records
+    // one constraint at each path; refuse them instead of merging incorrectly.
+    for composition in ["$ref", "anyOf", "oneOf"] {
+        if object.contains_key(composition)
+            && object.keys().any(|key| {
+                key != composition
+                    && !["$schema", "$id", "$defs", "title", "description"].contains(&key.as_str())
+            })
+        {
+            return Err(format!(
+                "unsupported assertion sibling of {composition} at {path}"
+            ));
+        }
+    }
+    Ok(())
 }

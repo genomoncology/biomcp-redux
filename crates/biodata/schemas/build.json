@@ -1,0 +1,12 @@
+{
+  "$id": "biodata.build/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The assembly stated by the source; no default is inferred.",
+  "enum": [
+    "GRCh37",
+    "GRCh38",
+    "unstated"
+  ],
+  "title": "Build",
+  "type": "string"
+}

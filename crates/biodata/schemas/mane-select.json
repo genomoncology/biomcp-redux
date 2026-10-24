@@ -1,0 +1,30 @@
+{
+  "$defs": {
+    "EnsemblTranscript": {
+      "pattern": "^ENST[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "RefSeqTranscript": {
+      "pattern": "^(NM_|NR_|XM_|XR_)[0-9]{6,}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    }
+  },
+  "$id": "biodata.mane-select/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A MANE Select pair whose two accessions both state their versions.",
+  "properties": {
+    "ensembl": {
+      "$ref": "#/$defs/EnsemblTranscript"
+    },
+    "refseq": {
+      "$ref": "#/$defs/RefSeqTranscript"
+    }
+  },
+  "required": [
+    "refseq",
+    "ensembl"
+  ],
+  "title": "ManeSelect",
+  "type": "object"
+}

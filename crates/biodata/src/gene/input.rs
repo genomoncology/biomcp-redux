@@ -18,10 +18,10 @@ impl GeneInput {
     /// Trim input and classify explicit identifiers before alias text.
     pub fn new(value: &str) -> Result<Self, Error> {
         let value = value.trim();
-        if value.starts_with("HGNC:") {
+        if value.get(..5).is_some_and(|prefix| prefix.eq_ignore_ascii_case("HGNC:")) {
             return value.parse().map(Self::HgncId);
         }
-        if value.starts_with("ENSG") {
+        if value.get(..4).is_some_and(|prefix| prefix.eq_ignore_ascii_case("ENSG")) {
             return value.parse().map(Self::EnsemblId);
         }
         if !value.is_empty() && value.bytes().all(|ch| ch.is_ascii_digit()) {

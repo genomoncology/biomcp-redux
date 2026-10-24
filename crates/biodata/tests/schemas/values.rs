@@ -23,7 +23,7 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>
         assert!(validator.is_valid(&serde_json::to_value(value).unwrap()));
     }
     for value in [
-        json!("unknown"),
+        json!("distinctive-unrecognized-value"),
         json!("HGNC"),
         json!(""),
         json!(123),

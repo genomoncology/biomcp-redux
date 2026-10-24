@@ -1,0 +1,11 @@
+{
+  "$id": "biodata.hgnc-status/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "HGNC's stated withdrawn-file status.",
+  "enum": [
+    "Entry Withdrawn",
+    "Merged/Split"
+  ],
+  "title": "HgncStatus",
+  "type": "string"
+}

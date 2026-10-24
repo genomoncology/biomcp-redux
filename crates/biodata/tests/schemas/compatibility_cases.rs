@@ -134,7 +134,8 @@ fn compatibility_preserves_patterns_and_rejects_tighter_integer_bounds() {
 #[test]
 fn compatibility_tracks_array_items_and_each_tagged_variant() {
     let old = json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"}});
-    let mut new = old.clone(); new["items"]["type"] = json!("integer");
+    let mut new = old.clone();
+    new["items"]["type"] = json!("integer");
     assert!(check(&old, &new).is_err());
     fn branch(tag: &str, fields: Value) -> Value {
         let mut properties = fields.as_object().unwrap().clone();
