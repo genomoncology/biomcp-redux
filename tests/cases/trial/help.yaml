@@ -50,7 +50,7 @@
         "/result/commands/0/arguments/25/description": "Literal variant text for registry discovery only; no eligibility judgment.",
         "/result/commands/0/arguments/3/description": "Search literal registry eligibility text for discovery only; no eligibility judgment."
       },
-      "max_bytes": 10000
+      "max_bytes": 5163
     },
     {
       "run": [
@@ -89,7 +89,7 @@
         ],
         "/result/commands/0/section_rule": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported."
       },
-      "max_bytes": 6000
+      "max_bytes": 3105
     },
     {
       "run": [
@@ -113,7 +113,8 @@
           "--save"
         ]
       },
-      "max_bytes": 2500
+      "max_bytes": 1252
     }
-  ]
+  ],
+  "verified": "Measured compact CLI bytes plus 15 percent in j10693: search trial 4489, get trial 2700, trial document 1088. No comparable released schema-generated help baseline exists. CLI/MCP parity shares these assertions."
 }

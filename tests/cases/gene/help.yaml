@@ -15,7 +15,7 @@
           "gene"
         ]
       },
-      "max_bytes": 24132
+      "max_bytes": 29232
     },
     {
       "run": [
@@ -228,5 +228,5 @@
       }
     }
   ],
-  "verified": "Whole help includes trial search and all landed article verbs. j10465 measured the root help at 20984 bytes; max_bytes is ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
+  "verified": "Whole help includes every landed trial and article verb. j10693 measured root help at 25419 bytes after adding trial examples and schema descriptions; max_bytes is ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
 }
