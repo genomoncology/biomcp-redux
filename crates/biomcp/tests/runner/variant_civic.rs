@@ -337,6 +337,7 @@ fn compound() -> Result<(), String> {
     let value = run(&environment, &["get", "variant", "CA123643", "civic"])?;
     let base = "/result/candidates/0/sections/civic/data/profiles/0";
     if value.pointer(&format!("{base}/compound")) != Some(&json!(true))
+        || value.pointer(&format!("{base}/statements/0/statement_unmapped")) != Some(&json!(true))
         || value
             .pointer(&format!("{base}/members"))
             .and_then(Value::as_array)
