@@ -72,9 +72,6 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
     Ok(())
 }
 impl Cache {
-    pub(crate) fn open(path: &Path) -> Result<Self, CacheError> {
-        Self::open_with_owners(path, &[])
-    }
     pub(crate) fn open_with_owners(path: &Path, owners: &[SchemaOwner]) -> Result<Self, CacheError> {
         let mut connection = Connection::open(path).map_err(db_error)?;
         check_owners(&connection, owners)?;

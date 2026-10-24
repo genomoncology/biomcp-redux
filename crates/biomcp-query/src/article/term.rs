@@ -7,7 +7,7 @@ pub(super) fn resolve(cx:&Ctx<'_>,query:&ArticleSearch,deadline:Deadline<'_>,out
     let Some(input)=query.gene() else {return Ok(Some(words));};
     let leg=cx.fetch.leg(&hgnc::SPEC,deadline).fresh(cx.fresh);
     let resolved=gene::resolve(&leg,input);
-    out.sources.push(status::source(Source::Hgnc,leg.report(),resolved.as_ref().err().copied()));
+    out.sources.push(status::source(Source::Hgnc,leg.finish(),resolved.as_ref().err().copied()));
     let mapped=resolved?;status::append(&mut out.problems,mapped.problems);
     match mapped.value {
         GeneResolution::Resolved{gene,..}=>{

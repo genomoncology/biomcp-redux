@@ -27,7 +27,7 @@ fn execute(cx:&Ctx<'_>,query:&ArticleSearch,deadline:Deadline<'_>,out:&mut Outco
             let Some(term)=term::resolve(cx,query,deadline,out)? else{return Ok(());};
             let leg=cx.fetch.leg(&pubmed::SPEC,deadline).fresh(cx.fresh);
             let result=pubmed::search_ids(&leg,&term,cx.ncbi_email.as_ref());
-            let mut source=status::source(Source::PubMed,leg.report(),result.as_ref().err().copied());
+            let mut source=status::source(Source::PubMed,leg.finish(),result.as_ref().err().copied());
             source.term=Text::new(&term).ok();
             match result {
                 Ok(ids)=>{
@@ -52,7 +52,7 @@ fn read_page(cx:&Ctx<'_>,query:&ArticleSearch,deadline:Deadline<'_>,store:&mut S
         match result {
             Ok(mapped)=>{store.hydrate(id,&missing,&mapped.value,&mapped.problems)?;rows=store.page(id,query.offset(),query.limit())?;},
             Err(error)=>{
-                let mut source=status::source(Source::PubMed,leg.report(),Some(error));
+                let mut source=status::source(Source::PubMed,leg.finish(),Some(error));
                 if let Some(original)=pool.sources.iter().find(|s|s.source==Source::PubMed) {source.term=original.term.clone();source.count=original.count;source.fetched=original.fetched;source.notices=original.notices.clone();}
                 out.sources.retain(|s|s.source!=Source::PubMed);out.sources.push(source);
                 out.status=Status::Failed;retry(query,Some(pool.info.id.clone()),out);return Err(error);

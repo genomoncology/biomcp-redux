@@ -72,7 +72,8 @@ impl<'a> Deadline<'a> {
     pub(crate) fn now(&self) -> Instant {
         self.clock.map_or_else(Instant::now, VirtualClock::now)
     }
-    pub(crate) fn virtual_time(&self) -> bool {
+    /// Report whether this budget advances in replay time.
+    pub fn virtual_time(&self) -> bool {
         self.clock.is_some()
     }
     pub(crate) fn advance(&self, delay: Duration) -> bool {
