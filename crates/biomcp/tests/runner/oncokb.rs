@@ -2,7 +2,7 @@
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::fs;
+use std::{fs, path::Path};
 const KEY: &str = "synthetic-oncokb-variant-key";
 const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
@@ -96,6 +96,8 @@ fn wire() -> Result<(), String> {
             return Err("credential in recording".into());
         }
     }
+    content(&data)?;
+    replay_proof(&env, &directory)?;
     Ok(())
 }
 fn reply(request: &str) -> Result<String, String> {
@@ -103,4 +105,151 @@ fn reply(request: &str) -> Result<String, String> {
         return Ok(json!({"_id":INPUT,"dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string());
     }
     Ok(json!({"query":{"hgvs":"7:g.140753336A>T","referenceGenome":"GRCh38","tumorType":"Synthetic tumor","hugoSymbol":"BRAF","alteration":"V600E"},"variantExist":false,"alleleExist":false,"oncogenic":"Oncogenic","mutationEffect":{"knownEffect":"Neutral","description":"Synthetic mutation effect.","citations":{"pmids":["17611497"]}},"variantSummary":" Synthetic source text Ω ","dataVersion":"synthetic-v1","lastUpdate":"10/24/2026","treatments":[{"level":"LEVEL_1","alterations":["V600E","V600K"],"drugs":[{"drugName":"Synthetic drug","ncitCode":"C0000"}],"pmids":["17611497"]}],"diagnosticImplications":[],"prognosticImplications":[]}).to_string())
+}
+
+fn content(data: &Value) -> Result<(), String> {
+    let records = data
+        .pointer(&format!("{SECTION}/data/records"))
+        .and_then(Value::as_array)
+        .ok_or("annotation records absent")?;
+    let oncogenic = records
+        .iter()
+        .find(|r| r.pointer("/statement/proposition") == Some(&json!("oncogenicity")))
+        .ok_or("oncogenicity missing")?;
+    if oncogenic.pointer("/statement/subject")
+        != Some(&json!({"level":"protein","gene":"BRAF","label":"V600E"}))
+        || oncogenic.pointer("/statement/classification/coding/system")
+            != Some(&json!("oncokb_oncogenicity"))
+    {
+        return Err("source protein subject or own framework changed".into());
+    }
+    let effect = records
+        .iter()
+        .find(|r| r.pointer("/statement/proposition") == Some(&json!("functional_impact")))
+        .ok_or("effect missing")?;
+    if effect.pointer("/statement/direction").is_some()
+        || effect.pointer("/statement/classification/coding").is_some()
+        || effect.pointer("/statement/citations") != Some(&json!(["17611497"]))
+    {
+        return Err("functional Neutral gained direction/coding or lost citations".into());
+    }
+    let group = records
+        .iter()
+        .find(|r| r.get("kind") == Some(&json!("implication")))
+        .ok_or("native implication missing")?;
+    if group.get("statement_unmapped") != Some(&json!(true))
+        || group.get("alterations") != Some(&json!(["V600E", "V600K"]))
+        || group.get("tumor_type").is_some()
+        || group.get("statement").is_some()
+    {
+        return Err("grouped implication got invented subject/context".into());
+    }
+    if data.pointer(&format!("{SECTION}/data/variant_exist")) != Some(&json!(false))
+        || !records
+            .iter()
+            .any(|r| r.get("text") == Some(&json!(" Synthetic source text Ω ")))
+    {
+        return Err("native curation flag or text changed".into());
+    }
+    Ok(())
+}
+fn replay_args(dir: &Path) -> Vec<String> {
+    let mut a = args();
+    a.extend(["--replay".into(), dir.to_string_lossy().into()]);
+    a
+}
+fn replay_proof(env: &Environment, dir: &Path) -> Result<(), String> {
+    let baseline = invoke(env, &replay_args(dir), 0)?;
+    let mcp = super::mcp::call_with_globals(
+        env,
+        &args(),
+        false,
+        &["--replay".into(), dir.to_string_lossy().into()],
+    )?;
+    if baseline.get("result") != mcp.get("result") {
+        return Err("annotation CLI/MCP parity".into());
+    }
+    failures(env, dir)?;
+    let mut disabled = replay_args(dir);
+    disabled.extend(["--disable-sources".into(), "oncokb".into()]);
+    let disabled = invoke(env, &disabled, 0)?;
+    if disabled.pointer(&format!("{SECTION}/reason")) != Some(&json!("disabled")) {
+        return Err("disabled annotation restored cache/replay".into());
+    }
+    env.config(&json!({})).map_err(|e| e.to_string())?;
+    let missing = invoke(env, &replay_args(dir), 0)?;
+    if missing.pointer(&format!("{SECTION}/reason")) != Some(&json!("no_key")) {
+        return Err("missing key restored annotation replay".into());
+    }
+    Ok(())
+}
+#[expect(
+    clippy::indexing_slicing,
+    reason = "Mutate response-only fields on actual CLI-generated synthetic recordings"
+)]
+fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
+    let entry = fs::read_dir(dir.join("oncokb"))
+        .map_err(|e| e.to_string())?
+        .next()
+        .ok_or("missing capture")?
+        .map_err(|e| e.to_string())?
+        .path();
+    let original: Value = serde_json::from_slice(&fs::read(&entry).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    for (kind, reason) in [
+        (401, "rejected"),
+        (429, "rate_limited"),
+        (500, "unavailable"),
+        (0, "bad_reply"),
+        (1, "deadline_exceeded"),
+        (2, "bad_reply"),
+        (3, "bad_reply"),
+        (4, "bad_reply"),
+        (5, "bad_reply"),
+    ] {
+        let target = env.root().join(format!("failure-{kind}"));
+        fs::create_dir_all(target.join("oncokb")).map_err(|e| e.to_string())?;
+        let mut record = original.clone();
+        let mut exchange = record["exchanges"][0].clone();
+        exchange["delay_ms"] = json!(0);
+        if kind >= 400 {
+            exchange["status"] = json!(kind);
+            exchange["retry_after_ms"] = json!(1);
+        } else if kind == 0 {
+            exchange["body"] = json!({"kind":"text","value":"{"});
+        } else if kind == 1 {
+            exchange["delay_ms"] = json!(30001);
+        } else if kind == 2 {
+            exchange["body"] = json!({"kind":"json","value":{"error":"synthetic"}});
+        } else {
+            let field = match kind {
+                3 => "hgvs",
+                4 => "referenceGenome",
+                _ => "tumorType",
+            };
+            exchange["body"]["value"]["query"][field] = if kind == 4 {
+                json!("GRCh37")
+            } else {
+                json!("different")
+            };
+        }
+        record["exchanges"] = json!(vec![
+            exchange;
+            if kind == 429 || kind == 500 { 3 } else { 1 }
+        ]);
+        fs::write(
+            target
+                .join("oncokb")
+                .join(entry.file_name().ok_or("filename")?),
+            serde_json::to_vec(&record).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        let output = invoke(env, &replay_args(&target), 4)?;
+        if output.pointer(&format!("{SECTION}/reason")) != Some(&json!(reason)) {
+            return Err(format!(
+                "annotation failure {kind} lost its reason: {output}"
+            ));
+        }
+    }
+    Ok(())
 }
