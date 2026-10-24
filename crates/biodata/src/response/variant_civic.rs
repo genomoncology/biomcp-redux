@@ -80,6 +80,9 @@ pub struct CivicClaimPage {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CivicStatement {
+    /// Native claim cannot be represented by the common subject or proposition model.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub statement_unmapped: bool,
     /// Common source-attributed claim.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement: Option<Statement>,

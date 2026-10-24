@@ -149,6 +149,7 @@ fn build(
         });
     }
     Ok(CivicStatement {
+        statement_unmapped: statement.is_none(),
         statement,
         native,
         record: SourceRecord { id, url: Some(url) },
