@@ -49,11 +49,19 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let requested = super::sections::prepare(query, &mut items);
     let mut out = Outcome {
         status: status::status(items.iter().map(|i| i.status)),
-        body: QueryBody::ArticleCards(ArticleCards { items: items.into() }),
-        sources: vec![source], page: None, problems: Vec::new(), next: Vec::new(), local,
+        body: QueryBody::ArticleCards(ArticleCards {
+            items: items.into(),
+        }),
+        sources: vec![source],
+        page: None,
+        problems: Vec::new(),
+        next: Vec::new(),
+        local,
     };
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
-    if requested { super::sections::run(cx, &mut deadline, &mut out); }
+    if requested {
+        super::sections::run(cx, &mut deadline, &mut out);
+    }
     super::next::get(query, &mut out);
     command.finish(deadline.remaining());
     out

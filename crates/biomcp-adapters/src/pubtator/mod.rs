@@ -29,12 +29,19 @@ pub fn annotations(
             reason: biodata::Reason::BadReply,
             status: None,
             retry_after: None,
-        }.into());
+        }
+        .into());
     }
-    let names: Vec<_> = ids.iter().map(|id| id.to_string().into_boxed_str()).collect();
+    let names: Vec<_> = ids
+        .iter()
+        .map(|id| id.to_string().into_boxed_str())
+        .collect();
     let reply = leg.json::<raw::Export>(&EXPORT, &[("pmids", Arg::Ids(&names))])?;
-    Ok(ids.iter().map(|id| {
-        let document = reply.documents.iter().find(|doc| doc.id == *id);
-        (*id, map::document(*id, document))
-    }).collect())
+    Ok(ids
+        .iter()
+        .map(|id| {
+            let document = reply.documents.iter().find(|doc| doc.id == *id);
+            (*id, map::document(*id, document))
+        })
+        .collect())
 }

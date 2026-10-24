@@ -31,14 +31,19 @@ impl ArticleGet {
         Self::with_sections(input, Box::default())
     }
     /// Check input bounds and retain section requests.
-    pub fn with_sections(input: Box<[ArticleInput]>, section: Box<[ArticleSectionWord]>) -> Result<Self, QueryInvalid> {
+    pub fn with_sections(
+        input: Box<[ArticleInput]>,
+        section: Box<[ArticleSectionWord]>,
+    ) -> Result<Self, QueryInvalid> {
         if !(1..=20).contains(&input.len()) {
             return Err(QueryInvalid);
         }
         Ok(Self(Fields { input, section }))
     }
     /// Requested section words.
-    pub fn sections(&self) -> &[ArticleSectionWord] { &self.0.section }
+    pub fn sections(&self) -> &[ArticleSectionWord] {
+        &self.0.section
+    }
     /// Original selectors.
     pub fn input(&self) -> &[ArticleInput] {
         &self.0.input

@@ -1,7 +1,7 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 pub mod get;
-mod sections;
 mod next;
+mod sections;
 mod term;
 use crate::{
     Action, Ctx, Outcome, status,

@@ -1,14 +1,20 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
 use crate::{Ctx, status};
-use biodata::{ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSections, Section};
+use biodata::{
+    ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSections, Section,
+};
 use biomcp_fetch::Deadline;
 pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool {
     let requested = !query.sections().is_empty();
     for item in items {
-        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else { continue };
+        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
+            continue;
+        };
         if requested {
-            item.sections = Some(ArticleSections { annotations: card.pmid.is_none().then_some(Section::NotApplicable) });
+            item.sections = Some(ArticleSections {
+                annotations: card.pmid.is_none().then_some(Section::NotApplicable),
+            });
         } else if card.pmid.is_some() {
             item.more = Box::new([ArticleSection::Annotations]);
         }
@@ -16,9 +22,13 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
     requested
 }
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
-    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else { return };
+    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
+        return;
+    };
     let ids = annotations::ids(&cards.items);
-    if ids.is_empty() { return; }
+    if ids.is_empty() {
+        return;
+    }
     let result = annotations::run(cx, deadline, &ids);
     annotations::join(&mut cards.items, &result);
     out.local = out.local.or(result.local);

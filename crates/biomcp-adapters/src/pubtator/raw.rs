@@ -24,7 +24,7 @@ pub(super) struct Annotation {
 }
 #[derive(Deserialize)]
 pub(super) struct Infons {
-    #[serde(rename="type")]
+    #[serde(rename = "type")]
     pub kind: String,
     #[serde(default)]
     pub identifier: Option<Field<String>>,
@@ -36,4 +36,13 @@ pub(super) struct Infons {
     pub rsid: Option<Field<String>>,
     #[serde(default)]
     pub gene_id: Option<Field<String>>,
+}
+impl biomcp_fetch::Reply for Export {
+    fn check(&self) -> Result<(), biomcp_fetch::BadReply> {
+        let mut ids = std::collections::BTreeSet::new();
+        if self.documents.iter().any(|d| !ids.insert(d.id)) {
+            return Err(biomcp_fetch::BadReply);
+        }
+        Ok(())
+    }
 }
