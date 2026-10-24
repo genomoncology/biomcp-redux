@@ -20,7 +20,7 @@ pub(super) fn frequency(
             // Preserve the existing source-level missing-release problem once.
             if !problems.iter().any(|p| p.field == field) {
                 problems.push(Problem {
-                    source: Source::Gnomad.text(),
+                    source: Source::Gnomad,
                     record: Some(raw.variant_id.clone()),
                     field,
                     code: ProblemCode::ValueUnknown,

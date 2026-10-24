@@ -881,7 +881,7 @@ pub enum FetchError {                 // opening the transport only
 }
 ```
 
-`SourceError` reuses `biodata::Reason`, so a failure travels from the transport into the envelope without a second enum.
+`SourceError` reuses `biomcp_types::Reason`, so a failure travels from the transport into the envelope without a second enum.
 
 ## 5. Source adapters
 
