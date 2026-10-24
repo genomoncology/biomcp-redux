@@ -21,6 +21,7 @@ pub fn resolve_ids(
     email: Option<&Secret>,
 ) -> Result<Vec<Pmid>, RequestError> {
     let term = match input {
+        ArticleInput::EuropePmc(_) => return Ok(Vec::new()),
         ArticleInput::Pmid(id) => return Ok(vec![*id]),
         ArticleInput::Pmcid(id) => format!("{id}[pmc]"),
         ArticleInput::Doi(id) => format!("{id}[doi]"),
@@ -142,6 +143,7 @@ fn article(root: Element<'_>) -> Result<Article, BadReply> {
         }
     }
     Ok(Article {
+        europepmc_id: None,
         pmid: Some(pmid),
         doi,
         pmcid,

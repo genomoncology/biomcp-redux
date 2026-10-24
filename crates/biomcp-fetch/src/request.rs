@@ -31,6 +31,15 @@ impl Leg<'_> {
             .map(|(reply, _)| reply)
     }
 
+    /// Read checked JSON and the timestamp belonging to that received record.
+    pub fn json_received<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.parameters(ep, params, Decoder::json())
+    }
+
     /// Send checked XML from a GET or form POST.
     pub fn xml<T: XmlReply>(
         &self,

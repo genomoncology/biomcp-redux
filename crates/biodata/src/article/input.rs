@@ -1,4 +1,4 @@
-use crate::{Doi, Error, Pmcid, Pmid, macros::text_value};
+use crate::{Doi, EuropePmcId, Error, Pmcid, Pmid, macros::text_value};
 /// A checked article identifier, retaining its namespace.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ArticleInput {
@@ -8,11 +8,15 @@ pub enum ArticleInput {
     Pmcid(Pmcid),
     /// Digital object identifier.
     Doi(Doi),
+    /// Europe PMC preprint identity.
+    EuropePmc(EuropePmcId),
 }
 impl std::str::FromStr for ArticleInput {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self, Error> {
-        if s.starts_with("PMC") {
+        if s.starts_with("PPR") {
+            s.parse().map(Self::EuropePmc)
+        } else if s.starts_with("PMC") {
             s.parse().map(Self::Pmcid)
         } else if s.starts_with("10.") {
             s.parse().map(Self::Doi)
@@ -32,13 +36,14 @@ impl std::fmt::Display for ArticleInput {
             Self::Pmid(id) => id.fmt(f),
             Self::Pmcid(id) => id.fmt(f),
             Self::Doi(id) => id.fmt(f),
+            Self::EuropePmc(id) => id.fmt(f),
         }
     }
 }
 text_value!(
     ArticleInput,
     "ArticleInput",
-    r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
+    r"^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[1-9][0-9]*|(?:https?://doi\.org/)?10\.[0-9]+/[^\s\x00-\x1f\x7f]+)$"
 );
 crate::source::canonical_enum! {
     /// Identifier used to resolve this article.
@@ -49,6 +54,8 @@ crate::source::canonical_enum! {
         Pmcid => "pmcid",
         /// Digital object identifier.
         Doi => "doi",
+        /// Europe PMC preprint identifier.
+        EuropePmcId => "europepmc_id",
     }
 }
 impl ArticleInput {
@@ -58,6 +65,7 @@ impl ArticleInput {
             Self::Pmid(_) => ArticleMatchKind::Pmid,
             Self::Pmcid(_) => ArticleMatchKind::Pmcid,
             Self::Doi(_) => ArticleMatchKind::Doi,
+            Self::EuropePmc(_) => ArticleMatchKind::EuropePmcId,
         }
     }
 }

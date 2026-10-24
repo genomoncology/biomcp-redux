@@ -22,7 +22,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         let Some(sections) = &mut item.sections else {
             continue;
         };
-        if sections.fulltext.is_some() {
+        if sections.fulltext.is_some() || card.europepmc_id.is_some() {
             continue;
         }
         let Some(id) = card.pmcid else {
@@ -95,7 +95,10 @@ pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
     }
 }
 pub(crate) fn next(id: Pmcid, part: u32, out: &mut Vec<(StepKind, Action)>) {
-    if let Ok(query) = ArticleText::part(ArticleInput::Pmcid(id), part) {
+    next_input(ArticleInput::Pmcid(id), part, out);
+}
+pub(crate) fn next_input(input: ArticleInput, part: u32, out: &mut Vec<(StepKind, Action)>) {
+    if let Ok(query) = ArticleText::part(input, part) {
         out.push((
             StepKind::Page,
             Action::Run {

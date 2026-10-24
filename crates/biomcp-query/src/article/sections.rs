@@ -21,7 +21,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 .then_some(Section::NotApplicable),
                 citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none())
                     .then_some(Section::NotApplicable),
-                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none())
+                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none() && card.europepmc_id.is_none())
                     .then_some(Section::NotApplicable),
             });
         }
@@ -34,7 +34,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             (
                 ArticleSectionWord::Fulltext,
                 ArticleSection::Fulltext,
-                card.pmcid.is_some(),
+                card.pmcid.is_some() || card.europepmc_id.is_some(),
             ),
             (
                 ArticleSectionWord::Citations,
@@ -57,6 +57,7 @@ pub(super) fn run<'a>(
 ) {
     if selected(query, ArticleSectionWord::Fulltext) {
         fulltext::run(cx, deadline, out);
+        super::preprint::fulltext(cx, deadline, out);
     }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

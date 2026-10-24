@@ -1,4 +1,6 @@
 //! Europe PMC's bounded metadata-only search window.
+mod core;
+pub use core::{core, read};
 use crate::quotas;
 use biodata::{
     ArticleHeader, ArticleItem, ArticleKey, ArticleSort, Doi, EuropePmcId, PartialDate, Pmcid,

@@ -46,19 +46,22 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             Ok(ids) => append(input, &ids, &records, &failures, stale, &mut items),
         }
     }
-    let requested = super::sections::prepare(query, &mut items);
     let mut out = Outcome {
         status: status::status(items.iter().map(|i| i.status)),
         body: QueryBody::ArticleCards(ArticleCards {
             items: items.into(),
         }),
-        sources: vec![source],
+        sources: if query.input().iter().any(|i| !matches!(i, ArticleInput::EuropePmc(_))) { vec![source] } else { Vec::new() },
         page: None,
         problems: Vec::new(),
         next: Vec::new(),
         local,
     };
     let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
+    super::preprint::cards(cx, &mut deadline, &mut out);
+    let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {
+        super::sections::prepare(query, &mut cards.items)
+    } else { false };
     if requested {
         super::sections::run(cx, &mut deadline, query, &mut out);
     }
@@ -96,6 +99,7 @@ fn agrees(input: &ArticleInput, card: &Article) -> bool {
         ArticleInput::Pmid(id) => Some(*id) == card.pmid,
         ArticleInput::Pmcid(id) => card.pmcid.as_ref() == Some(id),
         ArticleInput::Doi(id) => card.doi.as_ref() == Some(id),
+        ArticleInput::EuropePmc(id) => card.europepmc_id.as_ref() == Some(id),
     }
 }
 fn item(
