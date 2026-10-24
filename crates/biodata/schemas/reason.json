@@ -1,0 +1,20 @@
+{
+  "$id": "biodata.reason/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Why a source could not supply data.",
+  "enum": [
+    "not_found",
+    "rate_limited",
+    "unavailable",
+    "rejected",
+    "bad_reply",
+    "deadline_exceeded",
+    "offline",
+    "no_key",
+    "disabled",
+    "replay_miss",
+    "syncing"
+  ],
+  "title": "Reason",
+  "type": "string"
+}

@@ -1,0 +1,28 @@
+too-many-lines-threshold = 80
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
+allow-indexing-slicing-in-tests = true
+
+disallowed-types = [
+    { path = "std::process::Command", reason = "The transport never starts processes" },
+    { path = "std::cell::Cell", reason = "Interior state needs a reviewed reason" },
+    { path = "std::sync::Mutex", reason = "Shared state needs a reviewed reason" },
+    { path = "std::sync::Condvar", reason = "Shared waits need a reviewed reason" },
+]
+
+disallowed-methods = [
+    { path = "std::process::exit", reason = "The transport returns errors to its caller" },
+    { path = "std::process::abort", reason = "The transport returns errors to its caller" },
+    { path = "std::thread::scope", reason = "Transport concurrency needs a reviewed reason" },
+    { path = "std::env::var", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::var_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::vars", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::vars_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::args", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::args_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::current_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::current_exe", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::home_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::temp_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+]
