@@ -8,6 +8,7 @@ use std::{ffi::OsString, path::PathBuf};
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Globals {
     pub(crate) replay: Option<PathBuf>,
+    pub(crate) observe: Option<PathBuf>,
     pub(crate) record: Option<PathBuf>,
     pub(crate) case_cache: Option<PathBuf>,
     pub(crate) offline: bool,
@@ -54,7 +55,7 @@ fn root() -> Result<Command, ()> {
             .global(true)
             .value_parser(["json", "md"]),
     );
-    for name in ["replay", "record", "case-cache"] {
+    for name in ["replay", "record", "case-cache", "observe"] {
         root = root.arg(
             Arg::new(name)
                 .long(name)
@@ -109,6 +110,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         .map_err(|_| ())?;
     let globals = Globals {
         replay: matches.get_one::<PathBuf>("replay").cloned(),
+        observe: matches.get_one::<PathBuf>("observe").cloned(),
         record: matches.get_one::<PathBuf>("record").cloned(),
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
@@ -225,6 +227,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 impl Globals {
     pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
         self.replay = process.replay.clone();
+        self.observe = process.observe.clone();
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;

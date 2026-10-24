@@ -188,7 +188,13 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
-            let (mut error, retryable, delay) = match self.exchange(prepared, codec) {
+            let started = Instant::now();
+            let exchange = self.exchange(prepared, codec);
+            match &exchange {
+                Ok(response) => self.observe(&prepared.identity, Some(response.status), &response.body, &response.content_type, started.elapsed()),
+                Err(_) => self.observe(&prepared.identity, None, &[], "", started.elapsed()),
+            }
+            let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
                     if (200..300).contains(&status) {

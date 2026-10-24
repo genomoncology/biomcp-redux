@@ -141,6 +141,7 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
+        self.observe(&key, Some(exchange.status), exchange.body.bytes(), b.format.media(), Duration::from_millis(exchange.delay_ms));
         if exchange.status != 200 {
             return Err(self.failure(Reason::BadReply, Some(exchange.status)).into());
         }
@@ -177,6 +178,9 @@ impl Leg<'_> {
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
+                    if status != 200 && status != 206 {
+                        self.observe(&prepared.identity, Some(status), &[], b.format.media(), t.started.elapsed());
+                    }
                     if status == 412 && t.part.bytes > 0 {
                         reset(t.file, t.part)?;
                         headers.clear();
@@ -207,6 +211,7 @@ impl Leg<'_> {
                     }
                 }
                 Err(error) => {
+                    self.observe(&prepared.identity, None, &[], b.format.media(), t.started.elapsed());
                     drop(permit);
                     if !crate::retry::retry_error(&error) || attempt + 1 == crate::retry::ATTEMPTS {
                         return Err(self
@@ -261,6 +266,8 @@ impl Leg<'_> {
         self.stream(t, response)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
+        let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
+        self.observe(&crate::retry::identity(&url), Some(status), &body, b.format.media(), t.started.elapsed());
         let rows = parse::rows::<R>(&body, b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
         if self.budget().expired() {

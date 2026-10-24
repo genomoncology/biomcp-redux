@@ -3,7 +3,7 @@ mod configuration;
 mod gene_tables;
 mod held_proxy;
 mod launch;
-mod live;
+pub(crate) mod live;
 mod live_proof;
 mod markdown;
 mod markdown_sources;
@@ -29,6 +29,7 @@ use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Case {
+    live_check: Option<String>,
     #[serde(rename = "feature", default)]
     _feature: Option<String>,
     #[serde(rename = "covers", default)]
