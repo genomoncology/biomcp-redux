@@ -37,10 +37,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 } else {
                     Reason::Unavailable
                 };
-                Section::Unavailable {
-                    source: Source::SemanticScholar,
-                    reason,
-                }
+                Section::unavailable(Source::SemanticScholar, reason)
             }
         };
         if let Some(sections) = &mut item.sections {

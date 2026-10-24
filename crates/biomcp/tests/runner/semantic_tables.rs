@@ -1,6 +1,6 @@
 //! Boundary tables run the same command runner with response-only fixture edits.
 use super::response_cases::{case, checked_case};
-use serde_json::json;
+use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 const CAPTURE: &str = "article/edges/live";
 const ARGS: &[&str] = &[
@@ -44,13 +44,17 @@ fn fields() -> Check {
                     return;
                 }
                 let mut edge = json!({"citedPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{},"title":"Invented article title.","year":2020}});
-                if let Some(value) = &contexts {
-                    edge["contexts"] = value.clone();
+                if let Some(value) = &contexts
+                    && let Some(edge) = edge.as_object_mut()
+                {
+                    edge.insert("contexts".into(), value.clone());
                 }
-                if let Some(value) = flag {
-                    edge["isInfluential"] = value.into();
+                if let Some(value) = flag
+                    && let Some(edge) = edge.as_object_mut()
+                {
+                    edge.insert("isInfluential".into(), value.into());
                 }
-                record["exchanges"][0]["body"]["value"] = json!({"data":[edge]});
+                reply(record, json!({"data":[edge]}));
             },
             expected,
             0,
@@ -82,7 +86,7 @@ fn failures() -> Check {
             ARGS,
             |source, record| {
                 if source == "semantic-scholar" {
-                    record["exchanges"][0]["body"]["value"] = value.clone();
+                    reply(record, value.clone());
                 }
             },
             json!({"/status":"failed","/sources/0/reason":reason}),
@@ -94,7 +98,7 @@ fn failures() -> Check {
         ARGS,
         |source, record| {
             if source == "semantic-scholar" {
-                record["exchanges"][0]["body"]["value"] = json!({"data":[]});
+                reply(record, json!({"data":[]}));
             }
         },
         json!({"/status":"complete","/page/total":0,"/page/truncated":false,"/result/items":[]}),
@@ -120,7 +124,7 @@ fn anonymous() -> Check {
                     "intents":["background"],"isInfluential":false,"contexts":["Invented context."]
                 })
             });
-            record["exchanges"][0]["body"]["value"] = json!({"data":rows});
+            reply(record, json!({"data":rows}));
         },
         json!({"/status":"complete","/page/total":2,"/result/items/*/header/title":["First anonymous source row.","Second anonymous source row."]}),
         0,
@@ -138,4 +142,10 @@ fn anonymous() -> Check {
         }
     }
     Ok(())
+}
+
+fn reply(record: &mut Value, value: Value) {
+    if let Some(body) = record.pointer_mut("/exchanges/0/body/value") {
+        *body = value;
+    }
 }
