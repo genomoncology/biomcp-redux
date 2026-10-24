@@ -108,13 +108,7 @@ fn response(
     } else {
         crate::exit::Status::from(result.status)
     };
-    let mut steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    network_steps(&mut steps, &result.sources);
-    let steps = source_steps(fetch, steps);
+    let steps = next_steps(fetch, &result)?;
     match (request, result.body) {
         (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
             biodata::ErrorEnvelope::arguments(),
@@ -341,6 +335,19 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
             crate::exit::Status::Expired
         },
     )
+}
+
+fn next_steps(
+    fetch: &biomcp_fetch::Fetch,
+    result: &biomcp_query::Outcome,
+) -> io::Result<Vec<biodata::Step>> {
+    let mut steps = result
+        .next
+        .iter()
+        .map(|(kind, action)| crate::spell::step(*kind, action))
+        .collect::<Result<Vec<_>, _>>()?;
+    network_steps(&mut steps, &result.sources);
+    Ok(source_steps(fetch, steps))
 }
 
 fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {

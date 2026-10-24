@@ -124,14 +124,6 @@ fn fetch_using(
     if let Some(key) = ncbi {
         secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
     }
-    let mut disabled = globals.disable_sources.clone();
-    disabled.extend(
-        file.as_ref()
-            .and_then(|f| f.disable_sources.clone())
-            .unwrap_or_default(),
-    );
-    let disabled_sources = biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())?;
-
     let scholar = variable("SEMANTIC_SCHOLAR_API_KEY")
         .map(|v| v.to_string_lossy().into_owned())
         .or_else(|| {
@@ -144,7 +136,7 @@ fn fetch_using(
     }
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
-        disabled_sources,
+        disabled_sources: disabled_sources(globals, file.as_ref())?,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         network,
@@ -155,6 +147,15 @@ fn fetch_using(
         ..FetchConfig::default()
     })
     .map_err(|_| ())
+}
+
+fn disabled_sources(
+    globals: &Globals,
+    file: Option<&ConfigFile>,
+) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
+    let mut disabled = globals.disable_sources.clone();
+    disabled.extend(file.and_then(|f| f.disable_sources.clone()).unwrap_or_default());
+    biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())
 }
 
 fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
