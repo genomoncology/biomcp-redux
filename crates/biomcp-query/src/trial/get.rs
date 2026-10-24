@@ -48,7 +48,7 @@ fn fetch(
     out.sources.push(source.clone());
     let source_updated = version.and_then(Result::ok);
     let mut items = Vec::new();
-    let mut store = if query.sections().is_empty() {
+    let mut store = if query.sections().is_empty() || !rows.iter().any(Result::is_ok) {
         None
     } else {
         Some(Store::open(cx.fetch.cache_access()?, deadline)?)
