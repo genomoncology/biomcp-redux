@@ -43,12 +43,12 @@ impl Stub {
     }
     pub(super) fn for_sources(
         hosts: &[&'static str],
-        content_type: &'static str,
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
     ) -> Result<Self, String> {
         Self::with_sources(
             hosts.to_vec(),
-            move |_| content_type,
+            content_type,
             reply,
             |_, bytes| bytes,
             |_| 200,

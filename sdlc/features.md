@@ -57,3 +57,6 @@ variant-assertions: Retrieve source-native ClinVar and ClinGen assertions withou
 variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
 
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups. Cases: `crates/biomcp/tests/runner/oncokb.rs`.
+
+variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
+variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.

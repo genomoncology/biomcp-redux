@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod variant;
 use biodata::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
 use serde_json::Value;
@@ -258,34 +259,18 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
             meta.encode(query, Some(body))
         }
-        (
-            request @ (Request::VariantPopulation(_)
-            | Request::VariantAssertions(_)
-            | Request::SearchVariant(_)
-            | Request::GetVariant(_)),
-            body,
-        ) => variant_response(meta, request, body),
-        (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
-        (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
-        _ => Err(io::Error::other("query response mismatch")),
-    }
-}
-
-fn variant_response(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    match (request, body) {
         (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
             meta.encode(query, Some(body))
         }
         (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
             meta.encode(query, Some(body))
         }
-        (Request::SearchVariant(query), QueryBody::VariantPage(body)) => {
-            meta.encode(query, Some(body))
-        }
         (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
             meta.encode(query, Some(body))
         }
-        _ => Err(io::Error::other("query response mismatch")),
+        (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
+        (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
+        (request, body) => variant::response(meta, request, body),
     }
 }
 

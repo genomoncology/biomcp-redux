@@ -61,7 +61,7 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
 fn wire() -> Result<(), String> {
     let stub = Stub::for_sources(
         &["myvariant.info", "www.oncokb.org"],
-        "application/json",
+        |_| "application/json",
         reply,
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;

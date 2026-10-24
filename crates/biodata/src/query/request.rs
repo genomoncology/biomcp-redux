@@ -11,6 +11,10 @@ pub enum Request {
     GetVariant(crate::VariantGet),
     /// Read source ancestry observations.
     VariantPopulation(crate::VariantPopulationQuery),
+    /// Observe an exact allele in an explicitly selected cohort.
+    VariantRecurrence(crate::VariantRecurrenceQuery),
+    /// Send unchanged HGVS to explicit normalization services.
+    VariantNormalize(crate::VariantNormalize),
     /// Discover source-native variant candidates.
     SearchVariant(crate::VariantSearch),
     /// Save an exact registry document to an explicit destination.

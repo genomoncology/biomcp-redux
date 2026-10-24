@@ -67,6 +67,8 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Native variant assertions.
     VariantAssertions(crate::VariantAssertions),
+    /// Independent provider normalization results.
+    VariantNormalization(crate::VariantNormalization),
     /// Native NCI discovery page.
     NciTrialPage(crate::NciTrialPage),
     /// Native NCI exact cards.
@@ -85,6 +87,8 @@ pub enum QueryBody {
     VariantCard(crate::VariantCard),
     /// Source population observations.
     VariantPopulation(crate::VariantPopulationResult),
+    /// Bounded cohort sample observations.
+    VariantRecurrence(crate::VariantRecurrence),
     /// Native MyVariant candidate page.
     VariantPage(crate::VariantPage),
     /// Source trial document receipt.

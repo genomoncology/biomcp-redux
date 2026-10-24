@@ -115,3 +115,10 @@ pub(crate) static GWAS: Quota =
 // Conservative serial local policy; no published numeric quota was verified.
 pub(crate) static HOTSPOTS: Quota =
     Quota::new(SourceKey::declare("hotspots"), Rate::per_second(1), None, 1);
+// Conservative serial public portal policy, not a claimed published provider quota.
+pub(crate) static CBIOPORTAL: Quota = Quota::new(
+    SourceKey::declare("cbioportal"),
+    Rate::per_second(2),
+    None,
+    1,
+);
