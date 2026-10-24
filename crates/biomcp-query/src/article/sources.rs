@@ -54,6 +54,8 @@ pub(super) fn search<'a>(
                     return Err(error);
                 }
                 join_failures.push(resolved.source);
+            } else if resolved.source.state != SourceState::Ok {
+                join_failures.push(resolved.source);
             } else if !results_have_pubmed(query) {
                 out.sources.push(resolved.source);
             }
