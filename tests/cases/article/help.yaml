@@ -1,0 +1,160 @@
+{
+  "live_check": "local-only help discovery",
+  "feature": "article-help",
+  "story": "Article help exposes the shipped schemas and two executable examples per command",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "get",
+        "article"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "article"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "article"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": {
+          "includes": [
+            "fulltext",
+            "supplements",
+            "annotations",
+            "citations",
+            "indexing",
+            "tldr",
+            "all"
+          ]
+        }
+      },
+      "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "article"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "article"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "search",
+          "article"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes": [
+            "--source",
+            "--sort",
+            "--open-access",
+            "--no-preprints",
+            "--exclude-retracted",
+            "--include-retracted"
+          ]
+        }
+      },
+      "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "text"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "text"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "text"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "supplement"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "supplement"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "supplement"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "citations"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "citations"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "citations"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 14000
+    },
+    {
+      "run": [
+        "help",
+        "article",
+        "references"
+      ],
+      "mcp": [
+        "help",
+        "article",
+        "references"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "article",
+          "references"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 14000
+    }
+  ]
+}
