@@ -42,7 +42,9 @@ pub(super) fn render(
             out.body = QueryBody::TextPositionError;
             return Ok(());
         }
-        let items = page(&data.contexts.items, start, 4500,|item|serde_json::to_vec(item).map(|bytes|bytes.len()))?;
+        let items = page(&data.contexts.items, start, 4500, |item| {
+            serde_json::to_vec(item).map(|bytes| bytes.len())
+        })?;
         context_end += items.len() as u32;
         more = (context_end as usize) < total;
         data.contexts.items = items.into();
@@ -54,7 +56,9 @@ pub(super) fn render(
             out.body = QueryBody::TextPositionError;
             return Ok(());
         }
-        let items = page(&data.paragraphs.items, start, 8500,|item|serde_json::to_vec(item).map(|bytes|bytes.len()))?;
+        let items = page(&data.paragraphs.items, start, 8500, |item| {
+            serde_json::to_vec(item).map(|bytes| bytes.len())
+        })?;
         paragraph_end += items.len() as u32;
         more |= (paragraph_end as usize) < total;
         data.paragraphs.items = items.into();
@@ -112,12 +116,12 @@ fn page<T: Clone>(
     items: &[T],
     offset: usize,
     budget: usize,
-    size:impl Fn(&T)->Result<usize,serde_json::Error>,
+    size: impl Fn(&T) -> Result<usize, serde_json::Error>,
 ) -> Result<Vec<T>, RequestError> {
     let mut out = Vec::new();
     let mut bytes = 0;
     for item in items.iter().skip(offset) {
-        let size=size(item).map_err(|_|biomcp_fetch::CacheError::Database)?+1;
+        let size = size(item).map_err(|_| biomcp_fetch::CacheError::Database)? + 1;
         if !out.is_empty() && bytes + size > budget {
             break;
         }

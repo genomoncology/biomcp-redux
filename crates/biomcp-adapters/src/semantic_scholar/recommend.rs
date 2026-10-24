@@ -9,7 +9,11 @@ use serde::{Deserialize, Serialize};
 pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {
     base: "https://api.semanticscholar.org/recommendations/v1",
     source: SPEC.source,
-    terms: SPEC.terms,
+    terms: biomcp_fetch::Terms {
+        name: SPEC.terms.name,
+        url: SPEC.terms.url,
+        usage: SPEC.terms.usage,
+    },
     key: SPEC.key,
     quota: SPEC.quota,
     deadline: SPEC.deadline,
