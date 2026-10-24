@@ -9,9 +9,9 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn relationship() -> Result<(), String> {
     for present in [true, false] {
-        let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
+        let stub = Stub::for_source_status("eutils.ncbi.nlm.nih.gov", "application/xml", move |_| {
             Ok(body(present))
-        })?;
+        }, |_| 200)?;
         let env = source_environment(&stub)?;
         let args = ["variant", "assertions", "clinvar:666267", "--source", "clinvar", "--assertion", "SCV000965609", "--version", "1"].map(String::from);
         let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
