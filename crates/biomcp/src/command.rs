@@ -181,14 +181,18 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
     let root = loop {
         match words.next() {
-            Some("--replay" | "--record" | "--case-cache") => { words.next(); }
+            Some("--replay" | "--record" | "--case-cache") => {
+                words.next();
+            }
             Some("--fresh" | "--offline") => {}
-            Some(word) if ["--replay=", "--record=", "--case-cache="].iter().any(|prefix| word.starts_with(prefix)) => {}
+            Some(word)
+                if ["--replay=", "--record=", "--case-cache="]
+                    .iter()
+                    .any(|prefix| word.starts_with(prefix)) => {}
             word => break word,
         }
     };
-    let error = if matches!(root, Some("get" | "search" | "sync" | "article"))
-    {
+    let error = if matches!(root, Some("get" | "search" | "sync" | "article")) {
         biodata::ErrorEnvelope::arguments()
     } else {
         biodata::ErrorEnvelope::schema_usage()
