@@ -61,7 +61,16 @@ fn shared_allele_shape_allows_reference_alleles_and_refuses_rna() -> Check {
 #[test]
 fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
     for text in [
-        "rs113488022", "CA123643", "CA003404", "CA000434", "clinvar:13961", "clinvar.allele:15041", "VCV000013961.98", "RCV000014992", "SCV000001234.1", "ga4gh:VA.abcdefghijklmnopqrstuvwxyz012345",
+        "rs113488022",
+        "CA123643",
+        "CA003404",
+        "CA000434",
+        "clinvar:13961",
+        "clinvar.allele:15041",
+        "VCV000013961.98",
+        "RCV000014992",
+        "SCV000001234.1",
+        "ga4gh:VA.abcdefghijklmnopqrstuvwxyz012345",
     ] {
         let id: VariantId = text.parse()?;
         assert_eq!(id.to_string(), text);

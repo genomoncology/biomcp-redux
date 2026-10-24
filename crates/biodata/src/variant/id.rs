@@ -22,8 +22,6 @@ impl FromStr for VariantId {
     fn from_str(value: &str) -> Result<Self, Error> {
         for (prefix, make) in [
             ("rs", Self::Rs as fn(u64) -> Self),
-            
-            
             ("clinvar:", Self::ClinVarVariation),
             ("clinvar.allele:", Self::ClinVarAllele),
         ] {
@@ -40,7 +38,11 @@ impl FromStr for VariantId {
             if let Some(number) = value.strip_prefix(prefix) {
                 let n = number.parse::<u64>().map_err(|_| Error::VariantIdInvalid)?;
                 let id = make(n);
-                return if n > 0 && id.to_string() == value { Ok(id) } else { Err(Error::VariantIdInvalid) };
+                return if n > 0 && id.to_string() == value {
+                    Ok(id)
+                } else {
+                    Err(Error::VariantIdInvalid)
+                };
             }
         }
         if let Some(digest) = value.strip_prefix("ga4gh:VA.") {

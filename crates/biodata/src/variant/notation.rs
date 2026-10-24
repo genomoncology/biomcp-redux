@@ -95,9 +95,18 @@ impl Expression {
         value: Text,
         syntax_version: Option<Text>,
     ) -> Result<Self, Error> {
-        if matches!(syntax, ExpressionSyntax::Spdi | ExpressionSyntax::Gnomad | ExpressionSyntax::Vcf) {
-            if !literal_form(syntax, value.as_str()) { return Err(Error::NotationInvalid); }
-            return Ok(Self(Fields { syntax, value, syntax_version }));
+        if matches!(
+            syntax,
+            ExpressionSyntax::Spdi | ExpressionSyntax::Gnomad | ExpressionSyntax::Vcf
+        ) {
+            if !literal_form(syntax, value.as_str()) {
+                return Err(Error::NotationInvalid);
+            }
+            return Ok(Self(Fields {
+                syntax,
+                value,
+                syntax_version,
+            }));
         }
         let expected = match syntax {
             ExpressionSyntax::HgvsG => 'g',
@@ -167,11 +176,30 @@ impl TryFrom<Fields> for Expression {
 }
 
 fn literal_form(syntax: ExpressionSyntax, value: &str) -> bool {
-    let parts: Vec<_> = value.split(if syntax == ExpressionSyntax::Gnomad { '-' } else { ':' }).collect();
-    let [reference, position, deleted, inserted] = parts.as_slice() else { return false; };
+    let parts: Vec<_> = value
+        .split(if syntax == ExpressionSyntax::Gnomad {
+            '-'
+        } else {
+            ':'
+        })
+        .collect();
+    let [reference, position, deleted, inserted] = parts.as_slice() else {
+        return false;
+    };
     if syntax == ExpressionSyntax::Spdi {
-        reference.parse::<Accession>().is_ok() && position.parse::<u32>().is_ok() && (deleted.parse::<crate::Sequence>().is_ok() || deleted.parse::<u32>().is_ok()) && inserted.parse::<crate::Sequence>().is_ok()
+        reference.parse::<Accession>().is_ok()
+            && position.parse::<u32>().is_ok()
+            && (deleted.parse::<crate::Sequence>().is_ok() || deleted.parse::<u32>().is_ok())
+            && inserted.parse::<crate::Sequence>().is_ok()
     } else {
-        crate::Contig::new(reference).is_ok() && position.parse::<u32>().ok().is_some_and(|p| crate::Position1::new(p).is_ok()) && !deleted.is_empty() && !inserted.is_empty() && deleted.parse::<crate::Sequence>().is_ok() && inserted.parse::<crate::Sequence>().is_ok()
+        crate::Contig::new(reference).is_ok()
+            && position
+                .parse::<u32>()
+                .ok()
+                .is_some_and(|p| crate::Position1::new(p).is_ok())
+            && !deleted.is_empty()
+            && !inserted.is_empty()
+            && deleted.parse::<crate::Sequence>().is_ok()
+            && inserted.parse::<crate::Sequence>().is_ok()
     }
 }

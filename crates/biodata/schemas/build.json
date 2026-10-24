@@ -1,17 +1,15 @@
 {
-  "$id": "biodata.build/1",
+  "$id": "biodata.build/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "The assembly stated by the source; no default is inferred.",
   "enum": [
     "GRCh37",
-    "GRCh38",
-    "unstated"
+    "GRCh38"
   ],
   "title": "Build",
   "type": "string",
   "x-enum-descriptions": [
     " Genome Reference Consortium human build 37.",
-    " Genome Reference Consortium human build 38.",
-    " Source did not state an assembly."
+    " Genome Reference Consortium human build 38."
   ]
 }

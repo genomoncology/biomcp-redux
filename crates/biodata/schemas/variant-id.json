@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.variant-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^(((rs|clinvar:|clinvar\\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\\.[1-9][0-9]*)?|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+  "title": "VariantId",
+  "type": "string"
+}

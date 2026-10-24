@@ -96,6 +96,7 @@
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
+        "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         "use: get gene <gene>",
         "use: get gene <gene> pathways",
         "use: search trial --gene <gene>",

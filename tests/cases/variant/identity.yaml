@@ -24,7 +24,8 @@
         "/sources/0/source": "myvariant",
         "/sources/0/reason": "disabled"
       },
-      "exit": 4
+      "exit": 4,
+      "is_error": true
     }
   ]
 }
