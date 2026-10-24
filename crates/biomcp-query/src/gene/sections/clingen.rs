@@ -6,6 +6,7 @@ use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
     let mut error = None;
+    let mut local = None;
     let values = genes
         .iter()
         .map(|(id, _)| {
@@ -20,6 +21,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 },
                 Err(failure) => {
                     error = Some(failure);
+                    local = local.or(status::local(failure));
                     Section::Unavailable {
                         source: Source::ClinGen,
                         reason: match failure {
@@ -50,6 +52,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         values,
         source: status::source(Source::ClinGen, report, error),
         problems: Vec::new(),
-        local: error.and_then(status::local),
+        local,
     }
 }

@@ -280,6 +280,10 @@ fn clingen_local_failure_survives_later_source_deadline() {
         },
         &query,
     );
+    assert_eq!(
+        outcome.sources.last().unwrap().reason,
+        Some(biodata::Reason::Syncing)
+    );
     assert!(
         matches!(outcome.local, Some(RequestError::Recording(_))),
         "a later source failure must retain the earlier local error: {:?}",
