@@ -82,7 +82,10 @@ fn wire() -> Result<(), String> {
             "no-key annotation did not skip with setup: {skipped}"
         ));
     }
-    config["keys"] = json!({"oncokb_api_key":KEY});
+    config
+        .as_object_mut()
+        .ok_or("test config object")?
+        .insert("keys".into(), json!({"oncokb_api_key":KEY}));
     env.config(&config).map_err(|e| e.to_string())?;
     let mut recorded = args();
     let directory = env.root().join("recorded");
