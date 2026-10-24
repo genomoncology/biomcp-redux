@@ -7,6 +7,7 @@ mod held_proxy;
 mod http;
 mod http_limits;
 mod launch;
+mod key_registration;
 mod litvar_tables;
 pub(crate) mod live;
 mod live_follow_proof;
@@ -250,6 +251,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(source_controls::trials());
