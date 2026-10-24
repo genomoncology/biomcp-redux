@@ -225,6 +225,16 @@ fn protocols() -> Check {
         "tools/call",
         json!({"name":"biomcp","arguments":{"args":args}}),
     );
+    let (status, reply) = server.request("POST", "/mcp", &call.to_string())?;
+    if status != 200 || reply.pointer("/result/structuredContent") != Some(&expected) {
+        return Err("replayed HTTP call lost stdio parity".into());
+    }
+    // A recording contains one exchange. Reusing it for concurrent source calls
+    // tests recording exhaustion, which has its own transport owner. HTTP ID
+    // isolation is exercised with source-free calls on the same actual sockets.
+    let args = vec!["help".to_string()];
+    let expected = super::mcp::call_with_globals(&server._environment, &args, false, &globals)?;
+    let call = super::mcp::request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":args}}));
     let barrier = std::sync::Barrier::new(2);
     let results = std::thread::scope(|scope| {
         let a = scope.spawn(|| {

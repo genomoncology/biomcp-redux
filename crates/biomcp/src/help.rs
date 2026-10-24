@@ -71,7 +71,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
         ),
         (
             vec!["serve"],
-            "Serve the shared command dispatcher over MCP.",
+            "Serve MCP over stdio, or use --http [ADDR] for native HTTP clients. Non-loopback addresses require --allow-host HOST or http.allowed_hosts. Responses contain one JSON object; HTTP frames and active connections have fixed limits.",
         ),
     ] {
         commands.push(HelpCommand {
