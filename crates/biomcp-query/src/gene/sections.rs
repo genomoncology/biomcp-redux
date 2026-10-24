@@ -52,7 +52,7 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
             });
         }
         if !genes.iter().any(|(id, _)| *id == gene.hgnc_id) {
-            genes.push((gene.hgnc_id, gene.clone()));
+            genes.push((gene.hgnc_id, gene.as_ref().clone()));
         }
     }
     genes
