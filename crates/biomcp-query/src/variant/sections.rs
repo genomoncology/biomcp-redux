@@ -47,7 +47,7 @@ pub(super) fn apply(
                     oncokb,
                     super::oncokb::section(cx, query, candidates, deadline)
                 ),
-                S::All => {}
+                _ => {}
             }
         }
         if !query.sections().is_empty() {
@@ -60,7 +60,7 @@ pub(super) fn source(section: VariantSection) -> Option<Source> {
     use VariantSection as S;
     match section {
         S::Oncokb => Some(Source::Oncokb),
-        S::All => None,
+        _ => None,
     }
 }
 fn permitted<T>(
