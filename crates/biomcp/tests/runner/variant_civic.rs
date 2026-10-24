@@ -93,6 +93,19 @@ fn exact() -> Result<(), String> {
             return Err(format!("source claim changed at {path}: {value}"));
         }
     }
+    let args = [
+        "get",
+        "variant",
+        "CA123643",
+        "civic",
+        "--disable-sources",
+        "myvariant",
+    ]
+    .map(Into::into);
+    let mcp = super::mcp::call_with_globals(&environment, &args, false, &[])?;
+    if mcp.get("result") != value.get("result") {
+        return Err("CIViC CLI/MCP source mapping differs".into());
+    }
     let requests = civic.finish()?;
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one native CIViC request".into());

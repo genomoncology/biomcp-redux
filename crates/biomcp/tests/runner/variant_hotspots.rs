@@ -48,6 +48,10 @@ fn candidate() -> Result<(), String> {
             return Err(format!("native hotspot candidate lost at{path}: {value}"));
         }
     }
+    let mcp = super::mcp::call_with_globals(&environment, &args, false, &[])?;
+    if mcp.get("result") != value.get("result") {
+        return Err("hotspots CLI/MCP source mapping differs".into());
+    }
     let requests = stub.finish()?;
     if requests.len() != 2
         || !requests.iter().any(|(_, request)| {
