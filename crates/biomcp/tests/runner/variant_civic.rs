@@ -129,11 +129,11 @@ fn check_claims(value: &Value) -> Result<(), String> {
         ("/statements/0/statement/direction", json!("disputes")),
         ("/statements/0/direction", json!("DOES_NOT_SUPPORT")),
         (
-            "/statements/1/statement/classification/coding/code",
+            "/statements/2/statement/classification/coding/code",
             json!("tier_i"),
         ),
         (
-            "/statements/1/statement/strength/coding/code",
+            "/statements/2/statement/strength/coding/code",
             json!("level_a"),
         ),
         ("/evidence_page/next/civic_profile", json!(12)),
@@ -151,7 +151,7 @@ fn walk_streams(environment: &Environment, value: &Value) -> Result<(), String> 
         .get("next")
         .and_then(Value::as_array)
         .ok_or("source continuations missing")?;
-    for (kind, expected) in [("evidence", "EID1410"), ("assertions", "AID8")] {
+    for (kind, expected) in [("evidence", "EID1411"), ("assertions", "AID8")] {
         let args = next
             .iter()
             .filter_map(|row| row.get("args").and_then(Value::as_array))
@@ -186,6 +186,20 @@ fn civic_body(request: &str) -> Result<String, String> {
     let evidence = json!({"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-e1"}});
     let assertions = json!({"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-a1"}});
     let mut reply = json!({"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":12,"name":"BRAF V600E","link":"/molecular-profiles/12","isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643","hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":evidence,"assertions":assertions}],"pageInfo":{"hasNextPage":false,"endCursor":null}}} });
+    let evidence_base = "/data/molecularProfiles/nodes/0/evidenceItems";
+    let mut second = reply
+        .pointer(&format!("{evidence_base}/nodes/0"))
+        .ok_or("first evidence row")?
+        .clone();
+    *second.get_mut("id").ok_or("second evidence ID")? = json!(9851);
+    reply
+        .pointer_mut(&format!("{evidence_base}/nodes"))
+        .and_then(Value::as_array_mut)
+        .ok_or("evidence rows")?
+        .push(second);
+    *reply
+        .pointer_mut(&format!("{evidence_base}/totalCount"))
+        .ok_or("evidence total")? = json!(3);
     let (_, body) = request
         .split_once("\r\n\r\n")
         .ok_or("request body missing")?;
@@ -199,7 +213,12 @@ fn civic_body(request: &str) -> Result<String, String> {
     {
         *reply
             .pointer_mut(&format!("{base}/evidenceItems/nodes/0/id"))
-            .ok_or("evidence id")? = json!(1410);
+            .ok_or("evidence id")? = json!(1411);
+        reply
+            .pointer_mut(&format!("{base}/evidenceItems/nodes"))
+            .and_then(Value::as_array_mut)
+            .ok_or("evidence rows")?
+            .truncate(1);
         *reply
             .pointer_mut(&format!("{base}/evidenceItems/pageInfo/hasNextPage"))
             .ok_or("evidence page")? = json!(false);
