@@ -39,7 +39,9 @@ pub(super) fn search<'a>(
                     let term = &epmc_term;
                     Box::new(move || europe_search(cx, query, term, start))
                 }
-                ArticleSource::SemanticScholar => Box::new(move || super::semantic_scholar::search(cx, query, start)),
+                ArticleSource::SemanticScholar => {
+                    Box::new(move || super::semantic_scholar::search(cx, query, start))
+                }
                 ArticleSource::Litvar => {
                     let prepared = prepared.take()?;
                     Box::new(move || litvar_search(prepared))
@@ -88,7 +90,7 @@ fn resolve_rows<'a>(
     for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
             && result.items.iter().any(|item| {
-                item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some())
+                item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
             })
         {
             let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);

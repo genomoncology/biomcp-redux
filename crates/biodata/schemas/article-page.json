@@ -125,6 +125,11 @@
               "minimum": 0,
               "type": "integer"
             },
+            "litvar": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
             "pubmed": {
               "format": "uint32",
               "minimum": 0,
@@ -254,6 +259,13 @@
       "additionalProperties": false,
       "description": "A slice of the stored article source order.",
       "properties": {
+        "candidates": {
+          "description": "Nearby source candidates when an exact variant was not uniquely selected.",
+          "items": {
+            "$ref": "#/$defs/LitVarCandidate"
+          },
+          "type": "array"
+        },
         "items": {
           "description": "Original ordered items.",
           "items": {
@@ -375,7 +387,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
@@ -417,6 +429,7 @@
       "enum": [
         "pubmed",
         "europepmc",
+        "litvar",
         "semantic-scholar"
       ],
       "type": "string"
@@ -445,6 +458,40 @@
     "GeneInput": {
       "pattern": "\\S",
       "type": "string"
+    },
+    "LitVarCandidate": {
+      "additionalProperties": false,
+      "description": "Public LitVar2 autocomplete candidate, without a clinical ranking claim.",
+      "properties": {
+        "count": {
+          "description": "Number of associated publications reported by LitVar2.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gene": {
+          "description": "Source gene symbols.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source variant name."
+        },
+        "rsid": {
+          "$ref": "#/$defs/Text",
+          "description": "Source rsID, available for exact follow-up."
+        }
+      },
+      "required": [
+        "rsid",
+        "gene",
+        "name",
+        "count"
+      ],
+      "type": "object"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -690,6 +737,7 @@
         "clingen",
         "pubmed",
         "europepmc",
+        "litvar",
         "semantic-scholar",
         "pmc-oa",
         "icite",
@@ -709,6 +757,7 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
+        " NCBI LitVar2.",
         " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",

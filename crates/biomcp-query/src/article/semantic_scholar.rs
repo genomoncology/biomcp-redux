@@ -1,6 +1,6 @@
 //! Shared Semantic Scholar search metadata and PubMed DOI joins.
 use crate::{Ctx, status};
-use biodata::{ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Source, Text};
+use biodata::{ArticleItem, ArticleKey, ArticleSearch, ArticleSort, ArticleSource, Doi, Source, Text};
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn search<'a>(
@@ -71,7 +71,7 @@ pub fn resolve_dois<'a>(
     let dois: Vec<_> = items
         .iter()
         .filter(|item| item.pmid.is_none())
-        .filter_map(|item| item.header.as_ref()?.doi.clone())
+        .filter_map(|item| doi(item).cloned())
         .collect();
     let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -96,7 +96,7 @@ pub fn resolve_dois<'a>(
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
                 problems.extend(mapped.problems);
                 for item in items.iter_mut().filter(|item| item.pmid.is_none()) {
-                    let doi = item.header.as_ref().and_then(|h| h.doi.as_ref());
+                    let doi = doi(item);
                     if let Some(header) = mapped
                         .value
                         .iter()
@@ -120,4 +120,15 @@ pub fn resolve_dois<'a>(
         error,
         problems,
     }
+}
+
+// Identity remains available even when the provider omitted its title/header.
+pub(super) fn doi(item: &ArticleItem) -> Option<&Doi> {
+    item.header.as_ref().and_then(|h| h.doi.as_ref()).or_else(|| {
+        if let Some(ArticleKey::Doi(doi)) = &item.key {
+            Some(doi)
+        } else {
+            None
+        }
+    })
 }
