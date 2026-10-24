@@ -142,7 +142,7 @@ fn content(data: &Value) -> Result<(), String> {
         .find(|r| r.pointer("/statement/proposition") == Some(&json!("oncogenicity")))
         .ok_or("oncogenicity missing")?;
     if oncogenic.pointer("/statement/subject")
-        != Some(&json!({"level":"protein","gene":"BRAF","label":"V600E"}))
+        != Some(&json!({"level":"protein","gene":{"label":"BRAF"},"label":"V600E"}))
         || oncogenic.pointer("/statement/classification/coding/system")
             != Some(&json!("oncokb_oncogenicity"))
     {
