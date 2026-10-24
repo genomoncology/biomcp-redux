@@ -44,9 +44,7 @@ pub(super) fn copy_capture(
     recordings: &Path,
     mut change: impl FnMut(&str, &mut Value),
 ) -> Check {
-    let original = super::launch::fixtures()
-        .join("replies")
-        .join(capture);
+    let original = super::launch::fixtures().join("replies").join(capture);
     for source in fs::read_dir(original)? {
         let source = source?;
         if !source.file_type()?.is_dir() {

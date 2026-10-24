@@ -76,9 +76,19 @@ pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
     if list {
         return Ok(json!({"mode": "live-check-plan", "cases": results}));
     }
-    Ok(summary(results, sources, started.elapsed().as_millis(), details))
+    Ok(summary(
+        results,
+        sources,
+        started.elapsed().as_millis(),
+        details,
+    ))
 }
-pub(super) fn summary(results: Vec<Value>, sources: BTreeMap<String, Value>, elapsed_ms: u128, details: bool) -> Value {
+pub(super) fn summary(
+    results: Vec<Value>,
+    sources: BTreeMap<String, Value>,
+    elapsed_ms: u128,
+    details: bool,
+) -> Value {
     let mut skipped = BTreeMap::<String, usize>::new();
     for result in &results {
         if let Some(reason) = result.get("skipped").and_then(Value::as_str) {
@@ -95,7 +105,10 @@ pub(super) fn summary(results: Vec<Value>, sources: BTreeMap<String, Value>, ela
     json!({"mode": "live-check", "drift_cases": drift_cases, "error_cases": error_cases, "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
 }
 fn has_drift(result: &Value) -> bool {
-    result.pointer("/result/drift").and_then(Value::as_array).is_some_and(|drift| !drift.is_empty())
+    result
+        .pointer("/result/drift")
+        .and_then(Value::as_array)
+        .is_some_and(|drift| !drift.is_empty())
 }
 fn eligibility(case: &Case) -> Option<&str> {
     match case.live_check.as_deref() {

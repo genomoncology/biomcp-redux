@@ -215,9 +215,12 @@ fn summary() -> Result<(), Box<dyn std::error::Error>> {
     cases.push(json!({"case": "not-public", "skipped": "synthetic response case"}));
     let report = live::summary(cases, BTreeMap::new(), 0, false);
     let sample = report["case_sample"].as_array().ok_or("missing sample")?;
-    if report["drift_cases"] != 1 || report["error_cases"] != 1
-        || report["checked"] != 27 || report["omitted"] != 7
-        || sample.len() != 20 || sample[0]["case"] != "late-drift"
+    if report["drift_cases"] != 1
+        || report["error_cases"] != 1
+        || report["checked"] != 27
+        || report["omitted"] != 7
+        || sample.len() != 20
+        || sample[0]["case"] != "late-drift"
         || sample[1]["case"] != "late-error"
     {
         return Err(format!("late diagnostic hidden from bounded summary: {report}").into());
