@@ -92,7 +92,7 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver, VariantSection};
+pub use query::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
@@ -175,3 +175,6 @@ pub use variant::{
     CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorScore, VariantComponent,
     VariantConservation, VariantCosmic, VariantPredictors,
 };
+
+pub use response::{OncokbVariantRecord, VariantOncokb};
+pub use variant::PopulationFrequency;

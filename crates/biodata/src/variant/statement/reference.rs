@@ -32,25 +32,9 @@ crate::macros::text_value!(Curie, "Curie", "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum Fields {
     /// Exact allele identifier or reference-qualified notation.
-    Allele {
-        /// Source identifier.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        id: Option<VariantId>,
-        /// Source HGVS.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        hgvs: Option<HgvsText>,
-    },
+    Allele(AlleleRef),
     /// Protein-level assertion, without genomic conversion.
-    Protein {
-        /// Source gene.
-        gene: GeneSymbol,
-        /// Source protein HGVS.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        hgvs: Option<HgvsText>,
-        /// Source protein label.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        label: Option<Text>,
-    },
+    Protein(ProteinRef),
     /// Compound source profile, without an inferred allele.
     Profile {
         /// Native profile ID.
@@ -59,6 +43,7 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        #[cfg_attr(feature = "schema", schemars(with = "Box<[LeafRef]>"))]
         members: Box<[VariantRef]>,
     },
 }
@@ -73,10 +58,19 @@ impl TryFrom<Fields> for VariantRef {
     type Error = crate::Error;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         match &fields {
-            Fields::Allele { id, hgvs } if id.is_none() && hgvs.is_none() => {
+            Fields::Allele(AlleleRef { id, hgvs }) if id.is_none() && hgvs.is_none() => {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Protein { hgvs, label, .. } if hgvs.is_none() && label.is_none() => {
+            Fields::Protein(ProteinRef { hgvs, label, .. })
+                if hgvs.is_none() && label.is_none() =>
+            {
+                Err(crate::Error::VariantRefInvalid)
+            }
+            Fields::Profile { members, .. }
+                if members
+                    .iter()
+                    .any(|m| matches!(&m.0, Fields::Profile { .. })) =>
+            {
                 Err(crate::Error::VariantRefInvalid)
             }
             _ => Ok(Self(fields)),
@@ -86,37 +80,71 @@ impl TryFrom<Fields> for VariantRef {
 impl VariantRef {
     /// Reference one checked source allele identifier.
     pub fn allele(id: VariantId) -> Self {
-        Self(Fields::Allele {
+        Self(Fields::Allele(AlleleRef {
             id: Some(id),
             hgvs: None,
-        })
+        }))
     }
     /// Reference source-qualified notation without computing a genomic allele.
     pub fn allele_hgvs(hgvs: HgvsText) -> Self {
-        Self(Fields::Allele {
+        Self(Fields::Allele(AlleleRef {
             id: None,
             hgvs: Some(hgvs),
-        })
+        }))
     }
     /// Reference a protein label in its source gene context.
     pub fn protein(gene: GeneSymbol, label: Text) -> Self {
-        Self(Fields::Protein {
+        Self(Fields::Protein(ProteinRef {
             gene,
             hgvs: None,
             label: Some(label),
-        })
+        }))
     }
     /// Preserve a compound profile and its native member references.
-    pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Self {
-        Self(Fields::Profile {
+    pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Result<Self, crate::Error> {
+        Fields::Profile {
             record,
             label,
             members,
-        })
+        }
+        .try_into()
     }
 }
 impl Serialize for VariantRef {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct AlleleRef {
+    /// Source identifier.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    id: Option<VariantId>,
+    /// Source-qualified HGVS.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    hgvs: Option<HgvsText>,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct ProteinRef {
+    /// Source gene.
+    gene: GeneSymbol,
+    /// Source protein HGVS.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    hgvs: Option<HgvsText>,
+    /// Source protein label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    label: Option<Text>,
+}
+#[cfg(feature = "schema")]
+#[derive(schemars::JsonSchema)]
+#[schemars(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
+#[expect(dead_code, reason = "Schema-only nonrecursive profile member boundary")]
+enum LeafRef {
+    Allele(AlleleRef),
+    Protein(ProteinRef),
 }

@@ -28,6 +28,9 @@ pub struct VariantAssertion {
     pub kind: AssertionKind,
     /// Source classification domain.
     pub domain: AssertionDomain,
+    /// Native category has no approved common-model proposition.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub statement_unmapped: bool,
     /// Supported mapping into the common model.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement: Option<Statement>,
@@ -56,6 +59,12 @@ pub struct UnmappedAssertion {
     pub classification: Text,
     /// Original record provenance.
     pub attribution: Attribution,
+    /// Native review status.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub review_status: Option<Text>,
+    /// Native conditions, including identifiers without supplied labels.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub conditions: Box<[AssertionCondition]>,
 }
 /// Source details that do not fit the compact shared statement.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -134,4 +143,8 @@ crate::macros::wire_enum! {
         /// Somatic oncogenicity.
         Oncogenicity=>"oncogenicity",
     }
+}
+
+fn is_false(value: &bool) -> bool {
+    !*value
 }
