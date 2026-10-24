@@ -1,8 +1,13 @@
-use super::{Check, case};
+use super::Check;
+use super::super::response_cases::checked_case;
 use serde_json::{Value, json};
 
 fn run(change: impl Fn(&mut Value), expect: Value) -> Check {
-    case(
+    checked(change, expect).map(|_| ())
+}
+
+fn checked(change: impl Fn(&mut Value), expect: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    checked_case(
         "gene/main",
         &["get", "gene", "BRAF"],
         |source, record| {
@@ -53,13 +58,18 @@ fn positions() -> Check {
         json!({"chr":"7","start":1,"end":2,"strand":1}),
         json!({"chr":"7","start":10,"end":20,"strand":null}),
     ] {
-        run(
+        let answer = checked(
             |body| body[0]["genomic_pos"] = position.clone(),
             json!({
             "/result/items/0/answer/gene/spans": {"count": 2},
             "/result/items/0/answer/gene/spans/0/span/start": position["start"].as_u64().ok_or("start")? - 1,
             "/result/items/0/answer/gene/spans/0/span/end": position["end"]}),
         )?;
+        if position["strand"].is_null()
+            && answer.pointer("/result/items/0/answer/gene/spans/0/strand").is_some()
+        {
+            return Err("unstated source strand produced a strand".into());
+        }
     }
     run(
         |body| {
@@ -150,17 +160,24 @@ fn summaries() -> Check {
         )?;
     }
     for bad in [json!(42), json!(" ")] {
-        run(
+        let answer = checked(
             |body| body[0]["summary"] = bad.clone(),
             json!({
             "/result/items/0/status": "partial", "/problems/*/field": ["summary"]}),
         )?;
+        if answer.pointer("/result/items/0/answer/gene/summary").is_some() {
+            return Err("malformed summary survived in the gene answer".into());
+        }
     }
-    run(
+    let answer = checked(
         |body| {
             body[0].as_object_mut().unwrap().remove("summary");
             body[0].as_object_mut().unwrap().remove("genomic_pos");
         },
         json!({"/result/items/0/answer/gene/spans": {"count": 1}}),
-    )
+    )?;
+    if answer.pointer("/result/items/0/answer/gene/summary").is_some() {
+        return Err("missing source summary produced a summary".into());
+    }
+    Ok(())
 }

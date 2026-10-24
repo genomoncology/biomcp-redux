@@ -143,7 +143,17 @@ pub(super) fn check(root: &Path) -> Check {
                     .to_string_lossy()
                     .replace('\\', "/");
                 let tokens = source::tokens(&fs::read_to_string(&path)?);
-                let has_test = tokens.windows(4).any(|v| v == ["#", "[", "test", "]"]);
+                let has_test = tokens.iter().enumerate().any(|(index, token)| {
+                    token == "#"
+                        && tokens.get(index + 1).is_some_and(|v| v == "[")
+                        && tokens[index + 2..]
+                            .iter()
+                            .take_while(|v| v.as_str() != "]")
+                            .collect::<Vec<_>>()
+                            .windows(2)
+                            .any(|v| v[1] == "test" && matches!(v[0].as_str(), "," | ":"))
+                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"])
+                });
                 if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
                     return Err(format!("{relative}: inline test outside listed locations").into());
                 }

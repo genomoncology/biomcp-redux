@@ -5,10 +5,20 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn case(
     capture: &str,
     args: &[&str],
-    mut change: impl FnMut(&str, &mut Value),
+    change: impl FnMut(&str, &mut Value),
     expect: Value,
     exit: i32,
 ) -> Check {
+    checked_case(capture, args, change, expect, exit).map(|_| ())
+}
+
+pub(super) fn checked_case(
+    capture: &str,
+    args: &[&str],
+    mut change: impl FnMut(&str, &mut Value),
+    expect: Value,
+    exit: i32,
+) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = tempfile::tempdir()?;
     let recordings = directory.path().join("recordings");
     let original = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -44,6 +54,5 @@ pub(super) fn case(
             "steps": [{"run": args, "expect": expect, "exit": exit}]
         }))?,
     )?;
-    super::run_case(&path, &super::schema::Registry::embedded()?)?;
-    Ok(())
+    Ok(super::run_case(&path, &super::schema::Registry::embedded()?)?)
 }

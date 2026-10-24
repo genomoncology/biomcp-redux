@@ -1,12 +1,21 @@
-use super::{Check, case};
+use super::Check;
+use super::super::response_cases::checked_case;
 use serde_json::{Value, json};
 
 fn graphql(source: &str, change: impl Fn(&mut Value), expect: Value) -> Check {
+    checked_graphql(source, change, expect).map(|_| ())
+}
+
+fn checked_graphql(
+    source: &str,
+    change: impl Fn(&mut Value),
+    expect: Value,
+) -> Result<Value, Box<dyn std::error::Error>> {
     let (capture, args) = match source {
         "civic" => ("gene/civic", vec!["get", "gene", "ERBB2", "civic"]),
         _ => ("gene/constraint", vec!["get", "gene", "TP53", "constraint"]),
     };
-    case(
+    checked_case(
         capture,
         &args,
         |name, record| {
@@ -121,7 +130,9 @@ fn mappings() -> Check {
                 body["value"]["data"]["g0"]["mane_select_transcript"] = Value::Null;
                 body["value"]["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
             },
-            json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000269305"}),
+            json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
+                "/result/items/0/sections/constraint/data/flags": [],
+                "/problems/*/field": if flags.is_null() { json!([]) } else { json!(["flags"]) }}),
         )?;
     }
     for mode in 0..2 {
@@ -160,7 +171,7 @@ fn clingen() -> Check {
                 json!({"/result/items/0/sections/clingen/state": "unavailable", "/sources/2/reason": "bad_reply"})
             }
         };
-        case(
+        let answer = checked_case(
             "gene/clingen",
             &["get", "gene", "TP53", "clingen"],
             |source, record| {
@@ -192,6 +203,11 @@ fn clingen() -> Check {
             expect,
             0,
         )?;
+        if mode == "validity only"
+            && answer.pointer("/result/items/0/sections/clingen/data/haploinsufficiency").is_some()
+        {
+            return Err("validity-only source produced haploinsufficiency".into());
+        }
     }
     // sections/local-replay-miss.yaml owns an incomplete bundle recording.
     Ok(())

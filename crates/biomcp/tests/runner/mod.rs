@@ -87,7 +87,7 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
                 .join("/");
             let registry = Arc::clone(&registry);
             Ok(Trial::test(name, move || {
-                run_case(&path, &registry).map_err(Into::into)
+                run_case(&path, &registry).map(|_| ()).map_err(Into::into)
             }))
         })
         .collect::<Result<Vec<_>, String>>()?;
@@ -112,7 +112,7 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
     Ok(())
 }
 
-fn run_case(path: &Path, registry: &schema::Registry) -> Result<(), String> {
+fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     let mut case: Case = serde_saphyr::from_str(&text).map_err(|error| error.to_string())?;
     if case.story.trim().is_empty() || case.steps.is_empty() {
@@ -156,7 +156,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<(), String> {
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
         );
     }
-    Ok(())
+    previous.ok_or_else(|| "case requires at least one step".into())
 }
 
 fn run_step(

@@ -1,4 +1,5 @@
 use super::{Check, case, tsv};
+use super::super::response_cases::checked_case;
 use serde_json::json;
 
 pub(super) fn check() -> Check {
@@ -54,7 +55,7 @@ fn optional() -> Check {
         ("alias_symbol", " ", "aliases"),
         ("mane_select", "ENST00000646891|NM_004333.6", "mane_select"),
     ] {
-        case(
+        let answer = checked_case(
             "gene/main",
             &["get", "gene", "BRAF"],
             |source, record| {
@@ -67,6 +68,19 @@ fn optional() -> Check {
             "/problems/*/record": {"includes": "HGNC:1097"}}),
             0,
         )?;
+        let mapped = match field {
+            "ensembl_gene_id" => "ensembl_id",
+            "uniprot_ids" => "uniprot",
+            "omim_id" => "omim",
+            "prev_symbol" => "previous_symbols",
+            "alias_symbol" => "aliases",
+            other => other,
+        };
+        if answer.pointer(&format!("/result/items/0/answer/gene/{mapped}"))
+            .is_some_and(|value| !value.is_null() && !value.as_array().is_some_and(Vec::is_empty))
+        {
+            return Err(format!("malformed {field} survived in the gene answer").into());
+        }
     }
     Ok(())
 }
@@ -107,6 +121,7 @@ fn withdrawn() -> Check {
             &["get", "gene", input],
             |_, _| {},
             json!({"/result/items/0/answer/resolution": "withdrawn",
+                "/result/items/0/answer/hgnc_status": "Merged/Split",
                 "/result/items/0/answer/merged_into": targets}),
             0,
         )?;
