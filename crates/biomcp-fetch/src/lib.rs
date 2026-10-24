@@ -22,7 +22,7 @@ pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
 pub use cache::{SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline};
 pub use declaration::{
-    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
+    Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, PathSegment, SecretName, SourceSpec,
 };
 pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError,

@@ -108,3 +108,76 @@ fn runtime_paths_reject_other_url_parts_and_noncanonical_segments() {
         );
     }
 }
+
+#[test]
+fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity() {
+    use biomcp_fetch::PathSegment;
+    let server = Server::new();
+    let quota = Box::leak(Box::new(Quota::new(
+        SourceKey::declare("encoded-path"),
+        Rate::per_second(1000),
+        None,
+        1,
+    )));
+    let spec = server.spec(quota, KeyUse::None);
+    let endpoint = spec.get("/variant/get").with_segments(&[
+        PathSegment::new("litvar@rs121913530##").unwrap(),
+        PathSegment::new("publications").unwrap(),
+    ]);
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: directory.path().join("record"),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                .json::<Answer>(&endpoint, &[])
+        });
+        let request = server.next();
+        assert!(
+            request.text.starts_with(
+                "GET /variant/get/litvar%40rs121913530%23%23/publications HTTP/1.1\r\n"
+            )
+        );
+        request.ok();
+        assert!(worker.join().unwrap().unwrap().answer);
+    });
+    drop(fetch);
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().join("record"),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    let literal = spec.get("/variant/get/litvar%40rs121913530%23%23/publications");
+    assert!(
+        fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .json::<Answer>(&literal, &[])
+            .unwrap()
+            .answer
+    );
+    for invalid in [
+        "",
+        ".",
+        "..",
+        "https://other/x",
+        "//other",
+        "x/y",
+        "x\\y",
+        "x%40y",
+        "x\ny",
+    ] {
+        assert!(
+            matches!(PathSegment::new(invalid), Err(InputError::Path)),
+            "{invalid:?}"
+        );
+    }
+    assert!(server.requests.try_recv().is_err());
+}
