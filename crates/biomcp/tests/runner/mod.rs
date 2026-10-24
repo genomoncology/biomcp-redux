@@ -1,5 +1,6 @@
 mod article_save;
 mod assertions;
+mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
@@ -278,6 +279,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(trial_tables::trials());
     trials.extend(trial_get::trials());
     trials.extend(nci::trials());
+    trials.extend(clinvar_key::trials());
     trials.extend(nci_walk::trials());
     trials.extend(trial_documents::trials());
     trials.extend(trial_sites::trials());
