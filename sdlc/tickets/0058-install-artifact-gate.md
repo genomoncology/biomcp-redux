@@ -1,6 +1,7 @@
 # 0058 — Test release artifacts the way users install them
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a1ca626aac0dcc4997bd0164b15c40f319cfb90
 
 Milestone: 1
 

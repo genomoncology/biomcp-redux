@@ -1,6 +1,7 @@
 # 0055 — Replay every public case live on a schedule
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c377399c815ff542687e74945f9ce950ee9cee6d
 
 Milestone: 1
 
