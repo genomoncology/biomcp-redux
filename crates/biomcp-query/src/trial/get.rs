@@ -6,7 +6,9 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::NctId;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
-use biomcp_types::{QueryBody, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards, TrialGet};
+use biomcp_types::{
+    QueryBody, Request, Source, SourceState, Status, StepKind, TrialCardItem, TrialCards, TrialGet,
+};
 /// Retrieve independent input states under one shared command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {

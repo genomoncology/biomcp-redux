@@ -2,7 +2,10 @@
 use crate::Ctx;
 
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantSection, VariantSections};
+use biomcp_types::{
+    Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    VariantSection, VariantSections,
+};
 pub(super) type Result<T> = (
     Section<T>,
     Vec<SourceOutcome>,

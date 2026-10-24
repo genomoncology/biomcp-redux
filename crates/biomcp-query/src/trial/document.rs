@@ -3,7 +3,9 @@ use crate::{Ctx, Outcome, status};
 use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{RequestError, SourceError};
-use biomcp_types::{QueryBody, Reason, Section, Source, Status, TrialDocumentGet, TrialDocumentResult};
+use biomcp_types::{
+    QueryBody, Reason, Section, Source, Status, TrialDocumentGet, TrialDocumentResult,
+};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]
 pub struct Download {

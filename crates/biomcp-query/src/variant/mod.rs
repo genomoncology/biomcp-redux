@@ -16,7 +16,10 @@ use crate::{Action, Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::{allele_registry, mutalyzer, myvariant, variantvalidator};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{QueryBody, Reason, Request, Source, Status, StepKind, VariantCard, VariantGet, VariantHeader, VariantNamespace, VariantResolution};
+use biomcp_types::{
+    QueryBody, Reason, Request, Source, Status, StepKind, VariantCard, VariantGet, VariantHeader,
+    VariantNamespace, VariantResolution,
+};
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);

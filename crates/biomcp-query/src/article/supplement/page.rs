@@ -2,7 +2,9 @@ use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_adapters::sheet;
 use biomcp_fetch::LocalDeadline;
-use biomcp_types::{ArticleSupplement, PageInfo, Reason, Request, SheetInfo, SheetRow, StepKind, SupplementContent};
+use biomcp_types::{
+    ArticleSupplement, PageInfo, Reason, Request, SheetInfo, SheetRow, StepKind, SupplementContent,
+};
 const PAGE_BYTES: usize = 4000;
 const FRAGMENT_BYTES: usize = 1000;
 struct Page {

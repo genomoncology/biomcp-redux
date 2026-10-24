@@ -5,7 +5,10 @@ use super::{
 use crate::Mapped;
 use biodata::{GeneSymbol, HgvsText, Text, VariantRef};
 use biomcp_fetch::RequestError;
-use biomcp_types::{CivicClaimKind, CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord, VariantCivic, VariantGet};
+use biomcp_types::{
+    CivicClaimKind, CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement,
+    Problem, ProblemCode, Reason, Source, SourceRecord, VariantCivic, VariantGet,
+};
 
 pub(super) fn page(
     raw: raw::Connection<raw::Profile>,

@@ -3,7 +3,9 @@ use super::{GENES, variant_map as map, variant_raw as raw};
 use crate::Mapped;
 use biodata::{Text, VariantId};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{CivicClaimKind, PageInfo, Reason, Source, VariantCivic, VariantGet, VariantHeader};
+use biomcp_types::{
+    CivicClaimKind, PageInfo, Reason, Source, VariantCivic, VariantGet, VariantHeader,
+};
 use serde::Serialize;
 
 #[derive(Serialize)]

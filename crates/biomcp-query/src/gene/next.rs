@@ -1,6 +1,8 @@
 use crate::{Action, Bundle};
 
-use biomcp_types::{GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind};
+use biomcp_types::{
+    GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind,
+};
 use biomcp_types::{GeneHeader, GeneResolution};
 fn retry(request: Request) -> (StepKind, Action) {
     (

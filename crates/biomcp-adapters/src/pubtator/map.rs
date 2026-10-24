@@ -1,7 +1,9 @@
 use super::raw::{Annotation, Document};
 use crate::{Mapped, raw::Field};
 use biodata::{Pmid, Text};
-use biomcp_types::{AnnotatedEntity, AnnotationKind, Annotations, Capped, Problem, ProblemCode, Section, Source};
+use biomcp_types::{
+    AnnotatedEntity, AnnotationKind, Annotations, Capped, Problem, ProblemCode, Section, Source,
+};
 const LIMIT: usize = 20;
 pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<Annotations>> {
     let mut problems = Vec::new();

@@ -3,7 +3,10 @@ use biodata::Pmcid;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
-use biomcp_types::{ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source, Status, StepKind, Supplements};
+use biomcp_types::{
+    ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
+    Status, StepKind, Supplements,
+};
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
 /// Load one document for both sections, preserving a single source request sequence.

@@ -3,7 +3,10 @@ use crate::{Ctx, status};
 use biodata::VariantId;
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source, VariantGet, VariantGwas, VariantHeader};
+use biomcp_types::{
+    GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source,
+    VariantGet, VariantGwas, VariantHeader,
+};
 /// Ask only the current catalog and preserve source selection and paging.
 pub(super) fn section(
     cx: &Ctx<'_>,

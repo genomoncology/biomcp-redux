@@ -3,7 +3,10 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{allele_registry, mutalyzer, variantvalidator};
 use biomcp_fetch::{Deadline, RequestError, SourceSpec};
-use biomcp_types::{NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState, Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution};
+use biomcp_types::{
+    NormalizationResult, NormalizationSource, QueryBody, Request, SourceOutcome, SourceState,
+    Status, StepKind, VariantNormalization, VariantNormalize, VariantResolution,
+};
 type Row = (NormalizationResult, SourceOutcome, Option<RequestError>);
 /// Call each explicitly selected service independently under the shared deadline.
 pub fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {

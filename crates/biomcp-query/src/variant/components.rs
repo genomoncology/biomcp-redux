@@ -2,7 +2,10 @@
 use crate::{Ctx, status};
 use biodata::Build;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantPredictors};
+use biomcp_types::{
+    Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    VariantPredictors,
+};
 pub(super) fn skipped<T>() -> super::sections::Result<T> {
     (
         Section::Skipped {

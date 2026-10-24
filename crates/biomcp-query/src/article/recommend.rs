@@ -3,7 +3,10 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use biomcp_types::{ArticleRecommend, ArticleRecommendations, EvidenceNotice, QueryBody, Request, Source, Status, StepKind};
+use biomcp_types::{
+    ArticleRecommend, ArticleRecommendations, EvidenceNotice, QueryBody, Request, Source, Status,
+    StepKind,
+};
 use sha2::{Digest, Sha256};
 /// Read one recommendation window without local topic filtering or ranking.
 pub fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {

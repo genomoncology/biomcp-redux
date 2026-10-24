@@ -46,6 +46,10 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>
 
 #[test]
 fn enum_schemas_validate_canonical_public_values() {
+    for spelling in generate::<Source>()["enum"].as_array().unwrap() {
+        let source: Source = serde_json::from_value(spelling.clone()).unwrap();
+        assert_eq!(serde_json::to_value(source.text()).unwrap(), *spelling);
+    }
     enum_values(&[
         Source::Hgnc,
         Source::MyGene,

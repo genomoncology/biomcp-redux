@@ -2,7 +2,10 @@ use crate::{Ctx, status};
 use biodata::Pmid;
 use biomcp_adapters::pubtator;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Annotations, ArticleCardItem, ArticleResolution, Problem, Reason, Section, Source, SourceOutcome, SourceState, Status};
+use biomcp_types::{
+    Annotations, ArticleCardItem, ArticleResolution, Problem, Reason, Section, Source,
+    SourceOutcome, SourceState, Status,
+};
 pub(super) struct Result {
     pub values: Vec<(Pmid, Section<Annotations>)>,
     pub source: SourceOutcome,

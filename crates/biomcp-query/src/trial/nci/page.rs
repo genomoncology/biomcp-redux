@@ -3,7 +3,10 @@ use super::get::Snapshot;
 use crate::{Action, Outcome};
 use biodata::Text;
 use biomcp_fetch::RequestError;
-use biomcp_types::{NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind, TrialGet, TrialSection, TrialSource};
+use biomcp_types::{
+    NciEligibilityPage, NciTrialItem, NciTrialSections, Request, Section, Source, Status, StepKind,
+    TrialGet, TrialSection, TrialSource,
+};
 const SECTIONS: [TrialSection; 5] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,

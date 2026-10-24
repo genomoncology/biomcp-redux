@@ -1,4 +1,4 @@
-use crate::{Attribution, FiniteNumber, PredictorScore, Text, VariantRef};
+use crate::{FiniteNumber, PredictorScore, Text};
 use serde::{Deserialize, Serialize};
 /// Metadata for a component carried by an aggregator.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

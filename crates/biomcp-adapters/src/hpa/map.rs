@@ -1,7 +1,9 @@
 use super::raw;
 use crate::{Mapped, raw::Field};
 use biodata::{EnsemblGeneId, Text};
-use biomcp_types::{CancerPtpm, GeneExpression, Problem, ProblemCode, RnaAbundance, Source, TissueNtpm};
+use biomcp_types::{
+    CancerPtpm, GeneExpression, Problem, ProblemCode, RnaAbundance, Source, TissueNtpm,
+};
 use std::collections::BTreeMap;
 pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpression> {
     let mut map = Mapper {

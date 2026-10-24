@@ -1,7 +1,10 @@
 use crate::{Ctx, status};
 
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{PageInfo, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader, VariantHotspots};
+use biomcp_types::{
+    PageInfo, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet,
+    VariantHeader, VariantHotspots,
+};
 
 pub(super) fn section(
     cx: &Ctx<'_>,

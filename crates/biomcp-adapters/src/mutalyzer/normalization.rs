@@ -1,6 +1,8 @@
 use super::*;
 
-use biomcp_types::{NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution};
+use biomcp_types::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution,
+};
 /// Preserve source descriptions and messages without deriving a local equivalence.
 pub fn normalize(leg: &Leg<'_>, input: &str) -> Result<NormalizationResult, RequestError> {
     let raw = fetch(leg, input)?;

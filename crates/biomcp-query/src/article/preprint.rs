@@ -4,7 +4,9 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::europepmc;
 use biomcp_fetch::Deadline;
 use biomcp_types::ArticleInput;
-use biomcp_types::{ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status};
+use biomcp_types::{
+    ArticleMatch, ArticleResolution, QueryBody, Section, Source, SourceState, Status,
+};
 pub(super) fn cards<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
     let QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

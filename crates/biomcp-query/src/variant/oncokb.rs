@@ -3,7 +3,10 @@ use crate::{Ctx, status};
 use biodata::Build;
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
-use biomcp_types::{PageInfo, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader, VariantOncokb, VariantSection};
+use biomcp_types::{
+    PageInfo, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    VariantOncokb, VariantSection,
+};
 
 pub(super) fn section(
     cx: &Ctx<'_>,

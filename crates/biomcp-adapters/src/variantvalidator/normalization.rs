@@ -1,6 +1,8 @@
 use super::*;
 
-use biomcp_types::{NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution};
+use biomcp_types::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantResolution,
+};
 /// Keep each provider mapping and warning; never select a transcript.
 pub fn normalize(
     leg: &Leg<'_>,

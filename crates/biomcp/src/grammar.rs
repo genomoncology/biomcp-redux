@@ -1,7 +1,9 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
+use biomcp_types::{
+    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
+};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};

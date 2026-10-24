@@ -3,10 +3,10 @@ use crate::{
     Mapped,
     raw::{Field, OneOrMany},
 };
+use biodata::PredictorScore;
 use biodata::{Attribution, Build, Text, VariantRef};
 use biomcp_fetch::RequestError;
 use biomcp_types::{PredictorContext, Problem, ProblemCode, Source, VariantPredictors};
-use biodata::{PredictorScore};
 struct Output {
     id: Text,
     subject: VariantRef,

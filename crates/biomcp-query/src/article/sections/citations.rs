@@ -2,7 +2,9 @@ use super::super::order;
 use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_fetch::Deadline;
-use biomcp_types::{ArticleCardItem, ArticleResolution, QueryBody, Reason, Section, Source, SourceState, Status};
+use biomcp_types::{
+    ArticleCardItem, ArticleResolution, QueryBody, Reason, Section, Source, SourceState, Status,
+};
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], out: &mut Outcome) {
     let result = order::fetch(cx, deadline, ids);
     let QueryBody::ArticleCards(cards) = &mut out.body else {

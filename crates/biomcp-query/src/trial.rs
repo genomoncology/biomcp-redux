@@ -6,7 +6,9 @@ use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{ctgov, hgnc};
 use biomcp_types::GeneResolution;
-use biomcp_types::{QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch};
+use biomcp_types::{
+    QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch,
+};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {

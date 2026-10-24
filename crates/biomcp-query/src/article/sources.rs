@@ -2,7 +2,10 @@ use crate::{Ctx, Outcome, fan_out, status};
 use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome, SourceState, Status};
+use biomcp_types::{
+    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
+    SourceState, Status,
+};
 use std::time::Duration;
 pub(super) struct ResultLeg {
     pub(super) source: ArticleSource,

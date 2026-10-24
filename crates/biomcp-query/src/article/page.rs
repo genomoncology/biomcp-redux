@@ -7,7 +7,10 @@ use crate::{
 use biodata::Text;
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
-use biomcp_types::{ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody, Request, Source, Status, StepKind};
+use biomcp_types::{
+    ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
+    Request, Source, Status, StepKind,
+};
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
     Search(&'a ArticleSearch),

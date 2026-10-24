@@ -4,7 +4,9 @@ use biodata::{Doi, Pmid};
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
-use biomcp_types::{ArticleEvidence, Capped, CitationContexts, EvidenceContext, EvidenceNotice, Section, Source};
+use biomcp_types::{
+    ArticleEvidence, Capped, CitationContexts, EvidenceContext, EvidenceNotice, Section, Source,
+};
 /// A target's independently checked native identities, never a rendered citation match.
 #[derive(Clone)]
 pub(super) struct Target {

@@ -8,8 +8,8 @@ mod source;
 
 pub use predictor::{
     ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity,
-    CosmicRecord, PredictorContext, SubjectQualification, VariantComponent,
-    VariantConservation, VariantCosmic, VariantPredictors,
+    CosmicRecord, PredictorContext, SubjectQualification, VariantComponent, VariantConservation,
+    VariantCosmic, VariantPredictors,
 };
 pub use query::PhaseFilter;
 pub use query::SponsorType;
