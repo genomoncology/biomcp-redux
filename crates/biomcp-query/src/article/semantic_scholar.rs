@@ -51,13 +51,23 @@ pub(super) fn search<'a>(
         error,
     }
 }
+/// A DOI join preserves its source outcome even when transport or local work fails.
+#[derive(Debug)]
+pub struct DoiResolution {
+    /// Actual PubMed state, including a failed or stale leg.
+    pub source: biodata::SourceOutcome,
+    /// Original error, so local failures remain distinct.
+    pub error: Option<RequestError>,
+    /// Malformed summary fields retained alongside valid mappings.
+    pub problems: Vec<biodata::Problem>,
+}
 /// Resolve DOI-only rows using PubMed's actual DOI field, retaining unmatched rows.
 /// Return a failed join explicitly; the caller retains the original source items.
 pub fn resolve_dois<'a>(
     cx: &Ctx<'a>,
     items: &mut [ArticleItem],
     deadline: &mut Deadline<'a>,
-) -> Result<biodata::SourceOutcome, RequestError> {
+) -> DoiResolution {
     let dois: Vec<_> = items
         .iter()
         .filter(|item| item.pmid.is_none())
@@ -65,7 +75,8 @@ pub fn resolve_dois<'a>(
         .collect();
     let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let result = (|| {
+    let mut problems = Vec::new();
+    let result: Result<(), RequestError> = (|| {
         for batch in dois.chunks(100) {
             let term = batch
                 .iter()
@@ -75,6 +86,7 @@ pub fn resolve_dois<'a>(
             let ids = pubmed::search_ids(&leg, &term, ArticleSort::Rank, cx.ncbi_email.as_ref())?;
             for chunk in ids.ids.chunks(100) {
                 let mapped = pubmed::summaries(&leg, chunk, cx.ncbi_email.as_ref())?;
+                problems.extend(mapped.problems);
                 for item in items.iter_mut().filter(|item| item.pmid.is_none()) {
                     let doi = item.header.as_ref().and_then(|h| h.doi.as_ref());
                     if let Some(header) = mapped
@@ -95,5 +107,5 @@ pub fn resolve_dois<'a>(
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let outcome = status::source(Source::PubMed, leg.finish(), error);
-    result.map(|()| outcome)
+    DoiResolution { source: outcome, error, problems }
 }

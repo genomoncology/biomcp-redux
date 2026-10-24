@@ -298,6 +298,9 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
         _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
     };
     let data = biodata::KeyHelp {
+        guidance: (source == biodata::Source::SemanticScholar)
+            .then(|| biodata::Text::new("a free key raises the request limit").map_err(io::Error::other))
+            .transpose()?,
         source,
         config: biodata::Text::new(config).map_err(io::Error::other)?,
         environment: biodata::Text::new(environment).map_err(io::Error::other)?,

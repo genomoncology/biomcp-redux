@@ -47,28 +47,13 @@ pub(super) fn search<'a>(
                 item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some())
             })
         {
-            match super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline) {
-                Ok(source) => {
-                    if !results_have_pubmed(query) {
-                        out.sources.push(source);
-                    }
-                }
-                Err(error) => {
-                    if status::local(error).is_some() {
-                        return Err(error);
-                    }
-                    if let RequestError::Source(error) = error {
-                        join_failures.push(SourceOutcome {
-                            source: Source::PubMed,
-                            state: SourceState::Failed,
-                            reason: Some(error.reason),
-                            term: None,
-                            count: None,
-                            fetched: None,
-                            notices: Vec::new(),
-                        });
-                    }
-                }
+            let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
+            status::append(&mut out.problems, resolved.problems);
+            if let Some(error) = resolved.error {
+                if status::local(error).is_some() { return Err(error); }
+                join_failures.push(resolved.source);
+            } else if !results_have_pubmed(query) {
+                out.sources.push(resolved.source);
             }
         }
         if result.outcome.reason == Some(biodata::Reason::RateLimited)

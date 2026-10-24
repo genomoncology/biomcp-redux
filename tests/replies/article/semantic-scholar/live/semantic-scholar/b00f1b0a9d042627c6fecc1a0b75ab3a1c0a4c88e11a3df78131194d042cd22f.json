@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/search?query=EGFR%20T790M%20osimertinib&limit=100&fields=externalIds%2Ctitle%2Cvenue%2Cyear%2CpublicationDate%2Cauthors",
+  "exchanges": [
+    {
+      "fetched": 1792850985,
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 171,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. https://www.semanticscholar.org/product/api#api-key-form", "code": "429"}
+      }
+    },
+    {
+      "fetched": 1792850987,
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 181,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. https://www.semanticscholar.org/product/api#api-key-form", "code": "429"}
+      }
+    },
+    {
+      "fetched": 1792850989,
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 84,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"message": "Too Many Requests. Please wait and try again or apply for a key for higher rate limits. https://www.semanticscholar.org/product/api#api-key-form", "code": "429"}
+      }
+    }
+  ]
+}
