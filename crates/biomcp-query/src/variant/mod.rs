@@ -1,6 +1,7 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 pub(crate) mod assertions;
 mod civic;
+mod continuations;
 mod direct;
 mod hotspots;
 mod sections;
@@ -256,6 +257,7 @@ fn next(
             },
         ));
     }
+    continuations::collect(candidates, &mut next);
     next
 }
 
