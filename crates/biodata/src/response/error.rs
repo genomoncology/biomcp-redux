@@ -46,6 +46,15 @@ singleton! {
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
         Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",
+        ArticleText => "use: search article <text>", Since => "use: --since", Until => "use: --until",
+        CitationSort => "use: --sort citations", GeneOption => "use: --gene",
+        DiseaseOption => "use: --disease", AuthorOption => "use: --author",
+        Supplements => "use: supplements", Supplement => "use: article supplement <id> <file>",
+        Fulltext => "use: fulltext", ArticlePart => "use: article text <id> --part <n>",
+        SupplementFind => "use: article supplement <id> <file> --find <text>",
+        Annotations => "use: get article <id> annotations", ArticleBatch => "use: get article <id>...",
+        VariantArticles => "use: search article --variant <variant>", DiseaseArticles => "use: search article --disease <disease>",
+        DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
         Drug => "moved to the drug entity", Diagnostic => "moved to the diagnostic entity", Deferred => "deferred", PoolExpired => "pool expired; restart the search", PoolMismatch => "pool selectors do not match this search"
     }
