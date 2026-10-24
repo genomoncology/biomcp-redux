@@ -1,0 +1,29 @@
+{
+  "feature": "article-fulltext",
+  "story": "bounded-source-text",
+  "replay": "article/fulltext/synthetic",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/license": "cc_by",
+        "/result/text": "Introduction text."
+      },
+      "mcp": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "1"
+      ],
+      "max_tokens": 4000
+    }
+  ]
+}
