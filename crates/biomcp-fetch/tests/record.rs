@@ -459,3 +459,8 @@ mod bytes;
 fn binary_sidecars_are_ordered_and_confined() {
     bytes::ordered_binary_sidecars_round_trip_and_refuse_hostile_paths();
 }
+
+#[test]
+fn cut_binary_body_never_returns_partial_bytes() {
+    bytes::cut_binary_body_is_refused_before_returning_bytes();
+}

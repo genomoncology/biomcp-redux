@@ -7,6 +7,9 @@ use std::{fs, path::Path};
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article/pdf/recorded-metadata-contract", || {
+            record_metadata().map_err(|e| e.to_string().into())
+        }),
         Trial::test("article/pdf/size-cut-and-proxy-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
@@ -164,9 +167,9 @@ fn boundaries() -> Check {
                 && record["url"]
                     .as_str()
                     .is_some_and(|s| s.contains("api.semanticscholar.org"))
+                && let Some(body) = record.pointer_mut("/exchanges/0/body")
             {
-                record["exchanges"][0]["body"] =
-                    json!({"kind":"text","value":"{\"openAccessPdf\":"});
+                *body = json!({"kind":"text","value":"{\"openAccessPdf\":"});
             }
         })?;
         let publisher = replay.join("semantic-scholar/0e4c6627e9a47ffe7aa8ad4caee7846838977da402ca279d1d34fbe2b02efcaf.json");
@@ -194,9 +197,12 @@ fn boundaries() -> Check {
             );
             let expected = json!(["article", "pdf", "41351423", "--save", "41351423.pdf"]);
             assert!(
-                result["next"]
-                    .as_array()
-                    .is_some_and(|next| next.iter().any(|step| step["args"] == expected))
+                result
+                    .get("next")
+                    .and_then(Value::as_array)
+                    .is_some_and(|next| next
+                        .iter()
+                        .any(|step| step.get("args") == Some(&expected)))
             );
         } else {
             let result = command(&env, &replay, &save_args(&target), 4)?;
@@ -244,6 +250,51 @@ fn proxy_paths() -> Check {
             listener.accept().is_err(),
             "refused publisher request reached proxy"
         );
+    }
+    Ok(())
+}
+
+fn record_metadata() -> Check {
+    let stub = super::network_stub::Stub::for_source(
+        "api.semanticscholar.org",
+        "application/json",
+        |_| Ok("{\"openAccessPdf\":null}".into()),
+    )?;
+    let env = Environment::new()?;
+    env.config(&json!({"ca_bundle":stub.certificate}))?;
+    let capture = env.root().join("recording");
+    let args = vec![
+        "--record".into(),
+        capture.to_string_lossy().into(),
+        "article".into(),
+        "pdf".into(),
+        "33123537".into(),
+        "--save".into(),
+        env.root().join("never.pdf").to_string_lossy().into(),
+    ];
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .env("HTTPS_PROXY", format!("http://{}", stub.address))
+        .output()?;
+    assert_eq!(output.status.code(), Some(4));
+    assert!(!env.root().join("never.pdf").exists());
+    let requests = stub.finish()?;
+    assert_eq!(requests.len(), 1);
+    assert!(requests.first().is_some_and(|(_, request)| {
+        request.contains("/paper/PMID%3A33123537?fields=openAccessPdf")
+    }));
+    for entry in fs::read_dir(capture.join("semantic-scholar"))? {
+        let entry = entry?;
+        if entry.path().extension().is_some_and(|v| v == "json") {
+            let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
+            use std::io::Write;
+            writeln!(
+                std::io::stdout(),
+                "PDF_CANONICAL_RECORD {} {}",
+                entry.file_name().to_string_lossy(),
+                record
+            )?;
+        }
     }
     Ok(())
 }

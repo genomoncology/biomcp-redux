@@ -36,3 +36,4 @@ article-evidence: Read all source citation contexts and explicit full-text refer
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
 
 article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination. Cases: `crates/biomcp/tests/runner/article_save.rs`.
+article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
