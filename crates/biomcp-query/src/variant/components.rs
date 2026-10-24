@@ -45,8 +45,8 @@ pub(super) fn measurements(
     conservation: bool,
 ) -> super::sections::Result<VariantPredictors> {
     use biomcp_adapters::myvariant::{self, components};
-    let cadd = !conservation && !cx.fetch.disabled_use(components::CADD.terms.usage);
-    let dbnsfp = !cx.fetch.disabled_use(components::DBNSFP.terms.usage);
+    let cadd = !conservation && !components::disabled(cx.fetch, components::CADD.name);
+    let dbnsfp = !components::disabled(cx.fetch, components::DBNSFP.name);
     if cx.fetch.disabled(Source::MyVariant) || (!cadd && !dbnsfp) {
         return skipped();
     }

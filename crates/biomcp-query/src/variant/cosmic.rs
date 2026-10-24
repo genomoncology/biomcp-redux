@@ -11,11 +11,10 @@ pub(super) fn section(
     let Some((id, build)) = super::components::target(candidates) else {
         return (Section::NotApplicable, Vec::new(), Vec::new(), None);
     };
-    if cx.fetch.disabled(Source::MyVariant)
-        || cx
-            .fetch
-            .disabled_use(biomcp_adapters::myvariant::components::COSMIC.terms.usage)
-    {
+    if biomcp_adapters::myvariant::components::disabled(
+        cx.fetch,
+        biomcp_adapters::myvariant::components::COSMIC.name,
+    ) {
         return super::components::skipped();
     }
     let leg = cx
