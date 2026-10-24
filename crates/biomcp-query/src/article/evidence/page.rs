@@ -82,7 +82,7 @@ pub(super) fn render(
         || snapshot
             .sources
             .iter()
-            .any(|s| s.state == biodata::SourceState::Stale)
+            .any(|s| matches!(s.state,biodata::SourceState::Stale|biodata::SourceState::Failed|biodata::SourceState::Skipped))
     {
         Status::Partial
     } else {
@@ -97,7 +97,9 @@ pub(super) fn render(
             },
         ));
     }
-    out.sources.extend(snapshot.sources);
+    for incoming in snapshot.sources {
+        if let Some(original)=out.sources.iter_mut().find(|s|s.source==incoming.source) {crate::status::retain_source_state(original,&incoming);}else{out.sources.push(incoming)}
+    }
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,
