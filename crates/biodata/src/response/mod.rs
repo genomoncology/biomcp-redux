@@ -1,6 +1,6 @@
 mod article;
 mod article_cards;
-pub use article::{ArticleItem, ArticleKey, ArticlePage};
+pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 mod error;
 mod problem;
@@ -39,4 +39,4 @@ pub use gene::{
 };
 
 mod article_sections;
-pub use article_sections::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
+pub use article_sections::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations};

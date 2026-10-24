@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
+use biodata::{ArticleEdges, ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -21,6 +21,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
@@ -32,6 +33,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
+    ("article", "citations", "biodata.article-edges/1"),
+    ("article", "references", "biodata.article-edges/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -57,7 +60,7 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for verb in ["get", "search"] {
+    for verb in ["get", "search", "article"] {
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
             let schema: Value =
@@ -135,7 +138,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if entity == "article" && verb == "get" {
+        let id = if verb=="article" {"biodata.article-edges/1"} else if entity == "article" && verb == "get" {
             "biodata.article-get/1"
         } else if entity == "article" {
             "biodata.article-search/1"
@@ -147,7 +150,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         let value = arguments(matches, &schema)?;
-        let request = if entity == "article" && verb == "get" {
+        let request = if verb=="article" {
+            let query=serde_json::from_value::<ArticleEdges>(value).map_err(|_|())?;
+            if entity=="citations" {Request::ArticleCitations(query)} else {Request::ArticleReferences(query)}
+        } else if entity == "article" && verb == "get" {
             Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
         } else if entity == "article" {
             Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_| ())?)

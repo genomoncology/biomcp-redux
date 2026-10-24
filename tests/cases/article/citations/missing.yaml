@@ -10,7 +10,7 @@
         "33123537",
         "citations"
       ],
-      "exit": 4,
+      "exit": 0,
       "expect": {
         "/result/items/0/sections/citations/state": "unavailable",
         "/result/items/0/answer/resolution": "resolved"

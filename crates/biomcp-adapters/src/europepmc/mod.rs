@@ -145,6 +145,7 @@ impl Row {
             key,
             pmid,
             header,
+            cited_by: None,
             found_by: Default::default(),
         })
     }

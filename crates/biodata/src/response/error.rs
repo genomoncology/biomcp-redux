@@ -32,7 +32,7 @@ singleton! {
 
 singleton! {
     /// The stable error code for an invalid schema request.
-    pub ErrorCode { SchemaUsage => "usage.schema", Arguments => "usage.arguments", Retired => "usage.retired", Local => "local.failure", PoolExpired => "pool.expired", PoolMismatch => "usage.pool_mismatch" }
+    pub ErrorCode { SchemaUsage => "usage.schema", Arguments => "usage.arguments", Retired => "usage.retired", Local => "local.failure", PoolExpired => "pool.expired", PoolMismatch => "usage.pool_mismatch", TooManyPmids => "usage.too_many_pmids" }
 }
 
 singleton! {
@@ -41,7 +41,7 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+    pub ErrorMessage { TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
         Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
@@ -66,6 +66,8 @@ singleton! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ErrorDetail {
+    #[serde(default, skip_serializing_if="Option::is_none")]
+    count: Option<u64>,
     code: ErrorCode,
     message: ErrorMessage,
 }
@@ -91,6 +93,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                count: None,
                 code: ErrorCode::SchemaUsage,
                 message: ErrorMessage::SchemaUsage,
             },
@@ -106,6 +109,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                count: None,
                 code: ErrorCode::Retired,
                 message,
             },
@@ -118,6 +122,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                count: None,
                 code: ErrorCode::Arguments,
                 message: ErrorMessage::Arguments,
             },
@@ -130,6 +135,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Local,
             error: ErrorDetail {
+                count: None,
                 code: ErrorCode::Local,
                 message: ErrorMessage::Local,
             },
@@ -148,6 +154,7 @@ impl ErrorEnvelope {
                 ErrorStatus::Expired
             },
             error: ErrorDetail {
+                count: None,
                 code: if mismatch {
                     ErrorCode::PoolMismatch
                 } else {
@@ -161,5 +168,12 @@ impl ErrorEnvelope {
             },
             next: vec![next],
         }
+    }
+}
+
+impl ErrorEnvelope {
+    /// Refuse citation enrichment above its checked PMID window.
+    pub fn too_many_pmids(count:u64)->Self {
+        Self {schema:ErrorSchema::V1,status:ErrorStatus::Usage,error:ErrorDetail {count:Some(count),code:ErrorCode::TooManyPmids,message:ErrorMessage::TooManyPmids},next:Vec::new()}
     }
 }

@@ -65,6 +65,13 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Citation graph page.
+    ArticleEdges(crate::ArticleEdgePage),
+    /// Citation ordering exceeds the supported PMID window.
+    TooManyPmids {
+        /// Unique PMID count before enrichment.
+        count: u64,
+    },
     /// PubMed article cards.
     ArticleCards(crate::ArticleCards),
     /// Invalid snapshot selector; the interface spells its typed restart.

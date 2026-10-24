@@ -104,7 +104,8 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 .map(|(kind, action)| crate::spell::step(*kind, action))
                 .collect::<Result<Vec<_>, _>>()?;
             match (request, result.body) {
-                (Request::SearchArticle(_), QueryBody::PoolError { mismatch }) => {
+                (_, QueryBody::TooManyPmids {count}) => encode(biodata::ErrorEnvelope::too_many_pmids(count),crate::exit::Status::Usage),
+                (_, QueryBody::PoolError { mismatch }) => {
                     let restart = steps
                         .into_iter()
                         .next()
@@ -117,6 +118,11 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                             crate::exit::Status::Expired
                         },
                     )
+                }
+                (Request::ArticleCitations(query) | Request::ArticleReferences(query),QueryBody::ArticleEdges(body)) => {
+                    let mut envelope=Envelope::new(result.status,query,(result.status!=Status::Failed).then_some(body));
+                    envelope.sources=result.sources; envelope.problems=result.problems; envelope.next=steps;envelope.page=result.page;
+                    encode(envelope,status)
                 }
                 (Request::SearchArticle(query), QueryBody::ArticlePage(body)) => {
                     let mut envelope = Envelope::new(

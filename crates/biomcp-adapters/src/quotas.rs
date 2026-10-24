@@ -57,3 +57,6 @@ pub(crate) static EUROPEPMC: Quota = Quota::new(
 // Conservative local PubTator3 policy; no published numeric provider limit checked.
 pub(crate) static PUBTATOR: Quota =
     Quota::new(SourceKey::declare("pubtator"), Rate::per_second(3), None, 3);
+
+// Conservative local iCite policy; no published numeric provider limit verified.
+pub(crate) static ICITE: Quota = Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);

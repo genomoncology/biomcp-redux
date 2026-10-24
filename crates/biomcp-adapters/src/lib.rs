@@ -22,3 +22,5 @@ pub mod hpa;
 
 pub mod europepmc;
 pub mod pubtator;
+
+pub mod icite;

@@ -44,7 +44,29 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// Citation counts from NIH iCite.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub citations: Option<Section<Citations>>,
     /// Normalized PubTator3 entities.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotations: Option<Section<Annotations>>,
+}
+
+/// Independently reported iCite counts; absent lists are never confirmed zeros.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Citations {
+    /// Number of citing PubMed papers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cited_by: Option<u64>,
+    /// Number of distinct clinical citing papers, when the list was present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cited_by_clinical: Option<u64>,
+    /// Number of distinct references, when the list was present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<u64>,
+    /// Relative citation ratio, only when confirmed non-provisional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rcr: Option<crate::FiniteNumber>,
 }
