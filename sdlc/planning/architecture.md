@@ -708,7 +708,7 @@ pub(crate) static PUBTATOR: Quota = Quota { key: SourceKey::declare("pubtator"),
 
 ### 4.3 Keyed sources
 
-A source whose terms require the user's own license or account, such as OncoKB, declares `KeyUse::Required`, as `decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` says. Each slice names its keyed sources.
+A source whose terms require the user's own license or account, such as OncoKB, declares `KeyUse::Required`, as `decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` says. Each slice names its keyed sources. A free source whose key only raises the limit, such as NCBI E-utilities or Semantic Scholar, declares `KeyUse::Optional`: it runs without a key at its unkeyed rate, and a 429 that outlasts the retries adds one `key` step to the response.
 
 - `Fetch::leg` checks the key before anything else. When the key is not configured, the leg is skipped. Every call on it returns `SourceError` with reason `no_key` and touches no network, cache entry or recording. This holds for the source's public endpoints too.
 - The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
@@ -746,7 +746,7 @@ Limiters are keyed by a source key and never by a URL, a host name or an endpoin
 - Each limiter applies the keyed rate when the leg's source has its key configured, and the unkeyed rate otherwise.
 - Permits are served in arrival order. A waiter takes a ticket under a `Mutex`, and a `Condvar` wakes tickets in order. A caller sleeps for its rate slot outside the lock.
 - Each leg runs on its own thread, and only sources on the same quota wait for each other. A slow or rate-limited source therefore delays only the legs that share its provider.
-- The article slice declares `ncbi-eutils` (3 per second, 10 with a key), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `semantic-scholar` (1 per second with a key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Each assumed rate is confirmed against the provider before its adapter lands.
+- The article slice declares `ncbi-eutils` (3 per second, 10 with a key), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `semantic-scholar` (1 request every 2 seconds without a key, 1 per second with the optional key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Each assumed rate is confirmed against the provider before its adapter lands.
 - A recorded case sends eight parallel calls to one E-utilities quota without a key and asserts from `--explain` that their start times keep the quota's rate. 0.9 drew seven 429 replies from the same pattern.
 - The limiter is per process. Several BioMCP processes sharing a key can exceed a provider's limit together. The provider then answers 429, and step 7 retries within the deadline.
 
@@ -1144,7 +1144,7 @@ Adapters have no tests of their own. Cases drive the binary over recordings, and
 | Bundle source | 150 to 400 |
 | The transport | 1,800 to 2,800 |
 
-The article slice estimates PubMed at 400 lines, Europe PMC 350, LitVar2 150, Semantic Scholar 200, iCite 150, the PMC OA bucket 200, the JATS reader 300 and the supplement readers 250, plus PubTator3 export for annotations. LitSense2 and PubTator3 search wait for Ian's ruling on whether they stay as named sources.
+The article slice estimates PubMed at 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350, iCite 150, the PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF reader 150 and the supplement readers 250.
 
 These are estimates. The article slice measures its adapters first. If they average over 300 lines, this section is revised. Each file in an adapter folder stays under 300 lines.
 
@@ -1389,13 +1389,16 @@ biomcp get gene <INPUT>... --section SECTION...
 biomcp search article [TEXT] [--source LIST] [--sort RULE] [--gene INPUT] [--variant TEXT]
                       [--disease TEXT] [--drug TEXT] [--author TEXT] [--journal TEXT]
                       [--since DATE] [--until DATE] [--type TYPE]
+                      [--open-access] [--no-preprints] [--exclude-retracted | --include-retracted]
                       [--limit N] [--offset N] [--pool ID]
 biomcp get article <PMID | PMCID | DOI | Europe PMC ID>... [SECTION]...
-    sections: fulltext, supplements, annotations, citations, all
-biomcp article text <ID> (--part N | --find TEXT)
-biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT]
-biomcp article citations <PMID> [--limit N] [--offset N] [--pool ID]
-biomcp article references <PMID> [--limit N] [--offset N] [--pool ID]
+    sections: fulltext, supplements, annotations, citations, indexing, tldr, pdf, all
+biomcp article text <ID> (--part N | --find TEXT | --variant CHANGE) [--pdf]
+biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT | --variant CHANGE]
+biomcp article citations <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
+biomcp article references <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
+biomcp article citation-evidence <CITING> <CITED> [--fulltext]
+biomcp article recommendations <ID>... [--negative ID]... [--limit N]
 
 biomcp search trial [TEXT] [--condition TEXT] [--gene INPUT] [--variant TEXT] [--drug TEXT]
                     [--status STATUS]... [--phase PHASE]... [--sponsor TEXT]
@@ -1526,7 +1529,7 @@ pub(crate) fn markdown(envelope: &serde_json::Value, hints: &Hints) -> String;
 pub(crate) struct Hint { pub schema: &'static str, pub title: &'static str, pub columns: &'static [&'static str] }
 ```
 
-A hint names the JSON pointer of a card's title and the columns of a page's table. Everything else renders by structure: objects as definition lists, arrays of objects as tables, sections under headings with their state. Next steps print as quoted shell commands. The view reads only the serialized JSON, so it cannot show anything the JSON lacks, and it cannot fetch. It replaces 0.9's 34 templates and 102 Markdown functions.
+A hint names the JSON pointer of a card's title and the columns of a page's table. Everything else renders by structure: objects as definition lists, arrays of objects as tables, sections under headings with their state. A field whose type is biodata's `Markdown`, such as a part of an article's body, prints as it is, unescaped. Next steps print as quoted shell commands. The view reads only the serialized JSON, so it cannot show anything the JSON lacks, and it cannot fetch. It replaces 0.9's 34 templates and 102 Markdown functions.
 
 ### 8.7 The MCP tool
 
