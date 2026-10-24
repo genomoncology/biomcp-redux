@@ -79,6 +79,9 @@ pub enum OncokbVariantRecord {
         field: Box<str>,
         /// Whole native classification.
         classification: Term,
+        /// Native PMID citations remain available when the source subject is absent.
+        #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        citations: Box<[crate::Pmid]>,
         /// No subject was invented.
         #[serde(default = "unmapped")]
         statement_unmapped: bool,

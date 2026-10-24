@@ -189,6 +189,7 @@ fn classification(
         out.push(Record::UnmappedLabel {
             field: field.into(),
             classification,
+            citations: citations.into(),
             statement_unmapped: true,
         });
     }
