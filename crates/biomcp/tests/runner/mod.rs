@@ -9,6 +9,8 @@ mod mcp;
 mod negative_cases;
 mod pool_tables;
 mod process;
+mod response_cases;
+mod pmc_tables;
 pub(super) mod proof;
 mod protocol;
 mod schema;
@@ -217,6 +219,7 @@ fn run_step(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(gene_tables::trials());
+    trials.push(Trial::test("article-fulltext/source-boundaries", || pmc_tables::check().map_err(|e| e.to_string().into())));
     trials.push(Trial::test("article-search/snapshot-replacement", || {
         pool_tables::check().map_err(Into::into)
     }));

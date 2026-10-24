@@ -1727,6 +1727,8 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biodata/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise empty and oversized adapter batches and chunk isolation that command input limits cannot construct. |
+| `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
+| `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

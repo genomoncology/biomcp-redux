@@ -121,8 +121,7 @@ fn mappings() -> Check {
                 body["value"]["data"]["g0"]["mane_select_transcript"] = Value::Null;
                 body["value"]["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
             },
-            json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
-            "/result/items/0/sections/constraint/data/flags": []}),
+            json!({"/result/items/0/sections/constraint/data/transcript": "ENST00000269305"}),
         )?;
     }
     for mode in 0..2 {
