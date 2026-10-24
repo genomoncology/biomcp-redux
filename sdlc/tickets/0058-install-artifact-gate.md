@@ -17,4 +17,4 @@ A pm job builds each release artifact that 0.9 ships (the PyPI wheel, the instal
 
 ## Changes
 
-`release/**`, `Makefile`, `README.md`, `crates/biomcp/tests/cases.rs`, `crates/biomcp/tests/runner/launch.rs`, `crates/biomcp/tests/runner/mod.rs`, `crates/biomcp/tests/runner/configuration.rs`, `crates/biomcp/tests/runner/publication.rs`, `crates/biomcp/tests/runner/README.md`.
+`manifest.json`, `server.json`, `release/**`, `Makefile`, `README.md`, `crates/biomcp/tests/cases.rs`, `crates/biomcp/tests/runner/launch.rs`, `crates/biomcp/tests/runner/mod.rs`, `crates/biomcp/tests/runner/configuration.rs`, `crates/biomcp/tests/runner/publication.rs`, `crates/biomcp/tests/runner/README.md`.

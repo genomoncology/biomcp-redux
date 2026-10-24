@@ -8,9 +8,24 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
 from artifacts import cargo, inspect
-from smoke import environment, smoke
+from smoke import environment, smoke, mcp_probe
+
+
+def install_wheel(wheel, venv, root, host_python):
+    subprocess.run([host_python, "-m", "venv", "--without-pip", str(venv)], check=True)
+    python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    install_env = {**environment(root), "PATH": os.defpath, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1", "UV_CACHE_DIR": str(root / "uv-cache")}
+    uv = shutil.which("uv")
+    if uv:
+        installer = [uv, "--offline", "--no-config", "pip", "install", "--python", str(python)]
+    else:
+        subprocess.run([str(python), "-m", "ensurepip"], check=True, env=install_env)
+        installer = [str(python), "-m", "pip", "install"]
+    subprocess.run(installer + ["--no-index", "--no-deps", str(wheel)], check=True, env=install_env)
+    return venv / ("Scripts/biomcp.exe" if os.name == "nt" else "bin/biomcp")
 
 
 def installed(args):
@@ -41,18 +56,37 @@ def installed(args):
         smoke(binary, executable, fixtures, record["version"])
         results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
         print(json.dumps(results[-1]), flush=True)
-    venv = root / "venv"
-    subprocess.run([args.python, "-m", "venv", "--without-pip", str(venv)], check=True)
-    python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-    install_env = {**environment(root), "PATH": os.defpath, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1", "UV_CACHE_DIR": str(root / "uv-cache")}
-    uv = shutil.which("uv")
-    if uv:
-        installer = [uv, "--offline", "--no-config", "pip", "install", "--python", str(python)]
-    else:
-        subprocess.run([str(python), "-m", "ensurepip"], check=True, env=install_env)
-        installer = [str(python), "-m", "pip", "install"]
-    subprocess.run(installer + ["--no-index", "--no-deps", str(wheel)], check=True, env=install_env)
-    check("wheel", venv / ("Scripts/biomcp.exe" if os.name == "nt" else "bin/biomcp"))
+    check("wheel", install_wheel(wheel, root / "venv", root, args.python))
+    bundle = next(output.glob("*.mcpb"))
+    extension = root / "desktop-extension"
+    with zipfile.ZipFile(bundle) as package:
+        manifest = json.loads(package.read("manifest.json"))
+        entry = manifest["server"]["entry_point"]
+        if set(package.namelist()) != {"manifest.json", entry} or entry not in {"server/biomcp", "server/biomcp.exe"}:
+            raise ValueError("unexpected desktop bundle members")
+        extension.mkdir()
+        binary = extension / entry
+        binary.parent.mkdir()
+        binary.write_bytes(package.read(entry))
+        binary.chmod(0o755)
+        (extension / "manifest.json").write_bytes(package.read("manifest.json"))
+    config = manifest["server"]["mcp_config"]
+    if manifest["name"] != "biomcp" or manifest["version"] != record["version"] or config["command"] != "${__dirname}/" + entry or config["args"] != ["serve"]:
+        raise ValueError("desktop manifest launch contract differs")
+    check("desktop-extension", binary)
+    with tempfile.TemporaryDirectory() as directory:
+        mcp_probe([str(binary)] + config["args"], environment(Path(directory)), Path(directory), record["version"])
+    registry = json.loads((output / "server.json").read_text())
+    package, = registry["packages"]
+    if registry["name"] != "io.github.genomoncology/biomcp" or registry["version"] != record["version"] or package["registryType"] != "pypi" or package["identifier"] != "biomcp-cli" or package["version"] != record["version"] or package["transport"] != {"type": "stdio"}:
+        raise ValueError("registry identity, package or transport differs")
+    arguments = [argument["value"] for argument in package["packageArguments"] if argument["type"] == "positional"]
+    if arguments != ["serve"]:
+        raise ValueError("registry package launch contract differs")
+    registry_binary = install_wheel(wheel, root / "registry-venv", root, args.python)
+    check("mcp-registry", registry_binary)
+    with tempfile.TemporaryDirectory() as directory:
+        mcp_probe([str(registry_binary)] + arguments, environment(Path(directory)), Path(directory), record["version"])
     archive = next(output.glob("*.tar.gz"))
     destination = root / "installer-bin"
     subprocess.run(["/bin/bash", str(source / "release/install.sh"), str(archive), hashlib.sha256(archive.read_bytes()).hexdigest(), str(destination)], check=True)

@@ -106,6 +106,26 @@ def inspect(path):
         return record
 
 
+def channels(output, binary, provenance):
+    source = Path(__file__).resolve().parent.parent
+    manifest = json.loads((source / "manifest.json").read_text())
+    manifest["version"] = provenance["version"]
+    manifest["compatibility"] = {"platforms": [{"Darwin": "darwin", "Windows": "win32", "Linux": "linux"}[platform.system()]]}
+    entry = "server/biomcp" + (".exe" if platform.system() == "Windows" else "")
+    manifest["server"]["entry_point"] = entry
+    manifest["server"]["mcp_config"]["command"] = "${__dirname}/" + entry
+    with zipfile.ZipFile(output / ("biomcp-" + provenance["platform"] + ".mcpb"), "w", zipfile.ZIP_DEFLATED) as bundle:
+        bundle.writestr("manifest.json", json.dumps(manifest, sort_keys=True))
+        member = zipfile.ZipInfo(entry)
+        member.external_attr = 0o100755 << 16
+        bundle.writestr(member, binary.read_bytes())
+    registry = json.loads((source / "server.json").read_text())
+    registry["version"] = provenance["version"]
+    for package in registry["packages"]:
+        package["version"] = provenance["version"]
+    (output / "server.json").write_text(json.dumps(registry, indent=2) + "\n")
+
+
 def build(args):
     # Pin the macOS deployment target before Cargo sees the build environment.
     if platform.system() == "Darwin":
@@ -120,6 +140,7 @@ def build(args):
     output.mkdir(parents=True, exist_ok=True)
     record = {"version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
     candidate = wheel(output, binary, record)
+    channels(output, binary, record)
     archive = output / ("biomcp-" + version + "-" + tag + ".tar.gz")
     with tarfile.open(archive, "w:gz") as package:
         package.add(binary, arcname="biomcp", recursive=False)
