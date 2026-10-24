@@ -19,7 +19,7 @@ fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":["civic","hotspots"]});
+    let config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":["civic","hotspots","gnomad","gwas"]});
     env.config(&config).map_err(|e| e.to_string())?;
     for id in ["rs113488022", "CA123643"] {
         let args = args(id)?;
@@ -53,7 +53,7 @@ fn run() -> Result<(), String> {
                         && s.get("args")
                             == Some(&json!([
                                 "--disable-sources",
-                                "civic,hotspots",
+                                "civic,gnomad,gwas,hotspots",
                                 "help",
                                 "get",
                                 "variant"

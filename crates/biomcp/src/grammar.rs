@@ -54,7 +54,6 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("variant", "population", "biodata.variant-population/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -70,6 +69,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
     ("get", "variant", "biodata.variant-get/1"),
+    ("variant", "population", "biodata.variant-population/1"),
     ("search", "variant", "biodata.variant-search/1"),
     (
         "variant",
