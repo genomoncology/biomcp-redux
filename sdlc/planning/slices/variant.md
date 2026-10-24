@@ -215,7 +215,9 @@ The PM accepted the five recommendations and settled their command forms in the 
 | Investigate sources | Keep explicit CAR, Mutalyzer and VariantValidator services. Defer variant structure, variant-specific UniProt/InterPro and AlphaGenome. The retired structure command names gene protein. | Ruling 6. |
 | Advanced filters and ownership | Port each filter only with a known-positive source case. CGI and variant cspec are deferred. GWAS search, trial search and article search retain their owning slices. Canonical section spellings and retirement messages follow the decision. | Rulings 7, 8 and 9. |
 
-## 9. Measurement appendix
+## 9. Investigation measurement appendix
+
+This appendix records the original investigation and its proposed envelopes. Section 6 describes the implemented command contract and its remaining source-proof boundaries. Historical prototype sizes do not replace complete shipped-envelope case caps.
 
 The final evidence manifest, source totals, baseline comparison and proposed byte ceilings follow the same raw captures. Bytes divided by four are estimates, not tokenizer counts. Measured latency includes the M5's concurrent load and network; it is not an isolated speed benchmark. No source ranking or cross-machine comparison follows from these figures.
 
@@ -331,6 +333,6 @@ The 21 historical search examples include 9 usage errors because the transcript/
 
 The initial historical section run used Q09's transcript input and failed before sections. The corrected positive rsID section run succeeded for all 12 section words. `predict` and `predictions` differ in output byte size and should share one canonical capability in the new schema. The 0.9.4 source inventory contains `gwas`; the 0.9.3 runtime's same word explicitly reports `unavailable`, permanent legacy-endpoint retirement, and a v2 migration gap in the positive run. Do not call that current v2 coverage. `variant structure` and generic batch were executed and failed at the transcript-resolution prerequisite; their source joins remain unmeasured, and deferral rests on the absence of a harvested need, not a claim that those endpoints fail.
 
-### Remaining implementation proof limits
+### Investigation scope and unproved comparisons
 
-The corpus does not establish an exact same-allele germline-versus-somatic conflict. It does establish a source-paper/reference inconsistency, source name-search ambiguity and multiple alternate alleles for one rsID. cBioPortal exact allele recurrence and its denominators need a selected-cohort case. A field from the public tier is retained only after a valid untruncated source capture shows it; source docs alone cannot enable a section. Several publishers' output redistribution terms remain unverified, so captures stay outside Git. The proposed source limits, final schema, page sizes and full-envelope ceilings are implementation decisions within the accepted design. No new parser, clinical interpretation, ticket or release is authorized by this file.
+The corpus does not establish an exact same-allele germline-versus-somatic conflict. It does establish a source-paper/reference inconsistency, source name-search ambiguity and multiple alternate alleles for one rsID. The investigation did not prove cBioPortal exact allele recurrence in a selected cohort. The implemented recurrence contract in section 6 reports page-local sample observations without inferring an assayed denominator. A field from the public tier is retained only after a valid untruncated source capture shows it; source docs alone cannot enable a section. Several publishers' output redistribution terms remain unverified, so captures stay outside Git. The proposed source limits, final schema, page sizes and full-envelope ceilings are implementation decisions within the accepted design. No new parser, clinical interpretation, ticket or release is authorized by this file.
