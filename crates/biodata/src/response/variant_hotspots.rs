@@ -6,6 +6,9 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHotspots {
+    /// Source rows remain candidates when no transcript/consequence join exists.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<crate::Reason>,
     /// Native residue records in source order.
     pub records: Box<[HotspotRecord]>,
     /// Disclosure bounds for this section.
