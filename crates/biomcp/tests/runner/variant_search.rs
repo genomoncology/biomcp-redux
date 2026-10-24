@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant-search/declared-symbol-escapes-query-syntax", || literal_gene().map_err(Into::into)),
         Trial::test("variant-search/raw-region-build-and-native-duplicates", || raw_and_region().map_err(Into::into)),
         Trial::test("variant-search/valid-zero-and-failed-page-cache-admission", || zero_and_failed().map_err(Into::into)),
         Trial::test(
@@ -121,14 +122,29 @@ fn zero_and_failed() -> Result<(),String> {
     let env=environment(&stub)?;
     let zero=command(&env,&["search","variant","--query","synthetic-zero","--source","myvariant"])?;
     if zero.pointer("/status")!=Some(&json!("absent")) || zero.pointer("/page/total")!=Some(&json!(0)) || zero.pointer("/sources/0/state")!=Some(&json!("ok")) {return Err(format!("valid native zero was not preserved: {zero}"));}
+    let error=command(&env,&["search","variant","--query","synthetic-error","--source","myvariant"])?;
+    if error.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) {return Err(format!("provider error became valid zero: {error}"));}
     for _ in 0..2 {
         let bad=command(&env,&["search","variant","--query","synthetic-bad","--source","myvariant"])?;
         if bad.pointer("/status")!=Some(&json!("failed")) || bad.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) || bad.get("page").is_some() {return Err(format!("malformed source page became a valid zero: {bad}"));}
     }
     let offline=command(&env,&["search","variant","--query","synthetic-bad","--source","myvariant","--offline"])?;
-    if offline.pointer("/sources/0/reason")!=Some(&json!("offline")) || stub.finish()?.len()!=3 {return Err("invalid source page entered or came from cache".into());}
+    if offline.pointer("/sources/0/reason")!=Some(&json!("offline")) || stub.finish()?.len()!=4 {return Err("invalid source page entered or came from cache".into());}
     Ok(())
 }
 fn outcomes_body(request:&str) -> Result<String,String> {
+    if request.contains("q=synthetic-error&") { return Ok(json!({"error":"synthetic provider failure","total":0,"hits":[]}).to_string()); }
     if request.contains("q=synthetic-zero&") {Ok(json!({"total":0,"hits":[]}).to_string())} else {Ok(json!({"total":1,"hits":[]}).to_string())}
+}
+
+fn literal_gene() -> Result<(),String> {
+    let stub=Stub::for_source("myvariant.info","application/json",literal_body)?;
+    let env=environment(&stub)?;
+    let value=command(&env,&["search","variant","--gene","EGFR:foo\"*","--protein","W24*"])?;
+    if value.pointer("/result/source_query") != Some(&json!(r#"dbnsfp.genename:EGFR\:foo\"\* AND dbnsfp.hgvsp:"p.W24\*""#)) || value.pointer("/query/gene")!=Some(&json!("EGFR:foo\"*")) || value.pointer("/status")!=Some(&json!("absent")) || stub.finish()?.len()!=1 {return Err(format!("literal field query changed symbol meaning: {value}"));}
+    Ok(())
+}
+fn literal_body(request:&str) -> Result<String,String> {
+    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AEGFR%5C%3Afoo%5C%22%5C%2A%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {return Err(format!("source query metacharacter was not escaped: {request}"));}
+    Ok(json!({"total":0,"hits":[]}).to_string())
 }

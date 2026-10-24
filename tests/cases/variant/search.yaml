@@ -135,30 +135,6 @@
       "run": [
         "search",
         "variant",
-        "--gene",
-        "EGFR:foo",
-        "--protein",
-        "L858R"
-      ],
-      "mcp": [
-        "search",
-        "variant",
-        "--gene",
-        "EGFR:foo",
-        "--protein",
-        "L858R"
-      ],
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/schema": "biomcp.error/1",
-        "/error/code": "usage.arguments"
-      }
-    },
-    {
-      "run": [
-        "search",
-        "variant",
         "--region",
         "chr7:1-2"
       ],

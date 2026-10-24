@@ -1,3 +1,5 @@
+//! Native query windows follow https://docs.myvariant.info/en/latest/doc/variant_query_service.html.
+//! The query layer reports the result-window bound without replacing native order with scroll order.
 use super::{QUERY, map, raw};
 use crate::Mapped;
 use biodata::{Build, VariantHeader, VariantSearch};
@@ -14,11 +16,13 @@ pub struct SearchPage {
 #[derive(Deserialize)]
 struct Page {
     total: u64,
+    error: Option<serde::de::IgnoredAny>,
+    success: Option<bool>,
     hits: Vec<raw::Hit>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.hits.len() > 50
+        if self.error.is_some() || self.success == Some(false) || self.hits.len() > 50
             || self.hits.len() as u64 > self.total
             || self.hits.iter().any(|h| h.check().is_err())
         {

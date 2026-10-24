@@ -151,7 +151,6 @@ impl TryFrom<Fields> for VariantSearch {
         if !(protein || region || raw)
             || !(1..=50).contains(&f.limit)
             || f.offset >= 10_000
-            || f.gene.as_ref().is_some_and(|g| !g.as_str().bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b,b'-'|b'_'|b'.')))
 
         {
             return Err(QueryInvalid);
@@ -170,8 +169,8 @@ impl VariantSearch {
         }
         match (&self.0.gene, &self.0.protein) {
             (Some(g), Some(p)) => format!(
-                "dbnsfp.genename:{g} AND dbnsfp.hgvsp:\"p.{}\"",
-                p.as_str().strip_prefix("p.").unwrap_or(p.as_str())
+                "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
+                literal(g.as_str()), literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
             ),
             _ => String::new(),
         }
@@ -194,4 +193,16 @@ impl VariantSearch {
         q.0.offset = offset;
         q
     }
+}
+
+// MyVariant query documentation, "Escaping reserved characters":
+// https://docs.myvariant.info/en/latest/doc/variant_query_service.html#escaping-reserved-characters
+// This changes source syntax only; it never rewrites the declared symbol or substitution.
+fn literal(value: &str) -> String {
+    let mut escaped = String::new();
+    for c in value.chars() {
+        if "+-=|&><!(){}[]^\"~*?:\\/".contains(c) { escaped.push('\\'); }
+        escaped.push(c);
+    }
+    escaped
 }
