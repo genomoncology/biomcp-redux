@@ -11,7 +11,6 @@ pub(super) enum SectionValue {
     Expression(Section<Expression>),
 }
 pub(super) struct SectionResult {
-    pub section: GeneSection,
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
     pub problems: Vec<Problem>,
@@ -100,9 +99,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
             SectionValue::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             SectionValue::Expression(value) => matches!(value, Section::Unavailable { .. }),
         };
-        if requested_section_matches(result.section, value)
-            && let Some(sections) = &mut item.sections
-        {
+        if let Some(sections) = &mut item.sections {
             match value {
                 SectionValue::Constraint(value) => sections.constraint = Some(value.clone()),
                 SectionValue::Expression(value) => sections.expression = Some(value.clone()),
@@ -121,11 +118,4 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
             item.status = Status::Partial;
         }
     }
-}
-fn requested_section_matches(section: GeneSection, value: &SectionValue) -> bool {
-    matches!(
-        (section, value),
-        (GeneSection::Constraint, SectionValue::Constraint(_))
-            | (GeneSection::Expression, SectionValue::Expression(_))
-    )
 }

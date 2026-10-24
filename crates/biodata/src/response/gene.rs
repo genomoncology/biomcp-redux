@@ -86,10 +86,10 @@ impl ResponseBody for SyncResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
-    /// Human Protein Atlas expression annotations.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub expression: Option<Section<Expression>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,
+    /// Human Protein Atlas expression annotations.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expression: Option<Section<Expression>>,
 }

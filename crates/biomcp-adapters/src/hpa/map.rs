@@ -11,21 +11,21 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<Expressio
         problems: Vec::new(),
     };
     let value = Expression {
-        rna_tissue_specificity: map.text(raw.tissue_specificity, "RNA tissue specificity"),
-        rna_tissue_distribution: map.text(raw.tissue_distribution, "RNA tissue distribution"),
+        rna_tissue_specificity: map.text(raw.tissue_specificity, "rna_tissue_specificity"),
+        rna_tissue_distribution: map.text(raw.tissue_distribution, "rna_tissue_distribution"),
         rna_tissue_ntpm: map
-            .numbers(raw.ntpm, "RNA tissue specific nTPM")
+            .numbers(raw.ntpm, "rna_tissue_ntpm")
             .into_iter()
             .map(|(tissue, ntpm)| TissueNtpm { tissue, ntpm })
             .collect(),
-        rna_cancer_specificity: map.text(raw.cancer_specificity, "RNA cancer specificity"),
+        rna_cancer_specificity: map.text(raw.cancer_specificity, "rna_cancer_specificity"),
         rna_cancer_ptpm: map
-            .numbers(raw.ptpm, "RNA cancer specific pTPM")
+            .numbers(raw.ptpm, "rna_cancer_ptpm")
             .into_iter()
             .map(|(tissue, ptpm)| CancerPtpm { tissue, ptpm })
             .collect(),
-        subcellular_main: map.list(raw.main, "Subcellular main location"),
-        subcellular_additional: map.list(raw.additional, "Subcellular additional location"),
+        subcellular_main: map.list(raw.main, "subcellular_main"),
+        subcellular_additional: map.list(raw.additional, "subcellular_additional"),
     };
     Mapped {
         value,

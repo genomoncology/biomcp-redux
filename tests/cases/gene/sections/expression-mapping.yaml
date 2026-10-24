@@ -36,7 +36,7 @@
           "includes": "hpa"
         },
         "/problems/*/field": {
-          "includes": "RNA tissue specific nTPM"
+          "includes": "rna_tissue_ntpm"
         }
       },
       "max_bytes": 3500,
