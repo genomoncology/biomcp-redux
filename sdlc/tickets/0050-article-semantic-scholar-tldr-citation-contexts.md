@@ -21,3 +21,5 @@ Depends on: 0042
 - Defers: Citation evidence and recommendations go to 0051. PDF full text goes to 0052.
 
 - Reviewed expansion boundary, 2026-10-24: Use checked Semantic Scholar paper ID as fallback identity without PMID or DOI; title/year is not identity. Share 0042 query-layer DOI resolution/header policy. Preserve missing versus false influential and missing versus empty contexts. Checked references capture uses limit=200 but owning request specifies1000: capture the exact request once or mark edited reply synthetic. Claim actual pool/store consumers and preserve single schema ownership.
+
+- Coordinator decision, 2026-10-24: The dependency on 0042 is its shared source, optional-key, limiter and DOI interfaces. Stack on their early commit; completion of the whole search ticket is not a start condition. Use the accepted 0040 graph and pool API before its batch lands.
