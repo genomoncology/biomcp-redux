@@ -44,8 +44,8 @@ pub(super) fn copy_capture(
     recordings: &Path,
     mut change: impl FnMut(&str, &mut Value),
 ) -> Check {
-    let original = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies")
+    let original = super::launch::fixtures()
+        .join("replies")
         .join(capture);
     for source in fs::read_dir(original)? {
         let source = source?;

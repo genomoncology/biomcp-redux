@@ -85,11 +85,17 @@ pub(super) fn summary(results: Vec<Value>, sources: BTreeMap<String, Value>, ela
             *skipped.entry(reason.into()).or_default() += 1;
         }
     }
-    let checked: Vec<_> = results
+    let mut checked: Vec<_> = results
         .iter()
         .filter(|r| r.get("skipped").is_none())
         .collect();
-    json!({"mode": "live-check", "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
+    let drift_cases = checked.iter().filter(|r| has_drift(r)).count();
+    let error_cases = checked.iter().filter(|r| r.get("error").is_some()).count();
+    checked.sort_by_key(|r| !(has_drift(r) || r.get("error").is_some()));
+    json!({"mode": "live-check", "drift_cases": drift_cases, "error_cases": error_cases, "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
+}
+fn has_drift(result: &Value) -> bool {
+    result.pointer("/result/drift").and_then(Value::as_array).is_some_and(|drift| !drift.is_empty())
 }
 fn eligibility(case: &Case) -> Option<&str> {
     match case.live_check.as_deref() {
