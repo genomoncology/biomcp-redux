@@ -57,7 +57,7 @@ fn read_file(override_path: Option<&PathBuf>) -> Result<Option<ConfigFile>, ()> 
             Ok(bytes) => serde_json::from_slice::<ConfigFile>(&bytes)
                 .map(Some)
                 .map_err(|_| ()),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound && override_path.is_none() => Ok(None),
             Err(_) => Err(()),
         })
         .transpose()?
