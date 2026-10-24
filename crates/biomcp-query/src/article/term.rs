@@ -2,18 +2,20 @@ use crate::{Action, Ctx, Outcome, gene, status};
 use biodata::{ArticleSearch, GeneInput, GeneResolution, Request, Source, Status, StepKind};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, RequestError};
-pub(super) fn resolve(
-    cx: &Ctx<'_>,
+pub(super) fn resolve<'a>(
+    cx: &Ctx<'a>,
     query: &ArticleSearch,
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<String>, RequestError> {
     let words = query.words();
     let Some(input) = query.gene() else {
         return Ok(Some(words));
     };
-    let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let resolved = gene::resolve(&leg, input);
+    *deadline = super::consume(*deadline, started, leg.remaining());
     out.sources.push(status::source(
         Source::Hgnc,
         leg.finish(),

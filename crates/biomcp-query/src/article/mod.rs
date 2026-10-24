@@ -22,10 +22,10 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     }
     out
 }
-fn execute(
-    cx: &Ctx<'_>,
+fn execute<'a>(
+    cx: &Ctx<'a>,
     query: &ArticleSearch,
-    deadline: Deadline<'_>,
+    mut deadline: Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
@@ -48,11 +48,16 @@ fn execute(
             return Ok(());
         }
         None => {
-            let Some(term) = term::resolve(cx, query, deadline, out)? else {
+            let Some(term) = term::resolve(cx, query, &mut deadline, out)? else {
                 return Ok(());
             };
+            store.set_deadline(deadline);
+            deadline = store.deadline();
             let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
+            let started = leg.remaining();
             let result = pubmed::search_ids(&leg, &term, cx.ncbi_email.as_ref());
+            deadline = consume(deadline, started, leg.remaining());
+            store.set_deadline(deadline);
             let mut source =
                 status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
             source.term = Text::new(&term).ok();
@@ -75,13 +80,12 @@ fn execute(
         }
     };
     out.sources = pool.sources.clone();
-    read_page(cx, query, deadline, &mut store, &pool, out)
+    read_page(cx, query, &mut store, &pool, out)
 }
-fn read_page(
-    cx: &Ctx<'_>,
+fn read_page<'a>(
+    cx: &Ctx<'a>,
     query: &ArticleSearch,
-    deadline: Deadline<'_>,
-    store: &mut Store,
+    store: &mut Store<'a>,
     pool: &Pool,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
@@ -93,8 +97,11 @@ fn read_page(
         .map(|r| r.id)
         .collect();
     if !missing.is_empty() {
+        let deadline = store.deadline();
         let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
+        let started = leg.remaining();
         let result = pubmed::summaries(&leg, &missing, cx.ncbi_email.as_ref());
+        store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
                 store.hydrate(id, &missing, &mapped.value, &mapped.problems)?;
@@ -199,5 +206,23 @@ fn empty() -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
+    }
+}
+
+// Fetch legs deliberately own independent replay clocks. A sequential article
+// command debits each leg before starting another; real deadlines remain absolute.
+fn consume<'a>(
+    deadline: Deadline<'a>,
+    started: std::time::Duration,
+    remaining: std::time::Duration,
+) -> Deadline<'a> {
+    if deadline.virtual_time() {
+        deadline.child(
+            deadline
+                .remaining()
+                .saturating_sub(started.saturating_sub(remaining)),
+        )
+    } else {
+        deadline
     }
 }

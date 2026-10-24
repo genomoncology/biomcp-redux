@@ -65,7 +65,10 @@ impl Store<'_> {
         let created = Self::now();
         let expires = created.saturating_add(86400);
         self.prepare()?;
-        let tx = self.connection.transaction().map_err(db)?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .map_err(db)?;
         let id: String = tx
             .query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0))
             .map_err(db)?;
@@ -133,7 +136,10 @@ impl Store<'_> {
         problems: &[Problem],
     ) -> Result<(), CacheError> {
         self.prepare()?;
-        let tx = self.connection.transaction().map_err(db)?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .map_err(db)?;
         for id in ids {
             let header = headers
                 .iter()

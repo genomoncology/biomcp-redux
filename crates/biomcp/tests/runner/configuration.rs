@@ -36,6 +36,9 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article/owners-refused-before-journal-and-tables", || {
+            article_owners().map_err(Into::into)
+        }),
         Trial::test("gene/next-commands-preserve-hyphen-positionals", || {
             next_positionals().map_err(Into::into)
         }),
@@ -287,6 +290,74 @@ fn next_positionals() -> Check {
         let repeated = invoke(&env, args, 4)?;
         if repeated.get("query") != original.get("query") {
             return Err("next command changed its positional query".into());
+        }
+    }
+    Ok(())
+}
+
+fn article_owners() -> Check {
+    for owned in [false, true] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let parent = env.root().join("cache/biomcp");
+        fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
+        let file = parent.join(format!(
+            "cache-{}-{}.sqlite",
+            biomcp_fetch::VERSION,
+            biomcp_query::store::VERSION
+        ));
+        let case = env.root().join("case");
+        let replay = if owned {
+            Some(biomcp_fetch::ReplayCache::create_case(&case).map_err(|e| e.to_string())?)
+        } else {
+            None
+        };
+        let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+            cache: Some(file),
+            mode: biomcp_fetch::Mode::Offline,
+            replay_cache: replay,
+            ..Default::default()
+        })
+        .map_err(|e| e.to_string())?;
+        let connection = fetch
+            .cache_access()
+            .map_err(|e| e.to_string())?
+            .connect()
+            .map_err(|e| e.to_string())?;
+        drop(fetch);
+        connection
+            .execute(
+                "INSERT INTO meta(owner,version) VALUES ('biomcp-query',?1)",
+                [biomcp_query::store::VERSION + 1],
+            )
+            .map_err(|e| e.to_string())?;
+        connection
+            .pragma_update(None, "journal_mode", "DELETE")
+            .map_err(|e| e.to_string())?;
+        let mut args = vec![
+            "search".into(),
+            "article".into(),
+            "AKT1 E17K".into(),
+            "--offline".into(),
+        ];
+        if owned {
+            args.extend(["--case-cache".into(), case.to_string_lossy().into()]);
+        }
+        let result = invoke(&env, args, 5)?;
+        if result.pointer("/error/code") != Some(&json!("local.failure")) {
+            return Err("wrong owner was not a local configuration error".into());
+        }
+        let journal = connection
+            .query_row("PRAGMA journal_mode", [], |r| r.get::<_, String>(0))
+            .map_err(|e| e.to_string())?;
+        let pool = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='pool')",
+                [],
+                |r| r.get::<_, bool>(0),
+            )
+            .map_err(|e| e.to_string())?;
+        if journal != "delete" || pool {
+            return Err("wrong query owner allowed journal or table mutation".into());
         }
     }
     Ok(())
