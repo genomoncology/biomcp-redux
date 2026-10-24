@@ -13,20 +13,36 @@ impl Authority {
         let (name, port) = if let Some(rest) = value.strip_prefix('[') {
             let (name, suffix) = rest.split_once(']')?;
             let ip: std::net::Ipv6Addr = name.parse().ok()?;
-            let port = if suffix.is_empty() { None } else { Some(suffix.strip_prefix(':')?.parse().ok()?) };
+            let port = if suffix.is_empty() {
+                None
+            } else {
+                Some(suffix.strip_prefix(':')?.parse().ok()?)
+            };
             (ip.to_string(), port)
         } else {
             let (name, port) = match value.split_once(':') {
                 Some((name, port)) => (name, Some(port.parse().ok()?)),
                 None => (value, None),
             };
-            if name.is_empty() || name.len() > 253 || !name.split('.').all(|label| {
-                !label.is_empty() && label.len() <= 63 && !label.starts_with('-') && !label.ends_with('-')
-                    && label.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-')
-            }) { return None; }
+            if name.is_empty()
+                || name.len() > 253
+                || !name.split('.').all(|label| {
+                    !label.is_empty()
+                        && label.len() <= 63
+                        && !label.starts_with('-')
+                        && !label.ends_with('-')
+                        && label
+                            .bytes()
+                            .all(|b| b.is_ascii_alphanumeric() || b == b'-')
+                })
+            {
+                return None;
+            }
             (name.to_ascii_lowercase(), port)
         };
-        if port == Some(0) { return None; }
+        if port == Some(0) {
+            return None;
+        }
         Some(Self { name, port })
     }
     pub(super) fn permits(&self, requested: &Self) -> bool {

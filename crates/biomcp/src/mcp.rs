@@ -1,10 +1,10 @@
 //! Stdio scheduling and the single response writer.
 mod current;
 mod framing;
+pub(crate) mod http;
 mod legacy;
 mod protocol;
 mod rpc;
-pub(crate) mod http;
 
 use framing::Frame;
 use serde_json::Value;

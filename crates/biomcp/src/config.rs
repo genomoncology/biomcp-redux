@@ -20,7 +20,10 @@ struct Http {
     allowed_hosts: Vec<String>,
 }
 pub(crate) fn http_hosts() -> Result<Vec<String>, ()> {
-    Ok(read_file()?.and_then(|file| file.http).map(|http| http.allowed_hosts).unwrap_or_default())
+    Ok(read_file()?
+        .and_then(|file| file.http)
+        .map(|http| http.allowed_hosts)
+        .unwrap_or_default())
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
