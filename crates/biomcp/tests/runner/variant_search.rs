@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant-search/native-window-discloses-unretrieved-total", || window().map_err(Into::into)),
         Trial::test(
             "variant-search/declared-symbol-escapes-query-syntax",
             || literal_gene().map_err(Into::into),
@@ -286,4 +287,16 @@ fn literal_gene() -> Result<(), String> {
 fn literal_body(request: &str) -> Result<String, String> {
     if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AEGFR%5C%3Afoo%5C%22%5C%2A%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {return Err(format!("source query metacharacter was not escaped: {request}"));}
     Ok(json!({"total":0,"hits":[]}).to_string())
+}
+
+fn window() -> Result<(),String> {
+    let stub=Stub::for_source("myvariant.info","application/json",window_body)?;
+    let env=environment(&stub)?;
+    let value=command(&env,&["search","variant","--query","synthetic-window","--source","myvariant","--limit","2","--offset","9999"])?;
+    if value.pointer("/status")!=Some(&json!("partial")) || value.pointer("/page/total")!=Some(&json!(10001)) || value.pointer("/page/returned")!=Some(&json!(1)) || value.pointer("/page/truncated")!=Some(&json!(true)) || value.get("next").and_then(Value::as_array).is_some_and(|steps|steps.iter().any(|step|step.get("kind")==Some(&json!("page")))) || stub.finish()?.len()!=1 {return Err(format!("bounded native window hid its remaining total: {value}"));}
+    Ok(())
+}
+fn window_body(request:&str) -> Result<String,String> {
+    if !request.contains("&size=1&from=9999&") {return Err(format!("source request exceeded declared window: {request}"));}
+    Ok(json!({"total":10001,"hits":[{"_id":"chr7:g.55259515T>G"}]}).to_string())
 }

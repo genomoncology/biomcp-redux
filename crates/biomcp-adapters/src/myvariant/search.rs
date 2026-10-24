@@ -1,5 +1,5 @@
 //! Native query windows follow https://docs.myvariant.info/en/latest/doc/variant_query_service.html.
-//! The query layer reports the result-window bound without replacing native order with scroll order.
+//! The query layer reports its result-window bound without replacing native order with scroll order.
 use super::{QUERY, map, raw};
 use crate::Mapped;
 use biodata::{Build, VariantHeader, VariantSearch};

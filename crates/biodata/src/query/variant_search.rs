@@ -129,9 +129,9 @@ struct Fields {
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native candidate offset, within MyVariant's first 10,000 results.
+    /// Native offset within this command's bounded result window; larger native totals remain visible.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(range(max = 9999)))]
+    #[cfg_attr(feature = "schema", schemars(range(max = VariantSearch::MAX_RESULTS - 1)))]
     offset: u32,
 }
 fn default_limit() -> u32 {
@@ -152,13 +152,15 @@ impl TryFrom<Fields> for VariantSearch {
             && f.gene.is_none()
             && f.protein.is_none()
             && f.region.is_none();
-        if !(protein || region || raw) || !(1..=50).contains(&f.limit) || f.offset >= 10_000 {
+        if !(protein || region || raw) || !(1..=50).contains(&f.limit) || f.offset >= Self::MAX_RESULTS {
             return Err(QueryInvalid);
         }
         Ok(Self(f))
     }
 }
 impl VariantSearch {
+    /// Maximum native result window this command retrieves; larger totals are disclosed.
+    pub const MAX_RESULTS: u32 = 10_000;
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
@@ -180,9 +182,9 @@ impl VariantSearch {
     pub fn build(&self) -> Build {
         self.0.build.unwrap_or(Build::Grch37)
     }
-    /// Native page size, clipped at the source result-window boundary.
+    /// Native page size, clipped at this command's result-window boundary.
     pub fn limit(&self) -> u32 {
-        self.0.limit.min(10_000 - self.0.offset)
+        self.0.limit.min(Self::MAX_RESULTS - self.0.offset)
     }
     /// Native page offset.
     pub fn offset(&self) -> u32 {

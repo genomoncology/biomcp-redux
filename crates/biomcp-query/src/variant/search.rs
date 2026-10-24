@@ -28,7 +28,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     };
     if let Ok(reply) = reply {
         out.status = if !reply.rows.problems.is_empty()
-            || reply.total > 10_000
+            || reply.total > u64::from(VariantSearch::MAX_RESULTS)
             || out
                 .sources
                 .iter()
@@ -47,7 +47,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             returned,
             total: reply.total,
             pool: None,
-            truncated: (reply.total > 10_000).then_some(true),
+            truncated: (reply.total > u64::from(VariantSearch::MAX_RESULTS)).then_some(true),
         });
         out.problems = reply.rows.problems;
         out.body = QueryBody::VariantPage(VariantPage {
@@ -80,7 +80,7 @@ fn next(
         }
     }
     let offset = query.offset() + returned;
-    if u64::from(offset) < total && offset < 10_000 && returned > 0 {
+    if u64::from(offset) < total && offset < VariantSearch::MAX_RESULTS && returned > 0 {
         next.push((
             StepKind::Page,
             Action::Run {
