@@ -16,6 +16,7 @@ struct Shape {
     minimum: Option<Bound>,
     maximum: Option<Bound>,
     closed: bool,
+    markdown: bool,
 }
 
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
@@ -33,7 +34,8 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
         let new = new_shapes
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
-        if old.pattern != new.pattern
+        if old.markdown && !new.markdown
+            || old.pattern != new.pattern
             || new
                 .minimum
                 .is_some_and(|bound| old.minimum.is_none_or(|old| bound > old))
@@ -166,10 +168,11 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }
     if node
         .get("format")
-        .is_some_and(|format| format != "uint32" && format != "uint64" && format != "double")
+        .is_some_and(|format| format != "uint32" && format != "uint64" && format != "double" && format != "markdown")
     {
         return Err("unsupported format".into());
     }
+    shape.markdown = node.get("format").is_some_and(|v| v == "markdown");
     if let Some(values) = node.get("enum") {
         shape.values = Some(
             values

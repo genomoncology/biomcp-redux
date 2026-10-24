@@ -33,10 +33,16 @@ fn render(value: &Value, node: &Value, root: &Value, depth: usize, out: &mut Str
             for value in items { render(value, node.get("items").unwrap_or(&Value::Null), root, depth, out); }
         }
         Value::String(text) => {
-            let formatted = if node.get("format").and_then(Value::as_str) == Some("markdown") { text.clone() }
+            let formatted = if marked(node, root) { text.clone() }
                 else { text.replace('\\', "\\\\").replace('*', "\\*").replace('_', "\\_").replace('`', "\\`") };
             out.push_str(&formatted); out.push_str("\n\n");
         }
         _ => { out.push_str(&value.to_string()); out.push_str("\n\n"); }
     }
+}
+
+fn marked(node: &Value, root: &Value) -> bool {
+    let node = resolve(node, root);
+    node.get("format").and_then(Value::as_str) == Some("markdown") || ["anyOf", "oneOf"].into_iter()
+        .filter_map(|k|node.get(k).and_then(Value::as_array)).flatten().any(|n|marked(n,root))
 }
