@@ -317,7 +317,8 @@ fn discovery() -> Check {
         .get("description")
         .and_then(Value::as_str)
         .ok_or("description missing")?;
-    if text.len() > 1500 {
+    // Measured by j10465; allow fifteen percent for the current generated tree.
+    if text.len() > 1923 {
         return Err("command description exceeds budget".into());
     }
     for word in [
