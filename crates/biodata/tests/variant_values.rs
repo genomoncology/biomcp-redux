@@ -163,3 +163,23 @@ fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
     assert_eq!(first, second);
     Ok(())
 }
+
+#[test]
+fn statement_keeps_source_labels_and_checks_coding() -> Check {
+    let value = json!({"subject":{"level":"allele","id":"clinvar:128042"},"proposition":"pathogenicity","classification":{"label":"Pathogenic","coding":{"system":"acmg_amp_2015","code":"pathogenic"}},"attribution":{"source":"clinvar","record":"SCV000611258.1","submitter":"Fulgent Genetics, Fulgent Genetics","evaluated":"2017-05-18"}});
+    assert!(serde_json::from_value::<VariantRef>(json!({"level":"allele"})).is_err());
+    assert!(
+        serde_json::from_value::<VariantRef>(json!({"level":"protein","gene":"BRAF"})).is_err()
+    );
+    let statement: Statement = serde_json::from_value(value.clone())?;
+    assert_eq!(serde_json::to_value(statement)?, value);
+    assert!(
+        serde_json::from_value::<Coding>(json!({"system":"acmg_amp_2015","code":"oncogenic"}))
+            .is_err()
+    );
+    assert!(
+        serde_json::from_value::<Concept>(json!({"label":"condition","id":"missing-prefix"}))
+            .is_err()
+    );
+    Ok(())
+}

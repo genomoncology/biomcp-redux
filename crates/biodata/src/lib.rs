@@ -145,3 +145,13 @@ mod trial_publications;
 pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
+
+pub use variant::{
+    Attribution, Coding, Concept, Curie, Direction, Predicate, Proposition, Statement, Term,
+    VariantRef,
+};
+
+pub use variant::{
+    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, ClingenCgcVicc2022Code,
+    ClingenLowPenetrance2024Code,
+};
