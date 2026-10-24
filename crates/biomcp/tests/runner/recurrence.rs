@@ -138,10 +138,11 @@ pub(super) fn cbio(request: &str) -> Result<String, String> {
     if request.contains("hgnc_complete_set") {
         return hgnc(request);
     }
-    Ok(if request.starts_with("GET /api/studies/") {
+    Ok(if request.contains("/sample-lists?") {
+        json!([{"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all","sampleCount":100}])
+    } else if request.starts_with("GET /api/studies/") {
         json!({"studyId":"msk_impact_2017","name":"Synthetic cohort","description":"Synthetic notice: commercial reuse requires permission","citation":"Synthetic citation"})
-    } else if request.starts_with("GET /api/sample-lists/") {
-        json!({"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all","sampleCount":100})
+
     } else if request.contains("/mutations?") {
         if request.contains("pageNumber=1") { json!([row("s2","T")]) } else { json!([row("s1","T"),row("s1","T"),row("wrong-allele","G")]) }
     } else {

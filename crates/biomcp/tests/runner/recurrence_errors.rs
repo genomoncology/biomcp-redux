@@ -62,10 +62,8 @@ fn missing_reply(request: &str) -> Result<String, String> {
         return cbio(request);
     }
     let mut body: Value = serde_json::from_str(&cbio(request)?).map_err(|e| e.to_string())?;
-    if request.contains("/sample-lists/") {
-        body.as_object_mut()
-            .ok_or("sample-list object")?
-            .remove("sampleCount");
+    if request.contains("/sample-lists?") {
+        body = json!([{"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all"}]);
     }
     if request.contains("/mutations?") {
         let mut missing = row("missing-build", "T");

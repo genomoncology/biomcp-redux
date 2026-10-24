@@ -54,4 +54,7 @@ macro_rules! reply {
 #[derive(Deserialize)]
 #[serde(transparent)]
 pub(super) struct Mutations(pub Vec<Mutation>);
-reply!(Study, Profile, SampleList, Mutations);
+#[derive(Deserialize)]
+#[serde(transparent)]
+pub(super) struct SampleLists(pub Vec<SampleList>);
+reply!(Study, Profile, SampleLists, Mutations);
