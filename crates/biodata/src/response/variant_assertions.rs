@@ -104,6 +104,12 @@ pub struct AssertionDetail {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AssertionCondition {
+    /// Native database name without inventing a CURIE prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub database: Option<Text>,
+    /// Native accession text, preserved even when no CURIE namespace is recognized.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub accession: Option<Text>,
     /// Identifier exactly supplied by the source.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Curie>,
