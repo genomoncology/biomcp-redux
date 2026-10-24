@@ -11,6 +11,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("mcp/cancellation-suppresses-later-output", || {
+            cancellation().map_err(Into::into)
+        }),
         Trial::test("mcp/versions-and-validation", || {
             validation().map_err(Into::into)
         }),
@@ -80,6 +83,28 @@ fn validation() -> Check {
         json!({"jsonrpc":"2.0","id":1.5,"method":"ping"}),
         json!([]),
     ];
+    // Required metadata is checked independently even after legacy initialize.
+    let mut frames = frames;
+    frames.push(
+        json!({"jsonrpc":"2.0","id":12,"method":"ping","params":{"_meta":{
+        "io.modelcontextprotocol/clientCapabilities":{}}}}),
+    );
+    frames.push(request(
+        json!(13),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{}}),
+    ));
+    frames.push(request(
+        json!(14),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":"schema"}}),
+    ));
+    frames.push(request(
+        json!(15),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":null}}),
+    ));
+    frames.push(json!({"jsonrpc":"2.0","id":16,"method":"ping","params":[]}));
     let replies = exchange(&environment()?, &frames)?;
     if replies.len() != frames.len() - 3 {
         return Err(format!("notification response: {replies:?}"));
@@ -91,6 +116,11 @@ fn validation() -> Check {
         (5, -32602),
         (6, -32602),
         (7, -32602),
+        (12, -32602),
+        (13, -32602),
+        (14, -32602),
+        (15, -32602),
+        (16, -32602),
     ] {
         if reply(&replies, &json!(id))?.pointer("/error/code") != Some(&json!(code)) {
             return Err(format!("wrong validation code for {id}: {replies:?}"));
@@ -275,6 +305,42 @@ fn discovery() -> Check {
                 return Err(format!("description misses artifact {id}"));
             }
         }
+    }
+    Ok(())
+}
+
+// A call can finish before cancellation arrives. A following correlated ping
+// proves the notification was consumed; no tool reply may follow that marker.
+fn cancellation() -> Check {
+    let frames = [
+        request(
+            json!("cancel-me"),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{"args":["schema","biodata.problem/1"]}}),
+        ),
+        json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"cancel-me","reason":"SENSITIVE-cancel-reason"}}),
+        request(json!("marker"), "ping", json!({})),
+        json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"already-completed"}}),
+    ];
+    let replies = exchange(&environment()?, &frames)?;
+    reply(&replies, &json!("marker"))?;
+    let marker = replies
+        .iter()
+        .position(|r| r.get("id") == Some(&json!("marker")))
+        .ok_or("marker missing")?;
+    if replies
+        .iter()
+        .skip(marker + 1)
+        .any(|r| r.get("id") == Some(&json!("cancel-me")))
+    {
+        return Err("cancelled call wrote after notification marker".into());
+    }
+    if replies.len() > 2
+        || serde_json::to_string(&replies)
+            .map_err(|e| e.to_string())?
+            .contains("SENSITIVE")
+    {
+        return Err("cancellation notification replied or echoed reason".into());
     }
     Ok(())
 }

@@ -125,9 +125,7 @@ impl Server {
         if !params.is_object() {
             return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
         }
-        let modern = params
-            .get("_meta")
-            .is_some_and(|m| m.get(protocol::VERSION_KEY).is_some())
+        let modern = current::identified(&params)
             || method == "server/discover"
             || !self.legacy && method != "initialize";
         if modern {

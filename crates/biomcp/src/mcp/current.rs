@@ -2,6 +2,21 @@
 use super::protocol::{self, CAPABILITIES_KEY, REVISIONS, VERSION_KEY};
 use serde_json::{Value, json};
 
+pub(super) fn identified(params: &Value) -> bool {
+    params
+        .get("_meta")
+        .and_then(Value::as_object)
+        .is_some_and(|meta| {
+            [
+                VERSION_KEY,
+                CAPABILITIES_KEY,
+                "io.modelcontextprotocol/clientInfo",
+            ]
+            .iter()
+            .any(|key| meta.contains_key(*key))
+        })
+}
+
 pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
     let meta = params.get("_meta");
     let version = meta
