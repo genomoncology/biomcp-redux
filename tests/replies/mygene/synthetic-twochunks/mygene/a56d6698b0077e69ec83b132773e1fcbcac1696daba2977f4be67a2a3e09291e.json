@@ -1,0 +1,27 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "87183e25ed5b183cabee552a76b5180414d863c91ffc950369c4509eec1e1d96"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "query": "201",
+            "entrezgene": "201",
+            "HGNC": "1097"
+          }
+        ]
+      }
+    }
+  ]
+}

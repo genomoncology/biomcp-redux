@@ -14,7 +14,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::BIOTHINGS,
     deadline: Duration::from_secs(8),
 };
-const GENES: Endpoint = SPEC.post_form("/gene").idempotent().fresh(Freshness::Days(7));
+const GENES: Endpoint = SPEC
+    .post_form("/gene")
+    .idempotent()
+    .fresh(Freshness::Days(7));
 const FIELDS: &str = "summary,genomic_pos,genomic_pos_hg19,HGNC,entrezgene";
 // Local chunk size below the documented provider maximum.
 const BATCH: usize = 200;
@@ -52,13 +55,26 @@ pub fn genes(leg: &Leg<'_>, ids: &[EntrezGeneId]) -> Vec<GeneBatch> {
     let chunks: Vec<_> = ids.chunks(BATCH).collect();
     let results = leg.batch(&chunks, |leg, chunk| {
         let ids: Vec<Box<str>> = chunk.iter().map(|id| id.to_string().into()).collect();
-        leg.json::<raw::Genes>(&GENES, &[
-            ("ids", Arg::Ids(&ids)), ("fields", Arg::Text(FIELDS)), ("species", Arg::Text("human")),
-        ])
+        leg.json::<raw::Genes>(
+            &GENES,
+            &[
+                ("ids", Arg::Ids(&ids)),
+                ("fields", Arg::Text(FIELDS)),
+                ("species", Arg::Text("human")),
+            ],
+        )
     });
-    chunks.into_iter().zip(results).map(|(ids, result)| {
-        let mut problems = Vec::new();
-        let result = result.map(|reply| map::extras(reply, ids, &mut problems));
-        GeneBatch { ids: ids.into(), result, problems }
-    }).collect()
+    chunks
+        .into_iter()
+        .zip(results)
+        .map(|(ids, result)| {
+            let mut problems = Vec::new();
+            let result = result.map(|reply| map::extras(reply, ids, &mut problems));
+            GeneBatch {
+                ids: ids.into(),
+                result,
+                problems,
+            }
+        })
+        .collect()
 }

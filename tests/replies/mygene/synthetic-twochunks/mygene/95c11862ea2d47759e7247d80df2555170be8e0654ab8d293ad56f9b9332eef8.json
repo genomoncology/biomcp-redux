@@ -1,0 +1,23 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c4844415966dcd90c82efe3f6e8db5f981b64149aca2e2f8c76e1ee2df277328"
+  },
+  "exchanges": [
+    {
+      "status": 400,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic chunk failure"
+        }
+      }
+    }
+  ]
+}
