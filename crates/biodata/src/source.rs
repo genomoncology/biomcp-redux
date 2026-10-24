@@ -53,6 +53,10 @@ canonical_enum! {
         Hgnc => "hgnc",
         /// MyGene.info.
         MyGene => "mygene",
+        /// Reactome.
+        Reactome => "reactome",
+        /// Human Protein Atlas.
+        Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
         /// gnomAD.

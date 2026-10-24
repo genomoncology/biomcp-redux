@@ -12,7 +12,11 @@
       "expect": {
         "/result/items/0/more": [
           "protein",
-          "constraint"
+          "civic",
+          "clingen",
+          "constraint",
+          "expression",
+          "pathways"
         ],
         "/next/1/kind": "section",
         "/next/1/args": [
@@ -20,7 +24,11 @@
           "gene",
           "HGNC:11998",
           "protein",
-          "constraint"
+          "civic",
+          "clingen",
+          "constraint",
+          "expression",
+          "pathways"
         ]
       },
       "max_bytes": 3600
@@ -30,10 +38,12 @@
         "get",
         "gene",
         "HGNC:11998",
-        "constraint"
+        "constraint",
+        "civic"
       ],
       "expect": {
-        "/result/items/0/sections/constraint/state": "data"
+        "/result/items/0/sections/constraint/state": "data",
+        "/result/items/0/sections/civic/state": "data"
       },
       "max_bytes": 3600
     }

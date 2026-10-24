@@ -1,18 +1,29 @@
-mod civic;
 mod constraint;
 mod protein;
+mod pathways;
+mod civic;
+mod clingen;
+mod expression;
+mod oncokb;
+pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
+pub use protein::Protein;
+pub use pathways::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid};
+pub use civic::CivicGene;
+pub use clingen::{ClinGenGene, ClinGenValidity};
+pub use expression::{CancerPtpm, Expression, RnaAbundance, TissueNtpm};
+pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
-pub use civic::CivicGene;
-pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
-pub use protein::Protein;
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneItem {
+    /// Verified keyed source card annotation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<OncokbCard>,
     /// Original checked input.
     pub input: GeneInput,
     /// This input's outcome.
@@ -91,10 +102,22 @@ pub struct GeneSections {
     /// Reviewed human proteins listed by HGNC.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protein: Option<Section<Box<[Protein]>>>,
-    /// Population constraint reported by gnomAD.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub constraint: Option<Section<Constraint>>,
     /// CIViC gene-level curation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub civic: Option<Section<CivicGene>>,
+    /// ClinGen validity and dosage assessments.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clingen: Option<Section<ClinGenGene>>,
+    /// Population constraint reported by gnomAD.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub constraint: Option<Section<Constraint>>,
+    /// Human Protein Atlas expression annotations.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expression: Option<Section<Expression>>,
+    /// Lowest-level human Reactome mappings.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pathways: Option<Section<Capped<PathwayRef>>>,
+    /// Keyed source gene details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<Section<Oncokb>>,
 }

@@ -1,6 +1,6 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Capped, Gene, GeneSection, HgncId, Reason, Section, Source};
+use biodata::{Capped, Gene, HgncId, Reason, Section, Source};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError};
 const LIMIT: usize = 25;
@@ -81,7 +81,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         values.push((*id, SectionValue::Pathways(section)));
     }
     SectionResult {
-        section: GeneSection::Pathways,
         values,
         source,
         problems,

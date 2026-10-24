@@ -15,12 +15,33 @@
           "all"
         ],
         "/result/items/0/sections/constraint/state": "data",
-        "/sources/*/source": {
-          "includes": "gnomad",
-          "excludes": "reactome"
-        },
+        "/sources/*/source": [
+          "hgnc",
+          "mygene",
+          "uniprot",
+          "civic",
+          "clingen",
+          "gnomad",
+          "hpa",
+          "reactome",
+          "oncokb"
+        ],
         "/result/items/0/sections/protein/state": "data",
-        "/result/items/0/sections/protein/source": "uniprot"
+        "/result/items/0/sections/protein/source": "uniprot",
+        "/result/items/0/sections/pathways/state": "data",
+        "/result/items/0/sections/pathways/data/total": 46,
+        "/result/items/0/sections/civic/state": "data",
+        "/result/items/0/sections/clingen/state": "data",
+        "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875",
+        "/result/items/0/sections/expression/state": "data",
+        "/sources": {
+          "includes": {
+            "source": "hpa",
+            "state": "ok"
+          }
+        },
+        "/result/items/0/sections/oncokb/state": "data",
+        "/result/items/0/oncokb/version": "synthetic-1"
       },
       "max_bytes": 14200,
       "mcp": [
@@ -30,5 +51,10 @@
         "all"
       ]
     }
-  ]
+  ],
+  "config": {
+    "keys": {
+      "oncokb_api_key": "synthetic-placeholder"
+    }
+  }
 }

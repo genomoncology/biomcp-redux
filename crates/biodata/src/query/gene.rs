@@ -188,10 +188,18 @@ crate::source::canonical_enum! {
     GeneSectionWord, SourceUnknown {
         /// Reviewed human proteins.
         Protein => "protein",
+        /// CIViC gene curation.
+        Civic => "civic",
+        /// ClinGen validity and dosage.
+        ClinGen => "clingen",
         /// Population constraint metrics.
         Constraint => "constraint",
-        /// Lowest-level human Reactome pathways.
+        /// Human Protein Atlas expression.
+        Expression => "expression",
+        /// Human Reactome pathways.
         Pathways => "pathways",
+        /// Keyed OncoKB annotations.
+        Oncokb => "oncokb",
         /// Every landed section.
         All => "all",
     }
@@ -201,9 +209,17 @@ crate::source::canonical_enum! {
     GeneSection, SourceUnknown {
         /// Reviewed human proteins.
         Protein => "protein",
+        /// CIViC gene curation.
+        Civic => "civic",
+        /// ClinGen validity and dosage.
+        ClinGen => "clingen",
         /// Population constraint metrics.
         Constraint => "constraint",
-        /// Lowest-level human Reactome pathways.
+        /// Human Protein Atlas expression.
+        Expression => "expression",
+        /// Human Reactome pathways.
         Pathways => "pathways",
+        /// Keyed OncoKB annotations.
+        Oncokb => "oncokb",
     }
 }

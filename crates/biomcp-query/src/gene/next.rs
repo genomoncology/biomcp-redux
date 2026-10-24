@@ -36,14 +36,29 @@ pub(crate) fn get(
     sources: &[SourceOutcome],
 ) -> Vec<(StepKind, Action)> {
     let mut steps = Vec::new();
-    if sources.iter().any(|source| source.state != SourceState::Ok) {
+    if sources.iter().any(|source| {
+        matches!(
+            source.state,
+            SourceState::Stale | SourceState::Failed | SourceState::Syncing
+        )
+    }) {
         steps.push(retry(Request::GetGene(query.clone())));
     }
-    if sources
-        .iter()
-        .any(|source| source.source == biodata::Source::Hgnc && source.state != SourceState::Ok)
-    {
+    if sources.iter().any(|source| {
+        source.source == biodata::Source::Hgnc
+            && matches!(
+                source.state,
+                SourceState::Stale | SourceState::Failed | SourceState::Syncing
+            )
+    }) {
         steps.push(sync());
+    }
+    if sources.iter().any(|source| {
+        source.source == biodata::Source::Oncokb
+            && source.state == SourceState::Skipped
+            && source.reason == Some(biodata::Reason::NoKey)
+    }) {
+        steps.push((StepKind::Key, Action::KeyHelp));
     }
     if sources
         .iter()
@@ -102,7 +117,10 @@ pub(crate) fn search(
     source: &SourceOutcome,
 ) -> Vec<(StepKind, Action)> {
     let mut steps = Vec::new();
-    if source.state != SourceState::Ok {
+    if matches!(
+        source.state,
+        SourceState::Stale | SourceState::Failed | SourceState::Syncing
+    ) {
         steps.push(retry(Request::SearchGene(query.clone())));
         steps.push(sync());
     }

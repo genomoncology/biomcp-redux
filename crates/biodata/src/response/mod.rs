@@ -26,3 +26,5 @@ pub use step::{Step, StepKind};
 pub use gene::{SyncQuery, SyncResult};
 
 pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};
+
+pub use gene::{Capped, PathwayRef, ReactomeId, ReactomeIdInvalid, CivicGene, ClinGenGene, ClinGenValidity, CancerPtpm, Expression, RnaAbundance, TissueNtpm};

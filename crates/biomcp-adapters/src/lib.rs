@@ -10,3 +10,11 @@ pub use mapped::Mapped;
 
 pub mod gnomad;
 pub mod uniprot;
+
+pub mod reactome;
+
+pub mod civic;
+
+pub mod clingen;
+
+pub mod hpa;

@@ -65,14 +65,14 @@ Sources:
 - [x] HGNC (bundle, identity and names)
 - [x] MyGene.info
 - [x] UniProt
-- [ ] Reactome
+- [x] Reactome
 - [x] CIViC
-- [ ] ClinGen
+- [x] ClinGen
 - [ ] GenCC (bundle)
 - [x] gnomAD (constraint)
 - [ ] GTEx
 - [x] Human Protein Atlas
-- [ ] OncoKB (keyed)
+- [x] OncoKB (keyed)
 - [ ] COSMIC Cancer Gene Census (keyed)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
@@ -83,7 +83,7 @@ Sources:
 - [ ] Investigation
 - [ ] Questions answered by Ian
 - [ ] Biodata types and schema
-- [ ] Search, with plain PubMed as the floor
+- [x] Search, with plain PubMed as the floor
 - [ ] Get, full text, supplementary material and citations
 - [ ] Outside-in cases, including AKT1 E17K
 - [ ] Token budget
@@ -124,13 +124,13 @@ Sources:
 - [ ] ClinVar through NCBI EFetch (optional key)
 - [ ] dbSNP
 - [ ] gnomAD
-- [ ] CIViC
+- [x] CIViC
 - [ ] cBioPortal
 - [ ] Cancer Hotspots
 - [ ] OncoKB (keyed)
 - [ ] GWAS Catalog
 - [ ] ClinGen evidence repository
-- [ ] UniProt and InterPro (investigate)
+- [x] UniProt and InterPro (investigate)
 - [ ] Mutalyzer and VariantValidator (investigate)
 - [ ] AlphaGenome (keyed, investigate)
 

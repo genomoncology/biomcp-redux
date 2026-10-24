@@ -27,6 +27,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
+        .disable_help_subcommand(true)
         .disable_version_flag(true)
         .arg_required_else_help(true)
         .subcommand_required(true);
@@ -61,6 +62,9 @@ fn root() -> Result<Command, ()> {
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
+    root = root.subcommand(Command::new("help").subcommand_required(true).subcommand(
+        Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
+    ));
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -83,7 +87,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             globals,
         });
     }
-    let action = if verb == "sync" {
+    let action = if verb == "help" {
+        Action::KeyHelp
+    } else if verb == "sync" {
         Action::Sync {
             bundle: if matches
                 .get_one::<String>("bundle")
@@ -126,7 +132,8 @@ fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
         .ok_or(())
 }
 fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
-    let mut command = Command::new(name).disable_help_flag(true);
+    let mut command = Command::new(name).disable_help_flag(true)
+        .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
         let mut argument = Arg::new(name.clone());
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
