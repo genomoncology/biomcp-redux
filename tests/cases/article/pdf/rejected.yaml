@@ -1,0 +1,20 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Read a bounded PDF and preserve its explicit outcome.",
+  "replay": "article/pdf/rejected",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "22663011",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/state": "unavailable",
+        "/result/items/0/sections/pdf/reason": "rejected"
+      }
+    }
+  ]
+}

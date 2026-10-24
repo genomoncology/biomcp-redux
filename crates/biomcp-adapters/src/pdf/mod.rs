@@ -108,5 +108,15 @@ pub fn download(
     let endpoint = crate::semantic_scholar::PUBLISHER
         .download(url)?
         .bytes(MAX_BYTES);
-    leg.bytes(&endpoint, &[])
+    leg.bytes(&endpoint, &[]).map_err(|error| match error {
+        biomcp_fetch::RequestError::Source(mut source)
+            if source
+                .status
+                .is_some_and(|status| (400..500).contains(&status)) =>
+        {
+            source.reason = biodata::Reason::Rejected;
+            source.into()
+        }
+        error => error,
+    })
 }

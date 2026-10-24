@@ -1725,6 +1725,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-fetch/src/destination_tests.rs` | Classify security-sensitive DNS ranges and relative redirect targets without public network calls. |
 | `crates/biodata/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |

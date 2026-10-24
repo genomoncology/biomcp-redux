@@ -74,6 +74,12 @@ fn load<'a>(
     out: &mut Outcome,
 ) -> Result<Section<Document>, RequestError> {
     if cx.fetch.disabled(Source::SemanticScholar) {
+        out.sources.push(status::source(
+            Source::SemanticScholar,
+            Default::default(),
+            Some(bad(Reason::Disabled)),
+        ));
+        notice(out);
         return Ok(Section::unavailable(
             Source::SemanticScholar,
             Reason::Disabled,

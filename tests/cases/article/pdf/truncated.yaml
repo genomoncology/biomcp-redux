@@ -1,0 +1,21 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Read a bounded PDF and preserve its explicit outcome.",
+  "replay": "article/pdf/truncated",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/data/pages": 120,
+        "/result/items/0/sections/pdf/data/truncated": true,
+        "/result/items/0/sections/pdf/data/parts/0/last_page": 100
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Preserve the article card when the publisher download fails.",
+  "replay": "article/pdf/timeout",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/sections/pdf/reason": "deadline_exceeded"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "offline": true,
+      "expect": {
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/sections/pdf/reason": "offline"
+      }
+    }
+  ]
+}

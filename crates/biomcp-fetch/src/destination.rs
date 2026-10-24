@@ -137,11 +137,7 @@ impl crate::Leg<'_> {
                 .get("location")
                 .and_then(|value| value.to_str().ok())
                 .ok_or_else(rejected)?;
-            let next = url::Url::parse(&url)
-                .map_err(|_| rejected())?
-                .join(location)
-                .map_err(|_| rejected())?;
-            url = checked(next.as_str()).map_err(|_| rejected())?;
+            url = redirect(&url, location)?;
         }
         Err(rejected())
     }
@@ -152,3 +148,14 @@ fn rejected() -> ureq::Error {
         "publisher destination rejected",
     ))
 }
+
+fn redirect(base: &str, location: &str) -> Result<String, ureq::Error> {
+    let next = url::Url::parse(base)
+        .map_err(|_| rejected())?
+        .join(location)
+        .map_err(|_| rejected())?;
+    checked(next.as_str()).map_err(|_| rejected())
+}
+#[cfg(test)]
+#[path = "destination_tests.rs"]
+mod tests;

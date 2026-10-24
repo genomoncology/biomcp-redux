@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic",
   "feature": "article-pdf",
-  "story": "Read an owned synthetic PDF as a bounded outline and page-marked text.",
+  "story": "Read a bounded PDF and preserve its explicit outcome.",
   "replay": "article/pdf/synthetic",
   "steps": [
     {
@@ -11,10 +11,66 @@
         "41351423",
         "pdf"
       ],
+      "mcp": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "max_bytes": 3500,
       "expect": {
         "/result/items/0/sections/pdf/state": "data",
         "/result/items/0/sections/pdf/data/origin": "pdf",
-        "/result/items/0/sections/pdf/data/pages": 1
+        "/result/items/0/sections/pdf/data/pages": 1,
+        "/result/items/0/sections/pdf/data/license": "cc_by",
+        "/result/items/0/sections/pdf/data/parts/0/first_page": 1
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "41351423",
+        "--pdf",
+        "--part",
+        "1"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/result/content/state": "data",
+        "/result/content/data/origin": "pdf",
+        "/result/content/data/first_page": 1,
+        "/result/content/data/last_page": 1,
+        "/result/content/data/markdown": "BioMCP synthetic E17K page 1."
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "41351423",
+        "--pdf",
+        "--variant",
+        "E17K"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/result/content/data/hits/0/page": 1,
+        "/result/content/data/forms/0": "E17K"
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "41351423",
+        "--pdf",
+        "--find",
+        "e17k"
+      ],
+      "offline": true,
+      "expect": {
+        "/result/content/data/hits/0/page": 1
       }
     }
   ]

@@ -1,0 +1,20 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Read a bounded PDF and preserve its explicit outcome.",
+  "replay": "article/pdf/closed",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "17611497",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/state": "unavailable",
+        "/result/items/0/sections/pdf/reason": "not_open"
+      }
+    }
+  ]
+}
