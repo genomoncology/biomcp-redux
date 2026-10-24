@@ -39,7 +39,7 @@ pub fn get(
             ("fields", Arg::Text(&fields)),
             (
                 "assembly",
-                Arg::Text(if build == Build::Grch38 {
+                Arg::Text(if build == Build::GRCh38 {
                     "hg38"
                 } else {
                     "hg19"

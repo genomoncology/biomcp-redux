@@ -9,7 +9,7 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<VariantCosmic, Reque
     let endpoint = super::VARIANT
         .clone()
         .with_segments(&[PathSegment::new(id)?]);
-    let assembly = if build == Build::Grch38 {
+    let assembly = if build == Build::GRCh38 {
         "hg38"
     } else {
         "hg19"
