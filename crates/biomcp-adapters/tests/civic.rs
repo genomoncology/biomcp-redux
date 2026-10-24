@@ -112,5 +112,5 @@ fn malformed_optional_description_retains_the_civic_record() {
     let values = call(&recording).unwrap();
     assert!(matches!(&values[0].civic.value, biodata::Section::Data { data, .. } if data.id == 20 && data.description.is_none()));
     assert_eq!(values[0].civic.problems.len(), 1);
-    assert_eq!(values[0].civic.problems[0].field, "description");
+    assert_eq!(values[0].civic.problems[0].field.as_ref(), "description");
 }
