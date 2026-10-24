@@ -89,9 +89,10 @@ fn resolve_rows<'a>(
     let mut join_failures = Vec::new();
     for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
-            && result.items.iter().any(|item| {
-                item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
-            })
+            && result
+                .items
+                .iter()
+                .any(|item| item.pmid.is_none() && super::semantic_scholar::doi(item).is_some())
         {
             let resolved = super::semantic_scholar::resolve_dois(cx, &mut result.items, deadline);
             status::append(&mut out.problems, resolved.problems);
