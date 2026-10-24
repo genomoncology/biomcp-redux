@@ -67,7 +67,7 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         ));
     }
     // Disabled policy wins even when replay would open a hostile sidecar.
-    let disabled = replay.restrict_sources([biodata::Source::Pubmed]);
+    let disabled = replay.restrict_sources([biodata::Source::PubMed]);
     assert!(
         matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Disabled)
     );
