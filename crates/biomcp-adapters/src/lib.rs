@@ -31,3 +31,5 @@ pub mod icite;
 /// Semantic Scholar graph metadata under one shared optional-key quota.
 pub mod semantic_scholar;
 mod xml_element;
+
+pub mod registry;

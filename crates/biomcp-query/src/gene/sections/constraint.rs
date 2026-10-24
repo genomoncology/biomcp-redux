@@ -36,10 +36,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                             .iter()
                             .any(|problem| problem.field.as_ref() == "gene_id")
                         {
-                            Section::Unavailable {
-                                source: Source::Gnomad,
-                                reason: Reason::BadReply,
-                            }
+                            Section::unavailable(Source::Gnomad, Reason::BadReply)
                         } else if let Some(data) = &value.constraint.value {
                             Section::Data {
                                 source: Source::Gnomad,
@@ -52,19 +49,16 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                             }
                         }
                     }
-                    None => Section::Unavailable {
-                        source: Source::Gnomad,
-                        reason: Reason::BadReply,
-                    },
+                    None => Section::unavailable(Source::Gnomad, Reason::BadReply),
                 }
             }
-            Err(error) => Section::Unavailable {
-                source: Source::Gnomad,
-                reason: match error {
+            Err(error) => Section::unavailable(
+                Source::Gnomad,
+                match error {
                     RequestError::Source(error) => error.reason,
                     _ => Reason::Unavailable,
                 },
-            },
+            ),
         };
         sections.push((*id, super::SectionValue::Constraint(section)));
     }

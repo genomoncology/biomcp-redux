@@ -21,6 +21,7 @@ mod response_cases;
 mod schema;
 mod schema_proof;
 mod scholar;
+mod source_controls;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -234,6 +235,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     }));
     trials.extend(configuration::trials());
     trials.extend(scholar::trials());
+    trials.extend(source_controls::trials());
+
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_sources::trials());
