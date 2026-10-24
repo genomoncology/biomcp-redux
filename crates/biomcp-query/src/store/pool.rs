@@ -81,10 +81,15 @@ impl Store<'_> {
     ) -> Result<(), CacheError> {
         self.write(|tx| {
             let outcome=outcome.map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
-            for id in ids {
+            let names:Vec<_>=ids.iter().map(ToString::to_string).collect();
+            for (index,id) in ids.iter().enumerate() {
                 let header=headers.iter().find(|h|h.pmid==*id).map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
                 let name=id.to_string();
-                let problems:Vec<_>=problems.iter().filter(|p|p.record.as_ref().is_some_and(|r|r.as_str()==name)).collect();
+                let problems:Vec<_>=problems.iter().filter(|p| {
+                    let own=p.record.as_ref().is_some_and(|r|r.as_str()==name);
+                    let unmatched=p.record.as_ref().is_none_or(|r|!names.iter().any(|n|r.as_str()==n));
+                    own || (index==0 && unmatched)
+                }).collect();
                 let problems=serde_json::to_string(&problems).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.
                 tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND pmid=?2 AND header IS NULL",params![pool,name,header,problems,outcome]).map_err(db)?;

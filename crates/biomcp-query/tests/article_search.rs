@@ -111,6 +111,19 @@ fn store_corruption_and_exhausted_budget_remain_typed_local_failures() {
     assert_eq!(out.status, Status::Failed);
     assert_eq!(out.local, Some(RequestError::Cache(CacheError::Database)));
     assert!(out.sources.is_empty());
+    fetch
+        .cache_access()
+        .unwrap()
+        .connect()
+        .unwrap()
+        .execute_batch("DROP TABLE pool_current")
+        .unwrap();
+    let sql_failure = run(&fetch, query(None, 0), false);
+    assert_eq!(
+        sql_failure.local,
+        Some(RequestError::Cache(CacheError::Database))
+    );
+    assert!(sql_failure.sources.is_empty());
     let out = biomcp_query::run(
         &Ctx {
             fetch: &fetch,
@@ -359,4 +372,28 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
         panic!("article page")
     };
     assert!(body.items.iter().all(|i| i.header.is_some()));
+}
+
+#[test]
+fn external_sql_writer_exhausts_only_the_commands_local_admission_budget() {
+    let cache = ReplayCache::temporary().unwrap();
+    let fetch = fetch("synthetic-small", cache);
+    page(run(&fetch, query(None, 0), false));
+    let mut connection = fetch.cache_access().unwrap().connect().unwrap();
+    let transaction = connection
+        .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+        .unwrap();
+    let out = biomcp_query::run(
+        &Ctx {
+            fetch: &fetch,
+            budget: Duration::from_millis(25),
+            fresh: false,
+            ncbi_email: None,
+        },
+        &Request::SearchArticle(query(None, 0)),
+    );
+    assert_eq!(out.local, Some(RequestError::Cache(CacheError::Busy)));
+    assert!(out.sources.is_empty());
+    transaction.rollback().unwrap();
+    page(run(&fetch, query(None, 0), false));
 }

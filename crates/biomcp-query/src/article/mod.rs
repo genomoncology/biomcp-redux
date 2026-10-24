@@ -108,6 +108,7 @@ fn read_page<'a>(
         store.set_deadline(consume(deadline, started, leg.remaining()));
         match result {
             Ok(mapped) => {
+                status::append(&mut out.problems, mapped.problems.clone());
                 let source = status::source(Source::PubMed, leg.finish(), None);
                 let stale = (source.state == biodata::SourceState::Stale).then_some(&source);
                 store.hydrate(id, &missing, &mapped.value, &mapped.problems, stale)?;
