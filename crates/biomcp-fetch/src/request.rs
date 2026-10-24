@@ -198,6 +198,9 @@ impl Leg<'_> {
                     &response.content_type,
                     started.elapsed(),
                 ),
+                Err(Failure::Local(RequestError::Source(error))) => {
+                    self.observe(&prepared.identity, error.status, &[], "", started.elapsed())
+                }
                 Err(_) => self.observe(&prepared.identity, None, &[], "", started.elapsed()),
             }
             let (mut error, retryable, delay) = match exchange {

@@ -1,5 +1,5 @@
 //! Live diagnostics are separate from replay assertions and never join the gate.
-use super::{Case, action, collect, launch::Environment, schema};
+use super::{Case, Step, action, collect, launch::Environment, schema};
 use biomcp_fetch::{Observation, Shape};
 use serde_json::{Value, json};
 use std::{
@@ -100,39 +100,86 @@ fn check(
     let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies")
         .join(case.replay.as_ref().ok_or("no recording")?);
+    let baseline = Environment::new().map_err(|e| e.to_string())?;
+    let live = Environment::new().map_err(|e| e.to_string())?;
+    let mut previous = (None, None);
     let mut changes = Vec::new();
-    let mut previous = None;
+    let mut ordinal = 0;
     for step in &case.steps {
-        let args = match &step.follow {
-            Some(kind) => action(previous.as_ref().ok_or("follow lacks predecessor")?, kind)?,
-            None => step
-                .run
-                .as_ref()
-                .or(step.mcp.as_ref())
-                .cloned()
-                .ok_or("missing command")?,
-        };
-        let (baseline, before) = invoke(&args, Some(&replay))?;
-        // Serial commands use isolated caches. Keys and proxy configuration never enter children.
-        let (actual, after) = invoke(&args, None)?;
-        std::thread::sleep(PACE);
-        if baseline.get("status") != actual.get("status") {
-            changes.push("status changed from recorded result".into());
+        let mut args = (
+            arguments(step, previous.0.as_ref())?,
+            arguments(step, previous.1.as_ref())?,
+        );
+        let pages = step
+            .walk
+            .as_ref()
+            .map_or(1, |walk| walk.max_pages.min(1000));
+        for page in 0..pages {
+            ordinal += 1;
+            if ordinal > 128 {
+                return Err("case command budget exhausted".into());
+            }
+            let (expected, before) = invoke(&baseline, &args.0, Some(&replay), ordinal)?;
+            let (actual, after) = invoke(&live, &args.1, None, ordinal)?;
+            std::thread::sleep(PACE);
+            if expected.get("status") != actual.get("status") {
+                changes.push("status changed from recorded result".into());
+            }
+            if registry.validate(&actual, &args.1, true).is_err() {
+                changes.push("output schema failure".into());
+            }
+            compare(&before, &after, &mut changes, sources);
+            previous = (Some(expected), Some(actual));
+            if step.walk.is_none() {
+                break;
+            }
+            let next = (
+                action(previous.0.as_ref().ok_or("missing baseline")?, "page"),
+                action(previous.1.as_ref().ok_or("missing live result")?, "page"),
+            );
+            match next {
+                (Ok(before), Ok(after)) => args = (before, after),
+                (Err(_), Err(_)) => break,
+                _ => {
+                    changes.push("page continuation changed".into());
+                    break;
+                }
+            }
+            if page + 1 == pages {
+                changes.push("walk reached its bounded page count".into());
+            }
         }
-        if registry.validate(&actual, &args, true).is_err() {
-            changes.push("output schema failure".into());
-        }
-        compare(&before, &after, &mut changes, sources);
-        previous = Some(actual);
     }
     Ok(changes)
 }
-fn invoke(args: &[String], replay: Option<&Path>) -> Result<(Value, Vec<Observation>), String> {
-    let environment = Environment::new().map_err(|e| e.to_string())?;
-    let path = environment.root().join("observations.jsonl");
+fn arguments(step: &Step, previous: Option<&Value>) -> Result<Vec<String>, String> {
+    match &step.follow {
+        Some(kind) => action(previous.ok_or("follow lacks predecessor")?, kind),
+        None => step
+            .run
+            .as_ref()
+            .or(step.mcp.as_ref())
+            .cloned()
+            .ok_or_else(|| "missing command".into()),
+    }
+}
+fn invoke(
+    environment: &Environment,
+    args: &[String],
+    replay: Option<&Path>,
+    ordinal: usize,
+) -> Result<(Value, Vec<Observation>), String> {
+    let path = environment
+        .root()
+        .join(format!("observations-{ordinal}.jsonl"));
     let mut args = args.to_vec();
-    args.extend(environment.globals(replay, false));
-    args.extend(["--observe".into(), path.display().to_string()]);
+    let mut globals = environment.globals(replay, false);
+    globals.extend(["--observe".into(), path.display().to_string()]);
+    let position = args
+        .iter()
+        .position(|arg| arg == "--")
+        .unwrap_or(args.len());
+    args.splice(position..position, globals);
     let mut command = environment.command(env!("CARGO_BIN_EXE_biomcp"), &args);
     command
         .stdout(std::process::Stdio::piped())
@@ -141,7 +188,7 @@ fn invoke(args: &[String], replay: Option<&Path>) -> Result<(Value, Vec<Observat
         super::process::Process::new(command.spawn().map_err(|e| e.to_string())?)?.finish()?;
     let value = serde_json::from_slice(&stdout).map_err(|_| "command did not return JSON")?;
     let text = fs::read_to_string(path).map_err(|e| e.to_string())?;
-    if text.len() > 32 * 1024 * 1024 {
+    if text.len() > 8 * 1024 * 1024 {
         return Err("observation file exceeds bound".into());
     }
     let observations = text
