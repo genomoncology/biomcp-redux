@@ -114,4 +114,7 @@ pub struct LitVarCandidate {
 }
 
 mod evidence;
-pub use evidence::{ArticleEvidenceResult,CitationContexts,CitationParagraphs,EvidenceContext,EvidenceParagraph,EvidenceNotice,ArticleRecommendations};
+pub use evidence::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

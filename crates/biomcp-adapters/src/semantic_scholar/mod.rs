@@ -26,4 +26,4 @@ pub use graph::{Edge, Edges, PaperSummary, edges, paper_endpoint, summary};
 pub use search::{Author, ExternalIds, Paper, Search, search};
 
 mod recommend;
-pub use recommend::{RECOMMEND_SPEC, recommendations, paper_id};
+pub use recommend::{RECOMMEND_SPEC, paper_id, recommendations};

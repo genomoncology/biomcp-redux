@@ -78,4 +78,7 @@ pub use markdown::Markdown;
 pub use response::{Health, SourceHealth};
 
 pub use query::{ArticleEvidence, ArticleRecommend};
-pub use response::{ArticleEvidenceResult, CitationContexts, CitationParagraphs, EvidenceContext, EvidenceParagraph, EvidenceNotice, ArticleRecommendations};
+pub use response::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

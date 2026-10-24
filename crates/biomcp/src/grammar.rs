@@ -262,7 +262,9 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
         if property.get("type").and_then(Value::as_str) == Some("boolean") {
-            if matches.get_flag(name) { result.insert(name.clone(),Value::Bool(true)); }
+            if matches.get_flag(name) {
+                result.insert(name.clone(), Value::Bool(true));
+            }
             continue;
         }
         let Some(values) = matches.get_many::<String>(name) else {
@@ -352,8 +354,16 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
-        ("article", "citation-evidence") => serde_json::from_value::<biodata::ArticleEvidence>(value).map(Request::ArticleEvidence).map_err(|_|()),
-        ("article", "recommendations") => serde_json::from_value::<biodata::ArticleRecommend>(value).map(Request::ArticleRecommend).map_err(|_|()),
+        ("article", "citation-evidence") => {
+            serde_json::from_value::<biodata::ArticleEvidence>(value)
+                .map(Request::ArticleEvidence)
+                .map_err(|_| ())
+        }
+        ("article", "recommendations") => {
+            serde_json::from_value::<biodata::ArticleRecommend>(value)
+                .map(Request::ArticleRecommend)
+                .map_err(|_| ())
+        }
         ("article", "supplement") => serde_json::from_value::<biodata::ArticleSupplement>(value)
             .map(Request::ArticleSupplement)
             .map_err(|_| ()),

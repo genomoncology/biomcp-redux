@@ -56,7 +56,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleEvidence(_) | Request::ArticleRecommend(_) | Request::ArticleSupplement(_)
+            Request::ArticleEvidence(_)
+            | Request::ArticleRecommend(_)
+            | Request::ArticleSupplement(_)
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
@@ -131,7 +133,9 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
                 continue;
             };
             if value.is_boolean() {
-                if value == &Value::Bool(true) { args.push(format!("--{}",name.replace('_',"-"))); }
+                if value == &Value::Bool(true) {
+                    args.push(format!("--{}", name.replace('_', "-")));
+                }
                 continue;
             }
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));

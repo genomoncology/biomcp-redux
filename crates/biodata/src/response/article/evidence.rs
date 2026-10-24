@@ -1,30 +1,30 @@
 use crate::{Capped, CitationIntent, License, Markdown, Section, Text};
-use serde::{Deserialize,Serialize};
+use serde::{Deserialize, Serialize};
 /// One advancing piece of an original source citation context.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct EvidenceContext {
     /// One-based original source context position.
-    pub position:u32,
+    pub position: u32,
     /// Unicode character position within that context.
-    pub character_offset:u32,
+    pub character_offset: u32,
     /// Whole context, or an exact advancing fragment when the context exceeds a page.
-    pub text:Text,
+    pub text: Text,
 }
 /// One source paragraph fragment with its own exact outline location.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct EvidenceParagraph {
     /// One-based original body paragraph position.
-    pub position:u32,
+    pub position: u32,
     /// Exact semantic outline part.
-    pub part:u32,
+    pub part: u32,
     /// Unicode character position within the original paragraph.
-    pub character_offset:u32,
+    pub character_offset: u32,
     /// Preserved source Markdown.
-    pub markdown:Markdown,
+    pub markdown: Markdown,
 }
 crate::macros::wire_enum! {
     /// Explicit successful empty outcomes, never inferred from a source failure.
@@ -38,66 +38,66 @@ crate::macros::wire_enum! {
     }
 }
 /// Source edge metadata and a bounded advancing context page.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CitationContexts {
     /// Every context remains accessible through the advancing step.
-    pub contexts:Capped<EvidenceContext>,
+    pub contexts: Capped<EvidenceContext>,
     /// Completion means a terminal source page was reached.
-    pub complete:bool,
+    pub complete: bool,
     /// Native next source offset when a scan is incomplete.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub source_cursor:Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_cursor: Option<u32>,
     /// Source-reported citation intents.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub intents:Option<Box<[CitationIntent]>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub intents: Option<Box<[CitationIntent]>>,
     /// Missing is distinct from false.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub influential:Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub influential: Option<bool>,
     /// Successful empty-source explanation.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub notice:Option<EvidenceNotice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notice: Option<EvidenceNotice>,
 }
 /// Exact JATS reference paragraphs independent of the graph result.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CitationParagraphs {
     /// Original publisher license category.
-    pub license:License,
+    pub license: License,
     /// Original paragraph fragments and complete fragment count.
-    pub paragraphs:Capped<EvidenceParagraph>,
+    pub paragraphs: Capped<EvidenceParagraph>,
 }
 /// Independent graph and optional open-text evidence parts.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEvidenceResult {
     /// Source-reported citation contexts.
-    pub semantic_scholar:Section<CitationContexts>,
+    pub semantic_scholar: Section<CitationContexts>,
     /// The citing paper's own explicit reference paragraphs.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub fulltext:Option<Section<CitationParagraphs>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fulltext: Option<Section<CitationParagraphs>>,
 }
 impl super::super::ResponseBody for ArticleEvidenceResult {
-    const SCHEMA:&'static str="biomcp.article_evidence/1";
-    type Query=crate::ArticleEvidence;
+    const SCHEMA: &'static str = "biomcp.article_evidence/1";
+    type Query = crate::ArticleEvidence;
 }
 /// Source-native recommendation page.
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema",derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleRecommendations {
     /// Papers in provider order, without a local topic filter.
-    pub items:Box<[crate::ArticleItem]>,
+    pub items: Box<[crate::ArticleItem]>,
     /// Provider's default pool, stated without a clinical relevance claim.
-    pub scope:Box<str>,
+    pub scope: Box<str>,
     /// Successful zero-result explanation.
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub notice:Option<EvidenceNotice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notice: Option<EvidenceNotice>,
 }
 impl super::super::ResponseBody for ArticleRecommendations {
-    const SCHEMA:&'static str="biomcp.article_recommendations/1";
-    type Query=crate::ArticleRecommend;
+    const SCHEMA: &'static str = "biomcp.article_recommendations/1";
+    type Query = crate::ArticleRecommend;
 }

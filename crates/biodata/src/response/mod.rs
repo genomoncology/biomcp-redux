@@ -58,4 +58,7 @@ pub use article_sections::{
 mod health;
 pub use health::{Health, SourceHealth};
 
-pub use article::{ArticleEvidenceResult,CitationContexts,CitationParagraphs,EvidenceContext,EvidenceParagraph,EvidenceNotice,ArticleRecommendations};
+pub use article::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

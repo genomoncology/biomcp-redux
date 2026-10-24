@@ -3,16 +3,17 @@ use crate::{Action,Outcome};
 use biodata::{ArticleEvidence,ArticleEvidenceResult,QueryBody,Request,Section,Status,StepKind,Text};
 use biomcp_fetch::RequestError;
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
-pub(super) fn split(text:&str)->Vec<(u32,String)> {
-    let mut out=Vec::new();let mut start=0;let mut bytes=0;let mut chars=0;let mut offset=0;
-    for (index,ch) in text.char_indices() {
+pub(super) fn split(text: &str) -> Vec<(u32,String)> {
+    let mut out=Vec::new(); let mut buffer=String::new();let mut bytes=0;let mut chars=0;let mut offset=0;
+    for ch in text.chars() {
         let cost=biomcp_adapters::jats::escaped_bytes(&ch.to_string());
-        if bytes+cost>3500 {out.push((offset,text[start..index].to_owned()));start=index;bytes=0;offset=chars;}
-        bytes+=cost;chars+=1;
+        if bytes+cost>3500 {out.push((offset,std::mem::take(&mut buffer)));bytes=0;offset=chars;}
+        buffer.push(ch);bytes+=cost;chars+=1;
     }
-    if start<text.len() {out.push((offset,text[start..].to_owned()))}
+    if !buffer.is_empty() {out.push((offset,buffer))}
     out
 }
+
 pub(super) fn render(query:&ArticleEvidence,mut snapshot:Snapshot,id:Text,out:&mut Outcome)->Result<(),RequestError> {
     let mut context_end=query.offset();let mut paragraph_end=query.paragraph_offset();
     let mut more=false;
