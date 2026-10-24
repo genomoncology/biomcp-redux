@@ -30,7 +30,7 @@ crate::macros::text_value!(Curie, "Curie", "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum VariantRef {
+enum Fields {
     /// Exact allele identifier or reference-qualified notation.
     Allele {
         /// Source identifier.
@@ -61,4 +61,62 @@ pub enum VariantRef {
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
         members: Box<[VariantRef]>,
     },
+}
+
+/// Checked source subject reference; at least one source identity or label is required.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(try_from = "Fields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "Fields"))]
+pub struct VariantRef(Fields);
+impl TryFrom<Fields> for VariantRef {
+    type Error = crate::Error;
+    fn try_from(fields: Fields) -> Result<Self, Self::Error> {
+        match &fields {
+            Fields::Allele { id, hgvs } if id.is_none() && hgvs.is_none() => {
+                Err(crate::Error::VariantRefInvalid)
+            }
+            Fields::Protein { hgvs, label, .. } if hgvs.is_none() && label.is_none() => {
+                Err(crate::Error::VariantRefInvalid)
+            }
+            _ => Ok(Self(fields)),
+        }
+    }
+}
+impl VariantRef {
+    /// Reference one checked source allele identifier.
+    pub fn allele(id: VariantId) -> Self {
+        Self(Fields::Allele {
+            id: Some(id),
+            hgvs: None,
+        })
+    }
+    /// Reference source-qualified notation without computing a genomic allele.
+    pub fn allele_hgvs(hgvs: HgvsText) -> Self {
+        Self(Fields::Allele {
+            id: None,
+            hgvs: Some(hgvs),
+        })
+    }
+    /// Reference a protein label in its source gene context.
+    pub fn protein(gene: GeneSymbol, label: Text) -> Self {
+        Self(Fields::Protein {
+            gene,
+            hgvs: None,
+            label: Some(label),
+        })
+    }
+    /// Preserve a compound profile and its native member references.
+    pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Self {
+        Self(Fields::Profile {
+            record,
+            label,
+            members,
+        })
+    }
+}
+impl Serialize for VariantRef {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.0.serialize(serializer)
+    }
 }
