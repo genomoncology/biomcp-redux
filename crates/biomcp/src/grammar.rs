@@ -76,7 +76,8 @@ fn root() -> Result<Command, ()> {
             .subcommand(
                 Command::new("get")
                     .subcommand_required(true)
-                    .subcommand(Command::new("gene")),
+                    .subcommand(Command::new("gene"))
+                    .subcommand(Command::new("article")),
             )
             .subcommand(
                 Command::new("search")

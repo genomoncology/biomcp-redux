@@ -53,7 +53,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print a checked-in schema artifact.",
         ),
         (
-            vec!["help", "[get gene|search gene|search article]"],
+            vec!["help", "[get gene|get article|search gene|search article]"],
             "Print generated command help.",
         ),
         (
