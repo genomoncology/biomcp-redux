@@ -18,8 +18,9 @@ pub(super) fn trials() -> Vec<Trial> {
         })
         .collect()
 }
+type Reply = fn(&str) -> Result<String, String>;
 fn positive(source: &str) -> Result<(), String> {
-    let (hosts, reply): (&[&str], fn(&str) -> Result<String, String>) = match source {
+    let (hosts, reply): (&[&str], Reply) = match source {
         "civic" => (&["civicdb.org"], super::variant_civic::civic_body),
         "hotspots" => (
             &["myvariant.info", "www.cancerhotspots.org"],

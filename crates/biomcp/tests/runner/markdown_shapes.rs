@@ -132,7 +132,10 @@ pub(super) fn check_environment(
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
-    config["format"] = json!("md");
+    config
+        .as_object_mut()
+        .ok_or("Markdown configuration must be an object")?
+        .insert("format".into(), json!("md"));
     env.config(&config).map_err(|e| e.to_string())?;
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -168,7 +171,7 @@ pub(super) fn check_environment(
     let mut tool_args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
     tool_args.extend(["--format".into(), "md".into()]);
     let tool =
-        super::mcp::call_with_globals(&env, &tool_args, !json_output.status.success(), &globals)?;
+        super::mcp::call_with_globals(env, &tool_args, !json_output.status.success(), globals)?;
     if tool != value {
         return Err("MCP changed JSON under Markdown configuration".into());
     }
