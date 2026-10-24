@@ -120,6 +120,11 @@ fn execute<'a>(
         }
     }
     store.set_deadline(*deadline);
+    // Resolver legs are dependencies of the saved content too. Admit every
+    // contributing source before reading any continuation payload next time.
+    for incoming in std::mem::take(&mut out.sources) {
+        source(&mut snapshot, incoming);
+    }
     let payload = encode(&snapshot)?;
     let id = store.save_evidence(
         query.pool().filter(|_| restored),
