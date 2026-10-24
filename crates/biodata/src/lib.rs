@@ -3,7 +3,7 @@
 mod article;
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, Pmcid, Pmid};
-pub use query::{ArticleSearch, ArticleSort, ArticleSource};
+pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
 mod response;
 mod source;

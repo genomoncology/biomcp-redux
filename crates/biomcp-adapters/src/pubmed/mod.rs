@@ -2,7 +2,7 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{ArticleHeader, Pmid, Source, SourceNotice, Text};
+use biodata::{ArticleHeader, ArticleSort, Pmid, Source, SourceNotice, Text};
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, Secret, SecretName,
     SourceSpec,
@@ -34,20 +34,23 @@ pub struct SearchIds {
     /// PubMed words it could not find.
     pub notices: Vec<SourceNotice>,
 }
-/// Retrieve the application's fixed requested window in native relevance order.
+/// Retrieve the application's fixed requested window in the requested native provider order.
 pub fn search_ids(
     leg: &Leg<'_>,
     term: &str,
+    sort: ArticleSort,
     email: Option<&Secret>,
 ) -> Result<SearchIds, RequestError> {
     let mut params = vec![
         ("db", Arg::Text("pubmed")),
         ("term", Arg::Text(term)),
-        ("sort", Arg::Text("relevance")),
         ("retmax", Arg::Num(9999)),
         ("retmode", Arg::Text("json")),
         ("tool", Arg::Text("biomcp")),
     ];
+    if sort == ArticleSort::Rank {
+        params.push(("sort", Arg::Text("relevance")));
+    }
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
