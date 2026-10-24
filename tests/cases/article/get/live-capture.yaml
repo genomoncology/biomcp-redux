@@ -25,7 +25,13 @@
           "absent",
           "complete",
           "complete"
-        ]
+        ],
+        "/result/items/0/answer/card/date": "2020",
+        "/result/items/0/answer/card/electronic_date": "2020-10-06",
+        "/result/items/2/answer/card/date": "2017-09",
+        "/result/items/2/answer/card/electronic_date": "2017-07-23",
+        "/result/items/3/answer/card/date": "2022",
+        "/result/items/3/answer/card/electronic_date": "2022-01-21"
       },
       "max_bytes": 17000
     }

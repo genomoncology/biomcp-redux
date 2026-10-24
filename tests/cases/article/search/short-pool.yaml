@@ -1,0 +1,89 @@
+{
+  "live_check": "synthetic HGNC subset; PubMed responses are public captures",
+  "feature": "article-search",
+  "story": "A complete zero pool offers explicit term drops; following drop-variant yields a full page without broadening steps.",
+  "replay": "article/search/short-pool",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "NF2",
+        "--variant",
+        "K322",
+        "--disease",
+        "meningioma"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "NF2",
+        "--variant",
+        "K322",
+        "--disease",
+        "meningioma"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": [],
+        "/next": {
+          "count": 4
+        },
+        "/next/0/args": [
+          "search",
+          "article",
+          "--disease",
+          "meningioma",
+          "--gene",
+          "NF2"
+        ],
+        "/next/1/args": [
+          "search",
+          "article",
+          "--gene",
+          "NF2",
+          "--variant",
+          "K322"
+        ]
+      },
+      "max_bytes": 1078,
+      "max_tokens": 270
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--disease",
+        "meningioma",
+        "--gene",
+        "NF2"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--disease",
+        "meningioma",
+        "--gene",
+        "NF2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 964,
+        "/result/items": {
+          "count": 10
+        },
+        "/next/*/kind": [
+          "page",
+          "disambiguate",
+          "sort"
+        ],
+        "/result/items/0/pmid": "33984142"
+      },
+      "max_bytes": 5358,
+      "max_tokens": 1340
+    }
+  ]
+}

@@ -52,6 +52,7 @@ pub(super) struct SummaryRow {
     pub title: Option<Field<String>>,
     pub fulljournalname: Option<Field<String>>,
     pub pubdate: Option<Field<String>>,
+    pub epubdate: Option<Field<String>>,
     pub pubtype: Option<Field<Vec<Field<String>>>>,
     pub authors: Option<Field<Vec<Field<Author>>>>,
     pub articleids: Option<Field<Vec<Field<ArticleId>>>>,

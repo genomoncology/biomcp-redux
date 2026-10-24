@@ -132,6 +132,7 @@ impl Paper {
             europepmc_id: None,
             title,
             journal: self.venue.and_then(|s| Text::new(&s).ok()),
+            electronic_date: None,
             date: self
                 .publication_date
                 .or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
