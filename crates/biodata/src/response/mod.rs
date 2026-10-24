@@ -24,4 +24,4 @@ pub use gene::{SyncQuery, SyncResult};
 
 pub use gene::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};
 
-pub use gene::{Expression, TissueNtpm, CancerPtpm, RnaAbundance};
+pub use gene::{CancerPtpm, Expression, RnaAbundance, TissueNtpm};

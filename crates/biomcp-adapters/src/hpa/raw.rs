@@ -23,7 +23,9 @@ pub(super) struct Gene {
 }
 impl Reply for Gene {
     fn check(&self) -> Result<(), BadReply> {
-        self.ensembl.parse::<biodata::EnsemblGeneId>().map_err(|_| BadReply)?;
+        self.ensembl
+            .parse::<biodata::EnsemblGeneId>()
+            .map_err(|_| BadReply)?;
         Ok(())
     }
 }

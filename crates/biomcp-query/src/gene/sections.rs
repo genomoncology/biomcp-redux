@@ -51,7 +51,9 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
             .collect();
         if !requested.is_empty() {
             item.sections = Some(GeneSections {
-                expression: requested.contains(&GeneSection::Expression).then_some(Section::NotApplicable),
+                expression: requested
+                    .contains(&GeneSection::Expression)
+                    .then_some(Section::NotApplicable),
                 constraint: requested
                     .contains(&GeneSection::Constraint)
                     .then_some(Section::NotApplicable),
@@ -91,13 +93,16 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         let Some(GeneResolution::Resolved { gene, .. }) = &item.answer else {
             continue;
         };
-        let Some((_, value)) = result.values.iter().find(|(id, _)| *id == gene.hgnc_id) else { continue; };
+        let Some((_, value)) = result.values.iter().find(|(id, _)| *id == gene.hgnc_id) else {
+            continue;
+        };
         let unavailable = match value {
             SectionValue::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             SectionValue::Expression(value) => matches!(value, Section::Unavailable { .. }),
         };
         if requested_section_matches(result.section, value)
-            && let Some(sections) = &mut item.sections {
+            && let Some(sections) = &mut item.sections
+        {
             match value {
                 SectionValue::Constraint(value) => sections.constraint = Some(value.clone()),
                 SectionValue::Expression(value) => sections.expression = Some(value.clone()),
@@ -107,7 +112,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
             || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
-                    gene.ensembl_id.as_ref().is_some_and(|id| record.as_str() == id.base())
+                    gene.ensembl_id
+                        .as_ref()
+                        .is_some_and(|id| record.as_str() == id.base())
                 })
             })
         {
@@ -116,7 +123,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
     }
 }
 fn requested_section_matches(section: GeneSection, value: &SectionValue) -> bool {
-    matches!((section, value),
+    matches!(
+        (section, value),
         (GeneSection::Constraint, SectionValue::Constraint(_))
-        | (GeneSection::Expression, SectionValue::Expression(_)))
+            | (GeneSection::Expression, SectionValue::Expression(_))
+    )
 }

@@ -13,6 +13,7 @@
         "hgnc",
         "mygene",
         "gnomad",
+        "hpa",
         "pubmed",
         "europepmc",
         "pubtator",

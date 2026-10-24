@@ -57,10 +57,14 @@ pub struct RnaAbundance(FiniteNumber);
 impl TryFrom<f64> for RnaAbundance {
     type Error = crate::FiniteNumberError;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
-        if value < 0.0 { return Err(crate::FiniteNumberError); }
+        if value < 0.0 {
+            return Err(crate::FiniteNumberError);
+        }
         FiniteNumber::try_from(value).map(Self)
     }
 }
 impl From<RnaAbundance> for f64 {
-    fn from(value: RnaAbundance) -> Self { value.0.into() }
+    fn from(value: RnaAbundance) -> Self {
+        value.0.into()
+    }
 }

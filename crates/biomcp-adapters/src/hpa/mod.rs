@@ -14,13 +14,26 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(8),
 };
 /// Fetch one HGNC Ensembl identity, preserving the source's own miss.
-pub fn expression(leg: &Leg<'_>, id: &EnsemblGeneId) -> Result<Option<Mapped<Expression>>, RequestError> {
-    let endpoint = SPEC.get("/").fresh(Freshness::Days(7)).with_path(format!("/{}.json", id.base()))?;
+pub fn expression(
+    leg: &Leg<'_>,
+    id: &EnsemblGeneId,
+) -> Result<Option<Mapped<Expression>>, RequestError> {
+    let endpoint = SPEC
+        .get("/")
+        .fresh(Freshness::Days(7))
+        .with_path(format!("/{}.json", id.base()))?;
     let raw = leg.json_opt::<raw::Gene>(&endpoint, &[])?;
     raw.map(|raw| {
         if raw.ensembl != id.base() {
-            return Err(SourceError { source: Source::Hpa, reason: Reason::BadReply, status: None, retry_after: None }.into());
+            return Err(SourceError {
+                source: Source::Hpa,
+                reason: Reason::BadReply,
+                status: None,
+                retry_after: None,
+            }
+            .into());
         }
         Ok(map::expression(raw, id))
-    }).transpose()
+    })
+    .transpose()
 }

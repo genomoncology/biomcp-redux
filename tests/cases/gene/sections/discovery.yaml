@@ -10,9 +10,9 @@
         "TP53"
       ],
       "expect": {
-        "/result/items/0/more": [
-          "constraint"
-        ],
+        "/result/items/0/more": {
+          "includes": "constraint"
+        },
         "/next/0/kind": "section",
         "/next/0/args": [
           "get",
