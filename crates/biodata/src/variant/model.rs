@@ -1,4 +1,4 @@
-use crate::{Allele, Build, Expression, GeneRef, Source, VariantId};
+use crate::{Allele, Build, Expression, GeneRef, Text, VariantId};
 use serde::{Deserialize, Serialize};
 /// One source's own expression, assembly and optional source-stated interbase allele.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Representation {
     /// Source asserting this form.
-    pub source: Source,
+    pub source: Text,
     /// Published notation kept unchanged.
     pub expression: Expression,
     /// Assembly stated by the source, omitted when absent.

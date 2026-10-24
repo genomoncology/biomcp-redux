@@ -242,7 +242,7 @@ impl Cache {
     pub(crate) fn write(
         &self,
         key: &[u8; 32],
-        source: biodata::Source,
+        source: biomcp_types::Source,
         url: &str,
         entry: &Entry,
         deadline: Deadline<'_>,

@@ -1,5 +1,6 @@
 use crate::raw::{Field, OneOrMany};
 use biodata::{FiniteNumber, Text};
+
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 pub(super) type Numbers = Option<Field<OneOrMany<FiniteNumber>>>;
@@ -13,7 +14,12 @@ pub(super) struct Record {
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.as_str().parse::<biodata::VariantInput>().is_ok() {
+        if self
+            .id
+            .as_str()
+            .parse::<biomcp_types::VariantInput>()
+            .is_ok()
+        {
             Ok(())
         } else {
             Err(BadReply)

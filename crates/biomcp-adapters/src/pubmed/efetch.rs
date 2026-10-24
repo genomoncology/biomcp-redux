@@ -1,12 +1,13 @@
 use super::{SPEC, map::publication_type};
 use crate::xml_element::Element;
-use biodata::{
-    AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
-    PartialDate, Pmid, Text,
-};
+use biodata::{PartialDate, Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError, Secret,
     xml::XmlReply,
+};
+use biomcp_types::{
+    AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
 };
 use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
@@ -15,7 +16,7 @@ pub struct FetchedArticle {
     /// Full article for the default card.
     pub article: Article,
     /// Facts from that same citation.
-    pub indexing: biodata::Indexing,
+    pub indexing: biomcp_types::Indexing,
 }
 const FETCH: Endpoint = SPEC
     .post_form("/efetch.fcgi")

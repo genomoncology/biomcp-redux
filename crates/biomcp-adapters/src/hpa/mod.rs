@@ -2,15 +2,16 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EnsemblGeneId, GeneExpression, Reason, Source};
+use biodata::EnsemblGeneId;
 use biomcp_fetch::{Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec};
+use biomcp_types::{GeneExpression, Reason, Source};
 use std::time::Duration;
 /// HPA source policy with a conservative local quota.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC BY 4.0; third-party conditions",
         url: "https://www.proteinatlas.org/about/licence",
-        usage: biodata::Use::Attribution,
+        usage: biomcp_types::Use::Attribution,
     },
     source: Source::Hpa,
     base: "https://www.proteinatlas.org",

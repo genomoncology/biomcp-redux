@@ -1,13 +1,13 @@
 //! Semantic Scholar graph metadata under one shared optional-key quota.
-use biodata::Source;
 use biomcp_fetch::{Credential, KeyPlace, KeyUse, SecretName, SourceSpec};
+use biomcp_types::Source;
 use std::time::Duration;
 /// Shared policy for search, paper records, graph edges and recommendations.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "Semantic Scholar API License Agreement",
         url: "https://api.semanticscholar.org/license/",
-        usage: biodata::Use::Noncommercial,
+        usage: biomcp_types::Use::Noncommercial,
     },
     source: Source::SemanticScholar,
     base: "https://api.semanticscholar.org/graph/v1",

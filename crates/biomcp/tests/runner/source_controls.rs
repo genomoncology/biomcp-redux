@@ -222,7 +222,7 @@ fn no_request() -> Check {
     }
     let mut disabled = biomcp_adapters::registry::SOURCES
         .iter()
-        .filter(|s| s.terms.usage != biodata::Use::Restricted)
+        .filter(|s| s.terms.usage != biomcp_types::Use::Restricted)
         .map(|s| s.source.to_string())
         .collect::<Vec<_>>();
     disabled.extend([
@@ -269,7 +269,7 @@ fn health_local() -> Check {
     fs::create_dir(&missing).map_err(|e| e.to_string())?;
     let disabled = biomcp_adapters::registry::SOURCES
         .iter()
-        .filter(|s| s.source != biodata::Source::MyGene)
+        .filter(|s| s.source != biomcp_types::Source::MyGene)
         .map(|s| s.source.to_string())
         .collect::<Vec<_>>()
         .join(",");
@@ -342,7 +342,7 @@ fn keyed_health() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let disabled = biomcp_adapters::registry::SOURCES
         .iter()
-        .filter(|s| s.source != biodata::Source::Oncokb)
+        .filter(|s| s.source != biomcp_types::Source::Oncokb)
         .map(|s| s.source.to_string())
         .collect::<Vec<_>>();
     env.config(&json!({"disable_sources": disabled,

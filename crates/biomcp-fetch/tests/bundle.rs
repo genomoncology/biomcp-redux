@@ -229,10 +229,10 @@ fn bundle_sync_child() {
         terms: biomcp_fetch::Terms {
             name: "Synthetic test data",
             url: "https://example.test/terms",
-            usage: biodata::Use::Open,
+            usage: biomcp_types::Use::Open,
         },
         base,
-        source: biodata::Source::PubMed,
+        source: biomcp_types::Source::PubMed,
         key: KeyUse::None,
         quota: &QUOTA,
         deadline: Duration::from_secs(10),
@@ -249,7 +249,7 @@ fn bundle_sync_child() {
     let result = f.sync(&b);
     if std::env::var("BUNDLE_EXPECTED").unwrap() == "syncing" {
         assert!(
-            matches!(result,Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Syncing)
+            matches!(result,Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Syncing)
         );
     } else {
         assert_eq!(result.unwrap().rows, 1);
@@ -315,10 +315,10 @@ fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
     let path = dir.path().join("cache.sqlite");
     let f = cached(&path);
     assert!(
-        matches!(f.leg(foreign.spec,f.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Rejected)
+        matches!(f.leg(foreign.spec,f.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Rejected)
     );
     assert!(
-        matches!(f.leg(b.spec,f.deadline(Duration::ZERO)).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::DeadlineExceeded)
+        matches!(f.leg(b.spec,f.deadline(Duration::ZERO)).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::DeadlineExceeded)
     );
     let uncached = Fetch::open(FetchConfig::default()).unwrap();
     assert!(matches!(
@@ -331,10 +331,10 @@ fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
     })
     .unwrap();
     assert!(
-        matches!(offline.sync(&b),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
+        matches!(offline.sync(&b),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline)
     );
     assert!(
-        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
+        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline)
     );
     assert!(server.requests.try_recv().is_err());
 }

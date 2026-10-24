@@ -1,5 +1,6 @@
 //! Provider contacts and sites mapped once into source-preserving values.
 use biodata::{TrialContact, TrialCoordinates, TrialLocation, TrialOfficial};
+
 use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -2,10 +2,11 @@
 use super::variant::{Annotation, Query, TumorType};
 use crate::Mapped;
 use biodata::{
-    Attribution, Coding, Concept, OncokbLevelCode, OncokbOncogenicityCode,
-    OncokbVariantRecord as Record, Problem, ProblemCode, Proposition, Source, Statement, Term,
-    Text, VariantRef,
+    Attribution, Coding, Concept, OncokbLevelCode, OncokbOncogenicityCode, Proposition, Statement,
+    Term, Text, VariantRef,
 };
+
+use biomcp_types::{OncokbVariantRecord as Record, Problem, ProblemCode, Source};
 
 /// Project native fields without attaching grouped implications to the queried allele.
 pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
@@ -189,7 +190,7 @@ fn classification(
                 criteria: Box::default(),
                 citations: citations.into(),
                 attribution: Attribution {
-                    source: Source::Oncokb,
+                    source: Source::Oncokb.text(),
                     record: None,
                     version: None,
                     release: row.data_version.as_deref().and_then(|s| Text::new(s).ok()),
@@ -288,9 +289,9 @@ fn problem(out: &mut Vec<Problem>, field: &str) {
     });
 }
 
-fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biodata::OncokbCitation]> {
+fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types::OncokbCitation]> {
     rows.iter()
-        .map(|row| biodata::OncokbCitation {
+        .map(|row| biomcp_types::OncokbCitation {
             text: row.abstract_content.as_deref().map(Into::into),
             link: row.link.clone(),
         })

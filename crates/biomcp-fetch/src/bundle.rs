@@ -106,7 +106,7 @@ impl Leg<'_> {
     pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
         self.bundle_source(bundle)?;
         if self.fetch.cache.is_none() && matches!(self.fetch.config.mode, Mode::Offline) {
-            return Err(self.failure(biodata::Reason::Offline, None).into());
+            return Err(self.failure(biomcp_types::Reason::Offline, None).into());
         }
         let cache = self.bundle_cache()?;
         // One command can make several indexed lookups against the same bundle.
@@ -127,7 +127,7 @@ impl Leg<'_> {
             .as_ref()
             .is_some_and(|m| m.fresh_until > crate::cache::now());
         if offline && old.is_none() {
-            return Err(self.failure(biodata::Reason::Offline, None).into());
+            return Err(self.failure(biomcp_types::Reason::Offline, None).into());
         }
         let force_fresh = refreshed
             .as_ref()
@@ -182,10 +182,12 @@ impl Leg<'_> {
     fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;
         if self.budget().expired() {
-            return Err(self.failure(biodata::Reason::DeadlineExceeded, None).into());
+            return Err(self
+                .failure(biomcp_types::Reason::DeadlineExceeded, None)
+                .into());
         }
         if !std::ptr::eq(self.spec, bundle.spec) {
-            return Err(self.failure(biodata::Reason::Rejected, None).into());
+            return Err(self.failure(biomcp_types::Reason::Rejected, None).into());
         }
         Ok(())
     }

@@ -1,5 +1,6 @@
 //! Fixed migration guidance matched at command and section boundaries.
-use biodata::{ArticleSectionWord, ErrorMessage, GeneSectionWord};
+
+use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord};
 use std::ffi::OsString;
 
 const GENE: &[(&str, ErrorMessage)] = &[

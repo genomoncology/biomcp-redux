@@ -1,5 +1,8 @@
 use super::{CacheError, Store, db};
-use biodata::{ArticleHeader, ArticleItem, Pmid, PoolInfo, Problem, SourceOutcome, Text};
+use biodata::{Pmid, Text};
+
+use biomcp_types::ArticleHeader;
+use biomcp_types::{ArticleItem, PoolInfo, Problem, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
 /// Immutable pool metadata and original provider outcomes.
 pub(crate) struct Pool {
@@ -97,7 +100,7 @@ impl Store<'_> {
             for (index,id) in ids.iter().enumerate() {
                 let header=headers.iter().find(|h|h.pmid==Some(*id)).map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
                 let name=id.to_string();
-                let identity=serde_json::to_string(&biodata::ArticleKey::Pubmed(*id)).map_err(|_|CacheError::Database)?;
+                let identity=serde_json::to_string(&biomcp_types::ArticleKey::Pubmed(*id)).map_err(|_|CacheError::Database)?;
                 let problems:Vec<_>=problems.iter().filter(|p| {
                     let own=p.record.as_ref().is_some_and(|r|r.as_str()==name);
                     let unmatched=p.record.as_ref().is_none_or(|r|!names.iter().any(|n|r.as_str()==n));
@@ -105,7 +108,7 @@ impl Store<'_> {
                 }).collect();
                 let old:String=tx.query_row("SELECT problems FROM pool_item WHERE pool=?1 AND identity=?2",params![pool,identity],|r|r.get(0)).map_err(db)?;
                 let mut merged:Vec<Problem>=serde_json::from_str(&old).map_err(|_|CacheError::Database)?;
-                merged.retain(|p|p.source!=biodata::Source::PubMed);
+                merged.retain(|p|p.source!=biomcp_types::Source::PubMed);
                 for problem in problems {if !merged.contains(problem) {merged.push(problem.clone());}}
                 let problems=serde_json::to_string(&merged).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.

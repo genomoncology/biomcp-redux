@@ -1,8 +1,9 @@
 use crate::{Action, Bundle};
-use biodata::{
-    GeneGet, GeneHeader, GeneItem, GeneResolution, GeneSearch, PageInfo, Request, SourceOutcome,
-    SourceState, StepKind,
+
+use biomcp_types::{
+    GeneGet, GeneItem, GeneSearch, PageInfo, Request, SourceOutcome, SourceState, StepKind,
 };
+use biomcp_types::{GeneHeader, GeneResolution};
 fn retry(request: Request) -> (StepKind, Action) {
     (
         StepKind::Fresh,
@@ -21,7 +22,7 @@ fn sync() -> (StepKind, Action) {
     )
 }
 fn get_id(id: biodata::HgncId) -> Option<(StepKind, Action)> {
-    let query = GeneGet::new(vec![biodata::GeneInput::HgncId(id)].into()).ok()?;
+    let query = GeneGet::new(vec![biomcp_types::GeneInput::HgncId(id)].into()).ok()?;
     Some((
         StepKind::Disambiguate,
         Action::Run {
@@ -45,7 +46,7 @@ pub(crate) fn get(
         steps.push(retry(Request::GetGene(query.clone())));
     }
     if sources.iter().any(|source| {
-        source.source == biodata::Source::Hgnc
+        source.source == biomcp_types::Source::Hgnc
             && matches!(
                 source.state,
                 SourceState::Stale | SourceState::Failed | SourceState::Syncing
@@ -53,10 +54,9 @@ pub(crate) fn get(
     }) {
         steps.push(sync());
     }
-    if sources
-        .iter()
-        .any(|source| source.source == biodata::Source::ClinGen && source.state != SourceState::Ok)
-    {
+    if sources.iter().any(|source| {
+        source.source == biomcp_types::Source::ClinGen && source.state != SourceState::Ok
+    }) {
         steps.push((
             StepKind::Sync,
             Action::Sync {
@@ -65,11 +65,11 @@ pub(crate) fn get(
         ));
     }
     if sources.iter().any(|source| {
-        source.source == biodata::Source::Oncokb
+        source.source == biomcp_types::Source::Oncokb
             && source.state == SourceState::Skipped
-            && source.reason == Some(biodata::Reason::NoKey)
+            && source.reason == Some(biomcp_types::Reason::NoKey)
     }) {
-        steps.push((StepKind::Key, Action::KeyHelp(biodata::Source::Oncokb)));
+        steps.push((StepKind::Key, Action::KeyHelp(biomcp_types::Source::Oncokb)));
     }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
@@ -92,9 +92,10 @@ pub(crate) fn get(
                 .iter()
                 .filter_map(|section| section.to_string().parse().ok())
                 .collect();
-            if let Ok(query) =
-                GeneGet::with_sections(vec![biodata::GeneInput::HgncId(gene.hgnc_id)].into(), words)
-            {
+            if let Ok(query) = GeneGet::with_sections(
+                vec![biomcp_types::GeneInput::HgncId(gene.hgnc_id)].into(),
+                words,
+            ) {
                 let step = (
                     StepKind::Section,
                     Action::Run {

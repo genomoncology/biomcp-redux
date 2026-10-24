@@ -1,5 +1,6 @@
 //! Schema-fed command help shared with MCP discovery.
-use biodata::{Help, HelpArgument, HelpCommand, HelpWord};
+
+use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
 use std::{collections::BTreeMap, io};
 

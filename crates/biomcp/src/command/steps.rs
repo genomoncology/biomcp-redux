@@ -3,7 +3,7 @@ use std::io;
 pub(super) fn next(
     fetch: &biomcp_fetch::Fetch,
     result: &biomcp_query::Outcome,
-) -> io::Result<Vec<biodata::Step>> {
+) -> io::Result<Vec<biomcp_types::Step>> {
     let mut steps = result
         .next
         .iter()
@@ -13,7 +13,10 @@ pub(super) fn next(
     Ok(source_steps(fetch, steps))
 }
 
-fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
+fn source_steps(
+    fetch: &biomcp_fetch::Fetch,
+    steps: Vec<biomcp_types::Step>,
+) -> Vec<biomcp_types::Step> {
     let registered = biomcp_adapters::registry::SOURCES;
     let sources = registered.iter().map(|spec| spec.source).chain(
         fetch
@@ -46,16 +49,19 @@ fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<b
         .collect()
 }
 
-pub(super) fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
+pub(super) fn network_steps(
+    steps: &mut Vec<biomcp_types::Step>,
+    sources: &[biomcp_types::SourceOutcome],
+) {
     for (reason, setting) in [
-        (biodata::Reason::Tls, "ca_bundle"),
-        (biodata::Reason::Proxy, "proxy"),
+        (biomcp_types::Reason::Tls, "ca_bundle"),
+        (biomcp_types::Reason::Proxy, "proxy"),
     ] {
         if sources.iter().any(|source| source.reason == Some(reason)) {
             steps.insert(
                 0,
-                biodata::Step {
-                    kind: biodata::StepKind::Configure,
+                biomcp_types::Step {
+                    kind: biomcp_types::StepKind::Configure,
                     args: vec!["help".into(), "network".into(), setting.into()].into(),
                 },
             );

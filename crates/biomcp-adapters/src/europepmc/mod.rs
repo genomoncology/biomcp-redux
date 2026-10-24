@@ -1,13 +1,13 @@
 //! Europe PMC's bounded metadata-only search window.
 mod core;
 use crate::quotas;
-use biodata::{
-    ArticleHeader, ArticleItem, ArticleKey, ArticleSort, Doi, EuropePmcId, PartialDate, Pmcid,
-    Pmid, Source, Text,
-};
+use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::ArticleHeader;
+use biomcp_types::{ArticleItem, ArticleKey, ArticleSort, Source};
 pub use core::{core, read};
 use serde::Deserialize;
 use std::time::Duration;
@@ -16,7 +16,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "Europe PMC copyright; record-specific licenses",
         url: "https://europepmc.org/help#copyright",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::EuropePmc,
     base: "https://www.ebi.ac.uk/europepmc/webservices/rest",
@@ -111,7 +111,7 @@ impl Row {
         // Reply validation checked the fallback before this owned mapping.
         let local = self.local_id().map_err(|_| biomcp_fetch::SourceError {
             source: Source::EuropePmc,
-            reason: biodata::Reason::BadReply,
+            reason: biomcp_types::Reason::BadReply,
             status: Some(200),
             retry_after: None,
         })?;

@@ -63,9 +63,9 @@ pub struct FetchConfig {
     /// Other schema owners checked before any cache mutation.
     pub cache_owners: Vec<SchemaOwner>,
     /// Source identities switched off before keys, caches, replay or requests.
-    pub disabled_sources: std::collections::BTreeSet<biodata::Source>,
+    pub disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
     /// Component terms categories switched off by the same source policy.
-    pub disabled_uses: std::collections::BTreeSet<biodata::Use>,
+    pub disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -85,7 +85,7 @@ pub struct FetchConfig {
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
     /// Per-source budget overrides.
-    pub source_deadlines: BTreeMap<biodata::Source, Duration>,
+    pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
 }
 
 impl Default for FetchConfig {
@@ -124,8 +124,8 @@ pub struct Fetch {
     clock: Option<std::sync::Arc<deadline::VirtualClock>>,
     config: std::sync::Arc<FetchConfig>,
     bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
-    disabled_sources: std::collections::BTreeSet<biodata::Source>,
-    disabled_uses: std::collections::BTreeSet<biodata::Use>,
+    disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
+    disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
 }
 
 impl fmt::Debug for Fetch {
@@ -182,32 +182,35 @@ impl Fetch {
     }
 
     /// Whether the explicit source policy prevents every read and request.
-    pub fn disabled(&self, source: biodata::Source) -> bool {
+    pub fn disabled(&self, source: biomcp_types::Source) -> bool {
         self.disabled_sources.contains(&source)
     }
     /// Preserve every explicit source restriction in generated follow-up commands.
-    pub fn disabled_sources(&self) -> impl Iterator<Item = biodata::Source> + '_ {
+    pub fn disabled_sources(&self) -> impl Iterator<Item = biomcp_types::Source> + '_ {
         self.disabled_sources.iter().copied()
     }
 
     /// Restrict a command while retaining shared quotas, clocks, recordings and connections.
     /// Existing source restrictions cannot be removed.
-    pub fn restrict_sources(&self, disabled: std::collections::BTreeSet<biodata::Source>) -> Self {
+    pub fn restrict_sources(
+        &self,
+        disabled: std::collections::BTreeSet<biomcp_types::Source>,
+    ) -> Self {
         let mut restricted = self.clone();
         restricted.disabled_sources.extend(disabled);
         restricted
     }
 
     /// Whether a component category was explicitly switched off.
-    pub fn disabled_use(&self, usage: biodata::Use) -> bool {
+    pub fn disabled_use(&self, usage: biomcp_types::Use) -> bool {
         self.disabled_uses.contains(&usage)
     }
     /// Preserve component group restrictions in generated follow-up commands.
-    pub fn disabled_uses(&self) -> impl Iterator<Item = biodata::Use> + '_ {
+    pub fn disabled_uses(&self) -> impl Iterator<Item = biomcp_types::Use> + '_ {
         self.disabled_uses.iter().copied()
     }
     /// Add component restrictions without changing source policy or shared resources.
-    pub fn restrict_uses(&self, disabled: std::collections::BTreeSet<biodata::Use>) -> Self {
+    pub fn restrict_uses(&self, disabled: std::collections::BTreeSet<biomcp_types::Use>) -> Self {
         let mut restricted = self.clone();
         restricted.disabled_uses.extend(disabled);
         restricted
@@ -328,11 +331,11 @@ pub struct LegReport {
 }
 impl Leg<'_> {
     /// Inspect the same source policy without opening another transport leg.
-    pub fn disabled_source(&self, source: biodata::Source) -> bool {
+    pub fn disabled_source(&self, source: biomcp_types::Source) -> bool {
         self.fetch.disabled(source)
     }
     /// Inspect the same component policy before choosing a source projection.
-    pub fn disabled_use(&self, usage: biodata::Use) -> bool {
+    pub fn disabled_use(&self, usage: biomcp_types::Use) -> bool {
         self.fetch.disabled_use(usage)
     }
 

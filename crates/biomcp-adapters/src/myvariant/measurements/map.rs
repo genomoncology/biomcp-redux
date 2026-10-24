@@ -3,11 +3,11 @@ use crate::{
     Mapped,
     raw::{Field, OneOrMany},
 };
-use biodata::{
-    Attribution, Build, PredictorContext, PredictorScore, Problem, ProblemCode, Source, Text,
-    VariantPredictors, VariantRef,
-};
+use biodata::PredictorScore;
+use biodata::{Attribution, Build, Text, VariantRef};
+
 use biomcp_fetch::RequestError;
+use biomcp_types::{PredictorContext, Problem, ProblemCode, Source, VariantPredictors};
 struct Output {
     id: Text,
     subject: VariantRef,
@@ -64,7 +64,7 @@ pub(super) fn project(
     }
     Ok(Mapped {
         value: VariantPredictors {
-            subject_qualification: biodata::SubjectQualification::AdapterDerivedReference,
+            subject_qualification: biomcp_types::SubjectQualification::AdapterDerivedReference,
             scores: out.scores.into(),
             components: Box::new([]),
             context: out.context.into(),
@@ -199,7 +199,7 @@ impl Output {
                 score,
                 label: if array { None } else { label.clone() },
                 attribution: Attribution {
-                    source: Source::MyVariant,
+                    source: Source::MyVariant.text(),
                     record: Some(self.id.clone()),
                     version: None,
                     release: None,
@@ -216,7 +216,7 @@ impl Output {
 fn unqualified(id: Text) -> Mapped<VariantPredictors> {
     Mapped {
         value: VariantPredictors {
-            subject_qualification: biodata::SubjectQualification::AdapterDerivedReference,
+            subject_qualification: biomcp_types::SubjectQualification::AdapterDerivedReference,
             scores: Box::new([]),
             components: Box::new([]),
             context: Box::new([]),

@@ -14,12 +14,13 @@ pub mod recurrence;
 pub mod search;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
-    VariantHeader, VariantNamespace, VariantResolution,
-};
+use biodata::Text;
 use biomcp_adapters::{allele_registry, mutalyzer, myvariant, variantvalidator};
 use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::{
+    QueryBody, Reason, Request, Source, Status, StepKind, VariantCard, VariantGet, VariantHeader,
+    VariantNamespace, VariantResolution,
+};
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -55,7 +56,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         resolution = VariantResolution::Absent;
     }
     if rejection.is_some() {
-        main_source.state = biodata::SourceState::Failed;
+        main_source.state = biomcp_types::SourceState::Failed;
         main_source.reason = Some(Reason::Rejected);
     }
     let mut sources = vec![main_source];
@@ -103,7 +104,7 @@ fn classify(len: usize) -> VariantResolution {
 pub(crate) fn resolve(
     query: &VariantGet,
     leg: &Leg<'_>,
-    problems: &mut Vec<biodata::Problem>,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     let input = query.input().as_str();
     match query.input().namespace() {
@@ -123,14 +124,14 @@ pub(crate) fn resolve(
         }
         Ok(VariantNamespace::Ca) => car(allele_registry::by_id(leg, input)?, problems),
         _ => match query.resolver() {
-            biodata::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
-            biodata::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
+            biomcp_types::VariantResolver::Car => car(allele_registry::hgvs(leg, input)?, problems),
+            biomcp_types::VariantResolver::Mutalyzer => match mutalyzer::resolve(leg, input)? {
                 mutalyzer::Resolution::Found(row) => Ok((vec![row], None)),
                 mutalyzer::Resolution::Rejected(codes) => {
                     Ok((Vec::new(), codes.into_iter().next()))
                 }
             },
-            biodata::VariantResolver::Variantvalidator => {
+            biomcp_types::VariantResolver::Variantvalidator => {
                 let result = variantvalidator::resolve(
                     leg,
                     input,
@@ -155,7 +156,7 @@ pub(crate) fn resolve(
 }
 fn car(
     result: allele_registry::Resolution,
-    problems: &mut Vec<biodata::Problem>,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<(Vec<VariantHeader>, Option<Text>), RequestError> {
     Ok(match result {
         allele_registry::Resolution::Found(row) => {
@@ -188,9 +189,9 @@ pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
         match query.input().namespace() {
             Ok(VariantNamespace::Ca) => &allele_registry::SPEC,
             _ => match query.resolver() {
-                biodata::VariantResolver::Car => &allele_registry::SPEC,
-                biodata::VariantResolver::Mutalyzer => &mutalyzer::SPEC,
-                biodata::VariantResolver::Variantvalidator => &variantvalidator::SPEC,
+                biomcp_types::VariantResolver::Car => &allele_registry::SPEC,
+                biomcp_types::VariantResolver::Mutalyzer => &mutalyzer::SPEC,
+                biomcp_types::VariantResolver::Variantvalidator => &variantvalidator::SPEC,
             },
         }
     }
@@ -200,8 +201,8 @@ fn enrich(
     cx: &Ctx<'_>,
     deadline: &mut biomcp_fetch::Deadline<'_>,
     candidates: &mut [VariantHeader],
-    problems: &mut Vec<biodata::Problem>,
-) -> (biodata::SourceOutcome, Option<RequestError>) {
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> (biomcp_types::SourceOutcome, Option<RequestError>) {
     let mut local = None;
     let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -233,7 +234,7 @@ fn next(
     query: &VariantGet,
     resolution: VariantResolution,
     candidates: &[VariantHeader],
-    page: Option<&biodata::PageInfo>,
+    page: Option<&biomcp_types::PageInfo>,
 ) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates {
@@ -278,7 +279,7 @@ fn candidate_page(
     query: &VariantGet,
     resolution: VariantResolution,
     candidates: &mut Vec<VariantHeader>,
-) -> Option<biodata::PageInfo> {
+) -> Option<biomcp_types::PageInfo> {
     if resolution != VariantResolution::Candidates {
         return None;
     }
@@ -288,7 +289,7 @@ fn candidate_page(
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .collect();
-    Some(biodata::PageInfo {
+    Some(biomcp_types::PageInfo {
         offset: query.offset(),
         returned: candidates.len() as u32,
         total,
@@ -299,8 +300,8 @@ fn candidate_page(
 
 pub(crate) fn overall(
     resolution: VariantResolution,
-    problems: &[biodata::Problem],
-    sources: &[biodata::SourceOutcome],
+    problems: &[biomcp_types::Problem],
+    sources: &[biomcp_types::SourceOutcome],
 ) -> Status {
     if matches!(
         resolution,
@@ -313,7 +314,7 @@ pub(crate) fn overall(
         || sources.iter().any(|s| {
             matches!(
                 s.state,
-                biodata::SourceState::Failed | biodata::SourceState::Stale
+                biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
             )
         })
     {

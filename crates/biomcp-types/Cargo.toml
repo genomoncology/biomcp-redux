@@ -1,0 +1,21 @@
+[package]
+name = "biomcp-types"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+schema = ["dep:schemars", "biodata/schema"]
+
+[dependencies]
+biodata = { path = "../biodata" }
+serde.workspace = true
+schemars = { workspace = true, optional = true }
+
+[dev-dependencies]
+jsonschema.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

@@ -1,10 +1,12 @@
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    ArticleInput, ArticleResolution, ArticleSupplement, ArticleText, FullText, Pmcid, Reason,
-    Request, Section, Source, Status, StepKind, Supplements,
-};
+use biodata::Pmcid;
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::ArticleInput;
+use biomcp_types::{
+    ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
+    Status, StepKind, Supplements,
+};
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
 /// Load one document for both sections, preserving a single source request sequence.
@@ -15,7 +17,7 @@ pub(super) fn run<'a>(
     fulltext: bool,
     supplements: bool,
 ) {
-    let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
+    let biomcp_types::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
@@ -66,7 +68,7 @@ pub(super) fn run<'a>(
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), error);
     if !loaded.is_empty() {
-        if source.state == biodata::SourceState::Stale {
+        if source.state == biomcp_types::SourceState::Stale {
             for item in &mut cards.items {
                 if item.sections.as_ref().is_some_and(|s| {
                     matches!(s.fulltext, Some(Section::Data { .. }))

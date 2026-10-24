@@ -57,7 +57,7 @@ pub trait XmlReply: Reply {
     }
 }
 
-type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biodata::Reason> + 'a;
+type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason> + 'a;
 type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
@@ -125,7 +125,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn cacheable(&self, reply: &T) -> bool {
         self.cache_if.is_none_or(|predicate| predicate(reply))
     }
-    pub(crate) fn validate(&self, bytes: &[u8]) -> Result<(), biodata::Reason> {
+    pub(crate) fn validate(&self, bytes: &[u8]) -> Result<(), biomcp_types::Reason> {
         self.validate.map_or(Ok(()), |check| check(bytes))
     }
     pub(crate) fn binary(&self) -> bool {
@@ -328,7 +328,7 @@ impl Reply for Bytes {
 impl<'a> Decoder<'a, Bytes> {
     pub(crate) fn checked_bytes(
         limit: u64,
-        check: &'a dyn Fn(&[u8]) -> Result<(), biodata::Reason>,
+        check: &'a dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason>,
     ) -> Self {
         let mut codec = Self::bytes(limit);
         codec.validate = Some(check);

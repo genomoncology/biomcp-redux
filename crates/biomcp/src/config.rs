@@ -148,7 +148,7 @@ fn fetch_using(
 fn disabled_sources(
     globals: &Globals,
     file: Option<&ConfigFile>,
-) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
+) -> Result<std::collections::BTreeSet<biomcp_types::Source>, ()> {
     biomcp_adapters::registry::disabled(&disabled_names(globals, file)).map_err(|_| ())
 }
 fn disabled_names(globals: &Globals, file: Option<&ConfigFile>) -> Vec<String> {

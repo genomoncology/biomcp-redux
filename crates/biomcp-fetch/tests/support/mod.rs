@@ -159,9 +159,9 @@ impl<T: Default + Send + 'static> Server<T> {
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",
                 url: "https://example.test/terms",
-                usage: biodata::Use::Open,
+                usage: biomcp_types::Use::Open,
             },
-            source: biodata::Source::PubMed,
+            source: biomcp_types::Source::PubMed,
             base: self.base,
             key,
             quota,

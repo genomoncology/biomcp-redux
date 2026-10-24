@@ -30,7 +30,7 @@ pub enum Coding {
     #[serde(rename = "clingen_cgc_vicc_2022")]
     ClingenCgcVicc2022(ClingenCgcVicc2022Code),
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Checked AcmgAmp2015 codes.
     AcmgAmp2015Code {
         /// Published pathogenic value.
@@ -45,7 +45,7 @@ crate::macros::wire_enum! {
         Benign => "benign",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Checked ClingenLowPenetrance2024 codes.
     ClingenLowPenetrance2024Code {
         /// Published pathogenic_low_penetrance value.
@@ -60,7 +60,7 @@ crate::macros::wire_enum! {
         UncertainRiskAllele => "uncertain_risk_allele",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Checked AmpAscoCap2017Tier codes.
     AmpAscoCap2017TierCode {
         /// Published tier_i value.
@@ -73,7 +73,7 @@ crate::macros::wire_enum! {
         TierIv => "tier_iv",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Checked AmpAscoCap2017Level codes.
     AmpAscoCap2017LevelCode {
         /// Published level_a value.
@@ -86,7 +86,7 @@ crate::macros::wire_enum! {
         LevelD => "level_d",
     }
 }
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Checked ClingenCgcVicc2022 codes.
     ClingenCgcVicc2022Code {
         /// Published oncogenic value.
@@ -102,7 +102,7 @@ crate::macros::wire_enum! {
     }
 }
 
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-defined CIViC evidence levels.
     CivicEvidenceLevelCode {
         /// A.
@@ -118,7 +118,7 @@ crate::macros::wire_enum! {
     }
 }
 
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-defined OncoKB vocabulary.
     OncokbOncogenicityCode {
         /// Published oncogenic value.
@@ -136,7 +136,7 @@ crate::macros::wire_enum! {
     }
 }
 
-crate::macros::wire_enum! {
+crate::wire_enum! {
     /// Source-defined OncoKB vocabulary.
     OncokbLevelCode {
         /// Published level_1 value.

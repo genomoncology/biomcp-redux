@@ -2,8 +2,9 @@
 //! The query layer reports its result-window bound without replacing native order with scroll order.
 use super::{QUERY, map, raw};
 use crate::Mapped;
-use biodata::{Build, VariantHeader, VariantSearch};
+use biodata::Build;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
+use biomcp_types::{VariantHeader, VariantSearch};
 use serde::Deserialize;
 const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38";
 /// Native MyVariant page; no local sort or deduplication changes candidate identity.

@@ -1,6 +1,7 @@
 //! Trial protocol snapshots use the existing store owner, deadlines and source admission.
 use super::{CacheError, Store, db};
-use biodata::{Source, SourceOutcome, Text};
+use biodata::Text;
+use biomcp_types::{Source, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
 use sha2::{Digest, Sha256};
 impl Store<'_> {

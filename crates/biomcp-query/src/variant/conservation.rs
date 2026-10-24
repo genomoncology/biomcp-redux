@@ -1,7 +1,8 @@
 //! Conservation measurements retain source values without clinical inference.
 use crate::Ctx;
-use biodata::{Section, VariantConservation, VariantGet, VariantHeader};
+
 use biomcp_fetch::Deadline;
+use biomcp_types::{Section, VariantConservation, VariantGet, VariantHeader};
 pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,

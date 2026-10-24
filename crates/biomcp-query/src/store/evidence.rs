@@ -1,6 +1,7 @@
 //! Checked evidence continuation state belongs to the existing per-command store.
 use super::{CacheError, Store, db};
-use biodata::{Source, SourceOutcome, Text};
+use biodata::Text;
+use biomcp_types::{Source, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
 /// Source admission happens before the private snapshot payload is read.
 pub(crate) enum EvidenceState {
@@ -19,7 +20,7 @@ impl Store<'_> {
             let outcomes:Option<String>=cx.query_row("SELECT outcomes FROM citation_evidence WHERE id=?1 AND request_key=?2 AND expires>?3",params![id,key,Self::now()],|row|row.get(0)).optional().map_err(db)?;
             let Some(outcomes)=outcomes else{return Ok(EvidenceState::Missing)};
             let sources:Vec<SourceOutcome>=serde_json::from_str(&outcomes).map_err(|_|CacheError::Database)?;
-            if sources.iter().any(|s|disabled(s.source)&&s.reason!=Some(biodata::Reason::Disabled)) {return Ok(EvidenceState::Disabled)}
+            if sources.iter().any(|s|disabled(s.source)&&s.reason!=Some(biomcp_types::Reason::Disabled)) {return Ok(EvidenceState::Disabled)}
             cx.query_row("SELECT payload FROM citation_evidence WHERE id=?1",params![id],|row|row.get(0)).map(EvidenceState::Ready).map_err(db)
         })
     }

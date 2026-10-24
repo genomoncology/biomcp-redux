@@ -1,11 +1,12 @@
 //! NCI native snapshots use the existing trial store and provider policy admission.
 use super::{ATTRIBUTION, empty, finish, page};
 use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{
-    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind, TrialGet,
-};
+
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError, SecretName};
+use biomcp_types::{
+    NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind, TrialGet,
+};
 use sha2::{Digest, Sha256};
 pub(super) struct Snapshot {
     pub(super) detail: nci::Detail,
@@ -74,7 +75,7 @@ fn fetch(
                 };
                 items.push(page::render(q, snapshot, pool, out)?);
             }
-            Err(e) => items.push(biodata::NciTrialItem {
+            Err(e) => items.push(biomcp_types::NciTrialItem {
                 input: *id,
                 status: if absent(e) {
                     Status::Absent

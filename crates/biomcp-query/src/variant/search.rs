@@ -1,10 +1,11 @@
 //! Declared MyVariant searches keep native candidates, totals and page selectors.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
+
+use biomcp_adapters::myvariant;
+use biomcp_types::{
     PageInfo, QueryBody, Request, Source, Status, StepKind, VariantGet, VariantPage,
     VariantResolver, VariantSearch,
 };
-use biomcp_adapters::myvariant;
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     if query.raw_query()
@@ -47,7 +48,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
             || out
                 .sources
                 .iter()
-                .any(|s| s.state == biodata::SourceState::Stale)
+                .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
             Status::Partial
         } else if reply.total == 0 {
@@ -86,7 +87,7 @@ fn fetch_page(
     {
         return Err(biomcp_fetch::SourceError {
             source: Source::MyVariant,
-            reason: biodata::Reason::Disabled,
+            reason: biomcp_types::Reason::Disabled,
             status: None,
             retry_after: None,
         }
@@ -97,7 +98,7 @@ fn fetch_page(
 fn component_terms(
     name: &str,
     selected: bool,
-) -> Result<Option<biodata::ComponentTerms>, biomcp_fetch::RequestError> {
+) -> Result<Option<biomcp_types::ComponentTerms>, biomcp_fetch::RequestError> {
     if !selected {
         return Ok(None);
     }
@@ -118,7 +119,7 @@ fn policy_error() -> Outcome {
 }
 fn next(
     query: &VariantSearch,
-    rows: &[biodata::VariantHeader],
+    rows: &[biomcp_types::VariantHeader],
     returned: u32,
     total: u64,
 ) -> Vec<(StepKind, Action)> {

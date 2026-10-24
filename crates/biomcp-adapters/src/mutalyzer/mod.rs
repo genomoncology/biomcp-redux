@@ -1,7 +1,9 @@
 //! Explicit Mutalyzer GET resolution; no inferred transcript or local correction.
 use crate::quotas;
-use biodata::{Representation, Source, SourceRecord, Text, Variant, VariantHeader};
+use biodata::{Representation, Text, Variant};
+
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
+use biomcp_types::{Source, SourceRecord, VariantHeader};
 use serde::Deserialize;
 mod normalization;
 use std::time::Duration;
@@ -10,7 +12,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "Mutalyzer service output terms require review",
         url: "https://mutalyzer.nl/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::Mutalyzer,
     base: "https://mutalyzer.nl/api",
@@ -132,7 +134,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         identity: Variant {
             ids: Box::default(),
             representations: vec![Representation {
-                source: Source::Mutalyzer,
+                source: Source::Mutalyzer.text(),
                 expression,
                 build: None,
                 allele: None,
@@ -155,7 +157,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Mutalyzer,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

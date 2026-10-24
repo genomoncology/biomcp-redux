@@ -1,6 +1,6 @@
 //! Reject reflected values from this request's credential snapshot before they escape.
 use crate::{KeyUse, Leg, RequestError, prepared::Prepared};
-use biodata::Reason;
+use biomcp_types::Reason;
 
 impl Leg<'_> {
     pub(crate) fn keyed(&self) -> bool {

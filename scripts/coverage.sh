@@ -96,7 +96,7 @@ case "${1:-run}" in
         touch "$saved/collecting-library"
         LLVM_PROFILE_FILE="$profile_dir/library-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! cargo test --workspace --exclude biomcp --features biodata/schema --locked ||
+        if ! cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked ||
            ! cargo test --locked -p biomcp --test ratchets; then
             echo 'coverage: library collection incomplete because its suite failed' >&2
             exit 1

@@ -1,9 +1,9 @@
 //! Recent-pool recommendations under the shared source key and quota.
 use super::{Paper, SPEC};
-use biodata::ArticleInput;
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::ArticleInput;
 use serde::{Deserialize, Serialize};
 /// Recommendation API shares credentials, publisher terms and pacing with graph calls.
 pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {

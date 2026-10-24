@@ -32,7 +32,7 @@ fn isolated_trees_reject_structural_violations() -> Check {
     let cases = [
         (
             "crates/biodata/Cargo.toml",
-            "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nureq='3'\n",
+            "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nbiomcp-types={path='../biomcp-types'}\n",
             "forbidden dependencies dependency",
         ),
         (

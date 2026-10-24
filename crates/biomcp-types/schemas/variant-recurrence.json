@@ -1,0 +1,975 @@
+{
+  "$defs": {
+    "Accession": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
+      "type": "string"
+    },
+    "Allele": {
+      "additionalProperties": false,
+      "description": "Source-stated interbase replacement; equality never claims normalized equivalence.",
+      "properties": {
+        "alternate": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "location": {
+          "$ref": "#/$defs/SequenceLocation"
+        },
+        "reference": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "location",
+        "reference",
+        "alternate"
+      ],
+      "type": "object"
+    },
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38."
+      ]
+    },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "Expression": {
+      "additionalProperties": false,
+      "description": "Source expression checked for its declared published form, without normalization.",
+      "properties": {
+        "syntax": {
+          "$ref": "#/$defs/ExpressionSyntax"
+        },
+        "syntax_version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/Text"
+        }
+      },
+      "required": [
+        "syntax",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ExpressionSyntax": {
+      "description": "Published syntax label for a source-preserved expression.",
+      "enum": [
+        "hgvs.g",
+        "hgvs.c",
+        "hgvs.n",
+        "hgvs.r",
+        "hgvs.p",
+        "hgvs.m",
+        "hgvs.o",
+        "spdi",
+        "gnomad",
+        "vcf",
+        "iscn"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGVS genomic description.",
+        " HGVS coding description.",
+        " HGVS noncoding transcript description.",
+        " HGVS RNA description.",
+        " HGVS protein description.",
+        " HGVS mitochondrial description.",
+        " HGVS circular genomic description.",
+        " NCBI SPDI interbase description.",
+        " gnomAD chromosome-position-reference-alternate identifier.",
+        " Padded VCF chromosome-position-reference-alternate text.",
+        " Source-preserved cytogenetic notation."
+      ]
+    },
+    "GeneRef": {
+      "additionalProperties": false,
+      "description": "A source-stated gene reference; its label never implies an identifier.",
+      "properties": {
+        "ensembl_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hgnc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/Text"
+        },
+        "ncbi_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "RecurrenceGranularity": {
+      "description": "Source fields required for a recurrence observation.",
+      "enum": [
+        "exact_genomic_allele"
+      ],
+      "type": "string"
+    },
+    "RecurrenceSource": {
+      "description": "Source requiring explicit study, profile and sample set.",
+      "enum": [
+        "cbioportal"
+      ],
+      "type": "string"
+    },
+    "RecurrenceStudy": {
+      "additionalProperties": false,
+      "description": "Source-native descriptive metadata, without treating access groups as licenses.",
+      "properties": {
+        "citation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source publication citation."
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete source description, including any literal reuse notice."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source study title."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "RecurrenceTerms": {
+      "additionalProperties": false,
+      "description": "Public access grants no study-specific commercial reuse permission.",
+      "properties": {
+        "notice": {
+          "description": "Source warning about possible commercial restrictions.",
+          "type": "string"
+        },
+        "unverified": {
+          "description": "Study-specific rights remain unverified.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Publisher FAQ explaining study-specific terms.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unverified",
+        "notice",
+        "url"
+      ],
+      "type": "object"
+    },
+    "Representation": {
+      "additionalProperties": false,
+      "description": "One source's own expression, assembly and optional source-stated interbase allele.",
+      "properties": {
+        "allele": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Allele"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-supplied allele, without local normalization or equivalence inference."
+        },
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Assembly stated by the source, omitted when absent."
+        },
+        "expression": {
+          "$ref": "#/$defs/Expression",
+          "description": "Published notation kept unchanged."
+        },
+        "source": {
+          "$ref": "#/$defs/Text",
+          "description": "Source asserting this form."
+        }
+      },
+      "required": [
+        "source",
+        "expression"
+      ],
+      "type": "object"
+    },
+    "Sequence": {
+      "pattern": "^[ACGTNRYSWKMBDHV]*$",
+      "type": "string"
+    },
+    "SequenceLocation": {
+      "additionalProperties": false,
+      "description": "An interbase interval on one versioned sequence accession.",
+      "properties": {
+        "sequence": {
+          "$ref": "#/$defs/Accession",
+          "description": "Versioned source sequence, without an inferred genome build."
+        },
+        "span": {
+          "$ref": "#/$defs/Span0",
+          "description": "Zero-based half-open bounds."
+        }
+      },
+      "required": [
+        "sequence",
+        "span"
+      ],
+      "type": "object"
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Span0": {
+      "additionalProperties": false,
+      "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+      "properties": {
+        "end": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "Variant": {
+      "additionalProperties": false,
+      "description": "Variant entity with source-stated identities, forms and genes; no disclosure policy.",
+      "properties": {
+        "genes": {
+          "description": "Genes stated by the sources.",
+          "items": {
+            "$ref": "#/$defs/GeneRef"
+          },
+          "type": "array"
+        },
+        "ids": {
+          "description": "All source identifiers, without inferred aliases.",
+          "items": {
+            "$ref": "#/$defs/VariantId"
+          },
+          "type": "array"
+        },
+        "representations": {
+          "description": "Every source-qualified representation.",
+          "items": {
+            "$ref": "#/$defs/Representation"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "VariantId": {
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
+    },
+    "VariantInput": {
+      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
+      "type": "string"
+    },
+    "VariantRecurrence": {
+      "additionalProperties": false,
+      "description": "Exact-allele observations confined to one explicitly bounded source page.",
+      "properties": {
+        "all_pages_read": {
+          "description": "True only when this invocation read the whole gene query from its first page.",
+          "type": "boolean"
+        },
+        "entrez_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "HGNC-resolved gene query bound."
+        },
+        "examined_rows": {
+          "description": "Number of source mutation rows examined on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Variant"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-qualified resolved identity; omitted when resolution failed."
+        },
+        "matching_granularity": {
+          "$ref": "#/$defs/RecurrenceGranularity",
+          "default": "exact_genomic_allele",
+          "description": "Genomic allele equality only, never a protein, residue or gene match."
+        },
+        "more": {
+          "description": "Source has further rows or cannot yet establish its end.",
+          "type": "boolean"
+        },
+        "observed_sample_count": {
+          "description": "Distinct exact-matched samples on this source page only; absent on failure.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "selected_sample_count": {
+          "description": "Sample-list size as stated by that source; never an assayed denominator.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "study": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecurrenceStudy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Study title, citation and description kept as the source states them."
+        },
+        "terms": {
+          "$ref": "#/$defs/RecurrenceTerms",
+          "description": "Study-specific reuse restrictions require verification even for public data."
+        }
+      },
+      "required": [
+        "examined_rows",
+        "all_pages_read",
+        "more",
+        "terms"
+      ],
+      "type": "object"
+    },
+    "VariantRecurrenceQuery": {
+      "additionalProperties": false,
+      "description": "Observe exact-allele samples within one caller-selected source page.",
+      "properties": {
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "HGNC symbol resolved to the source's Entrez gene identifier."
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published variant identity; ambiguous identities are never selected silently.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Source mutation rows per page, including excluded alleles.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page": {
+          "default": 0,
+          "description": "Zero-based native source page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit mutation molecular profile."
+        },
+        "sample_set": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit sample list; selected size is never an allele denominator."
+        },
+        "source": {
+          "$ref": "#/$defs/RecurrenceSource",
+          "description": "Explicit cohort source."
+        },
+        "study": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit study; there is no default cohort."
+        }
+      },
+      "required": [
+        "input",
+        "source",
+        "gene",
+        "study",
+        "profile",
+        "sample_set"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "biomcp.variant_recurrence/3",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/VariantRecurrenceQuery",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VariantRecurrence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.variant_recurrence/3",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

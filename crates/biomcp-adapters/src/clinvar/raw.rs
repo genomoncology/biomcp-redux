@@ -1,6 +1,6 @@
 use crate::xml_element::Element;
-use biodata::{AssertionKind, VariantAssertion};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
+use biomcp_types::{AssertionKind, VariantAssertion};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct Records {

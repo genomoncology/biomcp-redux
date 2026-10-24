@@ -1,11 +1,12 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{
-    GnomadCounts, PageInfo, PopulationDataType, QueryBody, Reason, Request, Section, Source,
-    Status, StepKind, VariantPopulationQuery, VariantPopulationResult,
-};
+use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
+use biomcp_types::{
+    GnomadCounts, PageInfo, QueryBody, Reason, Request, Section, Source, Status, StepKind,
+    VariantPopulationQuery, VariantPopulationResult,
+};
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -54,10 +55,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     out
 }
 type PopulationRead = (
-    Section<biodata::VariantPopulation>,
+    Section<biomcp_types::VariantPopulation>,
     Vec<GnomadCounts>,
-    Vec<biodata::SourceOutcome>,
-    Vec<biodata::Problem>,
+    Vec<biomcp_types::SourceOutcome>,
+    Vec<biomcp_types::Problem>,
     Option<RequestError>,
 );
 fn read(
@@ -102,11 +103,11 @@ fn read(
         }
     }
     let Some(id) = super::population::join(&rows) else {
-        problems.push(biodata::Problem {
+        problems.push(biomcp_types::Problem {
             source: Source::Gnomad,
             record: None,
             field: "GRCh38_allele".into(),
-            code: biodata::ProblemCode::ValueUnknown,
+            code: biomcp_types::ProblemCode::ValueUnknown,
         });
         return (
             Section::Unavailable {
@@ -128,13 +129,13 @@ fn load(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     id: &str,
-    candidates: &[biodata::VariantHeader],
-    problems: &mut Vec<biodata::Problem>,
+    candidates: &[biomcp_types::VariantHeader],
+    problems: &mut Vec<biomcp_types::Problem>,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> (
-    Section<biodata::VariantPopulation>,
+    Section<biomcp_types::VariantPopulation>,
     Vec<GnomadCounts>,
-    biodata::SourceOutcome,
+    biomcp_types::SourceOutcome,
     Option<RequestError>,
 ) {
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
@@ -187,18 +188,18 @@ fn ancestry(raw: &gnomad::variant::Variant) -> Vec<GnomadCounts> {
 }
 
 fn projection_problems(
-    section: &Section<biodata::VariantPopulation>,
+    section: &Section<biomcp_types::VariantPopulation>,
     groups: &[GnomadCounts],
-) -> Vec<biodata::Problem> {
+) -> Vec<biomcp_types::Problem> {
     let mut problems = Vec::new();
     if let Section::Data { .. } = &section {
         for group in groups {
             if group.group_id.is_some() && group.ancestry_group.is_none() && group.sex.is_none() {
-                problems.push(biodata::Problem {
+                problems.push(biomcp_types::Problem {
                     source: Source::Gnomad,
                     record: group.group_id.clone(),
                     field: "population_group".into(),
-                    code: biodata::ProblemCode::ValueUnknown,
+                    code: biomcp_types::ProblemCode::ValueUnknown,
                 });
             }
         }

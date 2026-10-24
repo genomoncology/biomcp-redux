@@ -57,7 +57,9 @@ use crate::{
     Mapped,
     raw::{Field, OneOrMany},
 };
-use biodata::{HgncId, NcbiGeneId, Problem, ProblemCode, Source};
+use biodata::{HgncId, NcbiGeneId};
+
+use biomcp_types::{Problem, ProblemCode, Source};
 use std::collections::BTreeMap;
 
 fn problem(id: Option<NcbiGeneId>, field: &str) -> Problem {

@@ -7,9 +7,10 @@
     clippy::disallowed_types,
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
 )]
-use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
+
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
+use biomcp_types::{ArticlePage, ArticleSearch, QueryBody, Request, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -45,7 +46,7 @@ fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
         &Request::SearchArticle(query),
     )
 }
-fn page(out: Outcome) -> (biodata::PageInfo, ArticlePage) {
+fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
     assert_eq!(out.local, None);
     assert_eq!(out.status, Status::Complete);
     let QueryBody::ArticlePage(page) = out.body else {
@@ -167,9 +168,9 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
     assert_eq!(first.local, None);
     assert_eq!(
         first.sources[0].reason,
-        Some(biodata::Reason::DeadlineExceeded)
+        Some(biomcp_types::Reason::DeadlineExceeded)
     );
-    let biodata::StepKind::Fresh = first.next[0].0 else {
+    let biomcp_types::StepKind::Fresh = first.next[0].0 else {
         panic!("fresh action")
     };
     let biomcp_query::Action::Run {
@@ -335,14 +336,14 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let first = run(&live, query(Some(id.as_str()), 0), false);
     assert_eq!(first.local, None);
     assert_eq!(first.status, Status::Partial);
-    assert_eq!(first.sources[0].state, biodata::SourceState::Stale);
+    assert_eq!(first.sources[0].state, biomcp_types::SourceState::Stale);
     let biomcp_query::Action::Run {
         request: Request::SearchArticle(retry),
         fresh: true,
     } = first
         .next
         .iter()
-        .find(|(kind, _)| *kind == biodata::StepKind::Fresh)
+        .find(|(kind, _)| *kind == biomcp_types::StepKind::Fresh)
         .unwrap()
         .1
         .clone()

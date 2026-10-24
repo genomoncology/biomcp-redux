@@ -1,9 +1,10 @@
 use super::Snapshot;
 use crate::{Action, Outcome};
-use biodata::{
-    ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, Status, StepKind, Text,
-};
+use biodata::Text;
 use biomcp_fetch::RequestError;
+use biomcp_types::{
+    ArticleEvidence, ArticleEvidenceResult, QueryBody, Request, Section, Status, StepKind,
+};
 /// Exact Unicode fragments leave room for both independent evidence sections and envelope.
 pub(super) fn split(text: &str) -> Vec<(u32, String)> {
     let mut out = Vec::new();
@@ -86,9 +87,9 @@ pub(super) fn render(
         || snapshot.sources.iter().any(|s| {
             matches!(
                 s.state,
-                biodata::SourceState::Stale
-                    | biodata::SourceState::Failed
-                    | biodata::SourceState::Skipped
+                biomcp_types::SourceState::Stale
+                    | biomcp_types::SourceState::Failed
+                    | biomcp_types::SourceState::Skipped
             )
         })
     {
@@ -131,7 +132,7 @@ fn page<T: Clone>(
     Ok(out)
 }
 
-fn sources(out: &mut Outcome, sources: Vec<biodata::SourceOutcome>) {
+fn sources(out: &mut Outcome, sources: Vec<biomcp_types::SourceOutcome>) {
     for incoming in sources {
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == incoming.source) {
             crate::status::retain_source_state(original, &incoming);

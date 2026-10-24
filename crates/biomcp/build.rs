@@ -6,7 +6,7 @@
 use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../biodata/schemas");
+    let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../biomcp-types/schemas");
     println!("cargo:rerun-if-changed={}", directory.display());
     let mut schemas = BTreeMap::new();
     for entry in fs::read_dir(&directory)? {

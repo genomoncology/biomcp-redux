@@ -1,9 +1,8 @@
 //! Release projection requires a matching total in the same source response.
-use biodata::{
-    Attribution, Build, PopulationDataType, PopulationFrequency, Problem, ProblemCode, Source,
-    Text, VariantRef,
-};
+use biodata::{Attribution, Build, PopulationDataType, PopulationFrequency, Text, VariantRef};
 use biomcp_adapters::gnomad::variant::{CohortFrequency, Subset, Variant};
+use biomcp_types::Source;
+use biomcp_types::{Problem, ProblemCode};
 
 pub(super) fn frequency(
     raw: &Variant,
@@ -30,14 +29,14 @@ pub(super) fn frequency(
             return None;
         }
     };
-    let dataset = Text::new(Source::Gnomad.into()).ok()?;
+    let dataset = Source::Gnomad.text();
     PopulationFrequency::new(
         subject.clone(),
         Build::GRCh38,
         dataset,
         version.clone(),
         Attribution {
-            source: Source::Gnomad,
+            source: Source::Gnomad.text(),
             record: Some(raw.variant_id.clone()),
             release: Some(version.clone()),
             version: None,

@@ -1,6 +1,7 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
-use biodata::{Source, Use};
+
 use biomcp_fetch::SourceSpec;
+use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
@@ -122,7 +123,7 @@ pub fn probe(
     let Some((path, params)) = get_probe(spec.source) else {
         return Err(biomcp_fetch::SourceError {
             source: spec.source,
-            reason: biodata::Reason::Rejected,
+            reason: biomcp_types::Reason::Rejected,
             status: None,
             retry_after: None,
         }

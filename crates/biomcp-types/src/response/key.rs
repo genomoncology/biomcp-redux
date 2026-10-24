@@ -1,0 +1,58 @@
+use serde::{Deserialize, Serialize};
+/// Configuration names for one keyed source; never includes credential values.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct KeyHelp {
+    /// Optional source-specific key guidance.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guidance: Option<crate::Text>,
+    /// Source name.
+    pub source: crate::Source,
+    /// Configuration file key path.
+    pub config: crate::Text,
+    /// Environment variable name.
+    pub environment: crate::Text,
+}
+impl super::ResponseBody for KeyHelp {
+    const SCHEMA: &'static str = "biomcp.key/1";
+    type Query = ();
+}
+
+biodata::wire_enum! {
+    /// Where the command will obtain a credential; never its value.
+    KeyState {
+        /// Configuration file credential.
+        Stored => "stored",
+        /// Environment fallback credential.
+        Environment => "environment",
+        /// No credential configured.
+        None => "none"
+    }
+}
+/// Credential identity and redacted presence.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct RegisteredKey {
+    /// Source accepted by key set.
+    pub source: crate::Text,
+    /// Configuration name.
+    pub config: crate::Text,
+    /// Environment fallback name.
+    pub environment: crate::Text,
+    /// Current credential origin.
+    pub state: KeyState,
+}
+/// Results of human credential registration.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct RegisteredKeys {
+    /// Redacted credential identities.
+    pub entries: Vec<RegisteredKey>,
+}
+impl super::ResponseBody for RegisteredKeys {
+    const SCHEMA: &'static str = "biomcp.registered-keys/1";
+    type Query = ();
+}

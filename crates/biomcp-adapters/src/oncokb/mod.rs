@@ -3,18 +3,20 @@ mod raw;
 pub mod variant;
 pub mod variant_map;
 use crate::{Mapped, quotas};
-use biodata::{GeneSymbol, NcbiGeneId, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
+use biodata::{GeneSymbol, NcbiGeneId, Text};
+
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
 };
+use biomcp_types::{Oncokb, OncokbCard, Problem, ProblemCode, Source};
 use std::time::Duration;
 /// Required-key source policy.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "OncoKB license",
         url: "https://faq.oncokb.org/licensing",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::Oncokb,
     base: "https://www.oncokb.org",

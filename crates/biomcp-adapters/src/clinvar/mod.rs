@@ -3,18 +3,18 @@ mod detail;
 mod map;
 mod raw;
 use crate::quotas;
-use biodata::{Source, VariantAssertion};
 use biomcp_fetch::{
     Arg, BadReply, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError,
     SecretName, SourceSpec,
 };
+use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policy; submission rights remain source-specific",
         url: "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::ClinVar,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",

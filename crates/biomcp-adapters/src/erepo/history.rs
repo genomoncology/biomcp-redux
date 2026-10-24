@@ -1,9 +1,11 @@
 //! Selected SEPIO documents supply their own facts; summary rows supply routing only.
-use biodata::{
-    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
-    AssertionKind, Attribution, Source, VariantAssertion, VariantRef,
-};
+use biodata::{Attribution, VariantRef};
+
 use biomcp_fetch::{BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
+use biomcp_types::{
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, Source, VariantAssertion,
+};
 use serde::Deserialize;
 const DOCUMENT: biomcp_fetch::Endpoint = super::SPEC
     .get("/evrepo/api/summary/classification")
@@ -111,7 +113,7 @@ impl Document {
     ) -> Result<VariantAssertion, RequestError> {
         let text = super::raw::text;
         let attribution = Attribution {
-            source: Source::Erepo,
+            source: Source::Erepo.text(),
             record: Some(text(record)?),
             version: Some(text(version)?),
             release: None,

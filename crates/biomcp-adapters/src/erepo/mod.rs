@@ -2,15 +2,15 @@
 mod history;
 mod raw;
 use crate::quotas;
-use biodata::{Source, VariantAssertion};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// Exact public evidence repository policy; record rights remain source-specific.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "ClinGen sharing policy; record rights unverified",
         url: "https://clinicalgenome.org/about/terms-of-use/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::Erepo,
     base: "https://erepo.clinicalgenome.org",
@@ -82,7 +82,7 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Vec<raw::Record>, RequestError> 
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Erepo,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: None,
         retry_after: None,
     }

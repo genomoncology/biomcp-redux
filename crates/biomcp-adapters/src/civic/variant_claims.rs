@@ -1,10 +1,11 @@
 //! Only the cited source vocabulary maps into the approved common claim model.
 use super::{variant::failure, variant_raw as raw};
 use biodata::{
-    Attribution, CivicStatement, Concept, Direction, Predicate, Problem, ProblemCode, Proposition,
-    Reason, Source, SourceRecord, Statement, Term, Text, VariantRef,
+    Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef,
 };
+
 use biomcp_fetch::RequestError;
+use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord};
 
 struct Claim<'a> {
     id: u64,
@@ -159,8 +160,8 @@ fn build(
         significance: Some(row.significance.clone()),
     })
 }
-fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biodata::CivicNativeClaim {
-    biodata::CivicNativeClaim {
+fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biomcp_types::CivicNativeClaim {
+    biomcp_types::CivicNativeClaim {
         classification: row.classification.clone(),
         strength: row.level.clone(),
         condition: row.disease.map(|d| Concept {
@@ -184,7 +185,7 @@ fn native_claim(row: &Claim<'_>, id: &Text, url: &Text) -> biodata::CivicNativeC
         }),
         citations: row.citations.clone(),
         attribution: Attribution {
-            source: Source::Civic,
+            source: Source::Civic.text(),
             record: Some(id.clone()),
             version: None,
             release: None,
@@ -221,6 +222,7 @@ fn predicate(kind: &str, significance: &str) -> Option<Predicate> {
 }
 fn amp(label: Option<&Text>) -> Option<(Term, Option<Term>)> {
     use biodata::{AmpAscoCap2017LevelCode as L, AmpAscoCap2017TierCode as T, Coding};
+
     let label = label?;
     let (tier, level) = match label.as_str() {
         "TIER_I_LEVEL_A" => (T::TierI, Some(L::LevelA)),

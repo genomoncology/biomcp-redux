@@ -1,8 +1,10 @@
 use super::SectionResult;
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId, LocusGroup, Reason, Section, Source};
+use biodata::{Gene, HgncId, LocusGroup};
+
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{Reason, Section, Source};
 
 pub(super) fn applicable(gene: &Gene) -> bool {
     gene.locus_group == LocusGroup::ProteinCoding && gene.ensembl_id.is_some()

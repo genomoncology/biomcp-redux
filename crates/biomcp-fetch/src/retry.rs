@@ -5,12 +5,12 @@ use std::time::{Duration, Instant, SystemTime};
 pub(crate) const ATTEMPTS: u32 = 3;
 const BASE_BACKOFF: Duration = Duration::from_millis(250);
 
-pub(crate) fn status_reason(status: u16) -> biodata::Reason {
+pub(crate) fn status_reason(status: u16) -> biomcp_types::Reason {
     match status {
-        404 => biodata::Reason::NotFound,
-        429 => biodata::Reason::RateLimited,
-        500..=599 => biodata::Reason::Unavailable,
-        _ => biodata::Reason::Rejected,
+        404 => biomcp_types::Reason::NotFound,
+        429 => biomcp_types::Reason::RateLimited,
+        500..=599 => biomcp_types::Reason::Unavailable,
+        _ => biomcp_types::Reason::Rejected,
     }
 }
 

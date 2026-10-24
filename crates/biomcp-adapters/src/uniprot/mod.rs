@@ -2,15 +2,16 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{Protein, Source, UniProtAcc};
+use biodata::UniProtAcc;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Protein, Source};
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC BY 4.0",
         url: "https://www.uniprot.org/help/license",
-        usage: biodata::Use::Attribution,
+        usage: biomcp_types::Use::Attribution,
     },
     source: Source::UniProt,
     base: "https://rest.uniprot.org",

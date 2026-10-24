@@ -78,8 +78,8 @@ impl Reply for Allele {
             .as_ref()
             .and_then(|v| v.as_str().strip_prefix("http://reg.genome.network/allele/"));
         if !key.is_some_and(|k| {
-            k.parse::<biodata::VariantInput>()
-                .is_ok_and(|v| v.namespace().ok() == Some(biodata::VariantNamespace::Ca))
+            k.parse::<biomcp_types::VariantInput>()
+                .is_ok_and(|v| v.namespace().ok() == Some(biomcp_types::VariantNamespace::Ca))
         }) || genomic.is_empty()
             || genomic.len() > 1000
         {

@@ -1,11 +1,11 @@
 //! Exact manifest membership precedes the shared original-byte download.
 use crate::{Ctx, Outcome, status};
-use biodata::{
-    QueryBody, Reason, Section, Source, Status, TrialDocument, TrialDocumentGet,
-    TrialDocumentResult,
-};
+use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{RequestError, SourceError};
+use biomcp_types::{
+    QueryBody, Reason, Section, Source, Status, TrialDocumentGet, TrialDocumentResult,
+};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]
 pub struct Download {

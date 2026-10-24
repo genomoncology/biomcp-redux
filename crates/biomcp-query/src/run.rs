@@ -1,6 +1,7 @@
 use crate::{Ctx, gene};
-use biodata::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status, StepKind};
+
 use biomcp_fetch::RequestError;
+use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status, StepKind};
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
@@ -22,7 +23,7 @@ pub enum Action {
         fresh: bool,
     },
     /// Explain configuration names for a keyed source.
-    KeyHelp(biodata::Source),
+    KeyHelp(biomcp_types::Source),
     /// Explain the required arguments for an existing query.
     QueryHelp(Request),
     /// Synchronize one declared file.

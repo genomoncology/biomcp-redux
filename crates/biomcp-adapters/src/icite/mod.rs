@@ -1,9 +1,11 @@
 //! Public iCite metadata; no abstracts or provider-specific scoring blend.
 use crate::{quotas, raw::Field};
-use biodata::{Citations, FiniteNumber, Pmid, Problem, ProblemCode, Source, Text};
+use biodata::{FiniteNumber, Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{Citations, Problem, ProblemCode, Source};
 use serde::Deserialize;
 use std::{collections::BTreeSet, time::Duration};
 /// Maximum documented PMID request size.
@@ -13,7 +15,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NIH public-domain data",
         url: "https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Icite,
     base: "https://icite.od.nih.gov/api",
@@ -62,7 +64,7 @@ pub fn publications(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Publication>, Req
 fn bad() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::Icite,
-        reason: biodata::Reason::BadReply,
+        reason: biomcp_types::Reason::BadReply,
         status: Some(200),
         retry_after: None,
     }

@@ -1,5 +1,5 @@
 //! Primary chromosome and assembly accessions copied from the owning reference module.
-use crate::{Accession, Build, Error, RefSeqPrefix, macros::text_value};
+use crate::{Accession, Build, Error, RefSeqPrefix, text_value};
 use std::{fmt, str::FromStr};
 const VERSIONS: [[u16; 24]; 2] = [
     [

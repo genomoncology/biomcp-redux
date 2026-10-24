@@ -1,7 +1,9 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
-use biodata::{PathwayRef, Problem, ProblemCode, Source, Text, UniProtAcc};
+use biodata::{Text, UniProtAcc};
+
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
+use biomcp_types::{PathwayRef, Problem, ProblemCode, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public Reactome mapping endpoint policy.
@@ -9,7 +11,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0 database data",
         url: "https://reactome.org/license",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::Reactome,
     base: "https://reactome.org/ContentService",
@@ -43,7 +45,7 @@ pub fn pathways(
         .fresh(Freshness::Days(7));
     let rows = match leg.json::<Rows>(&endpoint, &[("species", Arg::Text("9606"))]) {
         Ok(rows) => rows,
-        Err(RequestError::Source(error)) if error.reason == biodata::Reason::NotFound => {
+        Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::NotFound => {
             return Ok(Mapped {
                 value: Vec::new(),
                 problems: Vec::new(),

@@ -1,8 +1,9 @@
 //! Native GWAS Catalog v2 association pages, without clinical interpretation.
 mod raw;
 use crate::quotas;
-use biodata::{Source, VariantId};
+use biodata::VariantId;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::Source;
 pub use raw::{Association, EffectAllele, Trait};
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
@@ -10,7 +11,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "GWAS Catalog terms and dataset rights",
         url: "https://www.ebi.ac.uk/about/terms-of-use/",
-        usage: biodata::Use::Restricted,
+        usage: biomcp_types::Use::Restricted,
     },
     source: Source::Gwas,
     base: "https://www.ebi.ac.uk/gwas/rest/api/v2",

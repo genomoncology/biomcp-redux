@@ -1,9 +1,11 @@
 //! Exact LitVar2 candidate selection and source-ordered publication identifiers.
 use crate::quotas;
-use biodata::{LitVarCandidate, Pmid, Source, Text};
+use biodata::{Pmid, Text};
+
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
 };
+use biomcp_types::{LitVarCandidate, Source};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.
@@ -11,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI public-domain metadata policy",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biodata::Use::Open,
+        usage: biomcp_types::Use::Open,
     },
     source: Source::LitVar,
     base: "https://www.ncbi.nlm.nih.gov/research/litvar2-api",

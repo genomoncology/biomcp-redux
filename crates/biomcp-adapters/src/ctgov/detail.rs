@@ -5,6 +5,7 @@ use biodata::{
     Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
+
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::{Deserialize, Serialize};
 /// Whole source protocol projection; query owns section paging.
