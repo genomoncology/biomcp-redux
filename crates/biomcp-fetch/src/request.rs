@@ -231,10 +231,9 @@ impl Leg<'_> {
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         let keyed = self.keyed();
-        let (reply, fetched) =
-            self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
-                self.attempts(&prepared, keyed, &codec)
-            })?;
+        let (reply, fetched) = self.cached(ep, &prepared, &codec, || {
+            self.attempts(&prepared, keyed, &codec)
+        })?;
         let metadata = crate::ReplyMetadata {
             identity: prepared.identity,
             fetched,
@@ -247,12 +246,6 @@ impl Leg<'_> {
         Ok((reply, metadata))
     }
 
-    pub(crate) fn keyed(&self) -> bool {
-        match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => self.fetch.secrets.get(c.secret).is_some(),
-            KeyUse::None => false,
-        }
-    }
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,
@@ -413,22 +406,7 @@ impl Leg<'_> {
                 }
             })?
         {
-            if !self
-                .budget()
-                .advance(Duration::from_millis(exchange.delay_ms))
-            {
-                return Err(Failure::Local(
-                    self.failure(Reason::DeadlineExceeded, Some(exchange.status))
-                        .into(),
-                ));
-            }
-            return Ok(Wire {
-                fetched: exchange.fetched,
-                status: exchange.status,
-                content_type: exchange.content_type,
-                body: exchange.body.bytes().to_vec(),
-                retry_after: exchange.retry_after_ms.map(Duration::from_millis),
-            });
+            return self.replayed_wire(prepared, exchange);
         }
         let started = Instant::now();
         let mut response = self
@@ -451,7 +429,10 @@ impl Leg<'_> {
         let body = self.read_body(
             &mut response,
             status,
-            recording || codec.json_rejections && matches!(status, 400 | 422),
+            recording
+                || self.keyed()
+                || !prepared.outgoing.is_empty()
+                || codec.json_rejections && matches!(status, 400 | 422),
             codec.limit.unwrap_or(self.fetch.config.max_body),
         )?;
         let wire = Wire {
@@ -461,11 +442,38 @@ impl Leg<'_> {
             body,
             retry_after,
         };
+        self.contain_response(prepared, &wire.content_type, &wire.body, status)
+            .map_err(Failure::Local)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)
                 .map_err(local)?;
         }
         Ok(wire)
+    }
+    fn replayed_wire(&self, prepared: &Prepared, exchange: Exchange) -> Result<Wire, Failure> {
+        if !self
+            .budget()
+            .advance(Duration::from_millis(exchange.delay_ms))
+        {
+            return Err(Failure::Local(
+                self.failure(Reason::DeadlineExceeded, Some(exchange.status))
+                    .into(),
+            ));
+        }
+        self.contain_response(
+            prepared,
+            &exchange.content_type,
+            exchange.body.bytes(),
+            exchange.status,
+        )
+        .map_err(Failure::Local)?;
+        Ok(Wire {
+            fetched: exchange.fetched,
+            status: exchange.status,
+            content_type: exchange.content_type,
+            body: exchange.body.bytes().to_vec(),
+            retry_after: exchange.retry_after_ms.map(Duration::from_millis),
+        })
     }
     fn record_wire<T: Reply>(
         &self,

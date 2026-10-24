@@ -2,6 +2,7 @@ mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
+mod credential_containment;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -280,6 +281,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
