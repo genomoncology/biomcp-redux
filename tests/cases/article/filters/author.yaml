@@ -12,8 +12,8 @@
         "--author",
         "Carpten"
       ],
-      "max_bytes": 1723,
-      "max_tokens": 432,
+      "max_bytes": 2018,
+      "max_tokens": 505,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 AND Carpten[au]",
@@ -26,5 +26,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "The optional electronic date and explicit term-drop actions raise this recorded output to 1754 bytes; the ceiling adds 15 percent. No matching 0.9 baseline exists for this exact case."
 }

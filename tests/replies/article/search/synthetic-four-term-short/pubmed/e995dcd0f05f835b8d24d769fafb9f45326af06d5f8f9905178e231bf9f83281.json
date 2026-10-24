@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c725efcfb241062adb5e446e1a4fad68a7da67d4ab95aa8507b2a1da5b0be3f4"
+  },
+  "exchanges": [
+    {
+      "fetched": 1792868772,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"result": {"uids": ["33123537"], "33123537": {"uid": "33123537", "title": "Synthetic short-pool paper", "pubdate": "2020", "authors": [], "pubtype": []}}}
+      }
+    }
+  ]
+}

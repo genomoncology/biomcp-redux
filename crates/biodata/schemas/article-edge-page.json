@@ -88,6 +88,17 @@
           ],
           "description": "Checked DOI, when supplied."
         },
+        "electronic_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Electronic publication date when different from the publication date."
+        },
         "europepmc_id": {
           "anyOf": [
             {
