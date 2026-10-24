@@ -16,7 +16,7 @@ impl Stub {
         let stop = Arc::new(AtomicBool::new(false));
         let flag = stop.clone();
         let worker = thread::spawn(move || {
-            let certs = CertificateDer::pem_slice_iter(CERT.as_bytes()).collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
+            let certs = CertificateDer::pem_slice_iter(include_bytes!("network-fixtures/server.pem")).collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())?;
             let key = PrivateKeyDer::from_pem_slice(include_bytes!("network-fixtures/key.pem")).map_err(|e| e.to_string())?;
             let config = Arc::new(ServerConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
                 .with_safe_default_protocol_versions().map_err(|e| e.to_string())?

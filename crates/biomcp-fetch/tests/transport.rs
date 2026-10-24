@@ -524,9 +524,9 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
             continue;
         }
         let fetch = Fetch::open(FetchConfig { network: network.unwrap(), ..Default::default() }).unwrap();
-        let mut spec = *stub.spec(KeyUse::None, Duration::from_secs(10));
-        spec.base = Box::leak(base.into_boxed_str());
-        let spec = Box::leak(Box::new(spec));
+        let original = stub.spec(KeyUse::None, Duration::from_secs(10));
+        let spec = Box::leak(Box::new(SourceSpec { base: Box::leak(base.into_boxed_str()),
+            source: original.source, key: original.key, quota: original.quota, deadline: original.deadline }));
         let result = fetch.leg(spec, fetch.deadline(Duration::from_secs(10))).json::<Answer>(&spec.get("/answer"), &[]);
         if direct {
             assert_eq!(result.unwrap().answer.as_deref(), Some("direct"));
