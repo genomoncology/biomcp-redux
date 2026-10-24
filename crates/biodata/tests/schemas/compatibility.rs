@@ -371,7 +371,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "title",
                         "description",
                         "x-enum-descriptions",
-            "x-positional",
+                        "x-positional",
                         "x-trailing-section",
                         "default",
                     ]

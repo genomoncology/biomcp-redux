@@ -48,7 +48,14 @@ fn dispatch_using(
         return usage(args);
     };
     if let Some(path) = parsed.help {
-        return encode(Envelope::new(Status::Complete, path.clone(), Some(crate::help::dispatch(&path)?)), crate::exit::Status::Success);
+        return encode(
+            Envelope::new(
+                Status::Complete,
+                path.clone(),
+                Some(crate::help::dispatch(&path)?),
+            ),
+            crate::exit::Status::Success,
+        );
     }
     if action == Action::KeyHelp {
         return key_help();

@@ -38,7 +38,8 @@ pub use response::{
 };
 
 pub use response::{
-    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript, SyncQuery, SyncResult,
+    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, Oncokb, OncokbCard, OncokbGeneType,
+    OncokbTranscript, SyncQuery, SyncResult,
 };
 
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections, Protein};

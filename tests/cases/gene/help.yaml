@@ -70,12 +70,13 @@
         "gene"
       ],
       "expect": {
-        "/result/commands/0/arguments/*/name": {
-          "includes": [
-            "--band",
-            "--locus-group"
-          ]
-        },
+        "/result/commands/0/arguments/*/name": [
+          "--band",
+          "--limit",
+          "--locus-group",
+          "--offset",
+          "query"
+        ],
         "/result/commands/0/examples": [
           [
             "search",

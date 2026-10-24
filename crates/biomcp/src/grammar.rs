@@ -25,7 +25,10 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
-pub(crate) const QUERIES: &[(&str, &str)] = &[("get", "biodata.gene-get/1"), ("search", "biodata.gene-search/1")];
+pub(crate) const QUERIES: &[(&str, &str)] = &[
+    ("get", "biodata.gene-get/1"),
+    ("search", "biodata.gene-search/1"),
+];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
@@ -61,10 +64,22 @@ fn root() -> Result<Command, ()> {
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
-    root = root.subcommand(Command::new("help").subcommand(
-        Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
-    ).subcommand(Command::new("get").subcommand_required(true).subcommand(Command::new("gene")))
-     .subcommand(Command::new("search").subcommand_required(true).subcommand(Command::new("gene"))));
+    root = root.subcommand(
+        Command::new("help")
+            .subcommand(
+                Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
+            )
+            .subcommand(
+                Command::new("get")
+                    .subcommand_required(true)
+                    .subcommand(Command::new("gene")),
+            )
+            .subcommand(
+                Command::new("search")
+                    .subcommand_required(true)
+                    .subcommand(Command::new("gene")),
+            ),
+    );
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -94,7 +109,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             Some((verb, _)) => Some(vec![verb.into(), "gene".into()]),
             None => Some(Vec::new()),
         }
-    } else { None };
+    } else {
+        None
+    };
     let action = if verb == "help" {
         Action::KeyHelp
     } else if verb == "sync" {

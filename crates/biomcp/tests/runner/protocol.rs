@@ -320,8 +320,21 @@ fn discovery() -> Check {
     if text.len() > 1500 {
         return Err("command description exceeds budget".into());
     }
-    for word in ["protein", "civic", "clingen", "constraint", "expression", "pathways", "oncokb", "all", "--band", "--locus-group"] {
-        if !text.contains(word) { return Err(format!("description misses {word}")); }
+    for word in [
+        "protein",
+        "civic",
+        "clingen",
+        "constraint",
+        "expression",
+        "pathways",
+        "oncokb",
+        "all",
+        "--band",
+        "--locus-group",
+    ] {
+        if !text.contains(word) {
+            return Err(format!("description misses {word}"));
+        }
     }
     Ok(())
 }
