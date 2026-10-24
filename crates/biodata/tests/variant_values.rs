@@ -171,6 +171,19 @@ fn accessions_refuse_noncanonical_versions_and_widths() {
     }
 }
 #[test]
+fn allele_boundaries_refuse_unchecked_accession_construction() -> Check {
+    for sequence in [
+        Accession::RefSeq { prefix: RefSeqPrefix::Nm, number: 4333, version: 0 },
+        Accession::Ensembl { feature: EnsemblFeature::Transcript, number: 288602, version: 0 },
+        Accession::RefSeq { prefix: RefSeqPrefix::Nm, number: u32::MAX, version: 1 },
+    ] {
+        let location = SequenceLocation { sequence, span: Span0::new(0, 1)? };
+        assert!(serde_json::to_value(&location).is_err(), "unchecked location: {sequence}");
+        assert!(Allele::new(location, "A".parse()?, "T".parse()?).is_err(), "unchecked allele: {sequence}");
+    }
+    Ok(())
+}
+#[test]
 fn hgvs_keeps_its_inner_reference_and_outer_accession() {
     for text in [
         "NM_004333.4(BRAF):c.1799T>A",
