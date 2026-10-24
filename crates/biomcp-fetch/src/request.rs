@@ -191,7 +191,13 @@ impl Leg<'_> {
             let started = Instant::now();
             let exchange = self.exchange(prepared, codec);
             match &exchange {
-                Ok(response) => self.observe(&prepared.identity, Some(response.status), &response.body, &response.content_type, started.elapsed()),
+                Ok(response) => self.observe(
+                    &prepared.identity,
+                    Some(response.status),
+                    &response.body,
+                    &response.content_type,
+                    started.elapsed(),
+                ),
                 Err(_) => self.observe(&prepared.identity, None, &[], "", started.elapsed()),
             }
             let (mut error, retryable, delay) = match exchange {

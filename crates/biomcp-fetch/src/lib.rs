@@ -1,7 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
 mod observe;
-pub use observe::{Observation, Observations, Shape, MAX_OBSERVATIONS};
+pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 mod batch;
 mod bundle;
 mod cache;

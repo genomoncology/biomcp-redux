@@ -11,8 +11,16 @@ use std::{env, path::PathBuf, process::ExitCode};
 fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--live-check") {
         return match runner::live::run() {
-            Ok(report) => { use std::io::Write; let _ = writeln!(std::io::stdout(), "{report}"); ExitCode::SUCCESS },
-            Err(error) => { use std::io::Write; let _ = writeln!(std::io::stderr(), "live-check: {error}"); ExitCode::FAILURE },
+            Ok(report) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stdout(), "{report}");
+                ExitCode::SUCCESS
+            }
+            Err(error) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "live-check: {error}");
+                ExitCode::FAILURE
+            }
         };
     }
     if env::args().nth(1).as_deref() == Some("--runner-environment-probe") {
