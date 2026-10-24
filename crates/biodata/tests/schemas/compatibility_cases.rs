@@ -174,7 +174,13 @@ fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
     narrow["anyOf"] = json!([{"required":["query"]}]);
     assert!(check(&base, &narrow).is_err());
     assert!(check(&narrow, &base).is_ok());
-    for branches in [json!([]), json!([{"required":[]}]), json!([{"required":["missing"]}]), json!([{"required":["query"], "type":"object"}]), json!([{"properties":{}}])] {
+    for branches in [
+        json!([]),
+        json!([{"required":[]}]),
+        json!([{"required":["missing"]}]),
+        json!([{"required":["query"], "type":"object"}]),
+        json!([{"properties":{}}]),
+    ] {
         let mut invalid = base.clone();
         invalid["anyOf"] = branches;
         assert!(check(&invalid, &invalid).is_err());

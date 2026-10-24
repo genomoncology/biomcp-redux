@@ -262,6 +262,10 @@ fn search_schema_and_serde_require_a_present_nonnull_selector() {
         (json!({"query":"BRAF","band":null}), false),
     ] {
         assert_eq!(schema.is_valid(&value), valid, "schema: {value}");
-        assert_eq!(serde_json::from_value::<GeneSearch>(value.clone()).is_ok(), valid, "serde: {value}");
+        assert_eq!(
+            serde_json::from_value::<GeneSearch>(value.clone()).is_ok(),
+            valid,
+            "serde: {value}"
+        );
     }
 }

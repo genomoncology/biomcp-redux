@@ -45,17 +45,22 @@
     },
     {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "query"
+          ]
+        },
+        {
+          "required": [
+            "band"
+          ]
+        }
+      ],
       "description": "Search gene headers.",
       "properties": {
         "band": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Cytoband"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Cytoband",
           "description": "A cytoband prefix."
         },
         "command": {
@@ -78,14 +83,7 @@
           "type": "integer"
         },
         "query": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Text",
           "description": "Words matched against symbols, previous symbols, aliases and names.",
           "x-positional": 0
         }

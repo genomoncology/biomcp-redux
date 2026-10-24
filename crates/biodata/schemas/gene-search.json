@@ -13,17 +13,22 @@
   "$id": "biodata.gene-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": [
+        "query"
+      ]
+    },
+    {
+      "required": [
+        "band"
+      ]
+    }
+  ],
   "description": "Search genes by text, cytoband, or their intersection.",
   "properties": {
     "band": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Cytoband"
-        },
-        {
-          "type": "null"
-        }
-      ],
+      "$ref": "#/$defs/Cytoband",
       "description": "A cytoband prefix."
     },
     "limit": {
@@ -42,14 +47,7 @@
       "type": "integer"
     },
     "query": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Text"
-        },
-        {
-          "type": "null"
-        }
-      ],
+      "$ref": "#/$defs/Text",
       "description": "Words matched against symbols, previous symbols, aliases and names.",
       "x-positional": 0
     }

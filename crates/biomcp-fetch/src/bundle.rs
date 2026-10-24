@@ -116,7 +116,9 @@ impl Leg<'_> {
         if offline && old.is_none() {
             return Err(self.failure(biodata::Reason::Offline, None).into());
         }
-        let force_fresh = refreshed.as_ref().is_some_and(|names| !names.contains(bundle.name));
+        let force_fresh = refreshed
+            .as_ref()
+            .is_some_and(|names| !names.contains(bundle.name));
         let forced = replay || force_fresh || matches!(self.fetch.config.mode, Mode::Record { .. });
         if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {

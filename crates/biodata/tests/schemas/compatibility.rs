@@ -42,7 +42,8 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
                 .is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
             || new.selectors.as_ref().is_some_and(|new| {
                 old.selectors.as_ref().is_none_or(|old| {
-                    old.iter().any(|old| !new.iter().any(|new| new.is_subset(old)))
+                    old.iter()
+                        .any(|old| !new.iter().any(|new| new.is_subset(old)))
                 })
             })
             || old.types != new.types
@@ -208,7 +209,9 @@ pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
     if node["type"] != "object" || node.get("anyOf").is_none() {
         return Ok(None);
     }
-    let properties = node["properties"].as_object().ok_or("missing selector properties")?;
+    let properties = node["properties"]
+        .as_object()
+        .ok_or("missing selector properties")?;
     let branches = node["anyOf"].as_array().ok_or("invalid selector anyOf")?;
     if branches.is_empty() {
         return Err("empty selector anyOf".into());
@@ -219,7 +222,9 @@ pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
         if object.len() != 1 {
             return Err("selector branches contain only required".into());
         }
-        let names = branch["required"].as_array().ok_or("missing selector required")?;
+        let names = branch["required"]
+            .as_array()
+            .ok_or("missing selector required")?;
         let mut required = BTreeSet::new();
         for name in names {
             let name = name.as_str().ok_or("invalid selector name")?;
