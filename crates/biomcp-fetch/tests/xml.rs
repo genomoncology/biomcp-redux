@@ -206,3 +206,158 @@ fn xml_body_and_nested_inline_content_are_bounded() {
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
     assert!(exchange(&server, &fetch, spec, "text/xml", body.as_bytes()).is_err());
 }
+
+#[test]
+fn xml_cache_codec_invalid_entries_and_stale_fallback_remain_checked() {
+    use biomcp_fetch::{Mode, RequestError};
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server);
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(path.clone()),
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    let body = b"<answer>BRAF<sup>V600E</sup></answer>";
+    assert!(exchange(&server, &fetch, spec, "text/xml", body).is_ok());
+    assert_eq!(invoke(&fetch, spec).unwrap().text.as_str(), "BRAFV600E");
+    assert!(server.requests.try_recv().is_err());
+    let database = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        database
+            .query_row("SELECT content_type FROM reply", [], |r| r
+                .get::<_, String>(0))
+            .unwrap(),
+        "application/xml"
+    );
+    for sql in [
+        "UPDATE reply SET content_type='application/unknown'",
+        "UPDATE reply SET content_type='application/json'",
+        "UPDATE reply SET body='<broken>'",
+        "UPDATE reply SET body='<answer>unchecked</answer>'",
+    ] {
+        database.execute_batch(sql).unwrap();
+        assert!(exchange(&server, &fetch, spec, "text/xml", body).is_ok());
+    }
+    database
+        .execute_batch("UPDATE reply SET fresh_until=0")
+        .unwrap();
+    thread::scope(|scope| {
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+        let worker =
+            scope.spawn(|| leg.xml::<Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[]));
+        server.next().respond(403, "", "unchecked-secret");
+        assert_eq!(worker.join().unwrap().unwrap().text.as_str(), "BRAFV600E");
+        assert!(leg.finish().stale);
+    });
+    database
+        .execute_batch("UPDATE reply SET body='<broken>'")
+        .unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| invoke(&fetch, spec));
+        server.next().respond(403, "", "unchecked-secret");
+        assert!(
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.status == Some(403))
+        );
+    });
+    assert_eq!(
+        database
+            .query_row("SELECT COUNT(*) FROM reply", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+    assert!(exchange(&server, &fetch, spec, "text/xml", body).is_ok());
+    // A caller selecting JSON for the same request replaces the XML entry.
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                .json::<support::Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[])
+        });
+        server.next().ok();
+        assert!(worker.join().unwrap().unwrap().answer);
+    });
+    let offline = Fetch::open(FetchConfig {
+        cache: Some(path),
+        mode: Mode::Offline,
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    assert!(
+        matches!(invoke(&offline, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::Offline)
+    );
+    assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
+    use biomcp_fetch::{Mode, RecordError, ReplayCache, RequestError};
+    let dir = tempfile::tempdir().unwrap();
+    let capture = dir.path().join("capture");
+    let path = dir.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server);
+    let config = || FetchConfig {
+        cache: Some(path.clone()),
+        ..FetchConfig::default()
+    };
+    let live = Fetch::open(config()).unwrap();
+    let body = b"<answer>BRAF<sup>V600E</sup></answer>";
+    exchange(&server, &live, spec, "text/xml", body).unwrap();
+    let record = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: capture.clone(),
+        },
+        ..config()
+    })
+    .unwrap();
+    // Record ignores the already warm cache and retains the original XML text.
+    exchange(&server, &record, spec, "text/xml", body).unwrap();
+    drop(record);
+    let file = std::fs::read_dir(capture.join("pubmed"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    let recording: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(file).unwrap()).unwrap();
+    assert!(recording.to_string().contains("<sup>V600E</sup>"));
+    drop(server);
+    let case_cache = ReplayCache::temporary().unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: capture },
+        replay_cache: Some(case_cache.clone()),
+        ..config()
+    })
+    .unwrap();
+    assert_eq!(invoke(&replay, spec).unwrap().text.as_str(), "BRAFV600E");
+    assert_eq!(
+        invoke(&replay, spec).unwrap_err(),
+        RequestError::Recording(RecordError::Exhausted)
+    );
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        replay_cache: Some(case_cache),
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    assert_eq!(invoke(&offline, spec).unwrap().text.as_str(), "BRAFV600E");
+    // Offline accepts a valid stale XML entry and reports its freshness.
+    let database = rusqlite::Connection::open(&path).unwrap();
+    database
+        .execute_batch("UPDATE reply SET fresh_until=0")
+        .unwrap();
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        ..config()
+    })
+    .unwrap();
+    let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
+    assert!(
+        leg.xml::<Answer>(&spec.get("/answer").fresh(Freshness::Days(1)), &[])
+            .is_ok()
+    );
+    assert!(leg.finish().stale);
+}

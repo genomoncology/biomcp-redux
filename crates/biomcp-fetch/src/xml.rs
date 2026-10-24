@@ -84,7 +84,10 @@ fn validate(text: &str) -> Option<()> {
                     return None;
                 }
                 for attribute in tag.attributes() {
-                    attribute.ok()?.normalized_value().ok()?;
+                    attribute
+                        .ok()?
+                        .normalized_value(quick_xml::XmlVersion::Implicit1_0)
+                        .ok()?;
                 }
                 if !empty {
                     depth += 1;
