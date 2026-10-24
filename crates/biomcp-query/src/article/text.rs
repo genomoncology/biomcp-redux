@@ -70,14 +70,16 @@ fn resolve<'a>(
                 out.status = Status::Partial;
             }
             status::append(&mut out.problems, mapped.problems);
-            let header = mapped.value.into_iter().find(|h| h.pmid == *id).ok_or(
-                biomcp_fetch::SourceError {
+            let header = mapped
+                .value
+                .into_iter()
+                .find(|h| h.pmid == Some(*id))
+                .ok_or(biomcp_fetch::SourceError {
                     source: Source::PubMed,
                     reason: Reason::BadReply,
                     status: None,
                     retry_after: None,
-                },
-            )?;
+                })?;
             Ok(header.pmcid)
         }
         ArticleInput::Doi(_) => Ok(None),

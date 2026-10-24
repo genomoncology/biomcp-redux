@@ -1,0 +1,29 @@
+{
+  "feature": "article-citations",
+  "story": "Synthetic confirmed empty edge lists produce a complete empty pool.",
+  "replay": "article/citations/synthetic-empty",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "citations",
+        "1111"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": []
+      }
+    },
+    {
+      "run": [
+        "article",
+        "references",
+        "1111"
+      ],
+      "expect": {
+        "/page/total": 0
+      }
+    }
+  ]
+}

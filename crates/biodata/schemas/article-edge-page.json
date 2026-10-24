@@ -1,0 +1,779 @@
+{
+  "$defs": {
+    "ArticleEdgePage": {
+      "additionalProperties": false,
+      "description": "A page of citing or referenced papers in citation order.",
+      "properties": {
+        "items": {
+          "description": "Papers in the fixed edge pool.",
+          "items": {
+            "$ref": "#/$defs/ArticleItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ArticleEdges": {
+      "additionalProperties": false,
+      "description": "Page the citing or referenced PubMed papers of one checked PMID.",
+      "properties": {
+        "limit": {
+          "default": 10,
+          "description": "Maximum papers on one page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of pool items to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
+          "x-positional": 0
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Fixed snapshot from an earlier page."
+        }
+      },
+      "required": [
+        "pmid"
+      ],
+      "type": "object"
+    },
+    "ArticleHeader": {
+      "additionalProperties": false,
+      "description": "Citation metadata from PubMed or Europe PMC.",
+      "properties": {
+        "author_count": {
+          "description": "Whole source author count.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publication date at source precision."
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Doi"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked DOI, when supplied."
+        },
+        "europepmc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Europe PMC source-local identity."
+        },
+        "first_author": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First author in source order."
+        },
+        "journal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Journal name."
+        },
+        "pmcid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pmcid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked PMC identity, when supplied."
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "Checked PubMed identity."
+        },
+        "title": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source title."
+        },
+        "types": {
+          "description": "Clinical publication types.",
+          "items": {
+            "$ref": "#/$defs/PublicationType"
+          },
+          "type": "array"
+        },
+        "types_unknown": {
+          "description": "The provider does not supply checked publication types.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "types",
+        "author_count"
+      ],
+      "type": "object"
+    },
+    "ArticleItem": {
+      "additionalProperties": false,
+      "description": "One original pool position, including a summary hole.",
+      "properties": {
+        "cited_by": {
+          "description": "iCite citing-paper count, only under citation ordering.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "found_by": {
+          "additionalProperties": false,
+          "description": "Native one-based source positions, disclosed only for multiple sources.",
+          "properties": {
+            "europepmc": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pubmed": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "header": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Citation metadata when accepted."
+        },
+        "key": {
+          "$ref": "#/$defs/ArticleKey",
+          "description": "Stable checked pool key."
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "The selected PMID, retained when summary mapping fails."
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "ArticleKey": {
+      "description": "Stable identity independent of whether citation metadata was accepted.",
+      "oneOf": [
+        {
+          "description": "PubMed identity.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Pmid"
+            },
+            "namespace": {
+              "const": "pubmed",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PMC identity when PubMed is absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Pmcid"
+            },
+            "namespace": {
+              "const": "pmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "DOI when both indexed numeric identities are absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Doi"
+            },
+            "namespace": {
+              "const": "doi",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Europe PMC local source identity.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            "namespace": {
+              "const": "europepmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Doi": {
+      "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Pmcid": {
+      "pattern": "^PMC[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "PublicationType": {
+      "description": "Clinically meaningful PubMed publication types.",
+      "enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Randomized controlled trial.",
+        " Clinical trial.",
+        " Phase one trial.",
+        " Phase two trial.",
+        " Phase three trial.",
+        " Phase four trial.",
+        " Meta-analysis.",
+        " Systematic review.",
+        " Review.",
+        " Practice guideline.",
+        " Guideline.",
+        " Case report.",
+        " Observational study.",
+        " Multicenter study.",
+        " Letter.",
+        " Comment.",
+        " Editorial.",
+        " Preprint.",
+        " Retracted publication.",
+        " Retraction notice.",
+        " Erratum."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "rate_limited",
+        "unavailable",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.article_edges/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/ArticleEdges",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArticleEdgePage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.article_edges/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

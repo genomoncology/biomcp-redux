@@ -1,0 +1,147 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845627,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 199,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "40503579"
+            ],
+            "40503579": {
+              "uid": "40503579",
+              "pubdate": "2025 Jun 30",
+              "epubdate": "2025 Jun 12",
+              "source": "Arch Ital Urol Androl",
+              "authors": [
+                {
+                  "name": "Perletti G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cohen Hattab D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "DellaPergola S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gofrit O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Magri V",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Trinchieri A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Trinchieri A",
+              "title": "Genetic determinants of prostate cancer predisposition in Ashkenazi Jews.",
+              "sorttitle": "genetic determinants of prostate cancer predisposition in ashkenazi jews",
+              "volume": "97",
+              "issue": "2",
+              "pages": "13762",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9308247",
+              "issn": "1124-3562",
+              "essn": "2282-4197",
+              "pubtype": [
+                "Journal Article",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "40503579"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.4081/aiua.2025.13762"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2025/03/05 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2025/03/24 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2025/07/01 04:50"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2025/06/12 12:31"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2025/06/12 06:20"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Archivio italiano di urologia, andrologia : organo ufficiale [di] Societa italiana di ecografia urologica e nefrologica",
+              "elocationid": "doi: 10.4081/aiua.2025.13762",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2025/06/30 00:00",
+              "sortfirstauthor": "Perletti G",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c12a9e055b4d975f55024b25e963ce4b6321d98d172681e16a035d9cb8d676d4"
+  }
+}

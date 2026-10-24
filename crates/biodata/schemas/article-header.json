@@ -4,6 +4,10 @@
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+      "type": "string"
+    },
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
@@ -75,7 +79,7 @@
   "$id": "biodata.article_header/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Citation metadata owned by PubMed.",
+  "description": "Citation metadata from PubMed or Europe PMC.",
   "properties": {
     "author_count": {
       "description": "Whole source author count.",
@@ -104,6 +108,17 @@
         }
       ],
       "description": "Checked DOI, when supplied."
+    },
+    "europepmc_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EuropePmcId"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Europe PMC source-local identity."
     },
     "first_author": {
       "anyOf": [
@@ -152,10 +167,13 @@
         "$ref": "#/$defs/PublicationType"
       },
       "type": "array"
+    },
+    "types_unknown": {
+      "description": "The provider does not supply checked publication types.",
+      "type": "boolean"
     }
   },
   "required": [
-    "pmid",
     "title",
     "types",
     "author_count"

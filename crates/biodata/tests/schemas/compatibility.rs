@@ -346,6 +346,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "x-enum-descriptions",
             "x-positional",
             "x-trailing-section",
+            "x-comma-separated",
         ]
         .contains(&key.as_str())
         {
@@ -357,6 +358,12 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
         .is_some_and(|value| value != &Value::Bool(true))
     {
         return Err("unsupported trailing-section annotation".into());
+    }
+    if object
+        .get("x-comma-separated")
+        .is_some_and(|v| v != &Value::Bool(true))
+    {
+        return Err("unsupported comma-separated annotation".into());
     }
     // These generated forms carry annotations beside a reference or union,
     // never assertions. Assertions would intersect, while Shape only records
@@ -375,6 +382,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "x-enum-descriptions",
                         "x-positional",
                         "x-trailing-section",
+                        "x-comma-separated",
                         "default",
                     ]
                     .contains(&key.as_str())

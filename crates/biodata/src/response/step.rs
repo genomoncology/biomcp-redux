@@ -6,6 +6,8 @@ StepKind {
     Restart => "restart",
     /// Request sections omitted from this card.
     Section => "section",
+    /// Read the same search in another supported order.
+    Sort => "sort",
     /// Read another page.
     Page => "page",
     /// Retry without a cached reply.

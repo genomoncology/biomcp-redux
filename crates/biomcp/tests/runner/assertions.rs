@@ -5,6 +5,7 @@ use serde_json::Value;
 pub(super) enum Assertion<'a> {
     Equals(&'a Value),
     Unique,
+    Nonincreasing,
     IncludesAllOf(&'a Value),
     Includes(&'a Value),
     Excludes(&'a Value),
@@ -34,6 +35,9 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                     "includes_all_of" => {
                         array(pointer, operator, expected)?;
                         assertions.push(Assertion::IncludesAllOf(expected));
+                    }
+                    "nonincreasing" if expected == &Value::Bool(true) => {
+                        assertions.push(Assertion::Nonincreasing)
                     }
                     "unique" if expected == &Value::Bool(true) => {
                         assertions.push(Assertion::Unique)
@@ -157,6 +161,7 @@ impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
+            Self::Nonincreasing => nonincreasing(pointer, actual),
             Self::Unique => {
                 let values = array(pointer, "unique", actual)?;
                 for (index, value) in values.iter().enumerate() {
@@ -250,6 +255,20 @@ fn ceiling(pointer: &str, key: &str, actual: usize, limit: Option<u64>) -> Resul
         return Err(format!(
             "{pointer} {key}: expected <= {limit}, actual {actual}"
         ));
+    }
+    Ok(())
+}
+
+fn nonincreasing(pointer: &str, actual: &Value) -> Result<(), String> {
+    let numbers: Vec<_> = array(pointer, "nonincreasing", actual)?
+        .iter()
+        .map(|v| {
+            v.as_u64()
+                .ok_or_else(|| format!("{pointer} nonincreasing: expected unsigned counts"))
+        })
+        .collect::<Result<_, _>>()?;
+    if numbers.windows(2).any(|pair| pair.first() < pair.get(1)) {
+        return Err(format!("{pointer} nonincreasing: count increased"));
     }
     Ok(())
 }

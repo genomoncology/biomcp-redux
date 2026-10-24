@@ -9,12 +9,14 @@
       "enum": [
         "annotations",
         "fulltext",
+        "citations",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
     },
@@ -22,19 +24,21 @@
       "description": "Article ordering supported by this command.",
       "enum": [
         "rank",
-        "date"
+        "date",
+        "citations"
       ],
       "type": "string"
     },
     "ArticleSource": {
       "description": "Source selectors supported by article search.",
       "enum": [
-        "pubmed"
+        "pubmed",
+        "europepmc"
       ],
       "type": "string"
     },
     "ArticleType": {
-      "description": "Publication-type selectors sent to PubMed.",
+      "description": "Publication-type selectors sent to the named sources.",
       "enum": [
         "trial",
         "randomized",
@@ -100,6 +104,10 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -156,6 +164,84 @@
       "required": [
         "command",
         "input"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Papers citing one PMID.",
+      "properties": {
+        "command": {
+          "const": "article_citations",
+          "type": "string"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum papers on one page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of pool items to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
+          "x-positional": 0
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Fixed snapshot from an earlier page."
+        }
+      },
+      "required": [
+        "command",
+        "pmid"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Papers referenced by one PMID.",
+      "properties": {
+        "command": {
+          "const": "article_references",
+          "type": "string"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum papers on one page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of pool items to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
+          "x-positional": 0
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Fixed snapshot from an earlier page."
+        }
+      },
+      "required": [
+        "command",
+        "pmid"
       ],
       "type": "object"
     },
@@ -266,7 +352,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Gene input resolved through HGNC."
+          "description": "Gene input; PubMed resolves it through HGNC."
         },
         "journal": {
           "$ref": "#/$defs/Text",
@@ -298,23 +384,24 @@
         "sort": {
           "$ref": "#/$defs/ArticleSort",
           "default": "rank",
-          "description": "Native provider order."
+          "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\ncitations: most cited first; costs about 1 s per 1,000 PMIDs.\nAll sources support citations."
         },
         "source": {
           "default": [
             "pubmed"
           ],
-          "description": "Sources in caller order; defaults to PubMed.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 1,
+          "maxItems": 2,
           "minItems": 1,
-          "type": "array"
+          "type": "array",
+          "x-comma-separated": true
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Words sent to PubMed in its default fields.",
+          "description": "Words sent to each named source in its default fields.",
           "x-positional": 0
         },
         "type": {

@@ -17,25 +17,36 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
-        let Some(id) = card.pmid.filter(|_| !item.more.is_empty()) else {
+        let Some(id) = card.pmid else {
             continue;
         };
-        let words = item
-            .more
-            .iter()
-            .filter_map(|s| s.to_string().parse().ok())
-            .collect();
-        if let Ok(query) = ArticleGet::with_sections(vec![ArticleInput::Pmid(id)].into(), words) {
-            let step = (
-                StepKind::Section,
-                Action::Run {
-                    request: Request::GetArticle(query),
-                    fresh: false,
-                },
-            );
-            if out.next.len() < 5 && !out.next.contains(&step) {
-                out.next.push(step);
+        if !item.more.is_empty() {
+            let words = item
+                .more
+                .iter()
+                .filter_map(|s| s.to_string().parse().ok())
+                .collect();
+            if let Ok(query) = ArticleGet::with_sections(vec![ArticleInput::Pmid(id)].into(), words)
+            {
+                push(&mut out.next, StepKind::Section, Request::GetArticle(query));
             }
         }
+        push(
+            &mut out.next,
+            StepKind::Disambiguate,
+            Request::ArticleCitations(biodata::ArticleEdges::new(id)),
+        );
+    }
+}
+fn push(next: &mut Vec<(StepKind, Action)>, kind: StepKind, request: Request) {
+    let step = (
+        kind,
+        Action::Run {
+            request,
+            fresh: false,
+        },
+    );
+    if next.len() < 5 && !next.contains(&step) {
+        next.push(step);
     }
 }
