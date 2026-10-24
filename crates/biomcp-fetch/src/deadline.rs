@@ -78,6 +78,11 @@ impl<'a> Deadline<'a> {
         self.frozen
             .unwrap_or_else(|| self.clock.map_or_else(Instant::now, VirtualClock::now))
     }
+    /// Bind this remaining budget to wall time for cooperative local decoding.
+    pub fn local(self) -> LocalDeadline {
+        let now = Instant::now();
+        LocalDeadline(now.checked_add(self.remaining()).unwrap_or(now))
+    }
     /// Report whether this budget advances in replay time.
     pub fn virtual_time(&self) -> bool {
         self.clock.is_some()
@@ -141,4 +146,12 @@ impl<'a> CommandDeadline<'a> {
             clock.reach(origin.checked_add(spent).unwrap_or(self.0.end));
         }
     }
+}
+
+/// Wall-clock bound for cooperative local parsing, including replay commands.
+#[derive(Clone, Copy, Debug)]
+pub struct LocalDeadline(Instant);
+impl LocalDeadline {
+    /// Whether the parsing budget has been exhausted.
+    pub fn expired(self) -> bool { Instant::now() >= self.0 }
 }

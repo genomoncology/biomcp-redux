@@ -69,6 +69,7 @@ pub(super) fn select(
     Ok(out)
 }
 /// Download only a previously intersected readable bucket file.
+#[expect(clippy::disallowed_types, reason = "Retain one parsed binary reply across its checked cache admission callback")]
 pub fn download(
     leg: &Leg<'_>,
     file: &Supplement,
@@ -88,15 +89,10 @@ pub fn download(
         .map(|v| ("md5", Arg::Text(v)))
         .into_iter()
         .collect();
-    let local_end = std::time::Instant::now() + leg.remaining();
+    let local_end = leg.local_deadline();
     let parsed = std::cell::RefCell::new(None);
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
-        let sheets = crate::sheet::read(
-            bytes,
-            file.file.kind,
-            leg.remaining()
-                .min(local_end.saturating_duration_since(std::time::Instant::now())),
-        )?;
+        let sheets = crate::sheet::read(bytes, file.file.kind, local_end)?;
         *parsed.borrow_mut() = Some(sheets);
         Ok(())
     })?;

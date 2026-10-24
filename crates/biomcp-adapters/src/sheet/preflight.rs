@@ -1,9 +1,9 @@
 //! Check ZIP layout before zip allocates, then actual XML before calamine allocates.
 use super::{LIMITS, check};
 use biodata::Reason;
+use biomcp_fetch::LocalDeadline;
 use std::{
     io::{Cursor, Read},
-    time::Instant,
 };
 fn number(bytes: &[u8], at: usize, len: usize) -> Result<usize, Reason> {
     let mut n = 0usize;
@@ -20,7 +20,7 @@ fn number(bytes: &[u8], at: usize, len: usize) -> Result<usize, Reason> {
 fn signature(bytes: &[u8], at: usize, expected: &[u8]) -> bool {
     bytes.get(at..at + expected.len()) == Some(expected)
 }
-pub(super) fn check_zip(bytes: &[u8], end: Instant) -> Result<(), Reason> {
+pub(super) fn check_zip(bytes: &[u8], end: LocalDeadline) -> Result<(), Reason> {
     let eocd = (bytes.len().saturating_sub(65557)..bytes.len().saturating_sub(21))
         .rev()
         .find(|at| {
@@ -99,7 +99,7 @@ pub(super) fn check_zip(bytes: &[u8], end: Instant) -> Result<(), Reason> {
     }
     Ok(())
 }
-pub(super) fn xml(bytes: &[u8], end: Instant) -> Result<(), Reason> {
+pub(super) fn xml(bytes: &[u8], end: LocalDeadline) -> Result<(), Reason> {
     check_zip(bytes, end)?;
     let mut zip = zip::ZipArchive::new(Cursor::new(bytes)).map_err(|_| Reason::BadReply)?;
     let mut total = 0usize;
@@ -128,7 +128,7 @@ pub(super) fn xml(bytes: &[u8], end: Instant) -> Result<(), Reason> {
     }
     Ok(())
 }
-fn validate_xml(bytes: &[u8], end: Instant) -> Result<(), Reason> {
+fn validate_xml(bytes: &[u8], end: LocalDeadline) -> Result<(), Reason> {
     use quick_xml::events::Event;
     let text = std::str::from_utf8(bytes).map_err(|_| Reason::BadReply)?;
     let mut reader = quick_xml::Reader::from_str(text);

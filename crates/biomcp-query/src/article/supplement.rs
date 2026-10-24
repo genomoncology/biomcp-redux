@@ -105,7 +105,7 @@ fn execute<'a>(
             content.url = Some(file.url.clone());
             content.reason = Some(Reason::Unsupported);
         } else {
-            let local_end = std::time::Instant::now() + leg.remaining();
+            let local_end = leg.local_deadline();
             let (bytes, sheets) = pmc_oa::download(&leg, file)?;
             content.sha256 = Some(
                 Text::new(

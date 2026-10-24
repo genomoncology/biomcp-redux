@@ -2,7 +2,7 @@
 mod preflight;
 mod xlsx;
 use biodata::{FileKind, Reason};
-use std::time::{Duration, Instant};
+use biomcp_fetch::LocalDeadline;
 /// An original sparse sheet row.
 #[derive(Debug)]
 pub struct Row {
@@ -38,10 +38,7 @@ const LIMITS: Limits = Limits {
     cells: 1000000,
 };
 /// Parse checked bytes under the command's remaining local deadline.
-pub fn read(bytes: &[u8], kind: FileKind, remaining: Duration) -> Result<Vec<Sheet>, Reason> {
-    let end = Instant::now()
-        .checked_add(remaining)
-        .ok_or(Reason::DeadlineExceeded)?;
+pub fn read(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<Sheet>, Reason> {
     match kind {
         FileKind::Xlsx => xlsx::read(bytes, end),
         FileKind::Csv | FileKind::Tsv => delimited(bytes, kind, end),
@@ -63,14 +60,14 @@ pub fn read(bytes: &[u8], kind: FileKind, remaining: Duration) -> Result<Vec<She
         _ => Err(Reason::Unsupported),
     }
 }
-fn check(end: Instant) -> Result<(), Reason> {
-    if Instant::now() >= end {
+fn check(end: LocalDeadline) -> Result<(), Reason> {
+    if end.expired() {
         Err(Reason::DeadlineExceeded)
     } else {
         Ok(())
     }
 }
-fn delimited(bytes: &[u8], kind: FileKind, end: Instant) -> Result<Vec<Sheet>, Reason> {
+fn delimited(bytes: &[u8], kind: FileKind, end: LocalDeadline) -> Result<Vec<Sheet>, Reason> {
     // The transport's checked byte ceiling bounds CSV allocation; buffer capacity is no cap.
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(false)

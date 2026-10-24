@@ -4,7 +4,7 @@ use biodata::{
     Text,
 };
 use biomcp_adapters::sheet;
-use std::time::Instant;
+use biomcp_fetch::LocalDeadline;
 const PAGE_BYTES: usize = 4000;
 const FRAGMENT_BYTES: usize = 1000;
 struct Page {
@@ -13,11 +13,11 @@ struct Page {
     bytes: usize,
     rows: Vec<SheetRow>,
     full: bool,
-    end: Instant,
+    end: LocalDeadline,
 }
 impl Page {
     fn push(&mut self, row: SheetRow) -> Result<(), Reason> {
-        if Instant::now() >= self.end {
+        if self.end.expired() {
             return Err(Reason::DeadlineExceeded);
         }
         let position = self.total;
@@ -42,7 +42,7 @@ pub(super) fn select(
     content: &mut SupplementContent,
     out: &mut Outcome,
     selected: &[String],
-    end: Instant,
+    end: LocalDeadline,
 ) -> Result<bool, Reason> {
     if query.rows().is_none() && selected.is_empty() {
         content.sheets = Some(
@@ -99,7 +99,7 @@ pub(super) fn select(
             .unwrap_or(&[]);
         let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;
         for row in &sheet.rows {
-            if Instant::now() >= end {
+            if end.expired() {
                 return Err(Reason::DeadlineExceeded);
             }
             let included = if let Some(range) = query.rows() {

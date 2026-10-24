@@ -37,7 +37,7 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     let path = json_file(dir.path());
     let original = std::fs::read(&path).unwrap();
     let original_value: serde_json::Value = serde_json::from_slice(&original).unwrap();
-    let name = original_value["exchanges"][0]["body"]["value"]
+    let name = original_value.pointer("/exchanges/0/body/value").unwrap()
         .as_str()
         .unwrap();
     for hostile in [
@@ -47,7 +47,7 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
         "missing.bin",
     ] {
         let mut value = original_value.clone();
-        value["exchanges"][0]["body"]["value"] = hostile.into();
+        *value.pointer_mut("/exchanges/0/body/value").unwrap() = hostile.into();
         std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
         let replay = fetch(Mode::Replay {
             dir: dir.path().to_owned(),
