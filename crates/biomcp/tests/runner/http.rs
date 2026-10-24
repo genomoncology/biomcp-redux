@@ -85,7 +85,12 @@ impl Server {
         Self::configured_key("127.0.0.1:0", Some(config), None, key)
     }
     fn configured(bind: &str, config: Option<Value>, replay: bool) -> Result<Self, String> {
-        Self::configured_key(bind, config, replay.then(|| super::launch::fixtures().join("replies/gene/main")), None)
+        Self::configured_key(
+            bind,
+            config,
+            replay.then(|| super::launch::fixtures().join("replies/gene/main")),
+            None,
+        )
     }
     pub(super) fn start_replay(path: std::path::PathBuf) -> Result<Self, String> {
         Self::configured_key("127.0.0.1:0", None, Some(path), None)

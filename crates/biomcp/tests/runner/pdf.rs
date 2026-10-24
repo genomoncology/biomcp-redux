@@ -289,7 +289,10 @@ fn record_metadata() -> Check {
         let entry = entry?;
         if entry.path().extension().is_some_and(|v| v == "json") {
             let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
-            assert_eq!(record.pointer("/exchanges/0/body/value/openAccessPdf"), Some(&Value::Null));
+            assert_eq!(
+                record.pointer("/exchanges/0/body/value/openAccessPdf"),
+                Some(&Value::Null)
+            );
         }
     }
     Ok(())

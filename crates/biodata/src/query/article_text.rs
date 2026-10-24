@@ -1,7 +1,7 @@
 use super::gene::{QueryInvalid, present};
 use crate::{ArticleInput, Text};
 use serde::{Deserialize, Serialize};
-/// Read one bounded body part or a page of matching paragraphs and table rows.
+/// Read one bounded body part, find matching rows, or save the complete Markdown document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

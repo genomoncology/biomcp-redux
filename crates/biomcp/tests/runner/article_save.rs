@@ -157,7 +157,8 @@ fn supplement() -> Check {
     Ok(())
 }
 fn failures() -> Check {
-    for (kind, capture) in [("text", "article/fulltext/synthetic-cut")] {
+    {
+        let (kind, capture) = ("text", "article/fulltext/synthetic-cut");
         let env = Environment::new()?;
         let folder = env.root().join("empty");
         fs::create_dir(&folder)?;
