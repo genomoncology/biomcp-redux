@@ -22,7 +22,7 @@ pub(super) fn create<'a>(
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
-    let (mut items, count, truncated) = match result {
+    let (mut items, count, truncated, dois) = match result {
         Ok(value) => value,
         Err(error) => {
             out.sources.push(source);
@@ -51,9 +51,10 @@ pub(super) fn create<'a>(
     out.sources.push(source);
     if items
         .iter()
-        .any(|item| item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some()))
+        .zip(&dois)
+        .any(|(item, doi)| item.pmid.is_none() && doi.is_some())
     {
-        let joined = super::semantic_scholar::resolve_dois(cx, &mut items, deadline);
+        let joined = super::semantic_scholar::resolve_dois_with(cx, &mut items, deadline, &dois);
         out.sources.push(joined.source);
         status::append(&mut out.problems, joined.problems);
         if let Some(error) = joined.error.and_then(status::local) {
@@ -75,24 +76,36 @@ fn collect(
     leg: &biomcp_fetch::Leg<'_>,
     input: &biodata::ArticleInput,
     references: bool,
-) -> Result<(Vec<ArticleItem>, u64, bool), RequestError> {
+) -> Result<(Vec<ArticleItem>, u64, bool, Vec<Option<biodata::Doi>>), RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
+    let mut dois = Vec::new();
     let mut count = 0;
     for _ in 0..5 {
         let reply = semantic_scholar::edges(leg, input, references, offset)?;
         count += reply.data.len() as u64;
         for edge in reply.data {
+            let paper = if references {
+                &edge.cited_paper
+            } else {
+                &edge.citing_paper
+            };
+            dois.push(
+                paper
+                    .as_ref()
+                    .and_then(|paper| paper.external_ids.as_ref())
+                    .and_then(|ids| ids.doi.clone()),
+            );
             let item = edge.item(references).map_err(|_| bad_reply())?;
             items.push(item);
         }
         match reply.next {
-            None => return Ok((items, count, false)),
+            None => return Ok((items, count, false, dois)),
             Some(next) if next > offset.unwrap_or(0) => offset = Some(next),
             Some(_) => return Err(bad_reply()),
         }
     }
-    Ok((items, count, true))
+    Ok((items, count, true, dois))
 }
 fn bad_reply() -> RequestError {
     SourceError {

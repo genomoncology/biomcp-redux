@@ -155,14 +155,29 @@ fn reply(record: &mut Value, value: Value) {
 fn titleless_dois() -> Check {
     case(
         CAPTURE,
-        &["article", "references", "34096690", "--source", "semantic-scholar"],
+        &[
+            "article",
+            "references",
+            "34096690",
+            "--source",
+            "semantic-scholar",
+        ],
         |source, record| {
-            if source != "semantic-scholar" { return; }
-            if let Some(rows) = record.pointer_mut("/exchanges/0/body/value/data").and_then(Value::as_array_mut) {
+            if source != "semantic-scholar" {
+                return;
+            }
+            if let Some(rows) = record
+                .pointer_mut("/exchanges/0/body/value/data")
+                .and_then(Value::as_array_mut)
+            {
                 for edge in rows {
                     if let Some(paper) = edge.get_mut("citedPaper") {
-                        if paper.pointer("/externalIds/DOI").is_some() && paper.pointer("/externalIds/PubMed").is_none() {
-                            if let Some(fields) = paper.as_object_mut() { fields.insert("title".into(), Value::Null); }
+                        if paper.pointer("/externalIds/DOI").is_some()
+                            && paper.pointer("/externalIds/PubMed").is_none()
+                        {
+                            if let Some(fields) = paper.as_object_mut() {
+                                fields.insert("title".into(), Value::Null);
+                            }
                         }
                     }
                 }
