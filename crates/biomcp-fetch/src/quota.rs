@@ -127,6 +127,26 @@ struct State {
 const TOKEN: u128 = 1_000_000_000;
 
 impl State {
+    fn admission_time(&self, deadline: Deadline<'_>) -> Instant {
+        let now = deadline.now();
+        let slot = self
+            .completed
+            .as_ref()
+            .and_then(|times| times.peek())
+            .map(|time| time.0);
+        if deadline.virtual_time()
+            && let Some(last) = self
+                .updated
+                .into_iter()
+                .chain(slot)
+                .max()
+                .filter(|last| *last > now)
+        {
+            deadline.advance(last.duration_since(now));
+        }
+        deadline.now()
+    }
+
     fn available(&self, rate: Rate, now: Instant) -> u128 {
         let capacity = u128::from(rate.burst) * TOKEN;
         self.updated
@@ -174,25 +194,9 @@ impl Limiter {
                 self.wake.notify_all();
                 return None;
             }
-            let mut now = deadline.now();
-            let slot = state
-                .completed
-                .as_ref()
-                .and_then(|times| times.peek())
-                .map(|time| time.0);
-            if deadline.virtual_time()
-                && let Some(last) = state
-                    .updated
-                    .into_iter()
-                    .chain(slot)
-                    .max()
-                    .filter(|last| *last > now)
-            {
-                deadline.advance(last.duration_since(now));
-                now = deadline.now();
-                if deadline.expired() {
-                    continue;
-                }
+            let now = state.admission_time(deadline);
+            if deadline.expired() {
+                continue;
             }
             let available = state.available(rate, now);
             // Missing credit is at most one token, so this fits in a u64.
