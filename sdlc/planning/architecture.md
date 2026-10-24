@@ -263,6 +263,8 @@ Each entity has two levels, so progressive disclosure is a type fact.
 - The **entity** is the full record a get returns.
 - A **card** is one get result. It holds the entity, the requested sections and the names of the sections left out.
 
+Section 3.10 gives the rules that decide which layer each fact belongs to.
+
 The gene types follow `planning/slices/gene.md`:
 
 ```rust
@@ -533,6 +535,39 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value. A query type outside the subset fails here, before the grammar sees it.
 - The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
 - `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
+
+### 3.10 How types carry progressive disclosure
+
+Progressive disclosure is a rule about where each fact sits in the types, so every slice places facts the same way. `decisions/2026-10-24-progressive-disclosure-lives-in-response-types.md` records it.
+
+**The entity is complete and knows nothing about disclosure.** A biodata entity holds every fact its sources give, for any consumer. `Option` means the source has no value. It never means "not fetched" or "not requested". Disclosure lives in BioMCP's response types, which pick from the entity.
+
+**Four layers, each its own type with its own schema:**
+
+| Layer | Type | Returned by | Cost |
+| --- | --- | --- | --- |
+| Header | `<Entity>Header`, a biodata projection of the entity | search, ambiguous inputs | No request beyond the search |
+| Card | `<Entity>Card` holding the entity's core fields | get, by default | The identity source's request only |
+| Section | `Section<T>`, named in a closed enum | get with a section name | One source, one request |
+| Pivot or page | A `Step` to another search or the next page | `next` | A new command |
+
+**Where a fact goes.** A slice applies these rules in order to every fact it keeps:
+
+1. A scalar or small fixed subobject that the identity source returns and the common question needs goes on the card, such as the gene's band or its MANE Select pair.
+2. A fact from another source, or one that needs another request, goes in a section. One section has one source and one request, so asking for more data and paying for more data are the same act.
+3. Bulky prose goes in a section unless the common question needs it. The gene's RefSeq summary is on the card by Ian's ruling, and UniProt function text is behind `protein`.
+4. A short list that cannot grow far, such as previous symbols, sits inline whole.
+5. A list that can grow, such as CIViC variants or Reactome pathways, sits in a section as `Capped<T> { items, total }` with a `next` step to the rest. A header holds only capped lists. A list is never cut without its total.
+6. A list of other entities, such as a gene's trials, articles or variants, is never embedded. The card offers a pivot step to that entity's search.
+7. Another entity appears only as a reference that holds its ID and label, such as `PathwayRef`. No entity type contains another entity type, so depth comes from following IDs, and the types never nest without bound.
+
+**What absence means.** A missing field means the source has no value. A missing section means it was not requested, and the card's `more` names it. A requested section always appears with one of its five states. JSON never prints `null` or an empty list.
+
+**Order is priority.** Struct fields are declared in priority order: identifiers first, closed values next, then lists, then prose. Serde keeps that order, so an agent that reads only the start of a record reads the densest part.
+
+**What the design rejects.** A `--fields` selector, a depth parameter or a query language would make each response's shape depend on the request, so one schema could not describe it and an agent could not predict it. They also cost code. Sections are a closed enum, so every response shape is known ahead.
+
+**Checks.** The schema test fails when an entity type contains another entity type, when a header holds a list that is not `Capped`, or when a card type holds a list of another entity. Each slice's cases hold the byte or token ceiling per layer, as `planning/slices.md` says.
 
 ## 4. The transport
 
