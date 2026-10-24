@@ -15,6 +15,17 @@ pub(super) fn check() -> Result<(), String> {
         json!({"/status":"complete"}),
         0,
     )?;
+    let created = first
+        .pointer("/page/pool/created")
+        .and_then(Value::as_i64)
+        .ok_or("missing created")?;
+    let expires = first
+        .pointer("/page/pool/expires")
+        .and_then(Value::as_i64)
+        .ok_or("missing expires")?;
+    if expires.checked_sub(created) != Some(86_400) {
+        return Err("snapshot did not retain its fixed lifetime".into());
+    }
     let old = first
         .pointer("/page/pool/id")
         .and_then(Value::as_str)

@@ -1,4 +1,4 @@
-use super::response_cases::case;
+use super::response_cases::checked_case;
 use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 
@@ -8,11 +8,11 @@ fn run(
     change: impl Fn(&mut Value),
     args: &[&str],
     expect: Value,
-) -> Check {
+) -> Result<Value, Box<dyn std::error::Error>> {
     let xml = format!(
         "<article><front><article-meta>{front}</article-meta></front><body>{body}</body></article>"
     );
-    case(
+    checked_case(
         "article/fulltext/live-introduction",
         args,
         |source, record| {
@@ -152,5 +152,25 @@ fn markup() -> Check {
         &["article", "text", "PMC5606870", "--part", "3"],
         json!({"/result/content/data/heading_path": ["Results", "First"],
             "/result/content/data/markdown": "**Table 1.** Invented caption.\n| Header | Header |\n| --- | --- |\n| Left |  |"}),
-    )
+    )?;
+    let answer = run(
+        "",
+        body,
+        |_| {},
+        &["get", "article", "28944238", "fulltext"],
+        json!({"/status": "complete"}),
+    )?;
+    let parts = answer
+        .pointer("/result/items/0/sections/fulltext/data/parts")
+        .and_then(Value::as_array)
+        .ok_or("missing outline parts")?;
+    if parts
+        .iter()
+        .filter(|part| part.get("kind").and_then(Value::as_str) == Some("table"))
+        .count()
+        != 1
+    {
+        return Err("repeated citations duplicated a table".into());
+    }
+    Ok(())
 }
