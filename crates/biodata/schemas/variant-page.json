@@ -25,6 +25,86 @@
       ],
       "type": "object"
     },
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Provenance for one source record.",
+      "properties": {
+        "evaluated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evaluation date."
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native assertion record."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset release."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Source responsible for the claim."
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record link."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record version."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -94,9 +174,239 @@
         " Source-preserved cytogenetic notation."
       ]
     },
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
+    },
     "GeneSymbol": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
+    },
+    "GwasAssociation": {
+      "additionalProperties": false,
+      "description": "Source association with unchanged trait and effect labels.",
+      "properties": {
+        "alleles": {
+          "description": "Every source effect allele paired with its rsID.",
+          "items": {
+            "$ref": "#/$defs/GwasEffectAllele"
+          },
+          "type": "array"
+        },
+        "beta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source beta text, including units and direction."
+        },
+        "id": {
+          "description": "Native association identity.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source effect interval."
+        },
+        "odds_ratio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source odds ratio."
+        },
+        "ontology_traits": {
+          "description": "Source mapped trait identifiers and whole labels, without clinical inference.",
+          "items": {
+            "$ref": "#/$defs/GwasTrait"
+          },
+          "type": "array"
+        },
+        "p_value": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Reported p value."
+        },
+        "publication": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source publication identifier."
+        },
+        "risk_frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source allele frequency text, without interpreting NR."
+        },
+        "study": {
+          "$ref": "#/$defs/Text",
+          "description": "Study accession."
+        },
+        "traits": {
+          "description": "Source reported traits.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "study",
+        "traits",
+        "alleles",
+        "p_value"
+      ],
+      "type": "object"
+    },
+    "GwasEffectAllele": {
+      "additionalProperties": false,
+      "description": "Catalog effect allele paired with its exact rsID.",
+      "properties": {
+        "allele": {
+          "$ref": "#/$defs/Text",
+          "description": "Source allele text."
+        },
+        "rs_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source rsID."
+        }
+      },
+      "required": [
+        "rs_id",
+        "allele"
+      ],
+      "type": "object"
+    },
+    "GwasTrait": {
+      "additionalProperties": false,
+      "description": "Source ontology mapping as supplied by GWAS Catalog.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source ontology identifier spelling."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source trait label."
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "type": "object"
+    },
+    "HgvsText": {
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
+      "type": "string"
+    },
+    "LeafRef": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source-qualified HGVS."
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VariantId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source identifier."
+            },
+            "level": {
+              "const": "allele",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Source gene."
+            },
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein HGVS."
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein label."
+            },
+            "level": {
+              "const": "protein",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level",
+            "gene"
+          ],
+          "type": "object"
+        }
+      ]
     },
     "MyVariantQuery": {
       "pattern": "\\S",
@@ -150,6 +460,10 @@
       ],
       "type": "object"
     },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
     "PoolInfo": {
       "additionalProperties": false,
       "description": "Fixed lifetime and size of a stored search snapshot.",
@@ -182,6 +496,91 @@
         "size",
         "created",
         "expires"
+      ],
+      "type": "object"
+    },
+    "PopulationFrequency": {
+      "additionalProperties": false,
+      "description": "One source cohort allele-frequency result under the shared variant model.",
+      "properties": {
+        "allele_count": {
+          "description": "Source allele count; zero remains an observation.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "allele_number": {
+          "description": "Source allele denominator.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Native source record and dataset provenance."
+        },
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source dataset assembly."
+        },
+        "dataset": {
+          "$ref": "#/$defs/Text",
+          "description": "Source dataset identifier."
+        },
+        "filters": {
+          "description": "Every source filter in native order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reported frequency, never calculated from counts."
+        },
+        "group": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source group identifier, absent for the complete sequencing subset."
+        },
+        "homozygotes": {
+          "description": "Source homozygote count, never derived.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/VariantRef",
+          "description": "Exact source-qualified allele subject."
+        }
+      },
+      "required": [
+        "subject",
+        "dataset",
+        "build",
+        "attribution"
       ],
       "type": "object"
     },
@@ -319,6 +718,248 @@
       ],
       "type": "object"
     },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantPopulation",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantGwas",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Sequence": {
       "pattern": "^[ACGTNRYSWKMBDHV]*$",
       "type": "string"
@@ -350,6 +991,7 @@
         "reactome",
         "hpa",
         "uniprot",
+        "gwas",
         "gnomad",
         "clingen",
         "pubmed",
@@ -377,6 +1019,7 @@
         " Reactome.",
         " Human Protein Atlas.",
         " UniProt.",
+        " GWAS Catalog v2.",
         " gnomAD.",
         " ClinGen.",
         " PubMed.",
@@ -649,6 +1292,113 @@
       },
       "type": "object"
     },
+    "VariantGet": {
+      "additionalProperties": false,
+      "description": "Read one published variant identifier; every source candidate is retained.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required for chromosome notation; no assembly is guessed."
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Candidate rows to skip in source order.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolver": {
+          "$ref": "#/$defs/VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default.",
+          "items": {
+            "$ref": "#/$defs/VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Rows per named source section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
+    "VariantGwas": {
+      "additionalProperties": false,
+      "description": "One page of exact rsID catalog associations.",
+      "properties": {
+        "associations": {
+          "description": "Native source associations, without inferred clinical meaning.",
+          "items": {
+            "$ref": "#/$defs/GwasAssociation"
+          },
+          "type": "array"
+        },
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue this section using the same rsID and source selectors."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Exact source page bounds and total."
+        },
+        "rs_id": {
+          "$ref": "#/$defs/VariantId",
+          "description": "Exact source rsID."
+        }
+      },
+      "required": [
+        "rs_id",
+        "associations",
+        "page"
+      ],
+      "type": "object"
+    },
     "VariantHeader": {
       "additionalProperties": false,
       "description": "Consumer identity header with an exact source selection and compact annotation entity.",
@@ -672,6 +1422,28 @@
           "$ref": "#/$defs/SourceRecord",
           "description": "Exact source record, including source keys that are expressions rather than identifiers."
         },
+        "requested": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked caller ID used by a source-only section, without asserting resolved identity."
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicitly requested source sections for this exact candidate."
+        },
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source responsible for this identity."
@@ -686,6 +1458,10 @@
     },
     "VariantId": {
       "pattern": "^(((rs|clinvar:|clinvar\\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\\.[1-9][0-9]*)?|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "type": "string"
+    },
+    "VariantInput": {
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
     },
     "VariantPage": {
@@ -715,8 +1491,176 @@
       ],
       "type": "object"
     },
+    "VariantPopulation": {
+      "additionalProperties": false,
+      "description": "Bounded population summary with independent optional sequencing datasets.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source dataset assembly."
+        },
+        "dataset": {
+          "$ref": "#/$defs/Text",
+          "description": "Source dataset selector."
+        },
+        "exome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationFrequency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exome observation; omitted when the source dataset is null."
+        },
+        "genome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationFrequency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Genome observation; omitted when the source dataset is null."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Source allele identifier."
+        }
+      },
+      "required": [
+        "variant",
+        "dataset",
+        "build"
+      ],
+      "type": "object"
+    },
+    "VariantRef": {
+      "description": "Checked source subject reference; at least one source identity or label is required.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Exact allele identifier or reference-qualified notation.",
+          "properties": {
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source-qualified HGVS."
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VariantId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source identifier."
+            },
+            "level": {
+              "const": "allele",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Protein-level assertion, without genomic conversion.",
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Source gene."
+            },
+            "hgvs": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/HgvsText"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein HGVS."
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Source protein label."
+            },
+            "level": {
+              "const": "protein",
+              "type": "string"
+            }
+          },
+          "required": [
+            "level",
+            "gene"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Compound source profile, without an inferred allele.",
+          "properties": {
+            "label": {
+              "$ref": "#/$defs/Text",
+              "description": "Complete source label."
+            },
+            "level": {
+              "const": "profile",
+              "type": "string"
+            },
+            "members": {
+              "description": "Source member references in their native order.",
+              "items": {
+                "$ref": "#/$defs/LeafRef"
+              },
+              "type": "array"
+            },
+            "record": {
+              "$ref": "#/$defs/Text",
+              "description": "Native profile ID."
+            }
+          },
+          "required": [
+            "level",
+            "record",
+            "label"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "VariantRegion": {
       "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
+      "type": "string"
+    },
+    "VariantResolver": {
+      "description": "Explicit source service for reference-qualified notation.",
+      "enum": [
+        "car",
+        "mutalyzer",
+        "variantvalidator"
+      ],
       "type": "string"
     },
     "VariantSearch": {
@@ -792,6 +1736,47 @@
         "myvariant"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Explicit implemented variant source sections.",
+      "enum": [
+        "population",
+        "gwas"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " gnomAD population observations.",
+        " GWAS Catalog associations."
+      ]
+    },
+    "VariantSections": {
+      "additionalProperties": false,
+      "description": "Source-specific sections, absent unless explicitly selected.",
+      "properties": {
+        "gwas": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit GWAS Catalog source result."
+        },
+        "population": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit population source result."
+        }
+      },
+      "type": "object"
     }
   },
   "$id": "biomcp.variant_page/1",

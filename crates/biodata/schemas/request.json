@@ -310,12 +310,154 @@
         "myvariant"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Explicit implemented variant source sections.",
+      "enum": [
+        "population",
+        "gwas"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " gnomAD population observations.",
+        " GWAS Catalog associations."
+      ]
     }
   },
   "$id": "biodata.request/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Read a published variant identifier.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required for chromosome notation; no assembly is guessed."
+        },
+        "command": {
+          "const": "get_variant",
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Candidate rows to skip in source order.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolver": {
+          "$ref": "#/$defs/VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default.",
+          "items": {
+            "$ref": "#/$defs/VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Rows per named source section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read source ancestry observations.",
+      "properties": {
+        "build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Build"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit source assembly when required by identity input."
+        },
+        "command": {
+          "const": "variant_population",
+          "type": "string"
+        },
+        "detail": {
+          "default": false,
+          "description": "Read source ancestry groups, preserving overlapping groups individually.",
+          "type": "boolean"
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Exact published allele identity; ambiguous candidates must first be selected.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum rows per page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native rows to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolver": {
+          "$ref": "#/$defs/VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified input."
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Observe an exact allele in an explicitly selected cohort.",
@@ -423,57 +565,6 @@
         "command",
         "source",
         "hgvs"
-      ],
-      "type": "object"
-    },
-    {
-      "additionalProperties": false,
-      "description": "Read a published variant identifier.",
-      "properties": {
-        "build": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Build"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Required for chromosome notation; no assembly is guessed."
-        },
-        "command": {
-          "const": "get_variant",
-          "type": "string"
-        },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
-          "x-positional": 0
-        },
-        "limit": {
-          "default": 10,
-          "description": "Candidate rows per page; more remain reachable through typed next commands.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Candidate rows to skip in source order.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "resolver": {
-          "$ref": "#/$defs/VariantResolver",
-          "default": "car",
-          "description": "Resolver for reference-qualified notation; never repairs the input locally."
-        }
-      },
-      "required": [
-        "command",
-        "input"
       ],
       "type": "object"
     },
