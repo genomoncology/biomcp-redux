@@ -90,7 +90,8 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver};
+pub use query::{VariantGet, VariantResolver, VariantRecurrenceQuery, RecurrenceSource};
+pub use response::{VariantRecurrence, RecurrenceStudy, RecurrenceTerms};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution};
 

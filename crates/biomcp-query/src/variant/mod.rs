@@ -1,4 +1,5 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub mod recurrence;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
@@ -89,7 +90,7 @@ fn classify(len: usize) -> VariantResolution {
         _ => VariantResolution::Candidates,
     }
 }
-fn resolve(
+pub(crate) fn resolve(
     query: &VariantGet,
     leg: &Leg<'_>,
     problems: &mut Vec<biodata::Problem>,
@@ -166,7 +167,7 @@ fn join_id(row: &VariantHeader) -> Option<String> {
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }
-fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
+pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
     let direct = matches!(
         query.input().namespace(),
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome)

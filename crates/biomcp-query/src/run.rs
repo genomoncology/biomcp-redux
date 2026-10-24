@@ -50,6 +50,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::VariantRecurrence(query) => crate::variant::recurrence::run(cx, query),
         Request::GetVariant(query) => crate::variant::get(cx, query),
         Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
         Request::GetTrial(query) => crate::trial::get::get(cx, query),

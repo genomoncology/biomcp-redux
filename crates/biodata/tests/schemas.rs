@@ -56,6 +56,8 @@ fn common_registry() -> Vec<Contract> {
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
+        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),

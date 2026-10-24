@@ -1,0 +1,63 @@
+//! Bounded, explicit-cohort mutation observations; no inferred recurrence denominator.
+mod raw;
+pub use raw::Mutation;
+use biodata::{EntrezGeneId, RecurrenceStudy, Source, VariantRecurrenceQuery};
+use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use std::time::Duration;
+/// Study-specific terms must be verified independently of public read access.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::Cbioportal,
+    base: "https://www.cbioportal.org/api",
+    key: KeyUse::None,
+    quota: &crate::quotas::CBIOPORTAL,
+    deadline: Duration::from_secs(15),
+    terms: biomcp_fetch::Terms {
+        name: "cBioPortal study-specific terms unverified; commercial restrictions may apply",
+        url: "https://docs.cbioportal.org/user-guide/faq/",
+        usage: biodata::Use::Restricted,
+    },
+};
+/// Checked metadata for the exact caller-selected cohort.
+#[derive(Debug)]
+pub struct Cohort {
+    /// Source title, description and citation without access-group license inference.
+    pub study: RecurrenceStudy,
+    /// Selected list size, without assuming gene assay eligibility.
+    pub selected_sample_count: Option<u64>,
+}
+/// Fetch and bind all cohort selectors before reading mutation rows.
+pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, RequestError> {
+    let endpoint = SPEC.get("/studies").with_segments(&[PathSegment::new(query.study().as_str())?]).fresh(Freshness::Days(1));
+    let (study, _) = leg.json_received_checked::<raw::Study>(&endpoint, &[], |v| {
+        if v.study_id == *query.study() { Ok(()) } else { Err(BadReply) }
+    })?;
+    let endpoint = SPEC.get("/molecular-profiles").with_segments(&[PathSegment::new(query.profile().as_str())?]).fresh(Freshness::Days(1));
+    leg.json_received_checked::<raw::Profile>(&endpoint, &[], |v| {
+        if v.study_id == *query.study() && v.molecular_profile_id == *query.profile()
+            && v.molecular_alteration_type.as_str() == "MUTATION_EXTENDED" { Ok(()) } else { Err(BadReply) }
+    })?;
+    let endpoint = SPEC.get("/sample-lists").with_segments(&[PathSegment::new(query.sample_set().as_str())?]).fresh(Freshness::Days(1));
+    let (list, _) = leg.json_received_checked::<raw::SampleList>(&endpoint, &[], |v| {
+        if v.study_id == *query.study() && v.sample_list_id == *query.sample_set() { Ok(()) } else { Err(BadReply) }
+    })?;
+    Ok(Cohort {
+        study: RecurrenceStudy { name: study.name, description: study.description, citation: study.citation },
+        selected_sample_count: list.sample_count,
+    })
+}
+/// One native gene page. Wrong study, profile or gene cannot enter the cache.
+pub fn mutations(leg: &Leg<'_>, query: &VariantRecurrenceQuery, gene: EntrezGeneId) -> Result<Vec<Mutation>, RequestError> {
+    let endpoint = SPEC.get("/molecular-profiles").with_segments(&[PathSegment::new(query.profile().as_str())?, PathSegment::new("mutations")?]).fresh(Freshness::Days(1));
+    let params = [
+        ("sampleListId", Arg::Text(query.sample_set().as_str())),
+        ("entrezGeneId", Arg::Num(u64::from(gene.get()))),
+        ("projection", Arg::Text("SUMMARY")),
+        ("pageSize", Arg::Num(u64::from(query.limit()))),
+        ("pageNumber", Arg::Num(u64::from(query.page()))),
+    ];
+    let (rows, _) = leg.json_received_checked::<Vec<Mutation>>(&endpoint, &params, |rows| {
+        if rows.len() <= query.limit() as usize && rows.iter().all(|v| v.study_id == *query.study()
+            && v.molecular_profile_id == *query.profile() && v.entrez_gene_id == gene.get()) { Ok(()) } else { Err(BadReply) }
+    })?;
+    Ok(rows)
+}
