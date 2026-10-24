@@ -39,9 +39,16 @@ fn reply(request: &str) -> Result<String, String> {
             .to_string()
             .replace("synthetic", "\\u0073ynthetic"))
     } else if request.contains("keyword=duplicate") {
-        Ok(r#"{"total":0,"data":[],"ignored":"\u0073ynthetic-containment-key","ignored":"safe"}"#.into())
+        Ok(
+            r#"{"total":0,"data":[],"ignored":"\u0073ynthetic-containment-key","ignored":"safe"}"#
+                .into(),
+        )
     } else if request.contains("keyword=deep") {
-        Ok(format!(r#"{{"total":0,"data":[],"ignored":{}"\u0073ynthetic-containment-key"{}}}"#, "[".repeat(130), "]".repeat(130)))
+        Ok(format!(
+            r#"{{"total":0,"data":[],"ignored":{}"\u0073ynthetic-containment-key"{}}}"#,
+            "[".repeat(130),
+            "]".repeat(130)
+        ))
     } else if request.contains("keyword=error") {
         Ok(KEY.into())
     } else {

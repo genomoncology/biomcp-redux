@@ -40,7 +40,8 @@ impl Leg<'_> {
         // field names) so JSON escaping cannot conceal a value from this boundary.
         // Scan tokens independently: object decoding drops duplicate fields and
         // its nesting limit can hide strings before recording rejects the reply.
-        if reflected(media.as_bytes()) || reflected(body) || json_strings_contain(body, &reflected) {
+        if reflected(media.as_bytes()) || reflected(body) || json_strings_contain(body, &reflected)
+        {
             return Err(self.failure(Reason::BadReply, Some(status)).into());
         }
         Ok(())
