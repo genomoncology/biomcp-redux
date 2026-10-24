@@ -154,7 +154,9 @@ impl Leg<'_> {
                 .failure(Reason::DeadlineExceeded, Some(entry.status))
                 .into());
         }
-        if self.fetch.config.observations.is_some() {
+        if self.fetch.config.observations.is_some()
+            && (fresh || self.fetch.config.mode == Mode::Offline)
+        {
             self.observed(
                 key,
                 Some(entry.status),

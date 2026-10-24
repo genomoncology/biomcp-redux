@@ -24,6 +24,7 @@ pub(crate) fn compare(
         let paired = exact.or_else(|| {
             terminal(after).into_iter().find(|item| {
                 item.source == old.source && item.role == old.role && !used.contains(&item.identity)
+                    && !before.iter().any(|old| old.identity == item.identity)
             })
         });
         let kind = match paired {

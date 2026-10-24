@@ -239,11 +239,18 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     let original = super::launch::fixtures().join("replies/gene/main");
     let retry = env.root().join("retried");
     response_cases::copy_capture("gene/main", &retry, |source, record| {
-        if source == "mygene" && let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut) {
-            let Some(mut error) = exchanges.first().cloned() else { return };
+        if source == "mygene"
+            && let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut)
+        {
+            let Some(mut error) = exchanges.first().cloned() else {
+                return;
+            };
             if let Some(error) = error.as_object_mut() {
                 error.insert("status".into(), json!(429));
-                error.insert("body".into(), json!({"kind": "json", "value": {"error": "retry", "count": 2}}));
+                error.insert(
+                    "body".into(),
+                    json!({"kind": "json", "value": {"error": "retry", "count": 2}}),
+                );
                 error.insert("retry_after_ms".into(), json!(0));
             }
             exchanges.insert(0, error);
@@ -328,8 +335,9 @@ fn cache_reuse(
         return Err("cache reuse not observed".into());
     }
     let mut changes = Vec::new();
-    live::compare(after, &cached, &mut changes, &mut BTreeMap::new());
-    if !changes.is_empty() {
+    let mut sources = BTreeMap::new();
+    live::compare(after, &cached, &mut changes, &mut sources);
+    if !changes.is_empty() || !sources.is_empty() {
         return Err(format!("cache reuse caused false drift: {changes:?}").into());
     }
     Ok(())
@@ -382,6 +390,15 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
         || !changes.last().is_some_and(|item| item.contains("omitted"))
     {
         return Err("truncation is hidden".into());
+    }
+    // Stable identities retain their exact match when an earlier result disappears.
+    changes.clear();
+    let surviving = many.get(1).ok_or("missing second request")?;
+    let pair = many.get(..2).ok_or("missing pair")?;
+    let evidence = live::compare(pair, std::slice::from_ref(surviving), &mut changes, &mut BTreeMap::new());
+    if evidence.pointer("/items/0/kind") != Some(&json!("request-plan-removed"))
+        || evidence.pointer("/items/1/kind") != Some(&json!("same-request")) {
+        return Err("changed pool stole a surviving exact request".into());
     }
     Ok(())
 }
