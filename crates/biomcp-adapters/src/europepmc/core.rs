@@ -64,10 +64,17 @@ fn bad(_: impl std::fmt::Debug) -> RequestError {
     .into()
 }
 fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), RequestError> {
-    let endpoint = CORE.clone().with_path(format!("/article/PPR/{id}")).map_err(bad)?;
-    let (raw, meta) = leg.json_received::<Raw>(&endpoint, &[
-        ("format", Arg::Text("json")), ("resultType", Arg::Text("core")),
-    ])?;
+    let endpoint = CORE
+        .clone()
+        .with_path(format!("/article/PPR/{id}"))
+        .map_err(bad)?;
+    let (raw, meta) = leg.json_received::<Raw>(
+        &endpoint,
+        &[
+            ("format", Arg::Text("json")),
+            ("resultType", Arg::Text("core")),
+        ],
+    )?;
     if raw.result.id != *id {
         return Err(bad(BadReply));
     }
@@ -76,25 +83,57 @@ fn record(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Record, ReplyMetadata), Re
 /// Resolve a preprint directly from its checked core metadata record.
 pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata), RequestError> {
     let (raw, meta) = record(leg, id)?;
-    let abstract_parts = raw.abstract_text.as_ref().filter(|s| !s.trim().is_empty()).map(|xml| {
-        jats::markdown(&format!("<abstract>{xml}</abstract>")).map(|text| AbstractPart { label: None, text })
-    }).transpose().map_err(bad)?.into_iter().collect();
-    Ok((Article {
-        europepmc_id: Some(raw.id), pmid: raw.pmid, doi: raw.doi, pmcid: None,
-        title: raw.title, journal: raw.book_or_report_details.and_then(|p| p.publisher),
-        date: raw.first_publication_date,
-        types: raw.pub_type_list.pub_type.iter().filter_map(|s| crate::pubmed::publication_type(s)).collect(),
-        authors: raw.author_list.author.into_iter().map(|a| a.full_name).collect(),
-        abstract_parts, corrections: Box::default(),
-    }, meta))
+    let abstract_parts = raw
+        .abstract_text
+        .as_ref()
+        .filter(|s| !s.trim().is_empty())
+        .map(|xml| {
+            jats::markdown(&format!("<abstract>{xml}</abstract>"))
+                .map(|text| AbstractPart { label: None, text })
+        })
+        .transpose()
+        .map_err(bad)?
+        .into_iter()
+        .collect();
+    Ok((
+        Article {
+            europepmc_id: Some(raw.id),
+            pmid: raw.pmid,
+            doi: raw.doi,
+            pmcid: None,
+            title: raw.title,
+            journal: raw.book_or_report_details.and_then(|p| p.publisher),
+            date: raw.first_publication_date,
+            types: raw
+                .pub_type_list
+                .pub_type
+                .iter()
+                .filter_map(|s| crate::pubmed::publication_type(s))
+                .collect(),
+            authors: raw
+                .author_list
+                .author
+                .into_iter()
+                .map(|a| a.full_name)
+                .collect(),
+            abstract_parts,
+            corrections: Box::default(),
+        },
+        meta,
+    ))
 }
 /// Read JATS with the license owned by its core record, rather than inferring license XML.
 pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, RequestError> {
     let (raw, _) = record(leg, id)?;
-    let endpoint = FULLTEXT.clone().with_path(format!("/{id}/fullTextXML")).map_err(bad)?;
+    let endpoint = FULLTEXT
+        .clone()
+        .with_path(format!("/{id}/fullTextXML"))
+        .map_err(bad)?;
     let body = leg.xml::<jats::Body>(&endpoint, &[])?;
     Ok(pmc_oa::Document {
         license: pmc_oa::license(raw.license.as_deref().unwrap_or("")),
-        version: None, manuscript: None, body,
+        version: None,
+        manuscript: None,
+        body,
     })
 }

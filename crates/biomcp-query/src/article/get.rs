@@ -51,7 +51,15 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
         body: QueryBody::ArticleCards(ArticleCards {
             items: items.into(),
         }),
-        sources: if query.input().iter().any(|i| !matches!(i, ArticleInput::EuropePmc(_))) { vec![source] } else { Vec::new() },
+        sources: if query
+            .input()
+            .iter()
+            .any(|i| !matches!(i, ArticleInput::EuropePmc(_)))
+        {
+            vec![source]
+        } else {
+            Vec::new()
+        },
         page: None,
         problems: Vec::new(),
         next: Vec::new(),
@@ -61,7 +69,9 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     super::preprint::cards(cx, &mut deadline, &mut out);
     let requested = if let QueryBody::ArticleCards(cards) = &mut out.body {
         super::sections::prepare(query, &mut cards.items)
-    } else { false };
+    } else {
+        false
+    };
     if requested {
         super::sections::run(cx, &mut deadline, query, &mut out);
     }

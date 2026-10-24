@@ -29,7 +29,11 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
             body.content = Section::Unavailable {
-                source: if matches!(query.input(), ArticleInput::EuropePmc(_)) { Source::EuropePmc } else { Source::PmcOa },
+                source: if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+                    Source::EuropePmc
+                } else {
+                    Source::PmcOa
+                },
                 reason: match error {
                     RequestError::Source(e) => e.reason,
                     _ => Reason::Unavailable,
@@ -141,7 +145,12 @@ fn select(
         license: document.license,
         processing_version: document.version,
         manuscript: document.manuscript,
-        scope: Text::new(if matches!(query.input(), ArticleInput::EuropePmc(_)) { "Europe PMC body sections and tables" } else { "PMC body sections and tables" }).ok()?,
+        scope: Text::new(if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+            "Europe PMC body sections and tables"
+        } else {
+            "PMC body sections and tables"
+        })
+        .ok()?,
         part: None,
         markdown: None,
         heading_path: None,
@@ -165,7 +174,11 @@ fn select(
         )
         .ok();
         if part.continuation {
-            super::sections::fulltext::next_input(query.input().clone(), number.checked_add(1)?, &mut out.next);
+            super::sections::fulltext::next_input(
+                query.input().clone(),
+                number.checked_add(1)?,
+                &mut out.next,
+            );
         }
     } else {
         content.hits = Some(find(query, document, out)?);
@@ -267,19 +280,37 @@ fn matches(document: &pmc_oa::Document, matching: &[bool]) -> Vec<Hit> {
     hits
 }
 
-fn preprint<'a>(cx: &Ctx<'a>, query: &ArticleText, id: &biodata::EuropePmcId, deadline: &mut Deadline<'a>, out: &mut Outcome) -> Result<(), RequestError> {
+fn preprint<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleText,
+    id: &biodata::EuropePmcId,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&europepmc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let result = europepmc::read(&leg, id);
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
-    let source = status::source(Source::EuropePmc, leg.finish(), result.as_ref().err().copied());
-    if source.state == biodata::SourceState::Stale { out.status = Status::Partial; }
+    let source = status::source(
+        Source::EuropePmc,
+        leg.finish(),
+        result.as_ref().err().copied(),
+    );
+    if source.state == biodata::SourceState::Stale {
+        out.status = Status::Partial;
+    }
     out.sources.push(source);
     let document = result?;
     let Some(content) = select(query, &document, out) else {
         out.body = QueryBody::TextPositionError;
         return Ok(());
     };
-    out.body = QueryBody::ArticleText(ArticleTextResult { pmcid: None, content: Section::Data { source: Source::EuropePmc, data: content } });
+    out.body = QueryBody::ArticleText(ArticleTextResult {
+        pmcid: None,
+        content: Section::Data {
+            source: Source::EuropePmc,
+            data: content,
+        },
+    });
     Ok(())
 }

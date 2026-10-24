@@ -1,6 +1,5 @@
 //! Europe PMC's bounded metadata-only search window.
 mod core;
-pub use core::{core, read};
 use crate::quotas;
 use biodata::{
     ArticleHeader, ArticleItem, ArticleKey, ArticleSort, Doi, EuropePmcId, PartialDate, Pmcid,
@@ -9,6 +8,7 @@ use biodata::{
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
+pub use core::{core, read};
 use serde::Deserialize;
 use std::time::Duration;
 /// Public search policy with a conservative local quota.

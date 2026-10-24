@@ -21,8 +21,10 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 .then_some(Section::NotApplicable),
                 citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none())
                     .then_some(Section::NotApplicable),
-                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none() && card.europepmc_id.is_none())
-                    .then_some(Section::NotApplicable),
+                fulltext: (selected(query, ArticleSectionWord::Fulltext)
+                    && card.pmcid.is_none()
+                    && card.europepmc_id.is_none())
+                .then_some(Section::NotApplicable),
             });
         }
         item.more = [

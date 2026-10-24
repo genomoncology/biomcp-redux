@@ -1,4 +1,4 @@
-use crate::{Doi, EuropePmcId, Error, Pmcid, Pmid, macros::text_value};
+use crate::{Doi, Error, EuropePmcId, Pmcid, Pmid, macros::text_value};
 /// A checked article identifier, retaining its namespace.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ArticleInput {
