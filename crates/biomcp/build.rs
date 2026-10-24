@@ -35,40 +35,54 @@ fn main() -> Result<(), Box<dyn Error>> {
     embed_examples()
 }
 
+const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("article/pdf/synthetic.yaml", 1),
+    ("article/pdf/synthetic.yaml", 2),
+    ("gene/kras.yaml", 0),
+    ("gene/braf.yaml", 0),
+    ("gene/search.yaml", 0),
+    ("gene/search.yaml", 1),
+    ("article/search/pubmed-floor.yaml", 0),
+    ("article/filters/since.yaml", 0),
+    ("article/get/card.yaml", 0),
+    ("article/preprint/reader.yaml", 0),
+    ("article/fulltext/outline.yaml", 2),
+    ("article/fulltext/variant.yaml", 0),
+    ("article/supplements/workbook.yaml", 0),
+    ("article/supplements/protein-change.yaml", 0),
+    ("article/citations/citing.yaml", 0),
+    ("article/edges/window.yaml", 0),
+    ("article/citations/references.yaml", 0),
+    ("article/edges/references.yaml", 0),
+    ("article/evidence/source.yaml", 0),
+    ("article/evidence/source.yaml", 1),
+    ("article/recommendations/single.yaml", 0),
+    ("article/recommendations/multi.yaml", 0),
+    ("trial/condition.yaml", 0),
+    ("trial/intervention.yaml", 0),
+    ("trial/get/NCT04303780.yaml", 0),
+    ("trial/documents.yaml", 0),
+    ("trial/document-examples.yaml", 0),
+    ("trial/document-examples.yaml", 1),
+    ("variant/assertions-domains.yaml", 0),
+    ("variant/assertions-erepo-current.yaml", 0),
+    ("variant/search-L858R.yaml", 0),
+    ("variant/search-Arg117Gly.yaml", 0),
+    ("variant/help-assertions-clinvar.yaml", 0),
+    ("variant/help-assertions-erepo.yaml", 0),
+    ("variant/help-population.yaml", 0),
+    ("variant/help-population.yaml", 1),
+    ("variant/help-normalize-mutalyzer.yaml", 0),
+    ("variant/help-normalize-variantvalidator.yaml", 0),
+    ("variant/recurrence-source-query.yaml", 0),
+    ("variant/help-recurrence.yaml", 0),
+];
+
 fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();
-    for (file, index) in [
-        ("article/pdf/synthetic.yaml", 1),
-        ("article/pdf/synthetic.yaml", 2),
-        ("gene/kras.yaml", 0),
-        ("gene/braf.yaml", 0),
-        ("gene/search.yaml", 0),
-        ("gene/search.yaml", 1),
-        ("article/search/pubmed-floor.yaml", 0),
-        ("article/filters/since.yaml", 0),
-        ("article/get/card.yaml", 0),
-        ("article/preprint/reader.yaml", 0),
-        ("article/fulltext/outline.yaml", 2),
-        ("article/fulltext/variant.yaml", 0),
-        ("article/supplements/workbook.yaml", 0),
-        ("article/supplements/protein-change.yaml", 0),
-        ("article/citations/citing.yaml", 0),
-        ("article/edges/window.yaml", 0),
-        ("article/citations/references.yaml", 0),
-        ("article/edges/references.yaml", 0),
-        ("article/evidence/source.yaml", 0),
-        ("article/evidence/source.yaml", 1),
-        ("article/recommendations/single.yaml", 0),
-        ("article/recommendations/multi.yaml", 0),
-        ("trial/condition.yaml", 0),
-        ("trial/intervention.yaml", 0),
-        ("trial/get/NCT04303780.yaml", 0),
-        ("trial/documents.yaml", 0),
-        ("trial/document-examples.yaml", 0),
-        ("trial/document-examples.yaml", 1),
-    ] {
+    for &(file, index) in EXAMPLE_CASES {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());
         let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;

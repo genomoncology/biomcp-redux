@@ -1,0 +1,35 @@
+{
+  "feature": "variant-help",
+  "live_check": "synthetic response recorded from existing local TLS case",
+  "replay": "variant/normalization/variantvalidator",
+  "story": "Help sends unchanged reference-qualified notation to an explicit normalization service.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "variantvalidator",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A",
+        "--build",
+        "GRCh38"
+      ],
+      "mcp": [
+        "variant",
+        "normalize",
+        "--source",
+        "variantvalidator",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A",
+        "--build",
+        "GRCh38"
+      ],
+      "expect": {
+        "/result/results/0/source": "variantvalidator",
+        "/result/results/0/outcome": "resolved",
+        "/result/results/0/total_mappings": 2
+      }
+    }
+  ]
+}

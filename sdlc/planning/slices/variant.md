@@ -136,28 +136,7 @@ One identity representation owns build and counting rules. One request definitio
 
 The historical baseline has 112 leaf commands and 375 command-specific option slots. Global flags, aliases, positional section values and options on non-leaf parents are outside that denominator. The authoritative generator is [scripts/parity.py](../../../scripts/parity.py); it remains unchanged. The [accepted rulings](../../decisions/2026-10-24-variant-slice-rulings.md) define the target behavior. Ledger outcomes mark implemented command behavior separately from the live source-proof boundaries below. Unproved filter mappings remain `Not yet decided`. Advanced filters require known-positive source cases. Design approval does not increment shipped parity.
 
-| Historical capability | Proposed treatment | Reason and unresolved proof |
-| --- | --- | --- |
-| `search variant` | Keep declared gene/protein, source query and paging. Keep provider filters one named source away, only after captured known positives. | Preserve discovery without free-text guessing. Every filter must show a source field and a positive case. |
-| `get variant`; `--assembly` | Keep source-qualified get, explicit build and section selection. | Gene/protein is search unless a source resolves it; rsID may return alternate-allele candidates. |
-| `predict`, `predictions` | One `predict` section; `predictions` returns a retirement message naming `predict`. | Public predictor fields are source data, not BioMCP interpretation; no synthetic score blend. |
-| `clinvar` | Keep direct source records and framework-specific assertions. | The aggregate MyVariant label cannot replace VCV/RCV/SCV details. |
-| `population`, `population-details` | Keep `population`; retire `population-details` with a message naming `variant population <ID> --detail`. | Both honor dataset and build; preserve missing versus zero. |
-| `conservation` | Keep named source-carried scores if public-tier captures prove fields. | Optional scientific context, absent from default. |
-| `cosmic` | Keep only MyVariant's historical snapshot. | No direct COSMIC integration. Preserve version/age/license. |
-| `cgi` | Defer source-carried field mapping until a harvested cancer-care question and current public field are captured. | No ROADMAP direct CGI source. No unproved section. |
-| `civic` | Keep exact variant/molecular-profile evidence. | Name matches alone include compound profiles and need exact membership checks. |
-| `cbioportal` | Keep explicit cohort recurrence. | Historical hidden cohort is not an accepted default. |
-| `gwas` and `search gwas` | The variant `gwas` section stays here; `search gwas` belongs to the GWAS slice. | Historical v1 has retired; no outage masquerades as empty. |
-| `all` | Select every implemented named section with bounded pages. | It preserves source skips and problems. It cannot supply a missing key; keyed annotation still needs explicit build and tumor context. |
-| `variant structure` | Defer; return a retirement message naming `get gene <SYMBOL> protein`. | No accepted answer requires structure/domain/PDB/AlphaFold aggregation. UniProt/InterPro remain gene/protein context, not new variant clinical evidence. |
-| `variant oncokb` | Keep as keyed section, migration action for old spelling. | No execution without user's key; actual licensed-tier proof stays open independently of local configured-key cases. |
-| `variant normalize` | Keep explicit service passthrough and independent source results. | No local full parser, correction or transcript selection. |
-| `variant erepo` | Keep CAid assertions and version detail; gene search explicit if retained. | No implicit gene-wide scan on missing allele assertions. |
-| `variant trials` | Move to trial slice's declared variant filter. | Trial wording and identity behavior belong to trial investigation. |
-| `variant articles` | Article slice owns migration to `search article --variant`. | Count once in that slice, including structured input and routing/strategy flags. |
-| `gene cspec document` and parent selection flags | Gene accounting owns the leaf; variant cspec is deferred until a harvested question needs it. | No duplicate ledger row. Parent `--version`, `--capture-id`, `--files`, `--limit`, `--offset` remain listed here outside the denominator. |
-| Generic `batch variant` and global `--json`, `--no-cache`, `--disable-sources` | Shared command/global accounting owns them. | Same existing envelope, source policy and bounded multi-input path. No duplicate command count. |
+The leaf table below owns the six variant commands. The section table that follows gives canonical routes, retirement guidance and source-proof boundaries. `variant trials` and `search gwas` belong to the trial and GWAS slices. `variant articles` belongs to article accounting. Gene accounting owns `gene cspec document`; its parent flags `--version`, `--capture-id`, `--files`, `--limit` and `--offset` remain outside the leaf denominator. Generic `batch variant` and global `--json`, `--no-cache` and `--disable-sources` belong to shared command accounting. No capability is counted twice.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
