@@ -12,7 +12,10 @@ pub(crate) struct Globals {
     pub(crate) case_cache: Option<PathBuf>,
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
+    pub(crate) format: Option<Format>,
 }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Format { Json, Md }
 #[derive(Debug)]
 pub(crate) struct Parsed {
     pub(crate) action: Option<Action>,
@@ -42,6 +45,7 @@ fn root() -> Result<Command, ()> {
         .disable_version_flag(true)
         .arg_required_else_help(true)
         .subcommand_required(true);
+    root = root.arg(Arg::new("format").long("format").global(true).value_parser(["json", "md"]));
     for name in ["replay", "record", "case-cache"] {
         root = root.arg(
             Arg::new(name)
@@ -101,6 +105,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
+        format: matches.get_one::<String>("format").map(|v| if v == "md" { Format::Md } else { Format::Json }),
     };
     globals.check()?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -213,6 +218,7 @@ impl Globals {
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
+        self.format = self.format.or(process.format);
         self.offline |= process.offline;
         self.check()
     }
