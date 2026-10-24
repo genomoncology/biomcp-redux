@@ -9,7 +9,7 @@ const ANNOTATION: Endpoint = SPEC
     .fresh(Freshness::Days(1));
 
 /// Native source response; clinical labels have not been mapped or interpreted.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Annotation {
     /// Source echo, required before admission to the shared reply cache.
@@ -47,7 +47,7 @@ pub struct Annotation {
     pub last_update: Option<String>,
 }
 /// Complete source-echoed request identity.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Query {
     /// Source genomic query.
@@ -62,7 +62,7 @@ pub struct Query {
     pub alteration: Option<biodata::Text>,
 }
 /// Native mutation effect and text, without local interpretation.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MutationEffect {
     /// Native label.
@@ -73,14 +73,14 @@ pub struct MutationEffect {
     pub citations: Option<Citations>,
 }
 /// Native publication citations.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Citations {
     /// Source PMID identities.
     #[serde(default)]
     pub pmids: Vec<String>,
 }
 /// Native drug identity.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Drug {
     /// Source label.
@@ -89,7 +89,7 @@ pub struct Drug {
     pub ncit_code: Option<String>,
 }
 /// Native tumor concept.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct TumorType {
     /// OncoTree code.
     pub code: Option<String>,
@@ -97,7 +97,7 @@ pub struct TumorType {
     pub name: Option<String>,
 }
 /// Native treatment row, including the provider's alteration grouping.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Treatment {
     /// Native source level.
@@ -125,7 +125,7 @@ pub struct Treatment {
     pub fda_level: Option<String>,
 }
 /// Native diagnostic or prognostic implication.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Implication {
     /// Native source level.
