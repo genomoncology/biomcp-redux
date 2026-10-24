@@ -115,14 +115,12 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
     match (request, result.body) {
-        (_, QueryBody::UnsupportedFilter { source, option }) => encode(
-            biodata::ErrorEnvelope::unsupported_filter(source, option),
-            crate::exit::Status::Usage,
-        ),
-        (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
-            biodata::ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::UnsupportedFilter { source, option }) => {
+            usage(biodata::ErrorEnvelope::unsupported_filter(source, option))
+        }
+        (Request::ArticleText(_), QueryBody::TextPositionError) => {
+            usage(biodata::ErrorEnvelope::arguments())
+        }
         (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
             let mut envelope = Envelope::new(result.status, query, Some(body));
             envelope.sources = result.sources;
@@ -132,10 +130,9 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
             encode(envelope, status)
         }
 
-        (_, QueryBody::TooManyPmids { count }) => encode(
-            biodata::ErrorEnvelope::too_many_pmids(count),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::TooManyPmids { count }) => {
+            usage(biodata::ErrorEnvelope::too_many_pmids(count))
+        }
         (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
@@ -341,4 +338,8 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
             crate::exit::Status::Expired
         },
     )
+}
+
+fn usage(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
+    encode(error, crate::exit::Status::Usage)
 }
