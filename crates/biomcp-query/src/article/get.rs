@@ -51,15 +51,7 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
         body: QueryBody::ArticleCards(ArticleCards {
             items: items.into(),
         }),
-        sources: if query
-            .input()
-            .iter()
-            .any(|i| !matches!(i, ArticleInput::EuropePmc(_)))
-        {
-            vec![source]
-        } else {
-            Vec::new()
-        },
+        sources: sources(query, source),
         page: None,
         problems: Vec::new(),
         next: Vec::new(),
@@ -166,5 +158,13 @@ fn append(
             Status::Absent,
             Some(ArticleResolution::NotFound),
         ));
+    }
+}
+
+fn sources(query: &ArticleGet, source: biodata::SourceOutcome) -> Vec<biodata::SourceOutcome> {
+    if query.input().iter().any(|i| !matches!(i, ArticleInput::EuropePmc(_))) {
+        vec![source]
+    } else {
+        Vec::new()
     }
 }
