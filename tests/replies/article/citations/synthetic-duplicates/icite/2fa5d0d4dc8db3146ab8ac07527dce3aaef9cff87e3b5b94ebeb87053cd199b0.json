@@ -27,7 +27,8 @@
               ],
               "citingClinicalPmids": [
                 1,
-                1
+                1,
+                2
               ],
               "citedByClinicalArticle": true,
               "rcr": 9.0,
