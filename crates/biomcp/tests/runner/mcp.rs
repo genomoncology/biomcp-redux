@@ -53,13 +53,6 @@ fn exchange_with_globals(
         .collect()
 }
 
-pub(super) fn call(
-    environment: &Environment,
-    args: &[String],
-    is_error: bool,
-) -> Result<Value, String> {
-    call_with_globals(environment, args, is_error, &[])
-}
 pub(super) fn call_with_globals(
     environment: &Environment,
     args: &[String],
