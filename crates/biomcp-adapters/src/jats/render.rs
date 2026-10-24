@@ -22,7 +22,7 @@ pub(super) fn body(node: Element<'_>) -> Result<(Vec<Part>, Vec<BodyRow>), BadRe
         }
         let start = parts.len();
         for group in body::groups(&name, node)? {
-            let cited: BTreeSet<_> = group
+            let cited: Vec<_> = group
                 .table_refs
                 .iter()
                 .filter_map(|id| identities.get(id.as_str()).copied())

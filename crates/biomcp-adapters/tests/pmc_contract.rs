@@ -204,3 +204,14 @@ fn inline_markup_preserves_non_citation_superscripts() -> Result<(), Error> {
     assert!(biomcp_adapters::jats::markdown("<p>&undefined;</p>").is_err());
     Ok(())
 }
+
+#[test]
+fn tables_follow_citation_order_within_the_same_source_group() -> Result<(), Error> {
+    let body = "<sec><title>Results</title><p><xref ref-type=\"table\" rid=\"T2 T1\">2, 1</xref></p><table-wrap id=\"T1\"><label>Table 1</label></table-wrap><table-wrap id=\"T2\"><label>Table 2</label></table-wrap></sec>";
+    let document = read(|_| {}, &article("", body))??.ok_or("missing document")?;
+    let labels: Vec<_> = document.body.parts.iter()
+        .filter(|part| part.meta.kind == biodata::TextPartKind::Table)
+        .map(|part| part.meta.title.as_str()).collect();
+    assert_eq!(labels, ["Table 2", "Table 1"]);
+    Ok(())
+}
