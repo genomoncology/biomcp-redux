@@ -686,6 +686,6 @@ fn recording_path(dir: &std::path::Path) -> std::path::PathBuf {
 fn replace_recorded_body(path: &std::path::Path, body: &str) {
     let mut value: serde_json::Value =
         serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
-    value["exchanges"][0]["body"]["value"] = body.into();
+    *value.pointer_mut("/exchanges/0/body/value").unwrap() = body.into();
     std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
 }
