@@ -22,7 +22,12 @@ pub(super) fn create<'a>(
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
-    let (mut items, count, truncated, dois) = match result {
+    let Window {
+        mut items,
+        count,
+        truncated,
+        dois,
+    } = match result {
         Ok(value) => value,
         Err(error) => {
             out.sources.push(source);
@@ -72,11 +77,17 @@ pub(super) fn create<'a>(
     });
     Ok(Some(items))
 }
+struct Window {
+    items: Vec<ArticleItem>,
+    count: u64,
+    truncated: bool,
+    dois: Vec<Option<biodata::Doi>>,
+}
 fn collect(
     leg: &biomcp_fetch::Leg<'_>,
     input: &biodata::ArticleInput,
     references: bool,
-) -> Result<(Vec<ArticleItem>, u64, bool, Vec<Option<biodata::Doi>>), RequestError> {
+) -> Result<Window, RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
     let mut dois = Vec::new();
@@ -100,12 +111,24 @@ fn collect(
             items.push(item);
         }
         match reply.next {
-            None => return Ok((items, count, false, dois)),
+            None => {
+                return Ok(Window {
+                    items,
+                    count,
+                    truncated: false,
+                    dois,
+                });
+            }
             Some(next) if next > offset.unwrap_or(0) => offset = Some(next),
             Some(_) => return Err(bad_reply()),
         }
     }
-    Ok((items, count, true, dois))
+    Ok(Window {
+        items,
+        count,
+        truncated: true,
+        dois,
+    })
 }
 fn bad_reply() -> RequestError {
     SourceError {
