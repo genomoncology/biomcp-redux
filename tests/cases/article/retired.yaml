@@ -62,6 +62,10 @@
     {"run": ["get", "article", "33123537", "--section", "annotations"], "expect": {"/result/items/0/sections/annotations/state": "data"}, "mcp": ["get", "article", "33123537", "--section", "annotations"]},
     {"run": ["article", "--", "entities"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
     {"run": ["schema", "article"], "expect": {"/error/code": "usage.schema"}, "exit": 2},
+    # A retired command is established before its old options or arbitrary values.
+    {"run": ["article", "entities", "secret-input", "--limit", "5"], "mcp": ["article", "entities", "secret-input", "--limit", "5"], "expect": {"/error/code": "usage.retired", "/error/message": "use: get article <id> annotations"}, "exit": 2, "is_error": true},
+    {"run": ["article", "supplement-search", "secret-input", "secret-needle", "--asset", "secret-file"], "expect": {"/error/code": "usage.retired", "/error/message": "use: article supplement <id> <file> --find <text>"}, "exit": 2},
+    {"run": ["gene", "pathways", "BRAF", "--limit", "5"], "expect": {"/error/code": "usage.retired", "/error/message": "use: get gene <gene> pathways"}, "exit": 2},
     # Global option boundaries and missing values preserve ordinary argument classification.
     {"run": ["--offline", "article", "recommendations"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
     {"run": ["--case-cache=secret", "article", "recommendations"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
