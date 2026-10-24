@@ -15,6 +15,7 @@ mod mcp;
 mod named_search;
 mod negative_cases;
 mod network_stub;
+mod pdf;
 mod pmc_tables;
 mod pool_tables;
 mod process;

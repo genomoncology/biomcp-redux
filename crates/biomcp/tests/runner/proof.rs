@@ -6,6 +6,12 @@ type Check = Result<(), String>;
 
 pub(crate) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article-pdf/publisher-network-policy", || {
+            super::pdf::policy().map_err(Into::into)
+        }),
+        Trial::test("article-pdf/oversized-publisher-body", || {
+            super::pdf::oversized().map_err(Into::into)
+        }),
         Trial::test("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),

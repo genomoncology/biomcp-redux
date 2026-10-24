@@ -213,6 +213,20 @@ impl Leg<'_> {
         if (ep.method == Method::Json) != json_body {
             return Err(InputError::Method.into());
         }
+        if ep.publisher {
+            let uri = ep
+                .path
+                .parse::<ureq::http::Uri>()
+                .map_err(|_| InputError::Path)?;
+            if self
+                .fetch
+                .config
+                .network
+                .requires_proxy(self.fetch.config.proxy.is_some(), &uri)
+            {
+                return Err(self.failure(Reason::Proxy, None).into());
+            }
+        }
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
