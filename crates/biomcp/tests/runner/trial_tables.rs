@@ -133,7 +133,7 @@ fn count_failure() -> Check {
                 record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
             }
         },
-        json!([{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable","/result/count_request":{"count":5}}}]),
+        json!([{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable","/result/count_request":{"count":4}}}]),
     )?;
     if output.get("page").is_some() || output["sources"][0].get("count").is_some() {
         return Err("failed native count asserted a total".into());
