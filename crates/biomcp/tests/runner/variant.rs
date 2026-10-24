@@ -5,6 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "variant/component-rights-and-historical-association",
+            || components().map_err(Into::into),
+        ),
         Trial::test("variant/mixed-identity-page-never-enters-cache", || {
             mixed_page().map_err(Into::into)
         }),
@@ -229,4 +233,62 @@ fn validator_order() -> Result<(), String> {
 }
 fn validator_body(_: &str) -> Result<String, String> {
     Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
+}
+
+fn components() -> Result<(), String> {
+    let (value, requests) = call(
+        "myvariant.info",
+        component_body,
+        &[
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "predict",
+            "conservation",
+            "cosmic",
+            "--build",
+            "GRCh37",
+        ],
+    )?;
+    let base = "/result/candidates/0/sections";
+    for name in ["predict", "conservation"] {
+        if value.pointer(&format!("{base}/{name}/reason")) != Some(&json!("restricted_terms")) {
+            return Err(format!("restricted component became an offer: {value}"));
+        }
+    }
+    let cosmic = value
+        .pointer(&format!("{base}/cosmic/data"))
+        .ok_or("historical fragment missing")?;
+    if cosmic.pointer("/records/0/myvariant_record") != Some(&json!("chr7:g.140453136A>T"))
+        || cosmic.pointer("/records/0/identity") != Some(&json!("unverified"))
+        || cosmic.pointer("/records/0/reference") != Some(&json!("T"))
+        || cosmic.pointer("/records/0/alternate") != Some(&json!("A"))
+        || cosmic.pointer("/records/0/mut_freq") != Some(&json!(0))
+        || cosmic.pointer("/components/0/version") != Some(&json!("synthetic-68"))
+        || requests.len() != 3
+    {
+        return Err(format!(
+            "historical source values changed or extra source request: {value}; requests={requests:?}"
+        ));
+    }
+    if requests
+        .iter()
+        .any(|(_, r)| r.contains("cadd") || r.contains("dbnsfp"))
+    {
+        return Err("restricted fields reached the wire".into());
+    }
+    Ok(())
+}
+fn component_body(request: &str) -> Result<String, String> {
+    // Synthetic provider bodies test transport and association, not source truth.
+    if request.starts_with("GET /v1/metadata") {
+        return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{"cosmic":{"version":"synthetic-68","license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"}}}).to_string());
+    }
+    if request.contains("fields=_id%2Ccosmic") {
+        return Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,"end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}).to_string());
+    }
+    myvariant_body37(request)
+}
+fn myvariant_body37(_: &str) -> Result<String, String> {
+    Ok(json!({"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
 }

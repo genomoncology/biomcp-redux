@@ -28,7 +28,7 @@ pub(super) fn section(
         },
         Ok(_) => Section::Empty { source: Source::MyVariant, record: Some(candidate.record.clone()) },
         Err(RequestError::Source(error)) => Section::unavailable(Source::MyVariant, error.reason),
-        Err(_) => Section::unavailable(Source::MyVariant, Reason::Local),
+        Err(_) => Section::unavailable(Source::MyVariant, Reason::Unavailable),
     };
     (section, vec![source], Vec::new(), error.and_then(status::local))
 }
