@@ -62,7 +62,7 @@ impl VariantInput {
         {
             return Err(Error::VariantInputInvalid);
         }
-        if reference
+        if description.starts_with("g.") && reference
             .strip_prefix("chr")
             .is_some_and(|s| s == "M" || s.parse::<crate::Chromosome>().is_ok())
         {
@@ -88,5 +88,5 @@ impl fmt::Display for VariantInput {
 text_value!(
     VariantInput,
     "VariantInput",
-    r"^(rs[1-9][0-9]*|CA[1-9][0-9]*|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\.[\x21-\x7e]+)$"
+    r"^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[TP][0-9]+)\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M)):[cgnprmo]\.[\x21-\x7e]+)$"
 );
