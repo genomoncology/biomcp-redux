@@ -1,0 +1,182 @@
+//! Public quota declaration boundaries and shared provider behavior.
+use biomcp_fetch::{Quota, Rate, SourceKey};
+
+#[test]
+fn quota_declarations_reject_empty_invalid_and_zero_limits() {
+    for key in ["", "Upper", "space here", "slash/name", "é"] {
+        assert!(std::panic::catch_unwind(|| SourceKey::declare(key)).is_err());
+    }
+    for (rate, burst) in [(0, 1), (1, 0), (0, 0)] {
+        assert!(std::panic::catch_unwind(|| Rate::new(rate, burst)).is_err());
+    }
+    assert!(
+        std::panic::catch_unwind(|| Quota::new(
+            SourceKey::declare("valid-1"),
+            Rate::per_second(1),
+            None,
+            0
+        ))
+        .is_err()
+    );
+    const VALID: Quota = Quota::new(
+        SourceKey::declare("valid-1"),
+        Rate::new(u16::MAX, u16::MAX),
+        Some(Rate::per_second(1)),
+        u8::MAX,
+    );
+    assert!(format!("{VALID:?}").contains("valid-1"));
+}
+
+mod support;
+use biodata::Reason;
+use biomcp_fetch::{Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Secret, SecretName};
+use std::{sync::mpsc, thread, time::Duration};
+use support::{Answer, Server};
+
+fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &'static Quota {
+    Box::leak(Box::new(Quota::new(
+        SourceKey::declare(key),
+        rate,
+        keyed,
+        in_flight,
+    )))
+}
+
+#[test]
+fn two_source_specs_share_rate_while_separate_keys_progress_independently() {
+    let server = Server::new();
+    let shared = quota("shared", Rate::per_second(20), None, 2);
+    let specs = [
+        server.spec(shared, KeyUse::None),
+        server.spec(shared, KeyUse::None),
+    ];
+    let other = server.spec(quota("other", Rate::per_second(1), None, 1), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let workers: Vec<_> = specs
+            .iter()
+            .map(|spec| {
+                let fetch = &fetch;
+                scope.spawn(move || {
+                    fetch
+                        .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                        .json::<Answer>(&spec.get("/shared"), &[])
+                })
+            })
+            .collect();
+        let first = server.next();
+        let first_start = first.started;
+        // Keep a shared request in flight while an unrelated key completes.
+        let independent = scope.spawn(|| {
+            fetch
+                .leg(other, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&other.get("/other"), &[])
+        });
+        let next = server.next();
+        let last = server.next();
+        for request in [next, last] {
+            if request.text.contains("/shared") {
+                assert!(request.started.duration_since(first_start) >= Duration::from_millis(45));
+            }
+            request.ok();
+        }
+        first.ok();
+        for worker in workers {
+            assert!(worker.join().unwrap().unwrap().answer);
+        }
+        assert!(independent.join().unwrap().unwrap().answer);
+    });
+}
+
+#[test]
+fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
+    let server = Server::new();
+    let shared = quota("shared", Rate::per_second(1000), None, 1);
+    let first = server.spec(shared, KeyUse::None);
+    let second = server.spec(shared, KeyUse::None);
+    let independent = server.spec(
+        quota("independent", Rate::per_second(1000), None, 1),
+        KeyUse::None,
+    );
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let holder = scope.spawn(|| {
+            fetch
+                .leg(first, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&first.get("/holder"), &[])
+        });
+        let held = server.next();
+        let canceled = scope.spawn(|| {
+            fetch
+                .leg(second, fetch.deadline(Duration::from_millis(100)))
+                .json::<Answer>(&second.get("/cancel"), &[])
+        });
+        // Completion with the holder still blocked proves the waiter exhausted its queue budget.
+        assert_eq!(
+            canceled.join().unwrap().unwrap_err().reason,
+            Reason::DeadlineExceeded
+        );
+        assert!(server.requests.try_recv().is_err());
+        let successor = scope.spawn(|| {
+            fetch
+                .leg(second, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&second.get("/successor"), &[])
+        });
+        let other = scope.spawn(|| {
+            fetch
+                .leg(independent, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&independent.get("/other"), &[])
+        });
+        let request = server.next();
+        assert!(request.text.contains("/other"));
+        request.ok();
+        assert!(other.join().unwrap().unwrap().answer);
+        held.ok();
+        server.next().ok();
+        assert!(holder.join().unwrap().unwrap().answer);
+        assert!(successor.join().unwrap().unwrap().answer);
+    });
+}
+
+#[test]
+fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
+    for configured in [false, true] {
+        let server = Server::new();
+        let shared = quota("keyed", Rate::per_second(10), Some(Rate::per_second(50)), 1);
+        let spec = server.spec(
+            shared,
+            KeyUse::Optional(Credential {
+                secret: SecretName::NcbiApiKey,
+                place: KeyPlace::Header("x-api-key"),
+            }),
+        );
+        let mut config = FetchConfig::default();
+        if configured {
+            config
+                .secrets
+                .insert(SecretName::NcbiApiKey, Secret::new("placeholder"));
+        }
+        let fetch = Fetch::open(config).unwrap();
+        let (sent, receive) = mpsc::channel();
+        thread::scope(|scope| {
+            scope.spawn(|| {
+                for _ in 0..2 {
+                    let result = fetch
+                        .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                        .json::<Answer>(&spec.get("/answer"), &[]);
+                    sent.send(result).unwrap();
+                }
+            });
+            let first = server.next();
+            let started = first.started;
+            assert_eq!(first.text.contains("placeholder"), configured);
+            first.ok();
+            assert!(receive.recv().unwrap().unwrap().answer);
+            let second = server.next();
+            let floor = if configured { 15 } else { 95 };
+            assert!(second.started.duration_since(started) >= Duration::from_millis(floor));
+            second.ok();
+            assert!(receive.recv().unwrap().unwrap().answer);
+        });
+    }
+}
