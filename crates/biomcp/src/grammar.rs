@@ -15,7 +15,7 @@ pub(crate) struct Globals {
 }
 #[derive(Debug)]
 pub(crate) struct Parsed {
-    pub(crate) action: Action,
+    pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
@@ -62,7 +62,7 @@ fn root() -> Result<Command, ()> {
     root = root.subcommand(
         Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "hgnc-withdrawn"])),
     );
-    Ok(root)
+    Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;
@@ -76,15 +76,14 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
     };
-    if usize::from(globals.replay.is_some())
-        + usize::from(globals.record.is_some())
-        + usize::from(globals.offline)
-        > 1
-        || globals.case_cache.is_some() && globals.replay.is_none() && !globals.offline
-    {
-        return Err(());
-    }
+    globals.check()?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
+    if verb == "serve" {
+        return Ok(Parsed {
+            action: None,
+            globals,
+        });
+    }
     let action = if verb == "sync" {
         Action::Sync {
             bundle: if matches
@@ -116,7 +115,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             fresh: globals.fresh,
         }
     };
-    Ok(Parsed { action, globals })
+    Ok(Parsed {
+        action: Some(action),
+        globals,
+    })
 }
 fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
     schema
@@ -167,4 +169,27 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
         result.insert(name.clone(), value);
     }
     Ok(Value::Object(result))
+}
+
+impl Globals {
+    pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
+        self.replay = process.replay.clone();
+        self.record = process.record.clone();
+        self.case_cache = process.case_cache.clone();
+        self.fresh |= process.fresh;
+        self.offline |= process.offline;
+        self.check()
+    }
+    fn check(&self) -> Result<(), ()> {
+        if usize::from(self.replay.is_some())
+            + usize::from(self.record.is_some())
+            + usize::from(self.offline)
+            > 1
+            || self.case_cache.is_some() && self.replay.is_none() && !self.offline
+        {
+            Err(())
+        } else {
+            Ok(())
+        }
+    }
 }

@@ -14,7 +14,10 @@ pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn dispatch_using(
     args: &[OsString],
-    shared: Option<&Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>>,
+    shared: Option<(
+        &crate::grammar::Globals,
+        &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+    )>,
 ) -> io::Result<Outcome> {
     if let [command, name] = args
         && command == "schema"
@@ -26,12 +29,20 @@ fn dispatch_using(
             cli_bytes: text.as_bytes().to_vec(),
         });
     }
-    let parsed = match crate::grammar::parse(args) {
+    let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
         Err(()) => return usage(args),
     };
+    if let Some((globals, _)) = shared
+        && parsed.globals.inherit(globals).is_err()
+    {
+        return usage(args);
+    }
+    let Some(action) = parsed.action else {
+        return usage(args);
+    };
     let owned;
-    let fetch = match shared {
+    let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => fetch.as_ref(),
         Some(Err(())) if !parsed.globals.offline => {
             return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
@@ -46,7 +57,7 @@ fn dispatch_using(
             &owned
         }
     };
-    execute(fetch, parsed.action)
+    execute(fetch, action)
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
@@ -93,7 +104,7 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
 }
 pub(crate) fn tool(
     args: &[OsString],
-    globals: &[OsString],
+    globals: &crate::grammar::Globals,
     fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
 ) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
@@ -109,9 +120,7 @@ pub(crate) fn tool(
     if args.first().is_some_and(|arg| arg == "schema") {
         return dispatch(args);
     }
-    let mut args = args.to_vec();
-    args.extend_from_slice(globals);
-    dispatch_using(&args, Some(fetch))
+    dispatch_using(args, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let error = if args

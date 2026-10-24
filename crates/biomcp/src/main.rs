@@ -13,17 +13,13 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = config::arguments();
-    if let Some(position) = args.iter().position(|arg| arg == "serve") {
-        let mut globals = args.clone();
-        globals.remove(position);
-        let mut probe = vec!["get".into(), "gene".into(), "BRAF".into()];
-        probe.extend_from_slice(&globals);
-        if let Ok(parsed) = grammar::parse(&probe) {
-            return exit::finish(
-                mcp::serve(globals, config::fetch(&parsed.globals)),
-                exit::Status::Success,
-            );
-        }
+    if let Ok(grammar::Parsed {
+        action: None,
+        globals,
+    }) = grammar::parse(&args)
+    {
+        let fetch = config::fetch(&globals);
+        return exit::finish(mcp::serve(globals, fetch), exit::Status::Success);
     }
     match command::dispatch(&args) {
         Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),

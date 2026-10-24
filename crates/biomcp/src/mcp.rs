@@ -32,12 +32,12 @@ struct Server {
     sender: mpsc::SyncSender<Event>,
     active: BTreeMap<String, Call>,
     legacy: bool,
-    globals: Vec<std::ffi::OsString>,
+    globals: crate::grammar::Globals,
     fetch: Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
 }
 
 pub(crate) fn serve(
-    globals: Vec<std::ffi::OsString>,
+    globals: crate::grammar::Globals,
     fetch: Result<biomcp_fetch::Fetch, ()>,
 ) -> io::Result<()> {
     let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);
