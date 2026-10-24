@@ -535,3 +535,71 @@ fn independent_holders_contend_and_takeover_fences_the_old_publisher() {
     );
     assert!(!std::path::Path::new(&old_path).exists());
 }
+
+#[test]
+fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
+    let server = support::Server::<()>::new();
+    let b = declared(&server);
+    let foreign = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let f = cached(&path);
+    assert!(
+        matches!(f.leg(foreign.spec,f.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Rejected)
+    );
+    assert!(
+        matches!(f.leg(b.spec,f.deadline(Duration::ZERO)).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::DeadlineExceeded)
+    );
+    let uncached = Fetch::open(FetchConfig::default()).unwrap();
+    assert!(matches!(
+        uncached.sync(&b),
+        Err(biomcp_fetch::RequestError::Cache(_))
+    ));
+    let offline = Fetch::open(FetchConfig {
+        mode: biomcp_fetch::Mode::Offline,
+        ..Default::default()
+    })
+    .unwrap();
+    assert!(
+        matches!(offline.sync(&b),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
+    );
+    assert!(
+        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
+    );
+    assert!(server.requests.try_recv().is_err());
+}
+#[test]
+#[ignore = "Release proof: body larger than the prior recording-file cap"]
+fn release_large_bundle_capture_round_trips() {
+    let server = support::Server::new();
+    let b = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let capture = dir.path().join("recordings");
+    let body = format!(
+        "symbol\tband\tname\nBRAF\t9p\t{}\n",
+        "x".repeat(17 * 1024 * 1024)
+    );
+    let record = Fetch::open(FetchConfig {
+        cache: Some(dir.path().join("cache.sqlite")),
+        mode: biomcp_fetch::Mode::Record {
+            dir: capture.clone(),
+        },
+        max_body: 64,
+        ..Default::default()
+    })
+    .unwrap();
+    assert_eq!(
+        sync_reply(&record, &b, &server, 200, "", &body)
+            .unwrap()
+            .bytes,
+        body.len() as u64
+    );
+    drop(record);
+    let replay = Fetch::open(FetchConfig {
+        mode: biomcp_fetch::Mode::Replay { dir: capture },
+        max_body: 64,
+        ..Default::default()
+    })
+    .unwrap();
+    assert_eq!(replay.sync(&b).unwrap().bytes, body.len() as u64);
+}

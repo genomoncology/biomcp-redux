@@ -256,6 +256,9 @@ impl Leg<'_> {
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
         let rows =
             parse::tsv::<R>(&body).map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
+        if self.budget().expired() {
+            return Err(self.failure(Reason::Syncing, None).into());
+        }
         let meta = meta(
             b,
             t.part.bytes,

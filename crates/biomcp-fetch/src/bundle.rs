@@ -92,6 +92,9 @@ impl Leg<'_> {
     /// Find checked rows, synchronizing absent or stale data when policy permits.
     pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
         self.bundle_source(bundle)?;
+        if self.fetch.cache.is_none() && matches!(self.fetch.config.mode, Mode::Offline) {
+            return Err(self.failure(biodata::Reason::Offline, None).into());
+        }
         let cache = self.bundle_cache()?;
         let old = cache.bundle_info(bundle.name, self.budget())?;
         let replay = matches!(self.fetch.config.mode, Mode::Replay { .. });
@@ -133,15 +136,15 @@ impl Leg<'_> {
         let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
         let rows = rows
             .into_iter()
-            .map(|row| {
-                serde_json::from_str(&row)
-                    .map_err(|_| self.failure(biodata::Reason::BadReply, None).into())
-            })
+            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
             .collect::<Result<_, RequestError>>()?;
         Ok(rows)
     }
     fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;
+        if self.budget().expired() {
+            return Err(self.failure(biodata::Reason::DeadlineExceeded, None).into());
+        }
         if !std::ptr::eq(self.spec, bundle.spec) {
             return Err(self.failure(biodata::Reason::Rejected, None).into());
         }

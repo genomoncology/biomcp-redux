@@ -80,13 +80,15 @@ pub(crate) enum Body {
 }
 impl Body {
     pub(crate) fn capture(bytes: Vec<u8>) -> Result<Self, RecordError> {
-        if bytes.len() as u64 > MAX_FILE_BYTES {
-            return Err(RecordError::Limit);
-        }
         Self::capture_bounded(bytes, MAX_FILE_BYTES)
     }
     pub(crate) fn capture_bundle(bytes: Vec<u8>) -> Result<Self, RecordError> {
-        Self::capture_bounded(bytes, crate::MAX_BUNDLE_BYTES)
+        if bytes.len() as u64 > crate::MAX_BUNDLE_BYTES {
+            return Err(RecordError::Limit);
+        }
+        Ok(Self::Text(
+            String::from_utf8(bytes).map_err(|_| RecordError::NonUtf8)?,
+        ))
     }
     fn capture_bounded(bytes: Vec<u8>, limit: u64) -> Result<Self, RecordError> {
         if bytes.len() as u64 > limit {
