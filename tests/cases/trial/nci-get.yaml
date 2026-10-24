@@ -1,0 +1,40 @@
+{
+  "feature": "trial-nci",
+  "live_check": "keyed NCI source requires user-owned account",
+  "story": "The NCI public-tier capture preserves native get fields without registry fallback.",
+  "replay": "trial/nci/get",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  },
+  "verified": "NCI public-tier source capture from 2026-10-24, one NCIt C3224 search and one exact get. C3224 is the publisher-provided cross-reference for MONDO:0005105 in the clinical-reviewed trial investigation. Frozen source count, not broad-keyword parity. No credential in requests or captures.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "all",
+        "--source",
+        "nci"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT05136196",
+        "all",
+        "--source",
+        "nci"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/nct_id": "NCT05136196",
+        "/result/items/0/sections/eligibility/state": "data",
+        "/result/items/0/sections/arms/state": "data",
+        "/result/items/0/sections/outcomes/state": "data",
+        "/result/items/0/sections/diseases/state": "data"
+      }
+    }
+  ]
+}
