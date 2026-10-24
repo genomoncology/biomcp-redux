@@ -1,0 +1,13 @@
+{
+  "inertPaths": [
+    "sdlc/plan.md",
+    "sdlc/planning/*.md",
+    "sdlc/tickets/*.md",
+    "sdlc/decisions/*.md",
+    "sdlc/records/*.md"
+  ],
+  "mailroom": {
+    "repo": "agents",
+    "name": "biomcp-redux"
+  }
+}
