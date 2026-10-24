@@ -15,6 +15,17 @@ from smoke import environment, smoke
 from local_server import server
 
 
+def installer_environment(root, bash):
+    path = os.defpath
+    if os.name == "nt":
+        shell = Path(bash).resolve(strict=True).parent
+        prefix = shell.parent.parent if shell.parent.name.lower() == "usr" else shell.parent
+        # Git Bash keeps POSIX utilities and the downloader in these directories.
+        directories = [shell, prefix / "usr/bin", prefix / "mingw64/bin"]
+        path = os.pathsep.join(dict.fromkeys(str(item) for item in directories if item.is_dir()))
+    return {**environment(root), "PATH": path}
+
+
 def install_wheel(wheel, venv, root, host_python, name="biomcp"):
     subprocess.run([host_python, "-m", "venv", "--without-pip", str(venv)], check=True)
     python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
@@ -99,7 +110,7 @@ def installed(args):
         shutil.copy2(item, release / item.name)
     public_destination = root / "download-installer-bin"
     with server(downloads) as base:
-        download_env = {**environment(root), "PATH": os.defpath, "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix()}
+        download_env = {**installer_environment(root, bash), "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix()}
         subprocess.run([bash, (source / "release/install.sh").as_posix(), "--version", record["version"]], env=download_env, check=True)
     check("download-install-script", public_destination / ("biomcp" + suffix))
     if not homebrew(output, root, check):

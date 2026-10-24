@@ -6,10 +6,13 @@ import io
 import os
 from pathlib import Path
 import subprocess
+import shutil
+import sys
 import tarfile
 import tempfile
 import unittest
 import zipfile
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name("install.sh").resolve()
 
@@ -30,6 +33,27 @@ def candidate(directory, name, content=b"#!/bin/sh\necho candidate\n", member=No
 
 
 class Installer(unittest.TestCase):
+    def test_download_gate_keeps_shell_tools_and_isolates_parent_configuration(self):
+        with patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
+            from gate import installer_environment
+        bash = shutil.which("bash") or "/bin/bash"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            marker = "synthetic-parent-marker"
+            with patch.dict(os.environ, {key: marker for key in ["HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "HTTPS_PROXY", "HTTP_PROXY", "SEMANTIC_SCHOLAR_API_KEY", "BASH_ENV"]}):
+                env = installer_environment(root, bash)
+            for name, leaf in [("HOME", "home"), ("XDG_CONFIG_HOME", "config"), ("XDG_CACHE_HOME", "cache")]:
+                self.assertEqual(env[name], str(root / leaf))
+            self.assertNotIn(marker, env.values())
+            if os.name == "nt":
+                self.assertEqual(env["SystemRoot"], os.environ["SystemRoot"])
+                self.assertNotIn(".", env["PATH"].split(os.pathsep))
+            else:
+                self.assertEqual(env["PATH"], os.defpath)
+            commands = "for tool in mktemp uname unzip cp chmod mv rm tr; do command -v $tool || exit 1; done; command -v curl || command -v wget; command -v sha256sum || command -v shasum || command -v openssl"
+            result = subprocess.run([bash, "-ec", commands], cwd=root, env=env, capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
