@@ -12,12 +12,7 @@ pub(super) fn section(
     _query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
-) -> (
-    Section<VariantPopulation>,
-    Vec<SourceOutcome>,
-    Vec<Problem>,
-    Option<RequestError>,
-) {
+) -> super::sections::Result<VariantPopulation> {
     let Some((id, subject)) = join(candidates) else {
         return missing();
     };

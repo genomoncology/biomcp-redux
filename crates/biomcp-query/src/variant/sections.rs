@@ -72,8 +72,22 @@ pub(super) fn apply(
                         &mut local,
                     ))
                 }
-                S::Population => sections.population = Some(pending(Source::Gnomad, &mut sources)),
-                S::Gwas => sections.gwas = Some(pending(Source::Gwas, &mut sources)),
+                S::Population => {
+                    sections.population = Some(retain(
+                        super::population::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
+                S::Gwas => {
+                    sections.gwas = Some(retain(
+                        super::gwas::section(cx, query, candidates, deadline),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                }
                 S::Civic => {
                     sections.civic = Some(retain(
                         super::civic::section(cx, query, candidates, deadline),
