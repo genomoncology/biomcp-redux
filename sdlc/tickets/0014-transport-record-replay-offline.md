@@ -1,6 +1,7 @@
 # 0014 — Record source exchanges and replay them without network access
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f756836635323d040ab387b7f2fa9144293aa00b
 
 Milestone: 1
 

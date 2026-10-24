@@ -1,6 +1,7 @@
 # 0015 — Serve the existing commands through one stdio MCP tool
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ca128e9454fe21bb64bee144cdf697dcef9b4089
 
 Milestone: 1
 
