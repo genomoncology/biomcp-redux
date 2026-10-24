@@ -450,7 +450,11 @@ fn bounded_command_drift(observed: &[Observation]) -> Result<(), Box<dyn std::er
     for _ in 0..2 {
         let evidence = live::compare(&before, &[], &mut changes, &mut BTreeMap::new());
         if evidence.get("drift_omitted") != Some(&json!(24))
-            || evidence.get("drift").and_then(Value::as_array).map(Vec::len) != Some(16)
+            || evidence
+                .get("drift")
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(16)
         {
             return Err("per-command drift evidence or exact omission count missing".into());
         }
