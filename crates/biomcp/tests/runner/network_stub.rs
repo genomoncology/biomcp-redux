@@ -39,20 +39,30 @@ impl Stub {
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
     ) -> Result<Self, String> {
-        Self::with_hosts(&[host], content_type, reply, length)
+        Self::with_status(host, content_type, reply, length, |_| 200)
+    }
+    pub(super) fn with_status(
+        host: &'static str,
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        reply: fn(&str) -> Result<String, String>,
+        length: fn(&str, usize) -> usize,
+        status: fn(&str) -> u16,
+    ) -> Result<Self, String> {
+        Self::with_hosts(&[host], content_type, reply, length, status)
     }
     pub(super) fn for_sources(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
     ) -> Result<Self, String> {
-        Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes)
+        Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
     }
     fn with_hosts(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
+        status: fn(&str) -> u16,
     ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -89,7 +99,8 @@ impl Stub {
                 if let Ok(request) = header(&mut tls) {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
-                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
+                    let status = status(&request);
+                    write!(tls, "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
