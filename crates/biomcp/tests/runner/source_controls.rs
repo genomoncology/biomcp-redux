@@ -120,7 +120,8 @@ fn source_health() -> Check {
             "hgnc".into(),
             "hpa".into(),
             "restricted".into(),
-        ])?
+        ])
+        .map_err(|e| e.to_string())?
         .contains(&spec.source);
         if disabled
             && (row.get("state") != Some(&json!("skipped"))
