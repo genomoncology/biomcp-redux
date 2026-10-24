@@ -49,6 +49,8 @@ pub fn get(leg: &Leg<'_>, id: &str, build: Build) -> Result<VariantCosmic, Reque
         vec![super::metadata::cosmic(leg)?]
     };
     Ok(VariantCosmic {
+        total: records.len() as u64,
+        next: None,
         records: records.into(),
         components: components.into(),
     })

@@ -66,6 +66,11 @@ pub struct VariantConservation {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCosmic {
+    /// Number of native historical fragments before paging.
+    pub total: u64,
+    /// Typed next page for the same identity and section selection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next: Option<crate::VariantGet>,
     /// Native historical records in source order.
     pub records: Box<[CosmicRecord]>,
     /// Snapshot version, dates, warning and terms.
