@@ -34,8 +34,9 @@ fn gwas_zero() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
+    let request = &requests.first().ok_or("missing source request")?.1;
     if requests.len() != 1
-        || !requests[0].1.starts_with(
+        || !request.starts_with(
             "GET /gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3 HTTP/1.1",
         )
     {
@@ -107,10 +108,11 @@ fn population() -> Result<(), String> {
         ));
     }
     let requests = stub.finish()?;
+    let request = &requests.get(1).ok_or("missing source request")?.1;
     if requests.len() != 2
-        || !requests[1].1.starts_with("POST /api HTTP/1.1")
-        || !requests[1].1.contains("gnomad_r4")
-        || !requests[1].1.contains("7-140753336-A-T")
+        || !request.starts_with("POST /api HTTP/1.1")
+        || !request.contains("gnomad_r4")
+        || !request.contains("7-140753336-A-T")
         || requests.iter().any(|(_, r)| r.contains("myvariant"))
     {
         return Err(format!(
