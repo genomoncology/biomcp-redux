@@ -53,7 +53,8 @@
         "pdf",
         "41351423",
         "--save",
-        "second.pdf"
+        "second.pdf",
+        "--replace"
       ],
       "max_bytes": 3000,
       "expect": {

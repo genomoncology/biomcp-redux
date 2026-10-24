@@ -1,6 +1,7 @@
 # 0047 — Document the article commands and close the article accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9226024d45d4c4d695d18bc07c5916532c77b6d0
 
 Milestone: 1
 

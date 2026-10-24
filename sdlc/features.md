@@ -30,6 +30,7 @@ live-source-checks: A separate keyless live diagnostic reports upstream drift wi
 article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters. Cases: `tests/cases/article/litsense/*.yaml`, `tests/cases/article/pubtator/*.yaml`, `crates/biomcp/tests/runner/named_search.rs`.
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID. Cases: `tests/cases/article/preprint/*.yaml`.
+article-help: A caller discovers article arguments, sections and executable examples through generated help. Cases: `tests/cases/article/help.yaml`, `crates/biomcp/tests/runner/help_examples.rs`.
 mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health. Cases: `crates/biomcp/tests/runner/http.rs`, `crates/biomcp/tests/runner/http_limits.rs`.
 article-evidence: Read all source citation contexts and explicit full-text reference paragraphs through checked continuations. Cases: `tests/cases/article/evidence/*.yaml`, `crates/biomcp/tests/runner/evidence.rs`.
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
