@@ -64,6 +64,8 @@ pub use article::{
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
 
+mod recurrence;
+pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 mod variant_civic;
@@ -74,6 +76,11 @@ pub use variant_civic::{
 mod variant_hotspots;
 pub use variant::VariantPage;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
+mod variant_normalize;
+
+pub use variant_normalize::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
 

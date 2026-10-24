@@ -1,6 +1,7 @@
 # 0094 — Pass HGVS to a named normalization service
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 13eccef91a24eb0c5d5be88239105b2f7d590595
 
 Milestone: 2
 
