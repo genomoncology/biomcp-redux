@@ -45,7 +45,7 @@ fn article_search_checks_selectors_and_uses_the_reviewed_term_order() {
         serde_json::json!({"text":"x","limit":51}),
         serde_json::json!({"text":"x","source":[]}),
         serde_json::json!({"text":null}),
-        serde_json::json!({"text":"x","sort":"citations"}),
+        serde_json::json!({"text":"x","sort":"unknown"}),
     ] {
         assert!(serde_json::from_value::<ArticleSearch>(bad).is_err());
     }
