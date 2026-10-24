@@ -44,33 +44,23 @@ pub(super) fn apply(
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
-                S::Clinvar => {
-                    sections.clinvar = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Clinvar,
-                        ),
+                S::Clinvar | S::Erepo => {
+                    let source = if section == S::Clinvar {
+                        AssertionSource::Clinvar
+                    } else {
+                        AssertionSource::Erepo
+                    };
+                    let value = Some(retain(
+                        super::assertions::section(cx, query, candidates, deadline, source),
                         &mut sources,
                         &mut problems,
                         &mut local,
-                    ))
-                }
-                S::Erepo => {
-                    sections.erepo = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Erepo,
-                        ),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
+                    ));
+                    if section == S::Clinvar {
+                        sections.clinvar = value;
+                    } else {
+                        sections.erepo = value;
+                    }
                 }
                 S::Population => {
                     sections.population = Some(retain(
