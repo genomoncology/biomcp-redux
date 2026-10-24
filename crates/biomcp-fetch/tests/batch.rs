@@ -355,3 +355,74 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
     );
     assert!(server.requests.try_recv().is_err());
 }
+
+#[test]
+fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
+    let server = Server::new();
+    let spec = server.spec(quota(2), KeyUse::None);
+    let dir = tempfile::tempdir().unwrap();
+    let cache = dir.path().join("cache.sqlite");
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(cache.clone()),
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(30)));
+    let endpoint = spec.get("/cached").fresh(biomcp_fetch::Freshness::Hours(1));
+    thread::scope(|scope| {
+        let seed = scope.spawn(|| leg.json::<Answer>(&endpoint, &[]));
+        server.next().ok();
+        assert!(seed.join().unwrap().unwrap().answer);
+    });
+    rusqlite::Connection::open(&cache)
+        .unwrap()
+        .execute("UPDATE reply SET fresh_until=0", [])
+        .unwrap();
+    thread::scope(|scope| {
+        let worker =
+            scope.spawn(|| leg.batch(&[(); 2], |child, ()| child.json::<Answer>(&endpoint, &[])));
+        let first = server.next();
+        let second = server.next();
+        first.respond(400, "", "failed");
+        second.respond(401, "", "failed");
+        assert!(
+            worker
+                .join()
+                .unwrap()
+                .into_iter()
+                .all(|result| result.unwrap().answer)
+        );
+        let later = scope.spawn(|| leg.json::<Answer>(&spec.get("/success"), &[]));
+        server.next().ok();
+        assert!(later.join().unwrap().unwrap().answer);
+    });
+    let report = leg.finish();
+    assert!(report.stale);
+    assert_eq!(report.failures.len(), 2);
+    let mut statuses: Vec<_> = report
+        .failures
+        .iter()
+        .map(|error| {
+            assert_eq!(error.reason, biodata::Reason::Rejected);
+            error.status.unwrap()
+        })
+        .collect();
+    statuses.sort();
+    assert_eq!(statuses, vec![400, 401]);
+}
+
+#[test]
+fn real_batch_requests_share_the_original_absolute_deadline() {
+    let server = Server::new();
+    let spec = server.spec(quota(8), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_millis(100)));
+    // Never release a reply. The absolute budget must terminate every transport
+    // and prevent subsequent chunks from gaining a new source budget.
+    let results = leg.batch(&[(); 16], |child, ()| {
+        child.json::<Answer>(&spec.get("/held"), &[])
+    });
+    assert_eq!(results.len(), 16);
+    assert!(results.into_iter().all(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biodata::Reason::DeadlineExceeded)));
+    assert_eq!(leg.remaining(), Duration::ZERO);
+}
