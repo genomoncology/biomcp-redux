@@ -164,3 +164,5 @@ pub use response::{
 pub use query::VariantPopulationQuery;
 
 pub use response::VariantPopulationResult;
+
+pub use variant::PopulationFrequency;
