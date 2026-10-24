@@ -10,6 +10,9 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/keyed-health-uses-declared-api-route", || {
+            keyed_health().map_err(Into::into)
+        }),
         Trial::test("sources/disabled-leg-preserves-enabled-fold", || {
             enabled_fold().map_err(Into::into)
         }),
@@ -323,6 +326,28 @@ fn enabled_fold() -> Check {
         if !next.iter().any(|a| a == "--disable-sources") {
             return Err("continuation lost source policy".into());
         }
+    }
+    Ok(())
+}
+
+fn keyed_health() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let disabled = biomcp_adapters::registry::SOURCES.iter()
+        .filter(|s| s.source != biodata::Source::Oncokb)
+        .map(|s| s.source.to_string()).collect::<Vec<_>>();
+    env.config(&json!({"disable_sources": disabled,
+        "keys":{"oncokb_api_key":"synthetic-placeholder"}}))
+        .map_err(|e| e.to_string())?;
+    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/gene/oncokb-synthetic/data");
+    let result = invoke(&env, vec!["health".into(), "--replay".into(),
+        fixture.to_string_lossy().into()], 0)?;
+    let rows = result.pointer("/result/sources").and_then(Value::as_array)
+        .ok_or("missing health rows")?;
+    let oncokb = rows.iter().find(|s| s.get("source") == Some(&json!("oncokb")))
+        .ok_or("missing keyed source")?;
+    if oncokb.get("state") != Some(&json!("ok")) || oncokb.get("latency_ms").is_none() {
+        return Err("keyed probe did not use the declared API endpoint".into());
     }
     Ok(())
 }
