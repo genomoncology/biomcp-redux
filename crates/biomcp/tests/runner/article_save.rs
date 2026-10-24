@@ -255,8 +255,8 @@ fn opaque() -> Check {
     super::response_cases::copy_capture("article/supplements/live", &replay, |_, record| {
         if let Some(Value::String(xml)) = record.pointer_mut("/exchanges/0/body/value") {
             *xml = xml.replace(
-                "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "xlink:href=\"MGG3-5-553-s002.xlsx\"",
+                "mimetype=\"application\" mime-subtype=\"vnd.openxmlformats-officedocument.wordprocessingml.document\" xlink:href=\"MGG3-5-553-s002.xlsx\"",
             );
         }
     })?;
@@ -323,7 +323,7 @@ fn cut_reply(request: &str) -> Result<String, String> {
 fn cut_body() -> Check {
     let stub = super::network_stub::Stub::with_length(
         "pmc-oa-opendata.s3.amazonaws.com",
-        "application/octet-stream",
+        |request| if request.contains("list-type=") { "application/xml" } else { "binary/octet-stream" },
         cut_reply,
         |request, bytes| {
             if request.contains(".xlsx?") {
@@ -369,7 +369,8 @@ fn cut_body() -> Check {
     assert!(
         requests
             .iter()
-            .any(|(_, request)| request.contains(".xlsx?"))
+            .any(|(_, request)| request.contains(".xlsx?")),
+        "requests={requests:?}; replies={failures:?}"
     );
     Ok(())
 }
