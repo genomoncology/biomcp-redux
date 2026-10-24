@@ -133,6 +133,7 @@ impl Row {
                 title,
                 journal: self.journal_title,
                 date: self.first_publication_date,
+                electronic_date: None,
                 types: Box::default(),
                 types_unknown: true,
                 first_author: self

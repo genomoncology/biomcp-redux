@@ -181,7 +181,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     };
     actions(query, pool, returned, total, out);
     if let Cursor::Search(search) = query {
-        variant_step(search, out);
+        super::next::search(search, total, partial, out);
     }
     if partial {
         query.retry(
@@ -263,21 +263,6 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             StepKind::Disambiguate,
             Action::Run {
                 request: Request::GetArticle(query),
-                fresh: false,
-            },
-        ));
-    }
-}
-
-fn variant_step(search: &ArticleSearch, out: &mut Outcome) {
-    if search.sources() == [biodata::ArticleSource::Pubmed]
-        && search.gene().is_some()
-        && search.variant().is_some()
-    {
-        out.next.push((
-            StepKind::Disambiguate,
-            crate::Action::Run {
-                request: Request::SearchArticle(search.with_litvar()),
                 fresh: false,
             },
         ));

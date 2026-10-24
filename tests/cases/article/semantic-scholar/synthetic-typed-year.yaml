@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "Typed gene and cancer selectors map to Semantic Scholar words and a year interval without HGNC expansion",
   "replay": "article/semantic-scholar/synthetic-typed-year",
-  "verified": "Measured CLI output on Gator at43f22fd: 1050 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",
+  "verified": "The optional electronic date and explicit term-drop actions raise this recorded output to 1584 bytes; the ceiling adds 15 percent. No matching 0.9 baseline exists for this exact case.",
   "steps": [
     {
       "run": [
@@ -41,7 +41,7 @@
         "--source",
         "semantic-scholar"
       ],
-      "max_bytes": 1208,
+      "max_bytes": 1822,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "EGFR T790M osimertinib lung cancer",
@@ -51,7 +51,7 @@
           "semantic-scholar"
         ]
       },
-      "max_tokens": 302
+      "max_tokens": 456
     }
   ],
   "live_check": "synthetic or recorded failure proof; no live refresh"

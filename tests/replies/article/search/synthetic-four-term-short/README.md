@@ -1,0 +1,1 @@
+The CLI recorded these exact request identities against a local TLS source peer. All replies are synthetic; HGNC contains only the exact public NF2 row. No public request occurred. The one-item PubMed pool exercises all four term drops plus the article-card action under the existing five-step output budget.

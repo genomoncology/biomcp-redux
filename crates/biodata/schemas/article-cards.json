@@ -170,6 +170,17 @@
           "$ref": "#/$defs/Doi",
           "description": "DOI assigned to this article."
         },
+        "electronic_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Electronic publication date when different from the publication date."
+        },
         "europepmc_id": {
           "$ref": "#/$defs/EuropePmcId",
           "description": "Europe PMC identity when this card comes from its core record."

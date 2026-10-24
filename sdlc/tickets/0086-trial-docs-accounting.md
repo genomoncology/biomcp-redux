@@ -1,6 +1,7 @@
 # 0086 — Document the trial commands and close the trial accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 353846c4c6dc7c7b1b11c2cf1135c0f0dc03e8e4
 
 Milestone: 2
 
