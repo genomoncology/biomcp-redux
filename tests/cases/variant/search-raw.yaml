@@ -27,8 +27,8 @@
         "--build",
         "GRCh37"
       ],
-      "max_bytes": 1504,
-      "max_tokens": 376,
+      "max_bytes": 2005,
+      "max_tokens": 502,
       "expect": {
         "/schema": "biomcp.variant_page/2",
         "/status": "partial",
@@ -91,7 +91,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>T"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               },
               {
                 "identity": {
@@ -115,7 +125,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>C"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -128,6 +148,90 @@
           }
         },
         "/sources/0/source": "myvariant"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "restricted"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "restricted"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--query",
+        "rs113488022",
+        "--source",
+        "myvariant",
+        "--disable-sources",
+        "clinvar"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction"
       }
     },
     {
@@ -193,7 +297,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>T"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               },
               {
                 "identity": {
@@ -217,7 +331,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.140453136A>C"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }

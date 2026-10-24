@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod steps;
 mod variant;
 use biodata::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
@@ -75,15 +76,13 @@ fn dispatch_using(
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => {
-            let disabled = biomcp_adapters::registry::disabled(&parsed.globals.disable_sources)
-                .map_err(|_| io::Error::other("unchecked source policy"))?;
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
                 Err(()) => {
                     return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
-            owned = fetch.with_secrets(secrets).restrict_sources(disabled);
+            owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
@@ -189,7 +188,7 @@ fn response(
     request: Request,
     result: biomcp_query::Outcome,
 ) -> io::Result<Outcome> {
-    let steps = next_steps(fetch, &result)?;
+    let steps = steps::next(fetch, &result)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
         status: result.status,
@@ -202,6 +201,9 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
+        (_, QueryBody::VariantQueryPolicyError) => {
+            usage_envelope(biodata::ErrorEnvelope::variant_query_policy())
+        }
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),
@@ -423,7 +425,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     });
-    network_steps(&mut envelope.next, &envelope.sources);
+    steps::network_steps(&mut envelope.next, &envelope.sources);
     encode(
         envelope,
         if local {
@@ -521,46 +523,6 @@ fn usage_envelope(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 
-fn next_steps(
-    fetch: &biomcp_fetch::Fetch,
-    result: &biomcp_query::Outcome,
-) -> io::Result<Vec<biodata::Step>> {
-    let mut steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    network_steps(&mut steps, &result.sources);
-    Ok(source_steps(fetch, steps))
-}
-
-fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
-    let disabled = biomcp_adapters::registry::SOURCES
-        .iter()
-        .filter(|s| fetch.disabled(s.source))
-        .map(|s| s.source.to_string())
-        .collect::<Vec<_>>()
-        .join(",");
-    if disabled.is_empty() {
-        return steps;
-    }
-    steps
-        .into_iter()
-        .map(|mut step| {
-            let mut args = step.args.into_vec();
-            args.splice(
-                0..0,
-                [
-                    "--disable-sources".into(),
-                    disabled.clone().into_boxed_str(),
-                ],
-            );
-            step.args = args.into();
-            step
-        })
-        .collect()
-}
-
 fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
     match biomcp_query::health::run(fetch, crate::config::BUDGET) {
         Ok(result) => encode(
@@ -569,24 +531,6 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
         ),
         Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
     }
-}
-
-fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
-    for (reason, setting) in [
-        (biodata::Reason::Tls, "ca_bundle"),
-        (biodata::Reason::Proxy, "proxy"),
-    ] {
-        if sources.iter().any(|source| source.reason == Some(reason)) {
-            steps.insert(
-                0,
-                biodata::Step {
-                    kind: biodata::StepKind::Configure,
-                    args: vec!["help".into(), "network".into(), setting.into()].into(),
-                },
-            );
-        }
-    }
-    steps.truncate(5);
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {

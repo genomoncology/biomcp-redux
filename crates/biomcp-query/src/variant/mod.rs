@@ -1,10 +1,14 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 mod civic;
+mod components;
+mod conservation;
 mod continuations;
+mod cosmic;
 mod direct;
 mod hotspots;
 pub mod normalize;
 mod oncokb;
+mod predict;
 pub mod recurrence;
 pub mod search;
 mod sections;
@@ -18,7 +22,7 @@ use biomcp_fetch::{Leg, RequestError};
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
     if let Some(source) = direct::source(cx, query) {
         let out = direct::get(cx, query, source, deadline);
         command.finish(deadline.remaining());
@@ -27,7 +31,9 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let spec = source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
+    let started = leg.remaining();
     let result = resolve(query, &leg, &mut problems);
+    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let error = result.as_ref().err().copied();
     let mut main_source = status::source(spec.source, leg.finish(), error);
     let mut candidates = Vec::new();
@@ -57,13 +63,13 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         && spec.source == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
     {
-        let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
+        let (source, error) = enrich(cx, &mut deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
     let (section_sources, section_problems, section_error) =
-        sections::apply(cx, query, &mut candidates, deadline);
+        sections::apply(cx, query, &mut candidates, &mut deadline);
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
@@ -191,12 +197,13 @@ pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
 
 fn enrich(
     cx: &Ctx<'_>,
-    deadline: biomcp_fetch::Deadline<'_>,
+    deadline: &mut biomcp_fetch::Deadline<'_>,
     candidates: &mut [VariantHeader],
     problems: &mut Vec<biodata::Problem>,
 ) -> (biodata::SourceOutcome, Option<RequestError>) {
     let mut local = None;
-    let leg = cx.fetch.leg(&myvariant::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let mut join_error = None;
     for candidate in candidates {
         if let Some(id) = join_id(candidate) {
@@ -214,6 +221,7 @@ fn enrich(
             }
         }
     }
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     (
         status::source(Source::MyVariant, leg.finish(), join_error),
         local,

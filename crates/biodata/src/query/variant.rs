@@ -252,6 +252,12 @@ crate::source::canonical_enum! {
         Oncokb => "oncokb",
         /// Cancer Hotspots native residues and counts.
         Hotspots => "hotspots",
+        /// MyVariant source predictor scores.
+        Predict => "predict",
+        /// MyVariant conservation scores.
+        Conservation => "conservation",
+        /// Historical COSMIC fields carried by MyVariant.
+        Cosmic => "cosmic",
         /// Every implemented variant section.
         All => "all",
     }

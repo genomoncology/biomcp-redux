@@ -31,28 +31,47 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::nci::SPEC,
     &crate::cbioportal::SPEC,
 ];
-/// Expand checked source names and the two user-selectable terms groups.
+/// Resolve one supported terms group.
+pub fn group(name: &str) -> Option<Use> {
+    match name {
+        "noncommercial" => Some(Use::Noncommercial),
+        "restricted" => Some(Use::Restricted),
+        _ => None,
+    }
+}
+/// Preserve group restrictions for independently labeled aggregator components.
+pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
+    names.iter().filter_map(|name| group(name)).collect()
+}
+/// Expand source switches while component declarations keep aggregators available.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
-        let group = match name.as_str() {
-            "noncommercial" => Some(Use::Noncommercial),
-            "restricted" => Some(Use::Restricted),
-            _ => None,
-        };
-        if let Some(group) = group {
+        if let Some(usage) = group(name) {
             disabled.extend(
                 SOURCES
                     .iter()
-                    .filter(|s| s.terms.usage == group)
+                    .filter(|s| {
+                        s.terms.usage == usage
+                            && !crate::myvariant::components::all()
+                                .iter()
+                                .any(|c| c.source == s.source)
+                    })
                     .map(|s| s.source),
             );
         } else {
             let source = SOURCES
                 .iter()
                 .find(|s| s.source.to_string() == *name)
+                .map(|s| s.source)
+                .or_else(|| {
+                    crate::myvariant::components::all()
+                        .iter()
+                        .filter_map(|c| c.native_source)
+                        .find(|s| s.to_string() == *name)
+                })
                 .ok_or(biodata::Error::SourceUnknown)?;
-            disabled.insert(source.source);
+            disabled.insert(source);
         }
     }
     Ok(disabled)

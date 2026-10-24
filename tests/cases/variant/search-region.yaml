@@ -27,8 +27,8 @@
         "--limit",
         "2"
       ],
-      "max_bytes": 1271,
-      "max_tokens": 318,
+      "max_bytes": 1525,
+      "max_tokens": 382,
       "expect": {
         "/schema": "biomcp.variant_page/2",
         "/status": "partial",
@@ -90,7 +90,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>G"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -168,7 +178,17 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55259515T>G"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
             ]
           }

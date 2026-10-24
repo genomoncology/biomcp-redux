@@ -1,5 +1,12 @@
 //! MyVariant exact source identities and compact component-attributed facts.
+/// Independent terms for carried components.
+pub mod components;
+/// MyVariant-carried historical COSMIC fragments.
+pub mod cosmic;
 mod map;
+/// Capture-proven component measurements.
+pub mod measurements;
+mod metadata;
 mod raw;
 mod search;
 mod search_build;
@@ -39,6 +46,16 @@ pub fn lookup(
     } else {
         "hg19"
     };
+    if query.starts_with("clinvar.variant_id:") && components::disabled_on_leg(leg, "clinvar") {
+        return Err(biomcp_fetch::SourceError {
+            source: Source::MyVariant,
+            reason: biodata::Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into());
+    }
+    let fields = fields(leg);
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
@@ -48,7 +65,7 @@ pub fn lookup(
                 ("q", Arg::Text(query)),
                 ("size", Arg::Num(1000)),
                 ("from", Arg::Num(offset)),
-                ("fields", Arg::Text(FIELDS)),
+                ("fields", Arg::Text(&fields)),
                 ("assembly", Arg::Text(assembly)),
             ],
             |page| page.hits.iter().all(|hit| hit.matches(query)),
@@ -63,7 +80,12 @@ pub fn lookup(
             return Err(leg_bad());
         }
     }
-    Ok(map::candidates(hits, query, Some(build)))
+    Ok(map::candidates(
+        hits,
+        query,
+        Some(build),
+        !components::disabled_on_leg(leg, "clinvar"),
+    ))
 }
 fn leg_bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -92,10 +114,11 @@ fn annotation(
         "hg19"
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
+    let fields = fields(leg);
     let (hit, _) = leg.json_received_checked::<raw::Hit>(
         &endpoint,
         &[
-            ("fields", Arg::Text(FIELDS)),
+            ("fields", Arg::Text(&fields)),
             ("assembly", Arg::Text(assembly)),
         ],
         |hit| {
@@ -106,5 +129,23 @@ fn annotation(
             }
         },
     )?;
-    Ok(map::candidates(vec![hit], id, Some(build)))
+    Ok(map::candidates(
+        vec![hit],
+        id,
+        Some(build),
+        !components::disabled_on_leg(leg, "clinvar"),
+    ))
+}
+
+/// Filter independently disabled carried components before creating a request identity.
+pub(super) fn fields(leg: &Leg<'_>) -> String {
+    allowed_fields(leg, FIELDS)
+}
+/// Apply the same component policy to each declared source projection.
+pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {
+    fields
+        .split(',')
+        .filter(|field| !components::disabled_on_leg(leg, field.split('.').next().unwrap_or(field)))
+        .collect::<Vec<_>>()
+        .join(",")
 }

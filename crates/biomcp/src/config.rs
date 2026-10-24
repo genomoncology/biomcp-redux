@@ -123,6 +123,10 @@ fn fetch_using(
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
         disabled_sources: disabled_sources(globals, file.as_ref())?,
+        disabled_uses: biomcp_adapters::registry::disabled_uses(&disabled_names(
+            globals,
+            file.as_ref(),
+        )),
         observations: globals
             .observe
             .as_ref()
@@ -145,12 +149,15 @@ fn disabled_sources(
     globals: &Globals,
     file: Option<&ConfigFile>,
 ) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
-    let mut disabled = globals.disable_sources.clone();
-    disabled.extend(
+    biomcp_adapters::registry::disabled(&disabled_names(globals, file)).map_err(|_| ())
+}
+fn disabled_names(globals: &Globals, file: Option<&ConfigFile>) -> Vec<String> {
+    let mut names = globals.disable_sources.clone();
+    names.extend(
         file.and_then(|f| f.disable_sources.clone())
             .unwrap_or_default(),
     );
-    biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())
+    names
 }
 
 fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
@@ -226,4 +233,15 @@ fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
 
 pub(crate) fn has_environment_key(name: SecretName) -> bool {
     variable(name.environment()).is_some()
+}
+
+/// Apply per-call policy as a union with the already configured transport policy.
+pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch> {
+    let disabled = biomcp_adapters::registry::disabled(&globals.disable_sources)
+        .map_err(|_| std::io::Error::other("unchecked source policy"))?;
+    Ok(fetch
+        .restrict_sources(disabled)
+        .restrict_uses(biomcp_adapters::registry::disabled_uses(
+            &globals.disable_sources,
+        )))
 }

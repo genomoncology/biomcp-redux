@@ -157,6 +157,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             myvariant: None,
             requested: None,
             sections: None,
+            component_terms: Box::default(),
         });
     }
     Ok(Resolution {

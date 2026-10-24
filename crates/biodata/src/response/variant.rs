@@ -40,6 +40,9 @@ pub struct VariantHeader {
     /// Explicitly requested source sections for this exact candidate.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sections: Option<Box<VariantSections>>,
+    /// Terms for carried component identifiers on this consumer header.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub component_terms: Box<[crate::ComponentLabel]>,
 }
 crate::macros::wire_enum! {
     /// Identity resolution preserves candidates and source validation outcomes.
@@ -64,6 +67,16 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
+    /// Native prediction scores.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub predict: Option<crate::Section<crate::VariantPredictors>>,
+    /// Native conservation scores.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conservation: Option<crate::Section<crate::VariantConservation>>,
+    /// Historical MyVariant-associated COSMIC fragments.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
+
     /// Explicit population source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub population: Option<crate::Section<crate::VariantPopulation>>,
@@ -86,6 +99,13 @@ pub struct VariantSections {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
+    /// Independent publisher terms for the declared dbNSFP gene/protein selector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selector_terms: Option<crate::ComponentTerms>,
+    /// Independent publisher terms for named ClinVar filters, present only when requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filter_terms: Option<crate::ComponentTerms>,
+
     /// Exact query sent to the named source, without rewriting raw query text.
     pub source_query: String,
     /// Assembly sent to the source, never inferred from a candidate label.

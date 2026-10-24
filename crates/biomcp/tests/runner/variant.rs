@@ -3,8 +3,31 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod labels;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/unpaired-native-labels-remain-context", || {
+            labels::check().map_err(Into::into)
+        }),
+        Trial::test("variant/malformed-score-is-not-missing-identity", || {
+            malformed_score().map_err(Into::into)
+        }),
+        Trial::test("variant/disabled-clinvar-identity-never-queries", || {
+            disabled_clinvar_identity().map_err(Into::into)
+        }),
+        Trial::test("variant/component-groups-guard-warm-data", || {
+            component_groups().map_err(Into::into)
+        }),
+        Trial::test("variant/missing-historical-fragment-is-empty", || {
+            missing_component().map_err(Into::into)
+        }),
+        Trial::test("variant/historical-fragment-walk-is-warm", || {
+            component_walk().map_err(Into::into)
+        }),
+        Trial::test(
+            "variant/component-rights-and-historical-association",
+            || components().map_err(Into::into),
+        ),
         Trial::test("variant/mixed-identity-page-never-enters-cache", || {
             mixed_page().map_err(Into::into)
         }),
@@ -229,4 +252,339 @@ fn validator_order() -> Result<(), String> {
 }
 fn validator_body(_: &str) -> Result<String, String> {
     Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
+}
+
+fn components() -> Result<(), String> {
+    let (value, requests) = call(
+        "myvariant.info",
+        component_body,
+        &[
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "predict",
+            "conservation",
+            "cosmic",
+            "--build",
+            "GRCh37",
+        ],
+    )?;
+    let base = "/result/candidates/0/sections";
+    for name in ["predict", "conservation"] {
+        if value.pointer(&format!("{base}/{name}/state")) != Some(&json!("data")) {
+            return Err(format!("default component data missing: {value}"));
+        }
+    }
+    let cosmic = value
+        .pointer(&format!("{base}/cosmic/data"))
+        .ok_or("historical fragment missing")?;
+    if cosmic.pointer("/records/0/myvariant_record") != Some(&json!("chr7:g.140453136A>T"))
+        || cosmic.pointer("/records/0/identity") != Some(&json!("unverified"))
+        || cosmic.pointer("/records/0/reference") != Some(&json!("T"))
+        || cosmic.pointer("/records/0/alternate") != Some(&json!("A"))
+        || cosmic
+            .pointer("/records/0/mut_freq")
+            .and_then(Value::as_f64)
+            != Some(0.0)
+        || cosmic.pointer("/components/0/version") != Some(&json!("synthetic-68"))
+        || value
+            .pointer(&format!("{base}/predict/data/components/0/version"))
+            .is_some()
+        || requests.len() != 5
+    {
+        return Err(format!(
+            "historical source values changed or extra source request: {value}; requests={requests:?}"
+        ));
+    }
+    if value
+        .pointer(&format!("{base}/predict/data/scores/0/score"))
+        .and_then(Value::as_f64)
+        != Some(1.5)
+        || value.pointer(&format!("{base}/predict/data/components/0/terms/usage"))
+            != Some(&json!("noncommercial"))
+    {
+        return Err(format!(
+            "native scores or independent terms changed: {value}"
+        ));
+    }
+    Ok(())
+}
+fn component_body(request: &str) -> Result<String, String> {
+    // Synthetic provider bodies test transport and association, not source truth.
+    if request.starts_with("GET /v1/metadata") {
+        return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{
+            "cosmic":{"version":"synthetic-68","license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
+            "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
+            "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms","upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}}
+        }}).to_string());
+    }
+    if request.contains("cadd.phred") || request.contains("dbnsfp.gerp") {
+        return Ok(json!({"_id":"chr7:g.140453136A>T",
+            "cadd":{"phred":1.5,"rawscore":0.25,"sift":{"val":0,"cat":"synthetic_native_label"}},
+            "dbnsfp":{"hgvsp":["p.SourceOne","p.SourceTwo"],"ensembl":{"transcriptid":["source_transcript_one","source_transcript_two"]},
+                "polyphen2":{"hdiv":{"score":0.4,"pred":"D"},"hvar":{"score":0.3,"pred":"B"}},"revel":{"score":0.2},"mutationtaster":{"score":0.1,"pred":"D"},
+                "gerp++":{"nr":1.5,"rs":1.2,"rs_rankscore":0.1},"phastcons":{"100way_vertebrate":{"score":0.8,"rankscore":0.6}},
+                "siphy_29way":{"logodds_score":1.4,"logodds_rankscore":0.2,"pi":{"a":1,"c":0,"g":0,"t":0}}}
+        }).to_string());
+    }
+    if request.contains("fields=_id%2Ccosmic") {
+        return Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,"end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}).to_string());
+    }
+    myvariant_body37(request)
+}
+fn myvariant_body37(_: &str) -> Result<String, String> {
+    Ok(json!({"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
+}
+
+fn missing_component() -> Result<(), String> {
+    let (value, requests) = call(
+        "myvariant.info",
+        myvariant_body37,
+        &[
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "cosmic",
+            "--build",
+            "GRCh37",
+        ],
+    )?;
+    if value.pointer("/result/candidates/0/sections/cosmic/state") != Some(&json!("empty"))
+        || requests.len() != 2
+        || requests
+            .iter()
+            .any(|(_, r)| r.starts_with("GET /v1/metadata"))
+    {
+        return Err(format!(
+            "missing source field became unavailable or metadata fetched unnecessarily: {value}"
+        ));
+    }
+    Ok(())
+}
+fn component_walk() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", component_page_body)?;
+    let environment = source_environment(&stub)?;
+    let mut ids = Vec::new();
+    for offset in [0, 2] {
+        let mut args = vec![
+            "get".into(),
+            "variant".into(),
+            "chr7:g.140453136A>T".into(),
+            "cosmic".into(),
+            "--build".into(),
+            "GRCh37".into(),
+            "--section-limit".into(),
+            "2".into(),
+            "--section-offset".into(),
+            offset.to_string(),
+        ];
+        if offset != 0 {
+            args.push("--offline".into());
+        }
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        let data = value
+            .pointer("/result/candidates/0/sections/cosmic/data")
+            .ok_or_else(|| format!("source page missing: {value}"))?;
+        if data.get("total") != Some(&json!(4)) {
+            return Err(format!("source total lost: {value}"));
+        }
+        if offset == 0 && data.pointer("/next/section_offset") != Some(&json!(2)) {
+            return Err(format!(
+                "typed section continuation lost its independent offset: {value}"
+            ));
+        }
+        if offset != 0 && data.get("next").is_some() {
+            return Err("extra historical page invented".into());
+        }
+        for row in data
+            .get("records")
+            .and_then(Value::as_array)
+            .ok_or("rows missing")?
+        {
+            ids.push(row.get("cosmic_id").cloned().ok_or("native ID missing")?);
+        }
+    }
+    if ids
+        != [
+            json!("COSM999991"),
+            json!("COSM999992"),
+            json!("COSM999993"),
+            json!("COSM999994"),
+        ]
+        || stub.finish()?.len() != 3
+    {
+        return Err("source walk repeated, dropped, reordered or fetched a warm page".into());
+    }
+    Ok(())
+}
+fn component_page_body(request: &str) -> Result<String, String> {
+    if !request.contains("fields=_id%2Ccosmic") {
+        return component_body(request);
+    }
+    // Explicit synthetic rows keep source order and use no captured source content.
+    Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":[{"cosmic_id":"COSM999991"},{"cosmic_id":"COSM999992"},{"cosmic_id":"COSM999993"},{"cosmic_id":"COSM999994"}]}).to_string())
+}
+
+fn component_groups() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", component_body)?;
+    let environment = source_environment(&stub)?;
+    let base = [
+        "get",
+        "variant",
+        "chr7:g.140453136A>T",
+        "predict",
+        "conservation",
+        "cosmic",
+        "--build",
+        "GRCh37",
+    ];
+    for group in [
+        None,
+        Some("noncommercial"),
+        Some("restricted"),
+        Some("myvariant"),
+    ] {
+        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
+        if let Some(group) = group {
+            args.extend(["--disable-sources".into(), group.into()]);
+        }
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if group == Some("myvariant") {
+            if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+                return Err(format!("explicit source switch failed: {value}"));
+            }
+            continue;
+        }
+        if group == Some("restricted")
+            && value
+                .pointer("/result/candidates/0/identity/ids")
+                .and_then(Value::as_array)
+                .is_some_and(|ids| {
+                    ids.iter()
+                        .any(|id| id.as_str().is_some_and(|id| id.starts_with("clinvar:")))
+                })
+        {
+            return Err(format!(
+                "disabled ClinVar aliases leaked from an ignored projection: {value}"
+            ));
+        }
+        let prefix = "/result/candidates/0/sections";
+        for section in ["predict", "conservation", "cosmic"] {
+            let off = group == Some("noncommercial") && section != "cosmic"
+                || group == Some("restricted") && section == "cosmic";
+            if value.pointer(&format!("{prefix}/{section}/state"))
+                != Some(&json!(if off { "skipped" } else { "data" }))
+            {
+                return Err(format!(
+                    "component group leaked or hid unaffected data: {value}"
+                ));
+            }
+        }
+    }
+    configured_component_groups(&environment, &stub, &base)?;
+    let requests = stub.finish()?;
+    // A changed identity projection needs one new read; its ignored ClinVar response must not leak.
+    if requests.len() != 6 {
+        return Err(format!(
+            "warm policy caused extra component reads: {}",
+            requests.len()
+        ));
+    }
+    Ok(())
+}
+
+fn disabled_clinvar_identity() -> Result<(), String> {
+    let (value, requests) = call(
+        "myvariant.info",
+        component_body,
+        &[
+            "get",
+            "variant",
+            "clinvar:13961",
+            "--disable-sources",
+            "restricted",
+        ],
+    )?;
+    if !requests.is_empty()
+        || value.pointer("/result/resolution") != Some(&json!("unavailable"))
+        || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
+    {
+        return Err(format!(
+            "disabled ClinVar identity became a request or false absence: {value}"
+        ));
+    }
+    Ok(())
+}
+
+fn configured_component_groups(
+    environment: &Environment,
+    stub: &Stub,
+    base: &[&str],
+) -> Result<(), String> {
+    environment.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":environment.root().join("synthetic-ca.pem"),"disable_sources":["noncommercial"]})).map_err(|e|e.to_string())?;
+    for extra in [
+        Vec::<String>::new(),
+        vec!["--disable-sources".into(), "restricted".into()],
+    ] {
+        let mut args = base.iter().map(|s| (*s).into()).collect::<Vec<String>>();
+        args.extend(extra.clone());
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/result/candidates/0/sections/predict/state") != Some(&json!("skipped"))
+            || value.pointer("/result/candidates/0/sections/conservation/state")
+                != Some(&json!("skipped"))
+            || value.pointer("/result/candidates/0/sections/cosmic/state")
+                != Some(&json!(if extra.is_empty() { "data" } else { "skipped" }))
+        {
+            return Err(format!(
+                "stored and command component policy did not combine: {value}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn malformed_score() -> Result<(), String> {
+    fn body(request: &str) -> Result<String, String> {
+        if request.contains("cadd.phred") {
+            Ok(
+                json!({"_id":"chr7:g.140453136A>T","cadd":{"phred":"invalid_source_number"}})
+                    .to_string(),
+            )
+        } else {
+            myvariant_body37(request)
+        }
+    }
+    let (value, requests) = call(
+        "myvariant.info",
+        body,
+        &[
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "predict",
+            "--build",
+            "GRCh37",
+        ],
+    )?;
+    if value.pointer("/result/candidates/0/sections/predict/reason") != Some(&json!("bad_reply"))
+        || value.pointer("/problems/0/field") != Some(&json!("cadd.phred"))
+        || requests.len() != 2
+    {
+        return Err(format!(
+            "invalid source number was treated as missing identity: {value}"
+        ));
+    }
+    Ok(())
 }

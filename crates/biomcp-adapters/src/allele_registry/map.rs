@@ -58,7 +58,6 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
     }
     let value = VariantHeader {
         requested: None,
-        sections: None,
         identity: Variant {
             ids: ids.into(),
             representations: representations.into(),
@@ -70,6 +69,8 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
             url: Some(url),
         },
         myvariant: None,
+        sections: None,
+        component_terms: Box::default(),
     };
     Ok(Resolution::Found(Mapped { value, problems }))
 }

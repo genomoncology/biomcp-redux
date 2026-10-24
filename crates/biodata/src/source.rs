@@ -61,6 +61,8 @@ canonical_enum! {
         UniProt => "uniprot",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinVar component source policy.
+        ClinVar => "clinvar",
         /// GWAS Catalog v2.
         Gwas => "gwas",
         /// ClinGen.
@@ -148,6 +150,7 @@ canonical_enum! {
 
 crate::macros::wire_enum! {
     /// Reviewed source-use category, without inferring rights in individual records.
+    #[derive(PartialOrd, Ord)]
     Use {
         /// Public-domain or unrestricted source data.
         Open => "open",

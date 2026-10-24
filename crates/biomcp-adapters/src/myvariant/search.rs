@@ -37,11 +37,12 @@ impl Reply for Page {
 /// Send one declared native query window and validate it before cache admission.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
+    let fields = super::allowed_fields(leg, FIELDS);
     let mut args = vec![
         ("q", Arg::Text(&term)),
         ("size", Arg::Num(u64::from(query.limit()))),
         ("from", Arg::Num(u64::from(query.offset()))),
-        ("fields", Arg::Text(FIELDS)),
+        ("fields", Arg::Text(&fields)),
     ];
     if let Some(build) = query.build() {
         args.push((
@@ -73,7 +74,12 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     for hit in page.hits {
         let id = hit.id.clone();
         let build = super::search_build::source_build(&hit);
-        let mapped = map::candidates(vec![hit], id.as_str(), build);
+        let mapped = map::candidates(
+            vec![hit],
+            id.as_str(),
+            build,
+            !super::components::disabled_on_leg(leg, "clinvar"),
+        );
         rows.value.extend(mapped.value);
         rows.problems.extend(mapped.problems);
     }

@@ -1,0 +1,313 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/metadata",
+  "exchanges": [
+    {
+      "fetched": 1792872638,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 3,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872640,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872642,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 3,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872644,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 2,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872647,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 2,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872649,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 2,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872651,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 7,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872653,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 6,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792872655,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "build_version": "synthetic-build",
+          "build_date": "2020-01-01T00:00:00Z",
+          "src": {
+            "cadd": {
+              "version": null,
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "dbnsfp": {
+              "version": "synthetic-4.8a",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            },
+            "cosmic": {
+              "version": "synthetic-68",
+              "license_url": "https://example.org/synthetic-component-terms",
+              "upload_date": "2019-01-01T00:00:00Z",
+              "note": "synthetic historical snapshot"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

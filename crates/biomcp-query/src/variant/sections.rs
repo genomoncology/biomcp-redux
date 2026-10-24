@@ -15,11 +15,9 @@ pub(super) fn apply(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &mut [VariantHeader],
-    deadline: Deadline<'_>,
+    deadline: &mut Deadline<'_>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
-    let mut sources = Vec::new();
-    let mut problems = Vec::new();
-    let mut local = None;
+    let mut collected = Collected::default();
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
@@ -28,6 +26,9 @@ pub(super) fn apply(
             VariantSection::Civic,
             VariantSection::Hotspots,
             VariantSection::Oncokb,
+            VariantSection::Predict,
+            VariantSection::Conservation,
+            VariantSection::Cosmic,
         ] {
             if !query.sections().contains(&section)
                 && !query.sections().contains(&VariantSection::All)
@@ -37,33 +38,40 @@ pub(super) fn apply(
             let candidates = std::slice::from_ref(&*candidate);
             macro_rules! attach {
                 ($field:ident, $read:expr) => {
-                    sections.$field = Some(retain(
-                        permitted(cx, section, || $read),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
+                    sections.$field = Some(collected.keep(permitted(cx, section, || $read)))
                 };
             }
             match section {
+                VariantSection::Predict => attach!(
+                    predict,
+                    super::predict::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Conservation => attach!(
+                    conservation,
+                    super::conservation::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Cosmic => attach!(
+                    cosmic,
+                    super::cosmic::section(cx, query, candidates, deadline)
+                ),
                 VariantSection::Population => attach!(
                     population,
-                    super::population::section(cx, query, candidates, deadline)
+                    super::population::section(cx, query, candidates, *deadline)
                 ),
                 VariantSection::Gwas => {
-                    attach!(gwas, super::gwas::section(cx, query, candidates, deadline))
+                    attach!(gwas, super::gwas::section(cx, query, candidates, *deadline))
                 }
                 VariantSection::Civic => attach!(
                     civic,
-                    super::civic::section(cx, query, candidates, deadline)
+                    super::civic::section(cx, query, candidates, *deadline)
                 ),
                 VariantSection::Hotspots => attach!(
                     hotspots,
-                    super::hotspots::section(cx, query, candidates, deadline)
+                    super::hotspots::section(cx, query, candidates, *deadline)
                 ),
                 VariantSection::Oncokb => attach!(
                     oncokb,
-                    super::oncokb::section(cx, query, candidates, deadline)
+                    super::oncokb::section(cx, query, candidates, *deadline)
                 ),
                 _ => {}
             }
@@ -72,7 +80,23 @@ pub(super) fn apply(
             candidate.sections = Some(Box::new(sections));
         }
     }
-    (sources, problems, local)
+    (collected.sources, collected.problems, collected.local)
+}
+#[derive(Default)]
+struct Collected {
+    sources: Vec<SourceOutcome>,
+    problems: Vec<Problem>,
+    local: Option<RequestError>,
+}
+impl Collected {
+    fn keep<T>(&mut self, value: Result<T>) -> Section<T> {
+        retain(
+            value,
+            &mut self.sources,
+            &mut self.problems,
+            &mut self.local,
+        )
+    }
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
@@ -107,7 +131,7 @@ fn permitted<T>(
     }
     read()
 }
-fn retain<T>(
+pub(super) fn retain<T>(
     value: Result<T>,
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,

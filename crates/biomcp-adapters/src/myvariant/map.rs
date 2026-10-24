@@ -8,6 +8,7 @@ pub(super) fn candidates(
     hits: Vec<Hit>,
     query: &str,
     build: Option<Build>,
+    allow_clinvar: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
@@ -32,11 +33,13 @@ pub(super) fn candidates(
                 Err(_) => problems.push(problem(hit.id.clone(), "ids")),
             }
         }
-        if let Some(cv) = hit.clinvar
+        if allow_clinvar
+            && let Some(cv) = hit.clinvar
             && cv.variant_id > 0
         {
             ids.push(VariantId::ClinVarVariation(cv.variant_id));
         }
+        let component_terms = component_terms(&ids);
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
             let source_genes = match source_genes {
@@ -82,6 +85,7 @@ pub(super) fn candidates(
             myvariant: None,
             requested: None,
             sections: None,
+            component_terms,
         });
     }
     Mapped { value, problems }
@@ -92,5 +96,21 @@ fn problem(record: Text, field: &str) -> Problem {
         record: Some(record),
         field: field.into(),
         code: ProblemCode::ValueUnknown,
+    }
+}
+
+fn component_terms(ids: &[VariantId]) -> Box<[biodata::ComponentLabel]> {
+    if ids
+        .iter()
+        .any(|id| matches!(id, VariantId::ClinVarVariation(_)))
+    {
+        Text::new("clinvar")
+            .ok()
+            .zip(super::components::label(super::components::CLINVAR.terms).ok())
+            .map(|(component, terms)| biodata::ComponentLabel { component, terms })
+            .into_iter()
+            .collect()
+    } else {
+        Box::default()
     }
 }

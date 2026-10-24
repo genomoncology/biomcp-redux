@@ -32,7 +32,7 @@ pub(super) fn get(
     cx: &Ctx<'_>,
     query: &VariantGet,
     source: Source,
-    deadline: Deadline<'_>,
+    mut deadline: Deadline<'_>,
 ) -> Outcome {
     let input = query.input().as_str();
     let requested = if query.input().namespace().ok() == Some(VariantNamespace::ClinVar) {
@@ -59,8 +59,10 @@ pub(super) fn get(
         },
         myvariant: None,
         sections: None,
+        component_terms: Box::default(),
     }];
-    let (sources, problems, local) = super::sections::apply(cx, query, &mut candidates, deadline);
+    let (sources, problems, local) =
+        super::sections::apply(cx, query, &mut candidates, &mut deadline);
     let status = if sources.is_empty()
         || sources
             .iter()

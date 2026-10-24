@@ -1,0 +1,70 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/variant/chr7%3Ag.140453136A%3EG?fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1792872659,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "chr7:g.140453136A>G",
+          "dbnsfp": {
+            "hgvsp": [
+              "p.SourceOne",
+              "p.SourceTwo"
+            ],
+            "ensembl": {
+              "transcriptid": [
+                "source_transcript_one",
+                "source_transcript_two"
+              ]
+            },
+            "polyphen2": {
+              "hdiv": {
+                "score": 0.4,
+                "pred": "D"
+              },
+              "hvar": {
+                "score": 0.3,
+                "pred": "B"
+              }
+            },
+            "revel": {
+              "score": 0.2
+            },
+            "mutationtaster": {
+              "score": 0.1,
+              "pred": "D"
+            },
+            "gerp++": {
+              "nr": 1.5,
+              "rs": 1.2,
+              "rs_rankscore": 0.1
+            },
+            "phastcons": {
+              "100way_vertebrate": {
+                "score": 0.8,
+                "rankscore": 0.6
+              }
+            },
+            "siphy_29way": {
+              "logodds_score": 1.4,
+              "logodds_rankscore": 0.2,
+              "pi": {
+                "a": 1,
+                "c": 0,
+                "g": 0,
+                "t": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

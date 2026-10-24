@@ -1,0 +1,79 @@
+//! Capture-proven native measurements, without score blending or interpretation.
+mod map;
+mod raw;
+use biodata::{Build, VariantPredictors};
+use biomcp_fetch::{Arg, BadReply, Leg, PathSegment, RequestError};
+/// Read the proven prediction or conservation component projection for one exact parent.
+pub fn get(
+    leg: &Leg<'_>,
+    id: &str,
+    build: Build,
+    conservation: bool,
+    cadd: bool,
+    dbnsfp: bool,
+) -> Result<crate::Mapped<VariantPredictors>, RequestError> {
+    let mut fields = vec!["_id"];
+    if cadd {
+        fields.extend(["cadd.phred", "cadd.rawscore", "cadd.sift"]);
+    }
+    if dbnsfp {
+        fields.extend(["dbnsfp.hgvsp", "dbnsfp.ensembl.transcriptid"]);
+        if conservation {
+            fields.extend([
+                "dbnsfp.gerp++",
+                "dbnsfp.phastcons",
+                "dbnsfp.phylop",
+                "dbnsfp.siphy_29way",
+            ]);
+        } else {
+            fields.extend(["dbnsfp.polyphen2", "dbnsfp.revel", "dbnsfp.mutationtaster"]);
+        }
+    }
+    let fields = fields.join(",");
+    let endpoint = super::VARIANT
+        .clone()
+        .with_segments(&[PathSegment::new(id)?]);
+    let (record, _) = leg.json_received_checked::<raw::Record>(
+        &endpoint,
+        &[
+            ("fields", Arg::Text(&fields)),
+            (
+                "assembly",
+                Arg::Text(if build == Build::Grch38 {
+                    "hg38"
+                } else {
+                    "hg19"
+                }),
+            ),
+        ],
+        |record| {
+            if record.id.as_str() == id {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
+    )?;
+    let mut mapped = map::project(record, build, conservation, cadd, dbnsfp)?;
+    let selected = [
+        (cadd, super::components::CADD),
+        (dbnsfp, super::components::DBNSFP),
+    ]
+    .into_iter()
+    .filter_map(|(enabled, component)| enabled.then_some(component))
+    .collect::<Vec<_>>();
+    if !mapped.value.scores.is_empty() || !mapped.value.context.is_empty() {
+        mapped.value.components = super::metadata::components(leg, &selected)?.into();
+    }
+    for score in &mut mapped.value.scores {
+        if let Some(component) = mapped.value.components.iter().find(|component| {
+            score
+                .method
+                .as_str()
+                .starts_with(&format!("{}.", component.name.as_str()))
+        }) {
+            score.attribution.release = component.version.clone();
+        }
+    }
+    Ok(mapped)
+}

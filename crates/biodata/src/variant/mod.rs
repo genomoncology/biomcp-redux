@@ -14,6 +14,8 @@ pub use id::VariantId;
 mod notation;
 pub use notation::{Expression, ExpressionSyntax, HgvsText};
 
+mod predictor;
+pub use predictor::*;
 mod statement;
 pub use statement::*;
 

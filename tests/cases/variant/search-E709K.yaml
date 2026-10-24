@@ -27,8 +27,8 @@
         "--build",
         "GRCh37"
       ],
-      "max_bytes": 745,
-      "max_tokens": 187,
+      "max_bytes": 1188,
+      "max_tokens": 297,
       "expect": {
         "/schema": "biomcp.variant_page/2",
         "/status": "partial",
@@ -65,9 +65,24 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55241677G>A"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {
@@ -117,9 +132,24 @@
                 "source": "myvariant",
                 "record": {
                   "id": "chr7:g.55241677G>A"
-                }
+                },
+                "component_terms": [
+                  {
+                    "component": "clinvar",
+                    "terms": {
+                      "usage": "restricted",
+                      "name": "NCBI policy; submission rights remain source-specific",
+                      "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+                    }
+                  }
+                ]
               }
-            ]
+            ],
+            "selector_terms": {
+              "usage": "noncommercial",
+              "name": "dbNSFP academic branch and individual component terms",
+              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+            }
           }
         },
         "/page": {

@@ -35,9 +35,7 @@ fn candidate() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
-    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 1536 {
-        return Err("hotspots default envelope exceeded its measured ceiling".into());
-    }
+    envelope(&value)?;
     let base = "/result/candidates/0/sections/hotspots/data";
     for (path, expected) in [
         ("/reason", json!("no_join_id")),
@@ -92,4 +90,33 @@ fn body(request: &str) -> Result<String, String> {
         // Counts are deliberately synthetic; provider data rights remain unverified.
         Ok(json!([{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"V600","tumorCount":12,"variantAminoAcid":{"E":8,"K":4}},{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"D594","tumorCount":5,"variantAminoAcid":{"G":5}},{"hugoSymbol":"BRAF","transcriptId":"ENST00000288602","residue":"G466","tumorCount":3,"variantAminoAcid":{"A":3}}]).to_string())
     }
+}
+
+fn envelope(value: &Value) -> Result<(), String> {
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let mut comparable = value.clone();
+    let header = comparable
+        .pointer_mut("/result/candidates/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing candidate")?;
+    let terms = header
+        .remove("component_terms")
+        .ok_or("missing component terms")?;
+    let expected = biomcp_adapters::myvariant::components::label(
+        biomcp_adapters::myvariant::components::CLINVAR.terms,
+    )
+    .map_err(|e| e.to_string())?;
+    let payload = serde_json::to_vec(&comparable)
+        .map_err(|e| e.to_string())?
+        .len();
+    if terms != json!([{"component":"clinvar","terms":expected}])
+        || full - payload != 205
+        || payload > 1536
+        || full > 1771
+    {
+        return Err(format!(
+            "hotspots full={full}, comparable={payload}; caps=1771/1536"
+        ));
+    }
+    Ok(())
 }

@@ -57,7 +57,7 @@ pub use article_sections::{
 };
 
 mod health;
-pub use health::{Health, HttpHealth, SourceHealth};
+pub use health::{ComponentHealth, Health, HttpHealth, SourceHealth};
 
 pub use article::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
@@ -68,7 +68,7 @@ mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 mod variant_normalize;
-pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution};
+pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections};
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
@@ -100,7 +100,6 @@ pub use variant_civic::{
     VariantCivic,
 };
 mod variant_hotspots;
-pub use variant::VariantSections;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
 
 mod variant_oncokb;
