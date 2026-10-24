@@ -1,7 +1,7 @@
 {
   "feature": "article-search",
-  "story": "named sources accept Europe PMC and reject duplicate selectors",
-  "replay": "article/search/synthetic-search-500",
+  "story": "Synthetic PubMed timeout remains a failed search despite Europe PMC answer",
+  "replay": "article/fold/synthetic-pubmed-deadline",
   "steps": [
     {
       "run": [
@@ -12,10 +12,11 @@
         "pubmed,europepmc"
       ],
       "exit": 4,
-      "max_bytes": 2000,
+      "max_bytes": 1800,
       "expect": {
         "/status": "failed",
-        "/sources/0/source": "pubmed"
+        "/sources/0/reason": "deadline_exceeded",
+        "/sources/1/state": "ok"
       }
     }
   ]

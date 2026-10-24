@@ -1,0 +1,23 @@
+{
+  "feature": "article-search",
+  "story": "Synthetic sole Europe PMC failure is failed",
+  "replay": "article/fold/synthetic-epmc-500",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc"
+      ],
+      "exit": 4,
+      "max_bytes": 1200,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "unavailable",
+        "/next/0/kind": "fresh"
+      }
+    }
+  ]
+}

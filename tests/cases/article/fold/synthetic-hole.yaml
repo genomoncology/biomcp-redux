@@ -1,0 +1,24 @@
+{
+  "feature": "article-search",
+  "story": "Synthetic source-local identity stays anchored when citation metadata is missing",
+  "replay": "article/fold/synthetic-hole",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--source",
+        "europepmc"
+      ],
+      "max_bytes": 5000,
+      "expect": {
+        "/status": "partial",
+        "/result/items/4/key/id": "PPR8888",
+        "/next/*/kind": {
+          "includes": "fresh"
+        }
+      }
+    }
+  ]
+}
