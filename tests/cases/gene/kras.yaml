@@ -1,0 +1,39 @@
+{
+  "feature": "gene-commands",
+  "story": "kras",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "KRAS"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:6407",
+        "/result/items/0/answer/gene/symbol": "KRAS",
+        "/result/items/0/answer/match/kind": "symbol",
+        "/sources/*/source": [
+          "hgnc",
+          "mygene"
+        ],
+        "/result/items/0/answer/gene/entrez_id": "3845",
+        "/result/items/0/answer/gene/ensembl_id": "ENSG00000133703",
+        "/result/items/0/answer/gene/location": "12p12.1",
+        "/result/items/0/answer/gene/previous_symbols": {
+          "includes": [
+            "KRAS2"
+          ]
+        }
+      },
+      "max_bytes": 2400,
+      "mcp": [
+        "get",
+        "gene",
+        "KRAS"
+      ]
+    }
+  ]
+}

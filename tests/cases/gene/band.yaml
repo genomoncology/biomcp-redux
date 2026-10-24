@@ -1,0 +1,61 @@
+{
+  "feature": "gene-commands",
+  "story": "band",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "9p21.3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 65,
+        "/result/items": {
+          "count": 10
+        },
+        "/next/0/kind": "page",
+        "/next/0/args": [
+          "search",
+          "gene",
+          "--band",
+          "9p21.3",
+          "--offset",
+          "10"
+        ]
+      },
+      "max_bytes": 2800,
+      "mcp": [
+        "search",
+        "gene",
+        "--band",
+        "9p21.3"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "9p21.3",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/page/total": 65,
+        "/result/items": {
+          "count": 50
+        },
+        "/result/items/*/symbol": {
+          "includes": [
+            "CDKN2A",
+            "CDKN2B",
+            "MTAP"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search page counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string"
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "rate_limited",
+        "unavailable",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing"
+      ],
+      "type": "string"
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "pubmed",
+        "europepmc",
+        "pubtator",
+        "ctgov",
+        "civic"
+      ],
+      "type": "string"
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync"
+      ],
+      "type": "string"
+    },
+    "SyncQuery": {
+      "additionalProperties": false,
+      "description": "Explicit synchronization selector.",
+      "properties": {
+        "bundle": {
+          "description": "Declared bundle name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bundle"
+      ],
+      "type": "object"
+    },
+    "SyncResult": {
+      "additionalProperties": false,
+      "description": "Published bundle metadata after synchronization.",
+      "properties": {
+        "bytes": {
+          "description": "Unencoded source bytes.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rows": {
+          "description": "Imported rows.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "bytes"
+      ],
+      "type": "object"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.sync/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/SyncQuery",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SyncResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.sync/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

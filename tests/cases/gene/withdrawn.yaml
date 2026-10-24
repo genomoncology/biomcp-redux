@@ -1,0 +1,23 @@
+{
+  "feature": "gene-commands",
+  "story": "withdrawn",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRCA3"
+      ],
+      "expect": {
+        "/result/items/0/answer/resolution": "withdrawn",
+        "/result/items/0/answer/hgnc_id": "HGNC:18617",
+        "/result/items/0/answer/hgnc_status": "Entry Withdrawn",
+        "/sources/*/source": [
+          "hgnc"
+        ]
+      },
+      "max_bytes": 400
+    }
+  ]
+}

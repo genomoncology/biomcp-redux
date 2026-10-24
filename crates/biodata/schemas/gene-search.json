@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "Cytoband": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.gene-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Search genes by text, cytoband, or their intersection.",
+  "properties": {
+    "band": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Cytoband"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "A cytoband prefix."
+    },
+    "limit": {
+      "default": 10,
+      "description": "Number of results per page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Number of results to skip.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "query": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Words matched against symbols, previous symbols, aliases and names.",
+      "x-positional": 0
+    }
+  },
+  "title": "GeneSearch",
+  "type": "object"
+}

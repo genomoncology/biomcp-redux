@@ -1,0 +1,28 @@
+{
+  "feature": "gene-commands",
+  "story": "her2",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "HER2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:3430",
+        "/result/items/0/answer/gene/symbol": "ERBB2",
+        "/result/items/0/answer/match/kind": "alias",
+        "/sources/*/source": [
+          "hgnc",
+          "mygene"
+        ],
+        "/result/items/0/answer/match/text": "HER2",
+        "/result/items/0/answer/gene/location": "17q12"
+      },
+      "max_bytes": 3200
+    }
+  ]
+}

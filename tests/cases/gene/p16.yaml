@@ -1,0 +1,23 @@
+{
+  "feature": "gene-commands",
+  "story": "p16",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "p16"
+      ],
+      "expect": {
+        "/result/items/0/answer/resolution": "ambiguous",
+        "/result/items/0/answer/candidates/*/hgnc_id": [
+          "HGNC:1787",
+          "HGNC:43802"
+        ],
+        "/result/items/0/answer/candidates/0/symbol": "CDKN2A"
+      },
+      "max_bytes": 1000
+    }
+  ]
+}

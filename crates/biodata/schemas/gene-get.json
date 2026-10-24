@@ -1,0 +1,29 @@
+{
+  "$defs": {
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    }
+  },
+  "$id": "biodata.gene-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Get one to twenty human gene inputs in their original order.",
+  "properties": {
+    "input": {
+      "description": "Gene symbols or checked identifiers, in input order.",
+      "items": {
+        "$ref": "#/$defs/GeneInput"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "type": "array",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "input"
+  ],
+  "title": "GeneGet",
+  "type": "object"
+}

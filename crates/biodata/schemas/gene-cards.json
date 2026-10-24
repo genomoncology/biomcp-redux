@@ -1,0 +1,888 @@
+{
+  "$defs": {
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38",
+        "unstated"
+      ],
+      "type": "string"
+    },
+    "Contig": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "Cytoband": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "EntrezGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Gene": {
+      "additionalProperties": false,
+      "description": "Human gene identity and whole source annotations, independent of response cards.",
+      "properties": {
+        "aliases": {
+          "description": "All stated HGNC aliases.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "ensembl_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Ensembl gene identifier, if stated."
+        },
+        "entrez_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EntrezGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "NCBI Gene identifier, if stated."
+        },
+        "hgnc_id": {
+          "$ref": "#/$defs/HgncId",
+          "description": "HGNC identifier."
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cytoband"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Single stated band, if available."
+        },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "HGNC locus group."
+        },
+        "locus_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocusType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "HGNC locus type, if stated and recognized."
+        },
+        "mane_select": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManeSelect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Versioned MANE Select transcript pair, if stated."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Gene name."
+        },
+        "omim": {
+          "description": "All stated OMIM identifiers.",
+          "items": {
+            "$ref": "#/$defs/OmimId"
+          },
+          "type": "array"
+        },
+        "previous_symbols": {
+          "description": "All stated previous symbols.",
+          "items": {
+            "$ref": "#/$defs/GeneSymbol"
+          },
+          "type": "array"
+        },
+        "spans": {
+          "description": "Source intervals with explicit assembly and counting rule.",
+          "items": {
+            "$ref": "#/$defs/GenomicInterval"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/GeneStatus",
+          "description": "HGNC record status."
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Summary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole attributed summary, if stated."
+        },
+        "symbol": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Source-preserved symbol."
+        },
+        "uniprot": {
+          "description": "All stated UniProt base accessions.",
+          "items": {
+            "$ref": "#/$defs/UniProtAcc"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol",
+        "status",
+        "locus_group",
+        "previous_symbols",
+        "aliases",
+        "uniprot",
+        "omim",
+        "spans",
+        "name"
+      ],
+      "type": "object"
+    },
+    "GeneCards": {
+      "additionalProperties": false,
+      "description": "Gene answers in input order.",
+      "properties": {
+        "items": {
+          "description": "Requested inputs and their answers.",
+          "items": {
+            "$ref": "#/$defs/GeneItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "GeneGet": {
+      "additionalProperties": false,
+      "description": "Get one to twenty human gene inputs in their original order.",
+      "properties": {
+        "input": {
+          "description": "Gene symbols or checked identifiers, in input order.",
+          "items": {
+            "$ref": "#/$defs/GeneInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
+    "GeneHeader": {
+      "additionalProperties": false,
+      "description": "Enough gene identity to choose a search result.",
+      "properties": {
+        "hgnc_id": {
+          "$ref": "#/$defs/HgncId",
+          "description": "HGNC identifier."
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cytoband"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A single stated band, if available."
+        },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "HGNC locus group."
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Match"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Match information when this header answers an input."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Gene name."
+        },
+        "status": {
+          "$ref": "#/$defs/GeneStatus",
+          "description": "HGNC record status."
+        },
+        "symbol": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Source-preserved symbol."
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol",
+        "locus_group",
+        "status",
+        "name"
+      ],
+      "type": "object"
+    },
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "GeneItem": {
+      "additionalProperties": false,
+      "description": "Answer to one requested input.",
+      "properties": {
+        "answer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent only when identity lookup failed."
+        },
+        "input": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Original checked input."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "This input's outcome."
+        }
+      },
+      "required": [
+        "input",
+        "status"
+      ],
+      "type": "object"
+    },
+    "GeneResolution": {
+      "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "One resolved identity and its source match.",
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/Gene",
+              "description": "The whole gene entity."
+            },
+            "match": {
+              "$ref": "#/$defs/Match",
+              "description": "How the source matched the input."
+            },
+            "resolution": {
+              "const": "resolved",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution",
+            "gene",
+            "match"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Every candidate, with no silent selection.",
+          "properties": {
+            "candidates": {
+              "description": "Ordered candidates supplied by the resolver.",
+              "items": {
+                "$ref": "#/$defs/GeneHeader"
+              },
+              "type": "array"
+            },
+            "resolution": {
+              "const": "ambiguous",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution",
+            "candidates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The original withdrawn identity and stated successors.",
+          "properties": {
+            "hgnc_id": {
+              "$ref": "#/$defs/HgncId",
+              "description": "Original HGNC identifier."
+            },
+            "hgnc_status": {
+              "$ref": "#/$defs/HgncStatus",
+              "description": "Stated HGNC withdrawn-file status."
+            },
+            "merged_into": {
+              "description": "All stated merge destinations.",
+              "items": {
+                "$ref": "#/$defs/HgncId"
+              },
+              "type": "array"
+            },
+            "resolution": {
+              "const": "withdrawn",
+              "type": "string"
+            },
+            "symbol": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Original symbol."
+            }
+          },
+          "required": [
+            "resolution",
+            "hgnc_id",
+            "symbol",
+            "hgnc_status",
+            "merged_into"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "No source identity matched.",
+          "properties": {
+            "resolution": {
+              "const": "not_found",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "GeneStatus": {
+      "description": "HGNC approval status.",
+      "enum": [
+        "approved",
+        "withdrawn"
+      ],
+      "type": "string"
+    },
+    "GeneSymbol": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "GenomicInterval": {
+      "additionalProperties": false,
+      "description": "An assembly-qualified zero-based half-open source interval.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source-stated assembly, explicitly unstated when absent."
+        },
+        "contig": {
+          "$ref": "#/$defs/Contig",
+          "description": "Source chromosome or scaffold name."
+        },
+        "span": {
+          "$ref": "#/$defs/Span0",
+          "description": "Checked zero-based half-open bounds; an empty span remains valid."
+        },
+        "strand": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Strand"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated strand, if available."
+        }
+      },
+      "required": [
+        "build",
+        "contig",
+        "span"
+      ],
+      "type": "object"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "HgncStatus": {
+      "description": "HGNC's stated withdrawn-file status.",
+      "enum": [
+        "Entry Withdrawn",
+        "Merged/Split"
+      ],
+      "type": "string"
+    },
+    "LocusGroup": {
+      "description": "HGNC locus group, separate from a missing source value.",
+      "enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
+      ],
+      "type": "string"
+    },
+    "LocusType": {
+      "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
+      "enum": [
+        "gene_with_protein_product",
+        "rna_cluster",
+        "long_non_coding_rna",
+        "micro_rna",
+        "misc_rna",
+        "ribosomal_rna",
+        "small_nuclear_rna",
+        "small_nucleolar_rna",
+        "transfer_rna",
+        "vault_rna",
+        "y_rna",
+        "phenotype_only",
+        "pseudogene",
+        "complex_locus_constituent",
+        "endogenous_retrovirus",
+        "fragile_site",
+        "immunoglobulin_gene",
+        "immunoglobulin_pseudogene",
+        "readthrough",
+        "region",
+        "t_cell_receptor_gene",
+        "t_cell_receptor_pseudogene",
+        "transposable_element",
+        "unknown",
+        "virus_integration_site"
+      ],
+      "type": "string"
+    },
+    "ManeSelect": {
+      "additionalProperties": false,
+      "description": "A MANE Select pair whose two accessions both state their versions.",
+      "properties": {
+        "ensembl": {
+          "pattern": "^ENST[0-9]{11}\\.[1-9][0-9]*$",
+          "type": "string"
+        },
+        "refseq": {
+          "pattern": "^(NM_|NR_)[0-9]{6,}\\.[1-9][0-9]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "refseq",
+        "ensembl"
+      ],
+      "type": "object"
+    },
+    "Match": {
+      "additionalProperties": false,
+      "description": "A source-stated match, preserving the text that matched.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/MatchKind",
+          "description": "The match category."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "The source text that matched the input."
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "MatchKind": {
+      "description": "How a source matched a gene input.",
+      "enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
+      ],
+      "type": "string"
+    },
+    "OmimId": {
+      "pattern": "^[0-9]{6}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search page counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string"
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "rate_limited",
+        "unavailable",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing"
+      ],
+      "type": "string"
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "pubmed",
+        "europepmc",
+        "pubtator",
+        "ctgov",
+        "civic"
+      ],
+      "type": "string"
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Span0": {
+      "additionalProperties": false,
+      "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+      "properties": {
+        "end": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync"
+      ],
+      "type": "string"
+    },
+    "Strand": {
+      "description": "Source-stated forward or reverse strand.",
+      "enum": [
+        "+",
+        "-"
+      ],
+      "type": "string"
+    },
+    "Summary": {
+      "additionalProperties": false,
+      "description": "A whole source-provided summary with attribution and stated date precision.",
+      "properties": {
+        "dated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Date stated by the source, if any."
+        },
+        "source": {
+          "$ref": "#/$defs/SummarySource",
+          "description": "The summary's attribution, independent of the fetching provider."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Entire summary text."
+        }
+      },
+      "required": [
+        "text",
+        "source"
+      ],
+      "type": "object"
+    },
+    "SummarySource": {
+      "description": "The attribution on a source-provided summary, independent of fetch providers.",
+      "enum": [
+        "refseq"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "UniProtAcc": {
+      "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.gene_cards/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/GeneGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GeneCards"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.gene_cards/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}
