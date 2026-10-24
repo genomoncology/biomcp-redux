@@ -304,9 +304,19 @@ fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
 #[test]
 fn article_input_schema_preserves_preprint_local_identifiers() {
     let schema = validator::<ArticleInput>();
-    for (id, valid) in [("PPR1295425", true), ("PPR0001", true), ("PPR0000", false), ("PPR", false), ("PPR1/other", false)] {
+    for (id, valid) in [
+        ("PPR1295425", true),
+        ("PPR0001", true),
+        ("PPR0000", false),
+        ("PPR", false),
+        ("PPR1/other", false),
+    ] {
         let value = json!(id);
         assert_eq!(schema.is_valid(&value), valid, "{id}");
-        assert_eq!(serde_json::from_value::<ArticleInput>(value).is_ok(), valid, "{id}");
+        assert_eq!(
+            serde_json::from_value::<ArticleInput>(value).is_ok(),
+            valid,
+            "{id}"
+        );
     }
 }

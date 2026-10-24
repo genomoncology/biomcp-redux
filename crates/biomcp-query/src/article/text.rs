@@ -175,11 +175,7 @@ fn select(
         )
         .ok();
         if part.continuation {
-            super::sections::fulltext::next_input(
-                input,
-                number.checked_add(1)?,
-                &mut out.next,
-            );
+            super::sections::fulltext::next_input(input, number.checked_add(1)?, &mut out.next);
         }
     } else {
         content.hits = Some(find(query, document, out)?);
