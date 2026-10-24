@@ -66,8 +66,16 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print generated command help.",
         ),
         (
-            vec!["help", "key", "oncokb"],
-            "Show OncoKB credential configuration names.",
+            vec!["key", "list"],
+            "List supported credential names and their origin without values.",
+        ),
+        (
+            vec!["key", "set", "<source>", "[--replace]"],
+            "Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.",
+        ),
+        (
+            vec!["key", "remove", "<source>"],
+            "Remove a stored credential while preserving other settings.",
         ),
         (
             vec!["serve"],
@@ -83,6 +91,11 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             examples: Vec::new(),
         });
     }
+    commands.extend(biomcp_fetch::SecretName::ALL.iter().map(|name| HelpCommand {
+        command:vec!["help".into(),"key".into(),name.source().into()],
+        description:"Show credential registration and environment fallback names.".into(),
+        arguments:Vec::new(), sections:Vec::new(), section_rule:None, examples:Vec::new(),
+    }));
     Ok(commands)
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
