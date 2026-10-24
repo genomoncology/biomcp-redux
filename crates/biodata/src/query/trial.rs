@@ -427,7 +427,7 @@ crate::macros::wire_enum! {
         /// ClinicalTrials.gov registry.
         #[default]
         Ctgov => "ctgov",
-        /// NCI Clinical Trials Search, requiring the user's key.
+        /// NCI requires the user key; accepts NCIt condition or explicit keyword, not registry filters.
         Nci => "nci",
     }
 }

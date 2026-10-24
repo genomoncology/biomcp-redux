@@ -41,6 +41,25 @@
         },
         "/query/condition": "C3224"
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition",
+        "C3224",
+        "--limit",
+        "1",
+        "--count-only"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1203,
+        "/page/returned": 0,
+        "/result/items": []
+      }
     }
   ]
 }

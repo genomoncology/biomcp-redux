@@ -10,6 +10,9 @@ use std::fs;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/nci/exact-source-identity", || {
+            identity().map_err(Into::into)
+        }),
         Trial::test("trial/nci/native-section-walks", || {
             walks(false).map_err(Into::into)
         }),
@@ -171,4 +174,44 @@ fn expected(raw: &Value, section: &str) -> Result<Vec<Value>, String> {
         }
         _ => Err("unknown source collection".into()),
     }
+}
+
+fn identity() -> Check {
+    for absent in [false, true] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let dir = env.root().join("replies");
+        copy_capture("trial/nci/get", &dir, |_, record| {
+            if absent {
+                record["exchanges"][0]["status"] = json!(404);
+            } else {
+                record["exchanges"][0]["body"]["value"]["nct_id"] = json!("NCT02296125");
+            }
+        })
+        .map_err(|e| e.to_string())?;
+        let mut args = ["get", "trial", "NCT05136196", "--source", "nci"]
+            .map(str::to_owned)
+            .to_vec();
+        args.extend(env.globals(Some(&dir), false));
+        let output = invoke(&env, &args, if absent { 1 } else { 4 })?;
+        if output.pointer("/result/items/0/card").is_some()
+            || output.pointer("/result/items/0/status")
+                != Some(&json!(if absent { "absent" } else { "failed" }))
+        {
+            return Err("NCI identity mismatch or absence fabricated a card".into());
+        }
+        if !absent {
+            if output.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+                return Err("NCI wrong-identity reply was not rejected".into());
+            }
+            let mut args = ["get", "trial", "NCT05136196", "--source", "nci"]
+                .map(str::to_owned)
+                .to_vec();
+            args.extend(env.globals(None, true));
+            let output = invoke(&env, &args, 4)?;
+            if output.pointer("/sources/0/reason") != Some(&json!("offline")) {
+                return Err("wrong-identity NCI record entered cache".into());
+            }
+        }
+    }
+    Ok(())
 }
