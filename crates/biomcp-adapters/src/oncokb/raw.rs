@@ -16,24 +16,16 @@ pub(super) struct Gene {
     pub entrez_gene_id: EntrezGeneId,
     hugo_symbol: biodata::GeneSymbol,
     gene_type: OncokbGeneType,
-    #[serde(default, deserialize_with = "optional_text")]
-    highest_sensitive_level: Option<Text>,
-    #[serde(default, deserialize_with = "optional_text")]
-    highest_resistance_level: Option<Text>,
-    #[serde(default, deserialize_with = "optional_text")]
-    summary: Option<Text>,
-    #[serde(default, deserialize_with = "optional_text")]
-    background: Option<Text>,
-    #[serde(default, deserialize_with = "optional_text")]
-    grch37_isoform: Option<Text>,
+    highest_sensitive_level: Option<String>,
+    highest_resistance_level: Option<String>,
+    summary: Option<String>,
+    background: Option<String>,
+    grch37_isoform: Option<String>,
     #[serde(rename = "grch37RefSeq")]
-    #[serde(default, deserialize_with = "optional_text")]
-    grch37_refseq: Option<Text>,
-    #[serde(default, deserialize_with = "optional_text")]
-    grch38_isoform: Option<Text>,
+    grch37_refseq: Option<String>,
+    grch38_isoform: Option<String>,
     #[serde(rename = "grch38RefSeq")]
-    #[serde(default, deserialize_with = "optional_text")]
-    grch38_refseq: Option<Text>,
+    grch38_refseq: Option<String>,
 }
 impl Gene {
     pub(super) fn mapped(self) -> super::GeneData {
@@ -41,21 +33,21 @@ impl Gene {
         super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
-                highest_sensitive_level: self.highest_sensitive_level,
-                highest_resistance_level: self.highest_resistance_level,
+                highest_sensitive_level: text(self.highest_sensitive_level),
+                highest_resistance_level: text(self.highest_resistance_level),
                 version: None,
             },
             section: Oncokb {
                 version: None,
-                summary: self.summary,
-                background: self.background,
+                summary: text(self.summary),
+                background: text(self.background),
                 grch37: OncokbTranscript {
-                    isoform: self.grch37_isoform,
-                    refseq: self.grch37_refseq,
+                    isoform: text(self.grch37_isoform),
+                    refseq: text(self.grch37_refseq),
                 },
                 grch38: OncokbTranscript {
-                    isoform: self.grch38_isoform,
-                    refseq: self.grch38_refseq,
+                    isoform: text(self.grch38_isoform),
+                    refseq: text(self.grch38_refseq),
                 },
             },
         }
@@ -81,7 +73,6 @@ fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<EntrezGeneId, D::Err
     EntrezGeneId::new(value).map_err(serde::de::Error::custom)
 }
 
-fn optional_text<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
-    let value = Option::<String>::deserialize(d)?;
-    Ok(value.and_then(|text| Text::new(&text).ok()))
+fn text(value: Option<String>) -> Option<Text> {
+    value.and_then(|text| Text::new(&text).ok())
 }
