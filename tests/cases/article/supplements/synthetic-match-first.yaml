@@ -32,8 +32,17 @@
         },
         "/result/content/data/rows/1/row": 3,
         "/result/content/data/rows/1/fragment/text": "literal F1761I",
-        "/page/returned": 2,
-        "/page/total": 160
+        "/page/returned": 3,
+        "/page/total": 241,
+        "/result/content/data/rows/2/row": 4,
+        "/result/content/data/rows/2/fragment": {
+          "equals": {
+            "header": false,
+            "column": 40,
+            "offset": 998,
+            "text": "F1761I"
+          }
+        }
       },
       "max_tokens": 649
     },
@@ -46,7 +55,7 @@
         "--find",
         "F1761I",
         "--offset",
-        "2"
+        "3"
       ],
       "walk": {
         "items": "/result/content/data/rows",
@@ -54,7 +63,7 @@
       },
       "expect": {
         "/result/content/data/rows": {
-          "count": 158
+          "count": 238
         }
       },
       "max_bytes": 5500
