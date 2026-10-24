@@ -45,12 +45,3 @@ pub fn assertions(leg: &Leg<'_>, id: &str) -> Result<Vec<VariantAssertion>, Requ
     })?;
     Ok(reply.rows)
 }
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::ClinVar,
-        reason: biodata::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
