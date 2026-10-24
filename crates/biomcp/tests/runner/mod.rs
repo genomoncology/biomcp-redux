@@ -10,6 +10,7 @@ mod live_proof;
 mod markdown;
 mod markdown_sources;
 mod mcp;
+mod named_search;
 mod negative_cases;
 mod network_stub;
 mod pmc_tables;
@@ -228,6 +229,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
+    trials.extend(named_search::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
