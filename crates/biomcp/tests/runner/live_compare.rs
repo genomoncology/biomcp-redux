@@ -23,7 +23,9 @@ pub(crate) fn compare(
             .find(|item| item.identity == old.identity);
         let paired = exact.or_else(|| {
             terminal(after).into_iter().find(|item| {
-                item.source == old.source && item.role == old.role && !used.contains(&item.identity)
+                item.source == old.source
+                    && item.role == old.role
+                    && !used.contains(&item.identity)
                     && !before.iter().any(|old| old.identity == item.identity)
             })
         });

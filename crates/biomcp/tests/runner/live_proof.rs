@@ -395,9 +395,15 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
     changes.clear();
     let surviving = many.get(1).ok_or("missing second request")?;
     let pair = many.get(..2).ok_or("missing pair")?;
-    let evidence = live::compare(pair, std::slice::from_ref(surviving), &mut changes, &mut BTreeMap::new());
+    let evidence = live::compare(
+        pair,
+        std::slice::from_ref(surviving),
+        &mut changes,
+        &mut BTreeMap::new(),
+    );
     if evidence.pointer("/items/0/kind") != Some(&json!("request-plan-removed"))
-        || evidence.pointer("/items/1/kind") != Some(&json!("same-request")) {
+        || evidence.pointer("/items/1/kind") != Some(&json!("same-request"))
+    {
         return Err("changed pool stole a surviving exact request".into());
     }
     Ok(())
