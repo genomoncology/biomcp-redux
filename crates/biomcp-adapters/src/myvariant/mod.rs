@@ -79,7 +79,12 @@ pub fn lookup(
             return Err(leg_bad());
         }
     }
-    Ok(map::candidates(hits, query, build))
+    Ok(map::candidates(
+        hits,
+        query,
+        build,
+        !components::disabled_on_leg(leg, "clinvar"),
+    ))
 }
 fn leg_bad() -> RequestError {
     biomcp_fetch::SourceError {
@@ -123,7 +128,12 @@ fn annotation(
             }
         },
     )?;
-    Ok(map::candidates(vec![hit], id, build))
+    Ok(map::candidates(
+        vec![hit],
+        id,
+        build,
+        !components::disabled_on_leg(leg, "clinvar"),
+    ))
 }
 
 /// Filter independently disabled carried components before creating a request identity.

@@ -4,7 +4,12 @@ use biodata::{
     Build, Expression, ExpressionSyntax, Problem, ProblemCode, Representation, Source,
     SourceRecord, Text, Variant, VariantHeader, VariantId,
 };
-pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Vec<VariantHeader>> {
+pub(super) fn candidates(
+    hits: Vec<Hit>,
+    query: &str,
+    build: Build,
+    allow_clinvar: bool,
+) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
     let mut problems = Vec::new();
     for hit in hits {
@@ -28,7 +33,8 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
                 Err(_) => problems.push(problem(hit.id.clone(), "ids")),
             }
         }
-        if let Some(cv) = hit.clinvar
+        if allow_clinvar
+            && let Some(cv) = hit.clinvar
             && cv.variant_id > 0
         {
             ids.push(VariantId::ClinVarVariation(cv.variant_id));
