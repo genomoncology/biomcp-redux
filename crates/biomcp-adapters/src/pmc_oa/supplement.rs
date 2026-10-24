@@ -112,9 +112,8 @@ pub fn download_bytes(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, Reque
     let (ep, params) = request(file)?;
     leg.bytes(&ep, &params)
 }
-fn request(
-    file: &Supplement,
-) -> Result<RequestParts<'_>, RequestError> {
+type RequestParts<'a> = (biomcp_fetch::Endpoint, Vec<(&'static str, Arg<'a>)>);
+fn request(file: &Supplement) -> Result<RequestParts<'_>, RequestError> {
     let ep = super::FILE
         .clone()
         .with_path(file.location.path.clone())

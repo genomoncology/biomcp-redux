@@ -40,9 +40,14 @@ impl SaveTarget {
             .filter(|p| !p.as_os_str().is_empty())
             .unwrap_or(Path::new("."));
         let path = fs::canonicalize(parent)?.join(name);
-        let encoded = path.to_str().ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "destination is not UTF-8"))?;
+        let encoded = path.to_str().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::InvalidInput, "destination is not UTF-8")
+        })?;
         if biodata::Text::new(encoded).is_err() || encoded.trim() != encoded {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "destination cannot be represented"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "destination cannot be represented",
+            ));
         }
         let target = Self { path, replace };
         target.check()?;
