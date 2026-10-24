@@ -1,0 +1,21 @@
+# 0028 — Add the pathways section from Reactome
+
+Status: OPEN.
+
+Milestone: 1
+
+## Outcome
+
+`get gene <input> pathways` returns the gene's lowest-level human Reactome pathways as references with stable ID and name, capped at 25 with their total, never calling KEGG, proven by BRAF and TP53 cases under the 600-token section ceiling.
+
+Depends on: 0026
+
+- Starts from: 0026's section pattern; gene.md sections 1 (findings 16 and 19), 3 (Reactome row), 5, 6; architecture 3.10 rules 5 and 7; biodata `Gene.uniprot`.
+- Changes: `crates/biodata/src/source.rs`, `crates/biodata/src/query/gene.rs`, `crates/biodata/src/response/gene.rs`, `crates/biodata/src/response/gene/pathways.rs`, `crates/biodata/schemas/**`, `crates/biomcp-adapters/src/lib.rs`, `crates/biomcp-adapters/src/quotas.rs`, `crates/biomcp-adapters/src/reactome/**`, `crates/biomcp-query/src/gene/sections.rs`, `crates/biomcp-query/src/gene/sections/pathways.rs`, `tests/cases/gene/sections/pathways-*.yaml`, `tests/replies/gene/pathways/**`, `tests/replies/gene/all/reactome/**`, `ROADMAP.md`.
+- Checked boundaries, 2026-10-24: `GET https://reactome.org/ContentService/data/mapping/UniProt/P15056/pathways?species=9606` returned 200 `application/json;charset=UTF-8` with a JSON array of 16 objects, each with `stId` ("R-HSA-1295596"), `displayName` ("Spry regulation of FGF signaling"), `speciesName` "Homo sapiens", `isInDisease`, `schemaClass` "Pathway" and other fields. TP53's P04637 returned 46. An accession with no pathways (`A0A000Z9Z9`) returned 404 `{"code":404,"reason":"NOT_FOUND","messages":["No pathways found for UniProt:A0A000Z9Z9"]}`. `GET /ContentService/data/database/version` returned `97`.
+- Unchecked: Reactome's published rate limit. Declare a conservative local quota `reactome` of 2 requests per second and 2 in flight in quotas.rs.
+- PM decision: 2026-10-24. gene.md section 8 has no pathways case and no harvested gene example needs pathways; the section stays for 0.9 parity under section 5's keep ruling, with the BRAF count from section 6 as its case. One request per HGNC accession, run on the section's leg; pathways from several accessions are deduplicated by `stId` in first-seen order. `Section<Capped<PathwayRef>>` holds `stId` and `displayName` only, at most 25 items with `total`, under architecture 3.10 rule 5; no next step reaches the rest until the pathway slice exists. A 404 from every accession is `Empty` with no record. `NotApplicable` when HGNC lists no accession. The database version is not fetched, because it costs a second request per command.
+- Keeps: 0026's section behavior. No KEGG endpoint or field, no pathway hierarchy, no gene membership lists. Files under 300 lines.
+- Proof: Record live once into `tests/replies/gene/pathways/` with a trimmed HGNC slice holding BRAF, TP53 and MIR21, and add TP53's reply to `tests/replies/gene/all/reactome/`. `get gene BRAF pathways` asserts state data, total 16, `R-HSA-1295596` included and `/result/items/0/sections/pathways` under 600 tokens; it runs through MCP with parity. `get gene TP53 pathways` asserts 25 items, total at least 40 (46 on 2026-10-24) and unique `stId`s under 600 tokens. `get gene MIR21 pathways` asserts not_applicable with no reactome source outcome. The five failure cases of architecture 5.5 on Reactome assert partial status, `pathways` unavailable with its reason, identity present and a later offline step. Then make landing-gate runs through pm job after current main. The landing commit ticks Reactome in ROADMAP.md.
+- Defers: the uncapped walk and pathway membership go to the pathway slice.
+- Evidence: Builds in parallel with 0027 and 0029–0032; the shared registration lines are listed in 0026's Evidence.

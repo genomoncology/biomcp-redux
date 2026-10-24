@@ -1,0 +1,21 @@
+# 0033 — Add search gene --locus-group and retire the 0.9 gene spellings
+
+Status: OPEN.
+
+Milestone: 1
+
+## Outcome
+
+`search gene --locus-group GROUP` filters headers by HGNC locus group, and every 0.9 gene spelling that 1.0 renamed, moved or dropped returns a `usage.retired` error envelope with exit 2 that names the 1.0 spelling or says the feature was dropped, through the CLI and MCP.
+
+Depends on: 0026
+
+- Starts from: gene.md section 1 (0.9 commands and options) and section 5 (keep, change or drop); decision `2026-10-24-gene-slice-rulings.md` (retired spellings name the new command); architecture 3.7 `GeneSearch`, 8.2, 8.3 and 8.5; biodata `GeneSearch`, `LocusGroup`, `ErrorCode` and the error envelope; biomcp-query `gene::search`; binary grammar.rs and spell.rs; 0026's trailing section rule.
+- Changes: `crates/biodata/src/query/gene.rs`, `crates/biodata/src/response/error.rs`, `crates/biodata/schemas/gene-search.json`, `crates/biodata/schemas/error.json`, `crates/biodata/schemas/request.json`, `crates/biomcp-query/src/gene/search.rs`, `crates/biomcp/src/grammar.rs`, `crates/biomcp/src/retired.rs`, `crates/biomcp/src/main.rs`, `tests/cases/gene/search-locus-group.yaml`, `tests/cases/gene/retired.yaml`, `ROADMAP.md`.
+- Checked boundaries, 2026-10-24: the live HGNC `hgnc_complete_set.txt`, fetched once, lists `GO` as an alias of GORAB (HGNC:25676), `HPA` as an alias of HPSE (HGNC:5164) and `GET` as an alias of RESF1 (HGNC:25559). No other retired 0.9 word is an HGNC symbol, alias or previous symbol.
+- PM decision: 2026-10-24. `GeneSearch` gains optional `locus_group` with LocusGroup's snake_case values (`protein_coding`, `non_coding_rna`, `pseudogene`, `phenotype`, `other`). It intersects with text and band before deduplication, ranking, total and paging, like band does (0025). A locus group alone is not a selector; the query still needs text or a band, because the protein-coding list alone is 19,000 rows with no case.
+- PM decision: 2026-10-24. Retired spellings and messages, each a fixed text that never echoes input: `gene <anything>` (covers `gene <symbol>`, `gene get`, `gene definition`) → `use: get gene <gene>`; `gene pathways` → `use: get gene <gene> pathways`; `gene trials` → `use: search trial --gene <gene>`; `gene articles` → `use: search article --gene <gene>`; `gene drugs` → `use: search drug --target <gene>`; `gene cell-lines` → `moved to the cell line entity`; `gene cspec` → `moved to the variant entity`; `search gene --type` → `use: --locus-group`; `--chromosome` → `use: --band`; `--region`, `--pathway` and `--go` → `dropped in 1.0`. Trailing lowercase section words from 0.9 after the first input: `hpa` → `use: expression`; `ontology`, `diseases`, `go`, `interactions`, `funding`, `disgenet` → `dropped in 1.0`; `druggability` → `moved to the drug entity`; `diagnostics` → `moved to the diagnostic entity`; `gencc` → `deferred`. Matching is lowercase-exact like 0026's section words, so `get gene BRAF HPA` still resolves HPA as an input. The messages name the 1.0 trial, article and drug spellings the ruling chose, even before those slices land. The one table lives in `retired.rs` so 0034's accounting can cite it.
+- Keeps: Every 0025 search behavior and case. 0026's grammar. Usage errors other than retired spellings keep `usage.arguments`.
+- Proof: `search gene kinase --locus-group protein_coding` and `search gene --band 9p21.3 --locus-group pseudogene` cases over 0025's HGNC slice in `tests/replies/gene/main/` assert every header's locus group, the total and paging, and run through MCP with parity. `tests/cases/gene/retired.yaml` runs one step per retired spelling above, each asserting exit 2, code `usage.retired`, the exact message and that no input text appears; three steps also run through MCP with `isError` true. `get gene BRAF HPA` asserts two items. Then make landing-gate runs through pm job after current main. The landing commit ticks the gene Search box in ROADMAP.md.
+- Defers: the 0.9 accounting record and docs go to 0034.
+- Evidence: grammar.rs is also touched by 0032 for `help key`; the two edits sit in different functions.
