@@ -4,22 +4,36 @@ use std::{fmt, str::FromStr};
 /// It renders as its upper-case letter.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(u8)]
-#[allow(missing_docs, reason = "each variant is its IUPAC letter")]
 pub enum Base {
+    /// IUPAC code A.
     A = b'A',
+    /// IUPAC code C.
     C = b'C',
+    /// IUPAC code G.
     G = b'G',
+    /// IUPAC code T.
     T = b'T',
+    /// IUPAC code N.
     N = b'N',
+    /// IUPAC code R.
     R = b'R',
+    /// IUPAC code Y.
     Y = b'Y',
+    /// IUPAC code S.
     S = b'S',
+    /// IUPAC code W.
     W = b'W',
+    /// IUPAC code K.
     K = b'K',
+    /// IUPAC code M.
     M = b'M',
+    /// IUPAC code B.
     B = b'B',
+    /// IUPAC code D.
     D = b'D',
+    /// IUPAC code H.
     H = b'H',
+    /// IUPAC code V.
     V = b'V',
 }
 
@@ -67,7 +81,7 @@ impl FromStr for Base {
         Ok(base)
     }
 }
-text_value!(Base, "Base", "^[ACGTNRY SWKMBDHV]$".replace(' ', ""));
+text_value!(Base, "Base", "^[ACGTNRYSWKMBDHV]$");
 /// A literal IUPAC DNA sequence; empty sequences express insertions or deletions.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Sequence(Box<[Base]>);
