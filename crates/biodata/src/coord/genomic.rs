@@ -25,9 +25,11 @@ canonical_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Contig(Box<str>);
 impl Contig {
+    /// Maximum accepted source name length in bytes.
+    pub const MAX_LEN: usize = 255;
     /// Check a nonempty printable ASCII name without inferring assembly membership.
     pub fn new(value: &str) -> Result<Self, Error> {
-        if value.is_empty() || !value.bytes().all(|ch| ch.is_ascii_graphic()) { return Err(Error::ContigInvalid); }
+        if value.is_empty() || value.len() > Self::MAX_LEN || !value.bytes().all(|ch| ch.is_ascii_graphic()) { return Err(Error::ContigInvalid); }
         Ok(Self(value.into()))
     }
     /// Borrow the preserved source name.
@@ -35,7 +37,7 @@ impl Contig {
 }
 impl FromStr for Contig { type Err = Error; fn from_str(value: &str) -> Result<Self, Error> { Self::new(value) } }
 impl fmt::Display for Contig { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) } }
-text_value!(Contig, "Contig", r"^[\x21-\x7e]+$");
+text_value!(Contig, "Contig", format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN));
 
 /// An assembly-qualified zero-based half-open source interval.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
