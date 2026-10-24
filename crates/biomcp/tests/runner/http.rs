@@ -52,8 +52,11 @@ impl Server {
         }
         #[cfg(unix)]
         {
-            let pid = nix::unistd::Pid::from_raw(self.child.id().try_into().map_err(|_| "HTTP process ID")?);
-            nix::sys::signal::kill(pid, nix::sys::signal::Signal::SIGINT).map_err(|e| e.to_string())?;
+            let pid = nix::unistd::Pid::from_raw(
+                self.child.id().try_into().map_err(|_| "HTTP process ID")?,
+            );
+            nix::sys::signal::kill(pid, nix::sys::signal::Signal::SIGINT)
+                .map_err(|e| e.to_string())?;
         }
         // Native Windows console Ctrl-C is exercised by the platform rehearsal.
         #[cfg(windows)]
@@ -461,12 +464,29 @@ fn storage() -> Check {
 }
 
 fn metadata_cases(server: &Server) -> Check {
-    let request = super::mcp::request(json!(9), "tools/call", json!({"name":"biomcp","arguments":{"args":["help"]}}));
+    let request = super::mcp::request(
+        json!(9),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":["help"]}}),
+    );
     let prefix = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\n";
-    for (name, expected) in [("=?base64?YmlvbWNw?=", 200), ("=?base64?***?=", 400), ("other", 400)] {
+    for (name, expected) in [
+        ("=?base64?YmlvbWNw?=", 200),
+        ("=?base64?***?=", 400),
+        ("other", 400),
+    ] {
         let headers = format!("{prefix}Mcp-Name: {name}\r\n");
-        let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), &headers, &request.to_string())?;
-        if status != expected || expected == 400 && reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32020)) {
+        let (status, reply, _) = server.raw(
+            "POST",
+            "/mcp",
+            &server.address.to_string(),
+            &headers,
+            &request.to_string(),
+        )?;
+        if status != expected
+            || expected == 400
+                && reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32020))
+        {
             return Err("encoded tool name did not match its body".into());
         }
     }
@@ -476,8 +496,16 @@ fn metadata_cases(server: &Server) -> Check {
         return Err("unsupported modern method needs HTTP 404 and RPC -32601".into());
     }
     let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2024-11-05\r\n";
-    let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(), headers, &request.to_string())?;
-    if status != 400 || reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32022)) {
+    let (status, reply, _) = server.raw(
+        "POST",
+        "/mcp",
+        &server.address.to_string(),
+        headers,
+        &request.to_string(),
+    )?;
+    if status != 400
+        || reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32022))
+    {
         return Err("unsupported protocol version was not reported".into());
     }
     Ok(())

@@ -31,7 +31,10 @@ pub(super) fn check() -> Check {
     overload()?;
     let mut server = Server::start()?;
     for bytes in [
-        format!("POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\nContent-Length: 0\r\n\r\n", server.address),
+        format!(
+            "POST /mcp HTTP/1.1\r\nHost: {}\r\nTransfer-Encoding: chunked\r\nContent-Length: 0\r\n\r\n",
+            server.address
+        ),
         format!(
             "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Length: 65537\r\n\r\n",
             server.address

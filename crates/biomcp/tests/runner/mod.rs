@@ -393,4 +393,6 @@ pub(super) fn installed_process_proof() -> Result<(), String> {
 }
 
 // Run installed HTTP ownership checks without resolving a build-checkout case directory.
-pub(super) fn installed_http_trials() -> Vec<Trial> { http::trials() }
+pub(super) fn installed_http_trials() -> Vec<Trial> {
+    http::trials()
+}

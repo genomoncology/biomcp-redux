@@ -10,8 +10,14 @@ use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--installed-http-proof") {
-        if env::args().len() != 2 { return ExitCode::FAILURE; }
-        return libtest_mimic::run(&Arguments::from_iter(env::args().take(1)), runner::installed_http_trials()).exit_code();
+        if env::args().len() != 2 {
+            return ExitCode::FAILURE;
+        }
+        return libtest_mimic::run(
+            &Arguments::from_iter(env::args().take(1)),
+            runner::installed_http_trials(),
+        )
+        .exit_code();
     }
     if env::args().nth(1).as_deref() == Some("--live-check") {
         let mode = env::args().nth(2);
