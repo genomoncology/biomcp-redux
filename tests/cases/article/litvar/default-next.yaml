@@ -1,0 +1,43 @@
+{
+  "feature": "article-search",
+  "story": "Default gene and variant search offers LitVar beside PubMed",
+  "replay": "article/litvar/default-akt1",
+  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "AKT1",
+        "--variant",
+        "E17K"
+      ],
+      "max_bytes": 5318,
+      "max_tokens": 1330,
+      "expect": {
+        "/status": "complete",
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "article",
+            "--gene",
+            "AKT1",
+            "--source",
+            "pubmed,litvar",
+            "--variant",
+            "E17K"
+          ]
+        }
+      },
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "AKT1",
+        "--variant",
+        "E17K"
+      ]
+    }
+  ]
+}

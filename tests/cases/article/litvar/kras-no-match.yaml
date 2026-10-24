@@ -1,0 +1,51 @@
+{
+  "feature": "article-search",
+  "story": "An unlisted KRAS G12Q returns nearby candidates and no publication request",
+  "replay": "article/litvar/kras-g12q",
+  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12Q",
+        "--source",
+        "litvar"
+      ],
+      "max_bytes": 733,
+      "max_tokens": 184,
+      "expect": {
+        "/status": "absent",
+        "/result/items": {
+          "count": 0
+        },
+        "/result/candidates/*/rsid": [
+          "rs121913529",
+          "rs121913530"
+        ],
+        "/result/candidates/*/name": [
+          "p.G12D",
+          "p.G12C"
+        ],
+        "/next/*/kind": [
+          "disambiguate",
+          "disambiguate"
+        ]
+      },
+      "exit": 1,
+      "mcp": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12Q",
+        "--source",
+        "litvar"
+      ]
+    }
+  ]
+}
