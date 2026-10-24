@@ -41,53 +41,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Nci, leg.finish(), error);
     if let Ok(page) = result {
-        source.count = Some(page.total);
-        source.fetched = Some(page.data.len() as u32);
-        out.status = if source.state == biodata::SourceState::Stale {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
-        let offset = q
-            .next_page()
-            .and_then(|v| v.as_str().parse::<u32>().ok())
-            .unwrap_or_default();
-        let returned = if q.count_only() {
-            0
-        } else {
-            page.data.len() as u32
-        };
-        out.page = Some(biodata::PageInfo {
-            offset,
-            returned,
-            total: page.total,
-            pool: None,
-            truncated: None,
-        });
-        if !q.count_only()
-            && returned > 0
-            && u64::from(offset.saturating_add(returned)) < page.total
-        {
-            let token = Text::new(&offset.saturating_add(returned).to_string());
-            if let Ok(token) = token {
-                out.next.push((
-                    StepKind::Page,
-                    Action::Run {
-                        request: Request::SearchTrial(q.at_page(token)),
-                        fresh: cx.fresh,
-                    },
-                ));
-            }
-        }
-        if let QueryBody::NciTrialPage(body) = &mut out.body {
-            if !q.count_only() {
-                body.items = page.data.into_iter().map(|r| r.card(false)).collect();
-            }
-            body.request = params
-                .into_iter()
-                .map(|(name, value)| biodata::TrialParameter { name, value })
-                .collect();
-        }
+        apply(q, cx.fresh, &mut out, &mut source, page, params);
     }
     finish(&mut out, source, error);
     command.finish(deadline.remaining());
@@ -115,5 +69,59 @@ fn empty(body: QueryBody) -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
+    }
+}
+
+fn apply(
+    q: &TrialSearch,
+    fresh: bool,
+    out: &mut Outcome,
+    source: &mut biodata::SourceOutcome,
+    page: nci::Page,
+    params: Vec<(String, String)>,
+) {
+    source.count = Some(page.total);
+    source.fetched = Some(page.data.len() as u32);
+    out.status = if source.state == biodata::SourceState::Stale {
+        Status::Partial
+    } else {
+        Status::Complete
+    };
+    let offset = q
+        .next_page()
+        .and_then(|v| v.as_str().parse::<u32>().ok())
+        .unwrap_or_default();
+    let returned = if q.count_only() {
+        0
+    } else {
+        page.data.len() as u32
+    };
+    out.page = Some(biodata::PageInfo {
+        offset,
+        returned,
+        total: page.total,
+        pool: None,
+        truncated: None,
+    });
+    if !q.count_only() && returned > 0 && u64::from(offset.saturating_add(returned)) < page.total {
+        let token = Text::new(&offset.saturating_add(returned).to_string());
+        if let Ok(token) = token {
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::SearchTrial(q.at_page(token)),
+                    fresh: fresh,
+                },
+            ));
+        }
+    }
+    if let QueryBody::NciTrialPage(body) = &mut out.body {
+        if !q.count_only() {
+            body.items = page.data.into_iter().map(|r| r.card(false)).collect();
+        }
+        body.request = params
+            .into_iter()
+            .map(|(name, value)| biodata::TrialParameter { name, value })
+            .collect();
     }
 }

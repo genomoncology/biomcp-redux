@@ -49,29 +49,7 @@ pub(super) fn render(
         sections.summary = Some(summary(q, &s, pool.as_ref(), out));
     }
     if requested(TrialSection::Eligibility) {
-        sections.eligibility = Some(if let Some(e) = &s.detail.eligibility {
-            let records = records(
-                q,
-                &e.unstructured,
-                TrialSection::Eligibility,
-                id,
-                pool.as_ref(),
-                out,
-                serde_json::to_vec,
-            )?;
-            Section::Data {
-                source: Source::Nci,
-                data: NciEligibilityPage {
-                    structured: e.structured.clone(),
-                    unstructured: records,
-                },
-            }
-        } else {
-            Section::Empty {
-                source: Source::Nci,
-                record: None,
-            }
-        });
+        sections.eligibility = Some(eligibility(q, &s, pool.as_ref(), out)?);
     }
     if requested(TrialSection::Outcomes) {
         sections.outcomes = Some(section(records(
@@ -220,4 +198,35 @@ fn summary(
             total_characters: total,
         },
     }
+}
+
+fn eligibility(
+    q: &TrialGet,
+    s: &Snapshot,
+    pool: Option<&Text>,
+    out: &mut Outcome,
+) -> Result<Section<NciEligibilityPage>, RequestError> {
+    Ok(if let Some(e) = &s.detail.eligibility {
+        let records = records(
+            q,
+            &e.unstructured,
+            TrialSection::Eligibility,
+            s.detail.card.nct_id,
+            pool,
+            out,
+            serde_json::to_vec,
+        )?;
+        Section::Data {
+            source: Source::Nci,
+            data: NciEligibilityPage {
+                structured: e.structured.clone(),
+                unstructured: records,
+            },
+        }
+    } else {
+        Section::Empty {
+            source: Source::Nci,
+            record: None,
+        }
+    })
 }

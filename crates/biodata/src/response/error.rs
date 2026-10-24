@@ -71,13 +71,38 @@ singleton! {
     }
 }
 
-// Untagged scalar alternatives produce overlap-safe anyOf, preserving article option strings.
+// Both typed branches serialize as scalar strings. Schema derives their flat union.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum FilterOption {
     Article(crate::ArticleFilter),
     Trial(crate::TrialFilter),
+}
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for FilterOption {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "FilterOption".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        let mut values = Vec::new();
+        for schema in [
+            <crate::ArticleFilter as schemars::JsonSchema>::json_schema(generator),
+            <crate::TrialFilter as schemars::JsonSchema>::json_schema(generator),
+        ] {
+            for value in schema
+                .get("enum")
+                .and_then(|v| v.as_array())
+                .into_iter()
+                .flatten()
+            {
+                if !values.contains(value) {
+                    values.push(value.clone());
+                }
+            }
+        }
+        schemars::json_schema!({"type":"string","enum":values})
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
