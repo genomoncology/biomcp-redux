@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 1
 
+Changes: Makefile, ROADMAP.md, scripts/, sdlc/features.md, sdlc/planning/slices/gene.md
+
 ## Outcome
 
 ROADMAP.md's parity table counts every 0.9 command and option as ported or renamed, dropped by ruling, or not yet decided, and the counts add up to 0.9's 112 commands and 375 options. The gene and article rows come from the accounting tables in the gene and article slice designs. Everything else counts as not yet decided. `sdlc/features.md` lists every feature that has landed, one line each: a stable name and one sentence of behavior in the caller's words. Today the ledger shows 0 decided while the gene accounting box is ticked, and the feature list has one line.
