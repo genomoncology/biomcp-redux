@@ -1,4 +1,8 @@
 //! Checked reply cache through the public transport API and documented SQLite schema.
+#![expect(
+    clippy::disallowed_methods,
+    reason = "Scoped callers exercise public cache behavior against controlled local peers"
+)]
 #[path = "support/cache_process.rs"]
 mod cache_process;
 mod support;

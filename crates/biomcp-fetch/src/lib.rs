@@ -115,6 +115,10 @@ impl Fetch {
     }
 
     /// Start a leg capped by this source's budget.
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Create the shared leg report lock without holding it during request work"
+    )]
     pub fn leg(&self, spec: &'static SourceSpec, deadline: Deadline) -> Leg<'_> {
         let cap = self
             .config

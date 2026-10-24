@@ -5,11 +5,16 @@ use super::{
 };
 use biomcp_fetch::{Arg, Fetch, Freshness, KeyUse, SourceSpec};
 use rusqlite::Connection;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Separate test processes must share the same SQLite file"
+)]
+use std::process::Command;
 use std::{
     io::{Read, Write},
     net::{TcpListener, TcpStream},
     path::Path,
-    process::{Child, Command, Stdio},
+    process::{Child, Stdio},
     thread,
     time::{Duration, Instant},
 };

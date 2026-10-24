@@ -1,4 +1,8 @@
 //! Transport-owned SQLite schema. Other owners and tables remain untouched.
+#![expect(
+    clippy::disallowed_types,
+    reason = "Serialize only SQL on one connection shared by transport legs"
+)]
 use crate::{CacheError, Deadline};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use std::{
@@ -14,10 +18,6 @@ const OPEN_WAIT: Duration = Duration::from_secs(5);
 
 // One connection is shared by source legs. Its lock covers only SQLite work;
 // callers decode and check owned bytes after the guard has been released.
-#[expect(
-    clippy::disallowed_types,
-    reason = "Serialize only SQL on one connection shared by transport legs"
-)]
 #[derive(Debug)]
 pub(crate) struct Cache(Mutex<Connection>);
 
