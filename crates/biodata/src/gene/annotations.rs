@@ -8,7 +8,9 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields))]
 pub struct ManeSelect {
+    #[cfg_attr(feature = "schema", schemars(schema_with = "mane_refseq_schema"))]
     refseq: RefSeqTranscript,
+    #[cfg_attr(feature = "schema", schemars(schema_with = "mane_ensembl_schema"))]
     ensembl: EnsemblTranscript,
 }
 impl ManeSelect {
@@ -56,4 +58,15 @@ pub struct Summary {
     /// Date stated by the source, if any.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dated: Option<PartialDate>,
+}
+
+// General transcript schemas allow unversioned accessions; MANE requires
+// curated, versioned members at this boundary.
+#[cfg(feature = "schema")]
+fn mane_refseq_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"string", "pattern":r"^(NM_|NR_)[0-9]{6,}\.[1-9][0-9]*$"})
+}
+#[cfg(feature = "schema")]
+fn mane_ensembl_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"string", "pattern":r"^ENST[0-9]{11}\.[1-9][0-9]*$"})
 }
