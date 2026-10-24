@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Accession": {
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$",
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*|ENS[GTP][0-9]{11}\\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
     "AcmgAmp2015Code": {
@@ -667,6 +667,10 @@
       ],
       "type": "string"
     },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
     "Expression": {
       "additionalProperties": false,
       "description": "Source expression checked for its declared published form, without normalization.",
@@ -729,8 +733,51 @@
       "format": "double",
       "type": "number"
     },
+    "GeneRef": {
+      "additionalProperties": false,
+      "description": "A source-stated gene reference; its label never implies an identifier.",
+      "properties": {
+        "ensembl_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hgnc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/Text"
+        },
+        "ncbi_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
     "GeneSymbol": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
     "GnomadCounts": {
@@ -943,8 +990,12 @@
       ],
       "type": "object"
     },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
     "HgvsText": {
-      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
+      "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
     },
     "HotspotAlternate": {
@@ -1067,7 +1118,7 @@
           "additionalProperties": false,
           "properties": {
             "gene": {
-              "$ref": "#/$defs/GeneSymbol",
+              "$ref": "#/$defs/GeneRef",
               "description": "Source gene."
             },
             "hgvs": {
@@ -1107,6 +1158,10 @@
     },
     "MyVariantQuery": {
       "pattern": "\\S",
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "OncokbCitation": {
@@ -1596,7 +1651,7 @@
       ],
       "type": "string"
     },
-    "ProteinChange": {
+    "ProteinQuery": {
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
@@ -2606,7 +2661,7 @@
         "gene_context": {
           "anyOf": [
             {
-              "$ref": "#/$defs/GeneSymbol"
+              "$ref": "#/$defs/GeneRef"
             },
             {
               "type": "null"
@@ -2744,7 +2799,7 @@
         "genes": {
           "description": "Genes stated by the sources.",
           "items": {
-            "$ref": "#/$defs/GeneSymbol"
+            "$ref": "#/$defs/GeneRef"
           },
           "type": "array"
         },
@@ -3050,11 +3105,11 @@
       "type": "object"
     },
     "VariantId": {
-      "pattern": "^(((rs|clinvar:|clinvar\\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\\.[1-9][0-9]*)?|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "VariantInput": {
-      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
+      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },
     "VariantOncokb": {
@@ -3283,7 +3338,7 @@
           "description": "Protein-level assertion, without genomic conversion.",
           "properties": {
             "gene": {
-              "$ref": "#/$defs/GeneSymbol",
+              "$ref": "#/$defs/GeneRef",
               "description": "Source gene."
             },
             "hgvs": {
@@ -3414,7 +3469,7 @@
           "type": "integer"
         },
         "protein": {
-          "$ref": "#/$defs/ProteinChange",
+          "$ref": "#/$defs/ProteinQuery",
           "description": "Explicit substitution using checked one-letter or three-letter amino-acid codes."
         },
         "query": {
@@ -3522,7 +3577,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant_page/2",
+  "$id": "biomcp.variant_page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -3568,7 +3623,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_page/2",
+      "const": "biomcp.variant_page/3",
       "type": "string"
     },
     "sources": {
