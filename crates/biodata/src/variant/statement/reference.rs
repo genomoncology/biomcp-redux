@@ -43,8 +43,7 @@ enum Fields {
         label: Text,
         /// Source member references in their native order.
         #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-        #[cfg_attr(feature = "schema", schemars(with = "Box<[LeafRef]>"))]
-        members: Box<[VariantRef]>,
+        members: Box<[LeafRef]>,
     },
 }
 
@@ -66,11 +65,7 @@ impl TryFrom<Fields> for VariantRef {
             {
                 Err(crate::Error::VariantRefInvalid)
             }
-            Fields::Profile { members, .. }
-                if members
-                    .iter()
-                    .any(|m| matches!(&m.0, Fields::Profile { .. })) =>
-            {
+            Fields::Profile { members, .. } if members.iter().any(|m| !m.valid()) => {
                 Err(crate::Error::VariantRefInvalid)
             }
             _ => Ok(Self(fields)),
@@ -102,6 +97,15 @@ impl VariantRef {
     }
     /// Preserve a compound profile and its native member references.
     pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Result<Self, crate::Error> {
+        let members = members
+            .into_vec()
+            .into_iter()
+            .map(|member| match member.0 {
+                Fields::Allele(value) => Ok(LeafRef::Allele(value)),
+                Fields::Protein(value) => Ok(LeafRef::Protein(value)),
+                Fields::Profile { .. } => Err(crate::Error::VariantRefInvalid),
+            })
+            .collect::<Result<Box<[_]>, _>>()?;
         Fields::Profile {
             record,
             label,
@@ -140,11 +144,18 @@ struct ProteinRef {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     label: Option<Text>,
 }
-#[cfg(feature = "schema")]
-#[derive(schemars::JsonSchema)]
-#[schemars(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
-#[expect(dead_code, reason = "Schema-only nonrecursive profile member boundary")]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 enum LeafRef {
     Allele(AlleleRef),
     Protein(ProteinRef),
+}
+impl LeafRef {
+    fn valid(&self) -> bool {
+        match self {
+            Self::Allele(value) => value.id.is_some() || value.hgvs.is_some(),
+            Self::Protein(value) => value.hgvs.is_some() || value.label.is_some(),
+        }
+    }
 }
