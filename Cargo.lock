@@ -131,6 +131,7 @@ name = "biomcp"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "jsonschema",
  "libtest-mimic",
  "serde",
  "serde-saphyr",
