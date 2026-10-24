@@ -90,7 +90,11 @@ fn resolve_rows<'a>(
     let mut join_failures = Vec::new();
     for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
-            && (result.dois.iter().zip(&result.items).any(|(doi, item)| item.pmid.is_none() && doi.is_some())
+            && (result
+                .dois
+                .iter()
+                .zip(&result.items)
+                .any(|(doi, item)| item.pmid.is_none() && doi.is_some())
                 || result.items.iter().any(|item| {
                     item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
                 }))
