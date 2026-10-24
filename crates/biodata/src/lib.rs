@@ -157,3 +157,5 @@ pub use variant::{
 };
 
 pub use response::{VariantPopulation,VariantPopulationDetail,VariantGwas,GwasAssociation,GwasEffectAllele,PopulationGroup,PopulationSubset};
+
+pub use query::VariantPopulationQuery;

@@ -60,6 +60,11 @@ pub struct VariantGwas {
     pub rs_id:VariantId,
     /// Native source associations, without inferred clinical meaning.
     pub associations:Box<[GwasAssociation]>,
+    /// Exact source page bounds and total.
+    pub page:crate::PageInfo,
+    /// Continue this section using the same rsID and source selectors.
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub continuation:Option<crate::VariantGet>,
 }
 /// Source association with unchanged trait and effect labels.
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
