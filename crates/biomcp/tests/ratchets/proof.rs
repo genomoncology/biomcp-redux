@@ -31,6 +31,11 @@ fn isolated_trees_reject_structural_violations() -> Check {
     check(valid.path())?;
     let cases = [
         (
+            "crates/biomcp/Cargo.toml",
+            "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
+            "forbidden dependencies dependency",
+        ),
+        (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nureq='3'\n",
             "forbidden dependencies dependency",

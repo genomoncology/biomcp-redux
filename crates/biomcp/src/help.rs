@@ -147,24 +147,24 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 
 fn section_words(schema: &Value) -> Vec<HelpWord> {
     let section = resolve(
-            field(field(field(schema, "properties"), "section"), "items"),
-            schema,
-        );
-field(section, "enum")
-            .as_array()
-            .into_iter()
-            .flatten()
-            .enumerate()
-            .filter_map(|(i, v)| {
-                Some(HelpWord {
-                    word: v.as_str()?.into(),
-                    description: field(section, "x-enum-descriptions")
-                        .get(i)
-                        .unwrap_or(&Value::Null)
-                        .as_str()?
-                        .trim()
-                        .into(),
-                })
+        field(field(field(schema, "properties"), "section"), "items"),
+        schema,
+    );
+    field(section, "enum")
+        .as_array()
+        .into_iter()
+        .flatten()
+        .enumerate()
+        .filter_map(|(i, v)| {
+            Some(HelpWord {
+                word: v.as_str()?.into(),
+                description: field(section, "x-enum-descriptions")
+                    .get(i)
+                    .unwrap_or(&Value::Null)
+                    .as_str()?
+                    .trim()
+                    .into(),
             })
-            .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>()
 }
