@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic HGNC response subset",
   "feature": "article-litvar",
   "story": "A combined BRAF pool above the citation window refuses before any iCite request",
   "replay": "article/litvar/braf-cap",

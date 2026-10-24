@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic HGNC response subset",
   "feature": "article-litvar",
   "story": "Exact KRAS G12C selects the second autocomplete candidate and preserves all native PMIDs",
   "replay": "article/litvar/kras-g12c",

@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-litvar",
   "story": "Citation ordering keeps the landmark paper within the stated native source pool",
   "replay": "article/litvar/akt1-rsid-citations",

@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic HGNC response subset",
   "feature": "article-litvar",
   "story": "An unlisted KRAS G12Q returns nearby candidates and no publication request",
   "replay": "article/litvar/kras-g12q",
