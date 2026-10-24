@@ -1,6 +1,7 @@
 mod assertions;
 mod configuration;
 mod corporate;
+mod evidence;
 mod gene_tables;
 mod held_proxy;
 mod http;
@@ -250,6 +251,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     }));
     trials.extend(configuration::trials());
     trials.extend(scholar::trials());
+    trials.extend(evidence::trials());
     trials.extend(source_controls::trials());
 
     trials.extend(http::trials());

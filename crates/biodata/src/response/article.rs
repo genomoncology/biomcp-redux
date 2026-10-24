@@ -116,6 +116,11 @@ pub struct LitVarCandidate {
     pub count: u64,
 }
 
+mod evidence;
+pub use evidence::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};
 /// Source-provided sentence resemblance, without a claim of clinical relevance.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

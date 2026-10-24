@@ -5,6 +5,8 @@ use biomcp_fetch::BadReply;
 /// One source row and its rendered representation, before bounded fragmentation.
 #[derive(Debug)]
 pub struct BodyRow {
+    /// Original paragraphs owned by this source row, including nested list paragraphs.
+    pub paragraphs: Vec<super::references::Paragraph>,
     /// Source text used for literal matching.
     pub plain: String,
     /// Whole rendered source row.
@@ -55,6 +57,7 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
     let mut group = Group::section(path.clone());
     if let Some(title) = node.child("title")? {
         group.rows.push(BodyRow {
+            paragraphs: Vec::new(),
             plain: title.text()?,
             markdown: format!(
                 "{} {}",
@@ -90,6 +93,7 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
                 let plain = child.text()?;
                 if !plain.trim().is_empty() {
                     group.rows.push(BodyRow {
+                        paragraphs: super::references::paragraphs(child.0)?,
                         plain,
                         markdown: markdown::inline(child.0)?.trim().to_owned(),
                         context: false,
@@ -114,6 +118,7 @@ pub(super) fn figure(fig: Element<'_>) -> Result<Option<BodyRow>, BadReply> {
         return Ok(None);
     }
     Ok(Some(BodyRow {
+        paragraphs: super::references::paragraphs(caption.0)?,
         plain,
         markdown: format!(
             "**{}.** {}",
@@ -142,6 +147,7 @@ pub(super) fn groups(name: &str, node: Element<'_>) -> Result<Vec<Group>, BadRep
             None
         } else {
             Some(BodyRow {
+                paragraphs: super::references::paragraphs(node.0)?,
                 plain,
                 markdown: markdown::inline(node.0)?.trim().to_owned(),
                 context: false,

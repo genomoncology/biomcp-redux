@@ -169,10 +169,21 @@ impl Leg<'_> {
         ep: &Endpoint,
         body: &B,
     ) -> Result<T, RequestError> {
+        self.post_json_with_args(ep, &[], body)
+    }
+
+    /// Send a checked JSON body with shared canonical query arguments.
+    pub fn post_json_with_args<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        body: &B,
+    ) -> Result<T, RequestError> {
         self.validate(ep, true)?;
         let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
+        let url = crate::retry::canonical(&url, params, self.spec.key);
         self.send(
             ep,
             Prepared::new(url, body, ep.method, ep.idempotent),
