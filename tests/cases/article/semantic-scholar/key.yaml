@@ -1,0 +1,16 @@
+{
+  "feature": "article-search",
+  "story": "Semantic Scholar key help names the optional free key without requiring configuration",
+  "replay": "article/fold/synthetic-fold",
+  "steps": [{
+    "run": ["help", "key", "semantic-scholar"],
+    "mcp": ["help", "key", "semantic-scholar"],
+    "max_bytes": 310,
+    "expect": {
+      "/result/source": "semantic-scholar",
+      "/result/config": "keys.semantic_scholar_api_key",
+      "/result/environment": "SEMANTIC_SCHOLAR_API_KEY",
+      "/result/guidance": "a free key raises the request limit"
+    }
+  }]
+}

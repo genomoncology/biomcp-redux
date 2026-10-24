@@ -50,10 +50,11 @@ pub(super) fn create<'a>(
         .iter()
         .any(|item| item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some()))
     {
-        match super::semantic_scholar::resolve_dois(cx, &mut items, deadline) {
-            Ok(source) => out.sources.push(source),
-            Err(error) if status::local(error).is_some() => return Err(error),
-            Err(_) => {} // Original source identities and headers remain independently useful.
+        let joined = super::semantic_scholar::resolve_dois(cx, &mut items, deadline);
+        out.sources.push(joined.source);
+        status::append(&mut out.problems, joined.problems);
+        if let Some(error) = joined.error.and_then(status::local) {
+            return Err(error);
         }
     }
     for item in &mut items {
