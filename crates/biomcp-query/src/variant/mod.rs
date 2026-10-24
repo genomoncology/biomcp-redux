@@ -1,5 +1,4 @@
 //! Published-identifier resolution with source-owned allele identity checks.
-pub(crate) mod assertions;
 mod civic;
 mod continuations;
 mod direct;
@@ -287,11 +286,7 @@ fn candidate_page(
     })
 }
 
-mod gwas;
-mod population;
-pub(crate) mod population_detail;
-
-fn overall(
+pub(crate) fn overall(
     resolution: VariantResolution,
     problems: &[biodata::Problem],
     sources: &[biodata::SourceOutcome],

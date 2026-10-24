@@ -27,9 +27,8 @@ pub use article_recommend::ArticleRecommend;
 mod recurrence;
 pub use recurrence::{RecurrenceSource, VariantRecurrenceQuery};
 mod variant;
-pub use variant::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 mod variant_normalize;
-
+pub use variant::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 pub use variant_normalize::{NormalizationSource, VariantNormalize};
 
 mod variant_input;
@@ -43,10 +42,6 @@ pub use trial_get::{TrialGet, TrialSection};
 mod trial_document;
 pub use trial_document::TrialDocumentGet;
 
-mod variant_assertions;
-pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
-mod variant_population;
-pub use variant_population::VariantPopulationQuery;
 mod protein_change;
 pub use protein_change::ProteinChange;
 mod variant_search;

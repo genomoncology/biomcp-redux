@@ -46,11 +46,12 @@ trial-get: Retrieve exact registry cards and recover intact eligibility, outcome
 trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci_walk.rs`.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path. Cases: `tests/cases/trial/references.yaml`, `tests/cases/trial/documents.yaml`, `crates/biomcp/tests/runner/trial_documents.rs`.
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
-variant-civic: Retrieve exact CIViC molecular-profile evidence and assertions, preserve compound context and native labels, and page independent source streams. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
-variant-hotspots: Show source transcript and residue/alternate recurrence counts with explicit candidate state when no exact transcript join exists. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.
 
 variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries and preserve native candidates and pages. Cases: `tests/cases/variant/search*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`.
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
+
+variant-civic: Preserve CIViC exact profile membership and separate native claim pages. Cases: `crates/biomcp/tests/runner/variant_civic.rs`.
+variant-hotspots: Retain native transcript and residue counts without an inferred variant join. Cases: `crates/biomcp/tests/runner/variant_hotspots.rs`.

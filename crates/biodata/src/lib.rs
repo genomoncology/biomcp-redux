@@ -12,12 +12,9 @@ pub use query::{
 };
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
-pub use response::HotspotMembership;
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
-    CivicStatement, HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice,
-    VariantCivic, VariantHotspots,
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
 };
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
@@ -27,7 +24,6 @@ pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
 };
-pub use response::{CivicClaimPage, CivicMember, CivicNativeClaim};
 mod response;
 mod source;
 mod text;
@@ -94,16 +90,14 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
-
-pub use query::{NormalizationSource, VariantNormalize};
+pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
-pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
+pub use response::{VariantCard, VariantHeader, VariantResolution};
 
 pub use coord::Chromosome;
 
@@ -157,39 +151,17 @@ pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
 
-pub use variant::{
-    Attribution, Coding, Concept, Curie, Direction, Predicate, Proposition, Statement, Term,
-    VariantRef,
-};
-
-pub use variant::{
-    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, ClingenCgcVicc2022Code,
-    ClingenLowPenetrance2024Code,
-};
-
-pub use response::{
-    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
-    VariantPopulation,
-};
-
-pub use variant::CivicEvidenceLevelCode;
-
-pub use query::VariantPopulationQuery;
-pub use query::{AssertionSource, VariantAssertionsGet};
-pub use response::{
-    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
-    VariantAssertion, VariantAssertions,
-};
-pub use variant::{
-    CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorScore, VariantComponent,
-    VariantConservation, VariantCosmic, VariantPredictors,
-};
-
-pub use response::{OncokbVariantRecord, VariantOncokb};
-pub use variant::PopulationFrequency;
-
-pub use response::VariantPopulationResult;
-
 pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
-pub use response::GwasTrait;
 pub use response::VariantPage;
+
+pub use query::{CivicClaimKind, VariantSection};
+pub use response::{
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    HotspotAlternate, HotspotMembership, HotspotRecord, VariantCivic, VariantHotspots,
+    VariantSections,
+};
+pub use variant::{
+    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
+    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
+    Curie, Direction, Predicate, Proposition, Statement, Term, VariantRef,
+};

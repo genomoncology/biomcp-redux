@@ -51,15 +51,11 @@ fn common_registry() -> Vec<Contract> {
         Representation => ("representation", "biodata.representation/1"),
         VariantId => ("variant-id", "biodata.variant-id/1"),
         Variant => ("variant", "biodata.variant/1"),
-        Statement => ("statement", "biodata.statement/1"),
     }
 }
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/1"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/1"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -133,13 +129,13 @@ fn registry() -> Vec<Contract> {
         Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(common_registry());
-    contracts.extend(variant_registry());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts
 }
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
+        Statement => ("statement", "biodata.statement/1"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
@@ -270,12 +266,5 @@ fn flat_value(root: &Value, node: &Value) {
         assert!(
             ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
         );
-    }
-}
-
-fn variant_registry() -> Vec<Contract> {
-    contracts! {
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
-        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
     }
 }
