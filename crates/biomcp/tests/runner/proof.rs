@@ -97,7 +97,7 @@ fn negatives() -> Check {
             "/type max_tokens: expected <= 1, actual 2",
         ),
     ];
-    for (name, step, diagnostic) in cases {
+    for (name, step, diagnostic) in cases.into_iter().chain(super::negative_cases::cases()) {
         let filename = format!("{name}.yaml");
         put(directory.path(), &filename, step)?;
         let output = invoke(directory.path(), &[&filename, "--exact"])?;

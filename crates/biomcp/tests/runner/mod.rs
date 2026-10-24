@@ -1,5 +1,6 @@
 mod assertions;
 mod launch;
+mod negative_cases;
 pub(super) mod proof;
 
 use libtest_mimic::Trial;
