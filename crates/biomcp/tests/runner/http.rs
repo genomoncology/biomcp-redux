@@ -39,11 +39,35 @@ pub(super) struct Server {
 }
 impl Drop for Server {
     fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
+        if self.stop().is_err() {
+            let _ = self.child.kill();
+            let _ = self.child.wait();
+        }
     }
 }
 impl Server {
+    pub(super) fn stop(&mut self) -> Check {
+        #[cfg(unix)]
+        {
+            let args = vec!["-INT".to_owned(), self.child.id().to_string()];
+            if !self._environment.command("/bin/kill", &args).status().map_err(|e| e.to_string())?.success() {
+                return Err("HTTP interrupt failed".into());
+            }
+        }
+        // Native Windows console Ctrl-C is exercised by the platform rehearsal.
+        #[cfg(windows)]
+        self.child.kill().map_err(|e| e.to_string())?;
+        let end = std::time::Instant::now() + Duration::from_secs(5);
+        loop {
+            if let Some(status) = self.child.try_wait().map_err(|e| e.to_string())? {
+                #[cfg(unix)]
+                if !status.success() { return Err(format!("HTTP shutdown: {status}")); }
+                return Ok(());
+            }
+            if std::time::Instant::now() >= end { return Err("HTTP shutdown deadline".into()); }
+            std::thread::yield_now();
+        }
+    }
     pub(super) fn start() -> Result<Self, String> {
         Self::configured("127.0.0.1:0", None, true)
     }
@@ -290,7 +314,10 @@ fn concurrent(server: &Server, globals: &[String]) -> Check {
                 &old.to_string(),
             )
         });
-        let health = scope.spawn(|| { barrier.wait(); server.request("GET", "/health", "") });
+        let health = scope.spawn(|| {
+            barrier.wait();
+            server.request("GET", "/health", "")
+        });
         Ok::<_, String>((
             a.join().map_err(|_| "modern HTTP caller stopped")?,
             b.join().map_err(|_| "legacy HTTP caller stopped")?,

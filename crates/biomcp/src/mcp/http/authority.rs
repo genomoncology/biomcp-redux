@@ -55,6 +55,8 @@ impl Authority {
 }
 
 fn port(value: &str) -> Option<u16> {
-    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) { return None; }
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
     value.parse().ok().filter(|port| *port != 0)
 }

@@ -11,6 +11,7 @@ use std::{
     sync::Arc,
     thread,
 };
+const ACCEPT_POLL: std::time::Duration = std::time::Duration::from_millis(20);
 const MAX_CONNECTIONS: usize = 8;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
@@ -46,20 +47,35 @@ pub(crate) fn serve(
         fetch: crate::config::fetch(&globals).map(Arc::new),
         globals,
     });
+    let (stop, stopped) = std::sync::mpsc::sync_channel(1);
+    ctrlc::try_set_handler(move || { let _ = stop.try_send(()); }).map_err(|_| StartError::Local)?;
     let mut ready = serde_json::to_vec(&json!({"listening":address.to_string()}))
         .map_err(|_| StartError::Local)?;
     ready.push(b'\n');
     std::io::Write::write_all(&mut std::io::stderr().lock(), &ready)
         .map_err(|_| StartError::Local)?;
-    connections(listener, service).map_err(|_| StartError::Local)
+    connections(listener, service, stopped).map_err(|_| StartError::Local)
 }
 #[expect(
     clippy::disallowed_methods,
     reason = "Own at most MAX_CONNECTIONS blocking socket workers"
 )]
-fn connections(listener: TcpListener, service: Arc<Service>) -> io::Result<()> {
+fn connections(listener: TcpListener, service: Arc<Service>, stopped: std::sync::mpsc::Receiver<()>) -> io::Result<()> {
+    listener.set_nonblocking(true)?;
     let mut workers: Vec<thread::JoinHandle<()>> = Vec::new();
-    for stream in listener.incoming() {
+    loop {
+        if stopped.try_recv().is_ok() { break; }
+        let stream = match listener.accept() {
+            Ok((stream, _)) => stream,
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                match stopped.recv_timeout(ACCEPT_POLL) {
+                    Ok(()) | Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
+                    Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
+                }
+            }
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            Err(error) => return Err(error),
+        };
         let mut retained = Vec::with_capacity(MAX_CONNECTIONS);
         for worker in workers {
             if worker.is_finished() {
@@ -69,7 +85,6 @@ fn connections(listener: TcpListener, service: Arc<Service>) -> io::Result<()> {
             }
         }
         workers = retained;
-        let stream = stream?;
         if workers.len() >= MAX_CONNECTIONS {
             continue;
         }
@@ -82,8 +97,9 @@ fn connections(listener: TcpListener, service: Arc<Service>) -> io::Result<()> {
                 })?,
         );
     }
+    drop(listener);
     for worker in workers {
-        let _ = worker.join();
+        worker.join().map_err(|_| io::Error::other("HTTP worker stopped"))?;
     }
     Ok(())
 }

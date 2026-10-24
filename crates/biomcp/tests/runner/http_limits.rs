@@ -82,8 +82,11 @@ pub(super) fn check() -> Check {
     if !ended || started.elapsed() > Duration::from_secs(4) {
         return Err("slow header retained a worker beyond the absolute deadline".into());
     }
-    server.child.kill().map_err(|e| e.to_string())?;
-    server.child.wait().map_err(|e| e.to_string())?;
+    let mut held = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    held.set_read_timeout(Some(Duration::from_secs(4))).map_err(|e| e.to_string())?;
+    server.stop()?;
+    let mut byte = [0];
+    if !matches!(held.read(&mut byte), Ok(0)) { return Err("HTTP shutdown retained a client socket".into()); }
     if TcpStream::connect(server.address).is_ok() {
         return Err("shutdown left a listener".into());
     }

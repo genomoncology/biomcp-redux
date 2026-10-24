@@ -57,6 +57,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-query",
             "clap",
             "httparse",
+            "ctrlc",
             "base64",
             "serde",
             "serde_json",

@@ -34,7 +34,7 @@ Five crates. Each exists because a rule needs a crate boundary to enforce it.
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
 | `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
-| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64` | `ureq`, `rusqlite` |
+| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
@@ -71,6 +71,7 @@ rusqlite = { version = "0.37", features = ["bundled"] }
 quick-xml = { version = "0.42", default-features = false, features = ["serialize"] }
 sha2 = { version = "0.10", default-features = false }
 httparse = "=1.10.1"  # bounded HTTP request headers; socket ownership stays in biomcp
+ctrlc = { version = "=3.5.2", features = ["termination"] } # safe native process interrupts
 base64 = "0.23"     # MCP HTTP metadata sentinel decoding
 clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions", "string"] }
 
@@ -1579,7 +1580,7 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 
 `biomcp serve --http ADDR` serves MCP's streamable HTTP transport at `/mcp` and a health check at `/health`, bound to 127.0.0.1 by default, as `decisions/2026-10-24-1-0-serves-mcp-over-http.md` says. Hosted clients and reverse proxies use it, as they did in 0.9. A small blocking HTTP server fits the thread model. Its handlers call the same `grammar::parse` and `run` as stdio. A non-loopback bind needs an explicit host allowlist. The wiki comes later at `/` on the same server.
 
-The reviewed blocking server boundary uses `httparse` for HTTP syntax and a narrow socket owner in `mcp/http.rs`. It adds no async runtime. `http/wire.rs` owns `MAX_HEAD`, `MAX_BODY` and the absolute `READ_BUDGET`; `MAX_BODY` uses the stdio frame cap. `MAX_CONNECTIONS` bounds accepted worker handles with no application queue. Each socket carries one request and closes after its response. Content-Length frames are bounded before body allocation. Chunked frames use the library’s chunk-size and trailer parsers with bounded cumulative wire bytes and decoded body bytes. Ambiguous length/transfer encoding, unsupported transfer encodings and pipelined requests are refused before admission. Process termination closes the listener and worker sockets; no separate background process survives. The HTTP tests exercise this boundary through real isolated sockets.
+The reviewed blocking server boundary uses `httparse` for HTTP syntax and a narrow socket owner in `mcp/http.rs`. It adds no async runtime. `http/wire.rs` owns `MAX_HEAD`, `MAX_BODY` and the absolute `READ_BUDGET`; `MAX_BODY` uses the stdio frame cap. `MAX_CONNECTIONS` bounds accepted worker handles with no application queue. Each socket carries one request and closes after its response. Content-Length frames are bounded before body allocation. Chunked frames use the library’s chunk-size and trailer parsers with bounded cumulative wire bytes and decoded body bytes. Ambiguous length/transfer encoding, unsupported transfer encodings and pipelined requests are refused before admission. Ctrl-C and termination signals use `ctrlc` to notify the server-owned bounded stop channel. The accept loop stops within `ACCEPT_POLL`, drops the listener and joins admitted workers under their existing read and command deadlines. No separate background process survives. The HTTP tests exercise this boundary through real isolated sockets.
 
 HTTP uses stateless JSON responses for both MCP revisions and never mints sessions. Each request selects its own revision and identifiers. The 2026 request mirrors follow the [official Streamable HTTP contract](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http): protocol version and method must match the body, and named methods require a matching decoded name. Metadata mismatches return HTTP 400 and error -32020. Unsupported methods return HTTP 404. Legacy initialization remains available without affecting another request. Accepted notifications return an empty 202. GET and DELETE on `/mcp` return 405.
 
