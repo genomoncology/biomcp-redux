@@ -72,6 +72,9 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let words = words(args)?;
+    if let Some(message) = command(&words.positional) {
+        return Some(message);
+    }
     match words.positional.as_slice() {
         ["gene", rest @ ..] if !rest.is_empty() => {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
@@ -82,6 +85,12 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         ["get", "article", input @ ..] => words
             .retired_option
             .or_else(|| trailing(&words, input, ARTICLE_SECTIONS, true)),
+        _ => None,
+    }
+}
+fn command(positional: &[&str]) -> Option<ErrorMessage> {
+    match positional {
+        ["gene", word] => find(GENE, word),
         ["article", "supplement-search", ..] => Some(ErrorMessage::SupplementFind),
         ["article", "entities", ..] => Some(ErrorMessage::Annotations),
         ["article", "batch" | "authors", ..] | ["batch", "article", ..] => {
@@ -158,6 +167,9 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         }
         if !arg.starts_with('-') {
             result.positional.push(arg);
+            if command(&result.positional).is_some() {
+                return Some(result);
+            }
             continue;
         }
         let (flag, inline) = arg
