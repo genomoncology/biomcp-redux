@@ -16,14 +16,17 @@ from local_server import server
 
 
 def installer_environment(root, bash):
+    env = environment(root)
     path = os.defpath
     if os.name == "nt":
         shell = Path(bash).resolve(strict=True).parent
         prefix = shell.parent.parent if shell.parent.name.lower() == "usr" else shell.parent
         # Git Bash keeps POSIX utilities and the downloader in these directories.
         directories = [shell, prefix / "usr/bin", prefix / "mingw64/bin"]
+        if "SystemRoot" in env:
+            directories.append(Path(env["SystemRoot"]) / "System32")
         path = os.pathsep.join(dict.fromkeys(str(item) for item in directories if item.is_dir()))
-    return {**environment(root), "PATH": path}
+    return {**env, "PATH": path}
 
 
 def install_wheel(wheel, venv, root, host_python, name="biomcp"):
