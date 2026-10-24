@@ -156,6 +156,9 @@ pub use variant::{
     ClingenLowPenetrance2024Code,
 };
 
-pub use response::{VariantPopulation,VariantPopulationDetail,VariantGwas,GwasAssociation,GwasEffectAllele,PopulationGroup,PopulationSubset};
+pub use response::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
 
 pub use query::VariantPopulationQuery;
