@@ -1,6 +1,7 @@
 # 0013 — Return schema-command errors in the shared JSON envelope
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9641c3a50b79456ba41ccc245c1ada71c06ad266
 
 Milestone: 1
 

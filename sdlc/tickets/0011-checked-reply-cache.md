@@ -1,6 +1,7 @@
 # 0011 — Cache checked source replies in SQLite
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f345c16fc095b0e53f64c16603747d62b3369be8
 
 Milestone: 1
 
