@@ -190,6 +190,32 @@ impl Recordings {
         post: Option<&crate::prepared::PostMetadata>,
         max_body: u64,
     ) -> Result<Option<Exchange>, RecordError> {
+        self.replay_bounded(source, key, url, post, max_body, MAX_FILE_BYTES)
+    }
+    pub(crate) fn replay_bundle(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+    ) -> Result<Option<Exchange>, RecordError> {
+        self.replay_bounded(
+            source,
+            key,
+            url,
+            None,
+            crate::MAX_BUNDLE_BYTES,
+            MAX_BUNDLE_FILE_BYTES,
+        )
+    }
+    fn replay_bounded(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
+        max_body: u64,
+        file_limit: u64,
+    ) -> Result<Option<Exchange>, RecordError> {
         let Self::Replay { dir, cursors } = self else {
             return Ok(None);
         };
@@ -197,17 +223,7 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let recording = read(
-                    &path(dir, source, key),
-                    source,
-                    url,
-                    post,
-                    if max_body == crate::MAX_BUNDLE_BYTES {
-                        MAX_BUNDLE_FILE_BYTES
-                    } else {
-                        MAX_FILE_BYTES
-                    },
-                )?;
+                let recording = read(&path(dir, source, key), source, url, post, file_limit)?;
                 entry.insert(Cursor { recording, next: 0 })
             }
         };

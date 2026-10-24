@@ -438,7 +438,10 @@ fn oversized_provider_length_does_not_poison_the_next_sync() {
             server.next().raw(&format!(
                 "HTTP/1.1 200 OK\r\nContent-Length: {length}\r\nETag: \"huge\"\r\nConnection: close\r\n\r\n"
             ));
-            assert!(matches!(call.join().unwrap(), Err(biomcp_fetch::RequestError::Source(_))));
+            assert!(matches!(
+                call.join().unwrap(),
+                Err(biomcp_fetch::RequestError::Source(_))
+            ));
         });
         assert_eq!(sync_reply(&f, &b, &server, 200, "", TSV).unwrap().rows, 1);
     }
@@ -643,14 +646,20 @@ fn release_large_bundle_capture_round_trips() {
     assert_eq!(replay.sync(&b).unwrap().bytes, body.len() as u64);
     // A larger ordinary response limit does not grant the bundle recording cap.
     let ordinary = Fetch::open(FetchConfig {
-        mode: biomcp_fetch::Mode::Replay { dir: dir.path().join("recordings") },
+        mode: biomcp_fetch::Mode::Replay {
+            dir: dir.path().join("recordings"),
+        },
         max_body: biomcp_fetch::MAX_BUNDLE_BYTES,
         ..Default::default()
-    }).unwrap();
+    })
+    .unwrap();
     assert!(matches!(
-        ordinary.leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
+        ordinary
+            .leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
             .json::<support::Answer>(&b.spec.get(b.path), &[]),
-        Err(biomcp_fetch::RequestError::Recording(biomcp_fetch::RecordError::Limit))
+        Err(biomcp_fetch::RequestError::Recording(
+            biomcp_fetch::RecordError::Limit
+        ))
     ));
 }
 

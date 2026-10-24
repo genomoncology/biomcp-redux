@@ -125,7 +125,7 @@ impl Leg<'_> {
         let exchange = self
             .fetch
             .recordings
-            .replay(self.spec.source, &key, &url, None, MAX_BUNDLE_BYTES)
+            .replay_bundle(self.spec.source, &key, &url)
             .map_err(RequestError::Recording)?
             .ok_or(RequestError::Recording(RecordError::Missing))?;
         if !self
@@ -303,6 +303,7 @@ impl Leg<'_> {
             let Some((start, end, total)) =
                 header(response, "content-range").and_then(|v| range(&v))
             else {
+                reset(t.file, t.part)?;
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             };
             if t.part.bytes == 0
@@ -312,11 +313,19 @@ impl Leg<'_> {
                 || t.part.total.is_some_and(|n| n != total)
                 || length.is_some_and(|n| n != end - start + 1)
             {
+                reset(t.file, t.part)?;
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
+            }
+            if total > MAX_BUNDLE_BYTES {
+                reset(t.file, t.part)?;
+                return Err(self.failure(Reason::Syncing, Some(status)).into());
             }
             t.part.total = Some(total);
         } else {
             reset(t.file, t.part)?;
+            if length.is_some_and(|n| n > MAX_BUNDLE_BYTES) {
+                return Err(self.failure(Reason::Syncing, Some(status)).into());
+            }
             t.part.total = length;
             t.part.etag = etag;
         }
