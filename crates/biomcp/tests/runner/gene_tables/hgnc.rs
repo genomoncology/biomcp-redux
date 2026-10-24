@@ -122,7 +122,7 @@ fn withdrawn() -> Check {
             &["get", "gene", input],
             |_, _| {},
             json!({"/result/items/0/answer/resolution": "withdrawn",
-                "/result/items/0/answer/hgnc_status": "Merged/Split",
+                "/result/items/0/answer/hgnc_status": "merged_split",
                 "/result/items/0/answer/merged_into": targets}),
             0,
         )?;
