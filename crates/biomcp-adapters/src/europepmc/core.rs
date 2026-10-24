@@ -153,6 +153,7 @@ fn fragment(mut html: &str) -> Result<String, BadReply> {
         // Consume a whole markup event, so comparisons in CDATA stay literal
         // and malformed attributes cannot be repaired into accepted markup.
         let mut reader = quick_xml::Reader::from_str(html);
+        reader.config_mut().check_end_names = false;
         match reader.read_event().map_err(|_| BadReply)? {
             quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
                 for attribute in tag.attributes() {
