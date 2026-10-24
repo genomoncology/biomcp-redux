@@ -1,9 +1,8 @@
 use biomcp_fetch::Fetch;
 use std::time::Duration;
-/// Shared transport and command budget; no persistent query store is needed.
+/// Shared transport, command budget and outgoing-only source contact.
 #[derive(Debug)]
 pub struct Ctx<'a> {
-    /// Checked transport.
     /// Optional outgoing-only NCBI contact.
     pub ncbi_email: Option<biomcp_fetch::Secret>,
     /// Shared checked transport.

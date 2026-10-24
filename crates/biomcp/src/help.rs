@@ -37,7 +37,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 )
             }),
             sections,
-            examples: examples.get(verb).cloned().unwrap_or_default(),
+            examples: examples
+                .get(&format!("{verb} {entity}"))
+                .cloned()
+                .unwrap_or_default(),
         });
     }
     for (command, description) in [
@@ -50,7 +53,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print a checked-in schema artifact.",
         ),
         (
-            vec!["help", "[get gene|search gene]"],
+            vec!["help", "[get gene|search gene|search article]"],
             "Print generated command help.",
         ),
         (

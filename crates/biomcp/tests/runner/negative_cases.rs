@@ -157,7 +157,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "    expect: {'/type': integer}\n  - run: [schema, biodata.source/1]\n    expect: {'/type': {unknown: null}}",
             "unknown assertion operator unknown",
         ),
-    ]
+    ].into_iter().chain(article_cases()).collect()
 }
 
 fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
@@ -175,7 +175,7 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "includes-all-missing",
-            "    expect: {'/enum': {includes_all_of: [missing]}}",
+            "    expect: {'/enum': {includes_all_of: missing-floor.json}}",
             "includes_all_of: missing member",
         ),
         (

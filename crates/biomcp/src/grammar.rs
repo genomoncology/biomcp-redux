@@ -79,7 +79,8 @@ fn root() -> Result<Command, ()> {
             .subcommand(
                 Command::new("search")
                     .subcommand_required(true)
-                    .subcommand(Command::new("gene")),
+                    .subcommand(Command::new("gene"))
+                    .subcommand(Command::new("article")),
             ),
     );
     Ok(root.subcommand(Command::new("serve")))
@@ -108,7 +109,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let help = if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
-            Some((verb, _)) => Some(vec![verb.into(), "gene".into()]),
+            Some((verb, matches)) => {
+                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
+            }
             None => Some(Vec::new()),
         }
     } else {
