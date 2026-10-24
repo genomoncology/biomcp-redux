@@ -70,23 +70,8 @@ impl Leg<'_> {
             total: None,
         };
         let record = matches!(self.fetch.config.mode, Mode::Record { .. });
-        if !record
-            && let Some(prior) = prior
-            && strong(prior.etag.as_deref())
-            && prior.bytes > 0
-            && let Ok(input) = fs::File::open(&prior.path)
-        {
-            let copied = std::io::copy(&mut input.take(prior.bytes), &mut file)
-                .map_err(|_| CacheError::Database)?;
-            if copied == prior.bytes {
-                part.bytes = copied;
-                part.etag = prior.etag;
-                part.total = prior.total;
-            } else {
-                file.as_file_mut()
-                    .set_len(0)
-                    .map_err(|_| CacheError::Database)?;
-            }
+        if !record {
+            resume(prior, &mut part, &mut file)?;
         }
         let started = Instant::now();
         let mut transfer = Transfer {
@@ -452,4 +437,27 @@ fn conditional(part: &Part, old: Option<&Meta>) -> Result<Vec<(&'static str, Str
         }
     }
     Ok(headers)
+}
+
+fn resume(
+    prior: Option<Part>,
+    part: &mut Part,
+    file: &mut tempfile::NamedTempFile,
+) -> Result<(), CacheError> {
+    if let Some(prior) = prior
+        && strong(prior.etag.as_deref())
+        && prior.bytes > 0
+        && let Ok(input) = fs::File::open(&prior.path)
+    {
+        let copied =
+            std::io::copy(&mut input.take(prior.bytes), file).map_err(|_| CacheError::Database)?;
+        if copied == prior.bytes {
+            part.bytes = copied;
+            part.etag = prior.etag;
+            part.total = prior.total;
+        } else {
+            reset(file, part)?;
+        }
+    }
+    Ok(())
 }
