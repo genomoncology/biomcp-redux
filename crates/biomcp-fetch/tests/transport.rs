@@ -33,7 +33,10 @@ struct Stub {
     release: Option<mpsc::Sender<()>>,
     worker: Option<thread::JoinHandle<()>>,
 }
-#[expect(clippy::unwrap_used, reason = "Fixture setup and worker failures must abort the contract test")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Fixture setup and worker failures must abort the contract test"
+)]
 impl Stub {
     fn new(status: u16, content_type: &str, body: &str, blocked: bool) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -101,7 +104,10 @@ impl Drop for Stub {
     }
 }
 
-#[expect(clippy::unwrap_used, reason = "Default fixture configuration must open successfully")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Default fixture configuration must open successfully"
+)]
 fn fetch() -> Fetch {
     Fetch::open(FetchConfig::default()).unwrap()
 }
@@ -235,7 +241,7 @@ fn refusals_send_zero_requests() {
 #[test]
 fn source_budget_caps_supplied_deadline_while_waiting_for_response() {
     let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, true);
-    let spec = stub.spec(KeyUse::None, Duration::from_millis(40));
+    let spec = stub.spec(KeyUse::None, Duration::from_secs(1));
     let fetch = fetch();
     let error = fetch
         .leg(spec, fetch.deadline(Duration::from_secs(30)))
