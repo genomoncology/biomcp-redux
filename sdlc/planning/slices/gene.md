@@ -131,7 +131,7 @@ Gaps no free gene API fills: fusion partner lists for KMT2A, NTRK and ALK, gene-
 | ClinGen | gene-validity and gene-dosage CSV downloads | 1.9 to 2.8 s each | validity classification, disease and MONDO ID, mode of inheritance, date, expert panel; haploinsufficiency and triplosensitivity | The API ignores its filter and returns all 3714 rows. The CSV has a 4-line banner | CC0 |
 | GenCC | submissions TSV | 2.8 s, 26.5 MB | Submitter-level validity keyed by HGNC ID | No per-gene API | CC0 |
 | gnomAD GraphQL | `gene(gene_symbol, reference_genome: GRCh38){gnomad_constraint{...}}` | 1.1 s cold, 0.13 s warm | pLI, LOEUF (oe_lof_upper), mis_z, flags, transcript | Official symbol only. GRCh37 serves v2 constraint with different values (BRCA2 LOEUF 0.635 against 0.824) | CC0 |
-| Human Protein Atlas | `/ENSG….json` | 0.5 s | tissue and cancer specificity, subcellular location, protein class | Text search is fuzzy (BRAF also returns HMG20B), so fetch by Ensembl ID | CC BY-SA 4.0 |
+| Human Protein Atlas | `/ENSG….json` | 0.5 s | tissue and cancer specificity, subcellular location, protein class | Text search is fuzzy (BRAF also returns HMG20B), so fetch by Ensembl ID | [CC BY 4.0](https://www.proteinatlas.org/about/licence), with separate third-party conditions |
 | Reactome | `/ContentService/data/mapping/UniProt/<acc>/pathways?species=9606` | 0.8 s | lowest-level pathway IDs and names | Needs the UniProt accession first | CC BY 4.0 |
 | OncoKB | Keyed source; see section 7 | not measured | gene type, highest sensitivity and resistance levels, gene summary and background, OncoKB transcript per build | The investigation fetched the public gene list once on 2026-10-23, before Ian's keyed-source ruling. From now on BioMCP and its developers call OncoKB only with a user's key | Restricted; user's license |
 | DGIdb GraphQL | `genes(names:[...])`, `geneMatches` | 0.5 s | drug interactions and sources; ambiguity labels | Mixed source licenses inside the aggregate. Belongs to the drug slice | Mixed |
@@ -379,7 +379,7 @@ OncoKB is the gene slice's main keyed source. It answers example 14 (oncogene or
 
 | Endpoint | Returns | Use |
 | --- | --- | --- |
-| `GET /api/v1/utils/allCuratedGenes?hugoSymbol=X&includeEvidence=true` | One `CuratedGene`: hugoSymbol, entrezGeneId, geneType, highestSensitiveLevel, highestResistanceLevel, summary, background, grch37Isoform, grch37RefSeq, grch38Isoform, grch38RefSeq | The card's OncoKB block and the `oncokb` section, in one call per gene. The parameter accepts aliases, but BioMCP sends the HGNC symbol |
+| `GET /api/v1/utils/allCuratedGenes?hugoSymbol=X&includeEvidence=true` | A list of `CuratedGene`: hugoSymbol, entrezGeneId, geneType, highestSensitiveLevel, highestResistanceLevel, summary, background, grch37Isoform, grch37RefSeq, grch38Isoform, grch38RefSeq | The card's OncoKB block and the `oncokb` section, in one call per gene. The parameter accepts aliases, but BioMCP sends the HGNC symbol |
 | `GET /api/v1/genes/{entrezGeneId}` | `Gene`: hugoSymbol, entrezGeneId, geneType, isoforms and RefSeqs per build, geneAliases | Fallback when the curated-gene call is not allowed for the key's plan |
 | `GET /api/v1/genes/{entrezGeneId}/evidences?evidenceTypes=GENE_SUMMARY,GENE_BACKGROUND` | Gene-level evidence text | Not needed: `allCuratedGenes` carries the same summary and background |
 | `GET /api/v1/info` | Data version and OncoTree version | The `oncokb` block's version, cached per day |
