@@ -10,9 +10,15 @@ struct Raw {
 fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), quick_xml::DeError> {
     for (xml, expected) in [
         ("<raw>BRAF<sup>V600E</sup></raw>", "BRAFV600E"),
-        ("<raw> A <sub>2<sup>+</sup></sub> <i>x<b>y</b></i><unknown attr=\"ignored\">z</unknown> </raw>", " A 2+ xyz "),
+        (
+            "<raw> A <sub>2<sup>+</sup></sub> <i>x<b>y</b></i><unknown attr=\"ignored\">z</unknown> </raw>",
+            " A 2+ xyz ",
+        ),
         ("<raw><i> </i> <b> </b></raw>", "   "),
-        ("<raw>a&#32;&#x56;&amp;&lt;&gt;&quot;&apos;<![CDATA[  <b>  ]]><!--ignored-->z</raw>", "a V&<>\"'  <b>  z"),
+        (
+            "<raw>a&#32;&#x56;&amp;&lt;&gt;&quot;&apos;<![CDATA[  <b>  ]]><!--ignored-->z</raw>",
+            "a V&<>\"'  <b>  z",
+        ),
         ("<raw attr=\"ignored\"/>", ""),
         ("<raw><unknown/></raw>", ""),
     ] {

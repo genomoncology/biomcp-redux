@@ -1,10 +1,10 @@
 //! Checked cache reuse around the single live request path.
+use crate::xml::Codec;
 use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
 };
 use biodata::Reason;
-use crate::xml::Codec;
 
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
@@ -81,7 +81,12 @@ impl Leg<'_> {
         }
     }
 
-    fn offline<T: Reply>(&self, endpoint: &Endpoint, key: &[u8; 32], codec: Codec) -> Result<T, RequestError> {
+    fn offline<T: Reply>(
+        &self,
+        endpoint: &Endpoint,
+        key: &[u8; 32],
+        codec: Codec,
+    ) -> Result<T, RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
@@ -121,7 +126,8 @@ impl Leg<'_> {
             return Ok(fresh.then_some(Checked::Absent));
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name()))
-            .then(|| codec.decode::<T>(&entry.body)).flatten();
+            .then(|| codec.decode::<T>(&entry.body))
+            .flatten();
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and
             // cannot become a stale fallback after the live request fails.

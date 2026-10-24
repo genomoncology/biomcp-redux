@@ -1,8 +1,8 @@
 use crate::record::{Body, Exchange};
+use crate::xml::Codec;
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
 use biodata::Reason;
-use crate::xml::Codec;
 use std::{
     io::Read,
     time::{Duration, Instant},
@@ -30,11 +30,20 @@ impl Leg<'_> {
     }
 
     /// Send checked XML from a GET or form POST.
-    pub fn xml<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, RequestError> {
+    pub fn xml<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<T, RequestError> {
         self.parameters(ep, params, Codec::Xml)
     }
 
-    fn parameters<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)], codec: Codec) -> Result<T, RequestError> {
+    fn parameters<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        codec: Codec,
+    ) -> Result<T, RequestError> {
         self.validate(ep, false)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         let (url, body) = if ep.method == Method::Get {
@@ -48,7 +57,11 @@ impl Leg<'_> {
                 crate::prepared::form(params, self.spec.key, self.fetch.config.max_body)?,
             )
         };
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent), codec)
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            codec,
+        )
     }
 
     /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
@@ -82,7 +95,11 @@ impl Leg<'_> {
         let codec = Codec::Json;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent), codec)
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            codec,
+        )
     }
 
     fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
@@ -100,7 +117,12 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn send<T: Reply>(&self, ep: &Endpoint, prepared: Prepared, codec: Codec) -> Result<T, RequestError> {
+    fn send<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        prepared: Prepared,
+        codec: Codec,
+    ) -> Result<T, RequestError> {
         let keyed = match self.spec.key {
             KeyUse::Optional(c) | KeyUse::Required(c) => {
                 self.fetch.config.secrets.get(c.secret).is_some()
@@ -180,7 +202,11 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn call(&self, prepared: &Prepared, codec: Codec) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+    fn call(
+        &self,
+        prepared: &Prepared,
+        codec: Codec,
+    ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let mut request = if prepared.post.is_some() {
             self.fetch.agent.post(&prepared.url)
         } else {
@@ -322,7 +348,11 @@ impl Leg<'_> {
         Ok(body)
     }
 
-    fn decode<T: Reply>(&self, response: Wire, codec: Codec) -> Result<(T, u16, Vec<u8>), SourceError> {
+    fn decode<T: Reply>(
+        &self,
+        response: Wire,
+        codec: Codec,
+    ) -> Result<(T, u16, Vec<u8>), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {
