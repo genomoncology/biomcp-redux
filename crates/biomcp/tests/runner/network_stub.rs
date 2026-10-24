@@ -20,10 +20,19 @@ pub(super) struct Stub {
 }
 impl Stub {
     pub(super) fn new() -> Result<Self, String> {
+        Self::for_source("storage.googleapis.com", "text/tab-separated-values", |request| {
+            body(request.contains("withdrawn.txt"))
+        })
+    }
+    pub(super) fn for_source(
+        host: &'static str,
+        content_type: &'static str,
+        reply: fn(&str) -> Result<String, String>,
+    ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
-        let (certificate, config) = identity()?;
+        let (certificate, config) = identity(host)?;
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
             for stream in listener.incoming() {
@@ -38,7 +47,7 @@ impl Stub {
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
                 let connect = header(&mut socket)?;
-                if !connect.starts_with("CONNECT storage.googleapis.com:443 ") {
+                if !connect.starts_with(&format!("CONNECT {host}:443 ")) {
                     return Err("wrong CONNECT destination".into());
                 }
                 socket
@@ -49,8 +58,8 @@ impl Stub {
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = header(&mut tls) {
-                    let body = body(request.contains("withdrawn.txt"))?;
-                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: text/tab-separated-values\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).map_err(|e| e.to_string())?;
+                    let body = reply(&request)?;
+                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
@@ -115,7 +124,7 @@ fn body(withdrawn: bool) -> Result<String, String> {
     Err("missing HGNC fixture".into())
 }
 
-fn identity() -> Result<(String, Arc<ServerConfig>), String> {
+fn identity(host: &str) -> Result<(String, Arc<ServerConfig>), String> {
     use rcgen::{
         BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
         KeyUsagePurpose,
@@ -129,7 +138,7 @@ fn identity() -> Result<(String, Arc<ServerConfig>), String> {
     let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
     let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
     let mut leaf =
-        CertificateParams::new(vec!["storage.googleapis.com".into()]).map_err(|e| e.to_string())?;
+        CertificateParams::new(vec![host.into()]).map_err(|e| e.to_string())?;
     leaf.not_before = now - time::Duration::days(1);
     leaf.not_after = now + time::Duration::days(1);
     leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];

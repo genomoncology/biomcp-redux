@@ -4,10 +4,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "article/optional-scholar-key-is-outgoing-only",
-        || configured().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("article/optional-scholar-key-is-outgoing-only", || {
+            configured().map_err(Into::into)
+        }),
+        Trial::test("article/scholar-key-crosses-only-the-outgoing-header", || {
+            outgoing().map_err(Into::into)
+        }),
+    ]
 }
 fn configured() -> Result<(), String> {
     let mut baseline = None;
@@ -54,6 +58,46 @@ fn configured() -> Result<(), String> {
         } else {
             baseline = Some(value);
         }
+    }
+    Ok(())
+}
+
+fn outgoing() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let stub = super::network_stub::Stub::for_source(
+        "api.semanticscholar.org", "application/json",
+        |_| Ok(r#"{"total":0,"data":[]}"#.into()),
+    )?;
+    let certificate = env.root().join("ca.pem");
+    std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({
+        "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),
+        "keys":{"semantic_scholar_api_key":"placeholder-scholar-key"}
+    })).map_err(|e| e.to_string())?;
+    let capture = env.root().join("capture");
+    let mut args = vec!["search".into(),"article".into(),"EGFR".into(),
+        "--source".into(),"semantic-scholar".into(),"--record".into(),capture.to_string_lossy().into()];
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let requests = stub.finish()?;
+    if !output.status.success() || !output.stderr.is_empty() || requests.len() != 1
+        || !requests.first().is_some_and(|(_,request)| request.to_ascii_lowercase().contains("x-api-key: placeholder-scholar-key")) {
+        return Err(format!("the declared source did not send its configured key: {value}"));
+    }
+    if value.to_string().contains("placeholder-scholar-key") { return Err("the key entered the envelope".into()); }
+    for file in std::fs::read_dir(capture.join("semantic-scholar")).map_err(|e| e.to_string())? {
+        let text = std::fs::read_to_string(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
+        if text.contains("placeholder-scholar-key") || text.to_ascii_lowercase().contains("x-api-key") {
+            return Err("the key entered a recording".into());
+        }
+    }
+    args.truncate(5);
+    args.extend(["--replay".into(),capture.to_string_lossy().into()]);
+    let keyless = Environment::new().map_err(|e| e.to_string())?;
+    let output = keyless.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() || value.pointer("/result/items") != Some(&json!([])) {
+        return Err("credential presence changed the canonical request identity".into());
     }
     Ok(())
 }
