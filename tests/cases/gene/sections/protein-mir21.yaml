@@ -17,12 +17,10 @@
         "/result/items/0/sections/constraint/state": "not_applicable",
         "/sources/*/source": {
           "includes": "mygene",
-          "excludes": [
-            "gnomad",
-            "uniprot"
-          ]
+          "excludes": "uniprot"
         },
-        "/result/items/0/sections/protein/state": "not_applicable"
+        "/result/items/0/sections/protein/state": "not_applicable",
+        "/result/items/0/sections/protein/data/*/accession": []
       },
       "max_bytes": 3100,
       "mcp": [
