@@ -4,6 +4,8 @@ mod corporate;
 mod gene_tables;
 mod held_proxy;
 mod launch;
+pub(crate) mod live;
+mod live_proof;
 mod markdown;
 mod markdown_sources;
 mod mcp;
@@ -14,6 +16,7 @@ mod pool_tables;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
@@ -30,6 +33,7 @@ use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Case {
+    live_check: Option<String>,
     #[serde(rename = "feature", default)]
     _feature: Option<String>,
     #[serde(rename = "covers", default)]
@@ -140,11 +144,10 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             .config(config)
             .map_err(|error| error.to_string())?;
     }
-    let replay = case.replay.as_ref().map(|name| {
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/replies")
-            .join(name)
-    });
+    let replay = case
+        .replay
+        .as_ref()
+        .map(|name| launch::fixtures().join("replies").join(name));
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         previous = Some(
@@ -221,6 +224,7 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
@@ -363,4 +367,8 @@ fn run_sequence(
         }
     }
     Err("walk exceeded max_pages".into())
+}
+
+pub(super) fn installed_process_proof() -> Result<(), String> {
+    configuration::article_processes()
 }

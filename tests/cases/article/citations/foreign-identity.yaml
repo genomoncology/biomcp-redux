@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-citations",
   "story": "An iCite reply for another PMID cannot create the requested edge pool, including an explicit fresh retry. The request is copied from the actual metadata capture; only response exchanges are synthetic.",
   "replay": "article/citations/synthetic-foreign",

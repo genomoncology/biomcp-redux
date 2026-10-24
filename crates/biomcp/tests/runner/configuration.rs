@@ -396,66 +396,59 @@ fn article_replay_epoch() -> Check {
     mcp::article_sequence(&env, &env.globals(Some(&root), false))
 }
 
-fn article_processes() -> Check {
+pub(super) fn article_processes() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
-    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/search/synthetic-small");
+    let fixture = super::launch::fixtures().join("replies/article/search/synthetic-small");
     let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
     let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
-    let expected = initial
-        .pointer("/result/items")
-        .ok_or("initial items missing")?
-        .clone();
-    let old = initial
-        .pointer("/page/pool/id")
-        .and_then(Value::as_str)
-        .ok_or("pool missing")?;
-    let mut args = cached(&base, &case, None);
-    args.push("--fresh".into());
-    let spawn = || {
-        env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
+    let expected = initial.pointer("/result/items").ok_or("items missing")?;
+    let parent = env.root().join("cache/biomcp");
+    fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
+    let file = parent.join(format!(
+        "cache-{}-{}.sqlite",
+        biomcp_fetch::VERSION,
+        biomcp_query::store::VERSION
+    ));
+    // Replay and ordinary caches have the same owned schema. Copy only after
+    // the seed process closes; it has checkpointed the WAL and released locks.
+    fs::copy(case.join("replay.sqlite"), &file).map_err(|e| e.to_string())?;
+    let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+        cache: Some(file),
+        mode: biomcp_fetch::Mode::Offline,
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .map_err(|e| e.to_string())?;
+    let connection = fetch
+        .cache_access()
+        .map_err(|e| e.to_string())?
+        .connect()
+        .map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
+    let replies = super::publication::check(&env, || {
+        connection
+            .execute_batch("COMMIT")
             .map_err(|e| e.to_string())
-    };
-    let one = spawn()?;
-    let two = spawn()?;
-    for _ in 0..3 {
-        let read = invoke(&env, cached(&base, &case, None), 0)?;
-        if read.pointer("/result/items") != Some(&expected)
-            || read.pointer("/page/total") != Some(&json!(2))
-        {
-            return Err("reader saw a partial pool publication".into());
-        }
-    }
+    })?;
     let mut pools = std::collections::BTreeSet::new();
-    for child in [one, two] {
-        let output = child.wait_with_output().map_err(|e| e.to_string())?;
-        if !output.status.success() || !output.stderr.is_empty() {
-            return Err(format!(
-                "concurrent article child failed: {}",
-                String::from_utf8_lossy(&output.stdout)
-            ));
+    for reply in replies {
+        if reply.pointer("/result/items") != Some(expected) {
+            return Err("concurrent ordinary-cache search lost items".into());
         }
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if value.pointer("/result/items") != Some(&expected) {
-            return Err("concurrent pool lost identities or headers".into());
-        }
-        let pool = value
+        let pool = reply
             .pointer("/page/pool/id")
             .and_then(Value::as_str)
-            .ok_or("pool missing")?;
-        if pool == old || !pools.insert(pool.to_owned()) {
+            .ok_or("published pool missing")?;
+        if !pools.insert(pool.to_owned()) || initial.pointer("/page/pool/id") == Some(&json!(pool))
+        {
             return Err("concurrent fresh pools collided".into());
         }
-    }
-    for pool in pools.into_iter().chain(std::iter::once(old.to_owned())) {
-        let mut args = base.to_vec();
-        args.extend(["--pool", &pool]);
-        if invoke(&env, cached(&args, &case, None), 0)?.pointer("/result/items") != Some(&expected)
-        {
+        let mut args: Vec<String> = base.iter().map(|v| (*v).into()).collect();
+        args.extend(["--offline".into(), "--pool".into(), pool.into()]);
+        if invoke(&env, args, 0)?.pointer("/result/items") != Some(expected) {
             return Err("published snapshot changed".into());
         }
     }

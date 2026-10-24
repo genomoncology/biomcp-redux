@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "A missing user key skips OncoKB without changing gene status",
   "replay": "gene/oncokb-synthetic/no-key",

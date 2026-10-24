@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "PubMed names unindexed words without treating them as failure.",
   "replay": "article/search/live",

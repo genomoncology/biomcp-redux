@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Synthetic overlapping accession mappings preserve first-seen order, reject wrong records and count before the cap",
   "replay": "gene/pathways/synthetic-union",

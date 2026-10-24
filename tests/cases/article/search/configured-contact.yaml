@@ -1,4 +1,5 @@
 {
+  "live_check": "configured or keyed case",
   "feature": "article-search",
   "story": "Configured NCBI contact and key do not change public request identities or response data.",
   "replay": "article/search/live",

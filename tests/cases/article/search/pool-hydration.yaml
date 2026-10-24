@@ -1,3 +1,4 @@
+live_check: synthetic response case
 feature: article-search
 story: A checked missing header stays warm and a fresh retry fills only its hole
 replay: article/search/synthetic-retry

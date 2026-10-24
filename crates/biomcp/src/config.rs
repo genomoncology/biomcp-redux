@@ -137,6 +137,12 @@ fn fetch_using(
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
         disabled_sources: disabled_sources(globals, file.as_ref())?,
+        observations: globals
+            .observe
+            .as_ref()
+            .map(|path| biomcp_fetch::Observations::create(path).map(std::sync::Arc::new))
+            .transpose()
+            .map_err(|_| ())?,
         cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         network,
