@@ -221,8 +221,23 @@ fn check_wire(stub: Stub, expected: Vec<Option<&str>>) -> Check {
 
 fn query(index: usize, nci: bool, source: &str) -> Vec<String> {
     if nci {
-        vec!["search".into(), "trial".into(), "--source".into(), source.into(), "--keyword".into(), format!("synthetic {index}"), "--fresh".into()]
+        vec![
+            "search".into(),
+            "trial".into(),
+            "--source".into(),
+            source.into(),
+            "--keyword".into(),
+            format!("synthetic {index}"),
+            "--fresh".into(),
+        ]
     } else {
-        vec!["search".into(), "article".into(), format!("synthetic EGFR {index}"), "--source".into(), source.into(), "--fresh".into()]
+        vec![
+            "search".into(),
+            "article".into(),
+            format!("synthetic EGFR {index}"),
+            "--source".into(),
+            source.into(),
+            "--fresh".into(),
+        ]
     }
 }
