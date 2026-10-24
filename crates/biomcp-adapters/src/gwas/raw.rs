@@ -46,18 +46,15 @@ pub struct Association {
     /// Reported association p value.
     pub p_value: FiniteNumber,
     /// Reported effect beta, preserving units and prose.
-    #[serde(default, deserialize_with = "optional_text")]
-    pub beta: Option<Text>,
+    pub beta: Option<String>,
     /// Reported odds ratio where provided.
     pub or_per_copy_num: Option<FiniteNumber>,
     /// Source allele frequency text, such as NR.
-    #[serde(default, deserialize_with = "optional_text")]
-    pub risk_frequency: Option<Text>,
+    pub risk_frequency: Option<String>,
     /// Source-reported effect interval.
-    #[serde(default, deserialize_with = "optional_text")]
-    pub range: Option<Text>,
+    pub range: Option<String>,
     /// Source publication identity.
-    pub pubmed_id: Option<Text>,
+    pub pubmed_id: Option<String>,
 }
 /// Source trait identity and label.
 #[derive(Debug, Deserialize)]
@@ -111,9 +108,4 @@ impl Response {
                     .all(|a| a.snp_allele.iter().any(|s| s.rs_id.as_str() == id))
             })
     }
-}
-
-fn optional_text<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
-    let value = Option::<String>::deserialize(d)?;
-    Ok(value.and_then(|v| Text::new(&v).ok()))
 }
