@@ -37,6 +37,29 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
+# Bind reusable profiles to the inputs that produced them, including dirty and
+# untracked source files. Git's revision alone misses working-tree changes.
+inputs() {
+    python3 - <<'PYINPUTS'
+import hashlib
+from pathlib import Path
+import subprocess
+
+names = subprocess.check_output([
+    'git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--',
+    'crates', 'tests', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml',
+    'scripts/coverage.sh',
+]).split(b'\0')
+digest = hashlib.sha256()
+for name in sorted(set(names) - {b''}):
+    path = Path(name.decode())
+    digest.update(name + b'\0')
+    digest.update(path.read_bytes() if path.is_file() else b'<missing>')
+    digest.update(b'\0')
+print(digest.hexdigest())
+PYINPUTS
+}
+
 report() {
     label=$1
     shift
@@ -52,6 +75,7 @@ case "${1:-run}" in
         cargo llvm-cov clean --workspace
         mkdir -p "$profile_dir"
         rm -f "$complete"
+        collected_inputs=$(inputs)
         # Build both collections before reporting, so neither gains a smaller
         # denominator from product functions linked only by the other collection.
         cargo test --workspace --locked --no-run
@@ -96,12 +120,20 @@ case "${1:-run}" in
             }
         '
         # Restore cases profiles even when their floor check failed.
-        touch "$complete"
+        if [ "$(inputs)" != "$collected_inputs" ]; then
+            echo 'coverage: inputs changed during collection; run make coverage again' >&2
+            exit 1
+        fi
+        printf '%s\n' "$collected_inputs" >"$complete"
         exit "$result"
         ;;
     report|unreached)
         if [ ! -f "$complete" ]; then
             echo 'coverage: no complete collection; run make coverage first' >&2
+            exit 1
+        fi
+        if [ "$(cat "$complete")" != "$(inputs)" ]; then
+            echo 'coverage: inputs changed since collection; run make coverage again' >&2
             exit 1
         fi
         if [ "$1" = unreached ]; then
