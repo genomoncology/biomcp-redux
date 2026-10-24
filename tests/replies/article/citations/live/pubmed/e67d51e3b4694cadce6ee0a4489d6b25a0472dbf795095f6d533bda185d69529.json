@@ -1,0 +1,1473 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845876,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 229,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "10662541",
+              "10811497",
+              "11844822",
+              "14766242",
+              "15994883",
+              "19188187",
+              "21598239",
+              "8651293",
+              "9115959",
+              "9815648"
+            ],
+            "10662541": {
+              "uid": "10662541",
+              "pubdate": "2000 Jan 1",
+              "epubdate": "",
+              "source": "Genomics",
+              "authors": [
+                {
+                  "name": "Tian H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jaquins-Gerstl A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Munro N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Trucco M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brody LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Landers JP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Landers JP",
+              "title": "Single-strand conformation polymorphism analysis by capillary and microchip electrophoresis: a fast, simple method for detection of common mutations in BRCA1 and BRCA2.",
+              "sorttitle": "single strand conformation polymorphism analysis by capillary and microchip electrophoresis a fast simple method for detection of common mutations in brca1 and brca2",
+              "volume": "63",
+              "issue": "1",
+              "pages": "25-34",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "8800135",
+              "issn": "0888-7543",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "10662541"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1006/geno.1999.6067"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0888-7543(99)96067-6"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2000/02/09 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2000/04/15 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2000/02/09 09:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Genomics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2000/01/01 00:00",
+              "sortfirstauthor": "Tian H",
+              "vernaculartitle": ""
+            },
+            "10811497": {
+              "uid": "10811497",
+              "pubdate": "2000 Mar",
+              "epubdate": "",
+              "source": "Ann Oncol",
+              "authors": [
+                {
+                  "name": "Foulkes WD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chappuis PO",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wong N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brunet JS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vesprini D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rozen F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Yuan ZQ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pollak MN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kuperstein G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Narod SA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "B\u00e9gin LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "B\u00e9gin LR",
+              "title": "Primary node negative breast cancer in BRCA1 mutation carriers has a poor outcome.",
+              "sorttitle": "primary node negative breast cancer in brca1 mutation carriers has a poor outcome",
+              "volume": "11",
+              "issue": "3",
+              "pages": "307-13",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9007735",
+              "issn": "0923-7534",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "10811497"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1023/a:1008340723974"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0923-7534(20)31524-6"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2000/05/16 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2000/08/01 11:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2000/05/16 09:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Annals of oncology : official journal of the European Society for Medical Oncology",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2000/03/01 00:00",
+              "sortfirstauthor": "Foulkes WD",
+              "vernaculartitle": ""
+            },
+            "11844822": {
+              "uid": "11844822",
+              "pubdate": "2002 Feb 15",
+              "epubdate": "",
+              "source": "J Clin Oncol",
+              "authors": [
+                {
+                  "name": "Shih HA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Couch FJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nathanson KL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Blackwood MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rebbeck TR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Armstrong KA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Calzone K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stopfer J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Seal S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stratton MR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Weber BL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Weber BL",
+              "title": "BRCA1 and BRCA2 mutation frequency in women evaluated in a breast cancer risk evaluation clinic.",
+              "sorttitle": "brca1 and brca2 mutation frequency in women evaluated in a breast cancer risk evaluation clinic",
+              "volume": "20",
+              "issue": "4",
+              "pages": "994-9",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "8309333",
+              "issn": "0732-183X",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "11844822"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1200/JCO.2002.20.4.994"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2002/02/15 10:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2002/03/20 10:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2002/02/15 10:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of clinical oncology : official journal of the American Society of Clinical Oncology",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2002/02/15 00:00",
+              "sortfirstauthor": "Shih HA",
+              "vernaculartitle": ""
+            },
+            "14766242": {
+              "uid": "14766242",
+              "pubdate": "2004 Feb",
+              "epubdate": "",
+              "source": "Gynecol Oncol",
+              "authors": [
+                {
+                  "name": "Lavie O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hornreich G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ben-Arie A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rennert G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cohen Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Keidar R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sagi S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lahad EL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Auslander R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beller U",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Beller U",
+              "title": "BRCA germline mutations in Jewish women with uterine serous papillary carcinoma.",
+              "sorttitle": "brca germline mutations in jewish women with uterine serous papillary carcinoma",
+              "volume": "92",
+              "issue": "2",
+              "pages": "521-4",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0365304",
+              "issn": "0090-8258",
+              "essn": "",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "14766242"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.ygyno.2003.11.009"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0090825803007856"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2003/04/30 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2004/02/10 05:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2004/03/24 05:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2004/02/10 05:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Gynecol Oncol. 2004 Feb;92(2):519-20. doi: 10.1016/j.ygyno.2003.12.009.",
+                  "reftype": "Comment in",
+                  "pmid": 14766241,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Gynecologic oncology",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2004/02/01 00:00",
+              "sortfirstauthor": "Lavie O",
+              "vernaculartitle": ""
+            },
+            "15994883": {
+              "uid": "15994883",
+              "pubdate": "2005 Jul",
+              "epubdate": "",
+              "source": "J Med Genet",
+              "authors": [
+                {
+                  "name": "Antoniou AC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pharoah PD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Narod S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Risch HA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Eyfjord JE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hopper JL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Olsson H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Johannsson O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Borg A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pasini B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Radice P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Manoukian S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Eccles DM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tang N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Olah E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Anton-Culver H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Warner E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lubinski J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gronwald J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gorski B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tulinius H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Thorlacius S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Eerola H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nevanlinna H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Syrj\u00e4koski K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kallioniemi OP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Thompson D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Evans C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Peto J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lalloo F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Evans DG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Easton DF",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Easton DF",
+              "title": "Breast and ovarian cancer risks to carriers of the BRCA1 5382insC and 185delAG and BRCA2 6174delT mutations: a combined analysis of 22 population based studies.",
+              "sorttitle": "breast and ovarian cancer risks to carriers of the brca1 5382insc and 185delag and brca2 6174delt mutations a combined analysis of 22 population based studies",
+              "volume": "42",
+              "issue": "7",
+              "pages": "602-3",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "2985087R",
+              "issn": "0022-2593",
+              "essn": "1468-6244",
+              "pubtype": [
+                "Letter",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "15994883"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC1736090"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC1736090;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1136/jmg.2004.024133"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "42/7/602"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2005/07/05 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2006/05/19 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2005/07/05 09:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2008/07/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of medical genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2005/07/01 00:00",
+              "sortfirstauthor": "Antoniou AC",
+              "vernaculartitle": ""
+            },
+            "19188187": {
+              "uid": "19188187",
+              "pubdate": "2009 Feb 1",
+              "epubdate": "",
+              "source": "Clin Cancer Res",
+              "authors": [
+                {
+                  "name": "Agalliu I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gern R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Leanza S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Burk RD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Burk RD",
+              "title": "Associations of high-grade prostate cancer with BRCA1 and BRCA2 founder mutations.",
+              "sorttitle": "associations of high grade prostate cancer with brca1 and brca2 founder mutations",
+              "volume": "15",
+              "issue": "3",
+              "pages": "1112-20",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9502500",
+              "issn": "1078-0432",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "19188187"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS440456"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC3722558"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC3722558;manuscript-id: NIHMS440456;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1158/1078-0432.CCR-08-1822"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "15/3/1112"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2009/02/04 09:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2009/02/04 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2009/07/17 09:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2013/07/25 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 45,
+              "fulljournalname": "Clinical cancer research : an official journal of the American Association for Cancer Research",
+              "elocationid": "doi: 10.1158/1078-0432.CCR-08-1822",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2009/02/01 00:00",
+              "sortfirstauthor": "Agalliu I",
+              "vernaculartitle": ""
+            },
+            "21598239": {
+              "uid": "21598239",
+              "pubdate": "2012 Jan 15",
+              "epubdate": "2011 May 19",
+              "source": "Cancer",
+              "authors": [
+                {
+                  "name": "Stadler ZK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Salo-Mullen E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Patil SM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pietanza MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vijai J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Saloustros E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hansen NA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kauff ND",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kurtz RC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kelsen DP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Offit K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Robson ME",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Robson ME",
+              "title": "Prevalence of BRCA1 and BRCA2 mutations in Ashkenazi Jewish families with breast and pancreatic cancer.",
+              "sorttitle": "prevalence of brca1 and brca2 mutations in ashkenazi jewish families with breast and pancreatic cancer",
+              "volume": "118",
+              "issue": "2",
+              "pages": "493-9",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0374236",
+              "issn": "0008-543X",
+              "essn": "1097-0142",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "21598239"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1002/cncr.26191"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2011/01/10 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2011/03/16 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2011/03/24 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2011/05/21 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2011/05/21 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2012/03/01 06:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Cancer",
+              "elocationid": "doi: 10.1002/cncr.26191",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2012/01/15 00:00",
+              "sortfirstauthor": "Stadler ZK",
+              "vernaculartitle": ""
+            },
+            "8651293": {
+              "uid": "8651293",
+              "pubdate": "1996 Jun",
+              "epubdate": "",
+              "source": "Am J Hum Genet",
+              "authors": [
+                {
+                  "name": "Berman DB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wagner-Costalas J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Schultz DC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lynch HT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Daly M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Godwin AK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Godwin AK",
+              "title": "Two distinct origins of a common BRCA1 mutation in breast-ovarian cancer families: a genetic study of 15 185delAG-mutation kindreds.",
+              "sorttitle": "two distinct origins of a common brca1 mutation in breast ovarian cancer families a genetic study of 15 185delag mutation kindreds",
+              "volume": "58",
+              "issue": "6",
+              "pages": "1166-76",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0370475",
+              "issn": "0002-9297",
+              "essn": "1537-6605",
+              "pubtype": [
+                "Comparative Study",
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S.",
+                "Research Support, U.S. Gov't, P.H.S."
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "8651293"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC1915042"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC1915042;"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1996/06/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1996/06/01 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1996/06/01 00:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "1996/12/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 30,
+              "fulljournalname": "American journal of human genetics",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1996/06/01 00:00",
+              "sortfirstauthor": "Berman DB",
+              "vernaculartitle": ""
+            },
+            "9115959": {
+              "uid": "9115959",
+              "pubdate": "1997 Feb",
+              "epubdate": "",
+              "source": "Genes Chromosomes Cancer",
+              "authors": [
+                {
+                  "name": "Xu CF",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chambers JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nicolai H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brown MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hujeirat Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mohammed S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hodgson S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kelsell DP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Spurr NK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bishop DT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Solomon E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Solomon E",
+              "title": "Mutations and alternative splicing of the BRCA1 gene in UK breast/ovarian cancer families.",
+              "sorttitle": "mutations and alternative splicing of the brca1 gene in uk breast ovarian cancer families",
+              "volume": "18",
+              "issue": "2",
+              "pages": "102-10",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9007329",
+              "issn": "1045-2257",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9115959"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "10.1002/(SICI)1098-2264(199702)18:2<102::AID-GCC4>3.0.CO;2-6"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1997/02/01 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2000/06/20 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1997/02/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Genes, chromosomes & cancer",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/02/01 00:00",
+              "sortfirstauthor": "Xu CF",
+              "vernaculartitle": ""
+            },
+            "9815648": {
+              "uid": "9815648",
+              "pubdate": "1997 Dec",
+              "epubdate": "",
+              "source": "Clin Cancer Res",
+              "authors": [
+                {
+                  "name": "Foulkes WD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wong N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Brunet JS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "B\u00e9gin LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhang JC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Martinez JJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rozen F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tonin PN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Narod SA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Karp SE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pollak MN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Pollak MN",
+              "title": "Germ-line BRCA1 mutation is an adverse prognostic factor in Ashkenazi Jewish women with breast cancer.",
+              "sorttitle": "germ line brca1 mutation is an adverse prognostic factor in ashkenazi jewish women with breast cancer",
+              "volume": "3",
+              "issue": "12 Pt 1",
+              "pages": "2465-9",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9502500",
+              "issn": "1078-0432",
+              "essn": "",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "9815648"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "1998/11/17 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "1998/11/17 00:01"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "1998/11/17 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Clinical cancer research : an official journal of the American Association for Cancer Research",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "1997/12/01 00:00",
+              "sortfirstauthor": "Foulkes WD",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c4caa6e83c0ea621553c6af7e34f5de097ee432b2f5d4ef72f3aa5d649d0e047"
+  }
+}

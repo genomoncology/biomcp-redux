@@ -69,3 +69,5 @@ pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections
 
 mod markdown;
 pub use markdown::Markdown;
+pub use query::ArticleEdges;
+pub use response::{ArticleEdgePage, Citations};

@@ -1,0 +1,1965 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "fetched": 1792845886,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 247,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "17936563",
+              "18216767",
+              "18794884",
+              "18948947",
+              "19629070",
+              "19644473",
+              "20027184",
+              "22722201",
+              "28431241",
+              "28513565"
+            ],
+            "17936563": {
+              "uid": "17936563",
+              "pubdate": "2007 Oct",
+              "epubdate": "",
+              "source": "Cancer Cell",
+              "authors": [
+                {
+                  "name": "Berns K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Horlings HM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hennessy BT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Madiredjo M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hijmans EM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beelen K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Linn SC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gonzalez-Angulo AM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stemke-Hale K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hauptmann M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beijersbergen RL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mills GB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "van de Vijver MJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bernards R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Bernards R",
+              "title": "A functional genetic approach identifies the PI3K pathway as a major determinant of trastuzumab resistance in breast cancer.",
+              "sorttitle": "functional genetic approach identifies the pi3k pathway as a major determinant of trastuzumab resistance in breast cancer",
+              "volume": "12",
+              "issue": "4",
+              "pages": "395-402",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101130617",
+              "issn": "1535-6108",
+              "essn": "",
+              "pubtype": [
+                "Clinical Trial",
+                "Journal Article",
+                "Multicenter Study",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "17936563"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.ccr.2007.08.030"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S1535-6108(07)00262-0"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2007/04/06 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2007/07/31 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2007/08/29 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2007/10/16 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2007/12/06 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2007/10/16 09:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Cancer Cell. 2007 Oct;12(4):297-9. doi: 10.1016/j.ccr.2007.10.004.",
+                  "reftype": "Comment in",
+                  "pmid": 17936554,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Cancer cell",
+              "elocationid": "",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2007/10/01 00:00",
+              "sortfirstauthor": "Berns K",
+              "vernaculartitle": ""
+            },
+            "18216767": {
+              "uid": "18216767",
+              "pubdate": "2008 Feb",
+              "epubdate": "",
+              "source": "Nat Rev Mol Cell Biol",
+              "authors": [
+                {
+                  "name": "Lemmon MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Lemmon MA",
+              "title": "Membrane recognition by phospholipid-binding domains.",
+              "sorttitle": "membrane recognition by phospholipid binding domains",
+              "volume": "9",
+              "issue": "2",
+              "pages": "99-111",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "100962782",
+              "issn": "1471-0072",
+              "essn": "1471-0080",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "18216767"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nrm2328"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nrm2328"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2008/01/25 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2008/03/26 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2008/01/25 09:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature reviews. Molecular cell biology",
+              "elocationid": "doi: 10.1038/nrm2328",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2008/02/01 00:00",
+              "sortfirstauthor": "Lemmon MA",
+              "vernaculartitle": ""
+            },
+            "18794884": {
+              "uid": "18794884",
+              "pubdate": "2008 Sep 18",
+              "epubdate": "",
+              "source": "Oncogene",
+              "authors": [
+                {
+                  "name": "Yuan TL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cantley LC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Cantley LC",
+              "title": "PI3K pathway alterations in cancer: variations on a theme.",
+              "sorttitle": "pi3k pathway alterations in cancer variations on a theme",
+              "volume": "27",
+              "issue": "41",
+              "pages": "5497-510",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "8711562",
+              "issn": "0950-9232",
+              "essn": "1476-5594",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "18794884"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS386791"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC3398461"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC3398461;manuscript-id: NIHMS386791;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/onc.2008.245"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "onc2008245"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2008/09/17 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2008/10/09 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2008/09/17 09:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2012/07/17 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 85,
+              "fulljournalname": "Oncogene",
+              "elocationid": "doi: 10.1038/onc.2008.245",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2008/09/18 00:00",
+              "sortfirstauthor": "Yuan TL",
+              "vernaculartitle": ""
+            },
+            "18948947": {
+              "uid": "18948947",
+              "pubdate": "2008 Oct 23",
+              "epubdate": "",
+              "source": "Nature",
+              "authors": [
+                {
+                  "name": "Ding L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Getz G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wheeler DA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mardis ER",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McLellan MD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cibulskis K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sougnez C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Greulich H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Muzny DM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Morgan MB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fulton L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fulton RS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhang Q",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wendl MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lawrence MS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Larson DE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chen K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dooling DJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sabo A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hawes AC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shen H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jhangiani SN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lewis LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hall O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhu Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mathew T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ren Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Yao J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Scherer SE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Clerc K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Metcalf GA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ng B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Milosavljevic A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gonzalez-Garay ML",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Osborne JR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Meyer R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shi X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tang Y",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Koboldt DC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lin L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Abbott R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Miner TL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pohl C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fewell G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Haipek C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Schmidt H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dunford-Shore BH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kraja A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Crosby SD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sawyer CS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vickery T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sander S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Robinson J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Winckler W",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Baldwin J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chirieac LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dutt A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fennell T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hanna M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Johnson BE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Onofrio RC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Thomas RK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tonon G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Weir BA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhao X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ziaugra L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zody MC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Giordano T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Orringer MB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Roth JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Spitz MR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wistuba II",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ozenberger B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Good PJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chang AC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beer DG",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Watson MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ladanyi M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Broderick S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Yoshizawa A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Travis WD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pao W",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Province MA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Weinstock GM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Varmus HE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gabriel SB",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lander ES",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gibbs RA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Meyerson M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wilson RK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Wilson RK",
+              "title": "Somatic mutations affect key pathways in lung adenocarcinoma.",
+              "sorttitle": "somatic mutations affect key pathways in lung adenocarcinoma",
+              "volume": "455",
+              "issue": "7216",
+              "pages": "1069-75",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0410462",
+              "issn": "0028-0836",
+              "essn": "1476-4687",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "18948947"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS106788"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC2694412"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC2694412;manuscript-id: NIHMS106788;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nature07423"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nature07423"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2008/06/09 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2008/09/10 00:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2008/10/25 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2008/11/11 09:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2008/10/25 09:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2009/06/10 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 50,
+              "fulljournalname": "Nature",
+              "elocationid": "doi: 10.1038/nature07423",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2008/10/23 00:00",
+              "sortfirstauthor": "Ding L",
+              "vernaculartitle": ""
+            },
+            "19629070": {
+              "uid": "19629070",
+              "pubdate": "2009 Aug",
+              "epubdate": "",
+              "source": "Nat Rev Cancer",
+              "authors": [
+                {
+                  "name": "Engelman JA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Engelman JA",
+              "title": "Targeting PI3K signalling in cancer: opportunities, challenges and limitations.",
+              "sorttitle": "targeting pi3k signalling in cancer opportunities challenges and limitations",
+              "volume": "9",
+              "issue": "8",
+              "pages": "550-62",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101124168",
+              "issn": "1474-175X",
+              "essn": "1474-1768",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "19629070"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nrc2664"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nrc2664"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2009/07/25 09:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2009/07/25 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2009/08/12 09:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature reviews. Cancer",
+              "elocationid": "doi: 10.1038/nrc2664",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2009/08/01 00:00",
+              "sortfirstauthor": "Engelman JA",
+              "vernaculartitle": ""
+            },
+            "19644473": {
+              "uid": "19644473",
+              "pubdate": "2009 Aug",
+              "epubdate": "",
+              "source": "Nat Rev Drug Discov",
+              "authors": [
+                {
+                  "name": "Liu P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cheng H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Roberts TM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhao JJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Zhao JJ",
+              "title": "Targeting the phosphoinositide 3-kinase pathway in cancer.",
+              "sorttitle": "targeting the phosphoinositide 3 kinase pathway in cancer",
+              "volume": "8",
+              "issue": "8",
+              "pages": "627-44",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101124171",
+              "issn": "1474-1776",
+              "essn": "1474-1784",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't",
+                "Research Support, U.S. Gov't, Non-P.H.S.",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "19644473"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS212276"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC3142564"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC3142564;manuscript-id: NIHMS212276;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nrd2926"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nrd2926"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2009/08/01 09:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2009/08/01 09:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2009/08/26 09:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2011/07/24 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 138,
+              "fulljournalname": "Nature reviews. Drug discovery",
+              "elocationid": "doi: 10.1038/nrd2926",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2009/08/01 00:00",
+              "sortfirstauthor": "Liu P",
+              "vernaculartitle": ""
+            },
+            "20027184": {
+              "uid": "20027184",
+              "pubdate": "2010 Jan",
+              "epubdate": "",
+              "source": "Nat Rev Mol Cell Biol",
+              "authors": [
+                {
+                  "name": "Pearce LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Komander D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Alessi DR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Alessi DR",
+              "title": "The nuts and bolts of AGC protein kinases.",
+              "sorttitle": "nuts and bolts of agc protein kinases",
+              "volume": "11",
+              "issue": "1",
+              "pages": "9-22",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "100962782",
+              "issn": "1471-0072",
+              "essn": "1471-0080",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, Non-U.S. Gov't",
+                "Review"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "20027184"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nrm2822"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nrm2822"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "entrez",
+                  "date": "2009/12/23 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2009/12/23 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2010/02/05 06:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Nature reviews. Molecular cell biology",
+              "elocationid": "doi: 10.1038/nrm2822",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2010/01/01 00:00",
+              "sortfirstauthor": "Pearce LR",
+              "vernaculartitle": ""
+            },
+            "22722201": {
+              "uid": "22722201",
+              "pubdate": "2012 May 16",
+              "epubdate": "2012 May 16",
+              "source": "Nature",
+              "authors": [
+                {
+                  "name": "Stephens PJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tarpey PS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Davies H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Van Loo P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Greenman C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wedge DC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nik-Zainal S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Martin S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Varela I",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bignell GR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Yates LR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Papaemmanuil E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Beare D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Butler A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cheverton A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gamble J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hinton J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jia M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jayakumar A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Jones D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Latimer C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lau KW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McLaren S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McBride DJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Menzies A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mudie L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Raine K",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rad R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chapman MS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Teague J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Easton D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Langer\u00f8d A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Oslo Breast Cancer Consortium (OSBREAC)",
+                  "authtype": "CollectiveName",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lee MT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shen CY",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tee BT",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Huimin BW",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Broeks A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vargas AC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Turashvili G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Martens J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fatima A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Miron P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chin SF",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Thomas G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Boyault S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mariani O",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lakhani SR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "van de Vijver M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "van 't Veer L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Foekens J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Desmedt C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sotiriou C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tutt A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Caldas C",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Reis-Filho JS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Aparicio SA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Salomon AV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "B\u00f8rresen-Dale AL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Richardson AL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Campbell PJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Futreal PA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stratton MR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Stratton MR",
+              "title": "The landscape of cancer genes and mutational processes in breast cancer.",
+              "sorttitle": "landscape of cancer genes and mutational processes in breast cancer",
+              "volume": "486",
+              "issue": "7403",
+              "pages": "400-4",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0410462",
+              "issn": "0028-0836",
+              "essn": "1476-4687",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "3",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "22722201"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "UKMS49632"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC3428862"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC3428862;manuscript-id: UKMS49632;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1038/nature11017"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "nature11017"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2011/06/21 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2012/03/06 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2012/06/23 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2012/06/23 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2012/08/15 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2012/08/28 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Nature. 2012 Jun 20;486(7403):328-9. doi: 10.1038/486328a.",
+                  "reftype": "Comment in",
+                  "pmid": 22722187,
+                  "note": ""
+                },
+                {
+                  "refsource": "Breast Cancer Res. 2012 Oct 31;14(5):323. doi: 10.1186/bcr3325.",
+                  "reftype": "Comment in",
+                  "pmid": 23113888,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 38,
+              "fulljournalname": "Nature",
+              "elocationid": "doi: 10.1038/nature11017",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2012/05/16 00:00",
+              "sortfirstauthor": "Stephens PJ",
+              "vernaculartitle": ""
+            },
+            "28431241": {
+              "uid": "28431241",
+              "pubdate": "2017 Apr 20",
+              "epubdate": "",
+              "source": "Cell",
+              "authors": [
+                {
+                  "name": "Manning BD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Toker A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Toker A",
+              "title": "AKT/PKB Signaling: Navigating the Network.",
+              "sorttitle": "akt pkb signaling navigating the network",
+              "volume": "169",
+              "issue": "3",
+              "pages": "381-405",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0413066",
+              "issn": "0092-8674",
+              "essn": "1097-4172",
+              "pubtype": [
+                "Journal Article",
+                "Review",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "28431241"
+                },
+                {
+                  "idtype": "mid",
+                  "idtypen": 8,
+                  "value": "NIHMS866088"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC5546324"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC5546324;manuscript-id: NIHMS866088;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.cell.2017.04.001"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0092-8674(17)30413-0"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2017/02/19 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2017/03/29 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2017/03/31 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2017/04/22 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2017/04/22 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2017/06/24 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2018/04/20 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 291,
+              "fulljournalname": "Cell",
+              "elocationid": "doi: 10.1016/j.cell.2017.04.001",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2017/04/20 00:00",
+              "sortfirstauthor": "Manning BD",
+              "vernaculartitle": ""
+            },
+            "28513565": {
+              "uid": "28513565",
+              "pubdate": "2017 May 17",
+              "epubdate": "2017 May 17",
+              "source": "Cancers (Basel)",
+              "authors": [
+                {
+                  "name": "Wee P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wang Z",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Wang Z",
+              "title": "Epidermal Growth Factor Receptor Cell Proliferation Signaling Pathways.",
+              "sorttitle": "epidermal growth factor receptor cell proliferation signaling pathways",
+              "volume": "9",
+              "issue": "5",
+              "pages": "",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101526829",
+              "issn": "2072-6694",
+              "essn": "2072-6694",
+              "pubtype": [
+                "Journal Article",
+                "Review"
+              ],
+              "recordstatus": "PubMed",
+              "pubstatus": "3",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "28513565"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC5447962"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC5447962;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.3390/cancers9050052"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "cancers9050052"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2017/04/07 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2017/05/10 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2017/05/10 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2017/05/18 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2017/05/18 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2017/05/18 06:01"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2017/05/17 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 492,
+              "fulljournalname": "Cancers",
+              "elocationid": "doi: 10.3390/cancers9050052",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2017/05/17 00:00",
+              "sortfirstauthor": "Wee P",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "8ef730e4e1fd7d261a9ccb0a84853e6a57a4a33376257a92cf9e42ee6cf8a33c"
+  }
+}

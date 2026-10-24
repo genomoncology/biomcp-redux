@@ -29,6 +29,9 @@ pub struct ArticleItem {
     /// Native one-based source positions, disclosed only for multiple sources.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub found_by: BTreeMap<ArticleSource, u32>,
+    /// iCite citing-paper count, only under citation ordering.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cited_by: Option<u64>,
     /// Citation metadata when accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<ArticleHeader>,
@@ -44,4 +47,17 @@ pub struct ArticlePage {
 impl super::ResponseBody for ArticlePage {
     const SCHEMA: &'static str = "biomcp.article_page/1";
     type Query = ArticleSearch;
+}
+
+/// A page of citing or referenced papers in citation order.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ArticleEdgePage {
+    /// Papers in the fixed edge pool.
+    pub items: Box<[ArticleItem]>,
+}
+impl super::ResponseBody for ArticleEdgePage {
+    const SCHEMA: &'static str = "biomcp.article_edges/1";
+    type Query = crate::ArticleEdges;
 }

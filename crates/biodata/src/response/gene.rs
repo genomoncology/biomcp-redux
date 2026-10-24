@@ -69,6 +69,13 @@ pub enum QueryBody {
     ArticleText(crate::ArticleTextResult),
     /// Invalid body reader position.
     TextPositionError,
+    /// Citation graph page.
+    ArticleEdges(crate::ArticleEdgePage),
+    /// Citation ordering exceeds the supported PMID window.
+    TooManyPmids {
+        /// Unique PMID count before enrichment.
+        count: u64,
+    },
     /// PubMed article cards.
     ArticleCards(crate::ArticleCards),
     /// Invalid snapshot selector; the interface spells its typed restart.

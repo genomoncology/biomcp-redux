@@ -11,8 +11,8 @@
         "--journal",
         "Nature"
       ],
-      "max_bytes": 1217,
-      "max_tokens": 305,
+      "max_bytes": 1410,
+      "max_tokens": 354,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 E17K AND Nature[ta]",
@@ -24,5 +24,6 @@
         }
       }
     }
-  ]
+  ],
+  "verified": "With the approved citation-order next step the recorded output is 1226 bytes. Bounds add15percent; no matching0.9baseline is recorded for this exact filter."
 }

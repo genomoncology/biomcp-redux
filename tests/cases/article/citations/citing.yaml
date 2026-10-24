@@ -1,0 +1,44 @@
+{
+  "feature": "article-citations",
+  "story": "The recorded citing-paper pool has1045 papers and its first page is ordered by distinct citing counts; the warm page is offline.",
+  "replay": "article/citations/live",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "citations",
+        "17611497"
+      ],
+      "expect": {
+        "/page/total": 1045,
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      },
+      "mcp": [
+        "article",
+        "citations",
+        "17611497"
+      ],
+      "max_bytes": 4550,
+      "max_tokens": 1138
+    },
+    {
+      "run": [
+        "article",
+        "citations",
+        "17611497"
+      ],
+      "expect": {
+        "/page/total": 1045,
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      },
+      "offline": true,
+      "max_bytes": 4550,
+      "max_tokens": 1138
+    }
+  ],
+  "verified": "Measured3956bytes/989tokens. Bounds add15percent below the recorded0.9 JSON7.2KB for this command."
+}

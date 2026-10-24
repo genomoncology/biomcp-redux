@@ -42,6 +42,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     )?;
     let query = match request {
         Request::ArticleText(query) => serde_json::to_value(query)?,
+        Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
+            serde_json::to_value(query)?
+        }
         Request::GetArticle(query) => serde_json::to_value(query)?,
         Request::SearchArticle(query) => serde_json::to_value(query)?,
         Request::GetGene(query) => serde_json::to_value(query)?,
@@ -49,13 +52,17 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleText(_) => "article",
+            Request::ArticleText(_) | Request::ArticleCitations(_) | Request::ArticleReferences(_) => "article",
             Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
         if matches!(request, Request::ArticleText(_)) {
             "text"
+        } else if matches!(request, Request::ArticleCitations(_)) {
+            "citations"
+        } else if matches!(request, Request::ArticleReferences(_)) {
+            "references"
         } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
             "article"
         } else {

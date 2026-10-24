@@ -1,9 +1,11 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
 pub(crate) mod fulltext;
+mod citations;
 use crate::{Ctx, status};
 use biodata::{
-    ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSections, Section,
+    ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
+    ArticleSections, Section,
 };
 use biomcp_fetch::Deadline;
 pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool {
@@ -14,31 +16,16 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                annotations: (query.sections().iter().any(|s| {
-                    matches!(
-                        s,
-                        biodata::ArticleSectionWord::Annotations | biodata::ArticleSectionWord::All
-                    )
-                }) && card.pmid.is_none())
-                .then_some(Section::NotApplicable),
-                fulltext: (query.sections().iter().any(|s| {
-                    matches!(
-                        s,
-                        biodata::ArticleSectionWord::Fulltext | biodata::ArticleSectionWord::All
-                    )
-                }) && card.pmcid.is_none())
-                .then_some(Section::NotApplicable),
+                annotations: (selected(query, ArticleSectionWord::Annotations) && card.pmid.is_none()).then_some(Section::NotApplicable),
+                citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none()).then_some(Section::NotApplicable),
+                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none()).then_some(Section::NotApplicable),
             });
-        } else {
-            let mut more = Vec::new();
-            if card.pmid.is_some() {
-                more.push(ArticleSection::Annotations);
-            }
-            if card.pmcid.is_some() {
-                more.push(ArticleSection::Fulltext);
-            }
-            item.more = more.into();
         }
+        item.more = [
+            (ArticleSectionWord::Annotations, ArticleSection::Annotations, card.pmid.is_some()),
+            (ArticleSectionWord::Fulltext, ArticleSection::Fulltext, card.pmcid.is_some()),
+            (ArticleSectionWord::Citations, ArticleSection::Citations, card.pmid.is_some()),
+        ].into_iter().filter(|(word, _, available)| *available && !selected(query, *word)).map(|(_, section, _)| section).collect();
     }
     requested
 }
@@ -48,24 +35,9 @@ pub(super) fn run<'a>(
     query: &ArticleGet,
     out: &mut crate::Outcome,
 ) {
-    if query.sections().iter().any(|s| {
-        matches!(
-            s,
-            biodata::ArticleSectionWord::Annotations | biodata::ArticleSectionWord::All
-        )
-    }) {
-        annotations(cx, deadline, out);
-    }
-    if query.sections().iter().any(|s| {
-        matches!(
-            s,
-            biodata::ArticleSectionWord::Fulltext | biodata::ArticleSectionWord::All
-        )
-    }) {
+    if selected(query, ArticleSectionWord::Fulltext) {
         fulltext::run(cx, deadline, out);
     }
-}
-fn annotations<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::Outcome) {
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };
@@ -73,10 +45,18 @@ fn annotations<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut crate::O
     if ids.is_empty() {
         return;
     }
-    let result = annotations::run(cx, deadline, &ids);
-    annotations::join(&mut cards.items, &result);
-    out.local = out.local.or(result.local);
-    out.status = status::status(cards.items.iter().map(|i| i.status));
-    status::append(&mut out.problems, result.problems);
-    out.sources.push(result.source);
+    if selected(query, ArticleSectionWord::Annotations) {
+        let result = annotations::run(cx, deadline, &ids);
+        annotations::join(&mut cards.items, &result);
+        out.local = out.local.or(result.local);
+        out.status = status::status(cards.items.iter().map(|i| i.status));
+        status::append(&mut out.problems, result.problems);
+        out.sources.push(result.source);
+    }
+    if selected(query, ArticleSectionWord::Citations) {
+        citations::run(cx, deadline, &ids, out);
+    }
+}
+fn selected(query: &ArticleGet, word: ArticleSectionWord) -> bool {
+    query.sections().contains(&ArticleSectionWord::All) || query.sections().contains(&word)
 }

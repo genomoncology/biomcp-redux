@@ -61,3 +61,6 @@ pub(crate) static PUBTATOR: Quota =
 // Local bucket policy, not a published provider rate.
 pub(crate) static PMC_OA: Quota =
     Quota::new(SourceKey::declare("pmc-oa"), Rate::per_second(10), None, 2);
+// Conservative local iCite policy; no published numeric provider limit verified.
+pub(crate) static ICITE: Quota =
+    Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);

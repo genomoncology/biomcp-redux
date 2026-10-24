@@ -27,3 +27,4 @@ pub mod jats;
 pub mod pmc_oa;
 
 mod xml_element;
+pub mod icite;

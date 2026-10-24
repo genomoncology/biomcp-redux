@@ -16,12 +16,14 @@ pub enum ArticleSource {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["rank", "date"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["rank", "date", "citations"])))]
 pub enum ArticleSort {
     /// Native relevance order.
     Rank,
     /// PubMed most recently added order.
     Date,
+    /// Whole-pool iCite citation count, with native-rank ties.
+    Citations,
 }
 /// Publication-type selectors sent to the named sources.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -71,7 +73,8 @@ struct Fields {
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
-    /// Both pubmed and europepmc support rank and date.
+    /// citations: most cited first; costs about 1 s per 1,000 PMIDs.
+    /// All sources support citations.
     #[serde(default = "sort")]
     sort: ArticleSort,
     /// Gene input; PubMed resolves it through HGNC.
@@ -267,6 +270,12 @@ impl ArticleSearch {
         let mut v = self.clone();
         v.0.offset = offset;
         v.0.pool = pool;
+        v
+    }
+    /// Change ordering and restart the request without an old pool.
+    pub fn ordered(&self, sort: ArticleSort) -> Self {
+        let mut v = self.page(0, None);
+        v.0.sort = sort;
         v
     }
     /// Canonical identity excludes cursor and page size.

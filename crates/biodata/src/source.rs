@@ -69,6 +69,8 @@ canonical_enum! {
         EuropePmc => "europepmc",
         /// PMC Open Access bucket.
         PmcOa => "pmc-oa",
+        /// NIH iCite.
+        Icite => "icite",
         /// PubTator.
         PubTator => "pubtator",
         /// ClinicalTrials.gov.
