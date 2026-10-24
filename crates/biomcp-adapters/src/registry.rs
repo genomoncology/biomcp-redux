@@ -51,7 +51,12 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
             disabled.extend(
                 SOURCES
                     .iter()
-                    .filter(|s| s.terms.usage == group)
+                    .filter(|s| {
+                        s.terms.usage == group
+                            && !crate::myvariant::components::COMPONENTS
+                                .iter()
+                                .any(|component| component.source == s.source)
+                    })
                     .map(|s| s.source),
             );
         } else {

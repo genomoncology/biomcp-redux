@@ -23,6 +23,8 @@ pub struct PredictorScore {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantComponent {
+    /// Independently reviewed publisher terms; no blanket aggregator grant.
+    pub terms: ComponentTerms,
     /// Component name from aggregator metadata.
     pub name: Text,
     /// Component version; absent when the source reports none.
@@ -125,4 +127,17 @@ pub struct CosmicCoordinates {
     pub start: u64,
     /// Source end value, without coordinate conversion.
     pub end: u64,
+}
+
+/// Terms attached to one independently licensed source component.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ComponentTerms {
+    /// Publisher use category.
+    pub usage: crate::Use,
+    /// Publisher terms name.
+    pub name: Text,
+    /// Publisher terms page.
+    pub url: Text,
 }

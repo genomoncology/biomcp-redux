@@ -1,9 +1,11 @@
 //! Component terms have one home for queries, filters, labels and health.
-use biodata::Use;
+use biodata::{Source, Use};
 use biomcp_fetch::Terms;
 /// One aggregator component with independent publisher terms.
 #[derive(Clone, Copy, Debug)]
 pub struct Component {
+    /// Aggregator that carries this component.
+    pub source: Source,
     /// Native component name.
     pub name: &'static str,
     /// Component publisher's terms, independent of public API reachability.
@@ -11,8 +13,10 @@ pub struct Component {
 }
 /// CADD data retain their published noncommercial terms.
 pub const CADD: Component = Component {
+    source: Source::MyVariant,
     name: "cadd",
     terms: Terms {
+        source: Source::MyVariant,
         name: "CADD noncommercial data terms",
         url: "https://cadd.gs.washington.edu/license",
         usage: Use::Noncommercial,
@@ -20,8 +24,10 @@ pub const CADD: Component = Component {
 };
 /// The captured dbNSFP academic branch retains its component restrictions.
 pub const DBNSFP: Component = Component {
+    source: Source::MyVariant,
     name: "dbnsfp",
     terms: Terms {
+        source: Source::MyVariant,
         name: "dbNSFP academic branch and individual component terms",
         url: "https://sites.google.com/site/jpopgen/dbNSFP",
         usage: Use::Noncommercial,
@@ -29,8 +35,10 @@ pub const DBNSFP: Component = Component {
 };
 /// MyVariant's historical COSMIC copy supplies no blanket reuse grant.
 pub const COSMIC: Component = Component {
+    source: Source::MyVariant,
     name: "cosmic",
     terms: Terms {
+        source: Source::MyVariant,
         name: "Historical COSMIC snapshot terms",
         url: "http://cancer.sanger.ac.uk/cosmic/license",
         usage: Use::Restricted,
@@ -48,4 +56,14 @@ pub fn terms(name: &str) -> Option<Terms> {
             .find(|component| component.name == name)
             .map(|component| component.terms)
     }
+}
+
+/// Convert a declaration to its public response label without repeating its values.
+pub fn label(terms: Terms) -> Result<biodata::ComponentTerms, biomcp_fetch::InputError> {
+    Ok(biodata::ComponentTerms {
+        usage: terms.usage,
+        name: biodata::Text::new(terms.name)
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+        url: biodata::Text::new(terms.url).map_err(|_| biomcp_fetch::InputError::Serialization)?,
+    })
 }
