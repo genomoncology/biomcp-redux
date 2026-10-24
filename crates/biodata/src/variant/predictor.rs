@@ -51,6 +51,8 @@ pub struct VariantComponent {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPredictors {
+    /// How the source chromosome label was reference-qualified.
+    pub subject_qualification: SubjectQualification,
     /// Original context arrays, without inferred cross-field alignment.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
@@ -64,6 +66,8 @@ pub struct VariantPredictors {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantConservation {
+    /// How the source chromosome label was reference-qualified.
+    pub subject_qualification: SubjectQualification,
     /// Original context arrays, without inferred cross-field alignment.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
@@ -170,4 +174,12 @@ pub struct ComponentUpload {
     pub name: Text,
     /// Unchanged source timestamp.
     pub date: Text,
+}
+
+crate::macros::wire_enum! {
+    /// Provenance of the subject's accession qualification, without allele normalization.
+    SubjectQualification {
+        /// The adapter applied the approved chromosome/build accession table to an unchanged source description.
+        AdapterDerivedReference => "adapter_derived_reference",
+    }
 }

@@ -1,12 +1,12 @@
-//! Restricted components remain unavailable until their own terms permit use.
+//! Source predictions retain their independent component terms and source labels.
 use crate::Ctx;
 use biodata::{VariantGet, VariantHeader, VariantPredictors};
 use biomcp_fetch::Deadline;
 pub(super) fn section(
-    _cx: &Ctx<'_>,
-    _query: &VariantGet,
-    _candidates: &[VariantHeader],
-    _deadline: Deadline<'_>,
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    candidates: &[VariantHeader],
+    deadline: Deadline<'_>,
 ) -> super::sections::Result<VariantPredictors> {
-    super::components::restricted()
+    super::components::measurements(cx, query, candidates, deadline, false)
 }

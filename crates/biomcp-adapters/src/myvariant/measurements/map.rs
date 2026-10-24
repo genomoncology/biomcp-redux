@@ -61,6 +61,7 @@ pub(super) fn project(
     }
     Ok(Mapped {
         value: VariantPredictors {
+            subject_qualification: biodata::SubjectQualification::AdapterDerivedReference,
             scores: out.scores.into(),
             components: Box::new([]),
             context: out.context.into(),

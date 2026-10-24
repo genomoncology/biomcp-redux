@@ -175,8 +175,8 @@ pub use response::{
 };
 pub use variant::{
     ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity, CosmicRecord,
-    PredictorContext, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
-    VariantPredictors,
+    PredictorContext, PredictorScore, SubjectQualification, VariantComponent, VariantConservation,
+    VariantCosmic, VariantPredictors,
 };
 
 pub use response::{OncokbVariantRecord, VariantOncokb};
