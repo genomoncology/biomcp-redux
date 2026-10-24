@@ -19,7 +19,6 @@ impl SectionValue {
     }
 }
 pub(super) struct SectionResult {
-    pub section: GeneSection,
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
     pub problems: Vec<Problem>,
@@ -113,14 +112,9 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
             item.status = Status::Partial;
         }
         if let Some(sections) = &mut item.sections {
-            match (result.section, section) {
-                (GeneSection::Constraint, SectionValue::Constraint(value)) => {
-                    sections.constraint = Some(value.clone())
-                }
-                (GeneSection::ClinGen, SectionValue::ClinGen(value)) => {
-                    sections.clingen = Some(value.clone())
-                }
-                _ => {}
+            match section {
+                SectionValue::Constraint(value) => sections.constraint = Some(value.clone()),
+                SectionValue::ClinGen(value) => sections.clingen = Some(value.clone()),
             }
         }
     }

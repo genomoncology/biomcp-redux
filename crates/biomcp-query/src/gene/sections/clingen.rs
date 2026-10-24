@@ -1,6 +1,6 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, GeneSection, HgncId, Reason, Section, Source};
+use biodata::{Gene, HgncId, Reason, Section, Source};
 use biomcp_adapters::clingen;
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
@@ -47,7 +47,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         }
     }
     SectionResult {
-        section: GeneSection::ClinGen,
         values,
         source: status::source(Source::ClinGen, report, error),
         problems: Vec::new(),
