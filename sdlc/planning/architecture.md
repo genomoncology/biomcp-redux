@@ -1755,8 +1755,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
-- `crates/biodata/tests/variant_values.rs`: Exercise copied common variant values and constructor boundaries through the public library API.
-
+| `crates/biodata/tests/variant_values.rs` | Exercise copied common variant values and constructor boundaries through the public library API. |
 | `crates/biodata/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
