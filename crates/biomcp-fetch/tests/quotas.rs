@@ -142,7 +142,7 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
 fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
     for configured in [false, true] {
         let server = Server::new();
-        let shared = quota("keyed", Rate::per_second(10), Some(Rate::per_second(50)), 1);
+        let shared = quota("keyed", Rate::per_second(20), Some(Rate::per_second(5)), 1);
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
@@ -179,4 +179,46 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             assert!(receive.recv().unwrap().unwrap().answer);
         });
     }
+}
+
+#[test]
+fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
+    let server = Server::new();
+    let spec = server.spec(quota("burst", Rate::new(1, 2), None, 3), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let first = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&spec.get("/first"), &[])
+        });
+        let held = server.next();
+        let second = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&spec.get("/second"), &[])
+        });
+        let also_held = server.next();
+        let canceled = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_millis(100)))
+                .json::<Answer>(&spec.get("/expired"), &[])
+        });
+        assert_eq!(
+            canceled.join().unwrap().unwrap_err().reason,
+            Reason::DeadlineExceeded
+        );
+        assert!(server.requests.try_recv().is_err());
+        held.ok();
+        also_held.ok();
+        assert!(first.join().unwrap().unwrap().answer);
+        assert!(second.join().unwrap().unwrap().answer);
+        let successor = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&spec.get("/successor"), &[])
+        });
+        server.next().ok();
+        assert!(successor.join().unwrap().unwrap().answer);
+    });
 }
