@@ -1,0 +1,151 @@
+//! Event-driven proof that a real pending provider request leaves ping responsive.
+use super::{launch::Environment, mcp::request, process::Process};
+use serde_json::{Value, json};
+use std::{
+    fs,
+    io::{BufRead, BufReader, Read, Write},
+    net::{Shutdown, TcpListener},
+    process::Stdio,
+    sync::mpsc,
+    thread,
+    time::{Duration, Instant},
+};
+const WATCHDOG: Duration = Duration::from_secs(30);
+
+pub(super) fn check() -> Result<(), String> {
+    let environment = Environment::new().map_err(|e| e.to_string())?;
+    let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    let address = listener.local_addr().map_err(|e| e.to_string())?;
+    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
+    let (connected_tx, connected_rx) = mpsc::channel();
+    let (release_tx, release_rx) = mpsc::channel();
+    let proxy = thread::spawn(move || hold(listener, connected_tx, release_rx));
+    let directory = environment.root().join("config/biomcp");
+    fs::create_dir(&directory).map_err(|e| e.to_string())?;
+    fs::write(
+        directory.join("config.json"),
+        json!({"proxy":format!("http://{address}")}).to_string(),
+    )
+    .map_err(|e| e.to_string())?;
+    let mut child = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| e.to_string())?;
+    let mut stdin = child.stdin.take().ok_or("missing stdin")?;
+    let stdout = child.stdout.take().ok_or("missing stdout")?;
+    let mut process = Process::new(child)?;
+    let (reply_tx, reply_rx) = mpsc::channel();
+    let reader = thread::spawn(move || {
+        for line in BufReader::new(stdout).lines() {
+            let reply = line
+                .map_err(|e| e.to_string())
+                .and_then(|line| serde_json::from_str::<Value>(&line).map_err(|e| e.to_string()));
+            if reply_tx.send(reply).is_err() {
+                break;
+            }
+        }
+    });
+    let result = prove(&mut stdin, &connected_rx, &reply_rx);
+    let _ = release_tx.send(());
+    let proxy_result = proxy.join().map_err(|_| "proxy panicked")?;
+    if result.is_err() || proxy_result.is_err() {
+        let _ = process.child.kill();
+    }
+    drop(stdin);
+    let finish = process.finish();
+    reader.join().map_err(|_| "reply reader panicked")?;
+    result?;
+    proxy_result?;
+    let (status, _, stderr) = finish?;
+    if !status.success() || !stderr.is_empty() {
+        return Err("held proxy server failed".into());
+    }
+    let reply = reply_rx
+        .recv_timeout(WATCHDOG)
+        .map_err(|_| "missing tool reply")??;
+    if reply.get("id") != Some(&json!("call"))
+        || reply.pointer("/result/structuredContent/status") != Some(&json!("failed"))
+        || reply.pointer("/result/isError") != Some(&json!(true))
+    {
+        return Err(format!("wrong tool outcome: {reply}"));
+    }
+    Ok(())
+}
+fn prove(
+    stdin: &mut impl Write,
+    connected: &mpsc::Receiver<Result<(), String>>,
+    replies: &mpsc::Receiver<Result<Value, String>>,
+) -> Result<(), String> {
+    send(
+        stdin,
+        request(
+            json!("call"),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{"args":["get","gene","BRAF"]}}),
+        ),
+    )?;
+    connected
+        .recv_timeout(WATCHDOG)
+        .map_err(|_| "CONNECT watchdog")??;
+    if replies.try_recv().is_ok() {
+        return Err("tool completed before held CONNECT was released".into());
+    }
+    send(stdin, request(json!("ping"), "ping", json!({})))?;
+    let reply = replies
+        .recv_timeout(WATCHDOG)
+        .map_err(|_| "ping watchdog")??;
+    if reply.get("id") != Some(&json!("ping")) || reply.get("error").is_some() {
+        return Err(format!("ping did not pass pending call: {reply}"));
+    }
+    Ok(())
+}
+fn send(output: &mut impl Write, value: Value) -> Result<(), String> {
+    serde_json::to_writer(&mut *output, &value).map_err(|e| e.to_string())?;
+    output
+        .write_all(b"\n")
+        .and_then(|_| output.flush())
+        .map_err(|e| e.to_string())
+}
+fn hold(
+    listener: TcpListener,
+    connected: mpsc::Sender<Result<(), String>>,
+    release: mpsc::Receiver<()>,
+) -> Result<(), String> {
+    let deadline = Instant::now() + WATCHDOG;
+    let mut stream = loop {
+        match listener.accept() {
+            Ok((stream, _)) => break stream,
+            Err(error)
+                if error.kind() == std::io::ErrorKind::WouldBlock && Instant::now() < deadline =>
+            {
+                if release.try_recv().is_ok() {
+                    return Ok(());
+                }
+                thread::sleep(Duration::from_millis(5));
+            }
+            Err(error) => return Err(error.to_string()),
+        }
+    };
+    stream
+        .set_read_timeout(Some(WATCHDOG))
+        .map_err(|e| e.to_string())?;
+    let mut header = Vec::new();
+    while !header.ends_with(b"\r\n\r\n") && header.len() < 8192 {
+        let mut byte = [0];
+        stream.read_exact(&mut byte).map_err(|e| e.to_string())?;
+        header.extend(byte);
+    }
+    let result = if header.starts_with(b"CONNECT ") && header.ends_with(b"\r\n\r\n") {
+        Ok(())
+    } else {
+        Err("proxy expected CONNECT".into())
+    };
+    let _ = connected.send(result);
+    release
+        .recv_timeout(WATCHDOG)
+        .map_err(|_| "release watchdog")?;
+    stream.shutdown(Shutdown::Both).map_err(|e| e.to_string())
+}

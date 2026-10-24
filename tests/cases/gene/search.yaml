@@ -25,12 +25,10 @@
       ],
       "expect": {
         "/result/items/0/hgnc_id": "HGNC:1787",
-        "/result/items/*/hgnc_id": {
-          "includes": [
-            "HGNC:1787",
-            "HGNC:43802"
-          ]
-        }
+        "/result/items/*/hgnc_id": [
+          "HGNC:1787",
+          "HGNC:43802"
+        ]
       },
       "max_bytes": 780
     },

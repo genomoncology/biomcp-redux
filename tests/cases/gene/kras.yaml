@@ -23,9 +23,7 @@
         "/result/items/0/answer/gene/ensembl_id": "ENSG00000133703",
         "/result/items/0/answer/gene/location": "12p12.1",
         "/result/items/0/answer/gene/previous_symbols": {
-          "includes": [
-            "KRAS2"
-          ]
+          "includes": "KRAS2"
         }
       },
       "max_bytes": 2400,

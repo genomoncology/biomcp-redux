@@ -49,11 +49,11 @@
           "count": 50
         },
         "/result/items/*/symbol": {
-          "includes": [
-            "CDKN2A",
-            "CDKN2B",
-            "MTAP"
-          ]
+          "rank_of": {
+            "MTAP": 22,
+            "CDKN2A": 23,
+            "CDKN2B": 24
+          }
         }
       }
     }
