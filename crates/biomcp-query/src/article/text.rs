@@ -70,7 +70,7 @@ fn resolve<'a>(
                 out.status = Status::Partial;
             }
             status::append(&mut out.problems, mapped.problems);
-            let header = mapped.value.into_iter().find(|h| h.pmid == *id).ok_or(
+            let header = mapped.value.into_iter().find(|h| h.pmid == Some(*id)).ok_or(
                 biomcp_fetch::SourceError {
                     source: Source::PubMed,
                     reason: Reason::BadReply,
