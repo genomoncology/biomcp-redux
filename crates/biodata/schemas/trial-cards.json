@@ -863,11 +863,15 @@
           "type": "array"
         },
         "kind": {
-          "description": "Native arm type.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialArmKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native arm type."
         },
         "label": {
           "description": "Exact arm label.",
@@ -879,6 +883,18 @@
         "intervention_names"
       ],
       "type": "object"
+    },
+    "TrialArmKind": {
+      "description": "Native registry arm group type from the publisher enum metadata.",
+      "enum": [
+        "EXPERIMENTAL",
+        "ACTIVE_COMPARATOR",
+        "PLACEBO_COMPARATOR",
+        "SHAM_COMPARATOR",
+        "NO_INTERVENTION",
+        "OTHER"
+      ],
+      "type": "string"
     },
     "TrialArmRecord": {
       "description": "Source arm rows followed by source intervention rows, each in its native order.",
@@ -1284,11 +1300,15 @@
           "description": "Original description."
         },
         "kind": {
-          "description": "Native intervention type.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialInterventionKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native intervention type."
         },
         "name": {
           "description": "Exact source name.",
@@ -1308,6 +1328,23 @@
         "other_names"
       ],
       "type": "object"
+    },
+    "TrialInterventionKind": {
+      "description": "Native registry intervention type from the publisher enum metadata.",
+      "enum": [
+        "BEHAVIORAL",
+        "BIOLOGICAL",
+        "COMBINATION_PRODUCT",
+        "DEVICE",
+        "DIAGNOSTIC_TEST",
+        "DIETARY_SUPPLEMENT",
+        "DRUG",
+        "GENETIC",
+        "PROCEDURE",
+        "RADIATION",
+        "OTHER"
+      ],
+      "type": "string"
     },
     "TrialOutcome": {
       "additionalProperties": false,

@@ -176,9 +176,17 @@ impl Protocol {
             status: self.status_module.overall_status,
             phases: self.design_module.phases.unwrap_or_default(),
             study_type: self.design_module.study_type,
-            conditions: self.conditions_module.and_then(|v|v.conditions).unwrap_or_default(),
+            conditions: self
+                .conditions_module
+                .and_then(|v| v.conditions)
+                .unwrap_or_default(),
             interventions: arms.as_ref().map_or_else(Box::default, |v| {
-                v.interventions.as_deref().unwrap_or(&[]).iter().map(|v| v.name.clone()).collect()
+                v.interventions
+                    .as_deref()
+                    .unwrap_or(&[])
+                    .iter()
+                    .map(|v| v.name.clone())
+                    .collect()
             }),
             sponsor: self
                 .sponsor_collaborators_module
@@ -195,7 +203,8 @@ impl Protocol {
             updated: self.status_module.last_update_post_date_struct.mapped(),
             brief_summary: self.description_module.and_then(|d| d.brief_summary),
         };
-        let (arm_rows, interventions) = arms.map_or_else(||(Box::default(),Box::default()), Arms::rows);
+        let (arm_rows, interventions) =
+            arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
         Detail {
             card,
             eligibility: self.eligibility_module.map(|v| TrialEligibility {
@@ -216,9 +225,18 @@ impl Protocol {
 impl Outcomes {
     fn rows(self) -> Box<[TrialOutcome]> {
         [
-            (TrialOutcomeKind::Primary, self.primary_outcomes.unwrap_or_default()),
-            (TrialOutcomeKind::Secondary, self.secondary_outcomes.unwrap_or_default()),
-            (TrialOutcomeKind::Other, self.other_outcomes.unwrap_or_default()),
+            (
+                TrialOutcomeKind::Primary,
+                self.primary_outcomes.unwrap_or_default(),
+            ),
+            (
+                TrialOutcomeKind::Secondary,
+                self.secondary_outcomes.unwrap_or_default(),
+            ),
+            (
+                TrialOutcomeKind::Other,
+                self.other_outcomes.unwrap_or_default(),
+            ),
         ]
         .into_iter()
         .flat_map(|(kind, rows)| {
@@ -237,14 +255,31 @@ fn age(value: Option<Box<str>>) -> TrialAgeBound {
 }
 
 impl Arms {
-    fn rows(self)->(Box<[TrialArm]>,Box<[TrialIntervention]>) {
-        (self.arm_groups.unwrap_or_default().into_vec().into_iter().map(|v|TrialArm{
-            label:v.label,kind:v.kind,description:v.description,
-            intervention_names:v.intervention_names.unwrap_or_default(),
-        }).collect(),
-        self.interventions.unwrap_or_default().into_vec().into_iter().map(|v|TrialIntervention{
-            name:v.name,kind:v.kind,description:v.description,
-            arm_group_labels:v.arm_group_labels.unwrap_or_default(),other_names:v.other_names.unwrap_or_default(),
-        }).collect())
+    fn rows(self) -> (Box<[TrialArm]>, Box<[TrialIntervention]>) {
+        (
+            self.arm_groups
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(|v| TrialArm {
+                    label: v.label,
+                    kind: v.kind,
+                    description: v.description,
+                    intervention_names: v.intervention_names.unwrap_or_default(),
+                })
+                .collect(),
+            self.interventions
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(|v| TrialIntervention {
+                    name: v.name,
+                    kind: v.kind,
+                    description: v.description,
+                    arm_group_labels: v.arm_group_labels.unwrap_or_default(),
+                    other_names: v.other_names.unwrap_or_default(),
+                })
+                .collect(),
+        )
     }
 }
