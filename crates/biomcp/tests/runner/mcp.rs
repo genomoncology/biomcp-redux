@@ -173,7 +173,7 @@ fn check_article_reply(
     ids: &mut std::collections::BTreeSet<u64>,
     pools: &mut std::collections::BTreeSet<String>,
 ) -> Result<(), String> {
-    let reply: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
+    let reply: Value = serde_json::from_str(line).map_err(|e| e.to_string())?;
     let id = reply
         .get("id")
         .and_then(Value::as_u64)
