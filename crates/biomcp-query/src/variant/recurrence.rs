@@ -65,12 +65,25 @@ fn execute(
     ));
     let (cohort, rows) = result?;
     if let Some(error) = cohort.count_error {
-        if let Some(source) = out.sources.last_mut() { source.state = biodata::SourceState::Failed; if let RequestError::Source(e) = error { source.reason = Some(e.reason); } }
+        if let Some(source) = out.sources.last_mut() {
+            source.state = biodata::SourceState::Failed;
+            if let RequestError::Source(e) = error {
+                source.reason = Some(e.reason);
+            }
+        }
         out.local = status::local(error);
-        out.problems.push(matching::problem(Source::Cbioportal, query.sample_set().as_str(), "sample_set.metadata"));
+        out.problems.push(matching::problem(
+            Source::Cbioportal,
+            query.sample_set().as_str(),
+            "sample_set.metadata",
+        ));
     }
     if cohort.selected_sample_count.is_none() {
-        out.problems.push(matching::problem(Source::Cbioportal, query.sample_set().as_str(), "sample_set.selected_sample_count"));
+        out.problems.push(matching::problem(
+            Source::Cbioportal,
+            query.sample_set().as_str(),
+            "sample_set.selected_sample_count",
+        ));
     }
     let (count, problems) = matching::count(&identity, &rows, query.study());
     out.problems.extend(problems);

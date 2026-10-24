@@ -48,7 +48,13 @@ fn missing() -> Result<(), String> {
         || value.pointer("/result/denominator").is_some()
         || value.pointer("/result/observed_sample_count") != Some(&json!(1))
         || value.pointer("/status") != Some(&json!("partial"))
-        || !value.get("problems").and_then(Value::as_array).is_some_and(|p| p.iter().any(|v| v.get("field") == Some(&json!("mutation.exact_allele"))))
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|p| {
+                p.iter()
+                    .any(|v| v.get("field") == Some(&json!("mutation.exact_allele")))
+            })
     {
         return Err(format!(
             "missing assembly/count was invented or uncertain allele joined: {value}"

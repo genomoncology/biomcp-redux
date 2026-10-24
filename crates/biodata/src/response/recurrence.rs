@@ -9,6 +9,7 @@ pub struct VariantRecurrence {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub identity: Option<Variant>,
     /// Genomic allele equality only, never a protein, residue or gene match.
+    #[serde(default)]
     pub matching_granularity: RecurrenceGranularity,
     /// HGNC-resolved gene query bound.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -68,4 +69,8 @@ crate::macros::wire_enum! {
         /// Source build, chromosome, genomic bounds, reference and alternate all agree.
         ExactGenomicAllele => "exact_genomic_allele",
     }
+}
+
+impl Default for RecurrenceGranularity {
+    fn default() -> Self { Self::ExactGenomicAllele }
 }

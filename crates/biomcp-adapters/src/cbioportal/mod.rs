@@ -104,18 +104,51 @@ pub fn mutations(
 // This bounds metadata discovery, never mutation-cohort traversal.
 const LIST_PAGE_SIZE: u64 = 50;
 const LIST_PAGES: u64 = 3;
-fn sample_count(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Option<u64>, RequestError> {
-    let endpoint = SPEC.get("/studies").with_segments(&[
-        PathSegment::new(query.study().as_str())?, PathSegment::new("sample-lists")?,
-    ]).fresh(Freshness::Days(1));
+fn sample_count(
+    leg: &Leg<'_>,
+    query: &VariantRecurrenceQuery,
+) -> Result<Option<u64>, RequestError> {
+    let endpoint = SPEC
+        .get("/studies")
+        .with_segments(&[
+            PathSegment::new(query.study().as_str())?,
+            PathSegment::new("sample-lists")?,
+        ])
+        .fresh(Freshness::Days(1));
     for page in 0..LIST_PAGES {
-        let params = [("projection", Arg::Text("SUMMARY")), ("pageSize", Arg::Num(LIST_PAGE_SIZE)),
-            ("pageNumber", Arg::Num(page)), ("sortBy", Arg::Text("sampleListId")), ("direction", Arg::Text("ASC"))];
-        let (lists, _) = leg.json_received_checked::<raw::SampleLists>(&endpoint, &params, |v| {
-            if v.0.len() <= LIST_PAGE_SIZE as usize && v.0.iter().all(|l| l.study_id == *query.study()) { Ok(()) } else { Err(BadReply) }
-        })?;
-        if let Some(list) = lists.0.iter().find(|l| l.sample_list_id == *query.sample_set()) { return Ok(list.sample_count); }
-        if lists.0.len() < LIST_PAGE_SIZE as usize { break; }
+        let params = [
+            ("projection", Arg::Text("SUMMARY")),
+            ("pageSize", Arg::Num(LIST_PAGE_SIZE)),
+            ("pageNumber", Arg::Num(page)),
+            ("sortBy", Arg::Text("sampleListId")),
+            ("direction", Arg::Text("ASC")),
+        ];
+        let (lists, _) =
+            leg.json_received_checked::<raw::SampleLists>(&endpoint, &params, |v| {
+                if v.0.len() <= LIST_PAGE_SIZE as usize
+                    && v.0.iter().all(|l| l.study_id == *query.study())
+                {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            })?;
+        if let Some(list) = lists
+            .0
+            .iter()
+            .find(|l| l.sample_list_id == *query.sample_set())
+        {
+            return Ok(list.sample_count);
+        }
+        if lists.0.len() < LIST_PAGE_SIZE as usize {
+            break;
+        }
     }
-    Err(biomcp_fetch::SourceError { source: Source::Cbioportal, reason: biodata::Reason::Unavailable, status: None, retry_after: None }.into())
+    Err(biomcp_fetch::SourceError {
+        source: Source::Cbioportal,
+        reason: biodata::Reason::Unavailable,
+        status: None,
+        retry_after: None,
+    }
+    .into())
 }
