@@ -113,7 +113,7 @@ fn pubmed_search<'a>(
             ids.ids
                 .into_iter()
                 .map(|id| ArticleItem {
-                    key: ArticleKey::Pubmed(id),
+                    key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     header: None,
                     cited_by: None,

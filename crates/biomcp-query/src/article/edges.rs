@@ -129,7 +129,7 @@ fn create<'a>(
     let mut items: Vec<_> = ids
         .into_iter()
         .map(|id| ArticleItem {
-            key: ArticleKey::Pubmed(id),
+            key: Some(ArticleKey::Pubmed(id)),
             pmid: Some(id),
             header: None,
             cited_by: None,

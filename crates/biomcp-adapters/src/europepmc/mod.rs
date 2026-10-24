@@ -142,7 +142,7 @@ impl Row {
             None
         };
         Ok(ArticleItem {
-            key,
+            key: Some(key),
             pmid,
             header,
             cited_by: None,
