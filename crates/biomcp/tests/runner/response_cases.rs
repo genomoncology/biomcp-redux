@@ -33,9 +33,30 @@ pub(super) fn checked_steps(
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let directory = tempfile::tempdir()?;
     let recordings = directory.path().join("recordings");
-    let original = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies")
-        .join(capture);
+    copy_capture(capture, &recordings, &mut change)?;
+    let path = directory.path().join("case.yaml");
+    fs::write(
+        &path,
+        serde_json::to_vec(&json!({
+            "feature": "gene-commands",
+            "story": "A checked command keeps valid source facts and reports malformed siblings",
+            "replay": recordings,
+            "steps": steps
+        }))?,
+    )?;
+    Ok(super::run_case(
+        &path,
+        &super::schema::Registry::embedded()?,
+    )?)
+}
+
+/// Copy transport-owned identities unchanged and mutate only response exchanges.
+pub(super) fn copy_capture(
+    capture: &str,
+    recordings: &Path,
+    mut change: impl FnMut(&str, &mut Value),
+) -> Check {
+    let original = super::launch::fixtures().join("replies").join(capture);
     for source in fs::read_dir(original)? {
         let source = source?;
         if !source.file_type()?.is_dir() {
@@ -56,18 +77,5 @@ pub(super) fn checked_steps(
             )?;
         }
     }
-    let path = directory.path().join("case.yaml");
-    fs::write(
-        &path,
-        serde_json::to_vec(&json!({
-            "feature": "gene-commands",
-            "story": "A checked command keeps valid source facts and reports malformed siblings",
-            "replay": recordings,
-            "steps": steps
-        }))?,
-    )?;
-    Ok(super::run_case(
-        &path,
-        &super::schema::Registry::embedded()?,
-    )?)
+    Ok(())
 }

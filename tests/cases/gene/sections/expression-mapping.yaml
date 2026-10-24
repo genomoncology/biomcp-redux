@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Malformed HPA pairs retain valid siblings, distinct units and exact tissue names",
   "replay": "gene/expression/synthetic-mapping",

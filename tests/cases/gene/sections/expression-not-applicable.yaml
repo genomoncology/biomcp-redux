@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "HGNC absence of Ensembl rules expression out without asking HPA",
   "replay": "gene/expression",

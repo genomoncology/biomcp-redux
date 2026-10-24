@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-fulltext",
   "story": "synthetic-bad-md5",
   "replay": "article/fulltext/synthetic-bad-md5",

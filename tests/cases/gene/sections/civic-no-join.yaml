@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "An identity without Entrez cannot request a CIViC join",
   "replay": "gene/civic/synthetic-no-join",

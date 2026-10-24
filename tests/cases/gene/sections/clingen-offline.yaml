@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "An offline missing ClinGen bundle preserves cached identity and offers sync",
   "replay": "gene/clingen",

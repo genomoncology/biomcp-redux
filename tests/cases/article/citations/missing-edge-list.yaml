@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-citations",
   "story": "An omitted iCite parent cannot establish an empty graph.",
   "replay": "article/citations/synthetic-edge-missing",

@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Synthetic multiword author and journal filters keep every word and quote inside its named field",
   "replay": "article/fold/synthetic-field-phrases",

@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "A Reactome error-200 failure preserves identity and MyGene without caching the rejected section",
   "replay": "gene/pathways/synthetic-error-200",

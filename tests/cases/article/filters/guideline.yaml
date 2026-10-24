@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Native guideline tags return the ESMO practice guideline.",
   "replay": "article/filters/guideline",

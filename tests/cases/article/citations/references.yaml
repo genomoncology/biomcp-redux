@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-citations",
   "story": "The recorded37-paper reference pool walks without duplicates and includes32955176.",
   "replay": "article/citations/live",
