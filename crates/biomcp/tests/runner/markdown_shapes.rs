@@ -107,7 +107,8 @@ const SHAPES: &[Shape] = &[
 fn shapes() -> Result<(), String> {
     for shape in SHAPES {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let replay = super::launch::fixtures().join("replies")
+        let replay = super::launch::fixtures()
+            .join("replies")
             .join(shape.replies);
         let globals = env.globals(Some(&replay), false);
         let mut command = globals.clone();

@@ -20,8 +20,7 @@ fn run(replay: &str, args: &[&str], max_bytes: usize) -> Result<Value, String> {
 }
 fn output(replay: &str, args: &[&str], max_bytes: usize) -> Result<Vec<u8>, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
-    let replay = super::launch::fixtures().join("replies")
-        .join(replay);
+    let replay = super::launch::fixtures().join("replies").join(replay);
     let mut command = environment.globals(Some(&replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
     let output = environment
