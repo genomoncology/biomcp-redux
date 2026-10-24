@@ -603,3 +603,59 @@ fn release_large_bundle_capture_round_trips() {
     .unwrap();
     assert_eq!(replay.sync(&b).unwrap().bytes, body.len() as u64);
 }
+
+#[test]
+fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
+    let server = support::Server::new();
+    let b = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let f = Fetch::open(FetchConfig {
+        cache: Some(path.clone()),
+        sync_budget: Duration::from_secs(1),
+        ..Default::default()
+    })
+    .unwrap();
+    let cut = TSV.len() / 2;
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| f.sync(&b));
+        let request = server.next();
+        let (release, wait) = std::sync::mpsc::channel();
+        request.reply.send(support::Response{bytes:format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",TSV.len(),&TSV[..cut]).into_bytes(),continuation:Some(wait)}).unwrap();
+        assert!(
+            matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Syncing)
+        );
+        drop(release);
+    });
+    let db = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT bytes FROM bundle_sync", [], |r| r.get::<_, u32>(0))
+            .unwrap() as usize,
+        cut
+    );
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| f.sync(&b));
+        let request = server.next();
+        assert!(request.text.contains(&format!("bytes={cut}-")));
+        request.respond(
+            206,
+            &format!(
+                "ETag: \"one\"\r\nContent-Range: bytes {cut}-{}/{}\r\n",
+                TSV.len() - 1,
+                TSV.len()
+            ),
+            &TSV[cut..],
+        );
+        assert_eq!(call.join().unwrap().unwrap().rows, 1);
+    });
+    db.execute("UPDATE bundle SET fresh_until=0", []).unwrap();
+    let offline = Fetch::open(FetchConfig {
+        cache: Some(path),
+        mode: biomcp_fetch::Mode::Offline,
+        ..Default::default()
+    })
+    .unwrap();
+    let leg = offline.leg(b.spec, offline.deadline(Duration::from_secs(1)));
+    assert_eq!(leg.rows(&b, Find::Words("kinase")).unwrap().len(), 1);
+    assert!(leg.finish().stale);
+}
