@@ -8,6 +8,8 @@ const INLINE_TESTS: &[&str] = &[
 ];
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
+    ("crates/biomcp-fetch/src/deadline.rs", "Advance shared replay time without real sleeping"),
+    ("crates/biomcp-fetch/src/record.rs", "Reserve shared replay cursors and publish complete captures"),
     (
         "crates/biomcp-fetch/src/lib.rs",
         "Retain typed leg reports across concurrent scoped requests",

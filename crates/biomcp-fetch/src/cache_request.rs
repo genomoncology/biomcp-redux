@@ -1,6 +1,6 @@
 //! Checked cache reuse around the single live request path.
 use crate::{
-    Endpoint, Leg, Mode, Reply, RequestError, SourceError,
+    Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
 };
 use biodata::Reason;
@@ -17,13 +17,16 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         url: &str,
         key: &[u8; 32],
-        live: impl FnOnce() -> Result<(T, u16, Vec<u8>), SourceError>,
+        live: impl FnOnce() -> Result<(T, u16, Vec<u8>), RequestError>,
     ) -> Result<T, RequestError> {
         if self.deadline.expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
+        if self.fetch.config.mode == Mode::Offline {
+            return self.offline(endpoint, key);
+        }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _)| reply).map_err(Into::into);
+            return live().map(|(reply, _, _)| reply);
         };
         let mut stale = None;
         if self.fetch.config.mode == (Mode::Live { fresh: false }) {
@@ -47,7 +50,7 @@ impl Leg<'_> {
                 )?;
                 Ok(reply)
             }
-            Err(error) if error.reason == Reason::NotFound => {
+            Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
                 cache.write(
@@ -59,7 +62,7 @@ impl Leg<'_> {
                 )?;
                 Err(error.into())
             }
-            Err(error) => {
+            Err(RequestError::Source(error)) => {
                 if let Some(reply) = stale {
                     let mut report = self
                         .report
@@ -72,7 +75,22 @@ impl Leg<'_> {
                     Err(error.into())
                 }
             }
+            Err(error) => Err(error),
         }
+    }
+
+    fn offline<T: Reply>(&self, endpoint: &Endpoint, key: &[u8;32]) -> Result<T, RequestError> {
+        if let Some(cache) = self.fetch.cache.as_ref().filter(|_| endpoint.fresh.seconds().is_some()) {
+            match self.checked_cached(cache, key)? {
+                Some(Checked::Positive(reply, fresh)) => {
+                    if !fresh { self.report.lock().unwrap_or_else(std::sync::PoisonError::into_inner).stale = true; }
+                    return Ok(reply);
+                }
+                Some(Checked::Absent) => return Err(self.failure(Reason::NotFound, Some(404)).into()),
+                None => {}
+            }
+        }
+        Err(self.failure(Reason::Offline, None).into())
     }
 
     fn checked_cached<T: Reply>(
