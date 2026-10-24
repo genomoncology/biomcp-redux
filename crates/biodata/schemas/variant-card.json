@@ -1546,8 +1546,7 @@
               "type": "null"
             }
           ],
-          "default": null,
-          "description": "Component version; null when the source reports none."
+          "description": "Component version; omitted when the source reports none."
         }
       },
       "required": [
