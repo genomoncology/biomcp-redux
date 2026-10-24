@@ -1,0 +1,255 @@
+use super::*;
+
+#[test]
+fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let quota = Box::leak(Box::new(Quota::new(
+        SourceKey::declare("cache-blocked"),
+        Rate::per_second(1000),
+        None,
+        1,
+    )));
+    let spec = server.spec(quota, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    thread::scope(|scope| {
+        let held =
+            scope.spawn(|| get(&fetch, spec, &spec.get("/answer"), &[("hold", Arg::Num(1))]));
+        let request = server.next();
+        assert!(
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_millis(100)))
+                .json::<Answer>(&endpoint, &[])
+                .unwrap()
+                .answer
+        );
+        expire(&path);
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_millis(100)));
+        assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+        let report = leg.finish();
+        assert!(report.stale);
+        assert_eq!(report.failures.len(), 1);
+        assert_eq!(report.failures[0].reason, Reason::DeadlineExceeded);
+        assert_eq!(report.failures[0].status, None);
+        assert!(server.requests.try_recv().is_err());
+        request.ok();
+        held.join().unwrap().unwrap();
+    });
+}
+
+#[test]
+fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    expire(&path);
+    let report = thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+            assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+            leg.finish()
+        });
+        server.next().raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
+        worker.join().unwrap()
+    });
+    assert_eq!(report.failures[0].reason, Reason::BadReply);
+    assert_eq!(report.failures[0].status, Some(200));
+    drop(server);
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+    assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
+    assert_eq!(leg.finish().failures[0].reason, Reason::Unavailable);
+}
+
+#[test]
+fn local_write_busy_respects_deadline_and_never_uses_stale_fallback() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    expire(&path);
+    let connection = Connection::open(&path).unwrap();
+    connection.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let deadline = fetch.deadline(Duration::from_millis(500));
+    let (error, report) = exchange(&server, 200, r#"{"answer":true}"#, || {
+        let leg = fetch.leg(spec, deadline);
+        let error = leg.json::<Answer>(&endpoint, &[]).unwrap_err();
+        (error, leg.finish())
+    });
+    assert_eq!(error, RequestError::Cache(CacheError::Busy));
+    assert!(deadline.remaining() < Duration::from_millis(20));
+    assert!(!report.stale);
+    assert!(report.failures.is_empty());
+    connection.execute_batch("ROLLBACK").unwrap();
+}
+
+#[test]
+fn per_leg_freshness_reaches_batch_children_without_leaking_to_siblings() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[])
+    })
+    .unwrap();
+    let fresh = fetch
+        .leg(spec, fetch.deadline(Duration::from_secs(10)))
+        .fresh(true);
+    exchange(&server, 200, r#"{"answer":true,"fresh":true}"#, || {
+        let results = fresh.batch(&[()], |leg, ()| leg.json::<Answer>(&endpoint, &[]));
+        assert!(results.into_iter().all(|result| result.unwrap().answer));
+    });
+    assert!(get(&fetch, spec, &endpoint, &[]).unwrap().answer);
+    assert!(server.requests.try_recv().is_err());
+    expire(&path);
+    let failure = exchange(&server, 400, "rejected", || {
+        fresh.json::<Answer>(&endpoint, &[])
+    })
+    .unwrap_err();
+    assert_eq!(source(failure).reason, Reason::Rejected);
+    assert!(!fresh.finish().stale);
+}
+
+#[test]
+fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
+    use sha2::{Digest, Sha256};
+    let directory = tempfile::tempdir().unwrap();
+    let records = directory.path().join("pubmed");
+    std::fs::create_dir(&records).unwrap();
+    let spec: &'static SourceSpec = Box::leak(Box::new(SourceSpec {
+        source: biodata::Source::PubMed,
+        base: "https://example.invalid",
+        key: KeyUse::None,
+        quota: Box::leak(Box::new(Quota::new(
+            SourceKey::declare("parallel-cache"),
+            Rate::new(1000, 1000),
+            None,
+            8,
+        ))),
+        deadline: Duration::from_secs(10),
+    }));
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    for index in 0..8 {
+        let url = format!("https://example.invalid/answer?index={index}");
+        let key = Sha256::digest(format!("GET\0{url}").as_bytes())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        let recording = serde_json::json!({"method":"GET","source":"pubmed","url":url,"exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]});
+        std::fs::write(
+            records.join(format!("{key}.json")),
+            serde_json::to_vec(&recording).unwrap(),
+        )
+        .unwrap();
+    }
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().into(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    let start = std::sync::Barrier::new(8);
+    thread::scope(|scope| {
+        let workers: Vec<_> = (0..8)
+            .map(|index| {
+                let fetch = &fetch;
+                let start = &start;
+                let endpoint = &endpoint;
+                scope.spawn(move || {
+                    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+                    start.wait();
+                    leg.json::<Answer>(endpoint, &[("index", Arg::Num(index))])
+                })
+            })
+            .collect();
+        for worker in workers {
+            assert!(worker.join().unwrap().unwrap().answer);
+        }
+    });
+}
+
+#[test]
+fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = Fetch::open(config(&path)).unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, r#"{"answer":true}"#, || {
+        get(&fetch, spec, &endpoint, &[("id", Arg::Num(1))])
+    })
+    .unwrap();
+    Connection::open(&path)
+        .unwrap()
+        .execute("UPDATE reply SET fetched_at=1234567890", [])
+        .unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            leg.batch(&[1, 2], |child, id| {
+                child.json::<Answer>(&endpoint, &[("id", Arg::Num(*id))])
+            })
+        });
+        let request = server.next();
+        assert!(request.text.contains("id=2"));
+        request.ok();
+        assert!(
+            worker
+                .join()
+                .unwrap()
+                .into_iter()
+                .all(|row| row.unwrap().answer)
+        );
+    });
+    let report = leg.finish();
+    assert_eq!(report.replies.len(), 2);
+    assert_ne!(report.replies[0].identity, report.replies[1].identity);
+    assert_eq!(
+        report
+            .replies
+            .iter()
+            .filter(|r| r.fetched == 1234567890)
+            .count(),
+        1
+    );
+    assert_eq!(
+        report
+            .replies
+            .iter()
+            .filter(|r| r.fetched > 1234567890)
+            .count(),
+        1
+    );
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        ..config(&path)
+    })
+    .unwrap();
+    let leg = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
+    leg.json::<Answer>(&endpoint, &[("id", Arg::Num(1))])
+        .unwrap();
+    assert_eq!(leg.finish().replies[0].fetched, 1234567890);
+}
