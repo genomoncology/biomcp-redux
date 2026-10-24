@@ -23,8 +23,8 @@
         "--protein",
         "L861Q"
       ],
-      "max_bytes": 745,
-      "max_tokens": 187,
+      "max_bytes": 927,
+      "max_tokens": 232,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",

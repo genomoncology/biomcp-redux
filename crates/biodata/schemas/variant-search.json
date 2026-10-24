@@ -34,7 +34,7 @@
       "type": "string"
     },
     "VariantSearchField": {
-      "description": "Independently permitted component fields supported by the presence filters.",
+      "description": "Source-proven component fields supported by the presence filter.",
       "enum": [
         "clinvar"
       ],
@@ -83,11 +83,11 @@
     },
     "gene": {
       "$ref": "#/$defs/GeneSymbol",
-      "description": "Exact checked gene symbol for the fixed MyVariant gene/protein field query."
+      "description": "Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches."
     },
     "has": {
       "$ref": "#/$defs/VariantSearchField",
-      "description": "Require the selected component's identifier field. Only independently permitted, proven mappings are offered."
+      "description": "Require the selected component's identifier field. Only source-proven mappings are offered."
     },
     "limit": {
       "default": 10,
@@ -111,7 +111,7 @@
     },
     "query": {
       "$ref": "#/$defs/MyVariantQuery",
-      "description": "Raw MyVariant query, passed and echoed unchanged; requires --source myvariant."
+      "description": "Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead."
     },
     "region": {
       "$ref": "#/$defs/VariantRegion",

@@ -23,8 +23,8 @@
         "--protein",
         "Arg117Gly"
       ],
-      "max_bytes": 758,
-      "max_tokens": 190,
+      "max_bytes": 941,
+      "max_tokens": 236,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",

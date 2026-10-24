@@ -75,8 +75,17 @@
             "returned": 1,
             "total": 1
           }
+        },
+        "/result/filter_terms": {
+          "equals": {
+            "usage": "restricted",
+            "name": "NCBI policy; submission rights remain source-specific",
+            "url": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+          }
         }
-      }
+      },
+      "max_bytes": 1075,
+      "max_tokens": 269
     },
     {
       "run": [

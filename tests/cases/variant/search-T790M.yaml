@@ -23,8 +23,8 @@
         "--protein",
         "T790M"
       ],
-      "max_bytes": 743,
-      "max_tokens": 186,
+      "max_bytes": 926,
+      "max_tokens": 232,
       "expect": {
         "/schema": "biomcp.variant_page/1",
         "/status": "complete",
