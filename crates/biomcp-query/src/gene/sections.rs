@@ -33,7 +33,7 @@ pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
 fn applicable(section: GeneSection, gene: &Gene) -> bool {
     match section {
         GeneSection::Constraint => constraint::applicable(gene),
-        GeneSection::Oncokb => true,
+        GeneSection::Oncokb => gene.entrez_id.is_some(),
         _ => false,
     }
 }
@@ -82,7 +82,7 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(constraint::run(cx, deadline, genes))
         }));
     }
-    if !genes.is_empty() {
+    if !genes.is_empty() && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey) || genes.iter().any(|(_, gene)| gene.entrez_id.is_some())) {
         jobs.push(Box::new(move || {
             super::get::Job::Section(oncokb::run(cx, deadline, genes))
         }));

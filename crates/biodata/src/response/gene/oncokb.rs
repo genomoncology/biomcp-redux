@@ -49,6 +49,9 @@ pub struct OncokbTranscript {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Oncokb {
+    /// Verified data release version.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
     /// Whole source summary.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<Text>,
