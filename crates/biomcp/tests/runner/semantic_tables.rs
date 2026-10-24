@@ -57,6 +57,7 @@ pub(super) fn check() -> Check {
             return Err("missing influential flag was invented".into());
         }
     }
+    anonymous()?;
     for value in [
         json!({"data":[],"next":0}),
         json!({"data":[{"citedPaper":{"paperId":"bad","externalIds":{}}}]}),
@@ -85,4 +86,35 @@ pub(super) fn check() -> Check {
         json!({"/status":"complete","/page/total":0,"/page/truncated":false,"/result/items":[]}),
         0,
     )
+}
+
+fn anonymous() -> Check {
+    let value = checked_case(
+        CAPTURE,
+        ARGS,
+        |source, record| {
+            if source != "semantic-scholar" {
+                return;
+            }
+            let rows = [
+                "First anonymous source row.",
+                "Second anonymous source row.",
+            ]
+            .map(|title| {
+                json!({
+                    "citedPaper":{"paperId":null,"externalIds":null,"title":title,"year":2009},
+                    "intents":["background"],"isInfluential":false,"contexts":["Invented context."]
+                })
+            });
+            record["exchanges"][0]["body"]["value"] = json!({"data":rows});
+        },
+        json!({"/status":"complete","/page/total":2,"/result/items/*/header/title":["First anonymous source row.","Second anonymous source row."],"/next/*/kind":{"excludes":"disambiguate"}}),
+        0,
+    )?;
+    for i in 0..2 {
+        if value.pointer(&format!("/result/items/{i}/key")).is_some() {
+            return Err("anonymous row gained an identity".into());
+        }
+    }
+    Ok(())
 }
