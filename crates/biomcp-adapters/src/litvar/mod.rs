@@ -22,6 +22,12 @@ pub struct Variant {
     id: String,
     rsid: Text,
 }
+impl Variant {
+    /// Selected rsID retained even when the publications request fails.
+    pub fn rsid(&self) -> &Text {
+        &self.rsid
+    }
+}
 /// Result of exact autocomplete selection, before any publication search.
 #[derive(Debug)]
 pub enum Selection {
