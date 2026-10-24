@@ -17,15 +17,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/answer/match/kind": "europepmc_id",
-        "/result/items/0/answer/card/europepmc_id": "PPR1064174",
-        "/result/items/0/answer/card/doi": "10.21203/rs.3.rs-7293078/v1",
-        "/result/items/0/answer/card/authors/total": 33,
-        "/result/items/0/answer/card/types": {
-          "includes": "preprint"
-        },
-        "/result/items/0/answer/card/date": "2025-08-06"
+        "/result/items/0/answer/card": {
+          "equals_file": "card-facts.json"
+        }
       },
-      "max_bytes": 4000
+      "max_bytes": 3797
     },
     {
       "run": [
@@ -40,5 +36,5 @@
       }
     }
   ],
-  "verified": "2026-10-24 actual command capture: Europe PMC core license cc by, DOI and 33 authors. Complete source abstract exceeds original target; no comparable 0.9 preprint command. Ceiling will bind measured output plus 15%."
+  "verified": "2026-10-24 actual command captures checked CC BY core metadata. The card is 3301 bytes; ceiling ceil(3301 * 1.15)=3797. The complete source abstract exceeds the initial 2500-byte target; no comparable 0.9 preprint command exists. Required facts, all abstract text, ten authors and the total are retained."
 }

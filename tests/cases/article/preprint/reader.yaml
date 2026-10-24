@@ -40,7 +40,7 @@
         "/result/content/data/license": "cc_by",
         "/result/content/data/part": 1,
         "/result/content/data/markdown": {
-          "includes": "adenoma"
+          "equals_file": "first-part.json"
         }
       },
       "max_tokens": 4000
@@ -62,10 +62,14 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/content/data/license": "cc_by"
+        "/result/content/data/license": "cc_by",
+        "/result/content/data/hits/0/part": 1,
+        "/result/content/data/hits/0/heading_path": [
+          "Introduction"
+        ]
       },
       "max_tokens": 4000
     }
   ],
-  "verified": "2026-10-24 actual command capture; core license cc by governs JATS whose license-p names CC BY without license-type. Markdown retains checked text and reader continuations."
+  "verified": "2026-10-24 actual command capture; core license cc by governs JATS whose license-p names CC BY without license-type. Markdown retains checked text and reader continuations. Measured fulltext reply 4379 bytes stays under 4500; first-part reply 4814 bytes stays under the shared 4000-token reader limit. No comparable 0.9 preprint command exists."
 }

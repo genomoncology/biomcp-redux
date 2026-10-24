@@ -25,8 +25,8 @@
           "europepmc"
         ]
       },
-      "max_bytes": 5200
+      "max_bytes": 5123
     }
   ],
-  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities."
+  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists."
 }
