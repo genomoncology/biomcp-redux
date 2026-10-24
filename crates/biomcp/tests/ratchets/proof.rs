@@ -56,11 +56,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
             "inline test",
         ),
         (
-            "crates/biomcp-adapters/tests/unlisted/hidden.rs",
-            "#[test]\nfn hidden() {}",
-            "test outside listed locations",
-        ),
-        (
             "crates/biodata/src/lib.rs",
             "#[expect(dead_code, reason=\"unused\")]\nfn unused() {}",
             "suppressions forbidden",
@@ -173,4 +168,9 @@ fn case_parser_stays_outside_runtime_dependencies() -> Check {
         "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
         "forbidden dependencies dependency",
     )
+}
+
+#[test]
+fn rejects_unlisted_integration_test_folders() -> Check {
+    rejects("crates/biomcp-adapters/tests/unlisted/hidden.rs", "#[test]\nfn hidden() {}", "test outside listed locations")
 }

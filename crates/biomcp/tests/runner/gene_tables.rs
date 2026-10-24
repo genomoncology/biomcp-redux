@@ -93,10 +93,9 @@ fn tsv(record: &mut Value, symbol: &str, edits: &[(&str, &str)]) {
         let mut cells: Vec<_> = line.split('\t').map(str::to_owned).collect();
         if cells.get(index).is_some_and(|v| v == symbol) {
             for (field, value) in edits {
-                if let Some(i) = fields.iter().position(|v| v == field) {
-                    if let Some(cell) = cells.get_mut(i) {
-                        *cell = (*value).into();
-                    }
+                if let Some(i) = fields.iter().position(|v| v == field)
+                    && let Some(cell) = cells.get_mut(i) {
+                    *cell = (*value).into();
                 }
             }
         }

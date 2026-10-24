@@ -1,7 +1,6 @@
 //! Cache mutation and a short per-call deadline unavailable through the binary.
 #![expect(
     clippy::unwrap_used,
-    clippy::indexing_slicing,
     reason = "Fixture setup must fail on invalid checked inputs"
 )]
 use biomcp_fetch::{Fetch, FetchConfig, Mode};

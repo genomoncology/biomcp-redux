@@ -8,38 +8,99 @@ pub(super) fn check() -> Result<(), String> {
     let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies/article/search/synthetic-small");
     let query = vec!["search", "article", "AKT1 E17K", "--limit", "2"];
-    let first = run(&environment, &replay, &query, json!({"/status":"complete"}), 0)?;
-    let old = first.pointer("/page/pool/id").and_then(Value::as_str).ok_or("missing pool")?;
-    let second = run(&environment, &replay,
+    let first = run(
+        &environment,
+        &replay,
+        &query,
+        json!({"/status":"complete"}),
+        0,
+    )?;
+    let old = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("missing pool")?;
+    let second = run(
+        &environment,
+        &replay,
         &["search", "article", "AKT1 E17K", "--limit", "2", "--fresh"],
-        json!({"/status":"complete"}), 0)?;
+        json!({"/status":"complete"}),
+        0,
+    )?;
     if first.pointer("/page/pool/id") == second.pointer("/page/pool/id") {
         return Err("fresh search reused the old snapshot".into());
     }
-    let retained = run(&environment, &replay,
-        &["search", "article", "AKT1 E17K", "--limit", "2", "--pool", old],
-        json!({"/status":"complete"}), 0)?;
+    let retained = run(
+        &environment,
+        &replay,
+        &[
+            "search",
+            "article",
+            "AKT1 E17K",
+            "--limit",
+            "2",
+            "--pool",
+            old,
+        ],
+        json!({"/status":"complete"}),
+        0,
+    )?;
     for pointer in ["/page/pool", "/result/items"] {
         if first.pointer(pointer) != retained.pointer(pointer) {
             return Err(format!("explicit old snapshot changed {pointer}"));
         }
     }
-    let current = run(&environment, &replay, &query, json!({"/status":"complete"}), 0)?;
+    let current = run(
+        &environment,
+        &replay,
+        &query,
+        json!({"/status":"complete"}),
+        0,
+    )?;
     if current.pointer("/page/pool") != second.pointer("/page/pool") {
         return Err("fresh search did not replace current snapshot".into());
     }
-    run(&environment, &replay,
-        &["search", "article", "AKT1 E17K", "--limit", "2", "--pool", old, "--offset", "4294967295"],
-        json!({"/result/items": {"count": 0}}), 0)?;
-    run(&environment, &replay,
+    run(
+        &environment,
+        &replay,
+        &[
+            "search",
+            "article",
+            "AKT1 E17K",
+            "--limit",
+            "2",
+            "--pool",
+            old,
+            "--offset",
+            "4294967295",
+        ],
+        json!({"/result/items": {"count": 0}}),
+        0,
+    )?;
+    run(
+        &environment,
+        &replay,
         &["search", "article", "different selectors", "--pool", old],
-        json!({"/error/code":"usage.pool_mismatch"}), 2)?;
+        json!({"/error/code":"usage.pool_mismatch"}),
+        2,
+    )?;
     Ok(())
 }
 
-fn run(environment: &Environment, replay: &Path, args: &[&str], expect: Value, exit: i32) -> Result<Value, String> {
+fn run(
+    environment: &Environment,
+    replay: &Path,
+    args: &[&str],
+    expect: Value,
+    exit: i32,
+) -> Result<Value, String> {
     let step: Step = serde_json::from_value(json!({"run":args, "expect":expect, "exit":exit}))
         .map_err(|e| e.to_string())?;
     let expectations = assertions::prepare(&step)?;
-    super::run_step(&step, environment, &expectations, &Registry::embedded()?, Some(replay))
+    super::run_step(
+        &step,
+        environment,
+        &expectations,
+        &Registry::embedded()?,
+        Some(replay),
+    )
 }
