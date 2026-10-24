@@ -167,7 +167,7 @@ Sources:
 - [x] gnomAD: captured and replayed exome counts with same-response release 4.1.0; genome absent
 - [x] CIViC: captured and replayed exact native variant membership and the returned bounded evidence and assertion pages
 - [x] cBioPortal
-- [ ] Cancer Hotspots: candidate residue counts only; no established exact allele join
+- [x] Cancer Hotspots: captured and replayed candidate residue counts only; no established exact allele or transcript join
 - [x] OncoKB (keyed)
 - [x] GWAS Catalog
 - [x] ClinGen evidence repository
