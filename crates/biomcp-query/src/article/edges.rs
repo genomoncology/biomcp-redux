@@ -71,7 +71,7 @@ fn execute<'a>(
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            store.publish(&key, &items, &out.sources)?
+            store.publish(&key, &items, &out.sources, &out.problems)?
         }
     };
     out.sources = pool.sources.clone();

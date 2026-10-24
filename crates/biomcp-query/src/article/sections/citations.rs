@@ -13,6 +13,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid], o
     for item in &mut cards.items {
         join(item, &result);
     }
+    for row in &result.rows {status::append(&mut out.problems,row.problems.clone());}
     out.local = out.local.or(result.local);
     out.sources.push(result.source);
     out.status = status::status(cards.items.iter().map(|i| i.status));
@@ -29,10 +30,10 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
             source: Source::Icite,
             data: row.counts.clone(),
         }
-    } else if result.error.is_some() {
+    } else if let Some((_,error))=result.failures.iter().find(|(pmid,_)|*pmid==id) {
         Section::Unavailable {
             source: Source::Icite,
-            reason: result.source.reason.unwrap_or(Reason::Unavailable),
+            reason: match error {biomcp_fetch::RequestError::Source(error)=>error.reason,_=>Reason::Unavailable},
         }
     } else {
         Section::Empty {
@@ -40,7 +41,8 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
             record: None,
         }
     };
-    if matches!(section, Section::Unavailable { .. }) || result.source.state == SourceState::Stale {
+    let rejected=result.rows.iter().find(|row|row.pmid==id).is_some_and(|row|!row.problems.is_empty());
+    if rejected || matches!(section, Section::Unavailable { .. }) || result.source.state == SourceState::Stale {
         item.status = Status::Partial;
     }
     if let Some(sections) = &mut item.sections {

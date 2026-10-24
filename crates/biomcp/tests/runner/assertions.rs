@@ -161,7 +161,7 @@ impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
-            Self::Nonincreasing => nonincreasing(pointer,actual),
+            Self::Nonincreasing => nonincreasing(pointer, actual),
             Self::Unique => {
                 let values = array(pointer, "unique", actual)?;
                 for (index, value) in values.iter().enumerate() {
@@ -259,8 +259,16 @@ fn ceiling(pointer: &str, key: &str, actual: usize, limit: Option<u64>) -> Resul
     Ok(())
 }
 
-fn nonincreasing(pointer:&str, actual:&Value)->Result<(),String> {
-    let numbers:Vec<_>=array(pointer,"nonincreasing",actual)?.iter().map(|v|v.as_u64().ok_or_else(||format!("{pointer} nonincreasing: expected unsigned counts"))).collect::<Result<_,_>>()?;
-    if numbers.windows(2).any(|pair|pair.first()<pair.get(1)) {return Err(format!("{pointer} nonincreasing: count increased"));}
+fn nonincreasing(pointer: &str, actual: &Value) -> Result<(), String> {
+    let numbers: Vec<_> = array(pointer, "nonincreasing", actual)?
+        .iter()
+        .map(|v| {
+            v.as_u64()
+                .ok_or_else(|| format!("{pointer} nonincreasing: expected unsigned counts"))
+        })
+        .collect::<Result<_, _>>()?;
+    if numbers.windows(2).any(|pair| pair.first() < pair.get(1)) {
+        return Err(format!("{pointer} nonincreasing: count increased"));
+    }
     Ok(())
 }

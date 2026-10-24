@@ -24,7 +24,9 @@
         "BRCA1 185delAG Ashkenazi",
         "--sort",
         "citations"
-      ]
+      ],
+      "max_bytes": 5036,
+      "max_tokens": 1230
     },
     {
       "run": [
@@ -46,7 +48,10 @@
       "walk": {
         "items": "/result/items",
         "max_pages": 20
-      }
+      },
+      "max_bytes": 5538,
+      "max_tokens": 1230
     }
-  ]
+  ],
+  "verified": "First page measured4379bytes/1095tokens; walk maximum4815bytes/1204tokens. Bounds add15percent; first page is capped by the matching0.9 question1230tokens. The full walk also stays below the matching question1230-token ceiling."
 }

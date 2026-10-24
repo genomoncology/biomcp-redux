@@ -31,6 +31,7 @@ impl Store<'_> {
         key: &[u8],
         items: &[ArticleItem],
         sources: &[SourceOutcome],
+        problems: &[Problem],
     ) -> Result<Pool, CacheError> {
         self.write(|tx| {
             let created=Self::now();let expires=created.saturating_add(86400);
@@ -39,13 +40,15 @@ impl Store<'_> {
             let size=u32::try_from(items.len()).map_err(|_|CacheError::Database)?;
             tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",params![id,key,created,expires,size,outcomes]).map_err(db)?;
             {
-                let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,identity,item,header,checked) VALUES (?1,?2,?3,?4,?5,?6)").map_err(db)?;
+                let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,identity,item,header,checked,problems) VALUES (?1,?2,?3,?4,?5,?6,?7)").map_err(db)?;
                 for (rank,item) in items.iter().enumerate(){
                     let identity=serde_json::to_string(&item.key).map_err(|_|CacheError::Database)?;
                     let mut identity_item=item.clone(); identity_item.header=None;
                     let payload=serde_json::to_string(&identity_item).map_err(|_|CacheError::Database)?;
                     let header=item.header.as_ref().map(serde_json::to_string).transpose().map_err(|_|CacheError::Database)?;
-                    insert.execute(params![id,rank as u32,identity,payload,header,item.pmid.is_none()]).map_err(db)?;
+                    let own:Vec<_>=problems.iter().filter(|p|p.record.as_ref().is_some_and(|r|item.pmid.is_some_and(|id|r.as_str()==id.to_string()))).collect();
+                    let own=serde_json::to_string(&own).map_err(|_|CacheError::Database)?;
+                    insert.execute(params![id,rank as u32,identity,payload,header,item.pmid.is_none(),own]).map_err(db)?;
                 }
             }
             tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",params![key,id]).map_err(db)?;
@@ -97,7 +100,11 @@ impl Store<'_> {
                     let unmatched=p.record.as_ref().is_none_or(|r|!names.iter().any(|n|r.as_str()==n));
                     own || (index==0 && unmatched)
                 }).collect();
-                let problems=serde_json::to_string(&problems).map_err(|_|CacheError::Database)?;
+                let old:String=tx.query_row("SELECT problems FROM pool_item WHERE pool=?1 AND identity=?2",params![pool,identity],|r|r.get(0)).map_err(db)?;
+                let mut merged:Vec<Problem>=serde_json::from_str(&old).map_err(|_|CacheError::Database)?;
+                merged.retain(|p|p.source!=biodata::Source::PubMed);
+                for problem in problems {if !merged.contains(problem) {merged.push(problem.clone());}}
+                let problems=serde_json::to_string(&merged).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.
                 tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND identity=?2 AND header IS NULL",params![pool,identity,header,problems,outcome]).map_err(db)?;
             }
