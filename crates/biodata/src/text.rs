@@ -5,7 +5,9 @@ use std::{fmt, str::FromStr};
 /// Nonempty text with surrounding Unicode whitespace removed.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String")]
-pub struct Text(Box<str>);
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(!try_from, transparent))]
+pub struct Text(#[cfg_attr(feature = "schema", schemars(length(min = 1)))] Box<str>);
 
 impl Text {
     /// Trim surrounding whitespace and reject an empty result.
