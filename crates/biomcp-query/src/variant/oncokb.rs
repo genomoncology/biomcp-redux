@@ -20,7 +20,7 @@ pub(super) fn section(
         return skipped(Reason::NoKey);
     }
     let (Some(build), Some(tumor)) = (query.build(), query.tumor_type()) else {
-        return unavailable(Reason::NoJoinId);
+        return skipped(Reason::NoJoinId);
     };
     let Some(hgvsg) = candidates
         .first()
@@ -139,7 +139,7 @@ fn source(state: SourceState, reason: Reason) -> SourceOutcome {
     }
 }
 
-fn input_genomic(query: &VariantGet, build: Build) -> Option<String> {
+pub(super) fn input_genomic(query: &VariantGet, build: Build) -> Option<String> {
     let (reference, body) = query.input().as_str().split_once(':')?;
     if !body.starts_with("g.") {
         return None;
@@ -154,4 +154,16 @@ fn input_genomic(query: &VariantGet, build: Build) -> Option<String> {
             .ok()?
     };
     Some(format!("{}:{body}", chromosome.name()))
+}
+
+/// Offer setup only for the missing caller context; never supply a default.
+pub(super) fn next(query: &VariantGet, sources: &[SourceOutcome]) -> Vec<(biodata::StepKind, crate::Action)> {
+    if sources.iter().any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey)) {
+        vec![(biodata::StepKind::Key, crate::Action::KeyHelp(Source::Oncokb))]
+    } else if (query.build().is_none() || query.tumor_type().is_none())
+        && sources.iter().any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoJoinId)) {
+        vec![(biodata::StepKind::Configure, crate::Action::QueryHelp(biodata::Request::GetVariant(query.clone())))]
+    } else {
+        Vec::new()
+    }
 }

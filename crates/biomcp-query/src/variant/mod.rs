@@ -65,12 +65,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     problems.extend(section_problems);
     local = local.or(section_error);
     let mut next = next(query, resolution, &candidates, page.as_ref());
-    if sources
-        .iter()
-        .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
-    {
-        next.push((StepKind::Key, Action::KeyHelp(Source::Oncokb)));
-    }
+    next.extend(oncokb::next(query, &sources));
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {

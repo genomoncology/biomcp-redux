@@ -142,6 +142,10 @@ fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::QueryHelp(request) => {
+            let path = crate::spell::command_words(&request);
+            encode(Envelope::new(Status::Complete, path.clone(), Some(crate::help::dispatch(&path)?)), crate::exit::Status::Success)
+        }
         Action::Health => health(fetch),
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),

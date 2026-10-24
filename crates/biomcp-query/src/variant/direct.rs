@@ -15,7 +15,9 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
         return Some(source);
     }
     match section {
-        S::Oncokb => Some(source),
+        S::Oncokb
+            if !cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
+                || query.build().is_some_and(|build| super::oncokb::input_genomic(query, build).is_some()) => Some(source),
         _ => None,
     }
 }
@@ -80,17 +82,7 @@ pub(super) fn get(
         page: None,
         sources: sources.clone(),
         problems,
-        next: if sources
-            .iter()
-            .any(|s| s.source == Source::Oncokb && s.reason == Some(biodata::Reason::NoKey))
-        {
-            vec![(
-                biodata::StepKind::Key,
-                crate::Action::KeyHelp(Source::Oncokb),
-            )]
-        } else {
-            Vec::new()
-        },
+        next: super::oncokb::next(query, &sources),
         local,
     }
 }
