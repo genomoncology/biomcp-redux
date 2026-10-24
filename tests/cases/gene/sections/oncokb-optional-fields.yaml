@@ -26,24 +26,10 @@
         "/result/items/0/sections/oncokb": {
           "max_tokens": 700
         },
-        "/problems": {
-          "includes": [
-            {
-              "source": "oncokb",
-              "record": "7157",
-              "field": "summary",
-              "code": "value_unknown"
-            },
-            {
-              "source": "oncokb",
-              "record": "7157",
-              "field": "grch37RefSeq",
-              "code": "value_unknown"
-            }
-          ]
-        }
+        "/problems/0/field": "summary",
+        "/problems/1/field": "grch37RefSeq"
       },
-      "exit": 3,
+      "exit": 0,
       "max_bytes": 5000,
       "mcp": [
         "get",
