@@ -173,7 +173,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             first.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
             let second = server.next();
-            let floor = if configured { 15 } else { 95 };
+            let floor = if configured { 195 } else { 45 };
             assert!(second.started.duration_since(started) >= Duration::from_millis(floor));
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
