@@ -9,6 +9,9 @@ use libtest_mimic::{Arguments, Trial};
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
+    if env::args().nth(1).as_deref() == Some("--runner-environment-probe") {
+        return runner::proof::environment_probe();
+    }
     match trials() {
         Ok((arguments, trials)) => libtest_mimic::run(&arguments, trials).exit_code(),
         Err(error) => {
