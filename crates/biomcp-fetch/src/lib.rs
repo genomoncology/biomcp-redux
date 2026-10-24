@@ -235,7 +235,10 @@ impl Leg<'_> {
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
         std::mem::take(
-            &mut *self.report.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+            &mut *self
+                .report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
         )
     }
 }

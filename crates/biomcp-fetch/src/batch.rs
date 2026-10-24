@@ -13,10 +13,6 @@ impl Leg<'_> {
     ///
     /// # Panics
     /// A callback panic propagates after all workers finish and replay progress joins.
-    #[expect(
-        clippy::disallowed_methods,
-        reason = "Own bounded scoped batch threads and join every callback before returning"
-    )]
     pub fn batch<C: Sync, T: Send>(
         &self,
         chunks: &[C],
@@ -38,34 +34,60 @@ impl Leg<'_> {
         if self.nested_batch {
             return chunks.iter().map(|chunk| call(self, chunk)).collect();
         }
+        self.scoped(chunks, &call)
+    }
+
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Own bounded scoped batch threads and join every callback before returning"
+    )]
+    fn scoped<C: Sync, T: Send>(
+        &self,
+        chunks: &[C],
+        call: &(impl Fn(&Leg<'_>, &C) -> Result<T, RequestError> + Sync),
+    ) -> Vec<Result<T, RequestError>> {
         let workers = chunks.len().min(MAX_BATCH_WORKERS);
         let mut results = Vec::with_capacity(chunks.len());
         let mut panic = None;
         std::thread::scope(|scope| {
             // Fork all clocks before spawning, so every worker starts at the parent instant.
             let legs: Vec<_> = (0..workers).map(|_| self.branch()).collect();
-            let handles: Vec<_> = legs.into_iter().enumerate().map(|(worker, leg)| {
-                let call = &call;
-                scope.spawn(move || {
-                    let outcome = catch_unwind(AssertUnwindSafe(|| {
-                        chunks.iter().enumerate().skip(worker).step_by(workers)
-                            .map(|(index, chunk)| (index, call(&leg, chunk))).collect::<Vec<_>>()
-                    }));
-                    (outcome, leg.clock)
+            let handles: Vec<_> = legs
+                .into_iter()
+                .enumerate()
+                .map(|(worker, leg)| {
+                    scope.spawn(move || {
+                        let outcome = catch_unwind(AssertUnwindSafe(|| {
+                            chunks
+                                .iter()
+                                .enumerate()
+                                .skip(worker)
+                                .step_by(workers)
+                                .map(|(index, chunk)| (index, call(&leg, chunk)))
+                                .collect::<Vec<_>>()
+                        }));
+                        (outcome, leg.clock)
+                    })
                 })
-            }).collect();
+                .collect();
             for handle in handles {
                 match handle.join() {
                     Ok((outcome, clock)) => {
-                        if let Some(parent) = &self.clock && let Some(clock) = &clock {
+                        if let Some(parent) = &self.clock
+                            && let Some(clock) = &clock
+                        {
                             parent.join(clock);
                         }
                         match outcome {
                             Ok(values) => results.extend(values),
-                            Err(error) => { panic.get_or_insert(error); }
+                            Err(error) => {
+                                panic.get_or_insert(error);
+                            }
                         }
                     }
-                    Err(error) => { panic.get_or_insert(error); }
+                    Err(error) => {
+                        panic.get_or_insert(error);
+                    }
                 }
             }
         });

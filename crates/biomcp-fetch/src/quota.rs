@@ -6,8 +6,8 @@
 
 use crate::Deadline;
 use std::{
-    collections::{BTreeMap, BinaryHeap, VecDeque},
     cmp::Reverse,
+    collections::{BTreeMap, BinaryHeap, VecDeque},
     sync::{Arc, Condvar, Mutex},
     time::{Duration, Instant},
 };
@@ -161,7 +161,11 @@ impl Limiter {
         let ticket = Arc::new(());
         let mut state = self.state.lock().unwrap_or_else(|e| e.into_inner());
         if deadline.virtual_time() && state.completed.is_none() {
-            state.completed = Some((0..self.quota.in_flight).map(|_| Reverse(deadline.now())).collect());
+            state.completed = Some(
+                (0..self.quota.in_flight)
+                    .map(|_| Reverse(deadline.now()))
+                    .collect(),
+            );
         }
         state.queue.push_back(ticket.clone());
         loop {
@@ -171,9 +175,18 @@ impl Limiter {
                 return None;
             }
             let mut now = deadline.now();
-            let slot = state.completed.as_ref().and_then(|times| times.peek()).map(|time| time.0);
+            let slot = state
+                .completed
+                .as_ref()
+                .and_then(|times| times.peek())
+                .map(|time| time.0);
             if deadline.virtual_time()
-                && let Some(last) = state.updated.into_iter().chain(slot).max().filter(|last| *last > now)
+                && let Some(last) = state
+                    .updated
+                    .into_iter()
+                    .chain(slot)
+                    .max()
+                    .filter(|last| *last > now)
             {
                 deadline.advance(last.duration_since(now));
                 now = deadline.now();
@@ -198,7 +211,10 @@ impl Limiter {
                 state.updated = Some(now);
                 self.wake.notify_all();
                 drop(state);
-                return Some(Permit { limiter: self, deadline });
+                return Some(Permit {
+                    limiter: self,
+                    deadline,
+                });
             }
             let wait = if head && state.in_flight < self.quota.in_flight {
                 deadline.remaining().min(delay)

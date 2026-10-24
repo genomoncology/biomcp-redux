@@ -10,7 +10,10 @@ use support::{Answer, Server};
 
 fn quota(in_flight: u8) -> &'static Quota {
     Box::leak(Box::new(Quota::new(
-        SourceKey::declare("batch"), Rate::new(1000, 1000), None, in_flight,
+        SourceKey::declare("batch"),
+        Rate::new(1000, 1000),
+        None,
+        in_flight,
     )))
 }
 
@@ -21,9 +24,11 @@ fn overlapping_requests_keep_input_order_and_independent_failures() {
     let fetch = Fetch::open(FetchConfig::default()).unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     thread::scope(|scope| {
-        let worker = scope.spawn(|| leg.batch(&["/0", "/1", "/2"], |leg, chunk| {
-            leg.json::<Answer>(&spec.get(chunk), &[])
-        }));
+        let worker = scope.spawn(|| {
+            leg.batch(&["/0", "/1", "/2"], |leg, chunk| {
+                leg.json::<Answer>(&spec.get(chunk), &[])
+            })
+        });
         let requests: Vec<_> = (0..3).map(|_| server.next()).collect();
         for request in requests.into_iter().rev() {
             if request.text.contains("/1 ") {
@@ -34,7 +39,9 @@ fn overlapping_requests_keep_input_order_and_independent_failures() {
         }
         let results = worker.join().unwrap();
         assert!(results[0].as_ref().unwrap().answer);
-        assert!(matches!(results[1], Err(RequestError::Source(error)) if error.reason == biodata::Reason::Rejected));
+        assert!(
+            matches!(results[1], Err(RequestError::Source(error)) if error.reason == biodata::Reason::Rejected)
+        );
         assert!(results[2].as_ref().unwrap().answer);
     });
 }
