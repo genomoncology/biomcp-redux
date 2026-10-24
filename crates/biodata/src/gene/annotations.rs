@@ -43,6 +43,8 @@ impl Mane {
         ) {
             return Err(Error::AccessionInvalid);
         }
+        refseq.to_string().parse::<Accession>()?;
+        ensembl.to_string().parse::<Accession>()?;
         Ok(Self {
             status,
             refseq,
