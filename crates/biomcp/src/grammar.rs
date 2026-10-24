@@ -471,6 +471,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("variant", "assertions") => serde_json::from_value::<biodata::VariantAssertionsGet>(value)
+            .map(Request::VariantAssertions)
+            .map_err(|_| ()),
         ("variant", "population") => {
             serde_json::from_value::<biodata::VariantPopulationQuery>(value)
                 .map(Request::VariantPopulation)
