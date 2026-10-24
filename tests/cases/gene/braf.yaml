@@ -52,6 +52,36 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/match/text": "ENSG00000157764"
       }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "NOTAGENE",
+        "BRAF",
+        "MLL2",
+        "BRCA3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/input": [
+          "NOTAGENE",
+          "BRAF",
+          "MLL2",
+          "BRCA3"
+        ],
+        "/result/items/*/status": [
+          "absent",
+          "complete",
+          "complete",
+          "complete"
+        ],
+        "/sources/*/source": [
+          "hgnc",
+          "mygene"
+        ],
+        "/result/items/1/answer/gene/hgnc_id": "HGNC:1097"
+      }
     }
   ]
 }

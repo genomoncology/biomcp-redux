@@ -175,6 +175,7 @@ name = "biomcp-query"
 version = "1.0.0"
 dependencies = [
  "biodata",
+ "rusqlite",
  "biomcp-adapters",
  "biomcp-fetch",
  "serde_json",

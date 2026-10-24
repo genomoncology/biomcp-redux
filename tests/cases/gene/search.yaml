@@ -61,6 +61,24 @@
         },
         "/page/total": 65
       }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "MLL2"
+      ],
+      "expect": {
+        "/result/items/*/hgnc_id": [
+          "HGNC:7133",
+          "HGNC:15840"
+        ],
+        "/result/items/*/match/kind": [
+          "previous_symbol",
+          "alias"
+        ],
+        "/page/total": 2
+      }
     }
   ]
 }

@@ -145,3 +145,77 @@ fn synthetic_multiple_index_matches_keep_one_best_identity() {
         MatchKind::PreviousSymbol
     );
 }
+
+#[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Expire only the case-owned documented cache metadata to exercise public query stale outcomes"
+)]
+fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
+    use biodata::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
+    use biomcp_fetch::ReplayCache;
+    use biomcp_query::{Ctx, run};
+    let directory = tempfile::tempdir().unwrap();
+    let case_path = directory.path().join("case");
+    let cache = ReplayCache::create_case(&case_path).unwrap();
+    let query = Request::GetGene(GeneGet::new(vec!["BRAF".parse().unwrap()].into()).unwrap());
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main"),
+        },
+        replay_cache: Some(cache.clone()),
+        ..Default::default()
+    })
+    .unwrap();
+    assert_eq!(
+        run(
+            &Ctx {
+                fetch: &fetch,
+                budget: Duration::from_secs(20),
+                fresh: false
+            },
+            &query
+        )
+        .status,
+        Status::Complete
+    );
+    drop(fetch);
+    let database = rusqlite::Connection::open(case_path.join("replay.sqlite")).unwrap();
+    database
+        .execute("UPDATE bundle SET fresh_until=0", [])
+        .unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        replay_cache: Some(cache),
+        ..Default::default()
+    })
+    .unwrap();
+    let cx = Ctx {
+        fetch: &fetch,
+        budget: Duration::from_secs(20),
+        fresh: false,
+    };
+    let outcome = run(&cx, &query);
+    assert_eq!(outcome.status, Status::Partial);
+    assert_eq!(outcome.sources[0].source, Source::Hgnc);
+    assert_eq!(outcome.sources[0].state, SourceState::Stale);
+    assert_eq!(outcome.sources[1].state, SourceState::Ok);
+    let QueryBody::GeneCards(cards) = outcome.body else {
+        panic!("gene cards");
+    };
+    assert_eq!(cards.items[0].status, Status::Partial);
+    let search =
+        Request::SearchGene(GeneSearch::new(None, Some("9p21.3".parse().unwrap()), 10, 0).unwrap());
+    assert_eq!(run(&cx, &search).status, Status::Partial);
+    database
+        .execute("UPDATE bundle SET fresh_until=9223372036854775807", [])
+        .unwrap();
+    database
+        .execute("UPDATE reply SET fresh_until=0", [])
+        .unwrap();
+    let outcome = run(&cx, &query);
+    assert_eq!(outcome.status, Status::Partial);
+    assert_eq!(outcome.sources[0].state, SourceState::Ok);
+    assert_eq!(outcome.sources[1].source, Source::MyGene);
+    assert_eq!(outcome.sources[1].state, SourceState::Stale);
+}
