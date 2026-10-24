@@ -1,6 +1,7 @@
 # 0113 — Match a hotspot row only on the same transcript and residue
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: de390b7fb49251a1c4efbf6ad6d5cbc479fe4d01
 
 Milestone: 2
 

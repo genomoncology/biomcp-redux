@@ -1,6 +1,7 @@
 # 0106 — Move BioMCP's query, response and source types out of biodata
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2edde3eab6fc81f192ed7c43e95985f5fe918b8d
 
 Milestone: 2
 

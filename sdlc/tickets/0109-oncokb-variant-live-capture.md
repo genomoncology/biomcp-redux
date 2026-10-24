@@ -1,6 +1,7 @@
 # 0109 — Verify an approved OncoKB demo annotation
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 42169a46bddbc65a591c2f9c46aee3ad829723af
 
 Milestone: 2
 
