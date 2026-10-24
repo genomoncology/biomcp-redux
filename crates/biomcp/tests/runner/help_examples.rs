@@ -24,7 +24,7 @@ pub(super) fn check() -> Result<(), String> {
             words.len() == 2
                 && words
                     .iter()
-                    .any(|v| v == "article" || v == "gene" || v == "trial")
+                    .any(|v| v == "article" || v == "gene" || v == "trial" || v == "variant")
         })
     }) {
         let examples = command["examples"]

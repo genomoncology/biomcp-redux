@@ -4450,7 +4450,7 @@
     },
     "VariantGet": {
       "additionalProperties": false,
-      "description": "Read one published variant identifier; every source candidate is retained.",
+      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
       "properties": {
         "build": {
           "anyOf": [
@@ -4521,7 +4521,7 @@
           "description": "Resolver for reference-qualified notation; never repairs the input locally."
         },
         "section": {
-          "description": "Named source sections; omitted by default.",
+          "description": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
           "items": {
             "$ref": "#/$defs/VariantSection"
           },
@@ -5197,10 +5197,10 @@
         " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
-        " Cancer Hotspots native residues and counts.",
+        " Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.",
         " MyVariant source predictor scores.",
         " MyVariant conservation scores.",
-        " Historical COSMIC fields carried by MyVariant.",
+        " Historical COSMIC fragments carried by MyVariant; parent-to-fragment allele identity remains unverified.",
         " Every implemented variant section."
       ]
     },

@@ -1,0 +1,76 @@
+{
+  "feature": "variant-help",
+  "live_check": "synthetic response using existing actual CLI recording identity",
+  "replay": "variant-population/main",
+  "story": "Help examples page ancestry rows while retaining source counts and missing release.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/population/data/exome/ac": 2,
+        "/result/population/data/exome/an": 1460618,
+        "/result/population/data/exome/filters": [
+          "SYNTHETIC_FILTER"
+        ],
+        "/page/total": 29,
+        "/page/returned": 10,
+        "/page/offset": 0,
+        "/result/groups/0/ac": 0,
+        "/result/groups/0/an": 100,
+        "/result/groups/0/group_id": "remaining",
+        "/result/groups/9/group_id": "mid",
+        "/problems/0/field": "dataset_version",
+        "/result/groups/0/ancestry_group": "remaining",
+        "/result/groups/1/sex": "xx"
+      },
+      "mcp": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail"
+      ],
+      "max_bytes": 2202,
+      "max_tokens": 551
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--offset",
+        "10"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/population/data/exome/ac": 2,
+        "/result/population/data/exome/an": 1460618,
+        "/result/population/data/exome/filters": [
+          "SYNTHETIC_FILTER"
+        ],
+        "/page/total": 29,
+        "/page/returned": 10,
+        "/page/offset": 10,
+        "/result/groups/0/group_id": "mid_XX",
+        "/result/groups/9/group_id": "asj_XX",
+        "/problems/0/field": "dataset_version"
+      },
+      "max_bytes": 2179,
+      "max_tokens": 545,
+      "mcp": [
+        "variant",
+        "population",
+        "CA123643",
+        "--detail",
+        "--offset",
+        "10"
+      ]
+    }
+  ]
+}

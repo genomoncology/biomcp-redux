@@ -1,0 +1,27 @@
+{
+  "feature": "variant-help",
+  "live_check": "synthetic response using existing actual CLI recording identity",
+  "replay": "variant/assertions/erepo-current",
+  "story": "Help pages source-native assertions with an explicit source.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "CA000434",
+        "--source",
+        "erepo"
+      ],
+      "mcp": [
+        "variant",
+        "assertions",
+        "CA000434",
+        "--source",
+        "erepo"
+      ],
+      "expect": {
+        "/sources/0/source": "erepo"
+      }
+    }
+  ]
+}
