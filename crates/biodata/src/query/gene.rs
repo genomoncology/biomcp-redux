@@ -1,5 +1,9 @@
 use crate::{Cytoband, GeneInput, Text};
 use serde::{Deserialize, Serialize};
+const MIN_INPUTS: usize = 1;
+const MAX_INPUTS: usize = 20;
+const MIN_LIMIT: u32 = 1;
+const MAX_LIMIT: u32 = 50;
 
 /// A query failed its structural bounds.
 #[derive(Debug, Clone, Copy)]
@@ -16,15 +20,13 @@ impl std::error::Error for QueryInvalid {}
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
-pub struct GeneGet {
-    input: Box<[GeneInput]>,
-}
-#[derive(Deserialize)]
+pub struct GeneGet(GetFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct GetFields {
     /// Gene symbols or checked identifiers, in input order.
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 20), extend("x-positional" = 0)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = MIN_INPUTS, max = MAX_INPUTS), extend("x-positional" = 0)))]
     input: Box<[GeneInput]>,
 }
 impl TryFrom<GetFields> for GeneGet {
@@ -36,14 +38,14 @@ impl TryFrom<GetFields> for GeneGet {
 impl GeneGet {
     /// Refuse an empty or oversized input batch.
     pub fn new(input: Box<[GeneInput]>) -> Result<Self, QueryInvalid> {
-        if !(1..=20).contains(&input.len()) {
+        if !(MIN_INPUTS..=MAX_INPUTS).contains(&input.len()) {
             return Err(QueryInvalid);
         }
-        Ok(Self { input })
+        Ok(Self(GetFields { input }))
     }
     /// Inputs in caller order.
     pub fn input(&self) -> &[GeneInput] {
-        &self.input
+        &self.0.input
     }
 }
 /// Search genes by text, cytoband, or their intersection.
@@ -65,7 +67,7 @@ struct SearchFields {
     band: Option<Cytoband>,
     /// Number of results per page.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = MIN_LIMIT, max = MAX_LIMIT)))]
     limit: u32,
     /// Number of results to skip.
     #[serde(default)]
@@ -88,7 +90,7 @@ impl GeneSearch {
         limit: u32,
         offset: u32,
     ) -> Result<Self, QueryInvalid> {
-        if query.is_none() && band.is_none() || !(1..=50).contains(&limit) {
+        if query.is_none() && band.is_none() || !(MIN_LIMIT..=MAX_LIMIT).contains(&limit) {
             return Err(QueryInvalid);
         }
         Ok(Self(SearchFields {

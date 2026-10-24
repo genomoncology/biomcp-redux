@@ -131,3 +131,47 @@ fn checked_in_schemas_match_types() {
         }
     }
 }
+
+#[test]
+fn consumed_queries_stay_inside_the_flat_command_grammar() {
+    for schema in [generate::<GeneGet>(), generate::<GeneSearch>()] {
+        assert_eq!(schema["type"], "object");
+        assert!(schema.get("oneOf").is_none());
+        for property in schema["properties"]
+            .as_object()
+            .expect("query properties")
+            .values()
+        {
+            flat_value(&schema, property);
+        }
+    }
+}
+fn flat_value(root: &Value, node: &Value) {
+    if let Some(reference) = node.get("$ref").and_then(Value::as_str) {
+        flat_value(
+            root,
+            root.pointer(reference.strip_prefix('#').expect("local reference"))
+                .expect("resolved reference"),
+        );
+    } else if let Some(branches) = node.get("anyOf").and_then(Value::as_array) {
+        assert_eq!(branches.len(), 2);
+        assert_eq!(
+            branches
+                .iter()
+                .filter(|branch| branch["type"] == "null")
+                .count(),
+            1
+        );
+        for branch in branches.iter().filter(|branch| branch["type"] != "null") {
+            flat_value(root, branch);
+        }
+    } else if node["type"] == "array" {
+        let items = node.get("items").expect("array items");
+        assert_ne!(items["type"], "array");
+        flat_value(root, items);
+    } else {
+        assert!(
+            ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
+        );
+    }
+}

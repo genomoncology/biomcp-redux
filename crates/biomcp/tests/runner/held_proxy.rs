@@ -129,6 +129,7 @@ fn hold(
             Err(error) => return Err(error.to_string()),
         }
     };
+    stream.set_nonblocking(false).map_err(|e| e.to_string())?;
     stream
         .set_read_timeout(Some(WATCHDOG))
         .map_err(|e| e.to_string())?;
