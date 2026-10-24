@@ -53,6 +53,8 @@ fn walk() -> Result<(), String> {
         if !output.status.success()
             || value.pointer("/page/offset") != Some(&json!(offset))
             || value.pointer("/page/total") != Some(&json!(2))
+            || value.pointer("/query/build").is_some()
+            || value.pointer("/result/build").is_some()
             || value.pointer("/result/source_query")
                 != Some(&json!("dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\""))
         {
@@ -91,7 +93,7 @@ fn walk() -> Result<(), String> {
 fn body(request: &str) -> Result<String, String> {
     if !request.starts_with(
         "GET /v1/query?q=dbnsfp.genename%3AEGFR%20AND%20dbnsfp.hgvsp%3A%22p.L858R%22&size=1&from=",
-    ) || !request.contains("&assembly=hg19 HTTP/1.1")
+    ) || request.contains("assembly=")
     {
         return Err(format!("incorrect query request: {request}"));
     }
