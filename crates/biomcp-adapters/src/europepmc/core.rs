@@ -49,7 +49,7 @@ impl Reply for Raw {
             return Err(BadReply);
         }
         if let Some(xml) = &self.result.abstract_text {
-            jats::markdown(&format!("<abstract>{xml}</abstract>"))?;
+            jats::markdown(&fragment(xml))?;
         }
         Ok(())
     }
@@ -88,7 +88,7 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
         .as_ref()
         .filter(|s| !s.trim().is_empty())
         .map(|xml| {
-            jats::markdown(&format!("<abstract>{xml}</abstract>"))
+            jats::markdown(&fragment(xml))
                 .map(|text| AbstractPart { label: None, text })
         })
         .transpose()
@@ -136,4 +136,21 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
         manuscript: None,
         body,
     })
+}
+
+// Europe PMC abstractText is an HTML fragment. A comparison such as p<0.001 is
+// text, not a tag; escape that literal before the checked XML boundary. Broken
+// tags still fail that boundary, and no markup or decoded text is discarded.
+fn fragment(html: &str) -> String {
+    let mut xml = String::from("<abstract>");
+    let mut chars = html.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '<' && !chars.peek().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, '/' | '!' | '?')) {
+            xml.push_str("&lt;");
+        } else {
+            xml.push(ch);
+        }
+    }
+    xml.push_str("</abstract>");
+    xml
 }
