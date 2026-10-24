@@ -21,7 +21,7 @@ impl SourceSpec {
     pub const fn get(&'static self, path: &'static str) -> Endpoint {
         Endpoint {
             spec: self,
-            path,
+            path: std::borrow::Cow::Borrowed(path),
             fresh: Freshness::Never,
             method: Method::Get,
             idempotent: true,
@@ -53,10 +53,10 @@ pub(crate) enum Method {
 }
 
 /// A declared endpoint, always attached to its source.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Endpoint {
     pub(crate) spec: &'static SourceSpec,
-    pub(crate) path: &'static str,
+    pub(crate) path: std::borrow::Cow<'static, str>,
     pub(crate) fresh: Freshness,
     pub(crate) method: Method,
     pub(crate) idempotent: bool,
@@ -157,5 +157,21 @@ impl Endpoint {
     pub const fn fresh(mut self, fresh: Freshness) -> Self {
         self.fresh = fresh;
         self
+    }
+}
+
+impl Endpoint {
+    /// Replace only the path, retaining the declared source, method and policy.
+    /// Accept canonical absolute paths with unreserved ASCII segments only.
+    pub fn with_path(mut self, path: impl Into<String>) -> Result<Self, crate::InputError> {
+        let path = path.into();
+        if !path.starts_with('/') || path.starts_with("//")
+            || !path.bytes().all(|ch| ch.is_ascii_alphanumeric() || b"/-._~".contains(&ch))
+            || path.split('/').any(|part| matches!(part, "." | ".."))
+        {
+            return Err(crate::InputError::Path);
+        }
+        self.path = std::borrow::Cow::Owned(path);
+        Ok(self)
     }
 }
