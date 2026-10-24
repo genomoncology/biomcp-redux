@@ -20,10 +20,10 @@ pub struct Mane {
     pub status: ManeStatus,
     /// Versioned RefSeq accession.
     #[cfg_attr(feature = "schema", schemars(schema_with = "mane_refseq_schema"))]
-    pub refseq: Accession,
+    refseq: Accession,
     /// Versioned Ensembl accession.
     #[cfg_attr(feature = "schema", schemars(schema_with = "mane_ensembl_schema"))]
-    pub ensembl: Accession,
+    ensembl: Accession,
 }
 impl Mane {
     /// Preserve a source-stated transcript pair and its status.
