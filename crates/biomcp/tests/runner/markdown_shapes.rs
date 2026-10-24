@@ -7,11 +7,11 @@ pub(super) fn trials() -> Vec<Trial> {
         shapes().map_err(Into::into)
     })]
 }
-struct Shape {
-    args: &'static [&'static str],
-    replies: &'static str,
-    required: &'static [&'static str],
-    max_bytes: usize,
+pub(super) struct Shape {
+    pub(super) args: &'static [&'static str],
+    pub(super) replies: &'static str,
+    pub(super) required: &'static [&'static str],
+    pub(super) max_bytes: usize,
 }
 // Measured Markdown plus 15%; the protein ceiling also respects the matching
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
@@ -106,12 +106,23 @@ const SHAPES: &[Shape] = &[
 ];
 fn shapes() -> Result<(), String> {
     for shape in SHAPES {
+        check(shape)?;
+    }
+    Ok(())
+}
+pub(super) fn check(shape: &Shape) -> Result<(), String> {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = super::launch::fixtures()
             .join("replies")
             .join(shape.replies);
         let globals = env.globals(Some(&replay), false);
-        let mut command = globals.clone();
+        check_environment(shape, &env, &globals, json!({}))
+}
+pub(super) fn check_environment(
+    shape: &Shape, env: &Environment, globals: &[String], mut config: Value,
+) -> Result<(), String> {
+        env.config(&config).map_err(|e| e.to_string())?;
+        let mut command = globals.to_vec();
         command.extend(shape.args.iter().map(|arg| (*arg).to_owned()));
         let json_output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -119,7 +130,8 @@ fn shapes() -> Result<(), String> {
             .map_err(|e| e.to_string())?;
         let value: Value =
             serde_json::from_slice(&json_output.stdout).map_err(|e| e.to_string())?;
-        env.config(&json!({"format":"md"}))
+        config["format"] = json!("md");
+        env.config(&config)
             .map_err(|e| e.to_string())?;
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -171,6 +183,5 @@ fn shapes() -> Result<(), String> {
         if explicit.stdout != json_output.stdout {
             return Err("explicit JSON changed under Markdown configuration".into());
         }
-    }
     Ok(())
 }

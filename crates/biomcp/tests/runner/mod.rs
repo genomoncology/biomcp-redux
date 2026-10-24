@@ -18,6 +18,8 @@ mod live_follow_proof;
 mod live_proof;
 mod markdown;
 mod markdown_shapes;
+mod markdown_variant_trial;
+mod markdown_variant_sources;
 mod markdown_sources;
 mod mcp;
 mod named_search;
@@ -320,6 +322,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
+    trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
