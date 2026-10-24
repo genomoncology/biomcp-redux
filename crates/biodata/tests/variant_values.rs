@@ -358,15 +358,19 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
         serde_json::from_value::<PopulationFrequency>(serialized.clone())?,
         value
     );
-    assert!(
+    assert_eq!(
         base.clone()
             .with_counts(Some(3), Some(2), None, None)
-            .is_err()
+            .expect_err("count cannot exceed its denominator")
+            .code(),
+        "population.count.exceeds_number"
     );
-    assert!(
+    assert_eq!(
         base.clone()
             .with_frequencies(Some(1.01.try_into()?), None)
-            .is_err()
+            .expect_err("frequency is bounded")
+            .code(),
+        "population.frequency.range"
     );
     assert!(
         base.with_frequencies(None, Some((-0.01).try_into()?))
