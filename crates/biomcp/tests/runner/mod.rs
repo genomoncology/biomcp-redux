@@ -37,6 +37,7 @@ mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
 mod trial_tables;
+mod trial_get;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -256,6 +257,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(trial_tables::trials());
+    trials.extend(trial_get::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));

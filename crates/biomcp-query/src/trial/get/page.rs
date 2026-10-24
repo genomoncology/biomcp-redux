@@ -40,7 +40,7 @@ pub(super) fn render(
     }
     if requested(TrialSection::Outcomes) {
         let items = &snapshot.detail.outcomes;
-        let page = records(query, items, 8000, |v| serde_json::to_vec(v))?;
+        let page = records(query, items, 8000, serde_json::to_vec)?;
         advance(
             query,
             id,
@@ -68,7 +68,7 @@ pub(super) fn render(
                     .map(TrialArmRecord::Intervention),
             )
             .collect();
-        let page = records(query, &rows, 4500, |v| serde_json::to_vec(v))?;
+        let page = records(query, &rows, 4500, serde_json::to_vec)?;
         advance(
             query,
             id,
