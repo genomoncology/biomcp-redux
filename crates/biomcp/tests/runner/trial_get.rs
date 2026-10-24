@@ -23,6 +23,7 @@ const IDS: [&str; 8] = [
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/get/absent-fields-and-version-failure",||optional_source().map_err(|e|e.to_string().into())),
         Trial::test("trial/get/exact-source-section-walks", || {
             walks().map_err(|e| e.to_string().into())
         }),
@@ -341,5 +342,32 @@ fn altered_pool(env: &Environment, args: &[String], globals: &[String]) -> Check
             return Err("changed continuation was accepted".into());
         }
     }
+    Ok(())
+}
+
+fn optional_source()->Check {
+    checked_steps("trial/get/NCT02296125",|_,record|{
+        if record["url"].as_str().is_some_and(|u|u.ends_with("NCT02296125")) {
+            let protocol=&mut record["exchanges"][0]["body"]["value"]["protocolSection"];
+            if let Some(fields)=protocol.as_object_mut(){
+                for key in ["conditionsModule","descriptionModule","sponsorCollaboratorsModule","eligibilityModule","outcomesModule","armsInterventionsModule"] {fields.remove(key);}
+            }
+            if let Some(design)=protocol["designModule"].as_object_mut(){design.remove("phases");}
+            if let Some(status)=protocol["statusModule"].as_object_mut(){
+                for key in ["startDateStruct","primaryCompletionDateStruct","completionDateStruct"]{status.remove(key);}
+            }
+        }
+    },json!([{"run":["get","trial","NCT02296125","all"],"expect":{
+        "/status":"complete","/result/items/0/card/phases":[],"/result/items/0/card/conditions":[],"/result/items/0/card/interventions":[],
+        "/result/items/0/card/start":null,"/result/items/0/card/brief_summary":null,"/result/items/0/card/sponsor":null,
+        "/result/items/0/sections/eligibility/state":"empty","/result/items/0/sections/outcomes/state":"empty","/result/items/0/sections/arms/state":"empty"
+    }}]))?;
+    checked_steps("trial/get/NCT02296125",|_,record|{
+        if record["url"].as_str().is_some_and(|u|u.ends_with("/version")){
+            let mut exchange=record["exchanges"][0].clone();exchange["status"]=json!(500);record["exchanges"]=json!([exchange.clone(),exchange.clone(),exchange]);
+        }
+    },json!([{"run":["get","trial","NCT02296125"],"expect":{
+        "/status":"partial","/result/items/0/status":"partial","/result/items/0/card/nct_id":"NCT02296125","/result/source_updated":null,"/sources/0/reason":"unavailable"
+    }}]))?;
     Ok(())
 }
