@@ -12,6 +12,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant/population-mismatched-id-never-enters-cache",
             || population_mismatch().map_err(Into::into),
         ),
+        Trial::test("variant/population-source-chromosome-disagreement", || {
+            chromosome_mismatch().map_err(Into::into)
+        }),
         Trial::test("variant/population-unpadded-indel-is-unjoinable", || {
             unjoinable().map_err(Into::into)
         }),
@@ -304,4 +307,33 @@ fn gwas_page(request: &str) -> Result<String, String> {
     let rows:Vec<_>=ids.into_iter().map(|id|json!({"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344","efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":4e-10,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]","pubmed_id":"40210729"})).collect();
     let number = if second { 1 } else { 0 };
     Ok(json!({"_embedded":{"associations":rows},"_links":{"self":{"href":format!("https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page={number}&size=2")}},"page":{"size":2,"totalElements":3,"totalPages":2,"number":number}}).to_string())
+}
+
+fn chromosome_mismatch() -> Result<(), String> {
+    let stub = Stub::for_source("reg.genome.network", "application/json", chromosome_body)?;
+    let env = environment(&stub)?;
+    let value = execute(&env, &["variant", "population", "CA123643", "--detail"])?;
+    let problems = value
+        .get("problems")
+        .and_then(Value::as_array)
+        .ok_or("missing problems")?;
+    if value.pointer("/result/population/reason") != Some(&json!("no_join_id"))
+        || !problems
+            .iter()
+            .any(|p| p.get("field") == Some(&json!("representations.chromosome")))
+        || stub.finish()?.len() != 1
+    {
+        return Err(format!(
+            "contradictory source chromosome produced a join: {value}"
+        ));
+    }
+    Ok(())
+}
+fn chromosome_body(request: &str) -> Result<String, String> {
+    let mut body: Value =
+        serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+    *body
+        .pointer_mut("/genomicAlleles/0/chromosome")
+        .ok_or("missing synthetic chromosome")? = json!("8");
+    Ok(body.to_string())
 }
