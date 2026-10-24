@@ -57,3 +57,5 @@ be an array. An empty floor is allowed but cannot override wildcard-empty
 failure. Future code constants must bound floor reads, regex source size and
 compiled regex size. Every operator, pattern and floor must validate before any
 command launches.
+
+The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process proofs, including nested runner checks, and never falls back after a failed installed launch. `BIOMCP_TEST_FIXTURES` selects copied public fixtures outside the checkout. `--installed-process-proof` runs the existing ordinary-cache publication proof without discovering cases from the source checkout.

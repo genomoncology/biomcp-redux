@@ -56,11 +56,11 @@ impl Environment {
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
-        let installed = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
-            .then(|| std::env::var_os("BIOMCP_TEST_EXECUTABLE"))
+        let installed = std::env::var_os("BIOMCP_TEST_EXECUTABLE");
+        let selected = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
+            .then_some(installed.as_deref())
             .flatten();
-        let mut command =
-            Command::new(installed.as_deref().unwrap_or(program.as_ref().as_os_str()));
+        let mut command = Command::new(selected.unwrap_or(program.as_ref().as_os_str()));
         command
             .args(args)
             .env_clear()
@@ -70,6 +70,15 @@ impl Environment {
                     .map(|(key, path)| (key, self.root.path().join(path))),
             )
             .current_dir(self.root.path());
+        if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
+            // Nested runner proofs must retain the selection, never falling
+            // back to Cargo's binary merely because a helper cleared its env.
+            for key in ["BIOMCP_TEST_EXECUTABLE", "BIOMCP_TEST_FIXTURES"] {
+                if let Some(value) = std::env::var_os(key) {
+                    command.env(key, value);
+                }
+            }
+        }
         if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
             command.env("LLVM_PROFILE_FILE", profile);
         }
