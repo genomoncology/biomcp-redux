@@ -11,7 +11,7 @@ pub use query::ArticleText;
 pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
+pub use response::{ArticleItem, ArticleKey, ArticlePage, LitVarCandidate, PoolInfo, SourceNotice};
 pub use response::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,

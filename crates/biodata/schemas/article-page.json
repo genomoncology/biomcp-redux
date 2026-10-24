@@ -116,22 +116,16 @@
             "null"
           ]
         },
-        "contexts": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Capped"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "First citation context and the source's complete context count."
-        },
         "found_by": {
           "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
           "properties": {
             "europepmc": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "litvar": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
@@ -160,26 +154,9 @@
           ],
           "description": "Citation metadata when accepted."
         },
-        "influential": {
-          "description": "Provider's influential flag; absent is distinct from false.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "intents": {
-          "description": "Citation intents in provider order; absent means not reported.",
-          "items": {
-            "$ref": "#/$defs/CitationIntent"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
-        },
         "key": {
           "$ref": "#/$defs/ArticleKey",
-          "description": "Stable checked paper identity when the provider supplies one."
+          "description": "Stable checked pool key."
         },
         "pmid": {
           "$ref": "#/$defs/Pmid",
@@ -282,6 +259,13 @@
       "additionalProperties": false,
       "description": "A slice of the stored article source order.",
       "properties": {
+        "candidates": {
+          "description": "Nearby source candidates when an exact variant was not uniquely selected.",
+          "items": {
+            "$ref": "#/$defs/LitVarCandidate"
+          },
+          "type": "array"
+        },
         "items": {
           "description": "Original ordered items.",
           "items": {
@@ -403,7 +387,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
@@ -445,6 +429,7 @@
       "enum": [
         "pubmed",
         "europepmc",
+        "litvar",
         "semantic-scholar"
       ],
       "type": "string"
@@ -462,44 +447,6 @@
       ],
       "type": "string"
     },
-    "Capped": {
-      "additionalProperties": false,
-      "description": "A bounded list with the total before its cap was applied.",
-      "properties": {
-        "items": {
-          "description": "References in stable source order.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "total": {
-          "description": "Distinct references before capping.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "items",
-        "total"
-      ],
-      "type": "object"
-    },
-    "CitationIntent": {
-      "description": "Source-reported reason for citing a paper.",
-      "enum": [
-        "background",
-        "result",
-        "methodology"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " The source cites background information.",
-        " The source cites a reported result.",
-        " The source cites a method."
-      ]
-    },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
@@ -511,6 +458,40 @@
     "GeneInput": {
       "pattern": "\\S",
       "type": "string"
+    },
+    "LitVarCandidate": {
+      "additionalProperties": false,
+      "description": "Public LitVar2 autocomplete candidate, without a clinical ranking claim.",
+      "properties": {
+        "count": {
+          "description": "Number of associated publications reported by LitVar2.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gene": {
+          "description": "Source gene symbols.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source variant name."
+        },
+        "rsid": {
+          "$ref": "#/$defs/Text",
+          "description": "Source rsID, available for exact follow-up."
+        }
+      },
+      "required": [
+        "rsid",
+        "gene",
+        "name",
+        "count"
+      ],
+      "type": "object"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -756,6 +737,7 @@
         "clingen",
         "pubmed",
         "europepmc",
+        "litvar",
         "semantic-scholar",
         "pmc-oa",
         "icite",
@@ -775,6 +757,7 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
+        " NCBI LitVar2.",
         " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",
@@ -787,25 +770,6 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "The source still has graph pages after the bounded fetch window.",
-          "properties": {
-            "fallback": {
-              "$ref": "#/$defs/Text",
-              "description": "Default-source command offering another graph view."
-            },
-            "kind": {
-              "const": "graph_truncated",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind",
-            "fallback"
-          ],
-          "type": "object"
-        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",

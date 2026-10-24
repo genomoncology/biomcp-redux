@@ -242,7 +242,6 @@ impl Endpoint {
         self
     }
 }
-
 /// Publisher evidence for a source's reuse category; not a grant of rights.
 #[derive(Clone, Copy, Debug)]
 pub struct Terms {

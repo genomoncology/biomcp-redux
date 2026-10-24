@@ -56,6 +56,9 @@ pub struct ArticleItem {
 pub struct ArticlePage {
     /// Original ordered items.
     pub items: Box<[ArticleItem]>,
+    /// Nearby source candidates when an exact variant was not uniquely selected.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub candidates: Vec<LitVarCandidate>,
 }
 impl super::ResponseBody for ArticlePage {
     const SCHEMA: &'static str = "biomcp.article_page/1";
@@ -88,4 +91,19 @@ crate::source::canonical_enum! {
         /// The source cites a method.
         Methodology => "methodology",
     }
+}
+
+/// Public LitVar2 autocomplete candidate, without a clinical ranking claim.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct LitVarCandidate {
+    /// Source rsID, available for exact follow-up.
+    pub rsid: crate::Text,
+    /// Source gene symbols.
+    pub gene: Vec<crate::Text>,
+    /// Source variant name.
+    pub name: crate::Text,
+    /// Number of associated publications reported by LitVar2.
+    pub count: u64,
 }

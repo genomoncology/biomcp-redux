@@ -1,6 +1,6 @@
 use crate::{Reason, Source};
 use serde::{Deserialize, Serialize};
-super::status::wire_enum! {
+crate::macros::wire_enum! {
 /// State of a source actually asked by the command.
 SourceState {
     /// Checked data is current.

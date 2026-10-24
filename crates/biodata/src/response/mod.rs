@@ -1,7 +1,7 @@
 mod article;
 mod article_cards;
 pub use article::{
-    ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, CitationIntent,
+    ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, CitationIntent, LitVarCandidate,
 };
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -53,4 +53,3 @@ pub use article_sections::{
 mod health;
 pub use health::{Health, SourceHealth};
 
-pub(crate) use status::wire_enum;
