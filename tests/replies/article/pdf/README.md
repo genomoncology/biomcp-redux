@@ -1,0 +1,1 @@
+These replies are synthetic and contain BioMCP-owned text. Actual CLI captures from the PDF ticket supplied every request URL and identity. Response-only edits replace the PubMed prose, PDF bytes and selected failures. The selected paper identifiers and publisher URLs remain unchanged. The original 16-page publisher PDF and source replies remain outside Git.

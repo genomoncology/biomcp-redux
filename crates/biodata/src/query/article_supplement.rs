@@ -87,6 +87,17 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
+    /// Save the whole original document to an explicit file or existing folder.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    save: Option<Text>,
+    /// Replace an existing destination only when explicitly requested with save.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    replace: bool,
     /// Matching-row or text-fragment offset.
     #[serde(default)]
     offset: u32,
@@ -95,14 +106,21 @@ impl TryFrom<Fields> for ArticleSupplement {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if matches!(v.input, ArticleInput::Doi(_))
-            || [v.rows.is_some(), v.find.is_some(), v.variant.is_some()]
-                .into_iter()
-                .filter(|v| *v)
-                .count()
+            || [
+                v.rows.is_some(),
+                v.find.is_some(),
+                v.variant.is_some(),
+                v.save.is_some(),
+            ]
+            .into_iter()
+            .filter(|v| *v)
+            .count()
                 > 1
             || v.file.as_str().contains(['/', '\\'])
             || matches!(v.file.as_str(), "." | "..")
             || v.sheet.is_some() && v.rows.is_none()
+            || v.save.is_some() && v.offset != 0
+            || v.replace && v.save.is_none()
         {
             return Err(QueryInvalid);
         }
@@ -120,8 +138,18 @@ impl ArticleSupplement {
             find: None,
             variant: None,
             offset: 0,
+            save: None,
+            replace: false,
         }
         .try_into()
+    }
+    /// Explicit save destination, absent for ordinary reader views.
+    pub fn save(&self) -> Option<&Text> {
+        self.0.save.as_ref()
+    }
+    /// Whether replacement was explicitly requested.
+    pub fn replace(&self) -> bool {
+        self.0.replace
     }
     /// Original identity.
     pub fn input(&self) -> &ArticleInput {

@@ -10,6 +10,11 @@ use biomcp_fetch::{Deadline, RequestError, SourceError};
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
 pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
+    download(cx, query, false).out
+}
+/// Return original source bytes for a binary-owned explicit save.
+pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::save::Download {
+    let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let mut out = Outcome {
@@ -26,9 +31,9 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
     };
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
-        return out;
+        return super::save::Download { out, file: None };
     };
-    let result = execute(cx, query, &selection, &mut deadline, &mut out);
+    let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
@@ -50,7 +55,10 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
             },
         ));
     }
-    out
+    super::save::Download {
+        out,
+        file: save.file,
+    }
 }
 fn failure(reason: Reason) -> RequestError {
     SourceError {
@@ -67,6 +75,7 @@ fn execute<'a>(
     selection: &super::protein_change::Selection,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
+    save: &mut super::save::State,
 ) -> Result<(), RequestError> {
     let Some(id) = super::text::resolve(cx, query.input(), deadline, out)? else {
         return Ok(());
@@ -84,47 +93,7 @@ fn execute<'a>(
                 reason: Reason::NotOpen,
             });
         };
-        let Some(file) = document
-            .supplements
-            .iter()
-            .find(|v| v.file.name == *query.file())
-        else {
-            out.body = QueryBody::TextPositionError;
-            return Ok(Section::NotApplicable);
-        };
-        let mut content = empty(document.license, selection.forms.clone());
-        if !file.file.kind.readable() {
-            content.url = Some(file.url.clone());
-            content.reason = Some(Reason::Unsupported);
-        } else {
-            let downloaded = pmc_oa::download(&leg, file)?;
-            content.sha256 = Some(
-                Text::new(
-                    &Sha256::digest(&downloaded.bytes)
-                        .iter()
-                        .map(|v| format!("{v:02x}"))
-                        .collect::<String>(),
-                )
-                .map_err(|_| failure(Reason::BadReply))?,
-            );
-            if !page::select(
-                query,
-                &downloaded.sheets,
-                &mut content,
-                out,
-                &selection.needles,
-                downloaded.deadline,
-            )
-            .map_err(failure)?
-            {
-                out.body = QueryBody::TextPositionError;
-                return Ok(Section::NotApplicable);
-            }
-        }
-        Ok(Section::Data {
-            source: Source::PmcOa,
-            data: content,
-        })
+        content(query, selection, &leg, &document, out, save)
     })();
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(Source::PmcOa, leg.finish(), result.as_ref().err().copied());
@@ -144,6 +113,7 @@ fn execute<'a>(
 
 fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementContent {
     SupplementContent {
+        saved: None,
         license,
         sha256: None,
         url: None,
@@ -152,4 +122,64 @@ fn empty(license: biodata::License, forms: Option<[String; 4]>) -> SupplementCon
         rows: None,
         forms,
     }
+}
+
+fn content(
+    query: &ArticleSupplement,
+    selection: &super::protein_change::Selection,
+    leg: &biomcp_fetch::Leg<'_>,
+    document: &pmc_oa::Document,
+    out: &mut Outcome,
+    save: &mut super::save::State,
+) -> Result<Section<SupplementContent>, RequestError> {
+    let Some(file) = document
+        .supplements
+        .iter()
+        .find(|v| v.file.name == *query.file())
+    else {
+        out.body = QueryBody::TextPositionError;
+        return Ok(Section::NotApplicable);
+    };
+    let mut content = empty(document.license, selection.forms.clone());
+    if query.save().is_some() {
+        content.url = Some(file.url.clone());
+        if save.allow {
+            save.file = Some(super::save::File {
+                bytes: pmc_oa::download_bytes(leg, file)?,
+                url: file.url.clone(),
+                parts: None,
+            });
+        }
+    } else if !file.file.kind.readable() {
+        content.url = Some(file.url.clone());
+        content.reason = Some(Reason::Unsupported);
+    } else {
+        let downloaded = pmc_oa::download(leg, file)?;
+        content.sha256 = Some(
+            Text::new(
+                &Sha256::digest(&downloaded.bytes)
+                    .iter()
+                    .map(|v| format!("{v:02x}"))
+                    .collect::<String>(),
+            )
+            .map_err(|_| failure(Reason::BadReply))?,
+        );
+        if !page::select(
+            query,
+            &downloaded.sheets,
+            &mut content,
+            out,
+            &selection.needles,
+            downloaded.deadline,
+        )
+        .map_err(failure)?
+        {
+            out.body = QueryBody::TextPositionError;
+            return Ok(Section::NotApplicable);
+        }
+    }
+    Ok(Section::Data {
+        source: Source::PmcOa,
+        data: content,
+    })
 }

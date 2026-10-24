@@ -1,3 +1,4 @@
+mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
@@ -21,6 +22,7 @@ mod mcp;
 mod named_search;
 mod negative_cases;
 mod network_stub;
+mod pdf;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -244,6 +246,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         "article-supplements/ping-after-bounded-refusal",
         || supplement_tables::ping_after_refusal().map_err(Into::into),
     ));
+    trials.push(Trial::test("article-saves/explicit-original-files", || {
+        article_save::check().map_err(Into::into)
+    }));
     trials.extend(live_proof::trials());
     trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
@@ -259,6 +264,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
+    trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
 
     trials.extend(http::trials());

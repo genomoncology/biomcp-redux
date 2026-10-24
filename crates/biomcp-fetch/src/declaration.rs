@@ -29,9 +29,21 @@ impl SourceSpec {
             idempotent: true,
             identity_encoding: false,
             octet_stream: false,
+            publisher: false,
             byte_limit: None,
             json_rejections: false,
         }
+    }
+    /// Declare a credential-free publisher download at a checked dynamic origin.
+    /// Only a source with no credential policy can use this boundary.
+    pub fn download(&'static self, url: &str) -> Result<Endpoint, crate::InputError> {
+        if !matches!(self.key, KeyUse::None) {
+            return Err(crate::InputError::Path);
+        }
+        let mut endpoint = self.get("");
+        endpoint.path = std::borrow::Cow::Owned(crate::destination::checked(url)?);
+        endpoint.publisher = true;
+        Ok(endpoint)
     }
     /// Declare a form POST endpoint. Retries require explicit idempotence.
     pub const fn post_form(&'static self, path: &'static str) -> Endpoint {
@@ -66,6 +78,7 @@ pub struct Endpoint {
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
     pub(crate) octet_stream: bool,
+    pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
     pub(crate) json_rejections: bool,
 }

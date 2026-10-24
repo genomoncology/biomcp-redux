@@ -130,8 +130,12 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
         .clone()
         .with_path(format!("/{id}/fullTextXML"))
         .map_err(bad)?;
-    let body = leg.xml::<jats::Body>(&endpoint, &[])?;
+    let mut body = leg.xml::<jats::Body>(&endpoint, &[])?;
+    if body.title.is_none() {
+        body.title = Some(raw.title);
+    }
     Ok(pmc_oa::Document {
+        url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base)).map_err(bad)?,
         license: pmc_oa::license(raw.license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,

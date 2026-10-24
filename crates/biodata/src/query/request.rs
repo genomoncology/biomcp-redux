@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Read a published variant identifier.
     GetVariant(crate::VariantGet),
+    /// Save a publisher PDF to an explicit destination.
+    ArticlePdf(crate::ArticlePdf),
     /// Read source citation evidence.
     ArticleEvidence(crate::ArticleEvidence),
     /// Source-native paper recommendations.

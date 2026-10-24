@@ -1,4 +1,5 @@
 mod article;
+pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
@@ -11,8 +12,8 @@ pub use article::{
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
-    ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
-    TextPartKind,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
+    TextPart, TextPartKind,
 };
 mod error;
 mod problem;

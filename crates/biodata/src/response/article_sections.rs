@@ -44,6 +44,9 @@ pub type Annotations = Capped<AnnotatedEntity>;
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSections {
+    /// Publisher PDF link; no file is downloaded.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pdf: Option<Section<crate::PdfLink>>,
     /// Index terms from the card's own EFetch citation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indexing: Option<Section<crate::Indexing>>,

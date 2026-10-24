@@ -13,6 +13,7 @@
         "tldr",
         "citations",
         "indexing",
+        "pdf",
         "all"
       ],
       "type": "string",
@@ -23,6 +24,7 @@
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
+        " Publisher PDF link without downloading.",
         " Every landed article section."
       ]
     },
@@ -59,20 +61,6 @@
         "case_report"
       ],
       "type": "string"
-    },
-    "Build": {
-      "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38",
-        "unstated"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Genome Reference Consortium human build 37.",
-        " Genome Reference Consortium human build 38.",
-        " Source did not state an assembly."
-      ]
     },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
@@ -152,19 +140,6 @@
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
-    },
-    "VariantInput": {
-      "pattern": "^[\\x21-\\x7e]{1,2048}$",
-      "type": "string"
-    },
-    "VariantResolver": {
-      "description": "Explicit resolver service; the default never selects an alternative silently.",
-      "enum": [
-        "car",
-        "mutalyzer",
-        "variantvalidator"
-      ],
-      "type": "string"
     }
   },
   "$id": "biodata.request/2",
@@ -173,37 +148,31 @@
   "oneOf": [
     {
       "additionalProperties": false,
-      "description": "Read a published variant identifier.",
+      "description": "Save a publisher PDF to an explicit destination.",
       "properties": {
-        "build": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Build"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Required for chromosome notation; no assembly is guessed."
-        },
         "command": {
-          "const": "get_variant",
+          "const": "article_pdf",
           "type": "string"
         },
         "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
+          "$ref": "#/$defs/ArticleInput",
+          "description": "Article identity.",
           "x-positional": 0
         },
-        "resolver": {
-          "$ref": "#/$defs/VariantResolver",
-          "default": "car",
-          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        "replace": {
+          "default": false,
+          "description": "Replace an existing file only when explicitly requested.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Destination file or existing folder."
         }
       },
       "required": [
         "command",
-        "input"
+        "input",
+        "save"
       ],
       "type": "object"
     },
@@ -338,9 +307,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "replace": {
+          "description": "Replace an existing destination only when explicitly requested with save.",
+          "type": "boolean"
+        },
         "rows": {
           "$ref": "#/$defs/SheetRows",
           "description": "Inclusive original row range."
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Save the whole original document to an explicit file or existing folder."
         },
         "sheet": {
           "$ref": "#/$defs/Text",
@@ -375,6 +352,11 @@
           "required": [
             "variant"
           ]
+        },
+        {
+          "required": [
+            "save"
+          ]
         }
       ],
       "description": "Read licensed PMC body text.",
@@ -404,6 +386,14 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "replace": {
+          "description": "Replace an existing destination only when explicitly requested with save.",
+          "type": "boolean"
+        },
+        "save": {
+          "$ref": "#/$defs/Text",
+          "description": "Save the whole original document to an explicit file or existing folder."
         },
         "variant": {
           "$ref": "#/$defs/Text",

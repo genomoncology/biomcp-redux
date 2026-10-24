@@ -17,12 +17,12 @@ pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
 };
 pub use response::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
+    TextPart, TextPartKind,
 };
 pub use response::{
-    ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
-    TextPartKind,
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
 };
 mod response;
 mod source;
@@ -81,7 +81,7 @@ mod markdown;
 pub use markdown::Markdown;
 pub use response::{Health, HttpHealth, SourceHealth};
 
-pub use query::{ArticleEvidence, ArticleRecommend};
+pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
@@ -95,3 +95,4 @@ pub use variant::{
 
 pub use query::VariantGet;
 pub use response::VariantCard;
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};

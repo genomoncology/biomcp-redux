@@ -56,6 +56,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table.",
     ),
     (
+        "crates/biomcp-fetch/src/destination_tests.rs",
+        "Cover public DNS address and redirect rejection tables without contacting private destinations.",
+    ),
+    (
         "crates/biomcp-fetch/src/retry_tests.rs",
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),

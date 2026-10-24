@@ -65,6 +65,8 @@ crate::source::canonical_enum! {
         Citations => "citations",
         /// MeSH, keywords and author indexing from the citation.
         Indexing => "indexing",
+        /// Publisher PDF link without downloading.
+        Pdf => "pdf",
         /// Every landed article section.
         All => "all",
     }
@@ -84,5 +86,7 @@ crate::source::canonical_enum! {
         Citations => "citations",
         /// MeSH, keywords and author indexing from the citation.
         Indexing => "indexing",
+        /// Publisher PDF link without downloading.
+        Pdf => "pdf",
     }
 }
