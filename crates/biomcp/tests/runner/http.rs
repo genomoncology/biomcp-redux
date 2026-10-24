@@ -52,16 +52,8 @@ impl Server {
         }
         #[cfg(unix)]
         {
-            let args = vec!["-INT".to_owned(), self.child.id().to_string()];
-            if !self
-                ._environment
-                .command("/bin/kill", &args)
-                .status()
-                .map_err(|e| e.to_string())?
-                .success()
-            {
-                return Err("HTTP interrupt failed".into());
-            }
+            let pid = nix::unistd::Pid::from_raw(self.child.id().try_into().map_err(|_| "HTTP process ID")?);
+            nix::sys::signal::kill(pid, nix::sys::signal::Signal::SIGINT).map_err(|e| e.to_string())?;
         }
         // Native Windows console Ctrl-C is exercised by the platform rehearsal.
         #[cfg(windows)]

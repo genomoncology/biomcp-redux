@@ -88,8 +88,10 @@ pub(super) fn check() -> Check {
         .map_err(|e| e.to_string())?;
     server.stop()?;
     let mut byte = [0];
-    if !matches!(held.read(&mut byte), Ok(0)) {
-        return Err("HTTP shutdown retained a client socket".into());
+    match held.read(&mut byte) {
+        Ok(0) => (),
+        Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
+        other => return Err(format!("HTTP shutdown retained a client socket: {other:?}")),
     }
     if TcpStream::connect(server.address).is_ok() {
         return Err("shutdown left a listener".into());

@@ -391,3 +391,6 @@ fn run_sequence(
 pub(super) fn installed_process_proof() -> Result<(), String> {
     configuration::article_processes()
 }
+
+// Run installed HTTP ownership checks without resolving a build-checkout case directory.
+pub(super) fn installed_http_trials() -> Vec<Trial> { http::trials() }

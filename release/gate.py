@@ -56,7 +56,7 @@ def installed(args):
         tools = smoke(binary, executable, fixtures, record["version"], server_args)
         if declared_tools is not None and sorted(tools) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")
-        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
+        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http"]})
         print(json.dumps(results[-1]), flush=True)
     check("wheel", install_wheel(wheel, root / "venv", root, args.python))
     bundle = next(output.glob("*.mcpb"))

@@ -156,6 +156,7 @@ dependencies = [
  "httparse",
  "jsonschema",
  "libtest-mimic",
+ "nix",
  "rcgen",
  "rustls",
  "serde",
