@@ -56,9 +56,10 @@ fn fetch(
     for (id, row) in query.input().iter().zip(rows) {
         match row {
             Ok((detail, metadata)) => {
-                let mut own_source=source.clone();
-                if own_source.state==SourceState::Failed && source_updated.is_some(){
-                    own_source.state=SourceState::Ok;own_source.reason=None;
+                let mut own_source = source.clone();
+                if own_source.state == SourceState::Failed && source_updated.is_some() {
+                    own_source.state = SourceState::Ok;
+                    own_source.reason = None;
                 }
                 let snapshot = Snapshot {
                     detail,
