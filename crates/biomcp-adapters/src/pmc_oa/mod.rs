@@ -8,7 +8,7 @@ use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };
 use std::time::Duration;
-pub use supplement::{Download, Supplement, download};
+pub use supplement::{Download, Supplement, download, download_bytes};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
@@ -27,6 +27,8 @@ const FILE: Endpoint = SPEC.get("/").octet_stream().fresh(Freshness::Days(7));
 /// Selected processing version and source text.
 #[derive(Debug)]
 pub struct Document {
+    /// Exact public source URL used to fetch this JATS document.
+    pub url: biodata::Text,
     /// License owned by the JSON metadata record.
     pub license: License,
     /// Highest numeric processing version, not publication chronology.
@@ -85,6 +87,7 @@ pub fn read(
         .map(|v| ("md5", Arg::Text(v)))
         .into_iter()
         .collect();
+    let url = biodata::Text::new(&format!("{}{}{}", SPEC.base, loc.path, loc.md5.as_ref().map(|v| format!("?md5={v}")).unwrap_or_default())).map_err(bad)?;
     let body = leg.xml::<jats::Body>(&FILE.clone().with_path(loc.path).map_err(bad)?, &params)?;
     if body.pmcid.is_some_and(|found| found != id) {
         return Err(bad(BadReply));
@@ -95,6 +98,7 @@ pub fn read(
         &directory,
     )?;
     Ok(Some(Document {
+        url,
         supplements,
         license: license(&record.license_code),
         version: Some(version),

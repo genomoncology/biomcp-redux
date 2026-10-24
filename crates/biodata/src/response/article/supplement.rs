@@ -95,6 +95,9 @@ pub struct SheetInfo {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SupplementContent {
+    /// Explicit original-byte save receipt.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub saved: Option<crate::ArticleSaved>,
     /// Article license.
     pub license: License,
     /// Hash of the original downloaded bytes; absent when no download occurred.

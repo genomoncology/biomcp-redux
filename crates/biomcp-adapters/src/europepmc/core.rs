@@ -132,6 +132,7 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
         .map_err(bad)?;
     let body = leg.xml::<jats::Body>(&endpoint, &[])?;
     Ok(pmc_oa::Document {
+        url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base)).map_err(bad)?,
         license: pmc_oa::license(raw.license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,

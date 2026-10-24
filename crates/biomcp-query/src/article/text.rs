@@ -8,6 +8,11 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 /// Read a bounded part or find page through the same transport and command budget.
 pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
+    download(cx, query, false).out
+}
+/// Obtain the whole document for an explicit binary-owned save.
+pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::Download {
+    let mut save = super::save::State::new(allow);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let mut out = Outcome {
@@ -24,9 +29,9 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     };
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
         out.body = QueryBody::TextPositionError;
-        return out;
+        return super::save::Download { out, file: None };
     };
-    let result = execute(cx, query, &selection, &mut deadline, &mut out);
+    let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
@@ -51,7 +56,7 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
             },
         ));
     }
-    out
+    super::save::Download { out, file: save.file }
 }
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
@@ -98,9 +103,10 @@ fn execute<'a>(
     selection: &super::protein_change::Selection,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
+    save: &mut super::save::State,
 ) -> Result<(), RequestError> {
     if let ArticleInput::EuropePmc(id) = query.input() {
-        return preprint(cx, query, selection, id, deadline, out);
+        return preprint(cx, query, selection, id, deadline, out, save);
     }
     let Some(id) = resolve(cx, query.input(), deadline, out)? else {
         return Ok(());
@@ -121,7 +127,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
-            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out)
+            let Some(content) = select(query, selection, ArticleInput::Pmcid(id), &document, out, save)
             else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
@@ -144,8 +150,11 @@ fn select(
     input: ArticleInput,
     document: &pmc_oa::Document,
     out: &mut Outcome,
+    save: &mut super::save::State,
 ) -> Option<TextContent> {
     let mut content = TextContent {
+        saved: None,
+        url: None,
         forms: selection.forms.clone(),
         license: document.license,
         processing_version: document.version,
@@ -161,7 +170,10 @@ fn select(
         heading_path: None,
         hits: None,
     };
-    if let Some(number) = query.selected_part() {
+    if query.save().is_some() {
+        content.url = Some(document.url.clone());
+        save.text(query.input(), document)?;
+    } else if let Some(number) = query.selected_part() {
         let part = document
             .body
             .parts
@@ -293,6 +305,7 @@ fn preprint<'a>(
     id: &biodata::EuropePmcId,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
+    save: &mut super::save::State,
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&europepmc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -308,7 +321,7 @@ fn preprint<'a>(
     }
     out.sources.push(source);
     let document = result?;
-    let Some(content) = select(query, selection, query.input().clone(), &document, out) else {
+    let Some(content) = select(query, selection, query.input().clone(), &document, out, save) else {
         out.body = QueryBody::TextPositionError;
         return Ok(());
     };

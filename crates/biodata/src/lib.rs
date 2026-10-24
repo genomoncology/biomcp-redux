@@ -21,7 +21,7 @@ pub use response::{
     SupplementFile, Supplements,
 };
 pub use response::{
-    ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,
 };
 mod response;

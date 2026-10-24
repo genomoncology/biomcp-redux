@@ -11,7 +11,7 @@ pub use article::{
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
-    ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
+    ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,
 };
 mod error;

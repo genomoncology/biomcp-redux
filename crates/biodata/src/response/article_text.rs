@@ -106,6 +106,12 @@ pub struct ArticleTextResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextContent {
+    /// Source URL for an explicit save, including refused destinations.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+    /// Explicit save receipt, absent for reader views.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub saved: Option<ArticleSaved>,
     /// Literal protein change spellings searched by an explicit variant selector.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forms: Option<[String; 4]>,
@@ -137,4 +143,22 @@ pub struct TextContent {
 impl super::ResponseBody for ArticleTextResult {
     const SCHEMA: &'static str = "biomcp.article_text/2";
     type Query = ArticleText;
+}
+
+/// Explicit saved article file, owned by the caller.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ArticleSaved {
+    /// Absolute caller destination.
+    pub path: Text,
+    /// Exact byte count.
+    pub bytes: u64,
+    /// SHA-256 of the saved bytes.
+    pub sha256: Text,
+    /// Source URL for the original material.
+    pub url: Text,
+    /// Number of ordered text parts; absent for original supplement bytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parts: Option<u32>,
 }

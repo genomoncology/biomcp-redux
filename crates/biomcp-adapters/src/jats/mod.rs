@@ -23,6 +23,10 @@ use serde::{Deserialize, Deserializer};
 /// Body text with source row boundaries and deterministic reading order.
 #[derive(Debug)]
 pub struct Body {
+    /// Source title from article metadata, without an extra lookup.
+    pub title: Option<Text>,
+    /// Explicit source article identifiers in metadata order.
+    pub identifiers: Vec<(Text, Text)>,
     /// Own PMC identity when present in JATS metadata.
     pub pmcid: Option<Pmcid>,
     /// Bounded body parts.
@@ -54,6 +58,7 @@ impl XmlReply for Body {
             .ok_or(BadReply)?;
         let metadata = root.at(&["front", "article-meta"])?;
         let pmcid = own_id(metadata)?;
+        let (title, identifiers) = header(metadata)?;
         let body = root.child("body")?.ok_or(BadReply)?;
         let (parts, rows) = render::body(body)?;
         let mut figures = Vec::new();
@@ -71,6 +76,8 @@ impl XmlReply for Body {
             });
         }
         Ok(Self {
+            title,
+            identifiers,
             pmcid,
             supplements: supplements::read(root.0)?,
             parts,
@@ -101,4 +108,17 @@ fn own_id(metadata: Option<Element<'_>>) -> Result<Option<Pmcid>, BadReply> {
         }
     }
     Ok(own)
+}
+
+fn header(metadata: Option<Element<'_>>) -> Result<(Option<Text>, Vec<(Text, Text)>), BadReply> {
+    let Some(metadata) = metadata else { return Ok((None, Vec::new())); };
+    let title = metadata.value(&["title-group", "article-title"])?
+        .map(|s| Text::new(&s).map_err(|_| BadReply)).transpose()?;
+    let mut ids = Vec::new();
+    for id in metadata.children("article-id")? {
+        if let Some(kind) = id.attr("pub-id-type")? {
+            ids.push((Text::new(&kind).map_err(|_| BadReply)?, Text::new(&id.text()?).map_err(|_| BadReply)?));
+        }
+    }
+    Ok((title, ids))
 }
