@@ -30,24 +30,16 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in requested(query) {
-            macro_rules! attach {
-                ($field:ident,$read:expr) => {
-                    sections.$field = Some(retain(
-                        permitted(cx, section, || $read),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                };
-            }
             let candidates = std::slice::from_ref(&*candidate);
-            use VariantSection as S;
-            match section {
-                S::Oncokb => attach!(
-                    oncokb,
-                    super::oncokb::section(cx, query, candidates, deadline)
-                ),
-                _ => {}
+            if section == VariantSection::Oncokb {
+                sections.oncokb = Some(retain(
+                    permitted(cx, section, || {
+                        super::oncokb::section(cx, query, candidates, deadline)
+                    }),
+                    &mut sources,
+                    &mut problems,
+                    &mut local,
+                ));
             }
         }
         if !query.sections().is_empty() {
