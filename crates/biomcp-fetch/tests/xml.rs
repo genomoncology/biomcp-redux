@@ -1,6 +1,7 @@
 //! Checked XML uses the shared request, cache and recording boundaries.
 #![expect(
     clippy::disallowed_methods,
+    clippy::unwrap_used,
     reason = "Local HTTP fixtures and scoped public API callers"
 )]
 mod support;
