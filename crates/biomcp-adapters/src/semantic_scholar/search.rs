@@ -87,7 +87,12 @@ impl Reply for Search {
     }
 }
 /// Fetch the first relevance-ordered page using only checked mappings.
-pub fn search(leg: &Leg<'_>, term: &str, year: Option<&str>) -> Result<Search, RequestError> {
+pub fn search(
+    leg: &Leg<'_>,
+    term: &str,
+    year: Option<&str>,
+    open_access: bool,
+) -> Result<Search, RequestError> {
     let mut args = vec![
         ("query", Arg::Text(term)),
         ("limit", Arg::Num(100)),
@@ -98,6 +103,9 @@ pub fn search(leg: &Leg<'_>, term: &str, year: Option<&str>) -> Result<Search, R
     ];
     if let Some(year) = year {
         args.push(("year", Arg::Text(year)));
+    }
+    if open_access {
+        args.push(("openAccessPdf", Arg::Text("")));
     }
     leg.json(&SEARCH, &args)
 }

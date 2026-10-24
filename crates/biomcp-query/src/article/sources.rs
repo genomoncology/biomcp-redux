@@ -246,7 +246,17 @@ fn term(query: &ArticleSearch) -> String {
         };
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
-    parts.join(" AND ")
+    let mut term = parts.join(" AND ");
+    if query.open_access() {
+        term.push_str(" AND OPEN_ACCESS:y");
+    }
+    if query.no_preprints() {
+        term.push_str(" NOT SRC:PPR");
+    }
+    if query.exclude_retracted() {
+        term.push_str(" NOT PUB_TYPE:\"retracted publication\"");
+    }
+    term
 }
 
 type PreparedLitvar<'a> = (biomcp_fetch::Leg<'a>, Result<litvar::Variant, RequestError>);

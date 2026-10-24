@@ -137,6 +137,28 @@ def channels(output, binary, provenance):
     (output / "server.json").write_text(json.dumps(registry, indent=2) + "\n")
 
 
+def binary_archive(output, binary, tag):
+    """Write the public installer's platform asset from the candidate bytes."""
+    if tag.startswith("win_"):
+        name = "biomcp-windows-x86_64.zip"
+    elif tag.startswith("macosx_"):
+        name = "biomcp-darwin-" + ("arm64" if tag.endswith("arm64") else "x86_64") + ".tar.gz"
+    else:
+        name = "biomcp-linux-" + ("arm64" if tag.endswith("aarch64") else "x86_64") + ".tar.gz"
+    archive = output / name
+    if name.endswith(".zip"):
+        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as package:
+            entry = zipfile.ZipInfo("biomcp.exe")
+            entry.external_attr = 0o100755 << 16
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            package.writestr(entry, binary.read_bytes())
+    else:
+        with tarfile.open(archive, "w:gz") as package:
+            package.add(binary, arcname="biomcp", recursive=False)
+    (output / (name + ".sha256")).write_text(digest(archive.read_bytes()) + "  " + name + "\n")
+    return archive
+
+
 def build(args):
     # Pin the macOS deployment target before Cargo sees the build environment.
     if platform.system() == "Darwin":
@@ -153,11 +175,8 @@ def build(args):
     record = {"distribution": distribution, "version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
     candidate = wheel(output, binary, record)
     channels(output, binary, record)
-    archive = output / ("biomcp-" + version + "-" + tag + ".tar.gz")
-    with tarfile.open(archive, "w:gz") as package:
-        package.add(binary, arcname="biomcp", recursive=False)
+    archive = binary_archive(output, binary, tag)
     (output / "release.json").write_text(json.dumps(record, indent=2) + "\n")
-    (output / (archive.name + ".sha256")).write_text(digest(archive.read_bytes()) + "  " + archive.name + "\n")
     formula = '''class Biomcp < Formula
   desc "BioMCP CLI and MCP server"
   homepage "https://biomcp.org"
