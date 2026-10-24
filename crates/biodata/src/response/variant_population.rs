@@ -78,6 +78,7 @@ pub struct GwasAssociation {
     /// Source reported traits.
     pub traits: Box<[Text]>,
     /// Source mapped trait identifiers and whole labels, without clinical inference.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub ontology_traits: Box<[GwasTrait]>,
     /// Every source effect allele paired with its rsID.
     pub alleles: Box<[GwasEffectAllele]>,
