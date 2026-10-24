@@ -2,7 +2,6 @@
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::Value;
-use std::path::Path;
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test(
         "article/markdown-view-preserves-source-structure",
@@ -11,8 +10,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn check() -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
-    let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/article/fulltext/synthetic");
+    let replay = super::launch::fixtures().join("replies/article/fulltext/synthetic");
     let mut args = environment.globals(Some(&replay), false);
     args.extend(["article", "text", "PMC5606870", "--part", "1"].map(str::to_owned));
     let json = environment

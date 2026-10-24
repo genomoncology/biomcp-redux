@@ -36,6 +36,8 @@ mod xml_element;
 
 pub mod registry;
 
+/// Sentence resemblance in native provider order.
+pub mod litsense;
 /// Bounded PDF extraction inside the resource-limited child.
 pub mod pdf;
 pub mod sheet;
