@@ -23,7 +23,10 @@
           "PMC5606870",
           "--part",
           "1"
-        ]
+        ],
+        "/result/items/0/sections/fulltext/data/figures": {
+          "count": 1
+        }
       },
       "mcp": [
         "get",
