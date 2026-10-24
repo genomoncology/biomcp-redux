@@ -298,4 +298,3 @@ fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
     };
     error
 }
-

@@ -20,9 +20,11 @@ pub(super) struct Stub {
 }
 impl Stub {
     pub(super) fn new() -> Result<Self, String> {
-        Self::for_source("storage.googleapis.com", "text/tab-separated-values", |request| {
-            body(request.contains("withdrawn.txt"))
-        })
+        Self::for_source(
+            "storage.googleapis.com",
+            "text/tab-separated-values",
+            |request| body(request.contains("withdrawn.txt")),
+        )
     }
     pub(super) fn for_source(
         host: &'static str,
@@ -137,8 +139,7 @@ fn identity(host: &str) -> Result<(String, Arc<ServerConfig>), String> {
     ca.not_after = now + time::Duration::days(2);
     let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
     let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
-    let mut leaf =
-        CertificateParams::new(vec![host.into()]).map_err(|e| e.to_string())?;
+    let mut leaf = CertificateParams::new(vec![host.into()]).map_err(|e| e.to_string())?;
     leaf.not_before = now - time::Duration::days(1);
     leaf.not_after = now + time::Duration::days(1);
     leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];
