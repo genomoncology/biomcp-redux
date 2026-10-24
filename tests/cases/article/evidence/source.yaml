@@ -1,0 +1,26 @@
+{
+  "feature": "article-evidence",
+  "story": "Read source citation evidence without local ranking.",
+  "verified": "Checked public source boundary; source capture will be reused or recorded before green.",
+  "replay": "article/evidence/source",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497"
+      ],
+      "mcp": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/semantic_scholar/data/contexts/total": 6
+      }
+    }
+  ]
+}

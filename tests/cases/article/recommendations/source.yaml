@@ -1,0 +1,25 @@
+{
+  "feature": "article-recommendations",
+  "story": "Keep a successful empty recommendation pool distinct from failure.",
+  "verified": "Checked public source boundary; source capture will be reused or recorded before green.",
+  "replay": "article/recommendations/source",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "recommendations",
+        "17611497"
+      ],
+      "mcp": [
+        "article",
+        "recommendations",
+        "17611497"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/notice": "no_recommendations"
+      }
+    }
+  ]
+}
