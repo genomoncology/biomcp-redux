@@ -36,7 +36,11 @@ struct Location {
     geo_point: Option<Point>,
     contacts: Option<Box<[Contact]>>,
 }
-type SiteRows = (Box<[TrialLocation]>, Box<[TrialContact]>, Box<[TrialOfficial]>);
+type SiteRows = (
+    Box<[TrialLocation]>,
+    Box<[TrialContact]>,
+    Box<[TrialOfficial]>,
+);
 impl ContactsLocations {
     pub(super) fn rows(self) -> SiteRows {
         let locations = self
