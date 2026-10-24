@@ -317,29 +317,3 @@ fn candidate_page(
 mod gwas;
 mod population;
 pub(crate) mod population_detail;
-
-fn overall(
-    resolution: VariantResolution,
-    problems: &[biodata::Problem],
-    sources: &[biodata::SourceOutcome],
-) -> Status {
-    if matches!(
-        resolution,
-        VariantResolution::Unavailable | VariantResolution::Rejected
-    ) {
-        Status::Failed
-    } else if resolution == VariantResolution::Absent {
-        Status::Absent
-    } else if !problems.is_empty()
-        || sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biodata::SourceState::Failed | biodata::SourceState::Stale
-            )
-        })
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    }
-}
