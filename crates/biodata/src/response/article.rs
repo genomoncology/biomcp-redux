@@ -69,7 +69,7 @@ pub struct ArticleEdgePage {
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {
-    const SCHEMA: &'static str = "biomcp.article_edges/1";
+    const SCHEMA: &'static str = "biomcp.article_edges/2";
     type Query = crate::ArticleEdges;
 }
 

@@ -28,7 +28,7 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::ArticleText(_) => "biodata.article-text/1",
-        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/1",
+        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/2",
         Request::GetArticle(_) => "biodata.article-get/1",
         Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
@@ -41,8 +41,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/1"),
     ("article", "text", "biodata.article-text/1"),
-    ("article", "citations", "biodata.article-edges/1"),
-    ("article", "references", "biodata.article-edges/1"),
+    ("article", "citations", "biodata.article-edges/2"),
+    ("article", "references", "biodata.article-edges/2"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
