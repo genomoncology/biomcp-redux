@@ -171,7 +171,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     }) {
         return Err("unsupported format".into());
     }
-    shape.markdown = node.get("format").is_some_and(|v| v == "markdown");
+    shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
     if let Some(values) = node.get("enum") {
         shape.values = Some(
             values

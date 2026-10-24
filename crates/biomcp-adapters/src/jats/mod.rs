@@ -3,6 +3,7 @@ mod blocks;
 mod body;
 mod parts;
 mod references;
+const MAX_MARKDOWN_BYTES: usize = 8 * 1024 * 1024;
 mod table;
 pub use body::BodyRow;
 pub use references::Reference;
@@ -52,7 +53,7 @@ impl XmlReply for Body {
         let tables = blocks::descendants(body.0, "table-wrap")?;
         let mut emitted = Vec::new();
         let mut parts = Vec::new();
-        let mut rows = Vec::new();
+        let mut rows = body::Rows::default();
         for (name, node) in blocks::body_nodes(body.0)? {
             if matches!(name.as_str(), "table-wrap" | "table-wrap-group") {
                 continue;
@@ -81,8 +82,13 @@ impl XmlReply for Body {
                 }
                 vec![group]
             };
+            let start = parts.len();
             for group in groups {
                 body::append(&mut parts, group, &mut rows)?;
+            }
+            if name == "sec" {
+                let end = parts.len();
+                for (index, part) in parts.iter_mut().enumerate().skip(start) { part.continuation = index + 1 < end; }
             }
             for table in &tables {
                 let mentioned = match table.attr("id")? {
@@ -113,7 +119,7 @@ impl XmlReply for Body {
         Ok(Self {
             pmcid,
             parts,
-            rows,
+            rows: rows.values,
             references: references::rows(root.0)?,
             figures,
         })

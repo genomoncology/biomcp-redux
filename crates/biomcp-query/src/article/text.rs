@@ -189,7 +189,7 @@ fn find(
     let mut page = Vec::new();
     let mut size = 0;
     for (part, path, row) in hits.iter().skip(offset).take(25) {
-        let bytes = jats::escaped_bytes(row) + 64;
+        let bytes = jats::escaped_bytes(row) + serde_json::to_vec(path).ok()?.len() + 128;
         if !page.is_empty() && size + bytes > jats::TEXT_BYTES {
             break;
         }

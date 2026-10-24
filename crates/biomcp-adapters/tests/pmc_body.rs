@@ -24,7 +24,7 @@ fn bounded_parts_preserve_original_unicode_rows_and_escapes()
         }
     }
     assert_eq!(reconstructed, document.body.rows.iter().map(|r|r.markdown.clone()).collect::<Vec<_>>());
-    assert!(reconstructed.contains(&format!("Large {}", "αβ\\\" ".repeat(5000))));
+    assert!(document.body.rows.iter().any(|r| r.plain == format!("Large {}", "αβ\\\" ".repeat(5000))));
     assert!(reconstructed.contains(&"| AXIN2 row | Value |".to_owned()));
     assert!(reconstructed.contains(&format!("| Large cell | {} |", "β".repeat(13000))));
     assert!(reconstructed.contains(&"Trailing body text.".to_owned()));

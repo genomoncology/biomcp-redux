@@ -14,6 +14,11 @@ pub struct BodyRow {
     /// Explicit citation reference identities for this source row.
     pub references: Box<[Text]>,
 }
+#[derive(Default)]
+pub(super) struct Rows {
+    pub(super) values: Vec<BodyRow>,
+    pub(super) bytes: usize,
+}
 pub(super) struct Group {
     pub(super) title: String,
     pub(super) path: Vec<Text>,
@@ -109,7 +114,7 @@ pub(super) fn figure(fig: Element<'_>) -> Result<Option<BodyRow>, BadReply> {
 pub(super) fn append(
     parts: &mut Vec<Part>,
     group: Group,
-    rows: &mut Vec<BodyRow>,
+    rows: &mut Rows,
 ) -> Result<(), BadReply> {
     super::parts::append(parts, group, rows)
 }

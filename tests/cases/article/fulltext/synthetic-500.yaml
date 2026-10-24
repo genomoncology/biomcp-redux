@@ -31,6 +31,22 @@
         "/result/items/0/answer/card/pmid": "28944238",
         "/result/items/0/sections/fulltext/state": "unavailable"
       }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--part",
+        "1"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/result/content/state": "unavailable",
+        "/result/content/reason": "unavailable",
+        "/next/0/kind": "fresh"
+      }
     }
   ]
 }

@@ -29,15 +29,13 @@ pub(super) fn inline(xml: &str) -> Result<String, BadReply> {
             Event::Start(tag) => out.push_str(marker(tag.name().as_ref(), false)),
             Event::End(tag) => out.push_str(marker(tag.name().as_ref(), true)),
             Event::Empty(tag) if matches!(tag.name().as_ref(), "break" | "hr") => out.push('\n'),
-            Event::Text(v) => out.push_str(v.as_ref()),
-            Event::CData(v) => out.push_str(v.as_ref()),
+            Event::Text(v) => text(&mut out, v.as_ref()),
+            Event::CData(v) => text(&mut out, v.as_ref()),
             Event::GeneralRef(v) => {
                 if let Some(ch) = v.resolve_char_ref().map_err(|_| BadReply)? {
-                    out.push(ch);
+                    text(&mut out, &ch.to_string());
                 } else {
-                    out.push_str(
-                        quick_xml::escape::resolve_predefined_entity(v.as_ref()).ok_or(BadReply)?,
-                    );
+                    text(&mut out, quick_xml::escape::resolve_predefined_entity(v.as_ref()).ok_or(BadReply)?);
                 }
             }
             Event::Eof => return Ok(out),
@@ -99,4 +97,14 @@ fn list(node: Element<'_>) -> Result<String, BadReply> {
         out.push(text);
     }
     Ok(out.join("\n"))
+}
+
+fn text(out: &mut String, value: &str) {
+    for ch in value.chars() {
+        match ch {
+            '\\' | '*' | '_' | '[' | ']' | '`' => { out.push('\\'); out.push(ch); }
+            '<' => out.push_str("&lt;"), '>' => out.push_str("&gt;"),
+            c => out.push(c),
+        }
+    }
 }

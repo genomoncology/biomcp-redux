@@ -1,4 +1,4 @@
-use super::body::{BodyRow, Group};
+use super::body::{BodyRow, Group, Rows};
 use biodata::{Text, TextPart};
 use biomcp_fetch::BadReply;
 /// Serialized text capacity leaves room for reader envelope and advancing step.
@@ -30,16 +30,21 @@ pub struct Row {
 pub(super) fn append(
     out: &mut Vec<Part>,
     group: Group,
-    originals: &mut Vec<BodyRow>,
+    originals: &mut Rows,
 ) -> Result<(), BadReply> {
     let source = group;
+    let incoming = source.rows.iter().try_fold(0usize, |n,r|n.checked_add(r.markdown.len()).ok_or(BadReply))?;
+    originals.bytes = originals.bytes.checked_add(incoming).filter(|n|*n <= super::MAX_MARKDOWN_BYTES).ok_or(BadReply)?;
+    let metadata = source.path.iter().map(|v|escaped_bytes(v.as_str())+3).sum::<usize>()
+        + source.context.as_ref().map_or(0, |v|escaped_bytes(v));
+    let budget = TEXT_BYTES.checked_sub(metadata + 256).filter(|n|*n >= 256).ok_or(BadReply)?;
     let start = out.len();
     let mut group = Vec::new();
     let mut bytes = 0;
     for row in source.rows.iter() {
-        let source_row = originals.len();
-        let pieces = split(&row.markdown);
-        originals.push(BodyRow {
+        let source_row = originals.values.len();
+        let pieces = split(&row.markdown, budget);
+        originals.values.push(BodyRow {
             plain: row.plain.clone(),
             markdown: row.markdown.clone(),
             context: row.context,
@@ -47,7 +52,7 @@ pub(super) fn append(
         });
         for piece in pieces {
             let size = escaped_bytes(&piece);
-            if !group.is_empty() && bytes + size + escaped_bytes(source.separator()) > TEXT_BYTES {
+            if !group.is_empty() && bytes + size + escaped_bytes(source.separator()) > budget {
                 push(out, &source, std::mem::take(&mut group), bytes)?;
                 bytes = 0;
             }
@@ -86,13 +91,13 @@ fn push(out: &mut Vec<Part>, source: &Group, rows: Vec<Row>, bytes: usize) -> Re
     });
     Ok(())
 }
-fn split(row: &str) -> Vec<String> {
+fn split(row: &str, budget: usize) -> Vec<String> {
     let mut out = Vec::new();
     let mut start = 0;
     let mut bytes = 0;
     for (i, ch) in row.char_indices() {
         let size = escaped_char(ch);
-        if bytes + size > TEXT_BYTES {
+        if bytes + size > budget {
             out.push(row[start..i].to_owned());
             start = i;
             bytes = 0;

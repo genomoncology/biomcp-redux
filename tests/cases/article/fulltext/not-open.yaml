@@ -14,6 +14,19 @@
         "/result/items/0/sections/fulltext/state": "unavailable",
         "/result/items/0/sections/fulltext/reason": "not_open"
       }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC13020499",
+        "--part",
+        "1"
+      ],
+      "expect": {
+        "/result/content/state": "unavailable",
+        "/result/content/reason": "not_open"
+      }
     }
   ]
 }
