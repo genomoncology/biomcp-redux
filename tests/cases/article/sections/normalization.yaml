@@ -21,7 +21,7 @@
         "/result/items/0/sections/annotations/data/items/0/name": "Alpha",
         "/result/items/0/sections/annotations/data/items/0/count": 2,
         "/result/items/0/sections/annotations/data/items/1/name": "Beta",
-        "/result/items/0/sections/annotations/data/total": 11,
+        "/result/items/0/sections/annotations/data/total": 10,
         "/result/items/0/sections/annotations/data/items/*/kind": {
           "includes": "chemical"
         }

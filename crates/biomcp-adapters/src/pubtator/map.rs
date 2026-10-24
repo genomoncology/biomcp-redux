@@ -140,7 +140,11 @@ fn entity(
         AnnotationKind::Disease | AnnotationKind::Chemical => value.mesh = identifier.clone(),
         _ => return None,
     }
-    let key = identifier.map(|s| s.to_string()).unwrap_or_else(|| {
+    let checked_identifier = match kind {
+        AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),
+        _ => identifier.map(|s| s.to_string()),
+    };
+    let key = checked_identifier.unwrap_or_else(|| {
         if value.hgvs.is_some() || value.rsid.is_some() {
             format!("{:?}/{:?}/{:?}", value.entrez_id, value.hgvs, value.rsid)
         } else {
