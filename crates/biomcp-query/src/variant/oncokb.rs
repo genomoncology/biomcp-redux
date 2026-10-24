@@ -157,12 +157,27 @@ pub(super) fn input_genomic(query: &VariantGet, build: Build) -> Option<String> 
 }
 
 /// Offer setup only for the missing caller context; never supply a default.
-pub(super) fn next(query: &VariantGet, sources: &[SourceOutcome]) -> Vec<(biodata::StepKind, crate::Action)> {
-    if sources.iter().any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey)) {
-        vec![(biodata::StepKind::Key, crate::Action::KeyHelp(Source::Oncokb))]
+pub(super) fn next(
+    query: &VariantGet,
+    sources: &[SourceOutcome],
+) -> Vec<(biodata::StepKind, crate::Action)> {
+    if sources
+        .iter()
+        .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoKey))
+    {
+        vec![(
+            biodata::StepKind::Key,
+            crate::Action::KeyHelp(Source::Oncokb),
+        )]
     } else if (query.build().is_none() || query.tumor_type().is_none())
-        && sources.iter().any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoJoinId)) {
-        vec![(biodata::StepKind::Configure, crate::Action::QueryHelp(biodata::Request::GetVariant(query.clone())))]
+        && sources
+            .iter()
+            .any(|s| s.source == Source::Oncokb && s.reason == Some(Reason::NoJoinId))
+    {
+        vec![(
+            biodata::StepKind::Configure,
+            crate::Action::QueryHelp(biodata::Request::GetVariant(query.clone())),
+        )]
     } else {
         Vec::new()
     }

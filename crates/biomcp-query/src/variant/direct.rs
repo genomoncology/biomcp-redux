@@ -17,7 +17,12 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     match section {
         S::Oncokb
             if !cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
-                || query.build().is_some_and(|build| super::oncokb::input_genomic(query, build).is_some()) => Some(source),
+                || query
+                    .build()
+                    .is_some_and(|build| super::oncokb::input_genomic(query, build).is_some()) =>
+        {
+            Some(source)
+        }
         _ => None,
     }
 }
