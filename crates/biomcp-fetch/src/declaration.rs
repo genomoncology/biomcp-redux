@@ -197,8 +197,11 @@ pub struct PathSegment(String);
 impl PathSegment {
     /// Encode a raw identifier, rejecting pre-encoded input and path syntax.
     pub fn new(raw: &str) -> Result<Self, crate::InputError> {
-        if raw.is_empty() || matches!(raw, "." | "..")
-            || raw.chars().any(|c| c.is_control() || matches!(c, '/' | '\\' | '%'))
+        if raw.is_empty()
+            || matches!(raw, "." | "..")
+            || raw
+                .chars()
+                .any(|c| c.is_control() || matches!(c, '/' | '\\' | '%'))
         {
             return Err(crate::InputError::Path);
         }

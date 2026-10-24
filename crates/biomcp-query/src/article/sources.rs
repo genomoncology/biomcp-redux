@@ -58,13 +58,29 @@ pub(super) fn search<'a>(
         out.status = Status::Failed;
         return Ok(None);
     }
-    if query.sources().len() == 1 && results.iter().any(|r| !r.candidates.is_empty() || (r.source == ArticleSource::Litvar && r.outcome.term.is_none())) {
+    if query.sources().len() == 1
+        && results.iter().any(|r| {
+            !r.candidates.is_empty()
+                || (r.source == ArticleSource::Litvar && r.outcome.term.is_none())
+        })
+    {
         out.status = Status::Absent;
         let candidates: Vec<_> = results.into_iter().flat_map(|r| r.candidates).collect();
         for candidate in &candidates {
-            out.next.push((biodata::StepKind::Disambiguate, crate::Action::Run { request: biodata::Request::SearchArticle(query.with_variant(candidate.rsid.clone())), fresh: cx.fresh }));
+            out.next.push((
+                biodata::StepKind::Disambiguate,
+                crate::Action::Run {
+                    request: biodata::Request::SearchArticle(
+                        query.with_variant(candidate.rsid.clone()),
+                    ),
+                    fresh: cx.fresh,
+                },
+            ));
         }
-        out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage { items: Box::default(), candidates });
+        out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage {
+            items: Box::default(),
+            candidates,
+        });
         return Ok(None);
     }
     Ok(Some(super::fold::fold(
@@ -183,7 +199,12 @@ fn term(query: &ArticleSearch) -> String {
     parts.join(" AND ")
 }
 
-fn litvar_search<'a>(cx: &Ctx<'a>, query: &ArticleSearch, gene: Option<&str>, deadline: Deadline<'a>) -> ResultLeg {
+fn litvar_search<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    gene: Option<&str>,
+    deadline: Deadline<'a>,
+) -> ResultLeg {
     let leg = cx.fetch.leg(&litvar::SPEC, deadline).fresh(cx.fresh);
     let start = leg.remaining();
     let result = litvar::search(&leg, gene, query.variant().map_or("", Text::as_str));
@@ -196,10 +217,28 @@ fn litvar_search<'a>(cx: &Ctx<'a>, query: &ArticleSearch, gene: Option<&str>, de
             outcome.term = Some(rsid);
             outcome.count = Some(count);
             outcome.fetched = Some(ids.len() as u32);
-            ids.into_iter().map(|id| ArticleItem { key: ArticleKey::Pubmed(id), pmid: Some(id), header: None, cited_by: None, found_by: Default::default() }).collect()
+            ids.into_iter()
+                .map(|id| ArticleItem {
+                    key: ArticleKey::Pubmed(id),
+                    pmid: Some(id),
+                    header: None,
+                    cited_by: None,
+                    found_by: Default::default(),
+                })
+                .collect()
         }
-        Ok(litvar::Search::Candidates(nearby)) => { candidates = nearby; Vec::new() }
+        Ok(litvar::Search::Candidates(nearby)) => {
+            candidates = nearby;
+            Vec::new()
+        }
         Err(_) => Vec::new(),
     };
-    ResultLeg { source: ArticleSource::Litvar, outcome, items, elapsed, error, candidates }
+    ResultLeg {
+        source: ArticleSource::Litvar,
+        outcome,
+        items,
+        elapsed,
+        error,
+        candidates,
+    }
 }

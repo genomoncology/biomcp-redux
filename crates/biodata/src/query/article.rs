@@ -184,7 +184,10 @@ impl TryFrom<Fields> for ArticleSearch {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
             || v.source.len() > 3
-            || v.source.iter().enumerate().any(|(i, source)| v.source[..i].contains(source))
+            || v.source
+                .iter()
+                .enumerate()
+                .any(|(i, source)| v.source[..i].contains(source))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -291,7 +294,9 @@ impl ArticleSearch {
 
 impl ArticleSearch {
     /// Exact variant selector, kept distinct from ordinary word search.
-    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
+    pub fn variant(&self) -> Option<&Text> {
+        self.0.variant.as_ref()
+    }
     /// Restart with an exact candidate rsID, retaining source and order choices.
     pub fn with_variant(&self, variant: Text) -> Self {
         let mut value = self.page(0, None);

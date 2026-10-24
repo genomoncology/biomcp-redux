@@ -43,14 +43,17 @@ pub(super) fn resolve<'a>(
                 names.join("")
             };
             let symbol = gene.symbol.to_string();
-            Ok(Some((filters(
-                query,
-                if words.is_empty() {
-                    group
-                } else {
-                    format!("{group} AND {words}")
-                },
-            ), Some(symbol))))
+            Ok(Some((
+                filters(
+                    query,
+                    if words.is_empty() {
+                        group
+                    } else {
+                        format!("{group} AND {words}")
+                    },
+                ),
+                Some(symbol),
+            )))
         }
         GeneResolution::Ambiguous { candidates } => {
             for candidate in candidates.iter().take(5) {
