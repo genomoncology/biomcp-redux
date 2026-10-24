@@ -1,0 +1,74 @@
+{
+  "$defs": {
+    "ErrorCode": {
+      "description": "The stable error code for an invalid schema request.",
+      "oneOf": [
+        {
+          "const": "usage.schema",
+          "description": "The command requires a known schema artifact ID.",
+          "type": "string"
+        }
+      ]
+    },
+    "ErrorDetail": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "$ref": "#/$defs/ErrorMessage"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "type": "object"
+    },
+    "ErrorMessage": {
+      "enum": [
+        "expected schema <known artifact id>"
+      ],
+      "type": "string"
+    },
+    "ErrorSchema": {
+      "enum": [
+        "biomcp.error/1"
+      ],
+      "type": "string"
+    },
+    "ErrorStatus": {
+      "description": "The status of an invalid schema request.",
+      "oneOf": [
+        {
+          "const": "usage",
+          "description": "The request cannot be used.",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$id": "biomcp.error/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A versioned error response that never contains caller input.",
+  "properties": {
+    "error": {
+      "$ref": "#/$defs/ErrorDetail"
+    },
+    "schema": {
+      "$ref": "#/$defs/ErrorSchema"
+    },
+    "status": {
+      "$ref": "#/$defs/ErrorStatus"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "error"
+  ],
+  "title": "ErrorEnvelope",
+  "type": "object"
+}

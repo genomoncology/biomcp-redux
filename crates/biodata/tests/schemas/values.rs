@@ -1,5 +1,8 @@
 use super::generate;
-use biodata::{ErrorCode, ErrorEnvelope, ErrorStatus, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0, Text};
+use biodata::{
+    ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0,
+    Text,
+};
 use schemars::JsonSchema;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
@@ -67,8 +70,6 @@ fn enum_schemas_validate_canonical_public_values() {
         Reason::Syncing,
     ]);
     enum_values(&[ProblemCode::ValueUnknown]);
-    enum_values(&[ErrorStatus::Usage]);
-    enum_values(&[ErrorCode::SchemaUsage]);
 }
 
 #[test]
@@ -167,15 +168,21 @@ fn value_schemas_describe_canonical_text_and_coordinate_bounds() {
 fn usage_error_round_trips_and_rejects_changed_contract_values() {
     let envelope = ErrorEnvelope::schema_usage();
     let value = serde_json::to_value(&envelope).unwrap();
-    assert_eq!(value, json!({
-        "schema": "biomcp.error/1",
-        "status": "usage",
-        "error": {
-            "code": "usage.schema",
-            "message": "expected schema <known artifact id>"
-        }
-    }));
-    assert_eq!(serde_json::from_value::<ErrorEnvelope>(value.clone()).unwrap(), envelope);
+    assert_eq!(
+        value,
+        json!({
+            "schema": "biomcp.error/1",
+            "status": "usage",
+            "error": {
+                "code": "usage.schema",
+                "message": "expected schema <known artifact id>"
+            }
+        })
+    );
+    assert_eq!(
+        serde_json::from_value::<ErrorEnvelope>(value.clone()).unwrap(),
+        envelope
+    );
     let schema = validator::<ErrorEnvelope>();
     assert!(schema.is_valid(&value));
     for pointer in ["/schema", "/status", "/error/code", "/error/message"] {
@@ -191,13 +198,22 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
         ("/error", vec!["code", "message"]),
     ] {
         let mut unknown = value.clone();
-        unknown.pointer_mut(pointer).unwrap().as_object_mut().unwrap()
+        unknown
+            .pointer_mut(pointer)
+            .unwrap()
+            .as_object_mut()
+            .unwrap()
             .insert("unexpected".into(), json!(true));
         assert!(!schema.is_valid(&unknown));
         assert!(serde_json::from_value::<ErrorEnvelope>(unknown).is_err());
         for field in fields {
             let mut missing = value.clone();
-            missing.pointer_mut(pointer).unwrap().as_object_mut().unwrap().remove(field);
+            missing
+                .pointer_mut(pointer)
+                .unwrap()
+                .as_object_mut()
+                .unwrap()
+                .remove(field);
             assert!(!schema.is_valid(&missing));
             assert!(serde_json::from_value::<ErrorEnvelope>(missing).is_err());
         }

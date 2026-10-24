@@ -7,7 +7,10 @@ mod compatibility_cases;
 #[path = "schemas/values.rs"]
 mod values;
 
-use biodata::{ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0, Text};
+use biodata::{
+    ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0,
+    Text,
+};
 use schemars::{JsonSchema, generate::SchemaSettings};
 use serde_json::Value;
 use std::{fs, path::Path};
