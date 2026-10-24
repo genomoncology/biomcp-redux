@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS pool (
 CREATE TABLE IF NOT EXISTS pool_current (request_key BLOB PRIMARY KEY, pool TEXT NOT NULL REFERENCES pool(id));
 CREATE TABLE IF NOT EXISTS pool_item (
  pool TEXT NOT NULL REFERENCES pool(id), rank INTEGER NOT NULL, pmid TEXT NOT NULL,
- checked INTEGER NOT NULL DEFAULT 0, header TEXT, problems TEXT NOT NULL DEFAULT '[]', outcome TEXT,
+ item TEXT NOT NULL, checked INTEGER NOT NULL DEFAULT 0, header TEXT, problems TEXT NOT NULL DEFAULT '[]', outcome TEXT,
  PRIMARY KEY(pool,rank), UNIQUE(pool,pmid)
 );

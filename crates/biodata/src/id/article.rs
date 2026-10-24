@@ -91,3 +91,25 @@ impl fmt::Display for Doi {
     }
 }
 text_value!(Doi, "Doi", r"^10\.[0-9]+/[^\s\x00-\x1f\x7f]+$");
+
+/// Europe PMC source prefix followed by its positive numeric local identifier.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct EuropePmcId(Box<str>);
+impl FromStr for EuropePmcId {
+    type Err = Error;
+    fn from_str(value: &str) -> Result<Self, Error> {
+        let prefix = value.bytes().take_while(u8::is_ascii_uppercase).count();
+        if !(1..=8).contains(&prefix) || value.len() > 64 {
+            return Err(Error::ArticleIdInvalid);
+        }
+        let digits = &value[prefix..];
+        if digits.is_empty() || !digits.bytes().all(|b|b.is_ascii_digit()) || digits.bytes().all(|b|b==b'0') {
+            return Err(Error::ArticleIdInvalid);
+        }
+        Ok(Self(value.into()))
+    }
+}
+impl fmt::Display for EuropePmcId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+}
+text_value!(EuropePmcId, "EuropePmcId", r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$");

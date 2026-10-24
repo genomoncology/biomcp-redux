@@ -1,6 +1,6 @@
 mod card;
 mod input;
-use crate::{Doi, PartialDate, Pmcid, Pmid, Text};
+use crate::{EuropePmcId, Doi, PartialDate, Pmcid, Pmid, Text};
 pub use card::{AbstractPart, Article, Correction, CorrectionKind, CorrectionRelation};
 pub use input::{ArticleInput, ArticleMatchKind};
 use serde::{Deserialize, Serialize};
@@ -57,13 +57,18 @@ crate::source::canonical_enum! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleHeader {
     /// Checked PubMed identity.
-    pub pmid: Pmid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
+    pub pmid: Option<Pmid>,
     /// Checked DOI, when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub doi: Option<Doi>,
     /// Checked PMC identity, when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pmcid: Option<Pmcid>,
+    /// Europe PMC source-local identity.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub europepmc_id: Option<EuropePmcId>,
     /// Whole source title.
     pub title: Text,
     /// Journal name.
@@ -74,9 +79,14 @@ pub struct ArticleHeader {
     pub date: Option<PartialDate>,
     /// Clinical publication types.
     pub types: Box<[PublicationType]>,
+    /// The provider does not supply checked publication types.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub types_unknown: bool,
     /// First author in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_author: Option<Text>,
     /// Whole source author count.
     pub author_count: u32,
 }
+
+fn is_false(value: &bool) -> bool { !value }

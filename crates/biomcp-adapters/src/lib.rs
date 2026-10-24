@@ -19,3 +19,5 @@ pub mod civic;
 pub mod clingen;
 
 pub mod hpa;
+
+pub mod europepmc;

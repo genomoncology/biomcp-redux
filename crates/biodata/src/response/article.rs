@@ -1,4 +1,5 @@
-use crate::{ArticleHeader, ArticleSearch, Pmid};
+use crate::{ArticleHeader, ArticleSearch, ArticleSource, Pmid, Pmcid, Doi, EuropePmcId};
+use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 /// Stable identity independent of whether citation metadata was accepted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -7,6 +8,12 @@ use serde::{Deserialize, Serialize};
 pub enum ArticleKey {
     /// PubMed identity.
     Pubmed(Pmid),
+    /// PMC identity when PubMed is absent.
+    Pmc(Pmcid),
+    /// DOI when both indexed numeric identities are absent.
+    Doi(Doi),
+    /// Europe PMC local source identity.
+    Europepmc(EuropePmcId),
 }
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -16,7 +23,12 @@ pub struct ArticleItem {
     /// Stable checked pool key.
     pub key: ArticleKey,
     /// The selected PMID, retained when summary mapping fails.
-    pub pmid: Pmid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
+    pub pmid: Option<Pmid>,
+    /// Native one-based source positions, disclosed only for multiple sources.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub found_by: BTreeMap<ArticleSource, u32>,
     /// Citation metadata when accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<ArticleHeader>,
@@ -32,4 +44,9 @@ pub struct ArticlePage {
 impl super::ResponseBody for ArticlePage {
     const SCHEMA: &'static str = "biomcp.article_page/1";
     type Query = ArticleSearch;
+}
+
+impl ArticleKey {
+    /// PubMed identity, when this key carries one.
+    pub fn pmid(&self) -> Option<Pmid> { match self { Self::Pubmed(id)=>Some(*id), _=>None } }
 }

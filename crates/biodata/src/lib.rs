@@ -6,7 +6,7 @@ pub use article::{
     CorrectionRelation,
 };
 pub use article::{ArticleHeader, PublicationType};
-pub use id::{Doi, Pmcid, Pmid};
+pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
 pub use query::ArticleGet;
 pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};

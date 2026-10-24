@@ -1,12 +1,14 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 pub mod get;
 mod term;
+mod sources;
+mod fold;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
 use biodata::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSearch, PageInfo, QueryBody, Request, Source,
+    ArticlePage, ArticleSearch, PageInfo, QueryBody, Request, Source,
     Status, StepKind, Text,
 };
 use biomcp_adapters::pubmed;
@@ -51,35 +53,16 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(term) = term::resolve(cx, query, deadline, out)? else {
+            let term = if query.sources().contains(&biodata::ArticleSource::Pubmed) {
+                let Some(term)=term::resolve(cx,query,deadline,out)? else { return Ok(()); };
+                term
+            } else { String::new() };
+            let Some(items)=sources::search(cx,query,&term,deadline,out)? else {
+                retry(query,None,out);
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            *deadline = store.deadline();
-            let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
-            let started = leg.remaining();
-            let result = pubmed::search_ids(&leg, &term, query.sort(), cx.ncbi_email.as_ref());
-            *deadline = consume(*deadline, started, leg.remaining());
-            store.set_deadline(*deadline);
-            let mut source =
-                status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
-            source.term = Text::new(&term).ok();
-            match result {
-                Ok(ids) => {
-                    source.count = Some(ids.count);
-                    source.fetched =
-                        Some(u32::try_from(ids.ids.len()).map_err(|_| CacheError::Database)?);
-                    source.notices = ids.notices;
-                    out.sources.push(source);
-                    store.publish(&key, &ids.ids, &out.sources)?
-                }
-                Err(error) => {
-                    out.sources.push(source);
-                    out.status = Status::Failed;
-                    retry(query, None, out);
-                    return Err(error);
-                }
-            }
+            store.publish(&key,&items,&out.sources)?
         }
     };
     out.sources = pool.sources.clone();
@@ -99,7 +82,7 @@ fn read_page<'a>(
     let missing: Vec<_> = rows
         .iter()
         .filter(|r| r.header.is_none() && (!r.checked || cx.fresh))
-        .map(|r| r.id)
+        .filter_map(|r| r.item.pmid)
         .collect();
     if !missing.is_empty() {
         let deadline = store.deadline();
@@ -145,7 +128,8 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
         .sources
         .iter()
         .any(|s| s.state == biodata::SourceState::Stale);
-    let partial = stale || rows.iter().any(|r| r.header.is_none());
+    let failed = sources::failed(&out.sources);
+    let partial = stale || failed || rows.iter().any(|r| r.header.is_none());
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }
@@ -170,11 +154,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     out.body = QueryBody::ArticlePage(ArticlePage {
         items: rows
             .into_iter()
-            .map(|r| ArticleItem {
-                key: ArticleKey::Pubmed(r.id),
-                pmid: r.id,
-                header: r.header,
-            })
+            .map(|r| { let mut item=r.item; item.header=r.header; item })
             .collect(),
     });
     if let Some(offset) = query
@@ -192,8 +172,9 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     }
     if let QueryBody::ArticlePage(page) = &out.body
         && let Some(first) = page.items.first()
+        && let Some(id) = first.pmid
         && let Ok(query) =
-            biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(first.pmid)].into())
+            biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
     {
         out.next.push((
             StepKind::Disambiguate,
@@ -206,7 +187,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     if partial {
         retry(
             query,
-            if stale {
+            if stale || failed {
                 None
             } else {
                 Some(pool.info.id.clone())

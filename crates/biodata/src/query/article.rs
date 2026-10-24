@@ -2,13 +2,15 @@ use super::gene::{QueryInvalid, present};
 use crate::{GeneInput, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Source selectors supported by article search.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
+    /// Europe PMC native relevance or publication-date order.
+    Europepmc,
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -62,7 +64,7 @@ struct Fields {
     text: Option<Text>,
     /// Sources in caller order; defaults to PubMed.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 1)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2)))]
     source: Box<[ArticleSource]>,
     /// Native provider order.
     #[serde(default = "sort")]
@@ -169,7 +171,7 @@ impl TryFrom<Fields> for ArticleSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
-            || v.source.len() != 1
+            || v.source.is_empty() || v.source.len() > 2 || (v.source.len() == 2 && v.source[0] == v.source[1])
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -197,6 +199,8 @@ impl TryFrom<Fields> for ArticleSearch {
     }
 }
 impl ArticleSearch {
+    /// Sources in the caller’s turn order.
+    pub fn sources(&self) -> &[ArticleSource] { &self.0.source }
     /// Native provider order requested by the caller.
     pub fn sort(&self) -> ArticleSort {
         self.0.sort
