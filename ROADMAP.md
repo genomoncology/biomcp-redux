@@ -69,7 +69,7 @@ Sources:
 - [ ] CIViC
 - [ ] ClinGen
 - [ ] GenCC (bundle)
-- [ ] gnomAD (constraint)
+- [x] gnomAD (constraint)
 - [ ] GTEx
 - [ ] Human Protein Atlas
 - [ ] OncoKB (keyed)
