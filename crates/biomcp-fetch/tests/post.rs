@@ -277,7 +277,11 @@ fn cache_capture_replay_and_offline_distinguish_method_encoding_and_body() {
 #[test]
 fn credentials_are_inserted_only_on_wire_and_capture_metadata_is_checked_before_consumption() {
     use biomcp_fetch::{Credential, KeyPlace, Mode, RecordError, RequestError, Secret, SecretName};
-    for place in [KeyPlace::Query("api_key"), KeyPlace::Header("x-api-key"), KeyPlace::Bearer] {
+    for place in [
+        KeyPlace::Query("api_key"),
+        KeyPlace::Header("x-api-key"),
+        KeyPlace::Bearer,
+    ] {
         let dir = tempfile::tempdir().unwrap();
         let server = Server::new();
         let spec = server.spec(

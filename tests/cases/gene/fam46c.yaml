@@ -15,12 +15,24 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:24712",
         "/result/items/0/answer/gene/symbol": "TENT5C",
         "/result/items/0/answer/match/kind": "previous_symbol",
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
         "/result/items/0/answer/gene/location": "1p12",
-        "/result/items/0/answer/match/text": "FAM46C"
+        "/result/items/0/answer/match/text": "FAM46C",
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       },
       "max_bytes": 1900
     }

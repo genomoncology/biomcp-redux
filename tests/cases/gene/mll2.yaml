@@ -20,9 +20,12 @@
           "previous_symbol",
           "alias"
         ],
-        "/sources/*/source": [
-          "hgnc"
-        ],
+        "/sources/*/source": {
+          "equals": [
+            "hgnc"
+          ],
+          "excludes": "oncokb"
+        },
         "/next/*/args": [
           [
             "get",

@@ -17,7 +17,9 @@
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
           "includes": "gnomad"
-        }
+        },
+        "/result/items/0/sections/oncokb/state": "data",
+        "/result/items/0/oncokb/version": "synthetic-1"
       },
       "max_bytes": 14200,
       "mcp": [
@@ -27,5 +29,10 @@
         "all"
       ]
     }
-  ]
+  ],
+  "config": {
+    "keys": {
+      "oncokb_api_key": "synthetic-placeholder"
+    }
+  }
 }

@@ -1,6 +1,6 @@
 use super::SectionResult;
 use crate::{Ctx, status};
-use biodata::{Gene, GeneSection, HgncId, LocusGroup, Reason, Section, Source};
+use biodata::{Gene, HgncId, LocusGroup, Reason, Section, Source};
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
 
@@ -69,7 +69,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         sections.push((*id, super::SectionValue::Constraint(section)));
     }
     SectionResult {
-        section: GeneSection::Constraint,
         values: sections,
         source,
         problems,

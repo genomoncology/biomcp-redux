@@ -639,22 +639,48 @@ fn keyed_cache_refuses_missing_credentials_and_never_masks_rejected_credentials(
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");
     let server = Server::new();
-    let spec = spec(&server, KeyUse::Required(Credential { secret: SecretName::OncokbApiKey, place: KeyPlace::Bearer }));
+    let spec = spec(
+        &server,
+        KeyUse::Required(Credential {
+            secret: SecretName::OncokbApiKey,
+            place: KeyPlace::Bearer,
+        }),
+    );
     let endpoint = spec.get("/answer").fresh(Freshness::Days(1));
     let mut configured = config(&path);
-    configured.secrets.insert(SecretName::OncokbApiKey, Secret::new("synthetic-placeholder"));
+    configured.secrets.insert(
+        SecretName::OncokbApiKey,
+        Secret::new("synthetic-placeholder"),
+    );
     let fetch = Fetch::open(configured).unwrap();
     assert!(fetch.has_key(SecretName::OncokbApiKey));
-    assert!(exchange(&server, 200, r#"{"answer":true}"#, || get(&fetch, spec, &endpoint, &[])).unwrap().answer);
+    assert!(
+        exchange(&server, 200, r#"{"answer":true}"#, || get(
+            &fetch,
+            spec,
+            &endpoint,
+            &[]
+        ))
+        .unwrap()
+        .answer
+    );
     for mode in [Mode::default(), Mode::Offline] {
-        let refused = Fetch::open(FetchConfig { mode, ..config(&path) }).unwrap();
+        let refused = Fetch::open(FetchConfig {
+            mode,
+            ..config(&path)
+        })
+        .unwrap();
         assert!(!refused.has_key(SecretName::OncokbApiKey));
-        assert_eq!(source(get(&refused, spec, &endpoint, &[]).unwrap_err()).reason, Reason::NoKey);
+        assert_eq!(
+            source(get(&refused, spec, &endpoint, &[]).unwrap_err()).reason,
+            Reason::NoKey
+        );
         assert!(server.requests.try_recv().is_err());
     }
     expire(&path);
-    for status in [401,403] {
-        let failure = exchange(&server, status, "{}", || get(&fetch, spec, &endpoint, &[])).unwrap_err();
+    for status in [401, 403] {
+        let failure =
+            exchange(&server, status, "{}", || get(&fetch, spec, &endpoint, &[])).unwrap_err();
         assert_eq!(source(failure).status, Some(status));
     }
 }

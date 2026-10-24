@@ -1,13 +1,12 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, GeneSection, HgncId, Reason, Section, Source, SourceOutcome, SourceState};
+use biodata::{Gene, HgncId, Reason, Section, Source, SourceOutcome, SourceState};
 use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     if !cx.fetch.has_key(SecretName::OncokbApiKey) {
         return SectionResult {
-            section: GeneSection::Oncokb,
             values: genes
                 .iter()
                 .map(|(id, _)| {
@@ -121,7 +120,6 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         }
     }
     SectionResult {
-        section: GeneSection::Oncokb,
         values,
         source,
         problems,

@@ -11,7 +11,6 @@ pub(super) enum SectionValue {
     Oncokb(Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool),
 }
 pub(super) struct SectionResult {
-    pub section: GeneSection,
     pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
     pub problems: Vec<Problem>,
@@ -124,7 +123,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
                     item.status = Status::Partial;
                 }
                 if let Some(sections) = &mut item.sections
-                    && result.section == GeneSection::Constraint
+                   
                 {
                     sections.constraint = Some(section.clone());
                 }

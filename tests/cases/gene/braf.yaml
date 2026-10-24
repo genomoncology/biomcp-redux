@@ -15,10 +15,10 @@
         "/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
         "/result/items/0/answer/gene/symbol": "BRAF",
         "/result/items/0/answer/match/kind": "symbol",
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
         "/result/items/0/answer/gene/summary/text": "This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signaling pathway, which affects cell division, differentiation, and secretion. Mutations in this gene, most commonly the V600E mutation, are the most frequently identified cancer-causing mutations in melanoma, and have been identified in various other cancers as well, including non-Hodgkin lymphoma, colorectal cancer, thyroid carcinoma, non-small cell lung carcinoma, hairy cell leukemia and adenocarcinoma of lung. Mutations in this gene are also associated with cardiofaciocutaneous, Noonan, and Costello syndromes, which exhibit overlapping phenotypes. A pseudogene of this gene has been identified on the X chromosome.",
         "/result/items/0/answer/gene/summary/dated": "2017-08",
         "/result/items/0/answer/match/text": "BRAF",
@@ -31,7 +31,19 @@
         "/result/items/0/answer/gene/spans/*/strand": [
           "-",
           "-"
-        ]
+        ],
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       },
       "max_bytes": 2800
     },
@@ -80,11 +92,23 @@
           "complete",
           "complete"
         ],
-        "/sources/*/source": [
-          "hgnc",
-          "mygene"
-        ],
-        "/result/items/1/answer/gene/hgnc_id": "HGNC:1097"
+        "/sources/*/source": {
+          "includes": "oncokb",
+          "excludes": "gnomad"
+        },
+        "/result/items/1/answer/gene/hgnc_id": "HGNC:1097",
+        "/sources/0/source": "hgnc",
+        "/sources/1/source": "mygene",
+        "/sources/2": {
+          "equals": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
       }
     }
   ]
