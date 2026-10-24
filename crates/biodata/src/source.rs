@@ -63,6 +63,10 @@ canonical_enum! {
         Gwas => "gwas",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinVar assertions.
+        ClinVar => "clinvar",
+        /// ClinGen Evidence Repository.
+        Erepo => "erepo",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.
