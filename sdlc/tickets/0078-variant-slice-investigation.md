@@ -1,6 +1,7 @@
 # 0078 — Investigate the variant slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 491747e60b22e5ad12bc45fa36148c71fb5b6834
 
 Milestone: 2
 
