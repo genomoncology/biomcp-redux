@@ -1,7 +1,7 @@
 use crate::{Source, SourceRecord, Text, Variant, VariantGet};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCard {
@@ -21,12 +21,15 @@ impl super::ResponseBody for VariantCard {
 }
 
 /// Consumer identity header with an exact source selection and compact annotation entity.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHeader {
     /// Source-qualified variant entity.
     pub identity: Variant,
+    /// Checked caller ID used by a source-only section, without asserting resolved identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requested: Option<crate::VariantId>,
     /// Source responsible for this identity.
     pub source: Source,
     /// Exact source record, including source keys that are expressions rather than identifiers.
@@ -34,10 +37,15 @@ pub struct VariantHeader {
     /// Compact MyVariant annotations, attributed by their field name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub myvariant: Option<Variant>,
+    /// Explicitly requested source sections for this exact candidate.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sections: Option<Box<VariantSections>>,
 }
 crate::macros::wire_enum! {
     /// Identity resolution preserves candidates and source validation outcomes.
     VariantResolution {
+        /// Checked source selector whose allele identity was not requested.
+        Unresolved=>"unresolved",
         /// One checked provider identity.
         Resolved => "resolved",
         /// Several provider identities; none was selected.
@@ -51,8 +59,21 @@ crate::macros::wire_enum! {
     }
 }
 
+/// Source-specific sections, absent unless explicitly selected.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantSections {
+    /// Explicit civic source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub civic: Option<crate::Section<crate::VariantCivic>>,
+    /// Explicit hotspots source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
+}
+
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {

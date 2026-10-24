@@ -1,7 +1,12 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+mod civic;
+mod continuations;
+mod direct;
+mod hotspots;
 pub mod normalize;
 pub mod recurrence;
 pub mod search;
+mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,
@@ -13,6 +18,11 @@ use biomcp_fetch::{Leg, RequestError};
 pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    if let Some(source) = direct::source(cx, query) {
+        let out = direct::get(cx, query, source, deadline);
+        command.finish(deadline.remaining());
+        return out;
+    }
     let spec = source(query);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
@@ -42,34 +52,23 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
-    if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
+    if query.sections().is_empty()
+        && spec.source == Source::AlleleRegistry
+        && resolution == VariantResolution::Resolved
+    {
         let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
+    let (section_sources, section_problems, section_error) =
+        sections::apply(cx, query, &mut candidates, deadline);
+    sources.extend(section_sources);
+    problems.extend(section_problems);
+    local = local.or(section_error);
     let next = next(query, resolution, &candidates, page.as_ref());
-    let overall = if matches!(
-        resolution,
-        VariantResolution::Unavailable | VariantResolution::Rejected
-    ) {
-        Status::Failed
-    } else if resolution == VariantResolution::Absent {
-        Status::Absent
-    } else if !problems.is_empty()
-        || sources.iter().any(|s| {
-            matches!(
-                s.state,
-                biodata::SourceState::Failed | biodata::SourceState::Stale
-            )
-        }) && resolution != VariantResolution::Rejected
-    {
-        Status::Partial
-    } else {
-        Status::Complete
-    };
     let out = Outcome {
-        status: overall,
+        status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
             resolution,
             source: spec.source,
@@ -260,6 +259,7 @@ fn next(
             },
         ));
     }
+    continuations::collect(candidates, &mut next);
     next
 }
 
@@ -284,4 +284,30 @@ fn candidate_page(
         pool: None,
         truncated: None,
     })
+}
+
+pub(crate) fn overall(
+    resolution: VariantResolution,
+    problems: &[biodata::Problem],
+    sources: &[biodata::SourceOutcome],
+) -> Status {
+    if matches!(
+        resolution,
+        VariantResolution::Unavailable | VariantResolution::Rejected
+    ) {
+        Status::Failed
+    } else if resolution == VariantResolution::Absent {
+        Status::Absent
+    } else if !problems.is_empty()
+        || sources.iter().any(|s| {
+            matches!(
+                s.state,
+                biodata::SourceState::Failed | biodata::SourceState::Stale
+            )
+        })
+    {
+        Status::Partial
+    } else {
+        Status::Complete
+    }
 }

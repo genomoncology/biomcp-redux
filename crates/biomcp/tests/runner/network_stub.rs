@@ -96,7 +96,7 @@ impl Stub {
                     ServerConnection::new(config.clone()).map_err(|e| e.to_string())?;
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
-                if let Ok(request) = header(&mut tls) {
+                if let Ok(request) = source_request(&mut tls) {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
@@ -201,4 +201,23 @@ fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
             )
             .map_err(|e| e.to_string())?;
     Ok((ca.pem(), Arc::new(config)))
+}
+
+fn source_request(input: &mut impl Read) -> Result<String, String> {
+    let mut request = header(input)?;
+    let length = request
+        .lines()
+        .find_map(|line| {
+            line.split_once(':')
+                .filter(|(key, _)| key.eq_ignore_ascii_case("content-length"))
+                .and_then(|(_, v)| v.trim().parse::<usize>().ok())
+        })
+        .unwrap_or(0);
+    if length > 1024 * 1024 {
+        return Err("synthetic source request body exceeds bound".into());
+    }
+    let mut body = vec![0; length];
+    input.read_exact(&mut body).map_err(|e| e.to_string())?;
+    request.push_str(&String::from_utf8(body).map_err(|e| e.to_string())?);
+    Ok(request)
 }

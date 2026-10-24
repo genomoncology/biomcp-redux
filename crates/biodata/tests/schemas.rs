@@ -135,6 +135,7 @@ fn registry() -> Vec<Contract> {
 }
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
+        Statement => ("statement", "biodata.statement/1"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),

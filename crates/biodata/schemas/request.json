@@ -74,6 +74,14 @@
         " Genome Reference Consortium human build 38."
       ]
     },
+    "CivicClaimKind": {
+      "description": "CIViC native claim collection.",
+      "enum": [
+        "evidence",
+        "assertions"
+      ],
+      "type": "string"
+    },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
@@ -310,6 +318,20 @@
         "myvariant"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Named variant source sections, without automatic expansion of identity cards.",
+      "enum": [
+        "civic",
+        "hotspots",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CIViC molecular-profile evidence.",
+        " Cancer Hotspots native residues and counts.",
+        " Every implemented variant section."
+      ]
     }
   },
   "$id": "biodata.request/2",
@@ -441,6 +463,38 @@
           ],
           "description": "Required for chromosome notation; no assembly is guessed."
         },
+        "civic_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC cursor, retained unchanged."
+        },
+        "civic_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicClaimKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CIViC claim collection within the selected profile."
+        },
+        "civic_profile": {
+          "description": "Selected CIViC molecular profile for native claim paging.",
+          "format": "uint64",
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "command": {
           "const": "get_variant",
           "type": "string"
@@ -469,6 +523,29 @@
           "$ref": "#/$defs/VariantResolver",
           "default": "car",
           "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default.",
+          "items": {
+            "$ref": "#/$defs/VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Rows per named source section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [

@@ -335,6 +335,7 @@
         "ctgov",
         "nci",
         "civic",
+        "hotspots",
         "oncokb",
         "myvariant",
         "car",
@@ -362,6 +363,7 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
+        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -610,6 +612,7 @@
     "VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
+        "unresolved",
         "resolved",
         "candidates",
         "absent",

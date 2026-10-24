@@ -13,6 +13,27 @@ struct Fields {
     /// Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
+    /// Named source sections; omitted by default.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Box<[VariantSection]>,
+    /// Rows per named source section page.
+    #[serde(default = "default_section_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    section_limit: u32,
+    /// Source rows to skip independently of identity candidate paging.
+    #[serde(default)]
+    section_offset: u32,
+    /// Selected CIViC molecular profile for native claim paging.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
+    civic_profile: Option<u64>,
+    /// Native CIViC claim collection within the selected profile.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    civic_kind: Option<CivicClaimKind>,
+    /// Native CIViC cursor, retained unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    civic_cursor: Option<crate::Text>,
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
@@ -31,6 +52,9 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
+fn default_section_limit() -> u32 {
+    3
+}
 fn default_limit() -> u32 {
     10
 }
@@ -40,10 +64,29 @@ fn resolver() -> VariantResolver {
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) {
+        if !(1..=50).contains(&fields.limit) || !(1..=50).contains(&fields.section_limit) {
+            return Err(super::gene::QueryInvalid);
+        }
+        if fields
+            .civic_profile
+            .is_some_and(|id| id == 0 || id > i32::MAX as u64)
+            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
+            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
+            || fields.civic_profile.is_some()
+                && !fields
+                    .section
+                    .iter()
+                    .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
+        {
             return Err(super::gene::QueryInvalid);
         }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.civic_profile = fields.civic_profile;
+        query.0.civic_kind = fields.civic_kind;
+        query.0.civic_cursor = fields.civic_cursor;
+        query.0.section_limit = fields.section_limit;
+        query.0.section_offset = fields.section_offset;
+        query.0.section = fields.section;
         query.0.limit = fields.limit;
         query.0.offset = fields.offset;
         Ok(query)
@@ -65,11 +108,72 @@ impl VariantGet {
         }
         Ok(Self(Fields {
             input,
+            section: Box::default(),
+            section_limit: default_section_limit(),
+            section_offset: 0,
+            civic_profile: None,
+            civic_kind: None,
+            civic_cursor: None,
             resolver,
             build,
             limit: default_limit(),
             offset: 0,
         }))
+    }
+    /// Explicit section selection; an empty list means identity only.
+    pub fn sections(&self) -> &[VariantSection] {
+        &self.0.section
+    }
+    /// Keep the input and page selectors while choosing sections.
+    pub fn with_sections(mut self, sections: Box<[VariantSection]>) -> Self {
+        self.0.section = sections;
+        self
+    }
+    /// Selected native CIViC profile.
+    pub fn civic_profile(&self) -> Option<u64> {
+        self.0.civic_profile
+    }
+    /// Selected native CIViC claim collection.
+    pub fn civic_kind(&self) -> Option<CivicClaimKind> {
+        self.0.civic_kind
+    }
+    /// Selected native CIViC cursor.
+    pub fn civic_cursor(&self) -> Option<&crate::Text> {
+        self.0.civic_cursor.as_ref()
+    }
+    /// Continue a native CIViC collection without changing identity page selectors.
+    pub fn with_civic_page(
+        &self,
+        profile: u64,
+        kind: CivicClaimKind,
+        cursor: Option<crate::Text>,
+    ) -> Result<Self, super::gene::QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.civic_profile = Some(profile);
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        fields.try_into()
+    }
+    /// Pin a source candidate without changing section paging or source selectors.
+    pub fn for_candidate(&self, input: VariantInput) -> Result<Self, super::gene::QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.input = input;
+        fields.offset = 0;
+        fields.try_into()
+    }
+    /// Named section rows per page.
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit
+    }
+    /// Named section rows to skip.
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
+    /// Page source rows without changing the selected identity candidate page.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
     }
     /// Candidate rows per page.
     pub fn limit(&self) -> u32 {
@@ -118,5 +222,27 @@ impl VariantResolver {
             Self::Mutalyzer => crate::Source::Mutalyzer,
             Self::Variantvalidator => crate::Source::VariantValidator,
         }
+    }
+}
+
+crate::source::canonical_enum! {
+    /// Named variant source sections, without automatic expansion of identity cards.
+    VariantSection, SourceUnknown {
+        /// CIViC molecular-profile evidence.
+        Civic => "civic",
+        /// Cancer Hotspots native residues and counts.
+        Hotspots => "hotspots",
+        /// Every implemented variant section.
+        All => "all",
+    }
+}
+
+crate::macros::wire_enum! {
+    /// CIViC native claim collection.
+    CivicClaimKind {
+        /// Accepted evidence items.
+        Evidence=>"evidence",
+        /// Accepted assertions.
+        Assertions=>"assertions",
     }
 }
