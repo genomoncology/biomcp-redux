@@ -1,4 +1,5 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+pub mod search;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     QueryBody, Reason, Request, Source, Status, StepKind, Text, VariantCard, VariantGet,

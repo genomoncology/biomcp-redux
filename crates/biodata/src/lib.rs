@@ -145,3 +145,6 @@ mod trial_publications;
 pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
+
+pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
+pub use response::VariantPage;
