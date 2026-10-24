@@ -719,7 +719,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 
 - `Fetch::leg` checks the key before anything else. When the key is not configured, the leg is skipped. Every call on it returns `SourceError` with reason `no_key` and touches no network, cache entry or recording. This holds for the source's public endpoints too.
 - The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
-- A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help names the config key and the environment variable that supply it.
+- A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help leads with `biomcp key set <source>` and also names the config key and the environment variable.
 - A skip changes no status. A card whose only gap is a skipped keyed source is complete.
 - Replay cases for a keyed source set a placeholder key in the case's temporary config. The reply key never includes a credential, so the recording matches.
 
@@ -1151,7 +1151,7 @@ Cases drive the binary over recordings, and each adapter's lines run because a c
 | Bundle source | 150 to 400 |
 | The transport | 1,800 to 2,800 |
 
-The article slice estimates PubMed at 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350, iCite 150, the PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF reader 150 and the supplement readers 250.
+The article slice estimates PubMed at 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350, iCite 150, the PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF link and download 80 and the supplement readers 250.
 
 These are estimates. The article slice measures its adapters first. If they average over 300 lines, this section is revised. Each file in an adapter folder stays under 300 lines.
 
@@ -1400,8 +1400,9 @@ biomcp search article [TEXT] [--source LIST] [--sort RULE] [--gene INPUT] [--var
                       [--limit N] [--offset N] [--pool ID]
 biomcp get article <PMID | PMCID | DOI | Europe PMC ID>... [SECTION]...
     sections: fulltext, supplements, annotations, citations, indexing, tldr, pdf, all
-biomcp article text <ID> (--part N | --find TEXT | --variant CHANGE) [--pdf]
-biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT | --variant CHANGE]
+biomcp article text <ID> (--part N | --find TEXT | --variant CHANGE | --save PATH [--replace])
+biomcp article pdf <ID> --save PATH [--replace]
+biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT | --variant CHANGE | --save PATH [--replace]]
 biomcp article citations <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
 biomcp article references <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
 biomcp article citation-evidence <CITING> <CITED> [--fulltext]
@@ -1587,6 +1588,18 @@ HTTP uses stateless JSON responses for both MCP revisions and never mints sessio
 Host checks cover health, errors and MCP. Authority parsing checks bracketed IPv6, ports and DNS labels before case normalization and comparison. Browser Origin is refused, CORS is disabled and forwarding headers confer no authority. Non-loopback listeners require `--allow-host` or `http.allowed_hosts`; configuration and flags combine. `/health` returns the generated `biomcp.http-health/1` body and 200 or 503 after the owned query store opens under `HEALTH_BUDGET`. It makes no source requests and exposes no paths, SQL or settings.
 
 
+### 8.10 Saving files
+
+`article text`, `article pdf` and `article supplement` take `--save PATH`, as `decisions/2026-10-24-pdfs-are-downloaded-not-read.md` says. BioMCP never extracts text from a PDF. The binary owns every file write; the libraries return bytes and never touch the file system.
+
+- BioMCP writes only to the path the caller names. A folder PATH gets a file named from the ID or the supplement's own name. With no `--save`, nothing is written.
+- The write goes to a temporary file beside PATH and is renamed on success, so a failed download leaves nothing.
+- An existing file is refused with a usage error unless `--replace` is given.
+- The reply gives the absolute path, the byte count, the SHA-256, the license and the source URL.
+- BioMCP keeps no download folder and no list of saved files. The cache never holds saved files. The caller owns and deletes them.
+- `biomcp serve --http` refuses `--save` with a usage error that gives the source URL, because the file would land on the server. Stdio MCP runs on the caller's machine and may save.
+- A PDF download is credential-free, accepts only `http` or `https` with a DNS host that resolves to public addresses, checks each of at most three redirects by the same rules, stops at 25 MB, and requires a body starting with `%PDF-`. When a configured proxy applies to the publisher host, the download is refused with reason `proxy`, because BioMCP cannot check the address the proxy reaches.
+
 ## 9. Configuration, observability and performance
 
 ### 9.1 Configuration
@@ -1616,7 +1629,10 @@ pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub f
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 ```
 
-- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `S2_API_KEY`. `biomcp help key <source>` names both for each source that takes a key.
+- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `SEMANTIC_SCHOLAR_API_KEY`. `biomcp help key <source>` leads with `biomcp key set <source>` and names both.
+- Keys are registered through the CLI, as `decisions/2026-10-24-keys-are-registered-through-the-cli.md` says. `biomcp key set <source> [--replace]` prompts once and reads the key with echo off, or reads one line from standard input when it is not a terminal. The key is never a command argument, so it stays out of shell history. An empty key is refused, and a stored key is never replaced without `--replace`. `config.rs` changes only `keys.<name>` in the active config file, keeps every other setting, writes a temporary file and renames it, and sets owner-only permissions on Unix. The file is plain JSON, because these are API keys, not secrets that need encryption.
+- `biomcp key list` names each source that takes a key, its config name, its environment variable and whether the key is `stored`, from the `environment` or `none`. It never prints a value. `biomcp key remove <source>` deletes `keys.<name>` and keeps everything else.
+- The MCP tool refuses `key` commands with a usage error, so an agent never handles a key.
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
 
