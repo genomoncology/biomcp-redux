@@ -62,7 +62,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print a checked-in schema artifact.",
         ),
         (
-            vec!["help", "[get gene|get article|search gene|search article]"],
+            vec!["help", "[COMMAND...]"],
             "Print generated command help.",
         ),
         (
@@ -102,6 +102,11 @@ fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
 fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
     let position = field(node, "x-positional").as_u64();
     let resolved = resolve(node, root);
+    let choices = if text(resolved, "type") == "array" {
+        resolve(field(resolved, "items"), root)
+    } else {
+        resolved
+    };
     HelpArgument {
         name: if position.is_some() {
             name.into()
@@ -120,7 +125,7 @@ fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
         maximum: field(node, "maximum")
             .as_u64()
             .or(field(node, "maxItems").as_u64()),
-        choices: field(resolved, "enum")
+        choices: field(choices, "enum")
             .as_array()
             .into_iter()
             .flatten()
@@ -141,7 +146,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Run BioMCP commands. Human gene queries return one card or page by default; use sections for details.".into()];
+    let mut lines = vec!["Run BioMCP commands. Queries return one card or page by default; request sections for details.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
         for argument in command.arguments {
