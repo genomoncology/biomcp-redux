@@ -53,10 +53,23 @@ impl<'de> Deserialize<'de> for ExternalIds {
             doi: Option<Doi>,
         }
         let raw = Raw::deserialize(deserializer)?;
-        let pmc = raw.pmc.map(|value| {
-            if value.starts_with("PMC") { value } else { format!("PMC{value}") }
-        }).map(|value| value.parse()).transpose().map_err(serde::de::Error::custom)?;
-        Ok(Self { pubmed: raw.pubmed, pmc, doi: raw.doi })
+        let pmc = raw
+            .pmc
+            .map(|value| {
+                if value.starts_with("PMC") {
+                    value
+                } else {
+                    format!("PMC{value}")
+                }
+            })
+            .map(|value| value.parse())
+            .transpose()
+            .map_err(serde::de::Error::custom)?;
+        Ok(Self {
+            pubmed: raw.pubmed,
+            pmc,
+            doi: raw.doi,
+        })
     }
 }
 /// One source author.

@@ -209,9 +209,6 @@
           "description": "The selected PMID, retained when summary mapping fails."
         }
       },
-      "required": [
-        "key"
-      ],
       "type": "object"
     },
     "ArticleKey": {

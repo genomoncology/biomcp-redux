@@ -65,8 +65,11 @@ pub(super) fn search<'a>(
     )))
 }
 fn resolve_rows<'a>(
-    cx: &Ctx<'a>, query: &ArticleSearch, results: &mut [ResultLeg],
-    deadline: &mut Deadline<'a>, out: &mut Outcome,
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    results: &mut [ResultLeg],
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let mut join_failures = Vec::new();
     for result in results.iter_mut() {
