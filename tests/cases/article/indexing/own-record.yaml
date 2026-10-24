@@ -33,12 +33,34 @@
             {
               "descriptor": "Neoplasms",
               "major": true,
-              "qualifiers": []
+              "qualifiers": [
+                {
+                  "name": "drug therapy",
+                  "major": false
+                },
+                {
+                  "name": "genetics",
+                  "major": false
+                },
+                {
+                  "name": "pathology",
+                  "major": false
+                }
+              ]
             },
             {
               "descriptor": "Proto-Oncogene Proteins c-akt",
               "major": true,
-              "qualifiers": []
+              "qualifiers": [
+                {
+                  "name": "genetics",
+                  "major": false
+                },
+                {
+                  "name": "metabolism",
+                  "major": false
+                }
+              ]
             }
           ]
         },
