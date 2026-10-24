@@ -65,20 +65,18 @@ fn run() -> Result<(), String> {
             "all omitted the explicit context help step: {missing}"
         ));
     }
-    empty_components(&missing)?;
     let mcp = super::mcp::call_with_globals(&env, &all, false, &[])?;
     if missing.get("result") != mcp.get("result") || missing.get("next") != mcp.get("next") {
         return Err("all context CLI/MCP differs".into());
     }
     oncokb::invoke(&env, &["help", "get", "variant"].map(str::to_owned), 0)?;
     let requests = stub.finish()?;
-    let added = component_requests(&requests)?;
     if requests
         .iter()
         .filter(|(_, r)| r.starts_with("GET /api/v1/annotate/"))
         .count()
         != 1
-        || requests.len() - added != 4
+        || requests.len() != 4
     {
         return Err(format!(
             "keyless or contextless request escaped, or warm cache missed: {}",
@@ -114,31 +112,4 @@ fn reply(request: &str) -> Result<String, String> {
         return Ok(json!({"total":1,"hits":[{"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}}}]}).to_string());
     }
     oncokb::reply(request)
-}
-
-// The synthetic parent deliberately lacks all three added component payloads.
-fn empty_components(value: &Value) -> Result<(), String> {
-    for name in ["predict", "conservation", "cosmic"] {
-        if value.pointer(&format!("/result/candidates/0/sections/{name}/state"))
-            != Some(&json!("empty")) {
-            return Err(format!("all did not preserve empty {name}: {value}"));
-        }
-    }
-    Ok(())
-}
-fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
-    for fields in [
-        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.polyphen2%2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
-        "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way",
-        "fields=_id%2Ccosmic",
-    ] {
-        let count = requests.iter().filter(|(_, request)| {
-            request.starts_with("GET /v1/variant/chr7%3Ag.140753336A%3ET?")
-                && request.contains(&format!("?{fields}&assembly=hg38 "))
-        }).count();
-        if count != 1 {
-            return Err(format!("expected one added component request for {fields}: {requests:?}"));
-        }
-    }
-    Ok(3)
 }

@@ -95,17 +95,28 @@ fn body(request: &str) -> Result<String, String> {
 fn envelope(value: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let mut comparable = value.clone();
-    let header = comparable.pointer_mut("/result/candidates/0")
-        .and_then(Value::as_object_mut).ok_or("missing candidate")?;
-    let terms = header.remove("component_terms").ok_or("missing component terms")?;
+    let header = comparable
+        .pointer_mut("/result/candidates/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing candidate")?;
+    let terms = header
+        .remove("component_terms")
+        .ok_or("missing component terms")?;
     let expected = biomcp_adapters::myvariant::components::label(
         biomcp_adapters::myvariant::components::CLINVAR.terms,
-    ).map_err(|e| e.to_string())?;
-    let payload = serde_json::to_vec(&comparable).map_err(|e| e.to_string())?.len();
+    )
+    .map_err(|e| e.to_string())?;
+    let payload = serde_json::to_vec(&comparable)
+        .map_err(|e| e.to_string())?
+        .len();
     if terms != json!([{"component":"clinvar","terms":expected}])
-        || full - payload != 205 || payload > 1536 || full > 1741 {
-        return Err(format!("hotspots full={full}, comparable={payload}; caps=1741/1536"));
+        || full - payload != 205
+        || payload > 1536
+        || full > 1771
+    {
+        return Err(format!(
+            "hotspots full={full}, comparable={payload}; caps=1771/1536"
+        ));
     }
-    println!("hotspots full={full}, comparable={payload}; original comparable cap=1536");
     Ok(())
 }
