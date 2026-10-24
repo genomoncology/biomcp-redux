@@ -148,7 +148,7 @@ PDF metadata and explicit-path download remain pending. BioMCP will not extract 
 
 ### Variant
 
-- [ ] Investigation
+- [x] Investigation
 - [ ] Questions answered by Ian
 - [ ] Biodata types and schema
 - [ ] Search
@@ -177,7 +177,7 @@ Sources:
 
 ### Trial
 
-- [ ] Investigation
+- [x] Investigation
 - [ ] Questions answered by Ian
 - [ ] Biodata types and schema
 - [ ] Search
