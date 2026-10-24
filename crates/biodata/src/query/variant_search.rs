@@ -132,14 +132,6 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchSource"))]
     source: Option<VariantSearchSource>,
-    /// Literal MyVariant clinvar.rcv.clinical_significance value; no aliases or classification inference. Requires a declared protein or region selector.
-    #[serde(
-        default,
-        deserialize_with = "present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    significance: Option<Text>,
     /// Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
     #[serde(
         default,
@@ -204,7 +196,7 @@ impl TryFrom<Fields> for VariantSearch {
             || f.offset >= Self::MAX_RESULTS
             || (raw && f.filtered())
             || (f.has.is_some() && f.has == f.missing)
-            || [&f.significance, &f.review_status, &f.condition]
+            || [&f.review_status, &f.condition]
                 .into_iter()
                 .flatten()
                 .any(|v| v.as_str().len() > 256 || v.as_str().chars().any(char::is_control))
@@ -258,15 +250,13 @@ impl VariantSearch {
 }
 impl Fields {
     fn filtered(&self) -> bool {
-        self.significance.is_some()
-            || self.review_status.is_some()
+        self.review_status.is_some()
             || self.condition.is_some()
             || self.has.is_some()
             || self.missing.is_some()
     }
     fn append_filters(&self, term: &mut String) {
         for (field, value) in [
-            ("clinical_significance", &self.significance),
             ("review_status", &self.review_status),
             ("conditions.name", &self.condition),
         ] {
