@@ -25,7 +25,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/file/data/bytes": 65,
+        "/result/file/data/bytes": 67,
         "/result/file/data/document/filename": "SAP_001.pdf"
       },
       "max_bytes": 3500
@@ -51,7 +51,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/file/data/bytes": 65,
+        "/result/file/data/bytes": 67,
         "/result/file/data/document/filename": "SAP_001.pdf"
       },
       "max_bytes": 3500

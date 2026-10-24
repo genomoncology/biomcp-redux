@@ -296,7 +296,7 @@ Proof paths without a prefix are under `tests/cases/trial/`; `runner/` means `cr
 
 | 0.9 section | 1.0 answer | Owning proof |
 | --- | --- | --- |
-| `eligibility` | Intact source text and structured age/sex metadata; character continuations preserve every character | `runner/trial_get.rs`, `runner/nci_walk.rs` |
+| `eligibility` | Intact source text and structured age/sex metadata; ClinicalTrials.gov character continuations preserve every character, while NCI pages whole unclassified source criterion records | `runner/trial_get.rs`, `runner/nci_walk.rs` |
 | `outcomes` | Whole native outcome records with measures, descriptions and time frames | Get cases and both source walkers |
 | `arms` | Whole native arms and intervention relationships; source-provided intervention names remain intact | Get cases and both source walkers |
 | `locations` | Whole original registry sites with attached contacts and coordinates when supplied. NCI reports unsupported | `sites/*.yaml`, `runner/trial_sites.rs`, `nci-get.yaml` |
