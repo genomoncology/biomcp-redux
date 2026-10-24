@@ -257,11 +257,10 @@ pub fn outcome(
 }
 
 /// Reapply current publisher labels when an outcome is restored from a snapshot.
-pub fn restore_outcome(saved: biomcp_types::SourceOutcome) -> biomcp_types::SourceOutcome {
-    let mut current = outcome(saved.source, saved.state, saved.reason);
-    current.term = saved.term;
-    current.count = saved.count;
-    current.fetched = saved.fetched;
-    current.notices = saved.notices;
-    current
+pub fn restore_outcome(mut saved: biomcp_types::SourceOutcome) -> biomcp_types::SourceOutcome {
+    let current = outcome(saved.source, saved.state, saved.reason);
+    saved.usage = current.usage;
+    saved.terms = current.terms;
+    saved.terms_url = current.terms_url;
+    saved
 }
