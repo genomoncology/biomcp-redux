@@ -7,3 +7,7 @@ pub(crate) static BIOTHINGS: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative local limit for public published-file downloads.
+pub(crate) static HGNC: Quota =
+    Quota::new(SourceKey::declare("hgnc"), Rate::per_second(1), None, 1);

@@ -17,7 +17,7 @@ Each slice updates these counts when its accounting lands.
 
 ## Foundations
 
-- [ ] Workspace and five crates with enforced dependency direction
+- [x] Workspace and five crates with enforced dependency direction
 - [x] Rust standards, lints and ratchets in the gate
 - [x] Minimal biodata core types and conventions
 - [x] Transport: deadlines, source-key rate limits, retries, keyed sources, reply checks, cache
