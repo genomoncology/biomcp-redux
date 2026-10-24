@@ -36,8 +36,8 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
-mod trial_tables;
 mod trial_get;
+mod trial_tables;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

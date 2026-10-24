@@ -2,6 +2,7 @@
 use super::{CacheError, Store, db};
 use biodata::{Source, SourceOutcome, Text};
 use rusqlite::{OptionalExtension, params};
+use sha2::{Digest,Sha256};
 impl Store<'_> {
     /// Read source dependencies before any saved protocol content.
     pub(crate) fn trial_snapshot(
@@ -25,9 +26,9 @@ impl Store<'_> {
         sources: &[SourceOutcome],
     ) -> Result<Text, CacheError> {
         self.write(|tx| {
-            let id:String=tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?;
+            let id=format!("{:x}",Sha256::digest([key,payload.as_bytes()].concat()));
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;
-            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5)",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(id) DO UPDATE SET expires=excluded.expires",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;
             Text::new(&id).map_err(|_|CacheError::Database)
         })
     }

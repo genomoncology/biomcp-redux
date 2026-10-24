@@ -31,14 +31,14 @@ fn generate<T: JsonSchema>() -> Value {
     .expect("schema serializes")
 }
 
-    macro_rules! contracts {
+macro_rules! contracts {
         ($($ty:ty => ($name:literal, $id:literal)),+ $(,)?) => {
             vec![$(Contract { name: $name, id: $id, generate: generate::<$ty> }),+]
         };
     }
 
 fn registry() -> Vec<Contract> {
-    let mut result=contracts! {
+    let mut result = contracts! {
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
@@ -112,8 +112,8 @@ fn registry() -> Vec<Contract> {
     result.extend(trial_contracts());
     result
 }
-fn trial_contracts()->Vec<Contract>{
-    contracts!{
+fn trial_contracts() -> Vec<Contract> {
+    contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial_cards/1"),
         TrialSearch => ("trial-search", "biodata.trial-search/1"),

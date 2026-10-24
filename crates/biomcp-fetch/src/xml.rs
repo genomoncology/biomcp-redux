@@ -58,10 +58,10 @@ pub trait XmlReply: Reply {
 }
 
 type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biodata::Reason> + 'a;
-type ReplyCheck<'a,T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
+type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
-    check: Option<&'a ReplyCheck<'a,T>>,
+    check: Option<&'a ReplyCheck<'a, T>>,
     codec: Codec,
     pub(crate) limit: Option<u64>,
     octet_stream: bool,

@@ -56,11 +56,15 @@ fn fetch(
     for (id, row) in query.input().iter().zip(rows) {
         match row {
             Ok((detail, metadata)) => {
+                let mut own_source=source.clone();
+                if own_source.state==SourceState::Failed && source_updated.is_some(){
+                    own_source.state=SourceState::Ok;own_source.reason=None;
+                }
                 let snapshot = Snapshot {
                     detail,
                     fetched: u64::try_from(metadata.fetched).unwrap_or_default(),
                     version: source_updated.clone(),
-                    sources: vec![source.clone()],
+                    sources: vec![own_source],
                 };
                 let pool = if let Some(store) = store.as_mut() {
                     Some(store.save_trial_snapshot(
