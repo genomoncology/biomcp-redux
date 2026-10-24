@@ -73,7 +73,7 @@ fn root(xml: &str) -> Result<Element<'_>, BadReply> {
         let begin = reader.buffer_position() as usize;
         match reader.read_event().map_err(|_| BadReply)? {
             quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
-                return if tag.name().as_ref() == b"ClinVarResult-Set" {
+                return if tag.name().as_ref() == "ClinVarResult-Set" {
                     Ok(Element(&xml[begin..]))
                 } else {
                     Err(BadReply)
