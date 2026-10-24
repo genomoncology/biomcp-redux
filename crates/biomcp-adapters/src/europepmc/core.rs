@@ -156,7 +156,7 @@ fn fragment(mut html: &str) -> Result<String, BadReply> {
         match reader.read_event().map_err(|_| BadReply)? {
             quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
                 for attribute in tag.attributes() {
-                    if attribute.map_err(|_| BadReply)?.value.contains(b"<") {
+                    if attribute.map_err(|_| BadReply)?.value.contains('<') {
                         return Err(BadReply);
                     }
                 }
