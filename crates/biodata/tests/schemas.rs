@@ -258,6 +258,8 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/1"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/1"),
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/1"),

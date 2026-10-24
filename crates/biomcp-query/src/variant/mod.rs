@@ -4,6 +4,7 @@ mod components;
 mod conservation;
 mod cosmic;
 mod predict;
+pub mod search;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{

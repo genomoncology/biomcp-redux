@@ -95,3 +95,20 @@ pub struct VariantSections {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 }
+
+/// One native MyVariant candidate page; its total and offset are in the shared envelope.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantPage {
+    /// Exact query sent to the named source, without rewriting raw query text.
+    pub source_query: String,
+    /// Assembly sent to the source, never inferred from a candidate label.
+    pub build: crate::Build,
+    /// Native source order, preserving every candidate including repeated source identities.
+    pub items: Box<[VariantHeader]>,
+}
+impl super::ResponseBody for VariantPage {
+    const SCHEMA: &'static str = "biomcp.variant_page/1";
+    type Query = crate::VariantSearch;
+}

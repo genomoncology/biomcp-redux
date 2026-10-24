@@ -71,6 +71,7 @@ pub use variant_civic::{
     CivicClaimPage, CivicMember, CivicMembership, CivicProfile, CivicStatement, VariantCivic,
 };
 mod variant_hotspots;
+pub use variant::VariantPage;
 pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};

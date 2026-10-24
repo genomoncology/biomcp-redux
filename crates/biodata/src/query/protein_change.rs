@@ -1,0 +1,110 @@
+//! Checked declared protein substitutions; no free-text extraction or allele inference.
+use crate::macros::text_value;
+use std::str::FromStr;
+const AMINO: &[(&str, &str)] = &[
+    ("A", "Ala"),
+    ("R", "Arg"),
+    ("N", "Asn"),
+    ("D", "Asp"),
+    ("C", "Cys"),
+    ("E", "Glu"),
+    ("Q", "Gln"),
+    ("G", "Gly"),
+    ("H", "His"),
+    ("I", "Ile"),
+    ("L", "Leu"),
+    ("K", "Lys"),
+    ("M", "Met"),
+    ("F", "Phe"),
+    ("P", "Pro"),
+    ("S", "Ser"),
+    ("T", "Thr"),
+    ("W", "Trp"),
+    ("Y", "Tyr"),
+    ("V", "Val"),
+    ("U", "Sec"),
+    ("O", "Pyl"),
+    ("*", "Ter"),
+];
+/// Explicit protein substitution with checked residue codes and a positive position.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ProteinChange {
+    original: Box<str>,
+    from: usize,
+    position: u32,
+    to: usize,
+}
+impl FromStr for ProteinChange {
+    type Err = super::gene::QueryInvalid;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        let original = value;
+        let value = value.strip_prefix("p.").unwrap_or(value);
+        let first = value
+            .find(|c: char| c.is_ascii_digit())
+            .ok_or(super::gene::QueryInvalid)?;
+        let end = value
+            .rfind(|c: char| c.is_ascii_digit())
+            .ok_or(super::gene::QueryInvalid)?
+            + 1;
+        let residue = |v: &str| {
+            AMINO
+                .iter()
+                .position(|(one, three)| v == *one || v == *three)
+                .ok_or(super::gene::QueryInvalid)
+        };
+        let digits = value.get(first..end).ok_or(super::gene::QueryInvalid)?;
+        if digits.starts_with('0') || !digits.bytes().all(|c| c.is_ascii_digit()) {
+            return Err(super::gene::QueryInvalid);
+        }
+        let position = digits.parse().map_err(|_| super::gene::QueryInvalid)?;
+        Ok(Self {
+            original: original.into(),
+            from: residue(value.get(..first).ok_or(super::gene::QueryInvalid)?)?,
+            position,
+            to: residue(value.get(end..).ok_or(super::gene::QueryInvalid)?)?,
+        })
+    }
+}
+impl ProteinChange {
+    /// Literal spellings searched by readers, in stable order.
+    pub fn forms(&self) -> [String; 4] {
+        let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
+        let (to, to_three) = AMINO.get(self.to).copied().unwrap_or(("", ""));
+        let one = format!("{from}{}{to}", self.position);
+        let three = format!("{from_three}{}{to_three}", self.position);
+        [
+            one.clone(),
+            three.clone(),
+            format!("p.{one}"),
+            format!("p.{three}"),
+        ]
+    }
+}
+
+impl std::fmt::Display for ProteinChange {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.original)
+    }
+}
+impl ProteinChange {
+    /// Exact caller spelling, without converting amino-acid notation.
+    pub fn as_str(&self) -> &str {
+        &self.original
+    }
+}
+text_value!(ProteinChange, "ProteinChange", {
+    let residues = AMINO
+        .iter()
+        .flat_map(|(one, three)| [regex_escape(one), (*three).to_owned()])
+        .collect::<Vec<_>>()
+        .join("|");
+    format!("^(p\\.)?({residues})[1-9][0-9]*({residues})$")
+});
+#[cfg(feature = "schema")]
+fn regex_escape(value: &str) -> String {
+    if value == "*" {
+        "\\*".into()
+    } else {
+        value.into()
+    }
+}

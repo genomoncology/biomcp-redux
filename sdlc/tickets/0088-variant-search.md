@@ -1,6 +1,7 @@
 # 0088 — Search variants by gene and protein, by region, or by an explicit MyVariant query
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f29670d5d44b97cd2c9caf9d53b23b16274619d1
 
 Milestone: 2
 
