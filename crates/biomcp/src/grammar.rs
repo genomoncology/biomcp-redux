@@ -27,6 +27,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
+        .disable_help_subcommand(true)
         .disable_version_flag(true)
         .arg_required_else_help(true)
         .subcommand_required(true);

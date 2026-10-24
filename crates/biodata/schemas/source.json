@@ -10,7 +10,8 @@
     "europepmc",
     "pubtator",
     "ctgov",
-    "civic"
+    "civic",
+    "oncokb"
   ],
   "title": "Source",
   "type": "string"

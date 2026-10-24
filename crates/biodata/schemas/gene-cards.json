@@ -356,6 +356,17 @@
           },
           "type": "array"
         },
+        "oncokb": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OncokbCard"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Verified keyed source card annotation."
+        },
         "sections": {
           "anyOf": [
             {
@@ -483,7 +494,8 @@
     "GeneSection": {
       "description": "A landed section that can be requested for a gene.",
       "enum": [
-        "constraint"
+        "constraint",
+        "oncokb"
       ],
       "type": "string"
     },
@@ -491,6 +503,7 @@
       "description": "A section request word, including expansion to all landed sections.",
       "enum": [
         "constraint",
+        "oncokb",
         "all"
       ],
       "type": "string"
@@ -502,13 +515,24 @@
         "constraint": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Population constraint reported by gnomAD."
+        },
+        "oncokb": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Keyed source gene details."
         }
       },
       "type": "object"
@@ -670,6 +694,134 @@
       "pattern": "^[0-9]{6}$",
       "type": "string"
     },
+    "Oncokb": {
+      "additionalProperties": false,
+      "description": "Whole OncoKB gene prose and independent transcript annotations.",
+      "properties": {
+        "background": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole source background."
+        },
+        "grch37": {
+          "$ref": "#/$defs/OncokbTranscript",
+          "description": "GRCh37 source transcripts."
+        },
+        "grch38": {
+          "$ref": "#/$defs/OncokbTranscript",
+          "description": "GRCh38 source transcripts."
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole source summary."
+        }
+      },
+      "required": [
+        "grch37",
+        "grch38"
+      ],
+      "type": "object"
+    },
+    "OncokbCard": {
+      "additionalProperties": false,
+      "description": "Short source-stated annotation on a gene card.",
+      "properties": {
+        "gene_type": {
+          "$ref": "#/$defs/OncokbGeneType",
+          "description": "Source gene classification."
+        },
+        "highest_resistance_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Highest resistance level, as stated by the source."
+        },
+        "highest_sensitive_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Highest sensitive level, as stated by the source."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Data release version, when verified."
+        }
+      },
+      "required": [
+        "gene_type"
+      ],
+      "type": "object"
+    },
+    "OncokbGeneType": {
+      "description": "OncoKB's stated gene classification.",
+      "enum": [
+        "ONCOGENE_AND_TSG",
+        "ONCOGENE",
+        "TSG",
+        "INSUFFICIENT_EVIDENCE",
+        "NEITHER"
+      ],
+      "type": "string"
+    },
+    "OncokbTranscript": {
+      "additionalProperties": false,
+      "description": "Source transcript annotation for one genome build.",
+      "properties": {
+        "isoform": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated isoform, kept separate from HGNC MANE."
+        },
+        "refseq": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated RefSeq transcript."
+        }
+      },
+      "type": "object"
+    },
     "PageInfo": {
       "additionalProperties": false,
       "description": "Search page counts after filtering and deduplication.",
@@ -764,6 +916,127 @@
       "type": "string"
     },
     "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Oncokb",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -894,7 +1167,8 @@
         "europepmc",
         "pubtator",
         "ctgov",
-        "civic"
+        "civic",
+        "oncokb"
       ],
       "type": "string"
     },
@@ -959,7 +1233,8 @@
         "ok",
         "stale",
         "syncing",
-        "failed"
+        "failed",
+        "skipped"
       ],
       "type": "string"
     },
@@ -1025,7 +1300,8 @@
         "page",
         "fresh",
         "disambiguate",
-        "sync"
+        "sync",
+        "key"
       ],
       "type": "string"
     },
