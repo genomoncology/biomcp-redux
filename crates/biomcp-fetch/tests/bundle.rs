@@ -1,6 +1,11 @@
 //! Bundle contracts through the public transport boundary.
-#![expect(clippy::unwrap_used, reason = "Fixture failures fail the contract")]
-mod support;
+#![expect(
+    clippy::unwrap_used,
+    clippy::disallowed_methods,
+    clippy::disallowed_types,
+    reason = "Fixture failures fail the contract"
+)]
+pub mod support;
 use biomcp_fetch::{
     Bundle, Fetch, FetchConfig, Find, Freshness, KeyKind, KeyUse, Keys, Quota, Rate, Row,
     RowFormat, SourceKey,
@@ -328,4 +333,195 @@ fn auto_download_limit_keeps_owned_part_and_offline_miss_stays_offline() {
         matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("kinase")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Offline)
     );
     assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn interrupted_download_resumes_only_the_same_representation() {
+    for scenario in [
+        "safe", "ignored", "changed", "offset", "total", "missing", "412",
+    ] {
+        let server = support::Server::new();
+        let b = declared(&server);
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("cache.sqlite");
+        let f = cached(&path);
+        let cut = TSV.len() / 2;
+        std::thread::scope(|scope| {
+            let call = scope.spawn(|| f.sync(&b));
+            server.next().raw(&format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",TSV.len(),&TSV[..cut]));
+            assert!(call.join().unwrap().is_err());
+        });
+        std::thread::scope(|scope| {
+            let call = scope.spawn(|| f.sync(&b));
+            let request = server.next();
+            let lower = request.text.to_ascii_lowercase();
+            assert!(lower.contains(&format!("range: bytes={cut}-")));
+            assert!(lower.contains("if-match: \"one\""));
+            assert!(!lower.contains("if-range"));
+            match scenario {
+                "ignored" => request.respond(200, "ETag: \"two\"\r\n", TSV),
+                "412" => {
+                    request.respond(412, "", "");
+                    let next = server.next();
+                    assert!(!next.text.to_ascii_lowercase().contains("range:"));
+                    next.respond(200, "ETag: \"two\"\r\n", TSV);
+                }
+                _ => {
+                    let etag = if scenario == "changed" { "two" } else { "one" };
+                    let offset = if scenario == "offset" { cut + 1 } else { cut };
+                    let total = if scenario == "total" {
+                        TSV.len() + 1
+                    } else {
+                        TSV.len()
+                    };
+                    let range = if scenario == "missing" {
+                        String::new()
+                    } else {
+                        format!(
+                            "Content-Range: bytes {offset}-{}/{total}\r\n",
+                            TSV.len() - 1
+                        )
+                    };
+                    request.respond(206, &format!("ETag: \"{etag}\"\r\n{range}"), &TSV[cut..]);
+                }
+            }
+            let result = call.join().unwrap();
+            if ["safe", "ignored", "412"].contains(&scenario) {
+                assert_eq!(result.unwrap().rows, 1);
+            } else {
+                assert!(result.is_err());
+            }
+        });
+    }
+}
+
+struct Child(std::process::Child);
+impl Child {
+    fn start(path: &std::path::Path, base: &str, expected: &str) -> Self {
+        let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+        command
+            .args(["--exact", "bundle_sync_child", "--nocapture"])
+            .env_clear()
+            .env("BUNDLE_PATH", path)
+            .env("BUNDLE_BASE", base)
+            .env("BUNDLE_EXPECTED", expected)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped());
+        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
+            command.env("LLVM_PROFILE_FILE", profile);
+        }
+        Self(command.spawn().unwrap())
+    }
+    fn finish(&mut self) {
+        let end = std::time::Instant::now() + Duration::from_secs(15);
+        loop {
+            if let Some(status) = self.0.try_wait().unwrap() {
+                let mut output = String::new();
+                use std::io::Read;
+                self.0
+                    .stdout
+                    .take()
+                    .unwrap()
+                    .read_to_string(&mut output)
+                    .unwrap();
+                self.0
+                    .stderr
+                    .take()
+                    .unwrap()
+                    .read_to_string(&mut output)
+                    .unwrap();
+                assert!(status.success(), "{output}");
+                break;
+            }
+            assert!(std::time::Instant::now() < end, "bundle child stalled");
+            std::thread::park_timeout(Duration::from_millis(1));
+        }
+    }
+}
+impl Drop for Child {
+    fn drop(&mut self) {
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
+#[test]
+fn bundle_sync_child() {
+    let Ok(path) = std::env::var("BUNDLE_PATH") else {
+        return;
+    };
+    let base = Box::leak(std::env::var("BUNDLE_BASE").unwrap().into_boxed_str());
+    let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        base,
+        source: biodata::Source::PubMed,
+        key: KeyUse::None,
+        quota: &QUOTA,
+        deadline: Duration::from_secs(10),
+    }));
+    let b = Bundle::<Gene> {
+        spec,
+        name: "genes",
+        path: "/genes",
+        format: RowFormat::Tsv,
+        fresh: Freshness::Days(1),
+        row: PhantomData,
+    };
+    let f = cached(std::path::Path::new(&path));
+    let result = f.sync(&b);
+    if std::env::var("BUNDLE_EXPECTED").unwrap() == "syncing" {
+        assert!(
+            matches!(result,Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biodata::Reason::Syncing)
+        );
+    } else {
+        assert_eq!(result.unwrap().rows, 1);
+    }
+}
+#[test]
+fn independent_holders_contend_and_takeover_fences_the_old_publisher() {
+    let server = support::Server::<()>::new();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let _ = cached(&path);
+    let mut old = Child::start(&path, server.base, "syncing");
+    let old_request = server.next();
+    let mut contender = Child::start(&path, server.base, "syncing");
+    contender.finish();
+    assert!(server.requests.try_recv().is_err());
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let old_path: String = db
+        .query_row("SELECT part FROM bundle_sync", [], |r| r.get(0))
+        .unwrap();
+    db.execute("UPDATE bundle_sync SET lease_until=0", [])
+        .unwrap();
+    let mut successor = Child::start(&path, server.base, "ok");
+    let next_request = server.next();
+    let successor_path: String = db
+        .query_row("SELECT part FROM bundle_sync", [], |r| r.get(0))
+        .unwrap();
+    assert_ne!(old_path, successor_path);
+    old_request.respond(200, "ETag: \"old\"\r\n", TSV);
+    old.finish();
+    assert!(std::path::Path::new(&successor_path).exists());
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM bundle_sync WHERE holder IS NOT NULL",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM bundle_row", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+    next_request.respond(200, "ETag: \"new\"\r\n", TSV);
+    successor.finish();
+    assert_eq!(
+        db.query_row("SELECT etag FROM bundle", [], |r| r.get::<_, String>(0))
+            .unwrap(),
+        "\"new\""
+    );
+    assert!(!std::path::Path::new(&old_path).exists());
 }

@@ -13,8 +13,9 @@ use std::{
     time::Duration,
 };
 
+/// Checked generic JSON fixture.
 #[derive(Debug, Deserialize)]
-pub(super) struct Answer {
+pub struct Answer {
     pub(super) answer: bool,
 }
 impl Reply for Answer {
@@ -23,7 +24,8 @@ impl Reply for Answer {
     }
 }
 
-pub(super) struct Request<T> {
+/// An observed request whose response is controlled by the test.
+pub struct Request<T> {
     pub(super) text: String,
     pub(super) body: Vec<u8>,
     observation: T,
@@ -49,7 +51,8 @@ impl<T> Request<T> {
     pub(super) fn bytes(self, response: Vec<u8>) {
         let _ = self.reply.send(response);
     }
-    pub(super) fn ok(self) {
+    /// Return the generic checked JSON fixture.
+    pub fn ok(self) {
         self.respond(200, "", r#"{"answer":true}"#);
     }
 }
