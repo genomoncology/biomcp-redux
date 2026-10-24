@@ -35,8 +35,14 @@ impl Gene {
         super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
-                highest_sensitive_level: text(self.highest_sensitive_level, "highest_sensitive_level"),
-                highest_resistance_level: text(self.highest_resistance_level, "highest_resistance_level"),
+                highest_sensitive_level: text(
+                    self.highest_sensitive_level,
+                    "highest_sensitive_level",
+                ),
+                highest_resistance_level: text(
+                    self.highest_resistance_level,
+                    "highest_resistance_level",
+                ),
                 version: None,
             },
             section: Oncokb {
