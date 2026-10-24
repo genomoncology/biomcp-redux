@@ -4,7 +4,8 @@
       "description": "Article ordering supported by this command.",
       "enum": [
         "rank",
-        "date"
+        "date",
+        "citations"
       ],
       "type": "string"
     },
@@ -146,7 +147,7 @@
     "sort": {
       "$ref": "#/$defs/ArticleSort",
       "default": "rank",
-      "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\nBoth pubmed and europepmc support rank and date."
+      "description": "rank (default): native provider order; several sources take turns.\ndate: newest first in each source; PubMed means date added to PubMed.\ncitations: most cited first; costs about 1 s per 1,000 PMIDs.\nAll sources support citations."
     },
     "source": {
       "default": [

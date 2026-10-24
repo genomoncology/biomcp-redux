@@ -66,7 +66,7 @@ singleton! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ErrorDetail {
-    #[serde(default, skip_serializing_if="Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     count: Option<u64>,
     code: ErrorCode,
     message: ErrorMessage,
@@ -173,7 +173,16 @@ impl ErrorEnvelope {
 
 impl ErrorEnvelope {
     /// Refuse citation enrichment above its checked PMID window.
-    pub fn too_many_pmids(count:u64)->Self {
-        Self {schema:ErrorSchema::V1,status:ErrorStatus::Usage,error:ErrorDetail {count:Some(count),code:ErrorCode::TooManyPmids,message:ErrorMessage::TooManyPmids},next:Vec::new()}
+    pub fn too_many_pmids(count: u64) -> Self {
+        Self {
+            schema: ErrorSchema::V1,
+            status: ErrorStatus::Usage,
+            error: ErrorDetail {
+                count: Some(count),
+                code: ErrorCode::TooManyPmids,
+                message: ErrorMessage::TooManyPmids,
+            },
+            next: Vec::new(),
+        }
     }
 }

@@ -138,7 +138,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let id = if verb=="article" {"biodata.article-edges/1"} else if entity == "article" && verb == "get" {
+        let id = if verb == "article" {
+            "biodata.article-edges/1"
+        } else if entity == "article" && verb == "get" {
             "biodata.article-get/1"
         } else if entity == "article" {
             "biodata.article-search/1"
@@ -150,9 +152,13 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         let value = arguments(matches, &schema)?;
-        let request = if verb=="article" {
-            let query=serde_json::from_value::<ArticleEdges>(value).map_err(|_|())?;
-            if entity=="citations" {Request::ArticleCitations(query)} else {Request::ArticleReferences(query)}
+        let request = if verb == "article" {
+            let query = serde_json::from_value::<ArticleEdges>(value).map_err(|_| ())?;
+            if entity == "citations" {
+                Request::ArticleCitations(query)
+            } else {
+                Request::ArticleReferences(query)
+            }
         } else if entity == "article" && verb == "get" {
             Request::GetArticle(serde_json::from_value::<ArticleGet>(value).map_err(|_| ())?)
         } else if entity == "article" {

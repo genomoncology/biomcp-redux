@@ -59,4 +59,5 @@ pub(crate) static PUBTATOR: Quota =
     Quota::new(SourceKey::declare("pubtator"), Rate::per_second(3), None, 3);
 
 // Conservative local iCite policy; no published numeric provider limit verified.
-pub(crate) static ICITE: Quota = Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);
+pub(crate) static ICITE: Quota =
+    Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);

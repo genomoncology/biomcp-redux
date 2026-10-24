@@ -383,22 +383,26 @@
     "ArticleSection": {
       "description": "A landed article section.",
       "enum": [
-        "annotations"
+        "annotations",
+        "citations"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Normalized text-mined entities from PubTator3."
+        " Normalized text-mined entities from PubTator3.",
+        " Citation counts from NIH iCite."
       ]
     },
     "ArticleSectionWord": {
       "description": "Article section request including all landed sections.",
       "enum": [
         "annotations",
+        "citations",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
+        " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
     },
@@ -409,13 +413,24 @@
         "annotations": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
             }
           ],
           "description": "Normalized PubTator3 entities."
+        },
+        "citations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Citation counts from NIH iCite."
         }
       },
       "type": "object"
@@ -466,6 +481,51 @@
         "items",
         "total"
       ],
+      "type": "object"
+    },
+    "Citations": {
+      "additionalProperties": false,
+      "description": "Independently reported iCite counts; absent lists are never confirmed zeros.",
+      "properties": {
+        "cited_by": {
+          "description": "Number of citing PubMed papers.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cited_by_clinical": {
+          "description": "Number of distinct clinical citing papers, when the list was present.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "rcr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Relative citation ratio, only when confirmed non-provisional."
+        },
+        "references": {
+          "description": "Number of distinct references, when the list was present.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
       "type": "object"
     },
     "Correction": {
@@ -524,6 +584,11 @@
     "EntrezGeneId": {
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
+    },
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -755,6 +820,127 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
+              "$ref": "#/$defs/Citations",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
               "$ref": "#/$defs/Capped2",
               "description": "Whole section data."
             },
@@ -880,6 +1066,7 @@
         "clingen",
         "pubmed",
         "europepmc",
+        "icite",
         "pubtator",
         "ctgov",
         "civic",
@@ -896,6 +1083,7 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
+        " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",

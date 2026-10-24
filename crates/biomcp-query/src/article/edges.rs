@@ -3,62 +3,139 @@ use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::{ArticleEdges, ArticleItem, ArticleKey, QueryBody, Request, Status, StepKind, Text};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
-pub(super) fn run(cx:&Ctx<'_>,query:&ArticleEdges,references:bool)->Outcome {
-    let mut out=empty();
-    out.body=QueryBody::ArticleEdges(biodata::ArticleEdgePage {items:Box::default()});
-    let command=cx.fetch.command_deadline(cx.budget);
-    let mut deadline=command.deadline();
-    if let Err(error)=execute(cx,query,references,&mut deadline,&mut out) {
-        out.local=crate::status::local(error);
-        out.status=Status::Failed;
+pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
+    let mut out = empty();
+    out.body = QueryBody::ArticleEdges(biodata::ArticleEdgePage {
+        items: Box::default(),
+    });
+    let command = cx.fetch.command_deadline(cx.budget);
+    let mut deadline = command.deadline();
+    if let Err(error) = execute(cx, query, references, &mut deadline, &mut out) {
+        out.local = crate::status::local(error);
+        out.status = Status::Failed;
     }
     command.finish(deadline.remaining());
     out
 }
-fn request(query:ArticleEdges,references:bool)->Request {
-    if references {Request::ArticleReferences(query)} else {Request::ArticleCitations(query)}
+fn request(query: ArticleEdges, references: bool) -> Request {
+    if references {
+        Request::ArticleReferences(query)
+    } else {
+        Request::ArticleCitations(query)
+    }
 }
-fn restart(query:&ArticleEdges,references:bool,out:&mut Outcome,fresh:bool) {
-    out.next.push((if fresh {StepKind::Fresh}else {StepKind::Restart},Action::Run {request:request(query.page(0,None),references),fresh}));
+fn restart(query: &ArticleEdges, references: bool, out: &mut Outcome, fresh: bool) {
+    out.next.push((
+        if fresh {
+            StepKind::Fresh
+        } else {
+            StepKind::Restart
+        },
+        Action::Run {
+            request: request(query.page(0, None), references),
+            fresh,
+        },
+    ));
 }
-fn execute<'a>(cx:&Ctx<'a>,query:&ArticleEdges,references:bool,deadline:&mut Deadline<'a>,out:&mut Outcome)->Result<(),RequestError> {
-    let mut store=Store::open(cx.fetch.cache_access()?,*deadline)?;
-    let identity=serde_json::to_vec(&request(query.identity(),references)).map_err(|_|CacheError::Database)?;
-    let key=Sha256::digest([b"biomcp.article_edges/1\0".as_slice(),&identity].concat());
-    let explicit=query.pool().map(Text::as_str);
-    let pool=if cx.fresh && explicit.is_none() {None} else {store.find(&key,explicit)?};
-    let pool=match pool {
-        Some(pool) if pool.key!=key.as_slice()=> {
-            out.body=QueryBody::PoolError{mismatch:true};restart(query,references,out,false);return Ok(());
+fn execute<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleEdges,
+    references: bool,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
+    let identity = serde_json::to_vec(&request(query.identity(), references))
+        .map_err(|_| CacheError::Database)?;
+    let key = Sha256::digest([b"biomcp.article_edges/1\0".as_slice(), &identity].concat());
+    let explicit = query.pool().map(Text::as_str);
+    let pool = if cx.fresh && explicit.is_none() {
+        None
+    } else {
+        store.find(&key, explicit)?
+    };
+    let pool = match pool {
+        Some(pool) if pool.key != key.as_slice() => {
+            out.body = QueryBody::PoolError { mismatch: true };
+            restart(query, references, out, false);
+            return Ok(());
         }
-        Some(pool)=>pool,
-        None if explicit.is_some()=> {
-            out.body=QueryBody::PoolError{mismatch:false};restart(query,references,out,false);return Ok(());
+        Some(pool) => pool,
+        None if explicit.is_some() => {
+            out.body = QueryBody::PoolError { mismatch: false };
+            restart(query, references, out, false);
+            return Ok(());
         }
-        None=> {
-            let parent=order::fetch(cx,deadline,&[query.pmid()]);
+        None => {
+            let parent = order::fetch(cx, deadline, &[query.pmid()]);
             out.sources.push(parent.source);
-            if let Some(e)=parent.local {return Err(e);}
-            if parent.error.is_some() {out.status=Status::Failed;restart(query,references,out,true);return Ok(());}
-            let ids=parent.rows.into_iter().find(|row|row.pmid==query.pmid()).and_then(|row|if references {row.references}else {row.citing});
+            if let Some(e) = parent.local {
+                return Err(e);
+            }
+            if parent.error.is_some() {
+                out.status = Status::Failed;
+                restart(query, references, out, true);
+                return Ok(());
+            }
+            let ids = parent
+                .rows
+                .into_iter()
+                .find(|row| row.pmid == query.pmid())
+                .and_then(|row| {
+                    if references {
+                        row.references
+                    } else {
+                        row.citing
+                    }
+                });
             // Missing is not evidence of an empty graph.
-            let Some(ids)=ids else {
-                out.status=Status::Failed;
-                if let Some(source)=out.sources.last_mut() {source.state=biodata::SourceState::Failed;source.reason=Some(biodata::Reason::BadReply);}
-                restart(query,references,out,true);return Ok(());
+            let Some(ids) = ids else {
+                out.status = Status::Failed;
+                if let Some(source) = out.sources.last_mut() {
+                    source.state = biodata::SourceState::Failed;
+                    source.reason = Some(biodata::Reason::BadReply);
+                }
+                restart(query, references, out, true);
+                return Ok(());
             };
-            if order::refuse(ids.len(),out) {return Ok(());}
-            let mut items:Vec<_>=ids.into_iter().map(|id|ArticleItem{key:ArticleKey::Pubmed(id),pmid:Some(id),header:None,cited_by:None,found_by:Default::default()}).collect();
-            if !order::apply(cx,deadline,&mut items,out)? {restart(query,references,out,true);return Ok(());}
+            if order::refuse(ids.len(), out) {
+                return Ok(());
+            }
+            let mut items: Vec<_> = ids
+                .into_iter()
+                .map(|id| ArticleItem {
+                    key: ArticleKey::Pubmed(id),
+                    pmid: Some(id),
+                    header: None,
+                    cited_by: None,
+                    found_by: Default::default(),
+                })
+                .collect();
+            if !order::apply(cx, deadline, &mut items, out)? {
+                restart(query, references, out, true);
+                return Ok(());
+            }
             // Both legs describe iCite; preserve the stale outcome of either stage.
-            let stale=out.sources.iter().any(|s|s.state==biodata::SourceState::Stale);
-            out.sources.dedup_by_key(|s|s.source);
-            if stale {out.sources[0].state=biodata::SourceState::Stale;}
+            let stale = out
+                .sources
+                .iter()
+                .any(|s| s.state == biodata::SourceState::Stale);
+            out.sources.dedup_by_key(|s| s.source);
+            if stale {
+                out.sources[0].state = biodata::SourceState::Stale;
+            }
             store.set_deadline(*deadline);
-            store.publish(&key,&items,&out.sources)?
+            store.publish(&key, &items, &out.sources)?
         }
     };
-    out.sources=pool.sources.clone();
-    let result=page::read(cx,page::Cursor::Edges(query,references),&mut store,&pool,out);
-    *deadline=store.deadline();result
+    out.sources = pool.sources.clone();
+    let result = page::read(
+        cx,
+        page::Cursor::Edges(query, references),
+        &mut store,
+        &pool,
+        out,
+    );
+    *deadline = store.deadline();
+    result
 }

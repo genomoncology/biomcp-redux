@@ -1,20 +1,15 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
-mod fold;
 mod edges;
-mod order;
-mod page;
+mod fold;
 pub mod get;
 mod next;
+mod order;
+mod page;
 mod sections;
 mod sources;
 mod term;
-use crate::{
-    Action, Ctx, Outcome, status,
-    store::Store,
-};
-use biodata::{
-    ArticlePage, ArticleSearch, QueryBody, Request, Source, Status, StepKind, Text,
-};
+use crate::{Action, Ctx, Outcome, status, store::Store};
+use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
@@ -68,7 +63,9 @@ fn execute<'a>(
                 retry(query, None, out);
                 return Ok(());
             };
-            if query.sort() == biodata::ArticleSort::Citations && !order::apply(cx, deadline, &mut items, out)? {
+            if query.sort() == biodata::ArticleSort::Citations
+                && !order::apply(cx, deadline, &mut items, out)?
+            {
                 retry(query, None, out);
                 return Ok(());
             }
@@ -125,4 +122,6 @@ pub(super) fn consume<'a>(
 }
 
 /// Page one citation graph direction.
-pub fn edges(cx: &Ctx<'_>, query:&biodata::ArticleEdges,references:bool)->Outcome {edges::run(cx,query,references)}
+pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> Outcome {
+    edges::run(cx, query, references)
+}

@@ -17,10 +17,6 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
-        if let Some(id)=card.pmid {
-            let step=(StepKind::Disambiguate,Action::Run {request:Request::ArticleCitations(biodata::ArticleEdges::new(id)),fresh:false});
-            if out.next.len()<5 && !out.next.contains(&step) {out.next.push(step);}
-        }
         let Some(id) = card.pmid.filter(|_| !item.more.is_empty()) else {
             continue;
         };
@@ -34,6 +30,18 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
                 StepKind::Section,
                 Action::Run {
                     request: Request::GetArticle(query),
+                    fresh: false,
+                },
+            );
+            if out.next.len() < 5 && !out.next.contains(&step) {
+                out.next.push(step);
+            }
+        }
+        if let Some(id) = card.pmid {
+            let step = (
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::ArticleCitations(biodata::ArticleEdges::new(id)),
                     fresh: false,
                 },
             );

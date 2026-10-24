@@ -1,20 +1,49 @@
-use crate::{Action, Ctx, Outcome, status, store::{Pool,Store,StoredItem}};
-use biodata::{ArticlePage, ArticleEdgePage, ArticleSearch, ArticleEdges, ArticleSort, PageInfo, QueryBody, Request, Source, Status, StepKind, Text};
+use super::consume;
+use super::sources;
+use crate::{
+    Action, Ctx, Outcome, status,
+    store::{Pool, Store, StoredItem},
+};
+use biodata::{
+    ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, QueryBody,
+    Request, Source, Status, StepKind, Text,
+};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::RequestError;
-use super::sources;
-use super::consume;
-#[derive(Clone,Copy)]
-pub(super) enum Cursor<'a> {Search(&'a ArticleSearch),Edges(&'a ArticleEdges,bool)}
+#[derive(Clone, Copy)]
+pub(super) enum Cursor<'a> {
+    Search(&'a ArticleSearch),
+    Edges(&'a ArticleEdges, bool),
+}
 impl Cursor<'_> {
-    fn offset(self)->u32 {match self {Self::Search(q)=>q.offset(),Self::Edges(q,_)=>q.offset()}}
-    fn limit(self)->u32 {match self {Self::Search(q)=>q.limit(),Self::Edges(q,_)=>q.limit()}}
-    fn request(self, offset:u32,pool:Option<Text>)->Request {match self {
-        Self::Search(q)=>Request::SearchArticle(q.page(offset,pool)),
-        Self::Edges(q,true)=>Request::ArticleReferences(q.page(offset,pool)),
-        Self::Edges(q,false)=>Request::ArticleCitations(q.page(offset,pool)),
-    }}
-    fn retry(self,pool:Option<Text>,out:&mut Outcome) {out.next.push((StepKind::Fresh,Action::Run {request:self.request(self.offset(),pool),fresh:true}));}
+    fn offset(self) -> u32 {
+        match self {
+            Self::Search(q) => q.offset(),
+            Self::Edges(q, _) => q.offset(),
+        }
+    }
+    fn limit(self) -> u32 {
+        match self {
+            Self::Search(q) => q.limit(),
+            Self::Edges(q, _) => q.limit(),
+        }
+    }
+    fn request(self, offset: u32, pool: Option<Text>) -> Request {
+        match self {
+            Self::Search(q) => Request::SearchArticle(q.page(offset, pool)),
+            Self::Edges(q, true) => Request::ArticleReferences(q.page(offset, pool)),
+            Self::Edges(q, false) => Request::ArticleCitations(q.page(offset, pool)),
+        }
+    }
+    fn retry(self, pool: Option<Text>, out: &mut Outcome) {
+        out.next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: self.request(self.offset(), pool),
+                fresh: true,
+            },
+        ));
+    }
 }
 pub(super) fn read<'a>(
     cx: &Ctx<'a>,
@@ -40,7 +69,9 @@ pub(super) fn read<'a>(
             Ok(mapped) => {
                 status::append(&mut out.problems, mapped.problems.clone());
                 let source = status::source(Source::PubMed, leg.finish(), None);
-                if !out.sources.iter().any(|s|s.source==Source::PubMed) {out.sources.push(source.clone());}
+                if !out.sources.iter().any(|s| s.source == Source::PubMed) {
+                    out.sources.push(source.clone());
+                }
                 let stale = (source.state == biodata::SourceState::Stale).then_some(&source);
                 store.hydrate(id, &missing, &mapped.value, &mapped.problems, stale)?;
                 rows = store.page(id, query.offset(), query.limit())?;
@@ -139,9 +170,13 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     if let Cursor::Search(search) = query
         && search.sort() != ArticleSort::Citations
     {
-        out.next.push((StepKind::Disambiguate, Action::Run {
-            request: Request::SearchArticle(search.ordered(ArticleSort::Citations)), fresh:false,
-        }));
+        out.next.push((
+            StepKind::Sort,
+            Action::Run {
+                request: Request::SearchArticle(search.ordered(ArticleSort::Citations)),
+                fresh: false,
+            },
+        ));
     }
     if partial {
         query.retry(
