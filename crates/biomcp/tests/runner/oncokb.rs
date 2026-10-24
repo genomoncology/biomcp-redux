@@ -7,9 +7,14 @@ const KEY: &str = "synthetic-oncokb-variant-key";
 const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant/oncokb-key-policy-wire", || {
-        wire().map_err(Into::into)
-    })]
+    vec![
+        Trial::test("variant/oncokb-key-policy-wire", || {
+            wire().map_err(Into::into)
+        }),
+        Trial::test("variant/oncokb-server-key-reload", || {
+            reload().map_err(Into::into)
+        }),
+    ]
 }
 fn args() -> Vec<String> {
     [
@@ -85,7 +90,7 @@ fn wire() -> Result<(), String> {
         .iter()
         .filter(|(_, r)| r.starts_with("GET /api/v1/annotate/"))
         .collect::<Vec<_>>();
-    if keyed.len() != 1 {
+    if keyed.len() != 1 || requests.len() != 1 {
         return Err("OncoKB request without key or redundant request".into());
     }
     let request = &keyed.first().ok_or("missing annotation request")?.1;
@@ -249,6 +254,73 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
             return Err(format!(
                 "annotation failure {kind} lost its reason: {output}"
             ));
+        }
+    }
+    Ok(())
+}
+
+fn reload() -> Result<(), String> {
+    for http in [false, true] {
+        let assets = Environment::new().map_err(|e| e.to_string())?;
+        let stub = Stub::for_source("www.oncokb.org", "application/json", reply)?;
+        let ca = assets.root().join("ca.pem");
+        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+        let mut client = super::key_reload::start(
+            http,
+            false,
+            json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}),
+            "ONCOKB_API_KEY",
+        )?;
+        let mut args = args();
+        args.push("--fresh".into());
+        let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
+        for (index, key) in [None, Some(KEY), Some("synthetic-oncokb-replaced-key"), None]
+            .into_iter()
+            .enumerate()
+        {
+            if let Some(key) = key {
+                let commands = if index == 1 {
+                    vec!["key", "set", "oncokb"]
+                } else {
+                    vec!["key", "set", "oncokb", "--replace"]
+                };
+                super::key_registration::invoke(
+                    client.environment(),
+                    &commands,
+                    &format!("{key}\n"),
+                    0,
+                )?;
+            } else if index == 3 {
+                super::key_registration::invoke(
+                    client.environment(),
+                    &["key", "remove", "oncokb"],
+                    "",
+                    0,
+                )?;
+            }
+            let output = client.call(index, &refs)?;
+            let expected = if key.is_some() { "data" } else { "skipped" };
+            if output.pointer(&format!("{SECTION}/state")) != Some(&json!(expected)) {
+                return Err("persistent OncoKB call did not reload key state".into());
+            }
+            for marker in [KEY, "synthetic-oncokb-replaced-key"] {
+                if output.to_string().contains(marker) {
+                    return Err("key leaked in persistent annotation".into());
+                }
+            }
+        }
+        client.finish()?;
+        let requests = stub.finish()?;
+        if requests.len() != 2 {
+            return Err("persistent OncoKB made keyless or missing requests".into());
+        }
+        for ((_, request), key) in requests.iter().zip([KEY, "synthetic-oncokb-replaced-key"]) {
+            if !request
+                .lines()
+                .any(|l| l.eq_ignore_ascii_case(&format!("authorization: Bearer {key}")))
+            {
+                return Err("persistent OncoKB used stale key snapshot".into());
+            }
         }
     }
     Ok(())
