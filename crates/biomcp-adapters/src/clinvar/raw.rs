@@ -6,6 +6,8 @@ use serde::Deserialize;
 pub(super) struct Records {
     pub id: Option<String>,
     pub rows: Vec<VariantAssertion>,
+    pub accession: Option<String>,
+    pub version: Option<String>,
 }
 impl Reply for Records {
     fn check(&self) -> Result<(), BadReply> {
@@ -23,6 +25,8 @@ impl XmlReply for Records {
             return Ok(Self {
                 id: None,
                 rows: Vec::new(),
+                accession: None,
+                version: None,
             });
         }
         if archives.len() != 1 {
@@ -64,7 +68,12 @@ impl XmlReply for Records {
                 rows.extend(super::map::submission(scv, subject.clone())?);
             }
         }
-        Ok(Self { id: Some(id), rows })
+        Ok(Self {
+            id: Some(id),
+            rows,
+            accession: archive.attr("Accession")?,
+            version: archive.attr("Version")?,
+        })
     }
 }
 fn root(xml: &str) -> Result<Element<'_>, BadReply> {

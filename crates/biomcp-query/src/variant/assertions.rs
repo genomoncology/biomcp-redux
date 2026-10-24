@@ -100,6 +100,9 @@ fn read(
         AssertionSource::Clinvar => biomcp_adapters::clinvar::assertions(
             &leg,
             input.strip_prefix("clinvar:").unwrap_or(input),
+            query
+                .assertion()
+                .map(|id| (id.as_str(), query.version().map(|v| v.as_str()))),
         ),
         AssertionSource::Erepo => biomcp_adapters::erepo::assertions(&leg, input),
     };

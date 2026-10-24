@@ -45,6 +45,43 @@ impl TryFrom<Fields> for VariantAssertionsGet {
         {
             return Err(super::gene::QueryInvalid);
         }
+        if let Some(id) = &fields.assertion {
+            let valid = match fields.source {
+                AssertionSource::Clinvar => {
+                    matches!(
+                        id.as_str().parse::<crate::VariantId>(),
+                        Ok(crate::VariantId::ClinVarAccession(_))
+                    ) && !id.as_str().contains('.')
+                }
+                AssertionSource::Erepo => id.as_str().strip_prefix("PCER").is_some_and(|n| {
+                    n.len() == 9
+                        && n.bytes().all(|b| b.is_ascii_digit())
+                        && n.parse::<u64>().is_ok_and(|n| n > 0)
+                }),
+            };
+            if !valid {
+                return Err(super::gene::QueryInvalid);
+            }
+        }
+        if let Some(version) = &fields.version {
+            let parts = version.as_str().split('.').collect::<Vec<_>>();
+            let count = match fields.source {
+                AssertionSource::Clinvar => 1,
+                AssertionSource::Erepo => 3,
+            };
+            if parts.len() != count
+                || parts.iter().any(|s| {
+                    s.is_empty()
+                        || !s.bytes().all(|b| b.is_ascii_digit())
+                        || s.parse::<u32>().is_err()
+                })
+                || parts
+                    .first()
+                    .is_some_and(|s| s.parse::<u32>().is_ok_and(|n| n == 0))
+            {
+                return Err(super::gene::QueryInvalid);
+            }
+        }
         Ok(Self(fields))
     }
 }
