@@ -14,8 +14,9 @@ pub(crate) struct StoredItem {
     pub header: Option<ArticleHeader>,
     pub problems: Vec<Problem>,
 }
-impl Store {
+impl Store<'_> {
     pub(crate) fn find(&self, key: &[u8], id: Option<&str>) -> Result<Option<Pool>, CacheError> {
+        self.prepare()?;
         let sql = if id.is_some() {
             "SELECT id,request_key,created,expires,size,outcomes FROM pool WHERE id=?1 AND expires>?2"
         } else {
@@ -60,8 +61,10 @@ impl Store {
         ids: &[Pmid],
         sources: &[SourceOutcome],
     ) -> Result<Pool, CacheError> {
+        self.prepare()?;
         let created = u64::try_from(Self::now()).map_err(|_|CacheError::Database)?;
         let expires = created.saturating_add(86400);
+        self.prepare()?;
         let tx = self.connection.transaction().map_err(db)?;
         let id: String = tx
             .query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0))
@@ -129,6 +132,7 @@ impl Store {
         headers: &[ArticleHeader],
         problems: &[Problem],
     ) -> Result<(), CacheError> {
+        self.prepare()?;
         let tx = self.connection.transaction().map_err(db)?;
         for id in ids {
             let header = headers

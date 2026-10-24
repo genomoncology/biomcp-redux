@@ -1,3 +1,4 @@
+//! Public article identifier and command input contracts.
 use biodata::{Pmid,Pmcid,Doi,ArticleSearch};
 #[test]
 fn article_identifiers_check_namespaces_and_doi_equality() {

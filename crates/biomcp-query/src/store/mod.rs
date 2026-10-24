@@ -19,12 +19,13 @@ pub const OWNER: SchemaOwner = SchemaOwner {
 };
 /// One command's owned connection, retaining the replay directory capability.
 #[derive(Debug)]
-pub(crate) struct Store {
+pub(crate) struct Store<'a> {
     connection: Connection,
+    deadline: Deadline<'a>,
     _access: CacheAccess,
 }
-impl Store {
-    pub(crate) fn open(access: CacheAccess, deadline: Deadline<'_>) -> Result<Self, CacheError> {
+impl<'a> Store<'a> {
+    pub(crate) fn open(access: CacheAccess, deadline: Deadline<'a>) -> Result<Self, CacheError> {
         if deadline.expired() {
             return Err(CacheError::Busy);
         }
@@ -60,8 +61,13 @@ impl Store {
             .map_err(db)?;
         Ok(Self {
             connection,
+            deadline,
             _access: access,
         })
+    }
+    pub(super) fn prepare(&self)->Result<(),CacheError> {
+        if self.deadline.expired(){return Err(CacheError::Busy);}
+        self.connection.busy_timeout(if self.deadline.virtual_time(){std::time::Duration::ZERO}else{self.deadline.remaining()}).map_err(db)
     }
     pub(crate) fn now() -> i64 {
         SystemTime::now()
