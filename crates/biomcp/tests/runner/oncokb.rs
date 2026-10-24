@@ -229,6 +229,7 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
         (3, "bad_reply"),
         (4, "bad_reply"),
         (5, "bad_reply"),
+        (6, "bad_reply"),
     ] {
         let target = env.root().join(format!("failure-{kind}"));
         fs::create_dir_all(target.join("oncokb")).map_err(|e| e.to_string())?;
@@ -244,6 +245,9 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
             exchange["delay_ms"] = json!(30001);
         } else if kind == 2 {
             exchange["body"] = json!({"kind":"json","value":{"error":"synthetic"}});
+        } else if kind == 6 {
+            exchange["body"]["value"]["errors"] =
+                json!([{"type":"INVALID_ALTERATION","message":"Synthetic validation failure."}]);
         } else {
             let field = match kind {
                 3 => "hgvs",
