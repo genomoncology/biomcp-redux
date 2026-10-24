@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Synthetic accession edits exercise empty mapping outcomes",
   "replay": "gene/pathways/synthetic-empty",

@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-annotations",
   "story": "DOI expansion exports every distinct resolved PMID in bounded batches and preserves repeated input cards.",
   "replay": "article/annotations/synthetic-expanded-doi",

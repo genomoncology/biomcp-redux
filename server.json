@@ -1,0 +1,9 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.genomoncology/biomcp",
+  "title": "BioMCP",
+  "description": "Read-only cancer care evidence search via the biomcp-cli package.",
+  "websiteUrl": "https://biomcp.org",
+  "repository": {"url": "https://github.com/genomoncology/biomcp", "source": "github"},
+  "packages": [{"registryType": "pypi", "identifier": "biomcp-cli", "runtimeHint": "uvx", "transport": {"type": "stdio"}, "packageArguments": [{"type": "positional", "value": "serve"}]}]
+}

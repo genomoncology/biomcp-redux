@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "PubMed relevance pages preserve every recorded PMID in order, and hydrated pages survive another process offline.",
   "replay": "article/search/live",

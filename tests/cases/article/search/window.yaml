@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "The pool retains the requested window and reports provider matches beyond it.",
   "replay": "article/search/live",

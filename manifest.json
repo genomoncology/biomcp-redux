@@ -1,0 +1,15 @@
+{
+  "manifest_version": "0.3",
+  "name": "biomcp",
+  "display_name": "BioMCP",
+  "description": "Read-only cancer care evidence search and retrieval.",
+  "author": {"name": "GenomOncology", "url": "https://genomoncology.com"},
+  "homepage": "https://biomcp.org",
+  "license": "MIT",
+  "server": {
+    "type": "binary",
+    "entry_point": "server/biomcp",
+    "mcp_config": {"command": "${__dirname}/server/biomcp", "args": ["serve"]}
+  },
+  "tools": [{"name": "biomcp", "description": "Run one read-only BioMCP command."}]
+}

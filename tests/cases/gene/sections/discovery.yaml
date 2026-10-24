@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "A default card offers a typed section action that can be followed",
   "replay": "gene/constraint",

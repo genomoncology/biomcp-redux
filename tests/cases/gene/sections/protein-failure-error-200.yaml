@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "A UniProt error-200 failure preserves identity and MyGene but never caches the rejected section",
   "replay": "gene/protein/synthetic-error-200",

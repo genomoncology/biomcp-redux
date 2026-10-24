@@ -29,3 +29,6 @@ unreached:
 docs-check:
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
+.PHONY: release-artifacts
+release-artifacts:
+	sh release/matrix.sh

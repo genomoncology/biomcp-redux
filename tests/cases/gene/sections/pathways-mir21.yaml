@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "MIR21 has no UniProt accession and does not ask Reactome",
   "replay": "gene/pathways",

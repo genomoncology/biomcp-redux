@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Resolved gene names use only the approved symbol and exact typed input.",
   "replay": "article/search/live",

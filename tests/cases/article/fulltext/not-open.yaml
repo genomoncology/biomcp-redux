@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-fulltext",
   "story": "not-open",
   "replay": "article/fulltext/live-not-open",

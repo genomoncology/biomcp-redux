@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "TP53 reports the preferred gnomAD transcript and finite metrics",
   "replay": "gene/constraint",

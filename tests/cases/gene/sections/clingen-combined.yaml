@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "TP53 combines constraint and ClinGen without shortening either source",
   "replay": "gene/clingen",
