@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 use std::{
     collections::BTreeMap,
     fs,
-    path::{Path, PathBuf},
+    path::Path,
     time::{Duration, Instant},
 };
 const MAX_CASES: usize = 1024;
@@ -34,7 +34,7 @@ pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
 }
 
 pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases");
+    let root = super::launch::fixtures().join("cases");
     let mut paths = Vec::new();
     collect(&root, &mut paths).map_err(|e| e.to_string())?;
     paths.sort();
@@ -122,8 +122,8 @@ fn check(
     sources: &mut BTreeMap<String, Value>,
     started: Instant,
 ) -> Result<Value, String> {
-    let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies")
+    let replay = super::launch::fixtures()
+        .join("replies")
         .join(case.replay.as_ref().ok_or("no recording")?);
     let baseline = Environment::new().map_err(|e| e.to_string())?;
     let live = Environment::new().map_err(|e| e.to_string())?;

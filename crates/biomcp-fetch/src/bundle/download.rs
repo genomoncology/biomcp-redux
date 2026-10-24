@@ -141,11 +141,11 @@ impl Leg<'_> {
         {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
-        self.observe(
+        self.observe_bundle(
             &key,
             Some(exchange.status),
             exchange.body.bytes(),
-            b.format.media(),
+            b.format,
             Duration::from_millis(exchange.delay_ms),
         );
         if exchange.status != 200 {
@@ -295,11 +295,11 @@ impl Leg<'_> {
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
-        self.observe(
+        self.observe_bundle(
             &crate::retry::identity(&url),
             Some(status),
             &body,
-            b.format.media(),
+            b.format,
             t.started.elapsed(),
         );
         let rows = parse::rows::<R>(&body, b.format)

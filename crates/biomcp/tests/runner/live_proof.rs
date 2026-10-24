@@ -82,7 +82,11 @@ fn observe(
     ]);
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     if !output.status.success() {
-        return Err("observed replay failed".into());
+        return Err(format!(
+            "observed replay {name} failed with {:?}",
+            output.status.code()
+        )
+        .into());
     }
     let text = fs::read_to_string(report)?;
     if text.is_empty() || text.contains("https:") || text.contains("summary\":\"") {
@@ -123,18 +127,36 @@ fn plan() -> Result<(), Box<dyn std::error::Error>> {
 
 fn formats() -> Result<(), Box<dyn std::error::Error>> {
     let environment = Environment::new()?;
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies");
-    let xml = observe(
-        &environment,
-        &root.join("article/get/live"),
-        "xml",
-        &["get", "article", "33123537"],
-    )?;
+    let root = super::launch::fixtures().join("replies");
+    let case: super::Case = serde_saphyr::from_str(&fs::read_to_string(
+        super::launch::fixtures().join("cases/article/get/live-capture.yaml"),
+    )?)?;
+    let args = case
+        .steps
+        .first()
+        .and_then(|step| step.run.as_ref())
+        .ok_or("native XML command absent")?;
+    let args: Vec<_> = args.iter().map(String::as_str).collect();
+    let xml = observe(&environment, &root.join("article/get/live"), "xml", &args)?;
     if !xml
         .iter()
         .any(|o| o.shape.fields.contains_key("PubmedArticleSet"))
     {
         return Err("raw XML names were discarded".into());
+    }
+    let bundles = observe(
+        &environment,
+        &root.join("gene/clingen"),
+        "csv",
+        &["sync", "clingen"],
+    )?;
+    if !bundles.iter().all(|o| {
+        o.shape
+            .header
+            .as_ref()
+            .is_some_and(|h| h.contains("GENE SYMBOL") && !h.contains("FILE CREATED"))
+    }) {
+        return Err("CSV banner replaced actual header".into());
     }
     let retries = observe(
         &environment,

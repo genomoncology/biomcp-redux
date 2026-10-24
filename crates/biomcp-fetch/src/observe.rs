@@ -172,12 +172,61 @@ impl crate::Leg<'_> {
         media: &str,
         elapsed: std::time::Duration,
     ) {
+        if self.fetch.config.observations.is_some() {
+            self.observed(
+                identity,
+                status,
+                body.len() as u64,
+                Shape::inspect(body, media),
+                elapsed,
+            );
+        }
+    }
+    pub(crate) fn observe_bundle(
+        &self,
+        identity: &[u8; 32],
+        status: Option<u16>,
+        body: &[u8],
+        format: crate::RowFormat,
+        elapsed: std::time::Duration,
+    ) {
+        if self.fetch.config.observations.is_none() {
+            return;
+        }
+        let banner = match format {
+            crate::RowFormat::Tsv => 0,
+            crate::RowFormat::Csv { banner_lines } => banner_lines,
+        };
+        let mut header = body;
+        for _ in 0..banner {
+            header = header.splitn(2, |b| *b == b'\n').nth(1).unwrap_or(&[]);
+        }
+        let media = match format {
+            crate::RowFormat::Tsv => "text/tab-separated-values",
+            crate::RowFormat::Csv { .. } => "text/csv",
+        };
+        self.observed(
+            identity,
+            status,
+            body.len() as u64,
+            Shape::inspect(header, media),
+            elapsed,
+        );
+    }
+    fn observed(
+        &self,
+        identity: &[u8; 32],
+        status: Option<u16>,
+        bytes: u64,
+        shape: Shape,
+        elapsed: std::time::Duration,
+    ) {
         if let Some(sink) = &self.fetch.config.observations {
             sink.push(&Observation {
                 identity: identity.iter().map(|byte| format!("{byte:02x}")).collect(),
                 source: self.spec.source,
                 status,
-                bytes: body.len() as u64,
+                bytes,
                 interval_ms: u64::try_from(
                     self.spec
                         .quota
@@ -187,7 +236,7 @@ impl crate::Leg<'_> {
                 )
                 .unwrap_or(u64::MAX),
                 elapsed_ms: u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX),
-                shape: Shape::inspect(body, media),
+                shape,
             });
         }
     }
