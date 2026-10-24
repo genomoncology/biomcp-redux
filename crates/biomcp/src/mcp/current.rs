@@ -4,8 +4,14 @@ use serde_json::{Value, json};
 
 pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
     let meta = params.get("_meta");
-    let version = meta.and_then(|m| m.get(VERSION_KEY)).and_then(Value::as_str);
-    if version.is_none() || meta.and_then(|m| m.get(CAPABILITIES_KEY)).is_none_or(|v| !v.is_object()) {
+    let version = meta
+        .and_then(|m| m.get(VERSION_KEY))
+        .and_then(Value::as_str);
+    if version.is_none()
+        || meta
+            .and_then(|m| m.get(CAPABILITIES_KEY))
+            .is_none_or(|v| !v.is_object())
+    {
         return Err(protocol::error(id.clone(), -32602, "Invalid params"));
     }
     if version != REVISIONS.first().copied() {

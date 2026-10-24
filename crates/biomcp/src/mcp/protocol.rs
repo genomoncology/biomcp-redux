@@ -7,7 +7,9 @@ pub(super) const REVISIONS: [&str; 2] = ["2026-07-28", "2025-11-25"];
 pub(super) const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
 pub(super) const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabilities";
 
-pub(super) fn info() -> Value { json!({"name":"biomcp", "version":env!("CARGO_PKG_VERSION")}) }
+pub(super) fn info() -> Value {
+    json!({"name":"biomcp", "version":env!("CARGO_PKG_VERSION")})
+}
 
 pub(super) fn error(id: Value, code: i32, message: &str) -> Value {
     json!({"jsonrpc":"2.0", "id":id, "error":{"code":code,"message":message}})
@@ -18,7 +20,8 @@ pub(super) fn valid_id(value: &Value) -> bool {
 }
 
 pub(super) fn validate(value: &Value) -> bool {
-    value.is_object() && value.get("jsonrpc").and_then(Value::as_str) == Some("2.0")
+    value.is_object()
+        && value.get("jsonrpc").and_then(Value::as_str) == Some("2.0")
         && value.get("method").is_some_and(Value::is_string)
         && value.get("id").is_none_or(valid_id)
 }
@@ -30,17 +33,28 @@ pub(super) fn tool() -> Value {
 }
 
 pub(super) fn args(params: &Value) -> Option<Vec<std::ffi::OsString>> {
-    if params.get("name")?.as_str()? != "biomcp" { return None; }
+    if params.get("name")?.as_str()? != "biomcp" {
+        return None;
+    }
     let arguments = params.get("arguments")?.as_object()?;
-    if arguments.len() != 1 { return None; }
-    arguments.get("args")?.as_array()?.iter()
-        .map(|arg| arg.as_str().map(std::ffi::OsString::from)).collect()
+    if arguments.len() != 1 {
+        return None;
+    }
+    arguments
+        .get("args")?
+        .as_array()?
+        .iter()
+        .map(|arg| arg.as_str().map(std::ffi::OsString::from))
+        .collect()
 }
 
 pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
     if modern && let Some(object) = value.as_object_mut() {
         object.insert("resultType".into(), json!("complete"));
-        object.insert("_meta".into(), json!({"io.modelcontextprotocol/serverInfo":info()}));
+        object.insert(
+            "_meta".into(),
+            json!({"io.modelcontextprotocol/serverInfo":info()}),
+        );
     }
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }

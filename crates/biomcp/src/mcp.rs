@@ -6,7 +6,12 @@ mod protocol;
 
 use framing::Frame;
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, io::{self, Write}, sync::mpsc, thread};
+use std::{
+    collections::BTreeMap,
+    io::{self, Write},
+    sync::mpsc,
+    thread,
+};
 
 const MAX_ACTIVE_CALLS: usize = 8;
 const MAX_RETAINED_EVENTS: usize = 32;
@@ -32,13 +37,22 @@ struct Server {
 pub(crate) fn serve() -> io::Result<()> {
     let (sender, receiver) = mpsc::sync_channel(MAX_RETAINED_EVENTS);
     start_input(sender.clone())?;
-    let mut server = Server { sender, active: BTreeMap::new(), legacy: false };
+    let mut server = Server {
+        sender,
+        active: BTreeMap::new(),
+        legacy: false,
+    };
     let mut output = io::stdout().lock();
     let mut eof = false;
     while !eof || !server.active.is_empty() {
-        let event = receiver.recv().map_err(|_| io::Error::other("MCP input stopped"))?;
+        let event = receiver
+            .recv()
+            .map_err(|_| io::Error::other("MCP input stopped"))?;
         let reply = match event {
-            Event::Input(Frame::Eof) => { eof = true; None }
+            Event::Input(Frame::Eof) => {
+                eof = true;
+                None
+            }
             Event::Input(Frame::Malformed) => {
                 eof = true;
                 Some(protocol::error(Value::Null, -32700, "Parse error"))
@@ -62,16 +76,23 @@ pub(crate) fn serve() -> io::Result<()> {
     Ok(())
 }
 
-#[expect(clippy::disallowed_methods, reason = "Stdio input owns the bounded frame channel")]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Stdio input owns the bounded frame channel"
+)]
 fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
-    thread::Builder::new().name("mcp-input".into()).spawn(move || {
-        let mut input = io::stdin().lock();
-        loop {
-            let frame = framing::read(&mut input).unwrap_or(Frame::Malformed);
-            let terminal = !matches!(frame, Frame::Message(_));
-            if sender.send(Event::Input(frame)).is_err() || terminal { break; }
-        }
-    })?;
+    thread::Builder::new()
+        .name("mcp-input".into())
+        .spawn(move || {
+            let mut input = io::stdin().lock();
+            loop {
+                let frame = framing::read(&mut input).unwrap_or(Frame::Malformed);
+                let terminal = !matches!(frame, Frame::Message(_));
+                if sender.send(Event::Input(frame)).is_err() || terminal {
+                    break;
+                }
+            }
+        })?;
     Ok(())
 }
 
@@ -81,23 +102,38 @@ impl Server {
             return Ok(Some(protocol::error(Value::Null, -32700, "Parse error")));
         };
         if !protocol::validate(&value) {
-            return Ok(Some(protocol::error(Value::Null, -32600, "Invalid Request")));
+            return Ok(Some(protocol::error(
+                Value::Null,
+                -32600,
+                "Invalid Request",
+            )));
         }
-        let method = value.get("method").and_then(Value::as_str).unwrap_or_default();
+        let method = value
+            .get("method")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
         let params = value.get("params").cloned().unwrap_or_else(|| json!({}));
         let Some(id) = value.get("id") else {
             if method == "notifications/cancelled"
                 && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
-                && let Some(call) = self.active.get_mut(&id.to_string()) {
+                && let Some(call) = self.active.get_mut(&id.to_string())
+            {
                 call.cancelled = true;
             }
             return Ok(None);
         };
-        if !params.is_object() { return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params"))); }
-        let modern = params.get("_meta").is_some_and(|m| m.get(protocol::VERSION_KEY).is_some())
-            || method == "server/discover" || !self.legacy && method != "initialize";
+        if !params.is_object() {
+            return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
+        }
+        let modern = params
+            .get("_meta")
+            .is_some_and(|m| m.get(protocol::VERSION_KEY).is_some())
+            || method == "server/discover"
+            || !self.legacy && method != "initialize";
         if modern {
-            if let Err(error) = current::validate(id, &params) { return Ok(Some(error)); }
+            if let Err(error) = current::validate(id, &params) {
+                return Ok(Some(error));
+            }
         } else if method == "initialize" {
             let Some(result) = legacy::initialize(&params) else {
                 return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
@@ -110,12 +146,21 @@ impl Server {
             "server/discover" => current::discover(),
             "tools/list" => json!({"tools":[protocol::tool()]}),
             "tools/call" => return self.admit(id.clone(), &params, modern),
-            _ => return Ok(Some(protocol::error(id.clone(), -32601, "Method not found"))),
+            _ => {
+                return Ok(Some(protocol::error(
+                    id.clone(),
+                    -32601,
+                    "Method not found",
+                )));
+            }
         };
         Ok(Some(protocol::result(id.clone(), result, modern)))
     }
 
-    #[expect(clippy::disallowed_methods, reason = "Bounded tool workers own command execution")]
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Bounded tool workers own command execution"
+    )]
     fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
         let Some(args) = protocol::args(params) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
@@ -129,18 +174,37 @@ impl Server {
         }
         let sender = self.sender.clone();
         let worker_key = key.clone();
-        let worker = thread::Builder::new().name("mcp-tool".into()).spawn(move || {
-            let outcome = crate::command::dispatch(&args);
-            let _ = sender.send(Event::Completed(worker_key, outcome));
-        })?;
-        self.active.insert(key, Call { id, modern, cancelled: false, worker });
+        let worker = thread::Builder::new()
+            .name("mcp-tool".into())
+            .spawn(move || {
+                let outcome = crate::command::dispatch(&args);
+                let _ = sender.send(Event::Completed(worker_key, outcome));
+            })?;
+        self.active.insert(
+            key,
+            Call {
+                id,
+                modern,
+                cancelled: false,
+                worker,
+            },
+        );
         Ok(None)
     }
 
-    fn complete(&mut self, key: &str, outcome: io::Result<crate::command::Outcome>) -> io::Result<Option<Value>> {
-        let Some(call) = self.active.remove(key) else { return Ok(None); };
-        call.worker.join().map_err(|_| io::Error::other("MCP worker stopped"))?;
+    fn complete(
+        &mut self,
+        key: &str,
+        outcome: io::Result<crate::command::Outcome>,
+    ) -> io::Result<Option<Value>> {
+        let Some(call) = self.active.remove(key) else {
+            return Ok(None);
+        };
+        call.worker
+            .join()
+            .map_err(|_| io::Error::other("MCP worker stopped"))?;
         let outcome = outcome?;
-        Ok((!call.cancelled).then(|| protocol::result(call.id, protocol::outcome(&outcome), call.modern)))
+        Ok((!call.cancelled)
+            .then(|| protocol::result(call.id, protocol::outcome(&outcome), call.modern)))
     }
 }

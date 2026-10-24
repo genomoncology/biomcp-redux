@@ -8,7 +8,10 @@ const INLINE_TESTS: &[&str] = &[
 ];
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
-    ("crates/biomcp/src/mcp.rs", "Own bounded stdio input and tool threads"),
+    (
+        "crates/biomcp/src/mcp.rs",
+        "Own bounded stdio input and tool threads",
+    ),
     (
         "crates/biomcp-fetch/src/lib.rs",
         "Retain typed leg reports across concurrent scoped requests",

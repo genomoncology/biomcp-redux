@@ -1,10 +1,10 @@
 mod assertions;
 mod launch;
 mod mcp;
-mod protocol;
-mod process;
 mod negative_cases;
+mod process;
 pub(super) mod proof;
+mod protocol;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -114,20 +114,36 @@ fn run_step(
     environment: &launch::Environment,
     expectations: &assertions::Expectations<'_>,
 ) -> Result<(), String> {
-    let cli = step.run.as_ref().map(|args| {
-        let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), args)
-            .output().map_err(|error| error.to_string())?;
-        if output.status.code() != Some(step.exit) {
-            return Err(format!("exit: expected {}, actual {:?}; stderr: {}", step.exit,
-                output.status.code(), String::from_utf8_lossy(&output.stderr)));
-        }
-        if !output.stderr.is_empty() { return Err("error output: expected empty stderr".into()); }
-        assertions::check(&output.stdout, step, expectations)?;
-        serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())
-    }).transpose()?;
+    let cli = step
+        .run
+        .as_ref()
+        .map(|args| {
+            let output = environment
+                .command(env!("CARGO_BIN_EXE_biomcp"), args)
+                .output()
+                .map_err(|error| error.to_string())?;
+            if output.status.code() != Some(step.exit) {
+                return Err(format!(
+                    "exit: expected {}, actual {:?}; stderr: {}",
+                    step.exit,
+                    output.status.code(),
+                    String::from_utf8_lossy(&output.stderr)
+                ));
+            }
+            if !output.stderr.is_empty() {
+                return Err("error output: expected empty stderr".into());
+            }
+            assertions::check(&output.stdout, step, expectations)?;
+            serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())
+        })
+        .transpose()?;
     if let Some(args) = &step.mcp {
         let result = mcp::call(environment, args, step.is_error)?;
-        assertions::check(&serde_json::to_vec(&result).map_err(|error| error.to_string())?, step, expectations)?;
+        assertions::check(
+            &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
+            step,
+            expectations,
+        )?;
         if cli.as_ref().is_some_and(|cli| cli != &result) {
             return Err("CLI/MCP parity: unequal results".into());
         }
@@ -135,4 +151,6 @@ fn run_step(
     Ok(())
 }
 
-pub(super) fn protocol_trials() -> Vec<Trial> { protocol::trials() }
+pub(super) fn protocol_trials() -> Vec<Trial> {
+    protocol::trials()
+}
