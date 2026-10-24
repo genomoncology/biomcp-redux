@@ -129,17 +129,20 @@ fn eligibility(case: &Case) -> Option<&str> {
 }
 fn step_skips(case: &Case) -> Vec<Option<&'static str>> {
     let mut predecessor = false;
-    case.steps.iter().map(|step| {
-        let reason = if !eligible_step(step) {
-            Some("local validation or offline step")
-        } else if step.follow.is_some() && !predecessor {
-            Some("follow predecessor is ineligible")
-        } else {
-            None
-        };
-        predecessor = reason.is_none();
-        reason
-    }).collect()
+    case.steps
+        .iter()
+        .map(|step| {
+            let reason = if !eligible_step(step) {
+                Some("local validation or offline step")
+            } else if step.follow.is_some() && !predecessor {
+                Some("follow predecessor is ineligible")
+            } else {
+                None
+            };
+            predecessor = reason.is_none();
+            reason
+        })
+        .collect()
 }
 fn eligible_step(step: &Step) -> bool {
     if step.offline || step.exit > 1 {
