@@ -19,7 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-fn args() -> Vec<String> {
+pub(super) fn args() -> Vec<String> {
     [
         "get",
         "variant",
@@ -36,7 +36,7 @@ fn args() -> Vec<String> {
     .map(str::to_owned)
     .collect()
 }
-fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), args)
         .output()
@@ -125,7 +125,7 @@ fn wire() -> Result<(), String> {
     replay_proof(&env, &directory)?;
     Ok(())
 }
-fn reply(request: &str) -> Result<String, String> {
+pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/variant/") {
         return Ok(json!({"_id":INPUT,"dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string());
     }

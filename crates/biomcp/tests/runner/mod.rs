@@ -27,6 +27,7 @@ mod negative_cases;
 mod network_stub;
 mod normalization;
 mod oncokb;
+mod oncokb_context;
 mod pdf;
 mod pmc_tables;
 mod pool_tables;
@@ -292,6 +293,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(oncokb::trials());
+    trials.extend(oncokb_context::trials());
     trials.extend(recurrence::trials());
     trials.extend(recurrence_errors::trials());
     trials.extend(recurrence_metadata::trials());
