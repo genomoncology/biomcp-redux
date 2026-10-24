@@ -12,6 +12,7 @@ pub(super) fn check() -> Check {
     opaque()?;
     arguments()?;
     failures()?;
+    cut_body()?;
     http_refusal()
 }
 fn args(kind: &str, path: &Path) -> Vec<String> {
@@ -152,7 +153,6 @@ fn supplement() -> Check {
 }
 fn failures() -> Check {
     for (kind, capture) in [
-        ("supplement", "article/supplements/synthetic-cut"),
         ("text", "article/fulltext/synthetic-cut"),
     ] {
         let env = Environment::new()?;
@@ -264,5 +264,48 @@ fn arguments() -> Check {
             assert!(!path.exists());
         }
     }
+    Ok(())
+}
+
+fn cut_reply(request: &str) -> Result<String, String> {
+    if request.contains(".xlsx?") { return Ok("PK\x03".into()); }
+    let target = request.split_whitespace().nth(1).ok_or("request target")?;
+    for file in fs::read_dir(fixtures().join("replies/article/supplements/live/pmc-oa")).map_err(|e| e.to_string())? {
+        let path = file.map_err(|e| e.to_string())?.path();
+        if path.extension().is_none_or(|v| v != "json") { continue; }
+        let record: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        if record.get("url").and_then(Value::as_str).is_some_and(|url| url.ends_with(target)) {
+            let body = record.pointer("/exchanges/0/body/value").ok_or("body")?;
+            return Ok(body.as_str().map_or_else(|| body.to_string(), str::to_owned));
+        }
+    }
+    Err(format!("unrecorded local request {target}"))
+}
+fn cut_body() -> Check {
+    let stub = super::network_stub::Stub::with_length(
+        "pmc-oa-opendata.s3.amazonaws.com", "application/octet-stream", cut_reply,
+        |request, bytes| if request.contains(".xlsx?") { bytes + 100 } else { bytes },
+    )?;
+    let env = Environment::new()?;
+    let ca = env.root().join("source.pem");
+    fs::write(&ca, &stub.certificate)?;
+    env.config(&json!({"ca_bundle":ca, "proxy":format!("http://{}",stub.address)}))?;
+    let folder = env.root().join("cut");
+    fs::create_dir(&folder)?;
+    let path = folder.join("never.xlsx");
+    for replace in [false, true] {
+        if replace { fs::write(&path, b"caller content")?; }
+        let mut cli = args("supplement", &path);
+        *cli.get_mut(2).ok_or("identity")? = "PMC5606870".into();
+        if replace { cli.push("--replace".into()); }
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &cli).output()?;
+        assert_eq!(output.status.code(), Some(4), "{}", String::from_utf8_lossy(&output.stdout));
+        if replace {
+            assert_eq!(fs::read(&path)?, b"caller content");
+            assert_eq!(fs::read_dir(&folder)?.count(), 1);
+        } else { assert_eq!(fs::read_dir(&folder)?.count(), 0); }
+    }
+    let requests = stub.finish()?;
+    assert!(requests.iter().any(|(_, request)| request.contains(".xlsx?")));
     Ok(())
 }

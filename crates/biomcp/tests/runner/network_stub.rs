@@ -31,6 +31,14 @@ impl Stub {
         content_type: &'static str,
         reply: fn(&str) -> Result<String, String>,
     ) -> Result<Self, String> {
+        Self::with_length(host, content_type, reply, |_, bytes| bytes)
+    }
+    pub(super) fn with_length(
+        host: &'static str,
+        content_type: &'static str,
+        reply: fn(&str) -> Result<String, String>,
+        length: fn(&str, usize) -> usize,
+    ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
@@ -61,7 +69,7 @@ impl Stub {
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = header(&mut tls) {
                     let body = reply(&request)?;
-                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).map_err(|e| e.to_string())?;
+                    write!(tls, "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
