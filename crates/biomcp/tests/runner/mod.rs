@@ -2,7 +2,6 @@ mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
-mod variant;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -37,6 +36,7 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod supplement_tables;
+mod variant;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

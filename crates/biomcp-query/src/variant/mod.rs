@@ -45,11 +45,11 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         local = local.or(error);
     }
     let page = candidate_page(query, resolution, &mut candidates);
-    let mut next = next(query, resolution, &candidates);
-    if let Some(page) = &page && (page.offset as u64 + page.returned as u64) < page.total {
-        next.push((StepKind::Page, Action::Run { request: Request::GetVariant(query.at_offset(page.offset + page.returned)), fresh: false }));
-    }
-    let overall = if matches!(resolution, VariantResolution::Unavailable | VariantResolution::Rejected) {
+    let next = next(query, resolution, &candidates, page.as_ref());
+    let overall = if matches!(
+        resolution,
+        VariantResolution::Unavailable | VariantResolution::Rejected
+    ) {
         Status::Failed
     } else if resolution == VariantResolution::Absent {
         Status::Absent
@@ -220,6 +220,7 @@ fn next(
     query: &VariantGet,
     resolution: VariantResolution,
     candidates: &[VariantHeader],
+    page: Option<&biodata::PageInfo>,
 ) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
     if resolution == VariantResolution::Candidates {
@@ -245,12 +246,39 @@ fn next(
             }
         }
     }
+    if let Some(page) = page
+        && (page.offset as u64 + page.returned as u64) < page.total
+    {
+        next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::GetVariant(query.at_offset(page.offset + page.returned)),
+                fresh: false,
+            },
+        ));
+    }
     next
 }
 
-fn candidate_page(query: &VariantGet, resolution: VariantResolution, candidates: &mut Vec<VariantHeader>) -> Option<biodata::PageInfo> {
-    if resolution != VariantResolution::Candidates { return None; }
+fn candidate_page(
+    query: &VariantGet,
+    resolution: VariantResolution,
+    candidates: &mut Vec<VariantHeader>,
+) -> Option<biodata::PageInfo> {
+    if resolution != VariantResolution::Candidates {
+        return None;
+    }
     let total = candidates.len() as u64;
-    *candidates = std::mem::take(candidates).into_iter().skip(query.offset() as usize).take(query.limit() as usize).collect();
-    Some(biodata::PageInfo { offset: query.offset(), returned: candidates.len() as u32, total, pool: None, truncated: None })
+    *candidates = std::mem::take(candidates)
+        .into_iter()
+        .skip(query.offset() as usize)
+        .take(query.limit() as usize)
+        .collect();
+    Some(biodata::PageInfo {
+        offset: query.offset(),
+        returned: candidates.len() as u32,
+        total,
+        pool: None,
+        truncated: None,
+    })
 }

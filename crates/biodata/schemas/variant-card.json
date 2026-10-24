@@ -695,6 +695,21 @@
           "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
           "x-positional": 0
         },
+        "limit": {
+          "default": 10,
+          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Candidate rows to skip in source order.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
         "resolver": {
           "$ref": "#/$defs/VariantResolver",
           "default": "car",

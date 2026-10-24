@@ -31,14 +31,18 @@ struct Fields {
     #[serde(default)]
     offset: u32,
 }
-fn default_limit() -> u32 { 10 }
+fn default_limit() -> u32 {
+    10
+}
 fn resolver() -> VariantResolver {
     VariantResolver::Car
 }
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) { return Err(super::gene::QueryInvalid); }
+        if !(1..=50).contains(&fields.limit) {
+            return Err(super::gene::QueryInvalid);
+        }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
         query.0.limit = fields.limit;
         query.0.offset = fields.offset;
@@ -68,11 +72,19 @@ impl VariantGet {
         }))
     }
     /// Candidate rows per page.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Candidate page offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Keep all selectors while selecting another source-ordered page.
-    pub fn at_offset(&self, offset: u32) -> Self { let mut query = self.clone(); query.0.offset = offset; query }
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut query = self.clone();
+        query.0.offset = offset;
+        query
+    }
     /// Unchanged checked identifier.
     pub fn input(&self) -> &VariantInput {
         &self.0.input

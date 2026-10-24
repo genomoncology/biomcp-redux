@@ -28,7 +28,9 @@ pub fn lookup(
     query: &str,
     build: biodata::Build,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
-    if query.starts_with("chr") { return annotation(leg, query, build); }
+    if query.starts_with("chr") {
+        return annotation(leg, query, build);
+    }
     let assembly = if build == biodata::Build::Grch38 {
         "hg38"
     } else {
@@ -75,9 +77,23 @@ pub fn genomic_id(chromosome: &str, notation: &Text) -> Option<String> {
     Some(format!("chr{chromosome}:{description}"))
 }
 
-fn annotation(leg: &Leg<'_>, id: &str, build: biodata::Build) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
-    let assembly = if build == biodata::Build::Grch38 { "hg38" } else { "hg19" };
+fn annotation(
+    leg: &Leg<'_>,
+    id: &str,
+    build: biodata::Build,
+) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
+    let assembly = if build == biodata::Build::Grch38 {
+        "hg38"
+    } else {
+        "hg19"
+    };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
-    let hit = leg.json::<raw::Hit>(&endpoint, &[("fields", Arg::Text(FIELDS)), ("assembly", Arg::Text(assembly))])?;
+    let hit = leg.json::<raw::Hit>(
+        &endpoint,
+        &[
+            ("fields", Arg::Text(FIELDS)),
+            ("assembly", Arg::Text(assembly)),
+        ],
+    )?;
     Ok(map::candidates(vec![hit], id, build))
 }

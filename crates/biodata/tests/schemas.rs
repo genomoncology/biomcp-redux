@@ -130,7 +130,6 @@ fn registry() -> Vec<Contract> {
     };
     contracts.extend(common_registry());
     contracts
-
 }
 
 #[test]
