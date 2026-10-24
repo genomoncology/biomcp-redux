@@ -185,4 +185,6 @@ pub use response::VariantPopulationResult;
 
 pub use response::GwasTrait;
 
+pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
+pub use response::VariantPage;
 pub use variant::{OncokbLevelCode, OncokbOncogenicityCode};

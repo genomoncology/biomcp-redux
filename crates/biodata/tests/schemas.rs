@@ -60,6 +60,10 @@ fn registry() -> Vec<Contract> {
         PopulationFrequency => ("population-frequency", "biodata.population-frequency/1"),
         VariantPopulationQuery => ("variant-population", "biodata.variant-population/1"),
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
+        VariantGet => ("variant-get", "biodata.variant-get/1"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -263,7 +267,5 @@ fn variant_registry() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
-        VariantGet => ("variant-get", "biodata.variant-get/1"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
     }
 }

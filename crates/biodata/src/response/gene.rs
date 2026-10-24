@@ -85,6 +85,8 @@ pub enum QueryBody {
     VariantCard(crate::VariantCard),
     /// Source population observations.
     VariantPopulation(crate::VariantPopulationResult),
+    /// Native MyVariant candidate page.
+    VariantPage(crate::VariantPage),
     /// Source trial document receipt.
     TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.

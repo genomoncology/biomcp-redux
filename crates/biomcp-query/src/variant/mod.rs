@@ -8,6 +8,7 @@ mod direct;
 mod hotspots;
 mod oncokb;
 mod predict;
+pub mod search;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{

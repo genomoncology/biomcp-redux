@@ -11,6 +11,8 @@ pub enum Request {
     GetVariant(crate::VariantGet),
     /// Read source ancestry observations.
     VariantPopulation(crate::VariantPopulationQuery),
+    /// Discover source-native variant candidates.
+    SearchVariant(crate::VariantSearch),
     /// Save an exact registry document to an explicit destination.
     TrialDocument(crate::TrialDocumentGet),
     /// Retrieve exact trial cards and source protocol sections.

@@ -52,6 +52,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::VariantAssertions(query) => crate::variant::assertions::get(cx, query),
         Request::VariantPopulation(query) => crate::variant::population_detail::get(cx, query),
+        Request::SearchVariant(query) => crate::variant::search::search(cx, query),
         Request::GetVariant(query) => crate::variant::get(cx, query),
         Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
         Request::GetTrial(query) => crate::trial::get::get(cx, query),
