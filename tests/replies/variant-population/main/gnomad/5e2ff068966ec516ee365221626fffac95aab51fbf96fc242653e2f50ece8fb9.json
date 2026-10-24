@@ -27,19 +27,149 @@
                 ],
                 "populations": [
                   {
-                    "id": "synthetic-A",
+                    "id": "synthetic-00",
                     "ac": 0,
                     "an": 100
                   },
                   {
-                    "id": "synthetic-B",
+                    "id": "synthetic-01",
                     "ac": 1,
-                    "an": 200
+                    "an": 101
                   },
                   {
-                    "id": "synthetic-B_XX",
-                    "ac": 1,
-                    "an": 100
+                    "id": "synthetic-02",
+                    "ac": 0,
+                    "an": 102
+                  },
+                  {
+                    "id": "synthetic-03",
+                    "ac": 0,
+                    "an": 103
+                  },
+                  {
+                    "id": "synthetic-04",
+                    "ac": 0,
+                    "an": 104
+                  },
+                  {
+                    "id": "synthetic-05",
+                    "ac": 0,
+                    "an": 105
+                  },
+                  {
+                    "id": "synthetic-06",
+                    "ac": 0,
+                    "an": 106
+                  },
+                  {
+                    "id": "synthetic-07",
+                    "ac": 0,
+                    "an": 107
+                  },
+                  {
+                    "id": "synthetic-08",
+                    "ac": 0,
+                    "an": 108
+                  },
+                  {
+                    "id": "synthetic-09",
+                    "ac": 0,
+                    "an": 109
+                  },
+                  {
+                    "id": "synthetic-10",
+                    "ac": 0,
+                    "an": 110
+                  },
+                  {
+                    "id": "synthetic-11",
+                    "ac": 0,
+                    "an": 111
+                  },
+                  {
+                    "id": "synthetic-12",
+                    "ac": 0,
+                    "an": 112
+                  },
+                  {
+                    "id": "synthetic-13",
+                    "ac": 0,
+                    "an": 113
+                  },
+                  {
+                    "id": "synthetic-14",
+                    "ac": 0,
+                    "an": 114
+                  },
+                  {
+                    "id": "synthetic-15",
+                    "ac": 0,
+                    "an": 115
+                  },
+                  {
+                    "id": "synthetic-16",
+                    "ac": 0,
+                    "an": 116
+                  },
+                  {
+                    "id": "synthetic-17",
+                    "ac": 0,
+                    "an": 117
+                  },
+                  {
+                    "id": "synthetic-18",
+                    "ac": 0,
+                    "an": 118
+                  },
+                  {
+                    "id": "synthetic-19",
+                    "ac": 0,
+                    "an": 119
+                  },
+                  {
+                    "id": "synthetic-20",
+                    "ac": 0,
+                    "an": 120
+                  },
+                  {
+                    "id": "synthetic-21",
+                    "ac": 0,
+                    "an": 121
+                  },
+                  {
+                    "id": "synthetic-22",
+                    "ac": 0,
+                    "an": 122
+                  },
+                  {
+                    "id": "synthetic-23",
+                    "ac": 0,
+                    "an": 123
+                  },
+                  {
+                    "id": "synthetic-24",
+                    "ac": 0,
+                    "an": 124
+                  },
+                  {
+                    "id": "synthetic-25",
+                    "ac": 0,
+                    "an": 125
+                  },
+                  {
+                    "id": "synthetic-26",
+                    "ac": 0,
+                    "an": 126
+                  },
+                  {
+                    "id": "synthetic-27",
+                    "ac": 0,
+                    "an": 127
+                  },
+                  {
+                    "id": "synthetic-28",
+                    "ac": 0,
+                    "an": 128
                   }
                 ]
               },

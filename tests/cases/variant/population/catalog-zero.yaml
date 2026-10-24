@@ -21,7 +21,9 @@
         "/status": "complete",
         "/result/resolution": "unresolved",
         "/result/candidates/0/requested": "rs113488022",
-        "/result/candidates/0/identity": {},
+        "/result/candidates/0/identity": {
+          "equals": {}
+        },
         "/result/candidates/0/sections/gwas/state": "empty"
       }
     }
