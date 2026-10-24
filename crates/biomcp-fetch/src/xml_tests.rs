@@ -1,13 +1,7 @@
 //! Inline markup table: the parser boundary warrants direct syntax edge cases.
 use crate::xml::MixedText;
-use serde::Deserialize;
-#[derive(Debug, Deserialize)]
-struct Raw {
-    #[serde(rename = "$value", default)]
-    text: MixedText,
-}
 #[test]
-fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), quick_xml::DeError> {
+fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), crate::BadReply> {
     for (xml, expected) in [
         ("<raw>BRAF<sup>V600E</sup></raw>", "BRAFV600E"),
         (
@@ -22,14 +16,10 @@ fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), qui
         ("<raw attr=\"ignored\"/>", ""),
         ("<raw><unknown/></raw>", ""),
     ] {
-        let raw: Raw = quick_xml::de::from_str(xml)?;
-        assert_eq!(raw.text.as_str(), expected, "{xml}");
+        let text = MixedText::from_xml(xml)?;
+        assert_eq!(text.as_str(), expected, "{xml}");
     }
-    let mut de = quick_xml::de::Deserializer::from_str("<raw><i><b>text</b></i></raw>");
-    de.recursion_limit(2);
-    assert!(matches!(
-        Raw::deserialize(&mut de),
-        Err(quick_xml::DeError::TooDeeplyNested(2))
-    ));
+    let deep = format!("<raw>{}text{}</raw>", "<i>".repeat(64), "</i>".repeat(64));
+    assert_eq!(MixedText::from_xml(&deep), Err(crate::BadReply));
     Ok(())
 }

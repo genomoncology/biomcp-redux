@@ -1,5 +1,5 @@
 use crate::record::{Body, Exchange};
-use crate::xml::Codec;
+use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
 use biodata::Reason;
@@ -26,23 +26,23 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Codec::Json)
+        self.parameters(ep, params, Decoder::json())
     }
 
     /// Send checked XML from a GET or form POST.
-    pub fn xml<T: Reply>(
+    pub fn xml<T: XmlReply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
-        self.parameters(ep, params, Codec::Xml)
+        self.parameters(ep, params, Decoder::xml())
     }
 
     fn parameters<T: Reply>(
         &self,
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
-        codec: Codec,
+        codec: Decoder<T>,
     ) -> Result<T, RequestError> {
         self.validate(ep, false)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
@@ -92,7 +92,7 @@ impl Leg<'_> {
         body: &B,
     ) -> Result<T, RequestError> {
         self.validate(ep, true)?;
-        let codec = Codec::Json;
+        let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         self.send(
@@ -121,7 +121,7 @@ impl Leg<'_> {
         &self,
         ep: &Endpoint,
         prepared: Prepared,
-        codec: Codec,
+        codec: Decoder<T>,
     ) -> Result<T, RequestError> {
         let keyed = match self.spec.key {
             KeyUse::Optional(c) | KeyUse::Required(c) => {
@@ -129,8 +129,8 @@ impl Leg<'_> {
             }
             KeyUse::None => false,
         };
-        self.cached(ep, &prepared.url, &prepared.identity, codec, || {
-            self.attempts(&prepared, keyed, codec)
+        self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
+            self.attempts(&prepared, keyed, &codec)
         })
     }
 
@@ -138,7 +138,7 @@ impl Leg<'_> {
         &self,
         prepared: &Prepared,
         keyed: bool,
-        codec: Codec,
+        codec: &Decoder<T>,
     ) -> Result<(T, u16, Vec<u8>), RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
@@ -202,10 +202,10 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn call(
+    fn call<T: Reply>(
         &self,
         prepared: &Prepared,
-        codec: Codec,
+        codec: &Decoder<T>,
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let mut request = if prepared.post.is_some() {
             self.fetch.agent.post(&prepared.url)
@@ -235,7 +235,7 @@ impl Leg<'_> {
             .send(prepared.body.as_slice())
     }
 
-    fn exchange(&self, prepared: &Prepared, codec: Codec) -> Result<Wire, Failure> {
+    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Decoder<T>) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
         if let Some(exchange) = self
             .fetch
@@ -351,7 +351,7 @@ impl Leg<'_> {
     fn decode<T: Reply>(
         &self,
         response: Wire,
-        codec: Codec,
+        codec: &Decoder<T>,
     ) -> Result<(T, u16, Vec<u8>), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));

@@ -1,11 +1,6 @@
 //! Bounded UTF-8 XML replies and ordered inline text.
 use crate::Reply;
 use quick_xml::{Reader, events::Event};
-use serde::{
-    Deserialize,
-    de::{EnumAccess, SeqAccess, VariantAccess, Visitor},
-};
-use std::fmt;
 
 // One bound protects ignored XML subtrees as well as serde's recursive visitors.
 const NESTING: usize = 64;
@@ -43,22 +38,52 @@ impl Codec {
             }
         }
     }
-    pub(crate) fn decode<T: Reply>(self, body: &[u8]) -> Option<T> {
-        let reply: T = match self {
-            Self::Json => serde_json::from_slice(body).ok()?,
-            Self::Xml => {
+}
+
+/// An XML reply selects its raw decoding at the document boundary.
+/// Ordinary fields use serde by default. Mixed elements use `MixedText::from_xml`.
+pub trait XmlReply: Reply {
+    /// Decode raw XML without exposing parser messages to the caller.
+    fn decode_xml(xml: &str) -> Result<Self, crate::BadReply> {
+        let mut de = quick_xml::de::Deserializer::from_str(xml);
+        de.recursion_limit(NESTING);
+        Self::deserialize(&mut de).map_err(|_| crate::BadReply)
+    }
+}
+
+pub(crate) struct Decoder<T> {
+    codec: Codec,
+    parse: fn(&[u8]) -> Option<T>,
+}
+impl<T: Reply> Decoder<T> {
+    pub(crate) fn json() -> Self {
+        Self {
+            codec: Codec::Json,
+            parse: |body| serde_json::from_slice(body).ok(),
+        }
+    }
+    pub(crate) fn xml() -> Self
+    where
+        T: XmlReply,
+    {
+        Self {
+            codec: Codec::Xml,
+            parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
                 validate(text)?;
-                let mut de = quick_xml::de::Deserializer::from_str(text);
-                de.recursion_limit(NESTING);
-                let value = T::deserialize(&mut de).ok()?;
-                if !de.is_empty() {
-                    return None;
-                }
-                value
-            }
-        };
+                T::decode_xml(text).ok()
+            },
+        }
+    }
+    pub(crate) fn name(&self) -> &'static str {
+        self.codec.name()
+    }
+    pub(crate) fn accepts(&self, media: &str) -> bool {
+        self.codec.accepts(media)
+    }
+    pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
+        let reply = (self.parse)(body)?;
         reply.check().ok()?;
         Some(reply)
     }
@@ -144,60 +169,43 @@ fn validate(text: &str) -> Option<()> {
     }
 }
 
-/// All text within an element, with inline markup removed in document order.
-/// Use `#[serde(rename = "$value", default)]` on the containing field.
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+/// All text within an XML element, with inline markup removed in document order.
+#[derive(Debug, Default, Clone, PartialEq, Eq, serde::Deserialize)]
+#[serde(transparent)]
 pub struct MixedText(String);
 impl MixedText {
-    /// Borrow text without changing its whitespace or inserting separators.
+    /// Borrow text without changing whitespace or inserting separators.
     pub fn as_str(&self) -> &str {
         &self.0
     }
-}
-impl<'de> Deserialize<'de> for MixedText {
-    fn deserialize<D: serde::Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
-        de.deserialize_seq(TextVisitor)
-    }
-}
-struct TextVisitor;
-impl<'de> Visitor<'de> for TextVisitor {
-    type Value = MixedText;
-    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("ordered XML content")
-    }
-    fn visit_seq<A: SeqAccess<'de>>(self, mut sequence: A) -> Result<MixedText, A::Error> {
+
+    /// Read one complete element, including arbitrary nested inline text.
+    /// Attributes and comments contribute no text. DTDs are never resolved.
+    pub fn from_xml(element: &str) -> Result<Self, crate::BadReply> {
+        let element = element.strip_prefix('\u{feff}').unwrap_or(element);
+        validate(element).ok_or(crate::BadReply)?;
+        let mut reader = Reader::from_str(element);
         let mut text = String::new();
-        while let Some(Piece(piece)) = sequence.next_element()? {
-            text.push_str(&piece);
-        }
-        Ok(MixedText(text))
-    }
-}
-struct Piece(String);
-impl<'de> Deserialize<'de> for Piece {
-    fn deserialize<D: serde::Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
-        de.deserialize_enum("Inline", &[], PieceVisitor)
-    }
-}
-struct PieceVisitor;
-impl<'de> Visitor<'de> for PieceVisitor {
-    type Value = Piece;
-    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("XML text or an inline element")
-    }
-    fn visit_enum<A: EnumAccess<'de>>(self, value: A) -> Result<Piece, A::Error> {
-        #[derive(Deserialize)]
-        struct Content {
-            #[serde(rename = "$value", default)]
-            text: MixedText,
-        }
-        let (name, value) = value.variant::<String>()?;
-        if name == "$text" {
-            value.newtype_variant().map(Piece)
-        } else {
-            value
-                .newtype_variant::<Content>()
-                .map(|content| Piece(content.text.0))
+        let mut depth = 0;
+        loop {
+            match reader.read_event().map_err(|_| crate::BadReply)? {
+                Event::Start(_) => depth += 1,
+                Event::End(_) => depth -= 1,
+                Event::Text(value) if depth != 0 => text.push_str(value.as_ref()),
+                Event::CData(value) => text.push_str(value.as_ref()),
+                Event::GeneralRef(value) => {
+                    if let Some(ch) = value.resolve_char_ref().map_err(|_| crate::BadReply)? {
+                        text.push(ch);
+                    } else {
+                        text.push_str(
+                            quick_xml::escape::resolve_predefined_entity(value.as_ref())
+                                .ok_or(crate::BadReply)?,
+                        );
+                    }
+                }
+                Event::Eof => return Ok(Self(text)),
+                _ => {}
+            }
         }
     }
 }

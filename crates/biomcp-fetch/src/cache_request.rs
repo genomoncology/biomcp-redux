@@ -1,5 +1,5 @@
 //! Checked cache reuse around the single live request path.
-use crate::xml::Codec;
+use crate::xml::Decoder;
 use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
@@ -18,7 +18,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         url: &str,
         key: &[u8; 32],
-        codec: Codec,
+        codec: &Decoder<T>,
         live: impl FnOnce() -> Result<(T, u16, Vec<u8>), RequestError>,
     ) -> Result<T, RequestError> {
         if self.budget().expired() {
@@ -85,7 +85,7 @@ impl Leg<'_> {
         &self,
         endpoint: &Endpoint,
         key: &[u8; 32],
-        codec: Codec,
+        codec: &Decoder<T>,
     ) -> Result<T, RequestError> {
         if let Some(cache) = self
             .fetch
@@ -116,7 +116,7 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         key: &[u8; 32],
-        codec: Codec,
+        codec: &Decoder<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
         let Some(entry) = cache.read(key, self.fetch.config.max_body, self.budget())? else {
             return Ok(None);
@@ -126,7 +126,7 @@ impl Leg<'_> {
             return Ok(fresh.then_some(Checked::Absent));
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name()))
-            .then(|| codec.decode::<T>(&entry.body))
+            .then(|| codec.decode(&entry.body))
             .flatten();
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and

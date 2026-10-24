@@ -7,15 +7,20 @@
 mod support;
 use biomcp_fetch::{
     Arg, BadReply, Fetch, FetchConfig, Freshness, KeyUse, Quota, Rate, Reply, SourceKey,
-    xml::MixedText,
+    xml::{MixedText, XmlReply},
 };
-use serde::Deserialize;
 use std::{thread, time::Duration};
 type Server = support::Server;
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 struct Answer {
-    #[serde(rename = "$value", default)]
     text: MixedText,
+}
+impl XmlReply for Answer {
+    fn decode_xml(xml: &str) -> Result<Self, BadReply> {
+        Ok(Self {
+            text: MixedText::from_xml(xml)?,
+        })
+    }
 }
 impl Reply for Answer {
     fn check(&self) -> Result<(), BadReply> {
@@ -61,7 +66,7 @@ fn checked_get_and_form_xml_preserve_text_and_select_media() {
         (
             spec.get("/answer"),
             "text/xml",
-            "<answer>BRAF<sup>V600E</sup></answer>",
+            "<answer>BRAF<sup>V600E</sup></answer>\n<!--tail-->",
         ),
     ] {
         thread::scope(|scope| {
@@ -360,4 +365,25 @@ fn record_xml_text_replays_without_http_and_offline_uses_checked_codec() {
             .is_ok()
     );
     assert!(leg.finish().stale);
+}
+
+impl XmlReply for support::Answer {}
+#[test]
+fn ordinary_xml_replies_use_default_serde_decoding() {
+    let server = Server::new();
+    let spec = spec(&server);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                .xml::<support::Answer>(&spec.get("/plain"), &[])
+        });
+        respond(
+            server.next(),
+            "application/xml",
+            b"<reply><answer>true</answer></reply>\n<!--tail-->",
+        );
+        assert!(worker.join().unwrap().unwrap().answer);
+    });
 }
