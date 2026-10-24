@@ -17,7 +17,8 @@
         "/sources/0/state": "ok"
       },
       "exit": 1,
-      "max_bytes": 400
+      "max_bytes": 400,
+      "max_tokens": 80
     },
     {
       "run": [
@@ -30,7 +31,9 @@
       },
       "exit": 1,
       "offline": true,
-      "max_bytes": 400
+      "max_bytes": 400,
+      "max_tokens": 80
     }
-  ]
+  ],
+  "verified": "Synthetic absent-response shape measured offline at ecef1096239f8aeee8fcc6cbefc5720e89506035 in j11379: 364 raw stdout bytes, 363 compact bytes / 91 tokens; required source terms account for 138 bytes, leaving 225 comparable bytes / 57 tokens. Existing max_bytes remains unchanged and the existing 80-token not-found target is explicit. This is not a current provider absence claim."
 }
