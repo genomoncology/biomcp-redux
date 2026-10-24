@@ -5,12 +5,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "semantic-scholar"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "litvar", "semantic-scholar"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
     /// Europe PMC native relevance or publication-date order.
     Europepmc,
+    /// Exact variant publications in LitVar2 native order.
+    Litvar,
     /// Semantic Scholar native relevance order.
     #[serde(rename = "semantic-scholar")]
     SemanticScholar,
@@ -71,6 +73,7 @@ struct Fields {
     /// Several sources take turns, remove duplicates and show every native rank.
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
+    /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
     /// semantic-scholar: broad discovery; an optional free key raises the limit.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
@@ -187,7 +190,7 @@ impl TryFrom<Fields> for ArticleSearch {
             || v.source
                 .iter()
                 .enumerate()
-                .any(|(i, s)| v.source.iter().take(i).any(|previous| previous == s))
+                .any(|(i, source)| v.source.iter().take(i).any(|prior| prior == source))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -292,44 +295,51 @@ impl ArticleSearch {
     }
 }
 
-/// Source capability selectors checked before any lookup or transport request.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["TEXT", "--gene", "--variant", "--disease", "--drug", "--author", "--journal", "--since", "--until", "--type", "--sort date"])))]
-pub enum ArticleFilter {
-    /// Free text.
-    #[serde(rename = "TEXT")]
-    Text,
-    /// Gene selector.
-    #[serde(rename = "--gene")]
-    Gene,
-    /// Variant selector.
-    #[serde(rename = "--variant")]
-    Variant,
-    /// Disease selector.
-    #[serde(rename = "--disease")]
-    Disease,
-    /// Drug selector.
-    #[serde(rename = "--drug")]
-    Drug,
-    /// Author selector.
-    #[serde(rename = "--author")]
-    Author,
-    /// Journal selector.
-    #[serde(rename = "--journal")]
-    Journal,
-    /// Lower publication date bound.
-    #[serde(rename = "--since")]
-    Since,
-    /// Upper publication date bound.
-    #[serde(rename = "--until")]
-    Until,
-    /// Publication type selector.
-    #[serde(rename = "--type")]
-    Type,
-    /// Native date ordering.
-    #[serde(rename = "--sort date")]
-    DateSort,
+impl ArticleSearch {
+    /// Exact variant selector, kept distinct from ordinary word search.
+    pub fn variant(&self) -> Option<&Text> {
+        self.0.variant.as_ref()
+    }
+    /// Restart with an exact candidate rsID, retaining source and order choices.
+    pub fn with_variant(&self, variant: Text) -> Self {
+        let mut value = self.page(0, None);
+        value.0.variant = Some(variant);
+        value
+    }
+    /// Restart with the approved PubMed and LitVar discovery sources.
+    pub fn with_litvar(&self) -> Self {
+        let mut value = self.page(0, None);
+        value.0.source = Box::new([ArticleSource::Pubmed, ArticleSource::Litvar]);
+        value
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Source capability selectors checked before any lookup or transport request.
+    ArticleFilter {
+        /// Free text.
+        Text => "TEXT",
+        /// Gene selector.
+        Gene => "--gene",
+        /// Variant selector.
+        Variant => "--variant",
+        /// Disease selector.
+        Disease => "--disease",
+        /// Drug selector.
+        Drug => "--drug",
+        /// Author selector.
+        Author => "--author",
+        /// Journal selector.
+        Journal => "--journal",
+        /// Lower publication date bound.
+        Since => "--since",
+        /// Upper publication date bound.
+        Until => "--until",
+        /// Publication type selector.
+        Type => "--type",
+        /// Native date ordering.
+        DateSort => "--sort date",
+    }
 }
 impl ArticleSearch {
     /// Whether any named unsupported capability is requested.

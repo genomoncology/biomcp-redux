@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-super::status::wire_enum! {
+crate::macros::wire_enum! {
 /// Purpose of an available next command.
 StepKind {
     /// Start a replacement snapshot.

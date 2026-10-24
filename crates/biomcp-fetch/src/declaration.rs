@@ -202,6 +202,46 @@ impl Endpoint {
     }
 }
 
+/// One raw identifier encoded as exactly one URL path segment.
+#[derive(Clone, Debug)]
+pub struct PathSegment(String);
+impl PathSegment {
+    /// Encode a raw identifier, rejecting pre-encoded input and path syntax.
+    pub fn new(raw: &str) -> Result<Self, crate::InputError> {
+        if raw.is_empty()
+            || raw.split('/').any(|part| matches!(part, "." | ".."))
+            || raw.starts_with("//")
+            || raw.contains("://")
+            || raw
+                .chars()
+                .any(|c| c.is_control() || matches!(c, '\\' | '%'))
+        {
+            return Err(crate::InputError::Path);
+        }
+        let mut encoded = String::new();
+        for byte in raw.bytes() {
+            if byte.is_ascii_alphanumeric() || b"-._~".contains(&byte) {
+                encoded.push(char::from(byte));
+            } else {
+                use std::fmt::Write;
+                write!(encoded, "%{byte:02X}").map_err(|_| crate::InputError::Path)?;
+            }
+        }
+        Ok(Self(encoded))
+    }
+}
+impl Endpoint {
+    /// Append checked raw segments to this declared endpoint without changing its origin.
+    pub fn with_segments(mut self, segments: &[PathSegment]) -> Self {
+        let mut path = self.path.trim_end_matches('/').to_owned();
+        for segment in segments {
+            path.push('/');
+            path.push_str(&segment.0);
+        }
+        self.path = std::borrow::Cow::Owned(path);
+        self
+    }
+}
 /// Publisher evidence for a source's reuse category; not a grant of rights.
 #[derive(Clone, Copy, Debug)]
 pub struct Terms {

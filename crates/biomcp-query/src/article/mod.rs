@@ -69,16 +69,22 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let term = if query.sources().contains(&biodata::ArticleSource::Pubmed) {
+            let (term, gene) = if query.sources().contains(&biodata::ArticleSource::Pubmed)
+                || query.sources().contains(&biodata::ArticleSource::Litvar)
+            {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
                     return Ok(());
                 };
                 term
             } else {
-                String::new()
+                (String::new(), None)
             };
-            let Some(mut items) = sources::search(cx, query, &term, deadline, out)? else {
-                retry(query, None, out);
+            let Some(mut items) =
+                sources::search(cx, query, &term, gene.as_deref(), deadline, out)?
+            else {
+                if out.status != Status::Absent {
+                    retry(query, None, out);
+                }
                 return Ok(());
             };
             if query.sort() == biodata::ArticleSort::Citations
@@ -120,6 +126,7 @@ fn empty() -> Outcome {
         status: Status::Complete,
         body: QueryBody::ArticlePage(ArticlePage {
             items: Box::default(),
+            candidates: Vec::new(),
         }),
         page: None,
         sources: Vec::new(),
@@ -144,9 +151,29 @@ pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> O
     edges::run(cx, query, references)
 }
 
-/// Check named source capabilities before resolving inputs or opening a store.
+/// Check source capabilities before resolving inputs or opening a store.
 pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
     use biodata::{ArticleFilter as F, ArticleSource as S};
+    if query.sources().contains(&S::Litvar) {
+        let variant = query.variant().map_or("", Text::as_str);
+        let rsid = biomcp_adapters::litvar::is_rsid(variant);
+        if variant.is_empty() || (!rsid && query.gene().is_none()) {
+            return Some((biodata::Source::LitVar, F::Variant));
+        }
+        if let Some(option) = query.rejects(&[
+            F::Text,
+            F::Disease,
+            F::Drug,
+            F::Author,
+            F::Journal,
+            F::Since,
+            F::Until,
+            F::Type,
+            F::DateSort,
+        ]) {
+            return Some((biodata::Source::LitVar, option));
+        }
+    }
     if query.sources().contains(&S::SemanticScholar) {
         return query
             .rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
