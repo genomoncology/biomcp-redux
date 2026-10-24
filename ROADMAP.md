@@ -169,11 +169,13 @@ Sources:
 - [ ] CIViC
 - [ ] cBioPortal
 - [ ] Cancer Hotspots
-- [ ] OncoKB (keyed)
+- [x] OncoKB (keyed)
 - [ ] GWAS Catalog
 - [ ] ClinGen evidence repository
 - [ ] Mutalyzer and VariantValidator (named normalization services)
 - Deferred: variant-specific UniProt and InterPro, and AlphaGenome (keyed)
+
+The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
 
 ### Trial
 

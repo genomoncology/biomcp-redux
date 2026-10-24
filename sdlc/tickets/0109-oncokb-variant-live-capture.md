@@ -1,4 +1,4 @@
-# 0109 — Capture a real keyed OncoKB variant annotation
+# 0109 — Verify an approved OncoKB demo annotation
 
 Status: OPEN.
 
@@ -8,10 +8,9 @@ Depends on: 0095
 
 ## Outcome
 
-One bounded keyed OncoKB variant annotation is captured from landed main and replayed as a case, so the OncoKB (keyed) variant roadmap box can be ticked. It never blocks code landing.
+The approved OncoKB demo capture verifies the BRAF V600E reply shape and satisfies the variant source roadmap box. The product requires the caller's configured key and has no demo fallback.
 
-- Why: 0095 lands on synthetic keyed proof because no approved recipe lets a product smoke inherit the user's OncoKB key.
-- Approved by Ian, 2026-10-24: a product smoke may inherit the configured OncoKB key, and the agent never inspects, prints, copies, records or stores it, as the NCI recipe already does. The key may be inactive because it was issued for development. A rejected key ends the attempt: record the status code through pm progress, make no retry with another key, and tell the PM.
-- Demo fallback, PM ruling 2026-10-24: OncoKB's demo instance answers without a key, and it holds only BRAF, TP53 and ROS1. If the key is rejected, the same job may capture BRAF V600E once from the demo instance with no key, to prove the reply shape against real data. That capture is labeled demo, stays outside the repo, replays as a case from outside the repo, and ticks the roadmap box, as Ian ruled on 2026-10-24. No one asks Ian for a new key. The product never calls the demo instance: a fallback that covers three genes would read as "no annotation" for every other gene.
-- Proof: one pm job from landed main runs `get variant` with the `oncokb` section for one public example; the recorded reply holds no key; the replay case runs from outside the repo if OncoKB's terms bar storing the reply. A failure is recorded through pm progress with the roadmap left unchecked.
-- PM ruling 2026-10-24 after j11255: the product loader found no configured key and skipped OncoKB with no request, so no rejection occurred. Under Ian's demo-is-enough ruling, one direct keyless job captures BRAF V600E from the demo instance, with the same labeling and replay rules as the demo fallback. No one asks Ian to configure a key.
+- Proof: j11262 ran from landed main `3d8901f66e57a1aa7c86da75bfb4e206c5b91f06`. One keyless demo GET returned HTTP 200 and 23,634 bytes. Its native query states `7:g.140453136A>T`, `GRCh37`, `Melanoma`, `BRAF` and `V600E`.
+- External case: the actual CLI recorder and offline replay both returned the OncoKB section as data using the unchanged demo body delivered through local TLS with a synthetic local credential. Missing-key replay returned `skipped/no_key` with no additional HTTP request. The recorded production-host identity describes local delivery, not a production capture; separate provenance retains the original demo URL.
+- Evidence: Yellow `data/biomcp-redux/0109-oncokb-live/biomcp-redux-0109-DEMO-pcpcmsi6`, with all 13 manifest files verified. Archive SHA256 `031e83768d94081c24dc705f0a6ef68ff1c5c033a4d820741cee5bb33afba1ec`; body SHA256 `5c9db76d0d9c2421f8680c2b62d1d3578d93d27fe4f04b4cab73f39d3631e6ab`. Raw replies and the replay case remain outside Git.
+- Job limit: j11262 exited 1 in a receipt-only SSH quoting command after capture, replay and transfer succeeded. Independent transfer verification succeeded. No provider retry or credential inspection occurred. This establishes the approved demo proof and makes no keyed production claim.
