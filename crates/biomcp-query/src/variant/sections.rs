@@ -1,8 +1,8 @@
 //! Candidate-specific section disclosure under one shared command deadline.
 use crate::Ctx;
 use biodata::{
-    AssertionSource, Problem, Section, SourceOutcome, VariantGet, VariantHeader, VariantSection,
-    VariantSections,
+    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
+    VariantHeader, VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
@@ -40,12 +40,17 @@ pub(super) fn apply(
     let mut local = None;
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        macro_rules! attach {
-            ($field:ident,$read:expr) => {
-                sections.$field = Some(retain($read, &mut sources, &mut problems, &mut local))
-            };
-        }
         for section in requested(query) {
+            macro_rules! attach {
+                ($field:ident,$read:expr) => {
+                    sections.$field = Some(retain(
+                        permitted(cx, section, || $read),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                };
+            }
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
@@ -56,7 +61,9 @@ pub(super) fn apply(
                         AssertionSource::Erepo
                     };
                     let result = retain(
-                        super::assertions::section(cx, query, candidates, deadline, source),
+                        permitted(cx, section, || {
+                            super::assertions::section(cx, query, candidates, deadline, source)
+                        }),
                         &mut sources,
                         &mut problems,
                         &mut local,
@@ -105,6 +112,46 @@ pub(super) fn apply(
         }
     }
     (sources, problems, local)
+}
+pub(super) fn source(section: VariantSection) -> Option<Source> {
+    use VariantSection as S;
+    Some(match section {
+        S::Clinvar => Source::ClinVar,
+        S::Erepo => Source::Erepo,
+        S::Population => Source::Gnomad,
+        S::Gwas => Source::Gwas,
+        S::Civic => Source::Civic,
+        S::Hotspots => Source::CancerHotspots,
+        S::Predict | S::Conservation | S::Cosmic => Source::MyVariant,
+        S::Oncokb => Source::Oncokb,
+        _ => return None,
+    })
+}
+fn permitted<T>(
+    cx: &Ctx<'_>,
+    section: VariantSection,
+    read: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
+        return unavailable(source, Reason::Disabled, SourceState::Skipped);
+    }
+    read()
+}
+fn unavailable<T>(source: Source, reason: Reason, state: SourceState) -> Result<T> {
+    (
+        Section::unavailable(source, reason),
+        vec![SourceOutcome {
+            source,
+            state,
+            reason: Some(reason),
+            term: None,
+            count: None,
+            fetched: None,
+            notices: Vec::new(),
+        }],
+        Vec::new(),
+        None,
+    )
 }
 pub(super) fn retain<T>(
     value: Result<T>,
