@@ -40,6 +40,7 @@ pub(super) fn search<'a>(
     );
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
+    let mut join_failures = Vec::new();
     for result in &mut results {
         if result.source == ArticleSource::SemanticScholar
             && result.items.iter().any(|item| {
@@ -57,7 +58,7 @@ pub(super) fn search<'a>(
                         return Err(error);
                     }
                     if let RequestError::Source(error) = error {
-                        out.sources.push(SourceOutcome {
+                        join_failures.push(SourceOutcome {
                             source: Source::PubMed,
                             state: SourceState::Failed,
                             reason: Some(error.reason),
@@ -77,6 +78,14 @@ pub(super) fn search<'a>(
                 biodata::StepKind::Key,
                 crate::Action::KeyHelp(Source::SemanticScholar),
             ));
+        }
+    }
+    for failure in join_failures {
+        if let Some(existing) = results.iter_mut().find(|r| r.outcome.source == failure.source) {
+            existing.outcome.state = failure.state;
+            existing.outcome.reason = failure.reason;
+        } else {
+            out.sources.push(failure);
         }
     }
     let failed_pubmed = results
