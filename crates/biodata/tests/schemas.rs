@@ -56,12 +56,6 @@ fn common_registry() -> Vec<Contract> {
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
-        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
-        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
-        VariantSearch => ("variant-search", "biodata.variant-search/1"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
-        VariantGet => ("variant-get", "biodata.variant-get/1"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -135,9 +129,21 @@ fn registry() -> Vec<Contract> {
         Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(common_registry());
+    contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts
 }
+fn variant_contracts() -> Vec<Contract> {
+    contracts! {
+        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
+        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
+        VariantGet => ("variant-get", "biodata.variant-get/1"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
+    }
+}
+
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),

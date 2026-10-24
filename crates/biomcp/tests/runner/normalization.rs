@@ -6,6 +6,9 @@ use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant-normalization/keeps-every-transcript", || {
+            transcripts().map_err(Into::into)
+        }),
         Trial::test("variant-normalization/native-mapping-walk-is-warm", || {
             walk().map_err(Into::into)
         }),
@@ -199,4 +202,39 @@ fn nested() -> Result<(), String> {
 }
 fn nested_body(_: &str) -> Result<String, String> {
     Ok(json!({"custom":{"input_description":"NC_000017.10:g.7576633A>G","errors":[{"code":"ESEQUENCEMISMATCH","details":"source reference mismatch"}]},"message":"Errors encountered."}).to_string())
+}
+
+fn transcripts() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "rest.variantvalidator.org",
+        "application/json",
+        transcripts_body,
+    )?;
+    let environment = environment(&stub)?;
+    let value = run(
+        &environment,
+        &[
+            "variant",
+            "normalize",
+            "--source",
+            "variantvalidator",
+            "--hgvs",
+            "NM_004333.4:c.1799T>A",
+            "--build",
+            "GRCh38",
+        ],
+    )?;
+    if value.pointer("/result/results/0/total_mappings") != Some(&json!(2))
+        || value.pointer("/result/results/0/mappings/0/value") != Some(&json!("NM_004333.4:c.2A>T"))
+        || value.pointer("/result/results/0/mappings/1/value") != Some(&json!("NM_004333.4:c.1A>T"))
+    {
+        return Err(format!("service transcript was dropped or chosen: {value}"));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("normalization made an undeclared fallback".into());
+    }
+    Ok(())
+}
+fn transcripts_body(_: &str) -> Result<String, String> {
+    Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
 }
