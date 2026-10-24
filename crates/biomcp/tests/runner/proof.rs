@@ -201,16 +201,16 @@ fn isolation() -> Check {
 }
 
 fn output_failure() -> Check {
-    // A read-only stdout handle fails every write without a pipe scheduling race.
-    let file = tempfile::NamedTempFile::new().map_err(|error| error.to_string())?;
-    let read_only = fs::File::open(file.path()).map_err(|error| error.to_string())?;
+    // Close the reader before spawning so the first write must hit a broken pipe.
+    let (reader, writer) = std::io::pipe().map_err(|error| error.to_string())?;
+    drop(reader);
     let output = Environment::new()
         .map_err(|error| error.to_string())?
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["schema".into(), "biodata.source/1".into()],
         )
-        .stdout(read_only)
+        .stdout(writer)
         .output()
         .map_err(|error| error.to_string())?;
     if output.status.code() != Some(5) || output.stderr != b"biomcp: output failed\n" {
