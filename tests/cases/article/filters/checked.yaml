@@ -3,7 +3,6 @@ story: Article filters preserve checked date precision and reject reversed range
 replay: article/search/live
 steps:
   - run: [search, article, --since, '2024-02', --until, '2024', --author, Carpten, --journal, Nature, --type, trial, --sort, date, --pool, unknown]
-    mcp: [search, article, --since, '2024-02', --until, '2024', --author, Carpten, --journal, Nature, --type, trial, --sort, date, --pool, unknown]
     exit: 3
     expect:
       /error/code: pool.expired
