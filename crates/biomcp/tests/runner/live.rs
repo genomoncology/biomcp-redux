@@ -89,7 +89,7 @@ pub(super) fn summary(results: Vec<Value>, sources: BTreeMap<String, Value>, ela
         .iter()
         .filter(|r| r.get("skipped").is_none())
         .collect();
-    json!({"mode": "live-check", "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })}),
+    json!({"mode": "live-check", "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
 }
 fn eligibility(case: &Case) -> Option<&str> {
     match case.live_check.as_deref() {
