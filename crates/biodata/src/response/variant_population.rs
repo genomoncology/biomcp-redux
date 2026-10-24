@@ -23,6 +23,9 @@ pub struct VariantPopulation {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GnomadCounts {
+    /// Checked total from a release supplied alongside matching source counts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub frequency: Option<crate::PopulationFrequency>,
     /// Source sequencing sample set.
     pub data_type: PopulationDataType,
     /// Complete native group ID, including its source sex suffix when present.

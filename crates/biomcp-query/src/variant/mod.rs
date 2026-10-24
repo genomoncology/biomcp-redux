@@ -317,3 +317,4 @@ pub(crate) fn overall(
 mod gwas;
 mod population;
 pub(crate) mod population_detail;
+mod population_release;

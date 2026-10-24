@@ -1,8 +1,8 @@
 //! Exact GRCh38 source joins and bounded population observations.
 use crate::{Ctx, status};
 use biodata::{
-    Build, Chromosome, GnomadCounts, PopulationDataType, PopulationSex, Problem, ProblemCode,
-    Reason, Section, Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation,
+    Build, Chromosome, GnomadCounts, PopulationDataType, PopulationSex, Problem, Reason, Section,
+    Source, SourceOutcome, Text, VariantGet, VariantHeader, VariantPopulation,
 };
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
@@ -18,18 +18,17 @@ pub(super) fn section(
     };
     let leg = cx.fetch.leg(&gnomad::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
-    let result = gnomad::variant::population(&leg, &id)
-        .and_then(|raw| raw.map(|raw| summary(&raw)).transpose());
+    let result = gnomad::variant::population(&leg, &id).and_then(|raw| {
+        raw.map(|raw| summary(&raw, candidates, &mut problems))
+            .transpose()
+    });
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Gnomad, leg.finish(), error);
     let value = match result {
-        Ok(Some(data)) => {
-            problems.push(release_unknown(&data.variant));
-            Section::Data {
-                source: Source::Gnomad,
-                data,
-            }
-        }
+        Ok(Some(data)) => Section::Data {
+            source: Source::Gnomad,
+            data,
+        },
         Ok(None) => Section::Empty {
             source: Source::Gnomad,
             record: Text::new(&id)
@@ -79,19 +78,52 @@ pub(super) fn join(candidates: &[VariantHeader]) -> Option<String> {
     forms.into_iter().next()
 }
 
-pub(super) fn summary(raw: &gnomad::variant::Variant) -> Result<VariantPopulation, RequestError> {
+pub(super) fn summary(
+    raw: &gnomad::variant::Variant,
+    candidates: &[VariantHeader],
+    problems: &mut Vec<Problem>,
+) -> Result<VariantPopulation, RequestError> {
+    let subject = candidates
+        .first()
+        .and_then(|row| row.identity.ids.first())
+        .cloned()
+        .map(biodata::VariantRef::allele);
+    let mut project = |subset: &gnomad::variant::Subset,
+                       data_type,
+                       va: Option<&Vec<gnomad::variant::CohortFrequency>>,
+                       name| {
+        let mut native = counts(subset, data_type, None);
+        native.frequency = super::population_release::frequency(
+            raw,
+            subset,
+            data_type,
+            va,
+            name,
+            subject.as_ref(),
+            problems,
+        );
+        Box::new(native)
+    };
     Ok(VariantPopulation {
         variant: raw.variant_id.clone(),
         dataset: text(gnomad::variant::DATASET)?,
         build: Build::Grch38,
-        exome: raw
-            .exome
-            .as_ref()
-            .map(|s| Box::new(counts(s, PopulationDataType::Exomes, None))),
-        genome: raw
-            .genome
-            .as_ref()
-            .map(|s| Box::new(counts(s, PopulationDataType::Genomes, None))),
+        exome: raw.exome.as_ref().map(|s| {
+            project(
+                s,
+                PopulationDataType::Exomes,
+                raw.va.as_ref().and_then(|v| v.exome.as_ref()),
+                "exome",
+            )
+        }),
+        genome: raw.genome.as_ref().map(|s| {
+            project(
+                s,
+                PopulationDataType::Genomes,
+                raw.va.as_ref().and_then(|v| v.genome.as_ref()),
+                "genome",
+            )
+        }),
     })
 }
 pub(super) fn counts(
@@ -101,6 +133,7 @@ pub(super) fn counts(
 ) -> GnomadCounts {
     let (ancestry_group, sex) = group.map_or((None, None), |group| stratum(&group.id));
     GnomadCounts {
+        frequency: None,
         data_type,
         group_id: group.map(|g| g.id.clone()),
         ancestry_group,
@@ -108,14 +141,6 @@ pub(super) fn counts(
         ac: group.map_or(raw.ac, |g| g.ac),
         an: group.map_or(raw.an, |g| g.an),
         filters: raw.filters.clone().into(),
-    }
-}
-pub(super) fn release_unknown(id: &Text) -> Problem {
-    Problem {
-        source: Source::Gnomad,
-        record: Some(id.clone()),
-        field: "dataset_version".into(),
-        code: ProblemCode::ValueUnknown,
     }
 }
 fn stratum(id: &Text) -> (Option<Text>, Option<PopulationSex>) {

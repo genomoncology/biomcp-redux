@@ -119,7 +119,7 @@ fn read(
             local,
         );
     };
-    let (section, groups, source, error) = load(cx, query, &id, deadline);
+    let (section, groups, source, error) = load(cx, query, &id, &rows, &mut problems, deadline);
     problems.extend(projection_problems(&section, &groups));
     sources.push(source);
     (section, groups, sources, problems, local.or(error))
@@ -128,6 +128,8 @@ fn load(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     id: &str,
+    candidates: &[biodata::VariantHeader],
+    problems: &mut Vec<biodata::Problem>,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> (
     Section<biodata::VariantPopulation>,
@@ -139,7 +141,7 @@ fn load(
     let mut groups = Vec::new();
     let result = gnomad::variant::population(&leg, id).and_then(|raw| {
         raw.map(|raw| {
-            let summary = super::population::summary(&raw)?;
+            let summary = super::population::summary(&raw, candidates, problems)?;
             if query.detail() {
                 groups = ancestry(&raw);
             }
@@ -189,8 +191,7 @@ fn projection_problems(
     groups: &[GnomadCounts],
 ) -> Vec<biodata::Problem> {
     let mut problems = Vec::new();
-    if let Section::Data { data, .. } = &section {
-        problems.push(super::population::release_unknown(&data.variant));
+    if let Section::Data { .. } = &section {
         for group in groups {
             if group.group_id.is_some() && group.ancestry_group.is_none() && group.sex.is_none() {
                 problems.push(biodata::Problem {
