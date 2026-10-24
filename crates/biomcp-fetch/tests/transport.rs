@@ -585,6 +585,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         let spec = Box::leak(Box::new(SourceSpec {
             base: Box::leak(base.into_boxed_str()),
             source: original.source,
+            terms: original.terms,
             key: original.key,
             quota: original.quota,
             deadline: original.deadline,
