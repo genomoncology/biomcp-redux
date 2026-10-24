@@ -1,6 +1,7 @@
 # 0041 — Add LitVar2 as a variant source with an exact-match rule
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 42fb80efadad50a446b853fc6485283c8e70532b
 
 Milestone: 1
 

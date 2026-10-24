@@ -1,6 +1,7 @@
 # 0067 — Use one supported wire-enum recipe
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b0c5fe752daf86e77d2aa8189f6ddd99fa507219
 
 Milestone: 1
 
