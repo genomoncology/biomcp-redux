@@ -4,6 +4,8 @@ mod corporate;
 mod gene_tables;
 mod held_proxy;
 mod launch;
+pub(crate) mod live;
+mod live_proof;
 mod markdown;
 mod markdown_sources;
 mod mcp;
@@ -29,6 +31,7 @@ use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Case {
+    live_check: Option<String>,
     #[serde(rename = "feature", default)]
     _feature: Option<String>,
     #[serde(rename = "covers", default)]
@@ -220,6 +223,7 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())

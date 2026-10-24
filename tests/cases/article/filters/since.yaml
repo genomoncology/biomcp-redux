@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Inclusive publication dates retain most recently added order across typed pages.",
   "replay": "article/filters/since",

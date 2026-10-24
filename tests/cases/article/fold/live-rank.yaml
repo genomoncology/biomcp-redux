@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Recorded native PubMed and Europe PMC ranks define one complete stable walk",
   "replay": "article/fold/live",

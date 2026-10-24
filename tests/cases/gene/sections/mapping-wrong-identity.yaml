@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Source wrong-identity preserves the gene and reports rejected fields on replay and offline",
   "replay": "gene/constraint/synthetic-wrong-identity",

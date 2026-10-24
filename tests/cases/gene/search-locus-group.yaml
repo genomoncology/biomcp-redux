@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-commands",
   "story": "Locus groups intersect before ranking and paging",
   "replay": "gene/main",

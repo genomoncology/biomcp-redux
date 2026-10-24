@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "TP53 caps references after counting all distinct pathways",
   "replay": "gene/pathways",

@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-sections",
   "story": "ERBB2 returns complete CIViC gene data through CLI and MCP",
   "replay": "gene/civic",

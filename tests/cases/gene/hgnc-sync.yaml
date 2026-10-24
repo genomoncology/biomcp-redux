@@ -1,3 +1,4 @@
+live_check: public
 feature: gene-commands
 story: HGNC synchronization imports approved and withdrawn identities for offline resolution
 replay: gene/main

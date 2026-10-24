@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-commands",
   "story": "Retired syntax has fixed guidance without consuming legitimate gene inputs",
   "replay": "gene/main",

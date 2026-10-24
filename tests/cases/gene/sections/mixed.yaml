@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Each explicit missing alias is empty and other genes survive repeated caller inputs and an offline read",
   "replay": "gene/constraint/synthetic-mixed",

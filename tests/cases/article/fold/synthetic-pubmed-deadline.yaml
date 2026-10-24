@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-search",
   "story": "Synthetic PubMed timeout remains a failed search despite Europe PMC answer",
   "replay": "article/fold/synthetic-pubmed-deadline",

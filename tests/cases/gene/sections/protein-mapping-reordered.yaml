@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "Protein mapping reordered preserves checked siblings and source identity",
   "replay": "gene/protein/synthetic-reordered",

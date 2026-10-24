@@ -13,6 +13,7 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
     for (rate, burst) in [(0, 1), (1, 0), (0, 0)] {
         assert!(std::panic::catch_unwind(|| Rate::new(rate, burst)).is_err());
     }
+    assert!(std::panic::catch_unwind(|| Rate::every_seconds(0)).is_err());
     assert!(
         std::panic::catch_unwind(|| Quota::new(
             SourceKey::declare("valid-1"),
@@ -149,7 +150,12 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
 fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
     for configured in [false, true] {
         let server = Server::new();
-        let shared = quota("keyed", Rate::per_second(20), Some(Rate::per_second(5)), 1);
+        let shared = quota(
+            "keyed",
+            Rate::every_seconds(2),
+            Some(Rate::per_second(1)),
+            1,
+        );
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
@@ -180,7 +186,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             first.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
             let second = server.next();
-            let floor = if configured { 195 } else { 45 };
+            let floor = if configured { 995 } else { 1995 };
             assert!(second.started.duration_since(started) >= Duration::from_millis(floor));
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);

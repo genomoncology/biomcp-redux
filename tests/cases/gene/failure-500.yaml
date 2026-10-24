@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-commands",
   "story": "failure 500",
   "replay": "gene/synthetic-500",

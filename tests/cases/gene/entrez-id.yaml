@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "gene-commands",
   "story": "entrez id",
   "replay": "gene/main",
