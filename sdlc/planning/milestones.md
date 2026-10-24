@@ -48,7 +48,7 @@ Done when: the parity run shows every asserted fact that 0.9 gets right is also 
 
 Each waits for a consumer or for Ian. None has tickets.
 
-- The browsable wiki over the store, served by `biomcp serve --http`.
+- The browsable wiki over the store, served at `/` by `biomcp serve --http`.
 - A Postgres store, once a shared deployment needs concurrent writers.
 - Study analysis and charts.
 - Python and TypeScript bindings for `biodata`.

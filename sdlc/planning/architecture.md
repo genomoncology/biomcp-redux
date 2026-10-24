@@ -1119,7 +1119,7 @@ impl AbstractText {
 Adapters have no tests of their own. Cases drive the binary over recordings, and each adapter's lines run because a case needs them.
 
 - Each adapter has at least one success case per public function, recorded live with `--record`.
-- Each adapter has five failure cases built from small hand-edited recordings: a 429 with `Retry-After`, a 500, a delay past the source deadline, a cut body and a 200 that carries the provider's error shape. Each asserts the item or envelope status, the source's outcome and its reason, and a later offline step shows nothing bad was cached.
+- Each adapter has five failure cases built from small hand-edited recordings. A synthetic recording starts as a copy of a real `--record` capture of the same command, and only its response is edited. No helper rebuilds a request's encoding, parameter order, ID order or hash, because the transport already defines them. The five cases are a 429 with `Retry-After`, a 500, a delay past the source deadline, a cut body and a 200 that carries the provider's error shape. Each asserts the item or envelope status, the source's outcome and its reason, and a later offline step shows nothing bad was cached.
 - Each quirk comment names the case that fails without it. The ratchet test checks that the case file exists.
 - A nightly live run replays every case live and reports each reply whose key fields changed. A person refreshes recordings on purpose with `--record`. A test run never writes a recording.
 
@@ -1569,9 +1569,9 @@ Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and o
 
 Help is JSON by default and comes from the schemas. `biomcp help` lists the entities and the verbs that apply to each. `biomcp help get gene` lists the arguments, the sections and two examples drawn from cases. `biomcp help --all` lists every command and option, and the runner's surface check reads it.
 
-### 8.9 The web mode later
+### 8.9 The HTTP mode
 
-`biomcp serve --http` will serve MCP's streamable HTTP transport at `/mcp` and the wiki at `/`, bound to 127.0.0.1 by default. A small blocking HTTP server fits the thread model and arrives with the wiki. Its handlers call the same `grammar::parse` and `run`.
+`biomcp serve --http ADDR` serves MCP's streamable HTTP transport at `/mcp` and a health check at `/health`, bound to 127.0.0.1 by default, as `decisions/2026-10-24-1-0-serves-mcp-over-http.md` says. Hosted clients and reverse proxies use it, as they did in 0.9. A small blocking HTTP server fits the thread model. Its handlers call the same `grammar::parse` and `run` as stdio. A non-loopback bind needs an explicit host allowlist. The wiki comes later at `/` on the same server.
 
 ## 9. Configuration, observability and performance
 
