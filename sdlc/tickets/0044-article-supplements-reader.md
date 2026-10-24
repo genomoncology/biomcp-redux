@@ -1,6 +1,7 @@
 # 0044 — Add the supplements section and the article supplement reader
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 332deb01b74a22b4c1ac5345eba3f3fcd5243897
 
 Milestone: 1
 

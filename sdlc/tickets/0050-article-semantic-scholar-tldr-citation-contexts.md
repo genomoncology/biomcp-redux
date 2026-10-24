@@ -1,6 +1,7 @@
 # 0050 — Add the tldr section and Semantic Scholar citation contexts
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 60ec1b3e1b4a849b3932258b7222df0c3cad4ac3
 
 Milestone: 1
 

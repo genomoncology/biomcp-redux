@@ -1,6 +1,7 @@
 # 0042 — Add Semantic Scholar as a search source with an optional key
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1f3c29efd46f0f7e1578fb969c4cc5c1f39dd7e5
 
 Milestone: 1
 
