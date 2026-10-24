@@ -1,8 +1,5 @@
 use super::generate;
-use biodata::{
-    ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0,
-    Text,
-};
+use biodata::*;
 use schemars::JsonSchema;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
@@ -20,7 +17,7 @@ fn validator<T: JsonSchema>() -> jsonschema::Validator {
     clippy::expect_used,
     reason = "Public enum schema table fails on invalid test fixtures"
 )]
-fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
+fn enum_values<T: JsonSchema + Serialize + DeserializeOwned + std::fmt::Display>(values: &[T]) {
     let validator = validator::<T>();
     for value in values {
         assert!(validator.is_valid(&serde_json::to_value(value).unwrap()));
@@ -41,6 +38,7 @@ fn enum_values<T: JsonSchema + Serialize + DeserializeOwned>(values: &[T]) {
         .expect("string enum")
     {
         let value: T = serde_json::from_value(spelling.clone()).expect("canonical spelling");
+        assert_eq!(value.to_string(), spelling.as_str().unwrap());
         assert_eq!(&serde_json::to_value(value).unwrap(), spelling);
     }
 }
@@ -70,6 +68,14 @@ fn enum_schemas_validate_canonical_public_values() {
         Reason::Syncing,
     ]);
     enum_values(&[ProblemCode::ValueUnknown]);
+    enum_values(&[GeneStatus::Approved]);
+    enum_values(&[LocusGroup::ProteinCoding]);
+    enum_values(&[LocusType::Readthrough]);
+    enum_values(&[MatchKind::Symbol]);
+    enum_values(&[SummarySource::RefSeq]);
+    enum_values(&[HgncStatus::EntryWithdrawn]);
+    enum_values(&[Build::Unstated]);
+    enum_values(&[Strand::Forward]);
 }
 
 #[test]

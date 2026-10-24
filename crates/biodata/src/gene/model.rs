@@ -1,5 +1,8 @@
-use crate::{Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, GenomicInterval, HgncId, OmimId, Text, UniProtAcc};
 use super::{GeneStatus, HgncStatus, LocusGroup, LocusType, ManeSelect, MatchKind, Summary};
+use crate::{
+    Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, GenomicInterval, HgncId, OmimId, Text,
+    UniProtAcc,
+};
 use serde::{Deserialize, Serialize};
 
 /// A source-stated match, preserving the text that matched.
@@ -108,5 +111,5 @@ pub enum GeneResolution {
         merged_into: Box<[HgncId]>,
     },
     /// No source identity matched.
-    NotFound,
+    NotFound {},
 }

@@ -11,7 +11,8 @@ fn values<T>(valid: &[&str], invalid: &[&str]) -> Check where T: FromStr + Seria
         assert_eq!(serde_json::from_str::<T>(&json)?, value);
     }
     for text in invalid {
-        assert!(text.parse::<T>().is_err(), "accepted {text}");
+        let error = text.parse::<T>().err().ok_or("accepted invalid identifier")?;
+        assert!(!error.to_string().contains("distinctive-rejected-input"));
         assert!(serde_json::from_str::<T>(&serde_json::to_string(text)?).is_err());
     }
     for json in ["null", "1", "{}", "[]"] { assert!(serde_json::from_str::<T>(json).is_err()); }

@@ -5,7 +5,9 @@ fn split_version(value: &str) -> Option<(&str, Option<NonZeroU32>)> {
     match value.split_once('.') {
         None => Some((value, None)),
         Some((base, version)) => {
-            if version.starts_with('0') || !version.bytes().all(|ch| ch.is_ascii_digit()) { return None; }
+            if version.starts_with('0') || !version.bytes().all(|ch| ch.is_ascii_digit()) {
+                return None;
+            }
             Some((base, Some(NonZeroU32::new(version.parse().ok()?)?)))
         }
     }
@@ -39,7 +41,9 @@ macro_rules! versioned {
     };
 }
 fn ensembl(value: &str, prefix: &str) -> bool {
-    value.strip_prefix(prefix).is_some_and(|number| number.len() == 11 && number.bytes().all(|ch| ch.is_ascii_digit()))
+    value
+        .strip_prefix(prefix)
+        .is_some_and(|number| number.len() == 11 && number.bytes().all(|ch| ch.is_ascii_digit()))
 }
 versioned! {
     /// A human Ensembl gene stable identifier with a separately retained version.

@@ -31,10 +31,10 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     let value = serde_json::to_value(&entity)?;
     assert_eq!(value["summary"]["text"], prose.trim());
     round_trip(&entity)?;
-    for resolution in [GeneResolution::Resolved { gene: entity, r#match: matching }, GeneResolution::Ambiguous { candidates: vec![header(), header()].into_boxed_slice() }, GeneResolution::Withdrawn { hgnc_id: HgncId::new(18617)?, symbol: GeneSymbol::new("BRCA3")?, hgnc_status: HgncStatus::EntryWithdrawn, merged_into: vec![HgncId::new(1)?, HgncId::new(2)?].into_boxed_slice() }, GeneResolution::NotFound] { round_trip(&resolution)?; }
+    for resolution in [GeneResolution::Resolved { gene: entity, r#match: matching }, GeneResolution::Ambiguous { candidates: vec![header(), header()].into_boxed_slice() }, GeneResolution::Withdrawn { hgnc_id: HgncId::new(18617)?, symbol: GeneSymbol::new("BRCA3")?, hgnc_status: HgncStatus::EntryWithdrawn, merged_into: vec![HgncId::new(1)?, HgncId::new(2)?].into_boxed_slice() }, GeneResolution::NotFound {}] { round_trip(&resolution)?; }
     let absent = serde_json::to_value(gene())?;
     for field in ["locus_type", "location", "entrez_id", "ensembl_id", "mane_select", "summary"] { assert!(absent.get(field).is_none()); }
-    assert_eq!(serde_json::to_value(GeneResolution::NotFound)?, json!({"resolution":"not_found"}));
+    assert_eq!(serde_json::to_value(GeneResolution::NotFound {})?, json!({"resolution":"not_found"}));
     assert!(serde_json::from_value::<GeneResolution>(json!({"resolution":"not_found","gene":{}})).is_err());
     assert!(serde_json::from_value::<Gene>(json!({})).is_err());
     round_trip(&header())?;
