@@ -61,7 +61,17 @@ pub(super) fn section(
         );
     }
     let source = status::source(Source::CancerHotspots, leg.finish(), error);
-    let value = if let Some(error) = error {
+    let value = disclose(query, rows, error, &mut problems);
+    (value, vec![source], problems, error.and_then(status::local))
+}
+
+fn disclose(
+    query: &VariantGet,
+    rows: Vec<biodata::HotspotRecord>,
+    error: Option<RequestError>,
+    problems: &mut Vec<Problem>,
+) -> Section<VariantHotspots> {
+    if let Some(error) = error {
         Section::unavailable(
             Source::CancerHotspots,
             match error {
@@ -108,6 +118,5 @@ pub(super) fn section(
                 next,
             },
         }
-    };
-    (value, vec![source], problems, error.and_then(status::local))
+    }
 }
