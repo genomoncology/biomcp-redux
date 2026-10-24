@@ -15,6 +15,7 @@ use std::{
 };
 
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
+const MAX_BUNDLE_FILE_BYTES: u64 = crate::MAX_BUNDLE_BYTES * 6 + 64 * 1024;
 const MAX_METADATA_BYTES: usize = 8192;
 const MAX_EXCHANGES: usize = 128;
 const LOCK: &str = ".record-owner";
@@ -80,6 +81,15 @@ pub(crate) enum Body {
 impl Body {
     pub(crate) fn capture(bytes: Vec<u8>) -> Result<Self, RecordError> {
         if bytes.len() as u64 > MAX_FILE_BYTES {
+            return Err(RecordError::Limit);
+        }
+        Self::capture_bounded(bytes, MAX_FILE_BYTES)
+    }
+    pub(crate) fn capture_bundle(bytes: Vec<u8>) -> Result<Self, RecordError> {
+        Self::capture_bounded(bytes, crate::MAX_BUNDLE_BYTES)
+    }
+    fn capture_bounded(bytes: Vec<u8>, limit: u64) -> Result<Self, RecordError> {
+        if bytes.len() as u64 > limit {
             return Err(RecordError::Limit);
         }
         let text = String::from_utf8(bytes).map_err(|_| RecordError::NonUtf8)?;
@@ -185,7 +195,17 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let recording = read(&path(dir, source, key), source, url, post)?;
+                let recording = read(
+                    &path(dir, source, key),
+                    source,
+                    url,
+                    post,
+                    if max_body == crate::MAX_BUNDLE_BYTES {
+                        MAX_BUNDLE_FILE_BYTES
+                    } else {
+                        MAX_FILE_BYTES
+                    },
+                )?;
                 entry.insert(Cursor { recording, next: 0 })
             }
         };
@@ -208,6 +228,26 @@ impl Recordings {
         post: Option<&crate::prepared::PostMetadata>,
         exchange: Exchange,
     ) -> Result<(), RecordError> {
+        self.append_bounded(source, key, url, post, exchange, MAX_FILE_BYTES)
+    }
+    pub(crate) fn append_bundle(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        exchange: Exchange,
+    ) -> Result<(), RecordError> {
+        self.append_bounded(source, key, url, None, exchange, MAX_BUNDLE_FILE_BYTES)
+    }
+    fn append_bounded(
+        &self,
+        source: biodata::Source,
+        key: &[u8; 32],
+        url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
+        exchange: Exchange,
+        limit: u64,
+    ) -> Result<(), RecordError> {
         let Self::Capture(capture) = self else {
             return Ok(());
         };
@@ -228,7 +268,7 @@ impl Recordings {
             return Err(RecordError::Limit);
         }
         recording.exchanges.push(exchange);
-        let result = publish(&path(&capture.dir, source, key), recording);
+        let result = publish(&path(&capture.dir, source, key), recording, limit);
         if result.is_err() {
             recording.exchanges.pop();
         }
@@ -244,6 +284,7 @@ fn read(
     source: biodata::Source,
     url: &str,
     post: Option<&crate::prepared::PostMetadata>,
+    limit: u64,
 ) -> Result<Recording, RecordError> {
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
@@ -253,10 +294,10 @@ fn read(
         }
     })?;
     let mut bytes = Vec::new();
-    file.take(MAX_FILE_BYTES + 1)
+    file.take(limit + 1)
         .read_to_end(&mut bytes)
         .map_err(|_| RecordError::Io)?;
-    if bytes.len() as u64 > MAX_FILE_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
     let value: Recording = serde_json::from_slice(&bytes).map_err(|_| RecordError::Malformed)?;
@@ -273,9 +314,9 @@ fn read(
     }
     Ok(value)
 }
-fn publish(path: &Path, value: &Recording) -> Result<(), RecordError> {
+fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError> {
     let bytes = serde_json::to_vec_pretty(value).map_err(|_| RecordError::Malformed)?;
-    if bytes.len() as u64 > MAX_FILE_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
     let parent = path.parent().ok_or(RecordError::Io)?;

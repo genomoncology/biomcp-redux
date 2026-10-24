@@ -209,17 +209,21 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn call<T: Reply>(
+    pub(crate) fn wire_call(
         &self,
         prepared: &Prepared,
-        codec: &Decoder<T>,
+        accept: &str,
+        headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let mut request = if prepared.post.is_some() {
             self.fetch.agent.post(&prepared.url)
         } else {
             self.fetch.agent.get(&prepared.url).force_send_body()
         }
-        .header("Accept", codec.name());
+        .header("Accept", accept);
+        for (name, value) in headers {
+            request = request.header(*name, value);
+        }
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.config.secrets.get(c.secret)
         {
@@ -273,7 +277,9 @@ impl Leg<'_> {
             });
         }
         let started = Instant::now();
-        let mut response = self.call(prepared, codec).map_err(Failure::Transport)?;
+        let mut response = self
+            .wire_call(prepared, codec.name(), &[])
+            .map_err(Failure::Transport)?;
         let status = response.status().as_u16();
         let content_type = response
             .headers()
