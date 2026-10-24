@@ -1,0 +1,45 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Registry native eligibility search preserves captured total and native identity order; historical provider response captured 2026-10-23 and delivered locally through the actual CLI record path.",
+  "replay": "trial/eligibility",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--criteria",
+        "BRAF V600E"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--criteria",
+        "BRAF V600E"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 95,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT05355701",
+            "NCT07815873",
+            "NCT05229601",
+            "NCT02968303",
+            "NCT02027961",
+            "NCT05789069",
+            "NCT02818023",
+            "NCT02460068",
+            "NCT01978236",
+            "NCT01266967"
+          ]
+        },
+        "/result/source_updated": "2026-10-23T09:00:04"
+      }
+    }
+  ]
+}

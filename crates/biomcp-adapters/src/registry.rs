@@ -4,6 +4,7 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::ctgov::SPEC,
     &crate::hgnc::SPEC,
     &crate::mygene::SPEC,
     &crate::oncokb::SPEC,
@@ -104,6 +105,7 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::ClinicalTrialsGov => ("/version", vec![]),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::UniProt => (

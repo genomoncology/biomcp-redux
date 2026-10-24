@@ -50,6 +50,18 @@ const ARTICLE_SEARCH: &[(&str, ErrorMessage)] = &[
     ("--debug-plan", ErrorMessage::Dropped),
     ("--full", ErrorMessage::Dropped),
 ];
+const TRIAL_SEARCH: &[(&str, ErrorMessage)] = &[
+    ("--line-of-therapy", ErrorMessage::TrialCriteria),
+    ("--prior-therapies", ErrorMessage::TrialCriteria),
+    ("--progression-on", ErrorMessage::TrialCriteria),
+    ("--mutation", ErrorMessage::TrialVariant),
+    ("--biomarker", ErrorMessage::TrialVariant),
+    ("--date-from", ErrorMessage::TrialSince),
+    ("--date-to", ErrorMessage::TrialUntil),
+    ("--results-available", ErrorMessage::TrialResults),
+    ("--offset", ErrorMessage::TrialPage),
+    ("--no-alias-expand", ErrorMessage::TrialNoExpansion),
+];
 const ARTICLE_GET: &[(&str, ErrorMessage)] = &[
     ("--pdf", ErrorMessage::ArticlePdf),
     ("--outline", ErrorMessage::Fulltext),
@@ -79,7 +91,7 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         ["gene", rest @ ..] if !rest.is_empty() => {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
-        ["search", "gene", ..] => words.retired_option,
+        ["search", "gene", ..] | ["search", "trial", ..] => words.retired_option,
         ["get", "gene", input @ ..] => trailing(&words, input, SECTIONS, false),
         ["search", "article", ..] => words.retired_option,
         ["get", "article", input @ ..] => words
@@ -180,6 +192,7 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         }
         let table = match result.positional.get(..2) {
             Some(["search", "article"]) => ARTICLE_SEARCH,
+            Some(["search", "trial"]) => TRIAL_SEARCH,
             Some(["get", "article"]) => ARTICLE_GET,
             Some(["search", "gene"]) => SEARCH,
             _ => &[],

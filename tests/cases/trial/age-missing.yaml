@@ -1,0 +1,45 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Registry native age-missing search preserves captured total and native identity order; historical provider response captured 2026-10-23 and delivered locally through the actual CLI record path.",
+  "replay": "trial/age-missing",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--age",
+        "18"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--age",
+        "18"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3647,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT04631731",
+            "NCT05355701",
+            "NCT06952400",
+            "NCT00847522",
+            "NCT03538028",
+            "NCT05712551",
+            "NCT07381972",
+            "NCT00002892",
+            "NCT00521001",
+            "NCT01874119"
+          ]
+        },
+        "/result/source_updated": "2026-10-23T09:00:04"
+      }
+    }
+  ]
+}
