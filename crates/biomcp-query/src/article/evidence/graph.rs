@@ -7,7 +7,7 @@ use biodata::{
 use biomcp_adapters::{pubmed, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
 /// A target's independently checked native identities, never a rendered citation match.
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Clone)]
 pub(super) struct Target {
     pub pmid: Option<Pmid>,
     pub doi: Option<Doi>,

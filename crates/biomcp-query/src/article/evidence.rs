@@ -8,9 +8,7 @@ use biodata::{
     Request, Section, Source, SourceOutcome, Status, StepKind,
 };
 use biomcp_fetch::{CacheError, Deadline, RequestError};
-use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-#[derive(Serialize, Deserialize)]
 pub(super) struct Snapshot {
     graph: Section<CitationContexts>,
     target: Option<graph::Target>,
@@ -95,7 +93,7 @@ fn execute<'a>(
             crate::store::EvidenceState::Disabled => Snapshot::empty(),
             crate::store::EvidenceState::Ready(payload) => {
                 restored = true;
-                serde_json::from_str(&payload).map_err(|_| CacheError::Database)?
+                decode(&payload)?
             }
         }
     } else {
@@ -122,7 +120,7 @@ fn execute<'a>(
         }
     }
     store.set_deadline(*deadline);
-    let payload = serde_json::to_string(&snapshot).map_err(|_| CacheError::Database)?;
+    let payload=encode(&snapshot)?;
     let id = store.save_evidence(
         query.pool().filter(|_| restored),
         &key,
@@ -161,4 +159,23 @@ fn restart(query: &ArticleEvidence, out: &mut Outcome) {
             fresh: false,
         },
     ));
+}
+
+// Private versioned store layout uses existing checked domain values. The query
+// crate does not define a second public wire model or depend on serialization derives.
+type Saved = (
+    Section<CitationContexts>, Option<Section<CitationParagraphs>>,
+    (bool,Option<u32>,bool), Vec<SourceOutcome>,
+    Option<(Option<biodata::Pmid>,Option<biodata::Doi>)>,
+);
+fn encode(snapshot:&Snapshot)->Result<String,CacheError> {
+    serde_json::to_string(&(
+        &snapshot.graph,&snapshot.fulltext,
+        (snapshot.terminal,snapshot.cursor,snapshot.matched),&snapshot.sources,
+        snapshot.target.as_ref().map(|target|(target.pmid,target.doi.as_ref())),
+    )).map_err(|_|CacheError::Database)
+}
+fn decode(payload:&str)->Result<Snapshot,CacheError> {
+    let (graph,fulltext,(terminal,cursor,matched),sources,target):Saved=serde_json::from_str(payload).map_err(|_|CacheError::Database)?;
+    Ok(Snapshot {graph,fulltext,terminal,cursor,matched,sources,target:target.map(|(pmid,doi)|graph::Target{pmid,doi})})
 }
