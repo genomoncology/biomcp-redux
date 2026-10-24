@@ -14,7 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 
 fn strip_row(row: &mut Value) -> Result<(), String> {
-    let source = serde_json::from_value::<biomcp_types::Source>(row["source"].clone())
+    let source = serde_json::from_value::<biomcp_types::Source>(row.get("source").ok_or("missing outcome source")?.clone())
         .map_err(|e| e.to_string())?;
     let spec = biomcp_adapters::registry::SOURCES.iter()
         .find(|spec| spec.source == source).ok_or("unregistered outcome source")?;
@@ -50,6 +50,12 @@ pub(super) fn size(value: &Value, pointer: &str) -> Result<usize, String> {
     serde_json::to_vec(&comparable(value, pointer)?).map(|b| b.len()).map_err(|e| e.to_string())
 }
 
+pub(super) fn raw_size(bytes: &[u8]) -> Result<usize, String> {
+    let Ok(value) = serde_json::from_slice::<Value>(bytes) else { return Ok(bytes.len()); };
+    let compact = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    Ok(bytes.len() - (compact - size(&value, "")?))
+}
+
 fn envelopes() -> Result<(), String> {
     let registry = super::schema::Registry::embedded()?;
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases");
@@ -59,11 +65,12 @@ fn envelopes() -> Result<(), String> {
         if rows.is_empty() { return Err("no source outcomes tested".into()); }
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let payload = size(&value, "")?;
-        println!("{case}: actual={full}, new_terms={}, comparable={payload}", full - payload);
+        use std::io::Write;
+        writeln!(std::io::stdout(), "{case}: actual={full}, new_terms={}, comparable={payload}", full - payload).map_err(|e| e.to_string())?;
     }
     let schema: Value = serde_json::from_str(include_str!("../../../biomcp-types/schemas/source.json"))
         .map_err(|e| e.to_string())?;
-    for name in schema["enum"].as_array().ok_or("missing source enum")? {
+    for name in schema.get("enum").and_then(Value::as_array).ok_or("missing source enum")? {
         let source = serde_json::from_value(name.clone()).map_err(|e| e.to_string())?;
         let outcome = biomcp_adapters::registry::outcome(source, biomcp_types::SourceState::Ok, None);
         let mut value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
@@ -76,11 +83,11 @@ fn subtraction() -> Result<(), String> {
     let outcome = biomcp_adapters::registry::outcome(biomcp_types::Source::Hgnc, biomcp_types::SourceState::Ok, None);
     let mut envelope = json!({"sources":[outcome], "result":{"value":1}});
     let cap = size(&envelope, "")?;
-    envelope["result"]["added"] = json!("ordinary payload");
+    envelope.get_mut("result").and_then(Value::as_object_mut).ok_or("missing result")?.insert("added".into(), json!("ordinary payload"));
     if size(&envelope, "")? <= cap { return Err("ordinary payload earned a terms deduction".into()); }
-    envelope["sources"][0]["terms"] = json!("wrong terms");
+    envelope.pointer_mut("/sources/0").and_then(Value::as_object_mut).ok_or("missing source")?.insert("terms".into(), json!("wrong terms"));
     if size(&envelope, "").is_ok() { return Err("malformed terms earned a deduction".into()); }
-    envelope["sources"][0].as_object_mut().ok_or("missing row")?.remove("terms");
+    envelope.pointer_mut("/sources/0").and_then(Value::as_object_mut).ok_or("missing row")?.remove("terms");
     if size(&envelope, "").is_ok() { return Err("missing terms earned a deduction".into()); }
     Ok(())
 }

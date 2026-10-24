@@ -464,6 +464,8 @@ fn terms_budget() -> Result<(), String> {
     ] {
         let mut value = super::run_case(&root.join(format!("search-{name}.yaml")), &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        let source_terms = full - super::source_terms::size(&value, "")? - 1;
+        value = super::source_terms::comparable(&value, "")?;
         let selector_bytes = subtract_selector(&mut value, !matches!(name, "region" | "raw"))?;
         let items = value
             .pointer_mut("/result/items")
@@ -482,7 +484,7 @@ fn terms_budget() -> Result<(), String> {
             }
         }
         let payload = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
-        if labeled == 0 || full - payload != labeled * 205 + selector_bytes || payload > cap {
+        if labeled == 0 || full - payload != labeled * 205 + selector_bytes + source_terms || payload > cap {
             return Err(format!(
                 "{name}: full={full}, metadata={}, payload={payload}, comparable cap={cap}",
                 full - payload

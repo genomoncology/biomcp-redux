@@ -30,7 +30,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
     let valid = tree()?;
     check(valid.path())?;
     let cases = [
-        ("crates/biomcp-query/src/example.rs", "fn response() { SourceOutcome { source: Source::Hgnc } }", "source outcomes require registry terms"),
         (
             "crates/biodata/Cargo.toml",
             "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nbiomcp-types={path='../biomcp-types'}\n",
@@ -205,4 +204,14 @@ fn test_files_obey_the_file_line_limit() -> Check {
     put(tree.path(), path, &"// line\n".repeat(600))?;
     check(tree.path())?;
     rejects(path, &"// line\n".repeat(601), "file line limit")
+}
+
+#[test]
+fn source_outcomes_require_registry_terms() -> Check {
+    let tree = tree()?;
+    put(tree.path(), "crates/biomcp-query/src/example.rs",
+        "fn response() { SourceOutcome { source: Source::Hgnc } }")?;
+    let error = check(tree.path()).err().ok_or("unlabeled source outcome accepted")?;
+    assert!(error.to_string().contains("source outcomes require registry terms"));
+    Ok(())
 }

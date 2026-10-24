@@ -1241,10 +1241,25 @@
             }
           ],
           "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
       "required": [
         "source",
+        "use",
+        "terms",
+        "terms_url",
         "state"
       ],
       "type": "object"
@@ -1489,6 +1504,16 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
     },
     "VariantAssertion": {
       "additionalProperties": false,
@@ -1758,7 +1783,7 @@
       ]
     }
   },
-  "$id": "biomcp.variant_assertions/2",
+  "$id": "biomcp.variant_assertions/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1804,7 +1829,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_assertions/2",
+      "const": "biomcp.variant_assertions/3",
       "type": "string"
     },
     "sources": {

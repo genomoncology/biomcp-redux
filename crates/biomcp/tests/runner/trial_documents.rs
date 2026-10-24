@@ -55,7 +55,7 @@ fn command(
         6500
     };
     assert!(
-        output.stdout.len() <= ceiling,
+        super::source_terms::raw_size(&output.stdout)? <= ceiling,
         "bounded document reply: {}",
         output.stdout.len()
     );

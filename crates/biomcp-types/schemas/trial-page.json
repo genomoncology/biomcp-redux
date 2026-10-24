@@ -946,10 +946,25 @@
             }
           ],
           "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
         }
       },
       "required": [
         "source",
+        "use",
+        "terms",
+        "terms_url",
         "state"
       ],
       "type": "object"
@@ -1415,9 +1430,19 @@
     "UniProtAcc": {
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
       "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
     }
   },
-  "$id": "biomcp.trial_page/3",
+  "$id": "biomcp.trial_page/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1463,7 +1488,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial_page/3",
+      "const": "biomcp.trial_page/4",
       "type": "string"
     },
     "sources": {
