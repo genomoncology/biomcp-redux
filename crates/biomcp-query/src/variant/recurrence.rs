@@ -107,12 +107,7 @@ fn identity(
         .map_err(|_| rejected(Source::AlleleRegistry, Reason::Rejected))?;
     let spec = super::source(&q);
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let result = if spec.source == Source::AlleleRegistry {
-        biomcp_adapters::allele_registry::exact_identity(&leg, query.input()).map(|mapped| {
-            out.problems.extend(mapped.problems);
-            (vec![mapped.value], None)
-        })
-    } else { super::resolve(&q, &leg, &mut out.problems) };
+    let result = super::resolve(&q, &leg, &mut out.problems);
     out.sources.push(status::source(
         spec.source,
         leg.finish(),
@@ -152,7 +147,7 @@ fn gene(
     let mapped = result?;
     out.problems.extend(mapped.problems);
     if mapped.value.len() == 1
-        && let Some(id) = mapped.value[0].entrez_id
+        && let Some(id) = mapped.value.first().and_then(|v| v.entrez_id)
     {
         return Ok(id);
     }

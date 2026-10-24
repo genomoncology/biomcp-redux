@@ -53,7 +53,21 @@ fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> {
 }
 fn wire() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::for_sources(&["www.cbioportal.org", "reg.genome.network", "storage.googleapis.com"], |r| if r.contains("hgnc_complete_set") { "text/tab-separated-values" } else { "application/json" }, cbio)?;
+    let stub = Stub::for_sources(
+        &[
+            "www.cbioportal.org",
+            "reg.genome.network",
+            "storage.googleapis.com",
+        ],
+        |r| {
+            if r.contains("hgnc_complete_set") {
+                "text/tab-separated-values"
+            } else {
+                "application/json"
+            }
+        },
+        cbio,
+    )?;
     config(&env, &stub)?;
     let first = invoke(&env, &args())?;
     if first.pointer("/result/observed_sample_count") != Some(&json!(1))
@@ -85,7 +99,12 @@ fn wire() -> Result<(), String> {
     offline.push("--offline".into());
     invoke(&env, &offline)?;
     let requests = stub.finish()?;
-    if requests.iter().filter(|(_,r)| r.starts_with("GET /api/")).count() != 5 {
+    if requests
+        .iter()
+        .filter(|(_, r)| r.starts_with("GET /api/"))
+        .count()
+        != 5
+    {
         return Err(format!(
             "warm pages repeated metadata or source reads: {}",
             requests.len()
@@ -106,8 +125,12 @@ fn row(sample: &str, alternate: &str) -> Value {
     json!({"molecularProfileId":"msk_impact_2017_mutations","studyId":"msk_impact_2017","sampleId":sample,"entrezGeneId":673,"chr":"7","startPosition":140453136,"endPosition":140453136,"referenceAllele":"A","variantAllele":alternate,"ncbiBuild":"GRCh37"})
 }
 fn cbio(request: &str) -> Result<String, String> {
-    if request.starts_with("GET /allele/") { return car(request); }
-    if request.contains("hgnc_complete_set") { return hgnc(request); }
+    if request.starts_with("GET /allele/") {
+        return car(request);
+    }
+    if request.contains("hgnc_complete_set") {
+        return hgnc(request);
+    }
     Ok(if request.starts_with("GET /api/studies/") {
         json!({"studyId":"msk_impact_2017","name":"Synthetic cohort","description":"Synthetic notice: commercial reuse requires permission","citation":"Synthetic citation"})
     } else if request.starts_with("GET /api/sample-lists/") {
