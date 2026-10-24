@@ -1,6 +1,7 @@
 # 0040 — Sort by citations and follow the citation graph with iCite
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3f35532fd2fd98a0898ad9d0c4f318dd9ae987ac
 
 Milestone: 1
 

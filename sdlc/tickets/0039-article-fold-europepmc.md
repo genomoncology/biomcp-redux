@@ -1,6 +1,7 @@
 # 0039 — Fold named sources, starting with Europe PMC
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6f1d122dc428bfd6c76fb5c883215c673e9c3f79
 
 Milestone: 1
 
