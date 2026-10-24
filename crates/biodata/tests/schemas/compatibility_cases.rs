@@ -76,3 +76,19 @@ fn compatibility_checks_enums_and_string_constraints() {
     new["minLength"] = json!(2);
     assert!(check(&old, &new).is_err());
 }
+
+#[test]
+fn compatibility_refuses_assertion_siblings_on_composed_schemas() {
+    let old = json!({"$id":"biodata.example/1", "type":"string", "enum":["first","second"]});
+    // These assertions intersect; overwriting the referenced enum would hide
+    // the removal of "second" from the accepted values.
+    let new = json!({"$id":"biodata.example/1", "$ref":"#/$defs/Value",
+        "$defs":{"Value":{"type":"string","enum":["first"]}},
+        "enum":["first","second"]});
+    assert!(check(&old, &new).is_err());
+
+    let old = json!({"$id":"biodata.example/1", "type":["string","null"]});
+    let new = json!({"$id":"biodata.example/1",
+        "anyOf":[{"type":"string"},{"type":"null"}], "type":"string"});
+    assert!(check(&old, &new).is_err(), "a sibling can exclude null");
+}
