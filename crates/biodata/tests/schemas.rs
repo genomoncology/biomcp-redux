@@ -54,14 +54,19 @@ fn common_registry() -> Vec<Contract> {
     }
 }
 
-fn registry() -> Vec<Contract> {
-    let mut contracts = contracts! {
-        VariantSearch => ("variant-search", "biodata.variant-search/1"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
+fn variant_registry() -> Vec<Contract> {
+    contracts! {
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
+    }
+}
+
+fn registry() -> Vec<Contract> {
+    let mut contracts = contracts! {
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -135,6 +140,7 @@ fn registry() -> Vec<Contract> {
         Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(common_registry());
+    contracts.extend(variant_registry());
     contracts.extend(trial_contracts());
     contracts
 }
