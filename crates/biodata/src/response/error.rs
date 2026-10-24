@@ -42,6 +42,7 @@ singleton! {
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+        NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
@@ -150,6 +151,12 @@ impl ErrorEnvelope {
                 message: ErrorMessage::Arguments,
             },
         }
+    }
+    /// Explain explicit NCI identity and keyword modes.
+    pub fn nci_disease() -> Self {
+        let mut error = Self::arguments();
+        error.error.message = ErrorMessage::NciDisease;
+        error
     }
     /// Explain the registry's facility and radius limitation before any request.
     pub fn trial_facility_radius() -> Self {

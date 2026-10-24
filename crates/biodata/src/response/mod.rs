@@ -71,3 +71,6 @@ mod trial_get;
 pub use trial_get::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
 };
+
+mod nci_trial;
+pub use nci_trial::{NciDisease, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage};

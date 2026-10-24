@@ -24,6 +24,13 @@ pub struct TrialSearch(Box<Fields>);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
+    /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+    #[serde(default, skip_serializing_if = "TrialSource::is_default")]
+    source: TrialSource,
+    /// NCI free text; explicit keyword mode never substitutes for a disease identity.
+    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    keyword: Option<Text>,
     /// General registry discovery text.
     #[serde(
         default,
@@ -258,6 +265,11 @@ impl TryFrom<Fields> for TrialSearch {
     }
 }
 impl TrialSearch {
+    /// Explicit source selected by the caller.
+    pub fn source(&self) -> TrialSource { self.0.source }
+    /// Explicit NCI free text.
+    pub fn keyword(&self) -> Option<&Text> { self.0.keyword.as_ref() }
+
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
@@ -398,4 +410,22 @@ impl PhaseFilter {
             Self::TwoThree => &[P::Phase2, P::Phase3],
         }
     }
+}
+
+crate::macros::wire_enum! {
+    /// Independent trial providers; results are never folded or used as fallbacks.
+    TrialSource {
+        /// ClinicalTrials.gov registry.
+        Ctgov => "ctgov",
+        /// NCI Clinical Trials Search, requiring the user's key.
+        Nci => "nci",
+    }
+}
+impl Default for TrialSource {
+    fn default() -> Self { Self::Ctgov }
+}
+
+impl TrialSource {
+    /// Whether the registry default can be omitted from a serialized query.
+    pub fn is_default(&self) -> bool { *self == Self::Ctgov }
 }

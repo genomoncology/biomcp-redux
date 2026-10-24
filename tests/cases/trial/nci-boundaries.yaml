@@ -1,5 +1,5 @@
 {
-  "feature": "trial-search",
+  "feature": "trial-nci",
   "live_check": "synthetic",
   "story": "NCI requires explicit disease identity and a user key without registry fallback.",
   "steps": [

@@ -51,6 +51,7 @@ impl SecretName {
         Self::NcbiApiKey,
         Self::SemanticScholarApiKey,
         Self::OncokbApiKey,
+        Self::NciApiKey,
     ];
     /// Source name accepted by key registration.
     pub const fn source(self) -> &'static str {
@@ -58,6 +59,7 @@ impl SecretName {
             Self::NcbiApiKey => "ncbi",
             Self::SemanticScholarApiKey => "semantic-scholar",
             Self::OncokbApiKey => "oncokb",
+            Self::NciApiKey => "nci",
         }
     }
     /// Field within the configuration's keys object.
@@ -66,6 +68,7 @@ impl SecretName {
             Self::NcbiApiKey => "ncbi_api_key",
             Self::SemanticScholarApiKey => "semantic_scholar_api_key",
             Self::OncokbApiKey => "oncokb_api_key",
+            Self::NciApiKey => "nci_api_key",
         }
     }
     /// Optional environment fallback.
@@ -74,6 +77,7 @@ impl SecretName {
             Self::NcbiApiKey => "NCBI_API_KEY",
             Self::SemanticScholarApiKey => "SEMANTIC_SCHOLAR_API_KEY",
             Self::OncokbApiKey => "ONCOKB_API_KEY",
+            Self::NciApiKey => "NCI_API_KEY",
         }
     }
 }

@@ -22,6 +22,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::pmc_oa::SPEC,
     &crate::icite::SPEC,
     &crate::semantic_scholar::SPEC,
+    &crate::nci::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
@@ -106,6 +107,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
         Source::ClinicalTrialsGov => ("/version", vec![]),
+        Source::Nci => ("/trials", vec![("size", Arg::Num(1)), ("include", Arg::Text("none"))]),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::UniProt => (

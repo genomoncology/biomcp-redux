@@ -65,6 +65,13 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native NCI discovery page.
+    NciTrialPage(crate::NciTrialPage),
+    /// Native NCI exact cards.
+    NciTrialCards(crate::NciTrialCards),
+    /// Fixed NCI disease identity guidance.
+    NciDiseaseError,
+
     /// Exact trial cards and source protocol sections.
     TrialCards(crate::TrialCards),
     /// Native registry search page.

@@ -167,6 +167,13 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (_, QueryBody::NciDiseaseError) => usage_envelope(biodata::ErrorEnvelope::nci_disease()),
+        (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => meta.encode(query, Some(body)),
+        (Request::SearchTrial(query), QueryBody::NciTrialPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
+
         (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
@@ -379,6 +386,7 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
     let name = match source {
         biodata::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
         biodata::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        biodata::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biodata::KeyHelp {
