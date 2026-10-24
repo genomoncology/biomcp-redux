@@ -228,12 +228,20 @@ fn overflow() -> Result<(), Box<dyn std::error::Error>> {
     checked_steps(
         "article/evidence/source",
         |source, record| {
-            if source == "pmc-oa" && record["url"].as_str().is_some_and(|url| url.contains(".xml?")) {
+            if source == "pmc-oa"
+                && record["url"]
+                    .as_str()
+                    .is_some_and(|url| url.contains(".xml?"))
+            {
                 let body = record["exchanges"][0]["body"]["value"].as_str().unwrap();
                 let start = body.find("<body>").unwrap() + 6;
                 let end = body.find("</body>").unwrap();
-                let replacement = format!("<sec><title>Evidence</title><p><xref ref-type=\"bibr\" rid=\"B17\">exact</xref>a{}b</p></sec>", " ".repeat(7000));
-                record["exchanges"][0]["body"]["value"] = json!(format!("{}{}{}", &body[..start], replacement, &body[end..]));
+                let replacement = format!(
+                    "<sec><title>Evidence</title><p><xref ref-type=\"bibr\" rid=\"B17\">exact</xref>a{}b</p></sec>",
+                    " ".repeat(7000)
+                );
+                record["exchanges"][0]["body"]["value"] =
+                    json!(format!("{}{}{}", &body[..start], replacement, &body[end..]));
             }
         },
         json!([{"run":["article","citation-evidence","33123537","17611497","--fulltext"],"expect":{

@@ -259,8 +259,10 @@
           "type": "integer"
         },
         "markdown": {
-          "$ref": "#/$defs/Markdown",
-          "description": "Preserved source Markdown."
+          "description": "Preserved source Markdown.",
+          "format": "markdown",
+          "minLength": 1,
+          "type": "string"
         },
         "part": {
           "description": "Exact semantic outline part.",
@@ -310,12 +312,6 @@
         " Text and data mining manuscript terms.",
         " The bucket reports another license."
       ]
-    },
-    "Markdown": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
-      "format": "markdown",
-      "minLength": 1,
-      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,
