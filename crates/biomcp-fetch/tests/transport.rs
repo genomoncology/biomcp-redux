@@ -293,3 +293,42 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
         assert!(requests[0].contains(secret));
     }
 }
+
+#[test]
+fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
+    // A per-thread timer lets the reply check finish only once its leg expires.
+    thread_local! {
+        static CHECK_DEADLINE: std::cell::Cell<Option<biomcp_fetch::Deadline>> = const {
+            std::cell::Cell::new(None)
+        };
+    }
+    #[derive(Debug, Deserialize)]
+    struct CheckedAnswer {}
+    impl Reply for CheckedAnswer {
+        fn check(&self) -> Result<(), BadReply> {
+            CHECK_DEADLINE.with(|timer| {
+                let deadline = timer.get().unwrap();
+                while !deadline.expired() {
+                    thread::park_timeout(deadline.remaining());
+                }
+            });
+            Ok(())
+        }
+    }
+
+    let stub = Stub::new(200, "application/json", "{}", None);
+    let spec = stub.spec(KeyUse::None, Duration::from_secs(30));
+    let fetch = fetch();
+    let deadline = fetch.deadline(Duration::from_secs(1));
+    CHECK_DEADLINE.with(|timer| timer.set(Some(deadline)));
+    let error = fetch
+        .leg(spec, deadline)
+        .json::<CheckedAnswer>(&spec.get("/answer"), &[])
+        .unwrap_err();
+    CHECK_DEADLINE.with(|timer| timer.set(None));
+    assert_eq!(
+        (error.reason, error.status),
+        (Reason::DeadlineExceeded, Some(200))
+    );
+    assert_eq!(stub.finish().len(), 1);
+}
