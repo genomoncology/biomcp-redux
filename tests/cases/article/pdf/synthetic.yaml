@@ -1,0 +1,21 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "Read an owned synthetic PDF as a bounded outline and page-marked text.",
+  "replay": "article/pdf/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "41351423",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/state": "data",
+        "/result/items/0/sections/pdf/data/origin": "pdf",
+        "/result/items/0/sections/pdf/data/pages": 1
+      }
+    }
+  ]
+}
