@@ -42,4 +42,4 @@ key-registration: Register, replace, list and remove local source credentials wi
 trial-search: Search the registry with explicit native filters, exact totals and opaque pages. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`.
 
-trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`.
+trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci_walk.rs`.

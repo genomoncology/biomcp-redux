@@ -23,7 +23,7 @@ fn reply(request: &str) -> Result<String, String> {
     }
     .to_string())
 }
-fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), args)
         .env("NCI_API_KEY", "synthetic-nci-env-key")

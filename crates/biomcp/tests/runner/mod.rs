@@ -21,6 +21,7 @@ mod markdown_sources;
 mod mcp;
 mod named_search;
 mod nci;
+mod nci_walk;
 mod negative_cases;
 mod network_stub;
 mod pdf;
@@ -260,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(trial_tables::trials());
     trials.extend(trial_get::trials());
     trials.extend(nci::trials());
+    trials.extend(nci_walk::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));

@@ -3,55 +3,33 @@ mod get;
 mod page;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
-    NciTrialCards, NciTrialItem, NciTrialPage, QueryBody, Reason, Request, Source, Status,
-    StepKind, Text, TrialSearch,
+    NciTrialPage, QueryBody, Reason, Request, Source, Status, StepKind, Text, TrialSearch,
 };
 use biomcp_adapters::nci;
 pub(super) use get::run as get;
 const ATTRIBUTION: &str =
     "NCI Clinical Trials Search; source-native fields, no eligibility assessment";
-/// An NCIt code is an explicit identifier, never a disease name guess.
-fn ncit(value: &Text) -> bool {
-    value
-        .as_str()
-        .strip_prefix('C')
-        .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
-}
-/// Reject unsupported registry filters without contacting either provider.
-fn valid(q: &TrialSearch) -> bool {
-    q.limit() <= nci::PAGE_LIMIT
-        && q.query().is_none()
-        && q.gene().is_none()
-        && q.variant().is_none()
-        && q.criteria().is_none()
-        && q.intervention().is_none()
-        && q.status().is_none()
-        && q.phase().is_none()
-        && q.study_type().is_none()
-        && q.sex().is_none()
-        && q.age().is_none()
-        && q.facility().is_none()
-        && q.lat().is_none()
-        && q.sponsor().is_none()
-        && q.sponsor_type().is_none()
-        && q.updated_since().is_none()
-        && q.updated_until().is_none()
-        && q.id().is_none()
-        && !q.has_results()
-        && q.next_page()
-            .is_none_or(|p| p.as_str().parse::<u32>().is_ok())
-}
 pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     let mut out = empty(QueryBody::NciTrialPage(NciTrialPage {
         items: Box::default(),
         request: Box::default(),
         attribution: ATTRIBUTION.into(),
     }));
-    if q.condition().is_some_and(|v| !ncit(v)) {
+    if q.nci_disease_invalid() {
         out.body = QueryBody::NciDiseaseError;
         return out;
     }
-    if !valid(q) {
+    if let Some(option) = q.unsupported() {
+        out.body = QueryBody::UnsupportedTrialFilter {
+            source: Source::Nci,
+            option,
+        };
+        return out;
+    }
+    if q.limit() > nci::PAGE_LIMIT
+        || q.next_page()
+            .is_some_and(|p| p.as_str().parse::<u32>().is_err())
+    {
         out.body = QueryBody::TextPositionError;
         return out;
     }

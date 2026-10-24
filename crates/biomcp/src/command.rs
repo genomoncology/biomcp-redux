@@ -102,6 +102,26 @@ fn dispatch_using(
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if let Action::Run {
+        request: Request::SearchTrial(q),
+        ..
+    } = action
+    {
+        if q.nci_disease_invalid() {
+            return Some(usage_envelope(biodata::ErrorEnvelope::nci_disease()));
+        }
+        if let Some(option) = q.unsupported() {
+            let source = if q.source() == biodata::TrialSource::Nci {
+                biodata::Source::Nci
+            } else {
+                biodata::Source::ClinicalTrialsGov
+            };
+            return Some(usage_envelope(
+                biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
+            ));
+        }
+    }
+
+    if let Action::Run {
         request: Request::SearchArticle(query),
         ..
     } = action
@@ -167,6 +187,9 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
+            biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
+        ),
         (_, QueryBody::NciDiseaseError) => usage_envelope(biodata::ErrorEnvelope::nci_disease()),
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))

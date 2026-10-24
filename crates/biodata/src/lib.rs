@@ -90,7 +90,7 @@ pub use response::{
 mod trial;
 pub use query::PhaseFilter;
 pub use query::SponsorType;
-pub use query::{TrialSearch, TrialSource};
+pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use response::TrialPage;
 pub use response::TrialParameter;
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
@@ -111,7 +111,9 @@ pub use trial_detail::{TrialDate, TrialDateKind};
 
 pub use trial_detail::{TrialArmKind, TrialInterventionKind};
 
-pub use response::{NciDisease, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage};
+pub use response::{
+    NciDisease, NciDiseaseRef, NciTrial, NciTrialCards, NciTrialItem, NciTrialPage,
+};
 
 pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,

@@ -20,7 +20,7 @@ pub struct NciTrial {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub brief_summary: Option<crate::NciTextPage>,
     /// Publisher-provided disease concepts in source order.
-    pub diseases: crate::TrialRecords<NciDisease>,
+    pub diseases: crate::TrialRecords<NciDiseaseRef>,
 }
 /// One NCI disease concept; names never substitute for an NCIt identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -99,4 +99,15 @@ pub struct NciTrialItem {
     /// Requested sections without proven public-tier support.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub unsupported_sections: Box<[crate::TrialSection]>,
+}
+
+/// Compact source disease reference; the diseases section retains every coding field.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct NciDiseaseRef {
+    /// Native source name.
+    pub name: Text,
+    /// Source NCIt identity.
+    pub nci_thesaurus_concept_id: Text,
 }

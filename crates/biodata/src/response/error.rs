@@ -71,6 +71,15 @@ singleton! {
     }
 }
 
+// Untagged scalar alternatives produce overlap-safe anyOf, preserving article option strings.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+enum FilterOption {
+    Article(crate::ArticleFilter),
+    Trial(crate::TrialFilter),
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -80,7 +89,7 @@ struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     source: Option<crate::Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    option: Option<crate::ArticleFilter>,
+    option: Option<FilterOption>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     count: Option<u64>,
     code: ErrorCode,
@@ -233,11 +242,20 @@ impl ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    /// Refuse a source-native trial capability without borrowing article semantics.
+    pub fn unsupported_trial_filter(source: crate::Source, option: crate::TrialFilter) -> Self {
+        let mut out = Self::arguments();
+        out.error.source = Some(source);
+        out.error.option = Some(FilterOption::Trial(option));
+        out.error.code = ErrorCode::UnsupportedFilter;
+        out.error.message = ErrorMessage::UnsupportedFilter;
+        out
+    }
     /// Refuse a source/filter combination before requesting any source.
     pub fn unsupported_filter(source: crate::Source, option: crate::ArticleFilter) -> Self {
         let mut out = Self::arguments();
         out.error.source = Some(source);
-        out.error.option = Some(option);
+        out.error.option = Some(FilterOption::Article(option));
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
         out

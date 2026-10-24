@@ -44,7 +44,7 @@
         "melanoma"
       ],
       "exit": 2,
-      "offline": false,
+      "offline": true,
       "expect": {
         "/error/message": "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text"
       }
@@ -72,7 +72,8 @@
         "/error/code": "usage.unsupported_filter",
         "/error/source": "nci",
         "/error/option": "--status"
-      }
+      },
+      "offline": true
     }
   ]
 }

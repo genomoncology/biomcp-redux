@@ -117,7 +117,15 @@ impl Trial {
             diseases: biodata::TrialRecords {
                 offset: 0,
                 total: self.diseases.len() as u32,
-                items: self.diseases.iter().take(CARD_DISEASES).cloned().collect(),
+                items: self
+                    .diseases
+                    .iter()
+                    .take(CARD_DISEASES)
+                    .map(|d| biodata::NciDiseaseRef {
+                        name: d.name.clone(),
+                        nci_thesaurus_concept_id: d.nci_thesaurus_concept_id.clone(),
+                    })
+                    .collect(),
             },
         }
     }

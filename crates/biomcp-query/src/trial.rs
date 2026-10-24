@@ -12,9 +12,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biodata::TrialSource::Nci {
         return nci::search(cx, query);
     }
-    if query.keyword().is_some() {
+    if let Some(option) = query.unsupported() {
         let mut out = empty();
-        out.body = QueryBody::TextPositionError;
+        out.body = QueryBody::UnsupportedTrialFilter {
+            source: Source::ClinicalTrialsGov,
+            option,
+        };
         return out;
     }
 

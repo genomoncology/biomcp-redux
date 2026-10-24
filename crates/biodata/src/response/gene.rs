@@ -69,6 +69,13 @@ pub enum QueryBody {
     NciTrialPage(crate::NciTrialPage),
     /// Native NCI exact cards.
     NciTrialCards(crate::NciTrialCards),
+    /// A selected trial provider cannot apply a checked capability.
+    UnsupportedTrialFilter {
+        /// Explicit source that cannot apply the option.
+        source: crate::Source,
+        /// Checked trial selector, without caller values.
+        option: crate::TrialFilter,
+    },
     /// Fixed NCI disease identity guidance.
     NciDiseaseError,
 
