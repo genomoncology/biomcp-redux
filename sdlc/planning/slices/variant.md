@@ -145,7 +145,7 @@ The leaf table below owns the six variant commands. The section table that follo
 | `get variant` | Ported or renamed | `--assembly` | — | — | Use published-grammar rsID, CAid, ClinVar Variation ID or reference-qualified HGVS. --assembly names --build; chromosome notation needs it. CAR is the default HGVS resolver. Shorthand names search variant --gene BRAF --protein V600E. Every candidate stays available. |
 | `variant structure` | Dropped by ruling | — | — | — | Deferred by ruling 6. Its retirement message names get gene <SYMBOL> protein; no structure or clinical equivalence is inferred. |
 | `variant oncokb` | Ported or renamed | — | — | — | Use get variant <ID> oncokb with explicit --build and --tumor-type. Missing keys skip before source access; synthetic keyed cases cover annotation and credential containment. The accepted source proof uses an approved demo capture; the product requires the caller's own key and never calls demo. |
-| `variant erepo` | Ported or renamed | `--input`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | — | `--gene` | Use variant assertions <CAid> --source erepo; the input becomes positional. --assertion <PCERid> with optional --version selects details. Limit and offset page native assertions. The old leaf names this route. No gene-wide scan replaces missing allele assertions; the legacy --gene slot remains undecided pending an explicit product ruling. |
+| `variant erepo` | Ported or renamed | `--input`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | `--gene` | — | Use variant assertions <CAid> --source erepo; the input becomes positional. --assertion <PCERid> with optional --version selects details. Limit and offset page native assertions. The old leaf names this route. The PM dropped legacy --gene under the CAid-only scope. No gene-wide scan replaces missing allele assertions. |
 | `variant normalize` | Ported or renamed | `--input` | — | — | Use variant normalize --source car, mutalyzer, variantvalidator or all with --hgvs TEXT. The old positional service and --input name this form. VariantValidator and all require --build. Results and mappings remain independent; there is no local repair or consensus. |
 <!-- /parity-accounting -->
 
@@ -172,6 +172,8 @@ The default card holds source identity and compact MyVariant facts. Named sectio
 | `cgi` | Retired with an explicit deferral. | No proved current field mapping or speculative section. |
 | `all` | Select all implemented bounded sections. | Source restrictions and missing keys still apply. Each source keeps its own outcomes and failures. |
 | `variant cspec` | Retired with an explicit deferral. | No additional clinical interpretation or document route is offered. |
+
+The PM dropped a direct dbSNP adapter from 1.0. rsIDs remain available through MyVariant and the ClinGen Allele Registry with that intermediary provenance; they do not establish a direct dbSNP response.
 
 Every source and component starts on with its publisher terms. Commercial users should configure both `noncommercial` and `restricted` groups. A group switches off matching fields inside MyVariant while unrelated fields remain available; explicitly naming `myvariant` switches off the whole service. These rules apply before requests, caches and replay. Named filters obey ClinVar component policy, and gene/protein selectors obey dbNSFP policy. Opaque raw queries are refused when component restrictions apply. No parser rewrites them or switches fields to evade a restriction.
 
