@@ -411,7 +411,9 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
 }
 
 fn cache_after_transport(observed: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
-    let old = observed.iter().find(|item| item.shape.header.is_some())
+    let old = observed
+        .iter()
+        .find(|item| item.shape.header.is_some())
         .ok_or("missing actual bundle observation")?;
     let mut changed = old.clone();
     changed.shape.header = Some("changed header".into());
@@ -419,8 +421,16 @@ fn cache_after_transport(observed: &[Observation]) -> Result<(), Box<dyn std::er
     cached.cached = true;
     cached.shape = Default::default();
     let mut changes = Vec::new();
-    live::compare(std::slice::from_ref(old), &[changed, cached], &mut changes, &mut BTreeMap::new());
-    if !changes.iter().any(|item| item.contains("bundle header changed")) {
+    live::compare(
+        std::slice::from_ref(old),
+        &[changed, cached],
+        &mut changes,
+        &mut BTreeMap::new(),
+    );
+    if !changes
+        .iter()
+        .any(|item| item.contains("bundle header changed"))
+    {
         return Err("later cache reuse hid a real transport contract change".into());
     }
     Ok(())
