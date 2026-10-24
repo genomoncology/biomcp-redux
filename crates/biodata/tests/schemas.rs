@@ -88,6 +88,9 @@ fn checked_in_schemas_match_types() {
             (path, bytes)
         })
         .collect();
+    if update {
+        fs::create_dir_all(&root).expect("create schema directory");
+    }
     for (path, bytes) in pending {
         if update {
             fs::write(&path, bytes).expect("write contract");
