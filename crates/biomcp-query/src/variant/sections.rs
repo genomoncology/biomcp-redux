@@ -20,23 +20,7 @@ pub(super) fn apply(
     let mut collected = Collected::default();
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in [
-            VariantSection::Clinvar,
-            VariantSection::Erepo,
-            VariantSection::Population,
-            VariantSection::Gwas,
-            VariantSection::Civic,
-            VariantSection::Hotspots,
-            VariantSection::Oncokb,
-            VariantSection::Predict,
-            VariantSection::Conservation,
-            VariantSection::Cosmic,
-        ] {
-            if !query.sections().contains(&section)
-                && !query.sections().contains(&VariantSection::All)
-            {
-                continue;
-            }
+        for section in selected(query) {
             let candidates = std::slice::from_ref(&*candidate);
             macro_rules! attach {
                 ($field:ident, $read:expr) => {
@@ -173,4 +157,23 @@ pub(super) fn retain<T>(
     problems.extend(issues);
     *local = local.or(error);
     section
+}
+
+fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
+    [
+        VariantSection::Clinvar,
+        VariantSection::Erepo,
+        VariantSection::Population,
+        VariantSection::Gwas,
+        VariantSection::Civic,
+        VariantSection::Hotspots,
+        VariantSection::Oncokb,
+        VariantSection::Predict,
+        VariantSection::Conservation,
+        VariantSection::Cosmic,
+    ]
+    .into_iter()
+    .filter(|section| {
+        query.sections().contains(section) || query.sections().contains(&VariantSection::All)
+    })
 }
