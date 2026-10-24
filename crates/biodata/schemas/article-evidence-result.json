@@ -227,8 +227,9 @@
           "type": "integer"
         },
         "text": {
-          "$ref": "#/$defs/Text",
-          "description": "Whole context, or an exact advancing fragment when the context exceeds a page."
+          "description": "Whole context, or an exact advancing fragment when the context exceeds a page.",
+          "minLength": 1,
+          "type": "string"
         }
       },
       "required": [

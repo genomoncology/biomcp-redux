@@ -19,9 +19,10 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/evidence/overflow-and-reference-identity", || {
             overflow().map_err(|e| e.to_string().into())
         }),
-        Trial::test("article/evidence/resolver-policy-before-stored-text", || {
-            resolver_policy().map_err(|e| e.to_string().into())
-        }),
+        Trial::test(
+            "article/evidence/resolver-policy-before-stored-text",
+            || resolver_policy().map_err(|e| e.to_string().into()),
+        ),
         Trial::test("article/evidence/exact-context-fragments", || {
             exact_context().map_err(|e| e.to_string().into())
         }),
@@ -31,22 +32,36 @@ fn exact_context() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
     let recording = env.root().join("recordings");
     let original = format!("a{}b", " ".repeat(7000));
-    super::response_cases::copy_capture("article/evidence/source", &recording, |source, record| {
-        if source == "semantic-scholar" {
-            for row in record["exchanges"][0]["body"]["value"]["data"].as_array_mut().unwrap() {
-                if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
-                    row["contexts"] = json!([original]);
+    super::response_cases::copy_capture(
+        "article/evidence/source",
+        &recording,
+        |source, record| {
+            if source == "semantic-scholar" {
+                for row in record["exchanges"][0]["body"]["value"]["data"]
+                    .as_array_mut()
+                    .unwrap()
+                {
+                    if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
+                        row["contexts"] = json!([original]);
+                    }
                 }
             }
-        }
-    })?;
+        },
+    )?;
     let globals = env.globals(Some(&recording), false);
-    let mut args = vec!["article".into(), "citation-evidence".into(), "33123537".into(), "17611497".into()];
+    let mut args = vec![
+        "article".into(),
+        "citation-evidence".into(),
+        "33123537".into(),
+        "17611497".into(),
+    ];
     let mut joined = String::new();
     for _ in 0..4 {
         let output = command(&env, &args, &globals)?;
-        let items = output.pointer("/result/semantic_scholar/data/contexts/items")
-            .and_then(Value::as_array).ok_or("source context was lost")?;
+        let items = output
+            .pointer("/result/semantic_scholar/data/contexts/items")
+            .and_then(Value::as_array)
+            .ok_or("source context was lost")?;
         for item in items {
             if item["character_offset"] != json!(joined.chars().count()) {
                 return Err("context fragment skipped or repeated characters".into());
@@ -66,23 +81,34 @@ fn exact_context() -> Result<(), Box<dyn std::error::Error>> {
 fn resolver_policy() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
     let recording = env.root().join("recordings");
-    super::response_cases::copy_capture("article/evidence/source", &recording, |source, record| {
-        if source == "semantic-scholar" {
-            for row in record["exchanges"][0]["body"]["value"]["data"]
-                .as_array_mut()
-                .unwrap()
-            {
-                if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
-                    row["contexts"] = json!(["a".repeat(10000)]);
+    super::response_cases::copy_capture(
+        "article/evidence/source",
+        &recording,
+        |source, record| {
+            if source == "semantic-scholar" {
+                for row in record["exchanges"][0]["body"]["value"]["data"]
+                    .as_array_mut()
+                    .unwrap()
+                {
+                    if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
+                        row["contexts"] = json!(["a".repeat(10000)]);
+                    }
                 }
             }
-        }
-    })?;
+        },
+    )?;
     let globals = env.globals(Some(&recording), false);
-    let first = command(&env, &[
-        "article".into(), "citation-evidence".into(), "33123537".into(),
-        "10.1038/nature05933".into(), "--fulltext".into(),
-    ], &globals)?;
+    let first = command(
+        &env,
+        &[
+            "article".into(),
+            "citation-evidence".into(),
+            "33123537".into(),
+            "10.1038/nature05933".into(),
+            "--fulltext".into(),
+        ],
+        &globals,
+    )?;
     if first.pointer("/result/fulltext/data/paragraphs/total") != Some(&json!(7)) {
         return Err(format!("initial resolver-backed evidence failed: {first}").into());
     }
