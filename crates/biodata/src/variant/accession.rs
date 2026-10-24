@@ -177,7 +177,9 @@ impl EnsemblFeature {
     }
 }
 fn decimal<T: FromStr>(input: &mut &str) -> ModalResult<T> {
-    digit1.verify_map(|text: &str| text.parse().ok()).parse_next(input)
+    digit1
+        .verify_map(|text: &str| text.parse().ok())
+        .parse_next(input)
 }
 impl FromStr for Accession {
     type Err = Error;
