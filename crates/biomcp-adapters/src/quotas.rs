@@ -116,3 +116,7 @@ pub(crate) static CBIOPORTAL: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative serial policy; no published numeric quota was verified.
+pub(crate) static HOTSPOTS: Quota =
+    Quota::new(SourceKey::declare("hotspots"), Rate::per_second(1), None, 1);

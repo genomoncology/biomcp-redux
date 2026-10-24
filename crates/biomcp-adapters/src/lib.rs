@@ -53,3 +53,5 @@ pub mod variantvalidator;
 
 /// Explicit cohort sample observations.
 pub mod cbioportal;
+
+pub mod hotspots;

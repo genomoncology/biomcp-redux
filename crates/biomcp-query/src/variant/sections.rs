@@ -1,7 +1,8 @@
-//! Candidate-specific section disclosure under one shared command deadline.
+//! Candidate-specific source sections under one command deadline.
 use crate::Ctx;
 use biodata::{
-    Problem, Section, SourceOutcome, VariantGet, VariantHeader, VariantSection, VariantSections,
+    Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (
@@ -16,39 +17,48 @@ pub(super) fn apply(
     candidates: &mut [VariantHeader],
     deadline: &mut Deadline<'_>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
-    let mut sources = Vec::new();
-    let mut problems = Vec::new();
-    let mut local = None;
+    let mut collected = Collected::default();
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in query.sections() {
+        for section in [
+            VariantSection::Civic,
+            VariantSection::Hotspots,
+            VariantSection::Oncokb,
+            VariantSection::Predict,
+            VariantSection::Conservation,
+            VariantSection::Cosmic,
+        ] {
+            if !query.sections().contains(&section)
+                && !query.sections().contains(&VariantSection::All)
+            {
+                continue;
+            }
             let candidates = std::slice::from_ref(&*candidate);
-            use VariantSection as S;
             match section {
-                S::Predict => {
-                    sections.predict = Some(retain(
-                        super::predict::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
+                VariantSection::Civic => {
+                    sections.civic = Some(collected.keep(
+                        permitted(cx, section, || {
+                            super::civic::section(cx, query, candidates, *deadline)
+                        }),
                     ))
                 }
-                S::Conservation => {
-                    sections.conservation = Some(retain(
-                        super::conservation::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
+                VariantSection::Hotspots => {
+                    sections.hotspots = Some(collected.keep(
+                        permitted(cx, section, || {
+                            super::hotspots::section(cx, query, candidates, *deadline)
+                        }),
                     ))
                 }
-                S::Cosmic => {
-                    sections.cosmic = Some(retain(
-                        super::cosmic::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
+                VariantSection::Oncokb => {
+                    sections.oncokb = Some(collected.keep(
+                        permitted(cx, section, || {
+                            super::oncokb::section(cx, query, candidates, *deadline)
+                        }),
+                    ));
                 }
+                VariantSection::Predict => { sections.predict = Some(collected.keep(super::predict::section(cx, query, candidates, deadline))); }
+                VariantSection::Conservation => { sections.conservation = Some(collected.keep(super::conservation::section(cx, query, candidates, deadline))); }
+                VariantSection::Cosmic => { sections.cosmic = Some(collected.keep(super::cosmic::section(cx, query, candidates, deadline))); }
                 _ => {}
             }
         }
@@ -56,7 +66,49 @@ pub(super) fn apply(
             candidate.sections = Some(Box::new(sections));
         }
     }
-    (sources, problems, local)
+    (collected.sources, collected.problems, collected.local)
+}
+#[derive(Default)]
+struct Collected {
+    sources: Vec<SourceOutcome>,
+    problems: Vec<Problem>,
+    local: Option<RequestError>,
+}
+impl Collected {
+    fn keep<T>(&mut self, value: Result<T>) -> Section<T> {
+        retain(value, &mut self.sources, &mut self.problems, &mut self.local)
+    }
+}
+pub(super) fn source(section: VariantSection) -> Option<Source> {
+    match section {
+        VariantSection::Civic => Some(Source::Civic),
+        VariantSection::Oncokb => Some(Source::Oncokb),
+        VariantSection::Hotspots => Some(Source::CancerHotspots),
+        _ => None,
+    }
+}
+fn permitted<T>(
+    cx: &Ctx<'_>,
+    section: VariantSection,
+    read: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
+        return (
+            Section::unavailable(source, Reason::Disabled),
+            vec![SourceOutcome {
+                source,
+                state: SourceState::Skipped,
+                reason: Some(Reason::Disabled),
+                term: None,
+                count: None,
+                fetched: None,
+                notices: Vec::new(),
+            }],
+            Vec::new(),
+            None,
+        );
+    }
+    read()
 }
 pub(super) fn retain<T>(
     value: Result<T>,

@@ -1,6 +1,7 @@
 # 0091 — Show CIViC evidence and Cancer Hotspots counts for a variant
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7669361438bcb8772d2cd5337fa46d6cf6106024
 
 Milestone: 2
 

@@ -17,4 +17,4 @@ pub use notation::{Expression, ExpressionSyntax, HgvsText};
 mod predictor;
 pub use predictor::*;
 mod statement;
-pub use statement::{Attribution, VariantRef};
+pub use statement::*;

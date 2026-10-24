@@ -117,7 +117,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "MyVariantQuery"))]
     query: Option<MyVariantQuery>,
-    /// Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly.
+    /// Optional caller assembly sent to MyVariant; regions require it explicitly.
     #[serde(
         default,
         deserialize_with = "present",
@@ -236,9 +236,9 @@ impl VariantSearch {
         self.0.append_filters(&mut term);
         term
     }
-    /// Assembly declared in the request, including the documented default policy.
-    pub fn build(&self) -> Build {
-        self.0.build.unwrap_or(Build::Grch37)
+    /// Assembly explicitly declared in the request.
+    pub fn build(&self) -> Option<Build> {
+        self.0.build
     }
     /// Native page size, clipped at this command's result-window boundary.
     pub fn limit(&self) -> u32 {

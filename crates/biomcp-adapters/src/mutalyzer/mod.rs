@@ -146,8 +146,9 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
             url: None,
         },
         myvariant: None,
+        requested: None,
         sections: None,
-        component_terms: Box::default(),
+            component_terms: Box::default(),
     }))
 }
 

@@ -4,7 +4,7 @@
   "replay": "variant/search/T790M",
   "story": "Explicit MyVariant T790M candidates retain the source identities and query",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim; Required-provenance exception: full envelope 851 bytes; exactly 205 bytes of new component_terms metadata; payload remains under the unchanged 743-byte comparable cap. The component-terms-preserve-comparable-payload case checks this subtraction. Full envelope ceiling is ceil(measured * 1.15).",
+  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim",
   "steps": [
     {
       "run": [
@@ -13,7 +13,9 @@
         "--gene",
         "EGFR",
         "--protein",
-        "T790M"
+        "T790M",
+        "--build",
+        "GRCh37"
       ],
       "mcp": [
         "search",
@@ -21,19 +23,22 @@
         "--gene",
         "EGFR",
         "--protein",
-        "T790M"
+        "T790M",
+        "--build",
+        "GRCh37"
       ],
-      "max_bytes": 1162,
-      "max_tokens": 291,
+      "max_bytes": 743,
+      "max_tokens": 186,
       "expect": {
-        "/schema": "biomcp.variant_page/1",
-        "/status": "complete",
+        "/schema": "biomcp.variant_page/2",
+        "/status": "partial",
         "/query": {
           "equals": {
             "gene": "EGFR",
             "protein": "T790M",
             "limit": 10,
-            "offset": 0
+            "offset": 0,
+            "build": "GRCh37"
           }
         },
         "/result": {
@@ -53,8 +58,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55249071C>T"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ]
                 },
@@ -98,7 +102,9 @@
         "--gene",
         "EGFR",
         "--protein",
-        "T790M"
+        "T790M",
+        "--build",
+        "GRCh37"
       ],
       "offline": true,
       "expect": {
@@ -119,8 +125,7 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55249071C>T"
-                      },
-                      "build": "GRCh37"
+                      }
                     }
                   ]
                 },
@@ -153,7 +158,8 @@
             "returned": 1,
             "total": 1
           }
-        }
+        },
+        "/status": "partial"
       }
     }
   ]

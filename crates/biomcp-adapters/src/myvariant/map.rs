@@ -7,7 +7,7 @@ use biodata::{
 pub(super) fn candidates(
     hits: Vec<Hit>,
     query: &str,
-    build: Build,
+    build: Option<Build>,
     allow_clinvar: bool,
 ) -> Mapped<Vec<VariantHeader>> {
     let mut value = Vec::new();
@@ -55,12 +55,15 @@ pub(super) fn candidates(
                 }
             }
         }
+        if build.is_none() {
+            problems.push(problem(hit.id.clone(), "representations.build"));
+        }
         let expression = Expression::new(ExpressionSyntax::HgvsG, hit.id.clone(), None);
         let representations = match expression {
             Ok(expression) => vec![Representation {
                 source: Source::MyVariant,
                 expression,
-                build: Some(build),
+                build,
                 allele: None,
             }],
             Err(_) => {
@@ -80,6 +83,7 @@ pub(super) fn candidates(
                 url: None,
             },
             myvariant: None,
+            requested: None,
             sections: None,
             component_terms,
         });

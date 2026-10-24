@@ -9,6 +9,7 @@ pub mod measurements;
 mod metadata;
 mod raw;
 mod search;
+mod search_build;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -82,7 +83,7 @@ pub fn lookup(
     Ok(map::candidates(
         hits,
         query,
-        build,
+        Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
     ))
 }
@@ -131,14 +132,18 @@ fn annotation(
     Ok(map::candidates(
         vec![hit],
         id,
-        build,
+        Some(build),
         !components::disabled_on_leg(leg, "clinvar"),
     ))
 }
 
 /// Filter independently disabled carried components before creating a request identity.
 pub(super) fn fields(leg: &Leg<'_>) -> String {
-    FIELDS
+    allowed_fields(leg, FIELDS)
+}
+/// Apply the same component policy to each declared source projection.
+pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {
+    fields
         .split(',')
         .filter(|field| !components::disabled_on_leg(leg, field.split('.').next().unwrap_or(field)))
         .collect::<Vec<_>>()

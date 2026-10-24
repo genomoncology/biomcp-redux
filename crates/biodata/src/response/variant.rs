@@ -27,6 +27,9 @@ impl super::ResponseBody for VariantCard {
 pub struct VariantHeader {
     /// Source-qualified variant entity.
     pub identity: Variant,
+    /// Checked caller ID used by a source-only section, without asserting resolved identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub requested: Option<crate::VariantId>,
     /// Source responsible for this identity.
     pub source: Source,
     /// Exact source record, including source keys that are expressions rather than identifiers.
@@ -44,6 +47,8 @@ pub struct VariantHeader {
 crate::macros::wire_enum! {
     /// Identity resolution preserves candidates and source validation outcomes.
     VariantResolution {
+        /// Checked source selector whose allele identity was not requested.
+        Unresolved=>"unresolved",
         /// One checked provider identity.
         Resolved => "resolved",
         /// Several provider identities; none was selected.
@@ -57,30 +62,7 @@ crate::macros::wire_enum! {
     }
 }
 
-/// One native MyVariant candidate page; its total and offset are in the shared envelope.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct VariantPage {
-    /// Independent publisher terms for the declared dbNSFP gene/protein selector.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub selector_terms: Option<crate::ComponentTerms>,
-    /// Independent publisher terms for named ClinVar filters, present only when requested.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub filter_terms: Option<crate::ComponentTerms>,
-    /// Exact query sent to the named source, without rewriting raw query text.
-    pub source_query: String,
-    /// Assembly sent to the source, never inferred from a candidate label.
-    pub build: crate::Build,
-    /// Native source order, preserving every candidate including repeated source identities.
-    pub items: Box<[VariantHeader]>,
-}
-impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant_page/1";
-    type Query = crate::VariantSearch;
-}
-
-/// Source sections are absent unless explicitly selected.
+/// Source-specific sections, absent unless explicitly selected.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -94,4 +76,39 @@ pub struct VariantSections {
     /// Historical MyVariant-associated COSMIC fragments.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
+
+    /// Explicit keyed OncoKB source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
+    /// Explicit civic source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub civic: Option<crate::Section<crate::VariantCivic>>,
+    /// Explicit hotspots source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
+}
+
+/// One native MyVariant candidate page; its total and offset are in the shared envelope.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantPage {
+    /// Independent publisher terms for the declared dbNSFP gene/protein selector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selector_terms: Option<crate::ComponentTerms>,
+    /// Independent publisher terms for named ClinVar filters, present only when requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filter_terms: Option<crate::ComponentTerms>,
+
+    /// Exact query sent to the named source, without rewriting raw query text.
+    pub source_query: String,
+    /// Assembly sent to the source, never inferred from a candidate label.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub build: Option<crate::Build>,
+    /// Native source order, preserving every candidate including repeated source identities.
+    pub items: Box<[VariantHeader]>,
+}
+impl super::ResponseBody for VariantPage {
+    const SCHEMA: &'static str = "biomcp.variant_page/2";
+    type Query = crate::VariantSearch;
 }

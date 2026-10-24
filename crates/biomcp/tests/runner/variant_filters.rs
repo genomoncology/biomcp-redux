@@ -97,5 +97,5 @@ fn body(request: &str) -> Result<String, String> {
     if !request.contains("q=chr7%3A140453136-140453136%20AND%20clinvar.rcv.review_status%3A%22no%20assertion%20criteria%20provided%22%20AND%20clinvar.rcv.conditions.name%3A%22Carcinoma%20of%20colon%20%5C%28CRC%5C%29%22%20AND%20_exists_%3Aclinvar.variant_id&") {
         return Err(format!("incorrect literal filter query: {request}"));
     }
-    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>T"}]}).to_string())
+    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>T","chrom":"7","hg19":{"start":140453136,"end":140453136}}]}).to_string())
 }

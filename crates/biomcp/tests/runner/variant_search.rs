@@ -5,9 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant-search/component-terms-preserve-comparable-payload", || terms_budget().map_err(Into::into)),
         Trial::test(
-            "variant-search/component-terms-preserve-comparable-payload",
-            || terms_budget().map_err(Into::into),
+            "variant-search/source-coordinate-build-and-unknown-metadata",
+            || metadata().map_err(Into::into),
         ),
         Trial::test(
             "variant-search/native-window-discloses-unretrieved-total",
@@ -57,6 +58,10 @@ fn walk() -> Result<(), String> {
         if !output.status.success()
             || value.pointer("/page/offset") != Some(&json!(offset))
             || value.pointer("/page/total") != Some(&json!(2))
+            || value.pointer("/query/build").is_some()
+            || value.pointer("/result/build").is_some()
+            || value.pointer("/result/items/0/identity/representations/0/build")
+                != Some(&json!("GRCh37"))
             || value.pointer("/result/source_query")
                 != Some(&json!("dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\""))
         {
@@ -95,7 +100,7 @@ fn walk() -> Result<(), String> {
 fn body(request: &str) -> Result<String, String> {
     if !request.starts_with(
         "GET /v1/query?q=dbnsfp.genename%3AEGFR%20AND%20dbnsfp.hgvsp%3A%22p.L858R%22&size=1&from=",
-    ) || !request.contains("&assembly=hg19 HTTP/1.1")
+    ) || request.contains("assembly=")
     {
         return Err(format!("incorrect query request: {request}"));
     }
@@ -104,7 +109,7 @@ fn body(request: &str) -> Result<String, String> {
     } else {
         "chr7:g.55259515T>G"
     };
-    Ok(json!({"total":2,"hits":[{"_id":id,"dbsnp":{"gene":{"symbol":"EGFR"}}}]}).to_string())
+    Ok(json!({"total":2,"hits":[{"_id":id,"chrom":"7","hg19":{"start":if id.ends_with("15T>G") {55259515} else {55259516},"end":if id.ends_with("15T>G") {55259515} else {55259516}},"dbsnp":{"gene":{"symbol":"EGFR"}}}]}).to_string())
 }
 
 fn environment(stub: &Stub) -> Result<Environment, String> {
@@ -169,31 +174,6 @@ fn raw_and_region() -> Result<(), String> {
     }
     Ok(())
 }
-fn restricted_regions(env: &Environment) -> Result<(), String> {
-    for group in ["restricted", "noncommercial"] {
-        let allowed = command(
-            env,
-            &[
-                "search",
-                "variant",
-                "--region",
-                "chr7:140753336-140753336",
-                "--build",
-                "GRCh38",
-                "--disable-sources",
-                group,
-            ],
-        )?;
-        if allowed.pointer("/status") != Some(&json!("complete"))
-            || allowed.pointer("/page/returned") != Some(&json!(2))
-        {
-            return Err(format!(
-                "unrelated component restriction blocked region selector: {allowed}"
-            ));
-        }
-    }
-    Ok(())
-}
 fn selectors_body(request: &str) -> Result<String, String> {
     let raw = "GET /v1/query?q=%20%20dbsnp.rsid%3Ars113488022%20OR%20_id%3Achr7%2A%20%20&";
     let region = "GET /v1/query?q=chr7%3A140753336-140753336&";
@@ -203,7 +183,7 @@ fn selectors_body(request: &str) -> Result<String, String> {
         return Err(format!("raw/region query changed: {request}"));
     }
     Ok(
-        json!({"total":2,"hits":[{"_id":"chr7:g.140753336A>T"},{"_id":"chr7:g.140753336A>T"}]})
+        json!({"total":2,"hits":[{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}},{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}}]})
             .to_string(),
     )
 }
@@ -367,6 +347,99 @@ fn window_body(request: &str) -> Result<String, String> {
         ));
     }
     Ok(json!({"total":10001,"hits":[{"_id":"chr7:g.55259515T>G"}]}).to_string())
+}
+
+fn metadata() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", metadata_body)?;
+    let env = environment(&stub)?;
+    for index in 0..7 {
+        let value = command(
+            &env,
+            &[
+                "search",
+                "variant",
+                "--query",
+                &format!("metadata-{index}"),
+                "--source",
+                "myvariant",
+                "--build",
+                "GRCh38",
+            ],
+        )?;
+        let build = value.pointer("/result/items/0/identity/representations/0/build");
+        if value.pointer("/query/build") != Some(&json!("GRCh38"))
+            || value.pointer("/result/build") != Some(&json!("GRCh38"))
+            || value.pointer("/result/items/0/record/id").is_none()
+            || (index == 0 && build != Some(&json!("GRCh37")))
+            || (index != 0
+                && (build.is_some() || value.pointer("/status") != Some(&json!("partial"))))
+            || (index != 0 && value.get("next").is_some())
+        {
+            return Err(format!(
+                "caller build replaced source metadata or unknown identity lost: {value}"
+            ));
+        }
+    }
+    if stub.finish()?.len() != 7 {
+        return Err("metadata checks made unexpected requests".into());
+    }
+    Ok(())
+}
+fn metadata_body(request: &str) -> Result<String, String> {
+    if !request.contains("%2Cchrom%2Chg19%2Chg38&assembly=hg38 HTTP/1.1") {
+        return Err(format!("source metadata fields missing: {request}"));
+    }
+    let index = request
+        .split("q=metadata-")
+        .nth(1)
+        .and_then(|s| s.split('&').next())
+        .ok_or("metadata selector absent")?;
+    let mut hit =
+        json!({"_id":"chr7:g.55259515T>G","chrom":"7","hg19":{"start":55259515,"end":55259515}});
+    match index {
+        "0" => {}
+        "1" => {
+            hit.as_object_mut().ok_or("object absent")?.remove("hg19");
+        }
+        "2" => *hit.get_mut("chrom").ok_or("chrom absent")? = json!("8"),
+        "3" => *hit.pointer_mut("/hg19/start").ok_or("start absent")? = json!(55259514),
+        "4" => *hit.pointer_mut("/hg19/end").ok_or("end absent")? = json!("55259515"),
+        "5" => {
+            let span = hit.get("hg19").cloned().ok_or("hg19 absent")?;
+            hit.as_object_mut()
+                .ok_or("object absent")?
+                .insert("hg38".into(), span);
+        }
+        "6" => *hit.get_mut("_id").ok_or("id absent")? = json!("chr7:g.55259515del"),
+        _ => return Err("unexpected metadata selector".into()),
+    }
+    Ok(json!({"total":1,"hits":[hit]}).to_string())
+}
+
+fn restricted_regions(env: &Environment) -> Result<(), String> {
+    for group in ["restricted", "noncommercial"] {
+        let allowed = command(
+            env,
+            &[
+                "search",
+                "variant",
+                "--region",
+                "chr7:140753336-140753336",
+                "--build",
+                "GRCh38",
+                "--disable-sources",
+                group,
+            ],
+        )?;
+        if allowed.pointer("/status") != Some(&json!("complete"))
+            || allowed.pointer("/page/returned") != Some(&json!(2))
+        {
+            return Err(format!(
+                "unrelated component restriction blocked region selector: {allowed}"
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn terms_budget() -> Result<(), String> {

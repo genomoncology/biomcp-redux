@@ -151,17 +151,21 @@ pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
 
-pub use query::{
-    MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchField,
-    VariantSearchSource,
-};
+pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource};
 pub use response::VariantPage;
 
-pub use response::{ComponentHealth, VariantSections};
+pub use query::{CivicClaimKind, VariantSection};
+pub use response::{
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
+    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
+};
 pub use variant::{
-    Attribution, ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates,
-    CosmicIdentity, CosmicRecord, PredictorContext, PredictorScore, SubjectQualification,
-    VariantComponent, VariantConservation, VariantCosmic, VariantPredictors, VariantRef,
+    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
+    CivicEvidenceLevelCode, ClingenCgcVicc2022Code, ClingenLowPenetrance2024Code, Coding, Concept,
+    Curie, Direction, OncokbLevelCode, OncokbOncogenicityCode, Predicate, Proposition, Statement,
+    Term, VariantRef,
 };
 
-pub use query::VariantSection;
+pub use response::ComponentHealth;
+pub use variant::{ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent, VariantConservation, VariantCosmic, VariantPredictors};

@@ -57,6 +57,7 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
         }
     }
     let value = VariantHeader {
+        requested: None,
         identity: Variant {
             ids: ids.into(),
             representations: representations.into(),

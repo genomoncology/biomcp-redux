@@ -1,53 +1,5 @@
 {
   "$defs": {
-    "ComponentHealth": {
-      "additionalProperties": false,
-      "description": "Policy labels for one carried source component.",
-      "properties": {
-        "disabled": {
-          "description": "Explicit source or component group policy prevents this component.",
-          "type": "boolean"
-        },
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Native component name."
-        },
-        "terms": {
-          "$ref": "#/$defs/ComponentTerms",
-          "description": "Independently reviewed publisher terms."
-        }
-      },
-      "required": [
-        "name",
-        "terms",
-        "disabled"
-      ],
-      "type": "object"
-    },
-    "ComponentTerms": {
-      "additionalProperties": false,
-      "description": "Terms attached to one independently licensed source component.",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Publisher terms name."
-        },
-        "url": {
-          "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
-        },
-        "usage": {
-          "$ref": "#/$defs/Use",
-          "description": "Publisher use category."
-        }
-      },
-      "required": [
-        "usage",
-        "name",
-        "url"
-      ],
-      "type": "object"
-    },
     "Health": {
       "additionalProperties": false,
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
@@ -246,7 +198,6 @@
         "hpa",
         "uniprot",
         "gnomad",
-        "clinvar",
         "clingen",
         "pubmed",
         "europepmc",
@@ -259,6 +210,7 @@
         "ctgov",
         "nci",
         "civic",
+        "hotspots",
         "oncokb",
         "myvariant",
         "car",
@@ -274,7 +226,6 @@
         " Human Protein Atlas.",
         " UniProt.",
         " gnomAD.",
-        " ClinVar component source policy.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -287,6 +238,7 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
+        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -299,13 +251,6 @@
       "additionalProperties": false,
       "description": "One bounded source probe, without credentials or provider error text.",
       "properties": {
-        "components": {
-          "description": "Independently licensed carried components, without separate network probes.",
-          "items": {
-            "$ref": "#/$defs/ComponentHealth"
-          },
-          "type": "array"
-        },
         "disabled": {
           "description": "Whether source policy prevents all requests and cached reads.",
           "type": "boolean"
