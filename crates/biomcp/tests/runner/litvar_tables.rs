@@ -108,32 +108,7 @@ fn boundaries() -> Check {
         checked_case(
             "article/litvar/kras-g12c",
             KRAS,
-            |source, record| {
-                if source != "litvar" {
-                    return;
-                }
-                for exchange in record["exchanges"].as_array_mut().unwrap() {
-                    let body = &mut exchange["body"]["value"];
-                    if let Some(rows) = body.as_array_mut() {
-                        match kind {
-                            "empty" => rows.clear(),
-                            "multiple" => rows.push(rows[1].clone()),
-                            "nearby" => {
-                                let row = rows[0].clone();
-                                *rows = vec![row; 6];
-                            }
-                            "bad-id" => rows[1]["_id"] = json!("bad%23id"),
-                            _ => {}
-                        }
-                    } else if kind == "zero-pmid" {
-                        body["pmids"][0] = json!(0);
-                    } else if kind == "cap" {
-                        let ids = body["pmids"].as_array_mut().unwrap();
-                        ids.extend((1..=12000 - ids.len()).map(|id| json!(50_000_000 + id)));
-                        body["pmids_count"] = json!(12000);
-                    }
-                }
-            },
+            |source, record| boundary_edit(source, record, kind),
             expected,
             exit,
         )?;
@@ -148,31 +123,88 @@ fn failures() -> Check {
         ("error", "bad_reply"),
         ("deadline", "deadline_exceeded"),
     ] {
-        checked_steps(
-            "article/litvar/akt1-rsid-citations",
-            |source, record| {
-                if source != "litvar" || !publications(record) {
-                    return;
-                }
-                let mut exchange = record["exchanges"][0].clone();
-                exchange["delay_ms"] = json!(0);
-                match kind {
-                    "429" => exchange["status"] = json!(429),
-                    "500" => exchange["status"] = json!(500),
-                    "cut" => exchange["body"] = json!({"kind":"text","value":"{\"pmids\":["}),
-                    "error" => exchange["body"]["value"] = json!({"error":"synthetic failure"}),
-                    _ => exchange["delay_ms"] = json!(15001),
-                }
-                record["exchanges"] = json!(vec![
-                    exchange;
-                    if matches!(kind, "429" | "500") { 3 } else { 1 }
-                ]);
-            },
-            json!([
-                {"run":RSID,"exit":4,"expect":{"/status":"failed","/sources/0/reason":reason,"/next/0/kind":"fresh"}},
-                {"run":RSID,"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
-            ]),
-        )?;
+        let combined = [
+            "search",
+            "article",
+            "--variant",
+            "rs121434592",
+            "--source",
+            "pubmed,litvar",
+        ];
+        for (capture, args, partial) in [
+            ("article/litvar/akt1-rsid-citations", RSID, false),
+            ("article/litvar/combined-rsid", combined.as_slice(), true),
+        ] {
+            let source = if partial {
+                "/sources/1/reason"
+            } else {
+                "/sources/0/reason"
+            };
+            let status = if partial { "partial" } else { "failed" };
+            let exit = if partial { 0 } else { 4 };
+            let mut expected = json!({"/status":status});
+            expected[source] = json!(reason);
+            if partial {
+                expected["/result/items"] = json!({"count":3});
+            }
+            let mut offline = expected.clone();
+            if !partial {
+                offline[source] = json!("offline");
+            }
+            checked_steps(
+                capture,
+                |source, record| failure_edit(source, record, kind),
+                json!([
+                    {"run":args,"exit":exit,"expect":expected},
+                    {"run":args,"offline":true,"exit":exit,"expect":offline}
+                ]),
+            )?;
+        }
     }
     Ok(())
+}
+fn failure_edit(source: &str, record: &mut Value, kind: &str) {
+    if source != "litvar" || !publications(record) {
+        return;
+    }
+    let mut exchange = record["exchanges"][0].clone();
+    exchange["delay_ms"] = json!(0);
+    match kind {
+        "429" => exchange["status"] = json!(429),
+        "500" => exchange["status"] = json!(500),
+        "cut" => exchange["body"] = json!({"kind":"text","value":"{\"pmids\":["}),
+        "error" => exchange["body"]["value"] = json!({"error":"synthetic failure"}),
+        _ => exchange["delay_ms"] = json!(15001),
+    }
+    record["exchanges"] = json!(vec![
+        exchange;
+        if matches!(kind, "429" | "500") { 3 } else { 1 }
+    ]);
+}
+
+fn boundary_edit(source: &str, record: &mut Value, kind: &str) {
+    if source != "litvar" {
+        return;
+    }
+    for exchange in record["exchanges"].as_array_mut().unwrap() {
+        let body = &mut exchange["body"]["value"];
+        if let Some(rows) = body.as_array_mut() {
+            match kind {
+                "empty" => rows.clear(),
+                "multiple" => rows.push(rows[1].clone()),
+                "nearby" => {
+                    let row = rows[0].clone();
+                    *rows = vec![row; 6];
+                }
+                "bad-id" => rows[1]["_id"] = json!("bad%23id"),
+                _ => {}
+            }
+        } else if kind == "zero-pmid" {
+            body["pmids"][0] = json!(0);
+        } else if kind == "cap" {
+            let ids = body["pmids"].as_array_mut().unwrap();
+            ids.extend((1..=12000 - ids.len()).map(|id| json!(50_000_000 + id)));
+            body["pmids_count"] = json!(12000);
+        }
+    }
 }

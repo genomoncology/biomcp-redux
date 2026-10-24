@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "Citation ordering keeps the landmark paper within the stated native source pool",
   "replay": "article/litvar/tp53-citations",
-  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim.",
+  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim. Enlarged landmark-check page measured 9959 bytes; bounds add15percent. Seeded source reply cache from existing recordings; only new ESummary identifier sets were requested.",
   "steps": [
     {
       "run": [
@@ -51,8 +51,8 @@
         "--limit",
         "25"
       ],
-      "max_bytes": 17250,
-      "max_tokens": 4313,
+      "max_bytes": 11453,
+      "max_tokens": 2864,
       "expect": {
         "/status": "complete",
         "/result/items/*/pmid": {
@@ -60,6 +60,9 @@
         },
         "/result/items": {
           "count": 25
+        },
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
         }
       }
     }
