@@ -154,6 +154,7 @@ fn fragment(mut html: &str) -> Result<String, BadReply> {
         // and malformed attributes cannot be repaired into accepted markup.
         let mut reader = quick_xml::Reader::from_str(html);
         reader.config_mut().check_end_names = false;
+        reader.config_mut().allow_unmatched_ends = true;
         match reader.read_event().map_err(|_| BadReply)? {
             quick_xml::events::Event::Start(tag) | quick_xml::events::Event::Empty(tag) => {
                 for attribute in tag.attributes() {
