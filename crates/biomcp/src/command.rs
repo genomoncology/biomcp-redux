@@ -314,9 +314,16 @@ fn run_request(
 }
 
 fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {
-    let restart = steps.into_iter().next().ok_or_else(|| io::Error::other("missing restart"))?;
+    let restart = steps
+        .into_iter()
+        .next()
+        .ok_or_else(|| io::Error::other("missing restart"))?;
     encode(
         biodata::ErrorEnvelope::pool(mismatch, restart),
-        if mismatch { crate::exit::Status::Usage } else { crate::exit::Status::Expired },
+        if mismatch {
+            crate::exit::Status::Usage
+        } else {
+            crate::exit::Status::Expired
+        },
     )
 }
