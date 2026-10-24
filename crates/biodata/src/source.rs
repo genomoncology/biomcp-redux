@@ -122,7 +122,7 @@ canonical_enum! {
     }
 }
 
-crate::response::wire_enum! {
+crate::macros::wire_enum! {
     /// Reviewed source-use category, without inferring rights in individual records.
     Use {
         /// Public-domain or unrestricted source data.
