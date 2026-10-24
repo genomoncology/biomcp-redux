@@ -43,11 +43,17 @@ pub struct GeneSymbol(Box<str>);
 impl GeneSymbol {
     /// Maximum accepted symbol length in bytes.
     pub const MAX_LEN: usize = 255;
-    /// Check printable non-whitespace ASCII without inferring HGNC membership.
+    /// Check the approved-symbol alphabet without inferring HGNC membership.
     pub fn new(value: &str) -> Result<Self, Error> {
         if value.is_empty()
             || value.len() > Self::MAX_LEN
-            || !value.bytes().all(|ch| ch.is_ascii_graphic())
+            || !value
+                .as_bytes()
+                .first()
+                .is_some_and(u8::is_ascii_alphabetic)
+            || !value
+                .bytes()
+                .all(|ch| ch.is_ascii_alphanumeric() || b"-._/@".contains(&ch))
         {
             return Err(Error::GeneSymbolInvalid);
         }
@@ -85,7 +91,7 @@ impl fmt::Display for GeneSymbol {
 text_value!(
     GeneSymbol,
     "GeneSymbol",
-    format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN)
+    format!(r"^[A-Za-z][A-Za-z0-9._/@-]{{0,{}}}$", Self::MAX_LEN - 1)
 );
 
 macro_rules! accession {

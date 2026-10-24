@@ -98,7 +98,9 @@ fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Che
 fn symbols_preserve_spelling_with_one_folded_equality_and_hash() -> Check {
     values::<GeneSymbol>(
         &["C17orf50", "C4B_2", "IGH@", "HLA-A", "BRAF"],
-        &["", " BRAF", "BR AF", "BRAF\n", "βRAF", "\u{7f}"],
+        &[
+            "", " BRAF", "BR AF", "BRAF\n", "βRAF", "\u{7f}", "1BRAF", "BRAF!", "BRAF:foo",
+        ],
     )?;
     let a = GeneSymbol::new("C17orf50")?;
     let b = GeneSymbol::new("C17ORF50")?;
