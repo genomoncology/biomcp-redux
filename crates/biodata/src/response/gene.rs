@@ -1,4 +1,6 @@
 mod constraint;
+mod civic;
+pub use civic::CivicGene;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
@@ -87,4 +89,7 @@ pub struct GeneSections {
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,
+    /// CIViC gene-level curation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub civic: Option<Section<CivicGene>>,
 }

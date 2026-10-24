@@ -159,6 +159,8 @@ crate::source::canonical_enum! {
     GeneSectionWord, SourceUnknown {
         /// Population constraint metrics.
         Constraint => "constraint",
+        /// CIViC gene curation.
+        Civic => "civic",
         /// Every landed section.
         All => "all",
     }
@@ -168,5 +170,7 @@ crate::source::canonical_enum! {
     GeneSection, SourceUnknown {
         /// Population constraint metrics.
         Constraint => "constraint",
+        /// CIViC gene curation.
+        Civic => "civic",
     }
 }

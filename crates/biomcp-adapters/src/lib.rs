@@ -7,3 +7,5 @@ mod raw;
 pub use mapped::Mapped;
 
 pub mod gnomad;
+
+pub mod civic;

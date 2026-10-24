@@ -15,3 +15,7 @@ pub(crate) static HGNC: Quota =
 // Conservative local gnomAD policy; no published numeric provider limit.
 pub(crate) static GNOMAD: Quota =
     Quota::new(SourceKey::declare("gnomad"), Rate::per_second(1), None, 1);
+
+// Conservative local CIViC policy; no published numeric provider limit.
+pub(crate) static CIVIC: Quota =
+    Quota::new(SourceKey::declare("civic"), Rate::per_second(2), None, 2);

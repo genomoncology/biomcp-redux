@@ -1,0 +1,68 @@
+//! Checked CIViC gene-level curation joined to HGNC Entrez identities.
+mod raw;
+use crate::{Mapped, quotas};
+use biodata::{CivicGene, EntrezGeneId, GeneSymbol, Problem, ProblemCode, Section, Source, SourceRecord, Text};
+use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use serde::Serialize;
+use std::{collections::BTreeMap, time::Duration};
+/// Public CIViC GraphQL source policy.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::Civic, base: "https://civicdb.org", key: KeyUse::None,
+    quota: &quotas::CIVIC, deadline: Duration::from_secs(8),
+};
+const GENES: Endpoint = SPEC.post_json("/api/graphql").idempotent().fresh(Freshness::Days(7));
+#[derive(Serialize)]
+struct Query { query: String, variables: BTreeMap<String, String> }
+/// A requested identity and its independently mapped source section.
+pub struct GeneCivic {
+    /// Submitted Entrez join identity.
+    pub id: EntrezGeneId,
+    /// Complete section or its explicit absence/failure.
+    pub civic: Mapped<Section<CivicGene>>,
+}
+/// Fetch up to twenty distinct symbol/Entrez pairs in one encoded aliased query.
+pub fn genes(leg: &Leg<'_>, ids: &[(GeneSymbol, EntrezGeneId)]) -> Result<Vec<GeneCivic>, RequestError> {
+    let mut ids = ids.to_vec();
+    ids.sort_unstable_by(|a,b| a.0.as_str().cmp(b.0.as_str()));
+    ids.dedup();
+    let mut variables = BTreeMap::new();
+    let mut declarations = Vec::new();
+    let mut aliases = Vec::new();
+    for (index, (symbol, _)) in ids.iter().enumerate() {
+        variables.insert(format!("id{index}"), symbol.to_string());
+        declarations.push(format!("$id{index}: String!"));
+        aliases.push(format!("g{index}: gene(entrezSymbol: $id{index}) {{ id name entrezId description link variants {{ totalCount }} }}"));
+    }
+    let body = Query { query: format!("query({}) {{ {} }}",declarations.join(", "), aliases.join(" ")), variables };
+    macro_rules! fetch {
+        ($($n:literal),+) => { match ids.len() { $( $n => leg.post_json::<_, raw::Genes<$n>>(&GENES, &body).map(|raw| raw.data), )+ _ => return Err(bad()) } };
+    }
+    let raw = fetch!(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)?;
+    Ok(ids.into_iter().enumerate().map(|(index, (_, id))| {
+        let mut problems = Vec::new();
+        let gene = raw.0.iter().find(|(name,_)| *name == format!("g{index}")).and_then(|(_, gene)| gene.as_ref());
+        let section = match gene {
+            None => Section::Empty { source: Source::Civic, record: None },
+            Some(gene) if gene.entrez_id != id => {
+                problems.push(Problem { source: Source::Civic, record: Text::new(&id.to_string()).ok(), field: "entrez_id".into(), code: ProblemCode::ValueUnknown });
+                Section::Unavailable { source: Source::Civic, reason: biodata::Reason::BadReply }
+            }
+            Some(gene) => map(gene),
+        };
+        GeneCivic { id, civic: Mapped { value: section, problems } }
+    }).collect())
+}
+fn map(gene: &raw::Gene) -> Section<CivicGene> {
+    let Ok(url) = Text::new(&format!("https://civicdb.org{}",gene.link)) else {
+        return Section::Unavailable { source: Source::Civic, reason: biodata::Reason::BadReply };
+    };
+    let description = gene.description.as_deref().filter(|text| !text.is_empty()).and_then(|text| Text::new(text).ok());
+    if gene.variants.total_count == 0 && description.is_none() {
+        Section::Empty { source: Source::Civic, record: Some(SourceRecord { id: match Text::new(&gene.id.to_string()) { Ok(id) => id, Err(_) => return Section::Unavailable { source: Source::Civic, reason: biodata::Reason::BadReply } }, url: Some(url) }) }
+    } else {
+        Section::Data { source: Source::Civic, data: CivicGene { id: gene.id, variant_count: gene.variants.total_count, url, description } }
+    }
+}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError { source: Source::Civic, reason: biodata::Reason::BadReply, status: None, retry_after: None }.into()
+}
