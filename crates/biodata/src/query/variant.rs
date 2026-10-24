@@ -34,6 +34,9 @@ struct Fields {
     /// Native CIViC cursor, retained unchanged.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<crate::Text>,
+    /// Explicit tumor context for keyed OncoKB annotation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    tumor_type: Option<crate::Text>,
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
@@ -78,7 +81,13 @@ impl TryFrom<Fields> for VariantGet {
         {
             return Err(super::gene::QueryInvalid);
         }
+        if fields.section.contains(&VariantSection::Oncokb)
+            && (fields.build.is_none() || fields.tumor_type.is_none())
+        {
+            return Err(super::gene::QueryInvalid);
+        }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.tumor_type = fields.tumor_type;
         query.0.civic_profile = fields.civic_profile;
         query.0.civic_kind = fields.civic_kind;
         query.0.civic_cursor = fields.civic_cursor;
@@ -112,6 +121,7 @@ impl VariantGet {
             civic_profile: None,
             civic_kind: None,
             civic_cursor: None,
+            tumor_type: None,
             resolver,
             build,
             limit: default_limit(),
@@ -126,6 +136,10 @@ impl VariantGet {
     pub fn with_sections(mut self, sections: Box<[VariantSection]>) -> Self {
         self.0.section = sections;
         self
+    }
+    /// Caller tumor context, never inferred from an allele or gene.
+    pub fn tumor_type(&self) -> Option<&crate::Text> {
+        self.0.tumor_type.as_ref()
     }
     /// Selected native CIViC profile.
     pub fn civic_profile(&self) -> Option<u64> {
@@ -237,6 +251,8 @@ crate::source::canonical_enum! {
         Conservation => "conservation",
         /// Historical COSMIC fields carried by MyVariant.
         Cosmic => "cosmic",
+        /// Keyed OncoKB annotation with explicit tumor context and build.
+        Oncokb=>"oncokb",
         /// Every implemented variant section.
         All => "all",
     }
