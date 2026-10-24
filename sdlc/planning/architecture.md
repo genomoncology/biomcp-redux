@@ -1116,7 +1116,7 @@ impl AbstractText {
 
 ### 5.5 How adapters are tested
 
-Adapters have no tests of their own. Cases drive the binary over recordings, and each adapter's lines run because a case needs them.
+Cases drive the binary over recordings, and each adapter's lines run because a case needs them. Section 10.4 lists the narrow public API and decoder boundaries that command cases cannot construct without test hooks.
 
 - Each adapter has at least one success case per public function, recorded live with `--record`.
 - Each adapter has five failure cases built from small hand-edited recordings. A synthetic recording starts as a copy of a real `--record` capture of the same command, and only its response is edited. No helper rebuilds a request's encoding, parameter order, ID order or hash, because the transport already defines them. The five cases are a 429 with `Retry-After`, a 500, a delay past the source deadline, a cut body and a 200 that carries the provider's error shape. Each asserts the item or envelope status, the source's outcome and its reason, and a later offline step shows nothing bad was cached.
