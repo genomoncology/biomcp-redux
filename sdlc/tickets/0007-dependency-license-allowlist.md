@@ -1,6 +1,7 @@
 # 0007 — Reconcile the license policy with the approved dependencies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 699d17632ac8ffdce280a366f6f0d653eb3ee420
 
 Milestone: 1
 

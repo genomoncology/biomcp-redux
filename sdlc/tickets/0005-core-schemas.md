@@ -1,6 +1,7 @@
 # 0005 — Generate and check the minimal core schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 55d3cd871fa60a5ad54eaaed76de492b61eb422d
 
 Milestone: 1
 

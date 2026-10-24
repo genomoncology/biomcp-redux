@@ -1,6 +1,7 @@
 # 0004 — Add the shared transport contract and checked HTTP replies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8c7160f92d3685f30e71759ff7b3a1efa7dbe0d7
 
 Milestone: 1
 
