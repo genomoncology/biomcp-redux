@@ -18,13 +18,13 @@
         "/result/population/data/exome/filters": [
           "SYNTHETIC_FILTER"
         ],
-        "/result/groups/0/observation/ancestry_group": "synthetic-00",
-        "/result/groups/9/observation/ancestry_group": "synthetic-09",
+        "/result/groups/0/ancestry_group": "synthetic-00",
+        "/result/groups/9/ancestry_group": "synthetic-09",
         "/page/total": 29,
         "/page/returned": 10,
         "/page/offset": 0,
-        "/result/groups/0/observation/allele_count": 0,
-        "/result/groups/0/observation/allele_number": 100
+        "/result/groups/0/allele_count": 0,
+        "/result/groups/0/allele_number": 100
       },
       "mcp": [
         "variant",
@@ -51,8 +51,8 @@
         "/result/population/data/exome/filters": [
           "SYNTHETIC_FILTER"
         ],
-        "/result/groups/0/observation/ancestry_group": "synthetic-10",
-        "/result/groups/9/observation/ancestry_group": "synthetic-19",
+        "/result/groups/0/ancestry_group": "synthetic-10",
+        "/result/groups/9/ancestry_group": "synthetic-19",
         "/page/total": 29,
         "/page/returned": 10,
         "/page/offset": 10
@@ -77,8 +77,8 @@
         "/result/population/data/exome/filters": [
           "SYNTHETIC_FILTER"
         ],
-        "/result/groups/0/observation/ancestry_group": "synthetic-20",
-        "/result/groups/8/observation/ancestry_group": "synthetic-28",
+        "/result/groups/0/ancestry_group": "synthetic-20",
+        "/result/groups/8/ancestry_group": "synthetic-28",
         "/page/total": 29,
         "/page/returned": 9,
         "/page/offset": 20

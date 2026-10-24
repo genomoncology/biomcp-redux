@@ -18,25 +18,6 @@ pub struct VariantPopulation {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub genome: Option<Box<PopulationFrequency>>,
 }
-/// One native ancestry row qualified by its sequencing subset.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct PopulationGroup {
-    /// Sequencing subset; overlapping groups are never summed.
-    pub subset: PopulationSubset,
-    /// Unchanged source counts and group identifier.
-    pub observation: PopulationFrequency,
-}
-crate::macros::wire_enum! {
-    /// Independent source sequencing subset.
-    PopulationSubset {
-        /// Exome observations.
-        Exome => "exome",
-        /// Genome observations.
-        Genome => "genome",
-    }
-}
 /// One page of exact rsID catalog associations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -105,7 +86,7 @@ pub struct VariantPopulationResult {
     pub population: crate::Section<VariantPopulation>,
     /// Selected native groups, qualified by sequencing subset.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub groups: Box<[PopulationGroup]>,
+    pub groups: Box<[PopulationFrequency]>,
 }
 impl super::ResponseBody for VariantPopulationResult {
     const SCHEMA: &'static str = "biomcp.variant_population/1";

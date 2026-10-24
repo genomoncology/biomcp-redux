@@ -52,19 +52,7 @@ pub(super) fn section(
                 .skip((offset % size) as usize)
                 .collect::<Vec<_>>();
             let returned = rows.len() as u32;
-            let continuation = offset
-                .checked_add(returned)
-                .filter(|next| u64::from(*next) < page.total)
-                .and_then(|next| {
-                    query
-                        .for_candidate(id.to_string().parse().ok()?)
-                        .ok()
-                        .map(|query| {
-                            query
-                                .at_section_offset(next)
-                                .with_sections(Box::new([biodata::VariantSection::Gwas]))
-                        })
-                });
+            let continuation = continuation(query, &id, offset, returned, page.total);
             Section::Data {
                 source: Source::Gwas,
                 data: VariantGwas {
@@ -144,4 +132,23 @@ fn map(row: gwas::Association) -> GwasAssociation {
 
 fn optional_text(value: Option<String>) -> Option<biodata::Text> {
     value.and_then(|v| v.parse().ok())
+}
+
+fn continuation(
+    query: &VariantGet,
+    id: &VariantId,
+    offset: u32,
+    returned: u32,
+    total: u64,
+) -> Option<VariantGet> {
+    let next = offset
+        .checked_add(returned)
+        .filter(|n| u64::from(*n) < total)?;
+    Some(
+        query
+            .for_candidate(id.to_string().parse().ok()?)
+            .ok()?
+            .at_section_offset(next)
+            .with_sections(Box::new([biodata::VariantSection::Gwas])),
+    )
 }

@@ -156,8 +156,8 @@ pub use response::VariantPage;
 
 pub use query::{VariantPopulationQuery, VariantSection};
 pub use response::{
-    GwasAssociation, GwasEffectAllele, GwasTrait, PopulationGroup, PopulationSubset, VariantGwas,
-    VariantPopulation, VariantPopulationResult, VariantSections,
+    GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    VariantPopulationResult, VariantSections,
 };
 pub use variant::{
     Attribution, PopulationDataType, PopulationFrequency, PopulationSex, VariantRef,

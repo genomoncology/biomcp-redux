@@ -97,6 +97,6 @@ pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
 pub use variant::VariantSections;
 mod variant_population;
 pub use variant_population::{
-    GwasAssociation, GwasEffectAllele, GwasTrait, PopulationGroup, PopulationSubset, VariantGwas,
-    VariantPopulation, VariantPopulationResult,
+    GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
+    VariantPopulationResult,
 };

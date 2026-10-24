@@ -19,7 +19,10 @@ pub(super) fn trials() -> Vec<Trial> {
             unjoinable().map_err(Into::into)
         }),
         Trial::test("variant/gwas-native-pages-preserve-effects", || {
-            gwas_walk().map_err(Into::into)
+            gwas_walk("rs113488022", 2).map_err(Into::into)
+        }),
+        Trial::test("variant/gwas-resolved-id-pins-source-continuation", || {
+            gwas_walk("CA123643", 3).map_err(Into::into)
         }),
         Trial::test("variant/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
@@ -102,8 +105,8 @@ fn population() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let second: Value = serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())?;
-    if value.pointer("/result/groups/0/observation/ancestry_group") != Some(&json!("nfe"))
-        || second.pointer("/result/groups/0/observation/ancestry_group") != Some(&json!("sas"))
+    if value.pointer("/result/groups/0/ancestry_group") != Some(&json!("nfe"))
+        || second.pointer("/result/groups/0/ancestry_group") != Some(&json!("sas"))
         || second.pointer("/page/offset") != Some(&json!(1))
         || second.pointer("/page/total") != Some(&json!(2))
         || second.pointer("/next").is_some()
@@ -223,19 +226,16 @@ fn indel_body(request: &str) -> Result<String, String> {
     Ok(body.to_string())
 }
 
-fn gwas_walk() -> Result<(), String> {
-    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", gwas_page)?;
+fn gwas_walk(input: &str, requests: usize) -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["www.ebi.ac.uk", "reg.genome.network"],
+        |_| "application/json",
+        gwas_page,
+    )?;
     let env = environment(&stub)?;
-    let mut args = [
-        "get",
-        "variant",
-        "rs113488022",
-        "gwas",
-        "--section-limit",
-        "2",
-    ]
-    .map(String::from)
-    .to_vec();
+    let mut args = ["get", "variant", input, "gwas", "--section-limit", "2"]
+        .map(String::from)
+        .to_vec();
     let mut ids = Vec::new();
     for page in 0..2 {
         let out = env
@@ -293,7 +293,7 @@ fn gwas_walk() -> Result<(), String> {
             "warm native catalog page was not available offline: {value}"
         ));
     }
-    if ids != [json!(101), json!(102), json!(103)] || stub.finish()?.len() != 2 {
+    if ids != [json!(101), json!(102), json!(103)] || stub.finish()?.len() != requests {
         return Err(
             "catalog walk duplicated/dropped source rows or made extra source requests".into(),
         );
@@ -301,6 +301,15 @@ fn gwas_walk() -> Result<(), String> {
     Ok(())
 }
 fn gwas_page(request: &str) -> Result<String, String> {
+    if request.starts_with("GET /allele/") {
+        let mut body: Value =
+            serde_json::from_str(&population_body(request)?).map_err(|e| e.to_string())?;
+        body.as_object_mut().ok_or("CAR object required")?.insert(
+            "externalRecords".into(),
+            json!({"dbSNP":[{"rs":113488022}]}),
+        );
+        return Ok(body.to_string());
+    }
     // Synthetic response-only associations exercise the source v2 schema and native page order.
     let second = request.contains("&page=1&");
     let ids = if second { vec![103] } else { vec![101, 102] };

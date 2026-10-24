@@ -1,7 +1,7 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
-    PageInfo, PopulationGroup, PopulationSubset, QueryBody, Reason, Request, Section, Source,
+    PageInfo, PopulationDataType, PopulationFrequency, QueryBody, Reason, Request, Section, Source,
     Status, StepKind, VariantPopulationQuery, VariantPopulationResult,
 };
 use biomcp_adapters::gnomad;
@@ -54,7 +54,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
 }
 type PopulationRead = (
     Section<biodata::VariantPopulation>,
-    Vec<PopulationGroup>,
+    Vec<PopulationFrequency>,
     Vec<biodata::SourceOutcome>,
     Vec<biodata::Problem>,
     Option<RequestError>,
@@ -130,7 +130,7 @@ fn load(
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> (
     Section<biodata::VariantPopulation>,
-    Vec<PopulationGroup>,
+    Vec<PopulationFrequency>,
     biodata::SourceOutcome,
     Option<RequestError>,
 ) {
@@ -171,29 +171,23 @@ fn load(
 fn ancestry(
     raw: &gnomad::variant::Variant,
     subject: &biodata::VariantRef,
-) -> Result<Vec<PopulationGroup>, RequestError> {
+) -> Result<Vec<PopulationFrequency>, RequestError> {
     let mut groups = Vec::new();
     for (subset, data) in [
-        (PopulationSubset::Exome, &raw.exome),
-        (PopulationSubset::Genome, &raw.genome),
+        (PopulationDataType::Exomes, &raw.exome),
+        (PopulationDataType::Genomes, &raw.genome),
     ] {
         if let Some(data) = data {
             for group in &data.populations {
-                groups.push(PopulationGroup {
+                groups.push(super::population::observation(
+                    &raw.variant_id,
+                    subject,
                     subset,
-                    observation: super::population::observation(
-                        &raw.variant_id,
-                        subject,
-                        match subset {
-                            PopulationSubset::Exome => biodata::PopulationDataType::Exomes,
-                            PopulationSubset::Genome => biodata::PopulationDataType::Genomes,
-                        },
-                        Some(group.id.clone()),
-                        group.ac,
-                        group.an,
-                        &data.filters,
-                    )?,
-                });
+                    Some(group.id.clone()),
+                    group.ac,
+                    group.an,
+                    &data.filters,
+                )?);
             }
         }
     }
