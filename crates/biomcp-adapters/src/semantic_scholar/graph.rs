@@ -55,6 +55,7 @@ pub fn paper_endpoint(input: &ArticleInput) -> Result<Endpoint, RequestError> {
         ArticleInput::Pmid(id) => format!("PMID:{id}"),
         ArticleInput::Pmcid(id) => format!("PMCID:{id}"),
         ArticleInput::Doi(id) => format!("DOI:{id}"),
+        ArticleInput::EuropePmc(_) => return Err(biomcp_fetch::InputError::Path.into()),
     };
     let part = PathSegment::new(&value).map_err(RequestError::Input)?;
     Ok(PAPER.clone().with_segments(&[part]))

@@ -135,6 +135,7 @@ pub fn read(leg: &Leg<'_>, id: &EuropePmcId) -> Result<pmc_oa::Document, Request
         license: pmc_oa::license(raw.license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,
+        supplements: Default::default(),
         body,
     })
 }

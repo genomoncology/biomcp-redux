@@ -39,7 +39,8 @@ fn limit() -> u32 {
 impl TryFrom<Fields> for ArticleEdges {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&v.limit)
+        if matches!(v.pmid, ArticleInput::EuropePmc(_))
+            || !(1..=50).contains(&v.limit)
             || (v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_)))
         {
             return Err(QueryInvalid);

@@ -106,6 +106,27 @@
       },
       "exit": 2,
       "is_error": true
+    },
+    {
+      "run": [
+        "article",
+        "references",
+        "PPR1295425",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "article",
+        "references",
+        "PPR1295425",
+        "--source",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
     }
   ]
 }
