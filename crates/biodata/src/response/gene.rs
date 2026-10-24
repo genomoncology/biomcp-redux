@@ -72,6 +72,10 @@ pub enum QueryBody {
         /// Exact unsupported selector, without caller text.
         option: crate::ArticleFilter,
     },
+    /// Bounded licensed body reader.
+    ArticleText(crate::ArticleTextResult),
+    /// Invalid body reader position.
+    TextPositionError,
     /// Citation graph page.
     ArticleEdges(crate::ArticleEdgePage),
     /// Citation ordering exceeds the supported PMID window.

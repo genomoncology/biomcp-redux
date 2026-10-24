@@ -1,0 +1,192 @@
+use super::{Check, rust_files, source};
+use std::{fs, path::Path};
+
+// One authoritative list; architecture 10.4 must reproduce each path and reason.
+const ALLOWED: &[(&str, &str)] = &[
+    (
+        "crates/biodata/tests/article_ids.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/core.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/gene_ids.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/gene_model.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/query.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/response.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/schemas.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/schemas/compatibility_cases.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/schemas/values.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biodata/tests/value_conventions.rs",
+        "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/batch_bounds.rs",
+        "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/pmc_body.rs",
+        "Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/pmc_limits.rs",
+        "Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table.",
+    ),
+    (
+        "crates/biomcp-fetch/src/retry_tests.rs",
+        "Cover Retry-After forms and backoff boundaries without one recording per table row.",
+    ),
+    (
+        "crates/biomcp-fetch/src/xml_tests.rs",
+        "Cover inline XML markup and decoder limits with many tiny inputs.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/batch.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/bundle.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/cache.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/offline.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/paths.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/post.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/quotas.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/record.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/retries.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/support/cache_process.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/transport.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/xml.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-query/tests/article_search.rs",
+        "Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries.",
+    ),
+    (
+        "crates/biomcp-query/tests/gene_resolution.rs",
+        "Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets.rs",
+        "Enforce repository structure and prove refusal of planted violations in isolated trees.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets/proof.rs",
+        "Enforce repository structure and prove refusal of planted violations in isolated trees.",
+    ),
+];
+
+pub(super) fn check(root: &Path) -> Check {
+    let crates = root.join("crates");
+    if !crates.exists() {
+        return Ok(());
+    }
+    for entry in fs::read_dir(crates)? {
+        let crate_root = entry?.path();
+        for directory in ["src", "tests"] {
+            for path in rust_files(&crate_root.join(directory))? {
+                let relative = path
+                    .strip_prefix(root)?
+                    .to_string_lossy()
+                    .replace('\\', "/");
+                let tokens = source::tokens(&fs::read_to_string(&path)?);
+                let has_test = tokens.iter().enumerate().any(|(index, token)| {
+                    token == "#"
+                        && tokens.get(index + 1).is_some_and(|v| v == "[")
+                        && tokens.iter()
+                            .skip(index + 2)
+                            .take_while(|v| v.as_str() != "]")
+                            .collect::<Vec<_>>()
+                            .windows(2)
+                            .any(|v| matches!(v, [left, right] if right.as_str() == "test" && matches!(left.as_str(), "," | ":")))
+                        || tokens
+                            .get(index..index + 4)
+                            .is_some_and(|v| v == ["#", "[", "test", "]"])
+                });
+                if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
+                    return Err(format!("{relative}: inline test outside listed locations").into());
+                }
+            }
+        }
+    }
+    let architecture = root.join("sdlc/planning/architecture.md");
+    if architecture.exists() {
+        documentation(&fs::read_to_string(architecture)?)?;
+    }
+    Ok(())
+}
+
+fn documentation(text: &str) -> Check {
+    let section = text
+        .split("### 10.4 ")
+        .nth(1)
+        .ok_or("missing test placement section")?
+        .split("## 11.")
+        .next()
+        .ok_or("missing following architecture section")?;
+    let listed: Vec<_> = section
+        .lines()
+        .filter(|line| line.starts_with("| `crates/"))
+        .collect();
+    let expected: Vec<_> = ALLOWED
+        .iter()
+        .map(|(path, reason)| format!("| `{path}` | {reason} |"))
+        .collect();
+    if listed != expected {
+        return Err("architecture 10.4 differs from the reasoned test-file list".into());
+    }
+    Ok(())
+}

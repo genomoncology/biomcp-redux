@@ -1,7 +1,7 @@
 {
   "feature": "article-annotations",
   "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
-  "replay": "article/annotations/live",
+  "replay": "article/fulltext/live-all",
   "steps": [
     {
       "run": [
@@ -12,6 +12,7 @@
       "expect": {
         "/result/items/0/more": [
           "annotations",
+          "fulltext",
           "citations"
         ],
         "/next/0/kind": "section",
@@ -20,6 +21,7 @@
           "article",
           "33123537",
           "annotations",
+          "fulltext",
           "citations"
         ]
       },
@@ -28,9 +30,11 @@
     {
       "follow": "section",
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 4000
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -55,7 +59,9 @@
         "all"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
       "mcp": [
         "get",
@@ -63,7 +69,7 @@
         "33123537",
         "all"
       ],
-      "max_bytes": 4000
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -74,9 +80,11 @@
         "all"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 4000
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -114,5 +122,6 @@
       },
       "exit": 2
     }
-  ]
+  ],
+  "verified": "2026-10-24 combined reader/citation measurement j9656: all sections response 8969 bytes. Ceiling 10315 is measured plus 15 percent; no comparable 0.9 baseline exists because fulltext returned a file path. Dedicated component ceilings remain unchanged."
 }

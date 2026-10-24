@@ -92,7 +92,7 @@ pub struct AbstractPart {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
     /// Whole paragraph text.
-    pub text: Text,
+    pub text: crate::Markdown,
 }
 crate::source::canonical_enum! {
     /// Source correction relationship kind.

@@ -69,6 +69,15 @@ Each ticket writes its cases first and watches them fail, then builds the least 
 - **Budget.** The progressive disclosure layers and the token budget per command and section, with the 0.9 comparison, enforced by ceilings in the cases.
 - **Accounting.** Every 0.9 command and option for the entity ends as ported, renamed or dropped, with the ruling named in its ticket.
 
+## Rules learned from 0.9
+
+BioMCP 0.9's worst answers came from well-formed replies that hid a mistake. Every slice follows these rules.
+
+- **Every filter has a known-positive case.** Each option that narrows a source's query has a case whose facts were checked against the source's own direct query on the capture date. The case asserts those captured facts, not a count that stays fixed forever. A filter mapped to the wrong field returns a valid zero that no reply check can catch, as 0.9's trial filters and FDA year search did.
+- **A section exists only where its source sends the field.** The slice records, from a live capture of the public tier BioMCP uses, which fields each source returns. The slice offers a section only after a capture proves the public tier carries its fields. A field that the tier carries but some records lack stays optional per record. A source's public tier that lacks a field never reads as "none", as 0.9's drug interactions did.
+- **Returned identity must match requested identity.** BioMCP compares the resolved, checked identifier it requested with the one the source returns, never literal alias or DOI spelling. A record whose identity differs is dropped with a problem. An ambiguous input returns candidates and never a guess.
+- **Coordinates always carry their genome build.** A query coordinate needs an explicit build, and a coordinate with no build is a usage error. The build is echoed in `query`. A returned coordinate is labeled with the build its source states, never with the query's build by assumption.
+
 ## What a slice does not do
 
 - Add a source no example needs.

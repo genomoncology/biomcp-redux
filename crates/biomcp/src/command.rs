@@ -87,23 +87,18 @@ fn dispatch_using(
             &owned
         }
     };
-    execute(fetch, action)
+    let mut outcome = execute(fetch, action)?;
+    if parsed.globals.format == Some(crate::grammar::Format::Md) {
+        outcome.cli_bytes = crate::view::markdown(&outcome.value)?;
+    }
+    Ok(outcome)
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
-            let result = biomcp_query::run(
-                &biomcp_query::Ctx {
-                    ncbi_email: crate::config::ncbi_email()
-                        .map_err(|()| io::Error::other("local configuration failed"))?,
-                    fetch,
-                    budget: crate::config::BUDGET,
-                    fresh,
-                },
-                &request,
-            );
+            let result = run_request(fetch, &request, fresh)?;
             response(request, result)
         }
     }
@@ -124,24 +119,24 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
             biodata::ErrorEnvelope::unsupported_filter(source, option),
             crate::exit::Status::Usage,
         ),
+        (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
+            biodata::ErrorEnvelope::arguments(),
+            crate::exit::Status::Usage,
+        ),
+        (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
+            let mut envelope = Envelope::new(result.status, query, Some(body));
+            envelope.sources = result.sources;
+            envelope.problems = result.problems;
+            envelope.next = steps;
+            envelope.page = result.page;
+            encode(envelope, status)
+        }
+
         (_, QueryBody::TooManyPmids { count }) => encode(
             biodata::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
         ),
-        (_, QueryBody::PoolError { mismatch }) => {
-            let restart = steps
-                .into_iter()
-                .next()
-                .ok_or_else(|| io::Error::other("missing restart"))?;
-            encode(
-                biodata::ErrorEnvelope::pool(mismatch, restart),
-                if mismatch {
-                    crate::exit::Status::Usage
-                } else {
-                    crate::exit::Status::Expired
-                },
-            )
-        }
+        (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
             QueryBody::ArticleEdges(body),
@@ -320,4 +315,36 @@ fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Resu
         status,
         cli_bytes: bytes,
     })
+}
+
+fn run_request(
+    fetch: &biomcp_fetch::Fetch,
+    request: &Request,
+    fresh: bool,
+) -> io::Result<biomcp_query::Outcome> {
+    Ok(biomcp_query::run(
+        &biomcp_query::Ctx {
+            ncbi_email: crate::config::ncbi_email()
+                .map_err(|()| io::Error::other("local configuration failed"))?,
+            fetch,
+            budget: crate::config::BUDGET,
+            fresh,
+        },
+        request,
+    ))
+}
+
+fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> {
+    let restart = steps
+        .into_iter()
+        .next()
+        .ok_or_else(|| io::Error::other("missing restart"))?;
+    encode(
+        biodata::ErrorEnvelope::pool(mismatch, restart),
+        if mismatch {
+            crate::exit::Status::Usage
+        } else {
+            crate::exit::Status::Expired
+        },
+    )
 }

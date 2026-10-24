@@ -55,6 +55,8 @@ crate::source::canonical_enum! {
     ArticleSectionWord, SourceUnknown {
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
+        /// Licensed PMC body outline.
+        Fulltext => "fulltext",
         /// Citation counts from NIH iCite.
         Citations => "citations",
         /// Every landed article section.
@@ -64,6 +66,8 @@ crate::source::canonical_enum! {
 crate::source::canonical_enum! {
     /// A landed article section.
     ArticleSection, SourceUnknown {
+        /// Licensed PMC body outline.
+        Fulltext => "fulltext",
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
         /// Citation counts from NIH iCite.

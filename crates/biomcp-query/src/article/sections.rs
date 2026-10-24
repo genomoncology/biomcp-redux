@@ -1,6 +1,7 @@
 //! Article section preparation and dispatch, following the gene section pattern.
 mod annotations;
 mod citations;
+pub(crate) mod fulltext;
 use crate::{Ctx, status};
 use biodata::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
@@ -20,27 +21,43 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 .then_some(Section::NotApplicable),
                 citations: (selected(query, ArticleSectionWord::Citations) && card.pmid.is_none())
                     .then_some(Section::NotApplicable),
+                fulltext: (selected(query, ArticleSectionWord::Fulltext) && card.pmcid.is_none())
+                    .then_some(Section::NotApplicable),
             });
-            item.more = [
-                (ArticleSectionWord::Annotations, ArticleSection::Annotations),
-                (ArticleSectionWord::Citations, ArticleSection::Citations),
-            ]
-            .into_iter()
-            .filter(|(word, _)| !selected(query, *word))
-            .map(|(_, section)| section)
-            .collect();
-        } else if card.pmid.is_some() {
-            item.more = Box::new([ArticleSection::Annotations, ArticleSection::Citations]);
         }
+        item.more = [
+            (
+                ArticleSectionWord::Annotations,
+                ArticleSection::Annotations,
+                card.pmid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Fulltext,
+                ArticleSection::Fulltext,
+                card.pmcid.is_some(),
+            ),
+            (
+                ArticleSectionWord::Citations,
+                ArticleSection::Citations,
+                card.pmid.is_some(),
+            ),
+        ]
+        .into_iter()
+        .filter(|(word, _, available)| *available && !selected(query, *word))
+        .map(|(_, section, _)| section)
+        .collect();
     }
     requested
 }
 pub(super) fn run<'a>(
     cx: &Ctx<'a>,
-    query: &ArticleGet,
     deadline: &mut Deadline<'a>,
+    query: &ArticleGet,
     out: &mut crate::Outcome,
 ) {
+    if selected(query, ArticleSectionWord::Fulltext) {
+        fulltext::run(cx, deadline, out);
+    }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };

@@ -150,6 +150,7 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
+        let codec = codec.octet_stream(ep.octet_stream);
         let keyed = self.keyed();
         let (reply, fetched) =
             self.cached(ep, &prepared.url, &prepared.identity, &codec, || {

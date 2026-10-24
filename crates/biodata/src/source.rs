@@ -69,6 +69,8 @@ canonical_enum! {
         EuropePmc => "europepmc",
         /// Semantic Scholar.
         SemanticScholar => "semantic-scholar",
+        /// PMC Open Access bucket.
+        PmcOa => "pmc-oa",
         /// NIH iCite.
         Icite => "icite",
         /// PubTator.
@@ -87,6 +89,8 @@ canonical_enum! {
     Reason, ReasonUnknown {
         /// The requested record was not found.
         NotFound => "not_found",
+        /// The public bucket does not hold an open text record.
+        NotOpen => "not_open",
         /// The source limited the request rate.
         RateLimited => "rate_limited",
         /// The source was unavailable.
