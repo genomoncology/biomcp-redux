@@ -68,7 +68,7 @@ pub(super) fn select(
     Ok(out)
 }
 /// Download only a previously intersected readable bucket file.
-pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, RequestError> {
+pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<(Vec<u8>, Vec<crate::sheet::Sheet>), RequestError> {
     if !file.file.kind.readable() {
         return Err(super::bad(BadReply));
     }
@@ -84,5 +84,11 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, RequestErro
         .map(|v| ("md5", Arg::Text(v)))
         .into_iter()
         .collect();
-    leg.bytes(&ep, &params)
+    let parsed = std::cell::RefCell::new(None);
+    let bytes = leg.bytes_checked(&ep, &params, |bytes| {
+        let sheets = crate::sheet::read(bytes, file.file.kind, leg.remaining())?;
+        *parsed.borrow_mut() = Some(sheets);
+        Ok(())
+    })?;
+    Ok((bytes, parsed.into_inner().ok_or_else(|| super::bad(BadReply))?))
 }

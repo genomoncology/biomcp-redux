@@ -34,6 +34,11 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::bytes(limit))
             .map(|(v, _)| v.0)
     }
+    /// Read binary bytes only after the source-owned parser accepts them for cache admission.
+    pub fn bytes_checked(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)], check: impl Fn(&[u8]) -> Result<(), Reason>) -> Result<Vec<u8>, RequestError> {
+        let limit = ep.byte_limit.filter(|v| *v > 0 && *v < u64::MAX).ok_or(InputError::BodyLimit)?;
+        self.parameters(ep, params, Decoder::checked_bytes(limit, &check)).map(|(v, _)| v.0)
+    }
     /// Send checked JSON from a GET or form POST. A missing record returns `not_found`.
     pub fn json<T: Reply>(
         &self,
@@ -435,6 +440,7 @@ impl Leg<'_> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
+        codec.validate(&response.body).map_err(|reason| self.failure(reason, Some(status)))?;
         let reply = codec.decode(&response.body).ok_or_else(bad)?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));

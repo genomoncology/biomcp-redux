@@ -129,7 +129,7 @@ impl Leg<'_> {
         if entry.status == 404 {
             return Ok(fresh.then_some(Checked::Absent));
         }
-        let reply = (entry.content_type.as_deref() == Some(codec.name()))
+        let reply = (entry.content_type.as_deref() == Some(codec.name()) && codec.validate(&entry.body).is_ok())
             .then(|| codec.decode(&entry.body))
             .flatten();
         let Some(reply) = reply else {

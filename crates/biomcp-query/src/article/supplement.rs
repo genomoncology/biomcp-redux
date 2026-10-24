@@ -5,7 +5,7 @@ use biodata::{
     ArticleInput, ArticleSupplement, ArticleSupplementResult, QueryBody, Reason, Request, Section,
     Source, Status, StepKind, SupplementContent, Text,
 };
-use biomcp_adapters::{pmc_oa, sheet};
+use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use sha2::{Digest, Sha256};
 /// Read only a file named by both JATS and its owning bucket record.
@@ -100,12 +100,11 @@ fn execute<'a>(
             content.url = Some(file.url.clone());
             content.reason = Some(Reason::Unsupported);
         } else {
-            let bytes = pmc_oa::download(&leg, file)?;
+            let (bytes, sheets) = pmc_oa::download(&leg, file)?;
             content.sha256 = Some(
                 Text::new(&Sha256::digest(&bytes).iter().map(|v| format!("{v:02x}")).collect::<String>())
                     .map_err(|_| failure(Reason::BadReply))?,
             );
-            let sheets = sheet::read(&bytes, file.file.kind, leg.remaining()).map_err(failure)?;
             if !page::select(
                 query,
                 &sheets,
