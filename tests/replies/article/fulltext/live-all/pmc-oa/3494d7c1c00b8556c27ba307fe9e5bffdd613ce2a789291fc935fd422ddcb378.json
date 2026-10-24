@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pmc-oa",
+  "url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC7573235.1/PMC7573235.1.json",
+  "exchanges": [
+    {
+      "fetched": 1792843178,
+      "status": 200,
+      "content_type": "binary/octet-stream",
+      "delay_ms": 69,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"pmcid": "PMC7573235", "version": 1, "pmid": 33123537, "doi": "10.3389/fcell.2020.573599", "mid": null, "title": "Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis", "citation": "Front Cell Dev Biol. 2020 Oct 6;8:573599. doi: 10.3389/fcell.2020.573599", "is_pmc_openaccess": true, "is_manuscript": false, "is_historical_ocr": false, "is_retracted": false, "license_code": "CC BY", "pdf_url": "s3://pmc-oa-opendata/PMC7573235.1/PMC7573235.1.pdf?md5=5d4f463b3119ed58962462f35a47efb4", "text_url": "s3://pmc-oa-opendata/PMC7573235.1/PMC7573235.1.txt?md5=c8b9f98e9891fe1c88943ad3b60e97b8", "xml_url": "s3://pmc-oa-opendata/PMC7573235.1/PMC7573235.1.xml?md5=ac4033b8821f44dff8e515f4eb67a48e", "media_urls": ["s3://pmc-oa-opendata/PMC7573235.1/fcell-08-573599-g0001.jpg?md5=cf78a31c634ec6d7c3c92d5094048860", "s3://pmc-oa-opendata/PMC7573235.1/fcell-08-573599-g0002.jpg?md5=5ea6d92c9b226c1133d031bb9b08f2f4", "s3://pmc-oa-opendata/PMC7573235.1/fcell-08-573599-g0003.jpg?md5=b239815d16370226472dd1755a7d7609", "s3://pmc-oa-opendata/PMC7573235.1/fcell-08-573599-g0004.jpg?md5=e6892478245ea15d37f85313502c2082"]}
+      }
+    }
+  ]
+}

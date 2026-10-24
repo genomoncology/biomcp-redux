@@ -1,7 +1,7 @@
 {
   "feature": "article-annotations",
   "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
-  "replay": "article/annotations/live",
+  "replay": "article/fulltext/live-all",
   "steps": [
     {
       "run": [
@@ -11,14 +11,16 @@
       ],
       "expect": {
         "/result/items/0/more": [
-          "annotations"
+          "annotations",
+          "fulltext"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
           "get",
           "article",
           "33123537",
-          "annotations"
+          "annotations",
+          "fulltext"
         ]
       },
       "max_bytes": 2900
