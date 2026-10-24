@@ -3,6 +3,8 @@ mod configuration;
 mod gene_tables;
 mod held_proxy;
 mod launch;
+mod live;
+mod live_proof;
 mod markdown;
 mod markdown_sources;
 mod mcp;
@@ -218,6 +220,7 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
