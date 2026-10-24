@@ -1,6 +1,7 @@
 # 0035 — Answer search article with plain PubMed from a stored pool
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a57b1502e0e740797b9d4ea3cb97761b9cf55271
 
 Milestone: 1
 
