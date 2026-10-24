@@ -25,13 +25,16 @@ pub(super) fn evidence(
     subject: Option<&VariantRef>,
     problems: &mut Vec<Problem>,
 ) -> Result<CivicStatement, RequestError> {
-    let code = raw
-        .evidence_level
-        .as_str()
-        .to_ascii_lowercase()
-        .parse::<biodata::CivicEvidenceLevelCode>()
-        .ok();
-    let citations = if raw.source.source_type.as_str() == "PUBMED" {
+    use biodata::CivicEvidenceLevelCode as L;
+    let code = match raw.evidence_level.as_str() {
+        "A" => Some(L::A),
+        "B" => Some(L::B),
+        "C" => Some(L::C),
+        "D" => Some(L::D),
+        "E" => Some(L::E),
+        _ => None,
+    };
+    let citations: Box<[biodata::Pmid]> = if raw.source.source_type.as_str() == "PUBMED" {
         raw.source
             .citation_id
             .as_ref()

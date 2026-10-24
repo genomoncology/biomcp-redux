@@ -12,6 +12,7 @@ pub use query::{
 };
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
+pub use response::HotspotMembership;
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
