@@ -323,12 +323,14 @@
       "description": "Named variant source sections, without automatic expansion of identity cards.",
       "enum": [
         "civic",
+        "oncokb",
         "hotspots",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " CIViC molecular-profile evidence.",
+        " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",
         " Every implemented variant section."
       ]
@@ -546,6 +548,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "tumor_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [
