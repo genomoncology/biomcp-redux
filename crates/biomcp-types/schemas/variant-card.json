@@ -94,7 +94,7 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
@@ -1973,7 +1973,7 @@
           "description": "Published notation kept unchanged."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Text",
           "description": "Source asserting this form."
         }
       },
@@ -4378,7 +4378,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant_card/2",
+  "$id": "biomcp.variant_card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -4424,7 +4424,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_card/2",
+      "const": "biomcp.variant_card/3",
       "type": "string"
     },
     "sources": {

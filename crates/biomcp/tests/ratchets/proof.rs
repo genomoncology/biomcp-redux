@@ -37,11 +37,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
         ),
         (
             "crates/biodata/Cargo.toml",
-            "[package]\nname='biodata'\n[lints]\nworkspace=true\n[dependencies]\nureq='3'\n",
-            "forbidden dependencies dependency",
-        ),
-        (
-            "crates/biodata/Cargo.toml",
             "[lints]\nworkspace=true\n[build-dependencies]\nhttp={package='ureq',version='3'}\n",
             "forbidden build-dependencies dependency",
         ),

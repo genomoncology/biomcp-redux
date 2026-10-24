@@ -142,9 +142,12 @@ Cargo.toml  rust-toolchain.toml  rustfmt.toml  deny.toml  Makefile  .gitattribut
 crates/
   biodata/
     clippy.toml  README.md
-    src/lib.rs  macros.rs  error.rs  text.rs  date.rs  coord.rs  source.rs
+    src/lib.rs  macros.rs  error.rs  text.rs  date.rs  coord.rs  number.rs
     src/id/        hgnc.rs  entrez.rs  ensembl.rs  symbol.rs  uniprot.rs  pmid.rs  nct.rs  ...
-    src/gene.rs  article.rs  trial.rs  ...            one file per entity
+    src/gene.rs  variant/  trial.rs  ...             neutral entity values
+  biomcp-types/
+    clippy.toml  README.md
+    src/lib.rs  source.rs  predictor.rs  article.rs
     src/query/     request.rs  gene.rs  article.rs  trial.rs  ...
     src/response/  envelope.rs  section.rs  step.rs  problem.rs  gene.rs  article.rs  ...
     schemas/       generated *.schema.json, checked in
@@ -180,7 +183,7 @@ tests/
 
 `biodata` holds reusable neutral entity values. `biomcp-types` holds the query, response, source and disclosure values that cross BioMCP layers. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
 
-Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `query` and `response` hold BioMCP's request and response contract, and a later split can lift them out without touching the core.
+Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `biomcp-types/query` and `biomcp-types/response` hold BioMCP's request and response contract beside its source enum. The consumer crate imports neutral values without a reverse edge.
 
 A minimal set of the consumer types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
 

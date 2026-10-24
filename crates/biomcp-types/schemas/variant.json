@@ -180,7 +180,7 @@
           "description": "Published notation kept unchanged."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Text",
           "description": "Source asserting this form."
         }
       },
@@ -212,68 +212,6 @@
         "span"
       ],
       "type": "object"
-    },
-    "Source": {
-      "description": "A source of BioMCP data, identified by its canonical short name.",
-      "enum": [
-        "hgnc",
-        "mygene",
-        "reactome",
-        "hpa",
-        "uniprot",
-        "gnomad",
-        "clinvar",
-        "gwas",
-        "clingen",
-        "pubmed",
-        "europepmc",
-        "litvar",
-        "litsense",
-        "semantic-scholar",
-        "pmc-oa",
-        "icite",
-        "pubtator",
-        "ctgov",
-        "nci",
-        "civic",
-        "hotspots",
-        "oncokb",
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
-        "cbioportal"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " HGNC.",
-        " MyGene.info.",
-        " Reactome.",
-        " Human Protein Atlas.",
-        " UniProt.",
-        " gnomAD.",
-        " ClinVar component source policy.",
-        " GWAS Catalog v2.",
-        " ClinGen.",
-        " PubMed.",
-        " Europe PMC.",
-        " NCBI LitVar2.",
-        " NCBI LitSense2.",
-        " Semantic Scholar.",
-        " PMC Open Access bucket.",
-        " NIH iCite.",
-        " PubTator.",
-        " ClinicalTrials.gov.",
-        " NCI Clinical Trials Search.",
-        " CIViC.",
-        " Cancer Hotspots residue recurrence.",
-        " OncoKB.",
-        " MyVariant.info aggregation.",
-        " ClinGen Allele Registry.",
-        " Mutalyzer.",
-        " VariantValidator.",
-        " Public cBioPortal with study-specific reuse terms."
-      ]
     },
     "Span0": {
       "additionalProperties": false,
@@ -308,7 +246,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant/2",
+  "$id": "biodata.variant/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Variant entity with source-stated identities, forms and genes; no disclosure policy.",

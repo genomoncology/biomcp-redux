@@ -3,7 +3,7 @@ mod steps;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{Envelope, QueryBody, Request, Status};
+use biomcp_types::{Envelope, ErrorEnvelope, QueryBody, Request, Status};
 use serde_json::Value;
 use std::{ffi::OsString, io};
 
@@ -35,7 +35,7 @@ fn dispatch_using(
     }
     if let Some(message) = crate::retired::message(args) {
         return encode(
-            biomcp_types::ErrorEnvelope::retired(message),
+            ErrorEnvelope::retired(message),
             crate::exit::Status::Usage,
         );
     }
@@ -81,7 +81,7 @@ fn dispatch_using(
                 Ok(secrets) => secrets,
                 Err(()) => {
                     return encode(
-                        biomcp_types::ErrorEnvelope::local(),
+                        ErrorEnvelope::local(),
                         crate::exit::Status::Local,
                     );
                 }
@@ -91,7 +91,7 @@ fn dispatch_using(
         }
         Some(Err(())) if !parsed.globals.offline => {
             return encode(
-                biomcp_types::ErrorEnvelope::local(),
+                ErrorEnvelope::local(),
                 crate::exit::Status::Local,
             );
         }
@@ -100,7 +100,7 @@ fn dispatch_using(
                 Ok(fetch) => fetch,
                 Err(()) => {
                     return encode(
-                        biomcp_types::ErrorEnvelope::local(),
+                        ErrorEnvelope::local(),
                         crate::exit::Status::Local,
                     );
                 }
@@ -117,7 +117,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     } = action
     {
         if q.nci_disease_invalid() {
-            return Some(usage_envelope(biomcp_types::ErrorEnvelope::nci_disease()));
+            return Some(usage_envelope(ErrorEnvelope::nci_disease()));
         }
         if let Some(option) = q.unsupported() {
             let source = if q.source() == biomcp_types::TrialSource::Nci {
@@ -126,7 +126,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
                 biomcp_types::Source::ClinicalTrialsGov
             };
             return Some(usage_envelope(
-                biomcp_types::ErrorEnvelope::unsupported_trial_filter(source, option),
+                ErrorEnvelope::unsupported_trial_filter(source, option),
             ));
         }
     }
@@ -138,7 +138,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         && let Some((source, option)) = biomcp_query::article::unsupported(query)
     {
         return Some(encode(
-            biomcp_types::ErrorEnvelope::unsupported_filter(source, option),
+            ErrorEnvelope::unsupported_filter(source, option),
             crate::exit::Status::Usage,
         ));
     }
@@ -212,13 +212,13 @@ fn response(
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
-            usage_envelope(biomcp_types::ErrorEnvelope::variant_query_policy())
+            usage_envelope(ErrorEnvelope::variant_query_policy())
         }
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
-            biomcp_types::ErrorEnvelope::unsupported_trial_filter(source, option),
+            ErrorEnvelope::unsupported_trial_filter(source, option),
         ),
         (_, QueryBody::NciDiseaseError) => {
-            usage_envelope(biomcp_types::ErrorEnvelope::nci_disease())
+            usage_envelope(ErrorEnvelope::nci_disease())
         }
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))
@@ -237,17 +237,17 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, body)
         }
         (_, QueryBody::ArticleSaveRefused(url)) => {
-            usage_envelope(biomcp_types::ErrorEnvelope::save_refused(url))
+            usage_envelope(ErrorEnvelope::save_refused(url))
         }
         (_, QueryBody::PdfSaveRefused(link)) => {
-            usage_envelope(biomcp_types::ErrorEnvelope::save_refused(link.url))
+            usage_envelope(ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
         (_, QueryBody::UnsupportedFilter { source, option }) => usage_envelope(
-            biomcp_types::ErrorEnvelope::unsupported_filter(source, option),
+            ErrorEnvelope::unsupported_filter(source, option),
         ),
         (_, QueryBody::TextPositionError) => encode(
-            biomcp_types::ErrorEnvelope::arguments(),
+            ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         ),
         (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
@@ -264,7 +264,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, Some(body))
         }
         (_, QueryBody::TooManyPmids { count }) => encode(
-            biomcp_types::ErrorEnvelope::too_many_pmids(count),
+            ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
         ),
         (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, meta.next),
@@ -314,7 +314,7 @@ fn tool_using(
             .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
     }) {
         return encode(
-            biomcp_types::ErrorEnvelope::arguments(),
+            ErrorEnvelope::arguments(),
             crate::exit::Status::Usage,
         );
     }
@@ -354,12 +354,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 .iter()
                 .any(|(verb, _, _)| *verb == root)
         }) {
-        biomcp_types::ErrorEnvelope::arguments()
+        ErrorEnvelope::arguments()
     } else {
-        biomcp_types::ErrorEnvelope::schema_usage()
+        ErrorEnvelope::schema_usage()
     };
     if root == Some("get") && words.next() == Some("variant") {
-        error = biomcp_types::ErrorEnvelope::variant_arguments();
+        error = ErrorEnvelope::variant_arguments();
     }
     if root == Some("search") && args.get(1).and_then(|word| word.to_str()) == Some("trial") {
         let flags: Vec<_> = args
@@ -372,7 +372,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
                 .iter()
                 .any(|flag| ["--lat", "--lon", "--distance"].contains(flag))
         {
-            error = biomcp_types::ErrorEnvelope::trial_facility_radius();
+            error = ErrorEnvelope::trial_facility_radius();
         }
     }
     if root == Some("key") {
@@ -525,7 +525,7 @@ fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outc
         .next()
         .ok_or_else(|| io::Error::other("missing restart"))?;
     encode(
-        biomcp_types::ErrorEnvelope::pool(mismatch, restart),
+        ErrorEnvelope::pool(mismatch, restart),
         if mismatch {
             crate::exit::Status::Usage
         } else {
@@ -534,7 +534,7 @@ fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outc
     )
 }
 
-fn usage_envelope(error: biomcp_types::ErrorEnvelope) -> io::Result<Outcome> {
+fn usage_envelope(error: ErrorEnvelope) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 
@@ -545,7 +545,7 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
             crate::exit::Status::Success,
         ),
         Err(_) => encode(
-            biomcp_types::ErrorEnvelope::local(),
+            ErrorEnvelope::local(),
             crate::exit::Status::Local,
         ),
     }
