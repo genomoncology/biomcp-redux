@@ -65,9 +65,17 @@ impl<'a> Store<'a> {
             _access: access,
         })
     }
-    pub(super) fn prepare(&self)->Result<(),CacheError> {
-        if self.deadline.expired(){return Err(CacheError::Busy);}
-        self.connection.busy_timeout(if self.deadline.virtual_time(){std::time::Duration::ZERO}else{self.deadline.remaining()}).map_err(db)
+    pub(super) fn prepare(&self) -> Result<(), CacheError> {
+        if self.deadline.expired() {
+            return Err(CacheError::Busy);
+        }
+        self.connection
+            .busy_timeout(if self.deadline.virtual_time() {
+                std::time::Duration::ZERO
+            } else {
+                self.deadline.remaining()
+            })
+            .map_err(db)
     }
     pub(crate) fn now() -> i64 {
         SystemTime::now()

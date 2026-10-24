@@ -27,7 +27,7 @@ impl Store<'_> {
         } else {
             rusqlite::types::Value::Blob(key.into())
         };
-        let row: Option<(String, Vec<u8>, u64, u64, u32, String)> = self
+        let row: Option<(String, Vec<u8>, i64, i64, u32, String)> = self
             .connection
             .query_row(sql, params![parameter, Self::now()], |r| {
                 Ok((
@@ -46,8 +46,8 @@ impl Store<'_> {
                 info: PoolInfo {
                     id: Text::new(&id).map_err(|_| CacheError::Database)?,
                     size,
-                    created,
-                    expires,
+                    created: u64::try_from(created).map_err(|_| CacheError::Database)?,
+                    expires: u64::try_from(expires).map_err(|_| CacheError::Database)?,
                 },
                 key,
                 sources: serde_json::from_str(&sources).map_err(|_| CacheError::Database)?,
@@ -62,7 +62,7 @@ impl Store<'_> {
         sources: &[SourceOutcome],
     ) -> Result<Pool, CacheError> {
         self.prepare()?;
-        let created = u64::try_from(Self::now()).map_err(|_|CacheError::Database)?;
+        let created = Self::now();
         let expires = created.saturating_add(86400);
         self.prepare()?;
         let tx = self.connection.transaction().map_err(db)?;
@@ -88,8 +88,8 @@ impl Store<'_> {
             info: PoolInfo {
                 id: Text::new(&id).map_err(|_| CacheError::Database)?,
                 size,
-                created,
-                expires,
+                created: u64::try_from(created).map_err(|_| CacheError::Database)?,
+                expires: u64::try_from(expires).map_err(|_| CacheError::Database)?,
             },
             key: key.into(),
             sources: sources.into(),
