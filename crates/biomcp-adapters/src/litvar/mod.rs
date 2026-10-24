@@ -8,13 +8,18 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms {
+        name: "NCBI public-domain metadata policy",
+        url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+        usage: biodata::Use::Open,
+    },
     source: Source::LitVar,
     base: "https://www.ncbi.nlm.nih.gov/research/litvar2-api",
     key: KeyUse::None,
     quota: &quotas::LITVAR,
     deadline: Duration::from_secs(15),
 };
-const AUTOCOMPLETE: Endpoint = SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));
+pub(crate) const AUTOCOMPLETE: Endpoint = SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));
 const PUBLICATIONS: Endpoint = SPEC.get("/variant/get").fresh(Freshness::Days(1));
 /// Exact source identity retained between autocomplete and publications.
 #[derive(Debug)]

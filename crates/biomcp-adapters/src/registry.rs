@@ -15,6 +15,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
     &crate::europepmc::SPEC,
+    &crate::litvar::SPEC,
     &crate::pubtator::SPEC,
     &crate::pmc_oa::SPEC,
     &crate::icite::SPEC,
@@ -52,6 +53,12 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::LitVar {
+        return leg.probe(
+            &crate::litvar::AUTOCOMPLETE,
+            &[("query", biomcp_fetch::Arg::Text("rs121434592"))],
+        );
+    }
     if spec.source == Source::Oncokb {
         return leg.probe(&crate::oncokb::INFO, &[]);
     }

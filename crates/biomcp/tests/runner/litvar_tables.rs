@@ -118,6 +118,32 @@ fn boundaries() -> Check {
             exit,
         )?;
     }
+    health()?;
+    Ok(())
+}
+fn health() -> Check {
+    let disabled = biomcp_adapters::registry::SOURCES
+        .iter()
+        .filter(|spec| spec.source != biodata::Source::LitVar)
+        .map(|spec| spec.source.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    let output = checked_case(
+        "article/litvar/akt1-rsid-citations",
+        &["health", "--disable-sources", &disabled],
+        |_, _| {},
+        json!({"/status":"complete"}),
+        0,
+    )?;
+    let row = output["result"]["sources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["source"] == "litvar")
+        .ok_or("LitVar missing from source health")?;
+    assert_eq!(row["state"], "ok");
+    assert_eq!(row["usage"], "open");
+    assert_eq!(row["terms_url"], biomcp_adapters::litvar::SPEC.terms.url);
     Ok(())
 }
 fn failures() -> Check {
