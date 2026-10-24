@@ -1,6 +1,7 @@
 # 0116 — Investigate the drug slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2291bd852f1ff4fc40bfec59227d06f523b2315c
 
 Milestone: 3
 
