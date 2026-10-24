@@ -58,7 +58,30 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(more);
     problems.extend(issues);
     local = local.or(error);
-    let overall = if matches!(
+    let overall = overall(resolution, &sources, &problems);
+    let out = Outcome {
+        status: overall,
+        body: QueryBody::VariantCard(VariantCard {
+            resolution,
+            source: spec.source,
+            candidates: candidates.into(),
+            rejection,
+        }),
+        page,
+        sources,
+        problems,
+        next,
+        local,
+    };
+    command.finish(deadline.remaining());
+    out
+}
+fn overall(
+    resolution: VariantResolution,
+    sources: &[biodata::SourceOutcome],
+    problems: &[biodata::Problem],
+) -> Status {
+    if matches!(
         resolution,
         VariantResolution::Unavailable | VariantResolution::Rejected
     ) {
@@ -76,23 +99,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         Status::Partial
     } else {
         Status::Complete
-    };
-    let out = Outcome {
-        status: overall,
-        body: QueryBody::VariantCard(VariantCard {
-            resolution,
-            source: spec.source,
-            candidates: candidates.into(),
-            rejection,
-        }),
-        page,
-        sources,
-        problems,
-        next,
-        local,
-    };
-    command.finish(deadline.remaining());
-    out
+    }
 }
 fn classify(len: usize) -> VariantResolution {
     match len {

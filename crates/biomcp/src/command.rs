@@ -87,7 +87,7 @@ fn dispatch_using(
                 .with_secrets(secrets)
                 .restrict_sources(disabled)
                 .restrict_uses(biomcp_adapters::registry::disabled_uses(
-                    &options.disable_sources,
+                    &parsed.globals.disable_sources,
                 ));
             &owned
         }
