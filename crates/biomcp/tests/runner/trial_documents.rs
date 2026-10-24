@@ -122,6 +122,11 @@ fn saves() -> Check {
     )?;
     assert_eq!(out.pointer("/result/file/data/sha256"), Some(&json!(sha)));
     assert_eq!(fs::read(&stdio)?, bytes);
+    let offline_path=folder.join("offline.pdf");
+    let mut offline=env.globals(None,true); offline.extend(args(&offline_path));
+    let result=env.command(env!("CARGO_BIN_EXE_biomcp"),&offline).output()?;
+    assert_eq!(result.status.code(),Some(4));
+    assert!(!offline_path.exists());
     assert_eq!(fs::read_dir(folder)?.count(), 2);
     Ok(())
 }
@@ -146,6 +151,15 @@ fn failures() -> Check {
     replace.push("--replace".into());
     command(&env, &replay, &replace, 5)?;
     assert_eq!(fs::read(&path)?, b"caller original");
+    let bad=env.root().join("not-pdf");
+    copy_capture("trial/documents/synthetic",&bad,|_,_|{})?;
+    for file in fs::read_dir(bad.join("ctgov"))? {
+        let path=file?.path();
+        if path.extension().is_some_and(|s|s=="bin") {fs::write(path,b"<html>source login</html>")?;}
+    }
+    let out=command(&env,&bad,&replace,4)?;
+    assert_eq!(out.pointer("/result/file/reason"),Some(&json!("not_pdf")));
+    assert_eq!(fs::read(&path)?,b"caller original");
     let malformed = env.root().join("malformed-manifest");
     copy_capture("trial/get/NCT04303780", &malformed, |_, r| {
         if let Some(d) = r.pointer_mut(
