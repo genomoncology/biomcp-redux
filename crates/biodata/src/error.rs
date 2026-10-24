@@ -2,6 +2,22 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// The checked EntrezGeneIdInvalid value was rejected.
+    EntrezGeneIdInvalid,
+    /// The checked GeneSymbolInvalid value was rejected.
+    GeneSymbolInvalid,
+    /// The checked OmimIdInvalid value was rejected.
+    OmimIdInvalid,
+    /// The checked UniProtAccInvalid value was rejected.
+    UniProtAccInvalid,
+    /// The checked CytobandInvalid value was rejected.
+    CytobandInvalid,
+    /// The checked EnsemblGeneIdInvalid value was rejected.
+    EnsemblGeneIdInvalid,
+    /// The checked EnsemblTranscriptInvalid value was rejected.
+    EnsemblTranscriptInvalid,
+    /// The checked RefSeqTranscriptInvalid value was rejected.
+    RefSeqTranscriptInvalid,
     /// An HGNC identifier was not canonical positive u32 text.
     HgncIdInvalid,
     /// A date had invalid precision or calendar components.
@@ -24,6 +40,15 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::EntrezGeneIdInvalid => "id.entrez.invalid",
+            Self::GeneSymbolInvalid => "gene.symbol.invalid",
+            Self::OmimIdInvalid => "id.omim.invalid",
+            Self::UniProtAccInvalid => "id.uniprot.invalid",
+            Self::CytobandInvalid => "cytoband.invalid",
+            Self::EnsemblGeneIdInvalid => "id.ensembl_gene.invalid",
+            Self::EnsemblTranscriptInvalid => "id.ensembl_transcript.invalid",
+            Self::RefSeqTranscriptInvalid => "id.refseq_transcript.invalid",
+
             Self::HgncIdInvalid => "id.hgnc.invalid",
             Self::DateInvalid => "date.invalid",
             Self::PositionZero => "position.zero",
