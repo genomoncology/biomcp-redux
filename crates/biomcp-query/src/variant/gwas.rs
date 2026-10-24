@@ -125,10 +125,14 @@ fn map(row: gwas::Association) -> GwasAssociation {
             })
             .collect(),
         p_value: row.p_value,
-        beta: row.beta,
+        beta: optional_text(row.beta),
         odds_ratio: row.or_per_copy_num,
-        risk_frequency: row.risk_frequency,
-        interval: row.range,
-        publication: row.pubmed_id,
+        risk_frequency: optional_text(row.risk_frequency),
+        interval: optional_text(row.range),
+        publication: optional_text(row.pubmed_id),
     }
+}
+
+fn optional_text(value: Option<String>) -> Option<biodata::Text> {
+    value.and_then(|v| v.parse().ok())
 }
