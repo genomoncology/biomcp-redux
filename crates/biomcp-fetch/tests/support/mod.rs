@@ -25,7 +25,10 @@ impl Reply for Answer {
 
 pub(super) struct Request {
     pub(super) text: String,
-    #[allow(dead_code, reason = "Only quota and retry contracts inspect request timing")]
+    #[allow(
+        dead_code,
+        reason = "Only quota and retry contracts inspect request timing"
+    )]
     pub(super) started: Instant,
     reply: mpsc::Sender<String>,
 }
