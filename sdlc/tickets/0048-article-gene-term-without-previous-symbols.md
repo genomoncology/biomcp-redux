@@ -1,6 +1,7 @@
 # 0048 — Build the --gene PubMed term without previous symbols
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8775d49efce73d763492bd6c84c9aaa90ad05fc5
 
 Milestone: 1
 

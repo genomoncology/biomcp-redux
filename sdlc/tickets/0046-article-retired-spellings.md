@@ -1,6 +1,7 @@
 # 0046 — Retire the 0.9 article spellings that 1.0 renamed, moved or dropped
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b17ab9e3741249d0668244fefecdeebdc68f5e86
 
 Milestone: 1
 
