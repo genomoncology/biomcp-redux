@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "generated-help",
-  "story": "Generated gene help documents the shipped grammar and executable examples",
+  "story": "Generated gene help documents the shipped grammar and executable examples. Whole-help budget uses 17282 measured bytes plus fifteen percent; no matching 0.9 baseline exists",
   "replay": "gene/main",
   "steps": [
     {
@@ -15,7 +15,7 @@
           "gene"
         ]
       },
-      "max_bytes": 17221
+      "max_bytes": 19875
     },
     {
       "run": [

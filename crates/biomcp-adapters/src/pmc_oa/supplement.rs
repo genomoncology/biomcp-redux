@@ -110,6 +110,8 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
 /// Used only by explicit saves, including formats the row reader cannot parse.
 pub fn download_bytes(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, RequestError> {
     let (ep, params) = request(file)?;
+    // Explicit raw saves never read or admit source file bodies in the reply cache.
+    let ep = ep.fresh(biomcp_fetch::Freshness::Never);
     leg.bytes(&ep, &params)
 }
 type RequestParts<'a> = (biomcp_fetch::Endpoint, Vec<(&'static str, Arg<'a>)>);
