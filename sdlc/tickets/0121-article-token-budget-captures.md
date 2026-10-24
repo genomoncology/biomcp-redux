@@ -8,7 +8,7 @@ Depends on: 0119
 
 ## Outcome
 
-Each article token table question that 0119 lists as having no recording gets one bounded keyless capture from landed main, becomes a replay case with a size ceiling, and has its measured tokens entered in `planning/slices/article.md`. When every row is measured or marked failed, the PM ticks the article token budget box.
+Each article token table question that 0119 lists as having no recording gets one bounded keyless capture from landed main, becomes a replay case with a size ceiling, and has its measured tokens entered in `planning/slices/article.md`. When every row is measured or marked failed, the commit that lands this ticket ticks the article token budget box.
 
 - Why: 0119 found exact recordings for only six of the table's questions. The comparison with 0.9 needs the same questions, so the missing ones are recorded rather than replaced.
 - Proof: one pm job from landed main runs the listed commands with existing retries only and no refresh loops. Each success becomes a replay case, from outside the repo where terms bar storage. Each failure is recorded through pm progress and its row says so. Then make landing-gate runs through pm job.
