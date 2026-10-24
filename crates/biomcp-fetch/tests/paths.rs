@@ -167,10 +167,12 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
         "..",
         "https://other/x",
         "//other",
-        "x/y",
         "x\\y",
         "x%40y",
         "x\ny",
+        "../x",
+        "x/../y",
+        "x/./y",
     ] {
         assert!(
             matches!(PathSegment::new(invalid), Err(InputError::Path)),

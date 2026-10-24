@@ -49,7 +49,8 @@ impl PaperSummary {
         )
     }
 }
-fn paper(input: &ArticleInput) -> Result<Endpoint, RequestError> {
+/// Bind a checked article identity to the shared graph source without accepting a free URL.
+pub fn paper_endpoint(input: &ArticleInput) -> Result<Endpoint, RequestError> {
     let value = match input {
         ArticleInput::Pmid(id) => format!("PMID:{id}"),
         ArticleInput::Pmcid(id) => format!("PMCID:{id}"),
@@ -61,7 +62,7 @@ fn paper(input: &ArticleInput) -> Result<Endpoint, RequestError> {
 /// Read the summary under the shared optional-key source declaration.
 pub fn summary(leg: &Leg<'_>, input: &ArticleInput) -> Result<PaperSummary, RequestError> {
     leg.json(
-        &paper(input)?,
+        &paper_endpoint(input)?,
         &[(
             "fields",
             Arg::Text("tldr,citationCount,influentialCitationCount"),
@@ -136,7 +137,7 @@ pub fn edges(
         "citations"
     })
     .map_err(RequestError::Input)?;
-    let endpoint = paper(input)?.with_segments(&[suffix]);
+    let endpoint = paper_endpoint(input)?.with_segments(&[suffix]);
     let mut args = vec![
         ("limit", Arg::Num(1000)),
         (
