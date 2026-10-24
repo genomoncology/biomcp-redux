@@ -27,8 +27,8 @@ pub struct VariantComponent {
     pub terms: ComponentTerms,
     /// Component name from aggregator metadata.
     pub name: Text,
-    /// Component version; null when the source reports none.
-    #[serde(default)]
+    /// Component version; omitted when the source reports none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
     /// Component license URL, without any inferred grant.
     pub license: Text,
