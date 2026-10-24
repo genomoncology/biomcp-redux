@@ -43,6 +43,7 @@ report() {
     report_result=0
     cargo llvm-cov report --locked --ignore-filename-regex "$ignore" "$@" >"$summary" || report_result=$?
     awk -v label="$label" '/^TOTAL/ { print "coverage (" label "; product source): " $0 }' "$summary"
+    counts=$(awk '/^TOTAL/ { print $8, $9 }' "$summary")
     return "$report_result"
 }
 
@@ -63,6 +64,7 @@ case "${1:-run}" in
         fi
         result=0
         report 'outside-in cases' --fail-under-lines "$threshold" || result=$?
+        cases_counts=$counts
         # Save only cases profiles outside the directory cargo-llvm-cov scans.
         for profile in "$profile_dir"/*.profraw; do
             [ ! -f "$profile" ] || mv "$profile" "$saved/"
@@ -70,12 +72,29 @@ case "${1:-run}" in
         touch "$saved/collecting-library"
         LLVM_PROFILE_FILE="$profile_dir/library-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! cargo test --workspace --exclude biomcp --locked ||
+        if ! cargo test --workspace --exclude biomcp --features biodata/schema --locked ||
            ! cargo test --locked -p biomcp --test ratchets; then
             echo 'coverage: library collection incomplete because its suite failed' >&2
             exit 1
         fi
         report 'permitted library tests; excluded from floor'
+        library_counts=$counts
+        # The union measures overlap only. It never supplies the floor check.
+        for profile in "$saved"/*.profraw; do
+            [ ! -f "$profile" ] || cp "$profile" "$profile_dir/"
+        done
+        cargo llvm-cov report --locked --ignore-filename-regex "$ignore" >"$summary"
+        union_counts=$(awk '/^TOTAL/ { print $8, $9 }' "$summary")
+        awk -v cases="$cases_counts" -v library="$library_counts" -v union="$union_counts" '
+            BEGIN {
+                split(cases, a); split(library, b); split(union, u)
+                if (a[1] != b[1] || a[1] != u[1]) {
+                    print "coverage: collection denominators differ" > "/dev/stderr"
+                    exit 1
+                }
+                printf "coverage lines: outside only %d; library only %d; both %d; unobserved %d; incomplete collections 0\n", b[2]-u[2], a[2]-u[2], u[1]-a[2]-b[2]+u[2], u[2]
+            }
+        '
         # Restore cases profiles even when their floor check failed.
         touch "$complete"
         exit "$result"
