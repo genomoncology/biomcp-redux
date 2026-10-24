@@ -90,7 +90,7 @@ pub enum GeneResolution {
     /// One resolved identity and its source match.
     Resolved {
         /// The whole gene entity.
-        gene: Gene,
+        gene: Box<Gene>,
         /// How the source matched the input.
         r#match: Match,
     },

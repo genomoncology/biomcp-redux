@@ -156,7 +156,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         );
     }
     if let Some(value) = node.get("const") {
-        if !value.is_string() { return Err("unsupported non-string const".into()); }
+        if !value.is_string() {
+            return Err("unsupported non-string const".into());
+        }
         shape.values = Some(BTreeSet::from([value.to_string()]));
     }
     if let Some(required) = node.get("required") {
@@ -177,7 +179,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     Ok(())
 }
 
-// Core Option<Text> is the only union these types currently generate.
+// Nullable generated references and strings remain distinct from tagged unions.
 fn optional_branches(branches: &Value) -> Check<&[Value]> {
     let branches = branches.as_array().ok_or("invalid anyOf")?;
     if branches.len() != 2
@@ -206,18 +208,43 @@ fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
     let mut tags = BTreeSet::new();
     let mut discriminator = None;
     for branch in branches.as_array().ok_or("invalid oneOf")? {
-        if branch["type"] != "object" { return Err("unsupported oneOf branch".into()); }
-        let properties = branch["properties"].as_object().ok_or("missing tagged properties")?;
-        let candidates: Vec<_> = properties.iter().filter_map(|(key, value)| value.get("const").and_then(Value::as_str).map(|value| (key, value))).collect();
-        let [(field, value)] = candidates.as_slice() else { return Err("expected one discriminator".into()); };
-        if !branch["required"].as_array().is_some_and(|required| required.contains(&Value::String((*field).clone()))) { return Err("optional discriminator".into()); }
-        if discriminator.is_some_and(|old| old != field.as_str()) { return Err("inconsistent discriminator".into()); }
+        if branch["type"] != "object" {
+            return Err("unsupported oneOf branch".into());
+        }
+        let properties = branch["properties"]
+            .as_object()
+            .ok_or("missing tagged properties")?;
+        let candidates: Vec<_> = properties
+            .iter()
+            .filter_map(|(key, value)| {
+                value
+                    .get("const")
+                    .and_then(Value::as_str)
+                    .map(|value| (key, value))
+            })
+            .collect();
+        let [(field, value)] = candidates.as_slice() else {
+            return Err("expected one discriminator".into());
+        };
+        if !branch["required"]
+            .as_array()
+            .is_some_and(|required| required.contains(&Value::String((*field).clone())))
+        {
+            return Err("optional discriminator".into());
+        }
+        if discriminator.is_some_and(|old| old != field.as_str()) {
+            return Err("inconsistent discriminator".into());
+        }
         discriminator = Some(field.as_str());
         let tag = format!("{field}={value}");
-        if !tags.insert(tag.clone()) { return Err("duplicate discriminator".into()); }
+        if !tags.insert(tag.clone()) {
+            return Err("duplicate discriminator".into());
+        }
         result.push((tag, branch));
     }
-    if result.is_empty() { return Err("empty tagged union".into()); }
+    if result.is_empty() {
+        return Err("empty tagged union".into());
+    }
     Ok(result)
 }
 

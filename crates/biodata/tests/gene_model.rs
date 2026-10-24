@@ -78,7 +78,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
     round_trip(&entity)?;
     for resolution in [
         GeneResolution::Resolved {
-            gene: entity,
+            gene: Box::new(entity),
             r#match: matching,
         },
         GeneResolution::Ambiguous {

@@ -88,7 +88,8 @@ fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Che
             "7r34",
             "Xp21.2-p21.1",
             "7q",
-            "7q34.", "7q04",
+            "7q34.",
+            "7q04",
             "MTp11",
         ],
     )?;
@@ -137,7 +138,9 @@ fn gene_inputs_classify_explicit_identifiers_and_keep_alias_text() -> Check {
     for text in [
         "",
         " \t",
-        "HGNC:x", "hgnc:1097", "ensg00000157764",
+        "HGNC:x",
+        "hgnc:1097",
+        "ensg00000157764",
         "HGNC:0",
         "ENSGwrong",
         "0",
