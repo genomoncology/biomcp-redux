@@ -1,7 +1,7 @@
 //! Candidate-specific source sections under one command deadline.
 use crate::Ctx;
 use biodata::{
-    Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
+    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
     VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
@@ -21,6 +21,8 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in [
+            VariantSection::Clinvar,
+            VariantSection::Erepo,
             VariantSection::Population,
             VariantSection::Gwas,
             VariantSection::Civic,
@@ -42,6 +44,8 @@ pub(super) fn apply(
                 };
             }
             match section {
+                VariantSection::Clinvar => attach!(clinvar, super::assertions::section(cx, query, candidates, *deadline, AssertionSource::Clinvar)),
+                VariantSection::Erepo => attach!(erepo, super::assertions::section(cx, query, candidates, *deadline, AssertionSource::Erepo)),
                 VariantSection::Predict => attach!(
                     predict,
                     super::predict::section(cx, query, candidates, deadline)
@@ -100,6 +104,8 @@ impl Collected {
 }
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
+        VariantSection::Clinvar => Some(Source::ClinVar),
+        VariantSection::Erepo => Some(Source::Erepo),
         VariantSection::Population => Some(Source::Gnomad),
         VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Civic => Some(Source::Civic),
@@ -115,7 +121,7 @@ fn permitted<T>(
 ) -> Result<T> {
     if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
         return (
-            Section::unavailable(source, Reason::Disabled),
+            if matches!(section, VariantSection::Clinvar | VariantSection::Erepo) { Section::Skipped { source, reason: Reason::Disabled } } else { Section::unavailable(source, Reason::Disabled) },
             vec![SourceOutcome {
                 source,
                 state: SourceState::Skipped,

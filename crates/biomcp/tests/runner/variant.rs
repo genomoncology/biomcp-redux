@@ -177,7 +177,7 @@ fn candidates_body(_: &str) -> Result<String, String> {
     Ok(json!({"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
 }
 
-fn source_environment(stub: &Stub) -> Result<Environment, String> {
+pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let ca = environment.root().join("synthetic-ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;

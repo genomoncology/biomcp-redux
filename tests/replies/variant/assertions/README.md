@@ -1,0 +1,1 @@
+These are explicitly synthetic responses. Their request identities come from actual CLI recordings. The failure cases change only exchanges. The domain case projects clinically reviewed source labels and dates. No response claims a fresh source assertion. Original source bodies remain outside Git because their reuse terms are unverified.

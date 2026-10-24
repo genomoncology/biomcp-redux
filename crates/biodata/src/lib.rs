@@ -158,11 +158,13 @@ pub use query::{
 };
 pub use response::VariantPage;
 
-pub use query::{CivicClaimKind, VariantSection};
+pub use query::{AssertionSource, CivicClaimKind, VariantAssertionsGet, VariantSection};
 pub use response::{
-    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
-    HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation, OncokbVariantRecord,
-    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation,
+    OncokbVariantRecord, UnmappedAssertion, VariantAssertion, VariantAssertions, VariantCivic,
+    VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,

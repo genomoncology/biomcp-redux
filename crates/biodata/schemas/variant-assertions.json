@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "AssertionSource": {
+      "description": "Native assertion provider.",
+      "enum": [
+        "clinvar",
+        "erepo"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "VariantInput": {
+      "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
+      "type": "string"
+    }
+  },
+  "$id": "biodata.variant-assertions/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Page assertions from one explicitly selected evidence source.",
+  "properties": {
+    "assertion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native assertion accession or document ID."
+    },
+    "input": {
+      "$ref": "#/$defs/VariantInput",
+      "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
+      "x-positional": 0
+    },
+    "limit": {
+      "default": 3,
+      "description": "Assertions per page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Assertions to skip in source order.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/AssertionSource",
+      "description": "One native source; no fallback or text search."
+    },
+    "version": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "VCV archive or ERepo document version; RCV/SCV selectors match a returned native version."
+    }
+  },
+  "required": [
+    "input",
+    "source"
+  ],
+  "title": "VariantAssertionsGet",
+  "type": "object"
+}

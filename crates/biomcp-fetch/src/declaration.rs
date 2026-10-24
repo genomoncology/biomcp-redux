@@ -32,6 +32,7 @@ impl SourceSpec {
             publisher: false,
             byte_limit: None,
             json_rejections: false,
+            json_absence: false,
         }
     }
     /// Declare a credential-free publisher download at a checked dynamic origin.
@@ -81,6 +82,7 @@ pub struct Endpoint {
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
     pub(crate) json_rejections: bool,
+    pub(crate) json_absence: bool,
 }
 
 /// Whether a source requires a credential before sending.
@@ -180,6 +182,12 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Decode a checked JSON HTTP404 absence envelope without caching it.
+    /// The reply type must distinguish exact source absence from an arbitrary route404.
+    pub const fn json_absence(mut self) -> Self {
+        self.json_absence = true;
+        self
+    }
     /// Decode typed JSON validation rejections (HTTP 400/422), never admitting them to cache.
     /// The reply type must check both success and rejection schemas. Other statuses retain normal retry semantics.
     pub const fn json_rejections(mut self) -> Self {

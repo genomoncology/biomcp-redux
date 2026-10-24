@@ -94,6 +94,11 @@ pub use nci_detail::{
 mod trial_document;
 pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
 
+mod variant_assertions;
+pub use variant_assertions::{
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
+};
 mod variant_civic;
 pub use variant_civic::{
     CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,

@@ -33,6 +33,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
         Request::VariantNormalize(_) => "biodata.variant-normalize/2",
         Request::SearchVariant(_) => "biodata.variant-search/2",
@@ -68,6 +69,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "trial", "biodata.trial-search/1"),
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
+    ("variant", "assertions", "biodata.variant-assertions/1"),
     ("get", "variant", "biodata.variant-get/2"),
     ("variant", "population", "biodata.variant-population/2"),
     ("search", "variant", "biodata.variant-search/2"),

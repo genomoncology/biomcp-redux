@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Read source-native variant assertions.
+    VariantAssertions(crate::VariantAssertionsGet),
     /// Read source ancestry observations.
     VariantPopulation(crate::VariantPopulationQuery),
     /// Observe an exact allele in an explicitly selected cohort.

@@ -296,6 +296,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
+    trials.extend(variant_assertion_wire::trials().into_iter().chain(variant_assertions::trials()).collect::<Vec<_>>());
     trials.extend(variant_population::trials());
     trials.extend(oncokb::trials());
     trials.extend(oncokb_context::trials());
@@ -449,3 +450,6 @@ pub(super) fn installed_process_proof() -> Result<(), String> {
 pub(super) fn installed_http_trials() -> Vec<Trial> {
     http::trials()
 }
+
+mod variant_assertions;
+mod variant_assertion_wire;
