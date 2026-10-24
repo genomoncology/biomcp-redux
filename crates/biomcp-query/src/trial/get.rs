@@ -92,7 +92,7 @@ fn restore(
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let id = query.input()[0];
+    let id = query.input().first().copied().ok_or(CacheError::Database)?;
     if cx.fetch.disabled(Source::ClinicalTrialsGov) {
         let leg = cx.fetch.leg(&ctgov::SPEC, deadline);
         let result = ctgov::detail::get(&leg, id);

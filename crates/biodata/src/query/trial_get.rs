@@ -43,7 +43,7 @@ impl TryFrom<Fields> for TrialGet {
         if !(1..=20).contains(&v.input.len())
             || !(1..=50).contains(&v.limit)
             || (v.pool.is_some() || v.offset != 0)
-                && (v.input.len() != 1 || v.section.len() != 1 || v.section[0] == TrialSection::All)
+                && (v.input.len() != 1 || v.section.len() != 1 || v.section.first() == Some(&TrialSection::All))
             || v.offset != 0 && v.pool.is_none()
         {
             return Err(QueryInvalid);

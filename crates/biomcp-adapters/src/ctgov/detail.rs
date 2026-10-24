@@ -25,11 +25,13 @@ pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestE
         .get("/studies")
         .fresh(Freshness::Days(1))
         .with_segments(&[biomcp_fetch::PathSegment::new(&id.to_string())?]);
-    let (raw, metadata) = leg.json_received_checked::<Study>(
-        &endpoint,
-        &[],
-        |raw| if raw.protocol_section.identification_module.nct_id == id { Ok(()) } else { Err(BadReply) },
-    )?;
+    let (raw, metadata) = leg.json_received_checked::<Study>(&endpoint, &[], |raw| {
+        if raw.protocol_section.identification_module.nct_id == id {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    })?;
     Ok((raw.protocol_section.detail(), metadata))
 }
 #[derive(Deserialize)]
