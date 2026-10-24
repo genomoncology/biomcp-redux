@@ -160,3 +160,12 @@ fn static_quota_references_are_not_quota_declarations() -> Check {
     )?;
     Ok(())
 }
+
+#[test]
+fn case_parser_stays_outside_runtime_dependencies() -> Check {
+    rejects(
+        "crates/biomcp/Cargo.toml",
+        "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
+        "forbidden dependencies dependency",
+    )
+}

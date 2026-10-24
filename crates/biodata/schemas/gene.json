@@ -7,7 +7,12 @@
         "GRCh38",
         "unstated"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38.",
+        " Source did not state an assembly."
+      ]
     },
     "Contig": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
@@ -31,7 +36,11 @@
         "approved",
         "withdrawn"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " An HGNC approved record.",
+        " An HGNC withdrawn record."
+      ]
     },
     "GeneSymbol": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
@@ -85,7 +94,14 @@
         "phenotype",
         "other"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
     },
     "LocusType": {
       "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
@@ -116,7 +132,34 @@
         "unknown",
         "virus_integration_site"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC gene with protein product.",
+        " HGNC rna cluster.",
+        " HGNC long non coding rna.",
+        " HGNC micro rna.",
+        " HGNC misc rna.",
+        " HGNC ribosomal rna.",
+        " HGNC small nuclear rna.",
+        " HGNC small nucleolar rna.",
+        " HGNC transfer rna.",
+        " HGNC vault rna.",
+        " HGNC y rna.",
+        " HGNC phenotype only.",
+        " HGNC pseudogene.",
+        " HGNC complex locus constituent.",
+        " HGNC endogenous retrovirus.",
+        " HGNC fragile site.",
+        " HGNC immunoglobulin gene.",
+        " HGNC immunoglobulin pseudogene.",
+        " HGNC readthrough.",
+        " HGNC region.",
+        " HGNC t cell receptor gene.",
+        " HGNC t cell receptor pseudogene.",
+        " HGNC transposable element.",
+        " HGNC unknown.",
+        " HGNC virus integration site."
+      ]
     },
     "ManeSelect": {
       "additionalProperties": false,
@@ -174,7 +217,11 @@
         "+",
         "-"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Forward strand.",
+        " Reverse strand."
+      ]
     },
     "Summary": {
       "additionalProperties": false,
@@ -211,7 +258,10 @@
       "enum": [
         "refseq"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " RefSeq attribution."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

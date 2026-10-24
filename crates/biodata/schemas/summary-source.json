@@ -6,5 +6,8 @@
     "refseq"
   ],
   "title": "SummarySource",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " RefSeq attribution."
+  ]
 }

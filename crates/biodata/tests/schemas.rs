@@ -38,6 +38,7 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        Envelope<Help> => ("help", "biomcp.help/1"),
         Envelope<KeyHelp> => ("key", "biomcp.key/1"),
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),

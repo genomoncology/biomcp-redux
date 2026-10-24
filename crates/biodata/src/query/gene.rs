@@ -29,6 +29,7 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(length(min = MIN_INPUTS, max = MAX_INPUTS), extend("x-positional" = 0)))]
     input: Box<[GeneInput]>,
     /// Requested section words, preserving caller order and repetitions.
+    /// Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[GeneSectionWord]>,

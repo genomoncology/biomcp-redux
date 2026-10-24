@@ -15,6 +15,7 @@ serde_json.workspace = true
 biodata = { path = "../biodata", features = ["schema"] }
 
 [build-dependencies]
+serde-saphyr.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]

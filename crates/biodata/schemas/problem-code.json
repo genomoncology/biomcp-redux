@@ -6,5 +6,8 @@
     "value.unknown"
   ],
   "title": "ProblemCode",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " The field value was not recognized."
+  ]
 }

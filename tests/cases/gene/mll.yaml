@@ -33,7 +33,8 @@
           "includes": "key"
         }
       },
-      "max_bytes": 3000
+      "max_bytes": 3000,
+      "max_tokens": 650
     }
   ]
 }

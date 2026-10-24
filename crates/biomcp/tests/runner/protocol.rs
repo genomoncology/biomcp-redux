@@ -5,7 +5,7 @@ use super::{
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::{fs, io::Write, path::Path, process::Stdio};
+use std::{io::Write, process::Stdio};
 
 type Check = Result<(), String>;
 
@@ -320,19 +320,20 @@ fn discovery() -> Check {
     if text.len() > 1500 {
         return Err("command description exceeds budget".into());
     }
-    let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join("../biodata/schemas");
-    for entry in fs::read_dir(directory).map_err(|e| e.to_string())? {
-        let path = entry.map_err(|e| e.to_string())?.path();
-        if path.extension().is_some_and(|e| e == "json") {
-            let value: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?;
-            let id = value
-                .get("$id")
-                .and_then(Value::as_str)
-                .ok_or("artifact ID missing")?;
-            if !text.contains(id) {
-                return Err(format!("description misses artifact {id}"));
-            }
+    for word in [
+        "protein",
+        "civic",
+        "clingen",
+        "constraint",
+        "expression",
+        "pathways",
+        "oncokb",
+        "all",
+        "--band",
+        "--locus-group",
+    ] {
+        if !text.contains(word) {
+            return Err(format!("description misses {word}"));
         }
     }
     Ok(())

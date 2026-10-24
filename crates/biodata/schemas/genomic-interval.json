@@ -7,7 +7,12 @@
         "GRCh38",
         "unstated"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38.",
+        " Source did not state an assembly."
+      ]
     },
     "Contig": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
@@ -42,7 +47,11 @@
         "+",
         "-"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Forward strand.",
+        " Reverse strand."
+      ]
     }
   },
   "$id": "biodata.genomic-interval/1",

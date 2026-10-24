@@ -30,5 +30,32 @@
     "virus_integration_site"
   ],
   "title": "LocusType",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " HGNC gene with protein product.",
+    " HGNC rna cluster.",
+    " HGNC long non coding rna.",
+    " HGNC micro rna.",
+    " HGNC misc rna.",
+    " HGNC ribosomal rna.",
+    " HGNC small nuclear rna.",
+    " HGNC small nucleolar rna.",
+    " HGNC transfer rna.",
+    " HGNC vault rna.",
+    " HGNC y rna.",
+    " HGNC phenotype only.",
+    " HGNC pseudogene.",
+    " HGNC complex locus constituent.",
+    " HGNC endogenous retrovirus.",
+    " HGNC fragile site.",
+    " HGNC immunoglobulin gene.",
+    " HGNC immunoglobulin pseudogene.",
+    " HGNC readthrough.",
+    " HGNC region.",
+    " HGNC t cell receptor gene.",
+    " HGNC t cell receptor pseudogene.",
+    " HGNC transposable element.",
+    " HGNC unknown.",
+    " HGNC virus integration site."
+  ]
 }

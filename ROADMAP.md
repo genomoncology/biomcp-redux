@@ -52,14 +52,14 @@ Each entity below repeats these steps.
 
 - [x] Investigation
 - [x] Questions answered by Ian
-- [ ] Biodata types and schema
+- [x] Biodata types and schema
 - [x] Search
-- [ ] Get and sections
-- [ ] Outside-in cases
-- [ ] Token budget
-- [ ] MCP parity
-- [ ] Docs
-- [ ] 0.9 accounting
+- [x] Get and sections
+- [x] Outside-in cases
+- [x] Token budget
+- [x] MCP parity
+- [x] Docs
+- [x] 0.9 accounting
 
 Sources:
 - [x] HGNC (bundle, identity and names)
@@ -68,15 +68,14 @@ Sources:
 - [x] Reactome
 - [x] CIViC
 - [x] ClinGen
-- [ ] GenCC (bundle)
 - [x] gnomAD (constraint)
-- [ ] GTEx
 - [x] Human Protein Atlas
 - [x] OncoKB (keyed)
-- [ ] COSMIC Cancer Gene Census (keyed)
+- [ ] COSMIC Cancer Gene Census (keyed; awaits a ruling)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
-- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG
+- Deferred: GenCC (bundle)
+- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG, GTEx
 
 ### Article
 

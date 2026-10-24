@@ -5,7 +5,10 @@
       "enum": [
         "value.unknown"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
@@ -24,7 +27,22 @@
         "civic",
         "oncokb"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

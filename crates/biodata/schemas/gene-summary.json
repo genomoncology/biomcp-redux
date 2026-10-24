@@ -9,7 +9,10 @@
       "enum": [
         "refseq"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " RefSeq attribution."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

@@ -10,7 +10,11 @@
         "approved",
         "withdrawn"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " An HGNC approved record.",
+        " An HGNC withdrawn record."
+      ]
     },
     "GeneSymbol": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
@@ -29,7 +33,14 @@
         "phenotype",
         "other"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
     },
     "Match": {
       "additionalProperties": false,
@@ -62,7 +73,17 @@
         "ensembl_id",
         "band"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Current symbol.",
+        " Previous symbol.",
+        " HGNC alias.",
+        " NCBI-only alias.",
+        " HGNC identifier.",
+        " NCBI Gene identifier.",
+        " Ensembl gene identifier.",
+        " Cytogenetic band."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

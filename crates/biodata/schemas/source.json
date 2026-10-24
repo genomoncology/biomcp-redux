@@ -18,5 +18,20 @@
     "oncokb"
   ],
   "title": "Source",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " HGNC.",
+    " MyGene.info.",
+    " Reactome.",
+    " Human Protein Atlas.",
+    " UniProt.",
+    " gnomAD.",
+    " ClinGen.",
+    " PubMed.",
+    " Europe PMC.",
+    " PubTator.",
+    " ClinicalTrials.gov.",
+    " CIViC.",
+    " OncoKB."
+  ]
 }

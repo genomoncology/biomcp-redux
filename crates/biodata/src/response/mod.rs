@@ -7,8 +7,10 @@ pub use error::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus};
 
 mod envelope;
 mod gene;
+mod help;
 mod key;
 pub use gene::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
+pub use help::{Help, HelpArgument, HelpCommand, HelpWord};
 pub use key::KeyHelp;
 mod page;
 mod section;

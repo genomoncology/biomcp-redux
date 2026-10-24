@@ -13,7 +13,14 @@
         "phenotype",
         "other"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",

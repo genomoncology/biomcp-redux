@@ -7,5 +7,9 @@
     "withdrawn"
   ],
   "title": "GeneStatus",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " An HGNC approved record.",
+    " An HGNC withdrawn record."
+  ]
 }

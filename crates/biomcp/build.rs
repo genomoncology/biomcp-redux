@@ -32,5 +32,33 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
+    let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases/gene");
+    let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
+    for (verb, file, index) in [
+        ("get", "kras.yaml", 0),
+        ("get", "braf.yaml", 0),
+        ("search", "search.yaml", 0),
+        ("search", "search.yaml", 1),
+    ] {
+        let path = cases.join(file);
+        println!("cargo:rerun-if-changed={}", path.display());
+        let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
+        let steps = case
+            .get("steps")
+            .and_then(serde_json::Value::as_array)
+            .ok_or("case steps required")?;
+        let run = serde_json::from_value(
+            steps
+                .get(index)
+                .and_then(|step| step.get("run"))
+                .ok_or("missing example step")?
+                .clone(),
+        )?;
+        examples.entry(verb.into()).or_default().push(run);
+    }
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("examples.json"),
+        serde_json::to_vec(&examples)?,
+    )?;
     Ok(())
 }

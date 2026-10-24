@@ -3,6 +3,7 @@ mod command;
 mod config;
 mod exit;
 mod grammar;
+mod help;
 mod mcp;
 mod output;
 mod paths;
@@ -17,6 +18,7 @@ fn main() -> ExitCode {
     if let Ok(grammar::Parsed {
         action: None,
         globals,
+        ..
     }) = grammar::parse(&args)
     {
         let fetch = config::fetch(&globals);

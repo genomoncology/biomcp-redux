@@ -8,5 +8,10 @@
     "unstated"
   ],
   "title": "Build",
-  "type": "string"
+  "type": "string",
+  "x-enum-descriptions": [
+    " Genome Reference Consortium human build 37.",
+    " Genome Reference Consortium human build 38.",
+    " Source did not state an assembly."
+  ]
 }

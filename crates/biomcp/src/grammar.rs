@@ -17,6 +17,7 @@ pub(crate) struct Globals {
 pub(crate) struct Parsed {
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
+    pub(crate) help: Option<Vec<String>>,
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
@@ -24,6 +25,10 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
+pub(crate) const QUERIES: &[(&str, &str)] = &[
+    ("get", "biodata.gene-get/1"),
+    ("search", "biodata.gene-search/1"),
+];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
@@ -48,10 +53,7 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for (verb, id) in [
-        ("get", "biodata.gene-get/1"),
-        ("search", "biodata.gene-search/1"),
-    ] {
+    for &(verb, id) in QUERIES {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         root = root.subcommand(
@@ -62,9 +64,22 @@ fn root() -> Result<Command, ()> {
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
-    root = root.subcommand(Command::new("help").subcommand_required(true).subcommand(
-        Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
-    ));
+    root = root.subcommand(
+        Command::new("help")
+            .subcommand(
+                Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"])),
+            )
+            .subcommand(
+                Command::new("get")
+                    .subcommand_required(true)
+                    .subcommand(Command::new("gene")),
+            )
+            .subcommand(
+                Command::new("search")
+                    .subcommand_required(true)
+                    .subcommand(Command::new("gene")),
+            ),
+    );
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -85,8 +100,18 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         return Ok(Parsed {
             action: None,
             globals,
+            help: None,
         });
     }
+    let help = if verb == "help" {
+        match matches.subcommand() {
+            Some(("key", _)) => None,
+            Some((verb, _)) => Some(vec![verb.into(), "gene".into()]),
+            None => Some(Vec::new()),
+        }
+    } else {
+        None
+    };
     let action = if verb == "help" {
         Action::KeyHelp
     } else if verb == "sync" {
@@ -123,6 +148,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     Ok(Parsed {
         action: Some(action),
         globals,
+        help,
     })
 }
 fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
