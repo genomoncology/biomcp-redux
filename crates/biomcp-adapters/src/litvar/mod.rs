@@ -19,7 +19,8 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::LITVAR,
     deadline: Duration::from_secs(15),
 };
-pub(crate) const AUTOCOMPLETE: Endpoint = SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));
+pub(crate) const AUTOCOMPLETE: Endpoint =
+    SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));
 const PUBLICATIONS: Endpoint = SPEC.get("/variant/get").fresh(Freshness::Days(1));
 /// Exact source identity retained between autocomplete and publications.
 #[derive(Debug)]

@@ -227,7 +227,10 @@ fn prepare_litvar<'a>(
 }
 fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
     let start = leg.remaining();
-    let term = selected.as_ref().ok().map(|selected| selected.rsid().clone());
+    let term = selected
+        .as_ref()
+        .ok()
+        .map(|selected| selected.rsid().clone());
     let result = selected.and_then(|selected| litvar::publications(&leg, selected));
     let elapsed = start.saturating_sub(leg.remaining());
     let error = result.as_ref().err().copied();
