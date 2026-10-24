@@ -49,8 +49,15 @@ impl Environment {
     }
 
     // All case steps and launch-boundary proofs use this child-only boundary.
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "The launcher alone selects an explicitly installed artifact"
+    )]
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
-        let mut command = Command::new(program.as_ref());
+        let installed = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
+            .then(|| std::env::var_os("BIOMCP_TEST_EXECUTABLE"))
+            .flatten();
+        let mut command = Command::new(installed.as_deref().unwrap_or(program.as_ref().as_os_str()));
         command
             .args(args)
             .env_clear()
@@ -65,4 +72,15 @@ impl Environment {
         }
         command
     }
+}
+
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Installed checks copy public fixtures outside the checkout"
+)]
+pub(super) fn fixtures() -> std::path::PathBuf {
+    std::env::var_os("BIOMCP_TEST_FIXTURES").map_or_else(
+        || Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests"),
+        std::path::PathBuf::from,
+    )
 }

@@ -138,8 +138,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             .map_err(|error| error.to_string())?;
     }
     let replay = case.replay.as_ref().map(|name| {
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/replies")
+        launch::fixtures().join("replies")
             .join(name)
     });
     let mut previous = None;
