@@ -38,7 +38,7 @@
           "description": "Dataset release."
         },
         "source": {
-          "$ref": "#/$defs/Source",
+          "$ref": "#/$defs/Text",
           "description": "Source responsible for the claim."
         },
         "submitter": {
@@ -1268,7 +1268,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant_population/2",
+  "$id": "biomcp.variant_population/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1314,7 +1314,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_population/2",
+      "const": "biomcp.variant_population/3",
       "type": "string"
     },
     "sources": {

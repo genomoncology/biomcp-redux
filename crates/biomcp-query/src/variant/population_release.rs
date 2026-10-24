@@ -20,7 +20,7 @@ pub(super) fn frequency(
             // Preserve the existing source-level missing-release problem once.
             if !problems.iter().any(|p| p.field == field) {
                 problems.push(Problem {
-                    source: Source::Gnomad,
+                    source: Source::Gnomad.text(),
                     record: Some(raw.variant_id.clone()),
                     field,
                     code: ProblemCode::ValueUnknown,
@@ -29,14 +29,14 @@ pub(super) fn frequency(
             return None;
         }
     };
-    let dataset = Text::new(Source::Gnomad.into()).ok()?;
+    let dataset = Source::Gnomad.text();
     PopulationFrequency::new(
         subject.clone(),
         Build::GRCh38,
         dataset,
         version.clone(),
         Attribution {
-            source: Source::Gnomad,
+            source: Source::Gnomad.text(),
             record: Some(raw.variant_id.clone()),
             release: Some(version.clone()),
             version: None,
