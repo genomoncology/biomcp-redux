@@ -47,7 +47,13 @@ A slice may replace a question with one that fits its entity better. It keeps at
 
 ### 4. Write the slice design
 
-The slice writes `planning/<entity>.md`. It holds the examples' summary, the source findings, the answers to the delight questions, the types and schema, the command tree with each command's header and drill-downs, the sources kept and dropped with reasons, and the 0.9 accounting. The PM reviews it on its branch and files the slice's tickets from it.
+The slice writes `planning/<entity>.md`. It holds the examples' summary, the source findings, the answers to the delight questions, the types and schema, the command tree with each command's header and drill-downs, the sources kept and dropped with reasons, the progressive disclosure strategy and token budget, and the 0.9 accounting. The PM reviews it on its branch and files the slice's tickets from it.
+
+### Progressive disclosure and token budget
+
+Every slice design states its progressive disclosure strategy. The densest, highest-priority facts for a clinician's question sit at the top of the command and option tree: the search header and the default card answer the common question alone, and each drill-down section or option adds the next most useful layer. Rarely needed or bulky data lives deepest, behind a named section or option, never in the default output.
+
+Every slice design gives a token budget for each command's default JSON output and for each section, measured on the slice's harvested cases, and compares it with 0.9's output for the same questions in tokens and in facts carried. A Redux default output that costs more tokens than 0.9 for the same question needs a stated reason. The cases assert the budget with a byte or token ceiling, so growth fails a check instead of drifting.
 
 ### 5. Build outside-in
 
@@ -60,6 +66,7 @@ Each ticket writes its cases first and watches them fail, then builds the least 
 - **Adapters.** One module per source the design keeps, in the shape `architecture.md` gives, each with a recorded 429, 500, timeout and broken body case.
 - **Commands.** `search <entity>`, `get <entity>` and the drill-downs the design names, through the CLI and the MCP tool, printing the envelope.
 - **Cases.** At least one harvested case for every command and every option. Each case tells a story, names its harvest source, records the date its answer was verified against the live source, and asserts the facts a clinician's question turns on: which result comes first, what order, what count and what status.
+- **Budget.** The progressive disclosure layers and the token budget per command and section, with the 0.9 comparison, enforced by ceilings in the cases.
 - **Accounting.** Every 0.9 command and option for the entity ends as ported, renamed or dropped, with the ruling named in its ticket.
 
 ## What a slice does not do
