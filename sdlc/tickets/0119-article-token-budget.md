@@ -1,6 +1,7 @@
 # 0119 — Measure the shipped article token budget
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a2a9db5c83481f390f3efd231fefb3f2fa9848d6
 
 Milestone: 1
 

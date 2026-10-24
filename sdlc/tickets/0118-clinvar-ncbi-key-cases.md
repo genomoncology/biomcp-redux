@@ -1,6 +1,7 @@
 # 0118 — Prove ClinVar's optional NCBI key with and without a key
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1d068e8f2c976a2d53758d54b4e24996a21aee72
 
 Milestone: 2
 
