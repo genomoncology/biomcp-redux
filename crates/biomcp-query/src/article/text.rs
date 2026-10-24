@@ -26,19 +26,13 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.body = QueryBody::TextPositionError;
         return out;
     };
-    let result = if query.pdf() {
-        super::sections::pdf::read(cx, query, &selection, &mut deadline, &mut out)
-    } else {
-        execute(cx, query, &selection, &mut deadline, &mut out)
-    };
+    let result = execute(cx, query, &selection, &mut deadline, &mut out);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
-            let default_source = if query.pdf() {
-                Source::SemanticScholar
-            } else if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+            let default_source = if matches!(query.input(), ArticleInput::EuropePmc(_)) {
                 Source::EuropePmc
             } else {
                 Source::PmcOa
@@ -152,9 +146,6 @@ fn select(
     out: &mut Outcome,
 ) -> Option<TextContent> {
     let mut content = TextContent {
-        origin: None,
-        first_page: None,
-        last_page: None,
         forms: selection.forms.clone(),
         license: document.license,
         processing_version: document.version,
@@ -227,7 +218,6 @@ fn find(
         }
         size += bytes;
         page.push(TextHit {
-            page: None,
             part: *part,
             markdown: biodata::Markdown::new(row).ok()?,
             heading_path: path.clone(),

@@ -11,12 +11,9 @@ pub struct ArticleText(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// PubMed, PMC or Europe PMC identity; DOI is accepted only with --pdf.
+    /// PubMed or PMC identity. DOI selectors are not accepted by the reader.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     input: ArticleInput,
-    /// Read publisher PDF text instead of structured JATS.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pdf: bool,
     /// One-based outline part number.
     #[serde(
         default,
@@ -48,7 +45,7 @@ struct Fields {
 impl TryFrom<Fields> for ArticleText {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if matches!(v.input, ArticleInput::Doi(_)) && !v.pdf
+        if matches!(v.input, ArticleInput::Doi(_))
             || [v.part.is_some(), v.find.is_some(), v.variant.is_some()]
                 .into_iter()
                 .filter(|v| *v)
@@ -67,29 +64,12 @@ impl ArticleText {
     pub fn part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
         Fields {
             input,
-            pdf: false,
             part: Some(part),
             find: None,
             variant: None,
             offset: 0,
         }
         .try_into()
-    }
-    /// Build a PDF part selector, including a DOI-only paper.
-    pub fn pdf_part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
-        Fields {
-            input,
-            pdf: true,
-            part: Some(part),
-            find: None,
-            variant: None,
-            offset: 0,
-        }
-        .try_into()
-    }
-    /// Whether the explicit PDF reader was selected.
-    pub fn pdf(&self) -> bool {
-        self.0.pdf
     }
     /// Original checked identity.
     pub fn input(&self) -> &ArticleInput {

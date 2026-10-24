@@ -5,9 +5,11 @@ pub use article::{
     AbstractPart, Article, ArticleInput, ArticleMatchKind, Correction, CorrectionKind,
     CorrectionRelation,
 };
-pub use article::{ArticleHeader, PublicationType};
+pub use article::{ArticleHeader, Indexing, MeshHeading, MeshQualifier, PublicationType};
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
-pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
+pub use query::{
+    ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter,
+};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -77,6 +79,11 @@ pub use query::{ArticleEdges, EdgeSource};
 pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;
-pub use response::{Health, SourceHealth};
+pub use response::{Health, HttpHealth, SourceHealth};
 
-pub use response::{OpenAccessStatus, PdfPart, PdfText, TextOrigin};
+pub use query::{ArticleEvidence, ArticleRecommend, ArticlePdf};
+pub use response::{ArticlePdfResult, PdfLink, PdfSaved, OpenAccessStatus};
+pub use response::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

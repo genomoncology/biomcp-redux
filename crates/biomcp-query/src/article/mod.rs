@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod edges;
+pub mod evidence;
 mod fold;
 pub mod get;
 mod named;
@@ -8,12 +9,14 @@ mod order;
 mod page;
 mod preprint;
 mod protein_change;
+pub mod recommend;
 mod sections;
 mod semantic_edges;
 pub mod semantic_scholar;
 mod sources;
 pub mod supplement;
 mod term;
+pub mod pdf;
 pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
@@ -179,6 +182,9 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
             F::Until,
             F::Type,
             F::DateSort,
+            F::OpenAccess,
+            F::NoPreprints,
+            F::ExcludeRetracted,
         ]) {
             return Some((biodata::Source::LitVar, option));
         }
@@ -195,6 +201,9 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
                 F::Until,
                 F::Type,
                 F::DateSort,
+                F::OpenAccess,
+                F::NoPreprints,
+                F::ExcludeRetracted,
             ])
         {
             return Some((source, option));
@@ -202,7 +211,14 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
     }
     if query.sources().contains(&S::SemanticScholar) {
         return query
-            .rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
+            .rejects(&[
+                F::Author,
+                F::Journal,
+                F::Type,
+                F::DateSort,
+                F::NoPreprints,
+                F::ExcludeRetracted,
+            ])
             .map(|filter| (biodata::Source::SemanticScholar, filter));
     }
     None

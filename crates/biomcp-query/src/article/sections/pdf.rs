@@ -1,276 +1,57 @@
-//! Explicit PDF outline and shared extracted-text loading.
-use super::pdf_parts::Document;
-use crate::{Action, Ctx, Outcome, status, store::Store};
-use biodata::{
-    ArticleInput, ArticleResolution, OpenAccessStatus, PdfText, QueryBody, Reason, Request,
-    Section, Source, SourceNotice, Status, StepKind, Text, TextOrigin,
-};
-use biomcp_adapters::{pdf, semantic_scholar};
+//! Cheap publisher-link sections never download a file.
+use crate::{Action, Ctx, Outcome, status};
+use biodata::{ArticleInput, ArticleResolution, ArticlePdf, OpenAccessStatus, PdfLink, QueryBody, Reason, Request, Section, Source, Status, StepKind, Text};
+use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
-    let QueryBody::ArticleCards(cards) = &out.body else {
-        return;
-    };
-    let inputs: Vec<_> = cards
-        .items
-        .iter()
-        .enumerate()
-        .filter_map(|(index, item)| {
-            let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
-                return None;
-            };
-            let input = card
-                .pmid
-                .map(ArticleInput::Pmid)
-                .or_else(|| card.doi.clone().map(ArticleInput::Doi))?;
-            Some((index, input))
-        })
-        .collect();
+    let QueryBody::ArticleCards(cards) = &out.body else { return; };
+    let inputs: Vec<_> = cards.items.iter().enumerate().filter_map(|(index, item)| {
+        let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else { return None; };
+        card.pmid.map(ArticleInput::Pmid).or_else(|| card.doi.clone().map(ArticleInput::Doi)).map(|input| (index, input))
+    }).collect();
     for (index, input) in inputs {
-        let result = load(cx, &input, deadline, out);
-        let section = match result {
-            Ok(section) => map(section, |document| document.outline),
+        let section = match load(cx, &input, deadline, out) {
+            Ok(section) => section,
             Err(error) => {
                 out.local = out.local.or(status::local(error));
                 Section::unavailable(Source::SemanticScholar, reason(error))
             }
         };
-        if matches!(section, Section::Data { .. })
-            && out.next.len() < 5
-            && let Ok(text) = biodata::ArticleText::pdf_part(input, 1)
-        {
-            out.next.push((
-                StepKind::Section,
-                Action::Run {
-                    request: Request::ArticleText(text),
-                    fresh: false,
-                },
-            ));
+        if matches!(section, Section::Data { .. }) && out.next.len() < 5 {
+            let name = filename(&input);
+            if let Ok(save) = Text::new(name) {
+                out.next.push((StepKind::Section, Action::Run { request: Request::ArticlePdf(ArticlePdf {input, save, replace: false}), fresh: false }));
+            }
         }
-        let QueryBody::ArticleCards(cards) = &mut out.body else {
-            return;
-        };
+        let QueryBody::ArticleCards(cards) = &mut out.body else { return; };
         if let Some(item) = cards.items.get_mut(index) {
-            if matches!(
-                section,
-                Section::Unavailable { .. } | Section::Skipped { .. }
-            ) {
-                item.status = Status::Partial;
-            }
-            if let Some(sections) = &mut item.sections {
-                sections.pdf = Some(section);
-            }
+            if matches!(section, Section::Unavailable { reason, .. } if reason != Reason::NotOpen) { item.status = Status::Partial; }
+            if let Some(sections) = &mut item.sections { sections.pdf = Some(section); }
         }
     }
-    if let QueryBody::ArticleCards(cards) = &out.body {
-        out.status = status::status(cards.items.iter().map(|item| item.status));
-    }
+    if let QueryBody::ArticleCards(cards) = &out.body { out.status = status::status(cards.items.iter().map(|i| i.status)); }
 }
-fn load<'a>(
-    cx: &Ctx<'a>,
-    input: &ArticleInput,
-    deadline: &mut Deadline<'a>,
-    out: &mut Outcome,
-) -> Result<Section<Document>, RequestError> {
-    if cx.fetch.disabled(Source::SemanticScholar) {
-        out.sources.push(status::source(
-            Source::SemanticScholar,
-            Default::default(),
-            Some(bad(Reason::Disabled)),
-        ));
-        notice(out);
-        return Ok(Section::unavailable(
-            Source::SemanticScholar,
-            Reason::Disabled,
-        ));
-    }
-    let article = serde_json::to_string(input).map_err(|_| bad(Reason::BadReply))?;
-    let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
-    if !cx.fresh
-        && let Some(encoded) = store.pdf_get(&article)?
-    {
-        let document: Document =
-            serde_json::from_str(&encoded).map_err(|_| bad(Reason::BadReply))?;
-        notice(out);
-        return Ok(Section::Data {
-            source: Source::SemanticScholar,
-            data: document,
-        });
-    }
-    let leg = cx
-        .fetch
-        .leg(&semantic_scholar::SPEC, *deadline)
-        .fresh(cx.fresh);
+pub(in crate::article) fn filename(input: &ArticleInput) -> String {
+    let name: String = input.to_string().chars().map(|c| if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {c} else {'_'}).collect();
+    format!("{name}.pdf")
+}
+pub(in crate::article) fn load<'a>(cx: &Ctx<'a>, input: &ArticleInput, deadline: &mut Deadline<'a>, out: &mut Outcome) -> Result<Section<PdfLink>, RequestError> {
+    let leg = cx.fetch.leg(&semantic_scholar::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let result = semantic_scholar::pdf(&leg, input);
     *deadline = super::super::consume(*deadline, started, leg.remaining());
-    out.sources.push(status::source(
-        Source::SemanticScholar,
-        leg.finish(),
-        result.as_ref().err().copied(),
-    ));
-    notice(out);
-    let Some(link) = result?
-        .open_access_pdf
-        .filter(|link| !link.url.is_empty() && link.status != OpenAccessStatus::Closed)
-    else {
-        return Ok(Section::unavailable(
-            Source::SemanticScholar,
-            Reason::NotOpen,
-        ));
+    let source = status::source(Source::SemanticScholar, leg.finish(), result.as_ref().err().copied());
+    if let Some(existing) = out.sources.iter_mut().find(|s| s.source == Source::SemanticScholar) { status::retain_source_state(existing, &source); } else { out.sources.push(source); }
+    let Some(link) = result?.open_access_pdf.filter(|link| !link.url.trim().is_empty() && link.status != OpenAccessStatus::Closed) else {
+        return Ok(Section::unavailable(Source::SemanticScholar, Reason::NotOpen));
     };
-    let leg = cx
-        .fetch
-        .leg(&semantic_scholar::PUBLISHER, *deadline)
-        .fresh(cx.fresh);
-    let started = leg.remaining();
-    let result = download(&leg, &link);
-    *deadline = super::super::consume(*deadline, started, leg.remaining());
-    let source = status::source(
-        Source::SemanticScholar,
-        leg.finish(),
-        result.as_ref().err().copied(),
-    );
-    if let Some(existing) = out
-        .sources
-        .iter_mut()
-        .find(|s| s.source == Source::SemanticScholar)
-    {
-        status::retain_source_state(existing, &source);
-    } else {
-        out.sources.push(source);
-    }
-    let section = result?;
-    if let Section::Data { data, .. } = &section {
-        store.set_deadline(*deadline);
-        let encoded = serde_json::to_string(data).map_err(|_| bad(Reason::BadReply))?;
-        store.pdf_put(&article, data.url(), &encoded)?;
-    }
-    Ok(section)
-}
-fn download(
-    leg: &biomcp_fetch::Leg<'_>,
-    link: &semantic_scholar::PdfLink,
-) -> Result<Section<Document>, RequestError> {
-    let bytes = pdf::download(leg, &link.url).map_err(|error| {
-        if matches!(error, RequestError::Input(_)) {
-            bad(Reason::Rejected)
-        } else {
-            error
-        }
-    })?;
-    if !bytes.starts_with(b"%PDF-") {
-        return Ok(Section::unavailable(
-            Source::SemanticScholar,
-            Reason::NotPdf,
-        ));
-    }
-    let extracted: pdf::Extraction =
-        serde_json::from_slice(&leg.pdf_worker(&bytes)?).map_err(|_| bad(Reason::BadReply))?;
-    let section = match extracted {
-        pdf::Extraction::Encrypted => {
-            Section::unavailable(Source::SemanticScholar, Reason::Unsupported)
-        }
-        pdf::Extraction::Empty => Section::Empty {
-            source: Source::SemanticScholar,
-            record: None,
-        },
-        pdf::Extraction::BadReply => {
-            Section::unavailable(Source::SemanticScholar, Reason::BadReply)
-        }
-        pdf::Extraction::Data {
-            pages,
-            text,
-            truncated,
-        } => {
-            let outline = PdfText {
-                origin: TextOrigin::Pdf,
-                url: Text::new(&link.url).map_err(|_| bad(Reason::BadReply))?,
-                status: link.status,
-                license: link.license(),
-                pages,
-                truncated,
-                parts: Box::default(),
-            };
-            Section::Data {
-                source: Source::SemanticScholar,
-                data: Document::new(outline, text).ok_or_else(|| bad(Reason::BadReply))?,
-            }
-        }
-    };
-    Ok(section)
+    let data = PdfLink { url: Text::new(&link.url).map_err(|_| bad(Reason::BadReply))?, status: link.status, license: link.license() };
+    Ok(Section::Data { source: Source::SemanticScholar, data })
 }
 pub(in crate::article) fn reason(error: RequestError) -> Reason {
-    match error {
-        RequestError::Source(error) => error.reason,
-        _ => Reason::Unavailable,
-    }
+    match error { RequestError::Source(error) => error.reason, _ => Reason::Unavailable }
 }
-fn bad(reason: Reason) -> RequestError {
-    SourceError {
-        source: Source::SemanticScholar,
-        reason,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
-fn notice(out: &mut Outcome) {
-    if let Some(source) = out
-        .sources
-        .iter_mut()
-        .find(|s| s.source == Source::SemanticScholar)
-    {
-        if !source.notices.contains(&SourceNotice::PdfText) {
-            source.notices.push(SourceNotice::PdfText);
-        }
-    } else {
-        let mut source = status::source(Source::SemanticScholar, Default::default(), None);
-        source.notices.push(SourceNotice::PdfText);
-        out.sources.push(source);
-    }
-}
-fn map<T, U>(section: Section<T>, f: impl FnOnce(T) -> U) -> Section<U> {
-    match section {
-        Section::Data { source, data } => Section::Data {
-            source,
-            data: f(data),
-        },
-        Section::Empty { source, record } => Section::Empty { source, record },
-        Section::Unavailable { source, reason } => Section::Unavailable { source, reason },
-        Section::Skipped { source, reason } => Section::Skipped { source, reason },
-        Section::NotApplicable => Section::NotApplicable,
-    }
-}
-
-pub(in crate::article) fn read<'a>(
-    cx: &Ctx<'a>,
-    query: &biodata::ArticleText,
-    selection: &crate::article::protein_change::Selection,
-    deadline: &mut Deadline<'a>,
-    out: &mut Outcome,
-) -> Result<(), RequestError> {
-    let section = load(cx, query.input(), deadline, out)?;
-    let content = match section {
-        Section::Data { source, data } => {
-            let Some(content) = super::pdf_text::select(&data, query, selection, out) else {
-                out.body = QueryBody::TextPositionError;
-                return Ok(());
-            };
-            Section::Data {
-                source,
-                data: content,
-            }
-        }
-        Section::Empty { source, record } => Section::Empty { source, record },
-        Section::Unavailable { source, reason } => Section::Unavailable { source, reason },
-        Section::Skipped { source, reason } => Section::Skipped { source, reason },
-        Section::NotApplicable => Section::NotApplicable,
-    };
-    out.body = QueryBody::ArticleText(biodata::ArticleTextResult {
-        pmcid: None,
-        content,
-    });
-    Ok(())
+pub(in crate::article) fn bad(reason: Reason) -> RequestError {
+    SourceError {source: Source::SemanticScholar, reason, status: None, retry_after: None}.into()
 }

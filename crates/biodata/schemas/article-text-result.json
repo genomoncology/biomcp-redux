@@ -31,7 +31,7 @@
         },
         "input": {
           "$ref": "#/$defs/ArticleInput",
-          "description": "PubMed, PMC or Europe PMC identity; DOI is accepted only with --pdf.",
+          "description": "PubMed or PMC identity. DOI selectors are not accepted by the reader.",
           "x-positional": 0
         },
         "offset": {
@@ -46,10 +46,6 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
-        },
-        "pdf": {
-          "description": "Read publisher PDF text instead of structured JATS.",
-          "type": "boolean"
         },
         "variant": {
           "$ref": "#/$defs/Text",
@@ -257,7 +253,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -278,7 +273,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The publisher link returned a body without a PDF signature.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
@@ -464,20 +458,6 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "PDF text can lose layout, tables and figures; it is not the structured JATS body.",
-          "properties": {
-            "kind": {
-              "const": "pdf_text",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind"
-          ],
-          "type": "object"
-        },
         {
           "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
@@ -679,12 +659,6 @@
       "additionalProperties": false,
       "description": "One bounded part or matching rows with the bucket license.",
       "properties": {
-        "first_page": {
-          "description": "Original PDF first page for a selected part.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
         "forms": {
           "description": "Literal protein change spellings searched by an explicit variant selector.",
           "items": {
@@ -717,12 +691,6 @@
             "null"
           ]
         },
-        "last_page": {
-          "description": "Original PDF last page for a selected part.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
         "license": {
           "$ref": "#/$defs/License",
           "description": "Bucket license."
@@ -741,10 +709,6 @@
             }
           ],
           "description": "Bounded body text for a direct part selection."
-        },
-        "origin": {
-          "$ref": "#/$defs/TextOrigin",
-          "description": "Present for extracted PDF text."
         },
         "part": {
           "description": "Part number for a direct part selection.",
@@ -787,12 +751,6 @@
           "$ref": "#/$defs/Markdown",
           "description": "Whole bounded source row."
         },
-        "page": {
-          "description": "Original PDF page; absent for structured JATS rows.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
         "part": {
           "description": "Outline part containing this text.",
           "format": "uint32",
@@ -806,13 +764,6 @@
         "heading_path"
       ],
       "type": "object"
-    },
-    "TextOrigin": {
-      "description": "Origin of extracted article text.",
-      "enum": [
-        "pdf"
-      ],
-      "type": "string"
     }
   },
   "$id": "biomcp.article_text/2",

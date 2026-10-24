@@ -31,10 +31,10 @@ Five crates. Each exists because a rule needs a crate boundary to enforce it.
 | Crate | Job | May import | May not import |
 | --- | --- | --- | --- |
 | `biodata` | Typed values for every entity, identifier, closed set, query, request and response. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `pdf-extract` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde`, `serde_json`, `sha2` | `ureq`, `clap` |
-| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `cap`; `rlimit` on Unix | `ureq`, `rusqlite` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
+| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
@@ -70,6 +70,9 @@ ureq = { version = "3", default-features = false, features = ["rustls", "platfor
 rusqlite = { version = "0.37", features = ["bundled"] }
 quick-xml = { version = "0.42", default-features = false, features = ["serialize"] }
 sha2 = { version = "0.10", default-features = false }
+httparse = "=1.10.1"  # bounded HTTP request headers; socket ownership stays in biomcp
+ctrlc = { version = "=3.5.2", features = ["termination"] } # safe native process interrupts
+base64 = "0.23"     # MCP HTTP metadata sentinel decoding
 clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions", "string"] }
 
 [workspace.lints.rust]
@@ -110,7 +113,7 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
    - `biomcp-adapters`: the same list.
    - `biomcp-query`: disallows environment, file and process items, `std::thread::sleep`, `std::thread::spawn` and the interior mutability types. `std::thread::scope` is allowed only in `fan_out.rs`, through one reasoned `expect`.
    - `biomcp-fetch`: disallows environment and process items. Its `Mutex`, `Condvar`, `Cell` and `std::thread::scope` uses each carry a reasoned `expect`.
-   - `biomcp`: disallows environment reads everywhere except `config.rs`, and thread spawns everywhere except `mcp.rs`, each through one reasoned `expect`.
+   - `biomcp`: disallows environment reads everywhere except `config.rs`, and thread spawns everywhere except `mcp.rs` and its HTTP socket owner, each through one reasoned `expect`.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
    - Each crate's direct dependencies are a subset of its allowed list, which the test holds as one table that mirrors section 2.1.
    - `rusqlite` appears in `biomcp-query` only under `src/store/`.
@@ -716,7 +719,7 @@ A source whose terms require the user's own license or account, such as OncoKB, 
 
 - `Fetch::leg` checks the key before anything else. When the key is not configured, the leg is skipped. Every call on it returns `SourceError` with reason `no_key` and touches no network, cache entry or recording. This holds for the source's public endpoints too.
 - The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
-- A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help names the config key and the environment variable that supply it.
+- A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help leads with `biomcp key set <source>` and also names the config key and the environment variable.
 - A skip changes no status. A card whose only gap is a skipped keyed source is complete.
 - Replay cases for a keyed source set a placeholder key in the case's temporary config. The reply key never includes a credential, so the recording matches.
 
@@ -1148,7 +1151,7 @@ Cases drive the binary over recordings, and each adapter's lines run because a c
 | Bundle source | 150 to 400 |
 | The transport | 1,800 to 2,800 |
 
-The article slice estimates PubMed at 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350, iCite 150, the PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF reader 150 and the supplement readers 250.
+The article slice estimates PubMed at 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350, iCite 150, the PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF link and download 80 and the supplement readers 250.
 
 These are estimates. The article slice measures its adapters first. If they average over 300 lines, this section is revised. Each file in an adapter folder stays under 300 lines.
 
@@ -1397,8 +1400,9 @@ biomcp search article [TEXT] [--source LIST] [--sort RULE] [--gene INPUT] [--var
                       [--limit N] [--offset N] [--pool ID]
 biomcp get article <PMID | PMCID | DOI | Europe PMC ID>... [SECTION]...
     sections: fulltext, supplements, annotations, citations, indexing, tldr, pdf, all
-biomcp article text <ID> (--part N | --find TEXT | --variant CHANGE) [--pdf]
-biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT | --variant CHANGE]
+biomcp article text <ID> (--part N | --find TEXT | --variant CHANGE | --save PATH [--replace])
+biomcp article pdf <ID> --save PATH [--replace]
+biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT | --variant CHANGE | --save PATH [--replace]]
 biomcp article citations <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
 biomcp article references <ID> [--source icite|semantic-scholar] [--limit N] [--offset N] [--pool ID]
 biomcp article citation-evidence <CITING> <CITED> [--fulltext]
@@ -1577,6 +1581,25 @@ Help is JSON by default and comes from the schemas. `biomcp help` lists the enti
 
 `biomcp serve --http ADDR` serves MCP's streamable HTTP transport at `/mcp` and a health check at `/health`, bound to 127.0.0.1 by default, as `decisions/2026-10-24-1-0-serves-mcp-over-http.md` says. Hosted clients and reverse proxies use it, as they did in 0.9. A small blocking HTTP server fits the thread model. Its handlers call the same `grammar::parse` and `run` as stdio. A non-loopback bind needs an explicit host allowlist. The wiki comes later at `/` on the same server.
 
+The reviewed blocking server boundary uses `httparse` for HTTP syntax and a narrow socket owner in `mcp/http.rs`. It adds no async runtime. `http/wire.rs` owns `MAX_HEAD`, `MAX_BODY` and the absolute `READ_BUDGET`; `MAX_BODY` uses the stdio frame cap. `MAX_CONNECTIONS` bounds accepted worker handles with no application queue. Each socket carries one request and closes after its response. Content-Length frames are bounded before body allocation. Chunked frames use the library’s chunk-size and trailer parsers with bounded cumulative wire bytes and decoded body bytes. Ambiguous length/transfer encoding, unsupported transfer encodings and pipelined requests are refused before admission. Ctrl-C and termination signals use `ctrlc` to notify the server-owned bounded stop channel. The accept loop stops within `ACCEPT_POLL`, drops the listener and joins admitted workers under their existing read and command deadlines. No separate background process survives. The HTTP tests exercise this boundary through real isolated sockets.
+
+HTTP uses stateless JSON responses for both MCP revisions and never mints sessions. Each request selects its own revision and identifiers. The 2026 request mirrors follow the [official Streamable HTTP contract](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http): protocol version and method must match the body, and named methods require a matching decoded name. Metadata mismatches return HTTP 400 and error -32020. Unsupported methods return HTTP 404. Legacy initialization remains available without affecting another request. Accepted notifications return an empty 202. GET and DELETE on `/mcp` return 405.
+
+Host checks cover health, errors and MCP. Authority parsing checks bracketed IPv6, ports and DNS labels before case normalization and comparison. Browser Origin is refused, CORS is disabled and forwarding headers confer no authority. Non-loopback listeners require `--allow-host` or `http.allowed_hosts`; configuration and flags combine. `/health` returns the generated `biomcp.http-health/1` body and 200 or 503 after the owned query store opens under `HEALTH_BUDGET`. It makes no source requests and exposes no paths, SQL or settings.
+
+
+### 8.10 Saving files
+
+`article text`, `article pdf` and `article supplement` take `--save PATH`, as `decisions/2026-10-24-pdfs-are-downloaded-not-read.md` says. BioMCP never extracts text from a PDF. The binary owns every file write; the libraries return bytes and never touch the file system.
+
+- BioMCP writes only to the path the caller names. A folder PATH gets a file named from the ID or the supplement's own name. With no `--save`, nothing is written.
+- The write goes to a temporary file beside PATH and is renamed on success, so a failed download leaves nothing.
+- An existing file is refused with a usage error unless `--replace` is given.
+- The reply gives the absolute path, the byte count, the SHA-256, the license and the source URL.
+- BioMCP keeps no download folder and no list of saved files. The cache never holds saved files. The caller owns and deletes them.
+- `biomcp serve --http` refuses `--save` with a usage error that gives the source URL, because the file would land on the server. Stdio MCP runs on the caller's machine and may save.
+- A PDF download is credential-free, accepts only `http` or `https` with a DNS host that resolves to public addresses, checks each of at most three redirects by the same rules, stops at 25 MB, and requires a body starting with `%PDF-`. When a configured proxy applies to the publisher host, the download is refused with reason `proxy`, because BioMCP cannot check the address the proxy reaches.
+
 ## 9. Configuration, observability and performance
 
 ### 9.1 Configuration
@@ -1606,7 +1629,10 @@ pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub f
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 ```
 
-- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `S2_API_KEY`. `biomcp help key <source>` names both for each source that takes a key.
+- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `SEMANTIC_SCHOLAR_API_KEY`. `biomcp help key <source>` leads with `biomcp key set <source>` and names both.
+- Keys are registered through the CLI, as `decisions/2026-10-24-keys-are-registered-through-the-cli.md` says. `biomcp key set <source> [--replace]` prompts once and reads the key with echo off, or reads one line from standard input when it is not a terminal. The key is never a command argument, so it stays out of shell history. An empty key is refused, and a stored key is never replaced without `--replace`. `config.rs` changes only `keys.<name>` in the active config file, keeps every other setting, writes a temporary file and renames it, and sets owner-only permissions on Unix. The file is plain JSON, because these are API keys, not secrets that need encryption.
+- `biomcp key list` names each source that takes a key, its config name, its environment variable and whether the key is `stored`, from the `environment` or `none`. It never prints a value. `biomcp key remove <source>` deletes `keys.<name>` and keeps everything else.
+- The MCP tool refuses `key` commands with a usage error, so an agent never handles a key.
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
 
@@ -1725,7 +1751,6 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
-| `crates/biomcp-fetch/src/destination_tests.rs` | Classify security-sensitive DNS ranges and relative redirect targets without public network calls. |
 | `crates/biodata/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biodata/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
@@ -1739,6 +1764,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
+| `crates/biomcp-fetch/src/destination_tests.rs` | Cover public DNS address and redirect rejection tables without contacting private destinations. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -1887,13 +1913,3 @@ Each implemented adapter owns its publisher terms in `SourceSpec::terms`. `biomc
 The configuration's `disable_sources` and CLI `--disable-sources` combine by union. Expansion uses implemented source declarations and source identities, never quota keys. The transport checks disabled before credentials, quota, replay, reply caches and bundle synchronization. Stored article pools refuse disabled source rows before paging or hydration. Source and section skips retain reason `disabled` and never become confirmed absence. MCP process policy cannot be weakened by a tool call. `Fetch::restrict_sources` creates an immutable command view that unions disabled identities while sharing connection pools, quotas, replay cursors and clocks, checked settings, caches and bundle reservations. A disabled search leg does not hide rows supplied by an enabled leg; disabled header hydration leaves those rows partial.
 
 CLI health uses these same declarations and transport policies. Its probes bypass the checked data cache and do not synchronize bundles. `PROBE_BUDGET` caps each source leg within the command budget. A skipped source has no latency; each attempted probe reports bounded elapsed time and a typed state. Local recording or cache failures remain local errors. HTTP service health separately checks owned local storage.
-
-### PDF publisher boundary
-
-The PDF worker uses the current executable's hidden entry point and a typed, bounded stdout result. The `PdfWorker` constants own input, extracted text, pages, output, heap and CPU limits. The child installs `cap::Cap<System>` before reading input. This is a Rust heap cap, not a claim about resident memory or every operating-system allocation. The parent clears the child environment, preserves only subprocess coverage, and kills and waits at the leg's deadline. Unix adds CPU limits and address-space limits where the OS accepts them. The binary uses the safe `cap` and `rlimit` APIs; the adapter alone imports approved `pdf-extract` and calls `Document`/`output_doc_page` for selected pages. No convenience helper can hide a failed page. No unsafe allowance is added.
-
-Publisher links use a separate credential-free declaration. The transport checks the URL and each redirect, resolves DNS through its public-address resolver, and gives only those validated socket addresses to the TCP connector. It keeps the hostname for TLS verification. A configured proxy that applies to a publisher URL yields `proxy` without a connection. `NO_PROXY` exclusions keep their ordinary meaning. The transport neither bypasses an applicable proxy nor sends the Semantic Scholar key to a publisher. PDF bytes bypass the reply cache. The query store owns only extracted parts and their article/URL identity.
-
-The binary owns worker decoding and serialization. Fetch owns only the fixed current-executable launch, bounded pipes and deadline termination under a narrow listed process exception. Adapters remain free of process and environment access; query services decode the typed result without a generic process runner in their context.
-
-The dependency ratchet pins the parser chain covered by the approved `RUSTSEC-2026-0192` exception. The [advisory](https://rustsec.org/advisories/RUSTSEC-2026-0192.html) marks the font parser unmaintained, while its [upstream report](https://github.com/harfbuzz/ttf-parser/issues/217) alleges exponential CPU exhaustion. The exception relies on the isolated worker's mandatory heap cap, parent deadline and termination, plus available OS CPU limits. It does not weaken the treatment of other findings. A parser-chain version change requires a new ruling.

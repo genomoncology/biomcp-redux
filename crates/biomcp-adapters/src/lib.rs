@@ -31,6 +31,7 @@ pub mod icite;
 /// Exact variant publication lookup.
 pub mod litvar;
 /// Semantic Scholar graph metadata under one shared optional-key quota.
+pub mod pdf;
 pub mod semantic_scholar;
 mod xml_element;
 
@@ -38,6 +39,4 @@ pub mod registry;
 
 /// Sentence resemblance in native provider order.
 pub mod litsense;
-/// Bounded PDF extraction inside the resource-limited child.
-pub mod pdf;
 pub mod sheet;

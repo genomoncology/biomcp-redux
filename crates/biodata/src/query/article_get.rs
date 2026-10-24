@@ -55,8 +55,6 @@ crate::source::canonical_enum! {
     ArticleSectionWord, SourceUnknown {
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
-        /// Explicit publisher PDF outline; excluded from all.
-        Pdf => "pdf",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
@@ -65,6 +63,10 @@ crate::source::canonical_enum! {
         Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
+        /// MeSH, keywords and author indexing from the citation.
+        Indexing => "indexing",
+        /// Publisher PDF link without downloading.
+        Pdf => "pdf",
         /// Every landed article section.
         All => "all",
     }
@@ -72,8 +74,6 @@ crate::source::canonical_enum! {
 crate::source::canonical_enum! {
     /// A landed article section.
     ArticleSection, SourceUnknown {
-        /// Explicit publisher PDF outline; excluded from all.
-        Pdf => "pdf",
         /// Licensed PMC body outline.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
@@ -84,5 +84,9 @@ crate::source::canonical_enum! {
         Tldr => "tldr",
         /// Citation counts from NIH iCite.
         Citations => "citations",
+        /// MeSH, keywords and author indexing from the citation.
+        Indexing => "indexing",
+        /// Publisher PDF link without downloading.
+        Pdf => "pdf",
     }
 }

@@ -13,9 +13,12 @@ mkdir "$scratch/source"
 git archive HEAD | tar -x -C "$scratch/source"
 python3 release/artifacts.py build --output "$scratch/native"
 python3 release/gate.py --artifacts "$scratch/native" --scratch "$scratch/native-check"
-BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" python3 -m unittest release.test_artifacts
+BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" \
+  BIOMCP_INSTALLED_BINARY="$scratch/native-check/installer-bin/biomcp" \
+  BIOMCP_INSTALLED_VERSION="$version" \
+  python3 -m unittest release.test_artifacts release.test_installer release.test_smoke
 for arch in amd64 arm64; do
-  case "$arch" in amd64) wheel_arch=x86_64;; arm64) wheel_arch=aarch64;; esac
+  case "$arch" in amd64) wheel_arch=x86_64; archive_arch=x86_64;; arm64) wheel_arch=aarch64; archive_arch=arm64;; esac
   image="quay.io/pypa/manylinux_2_28_$wheel_arch"
   docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
     --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
@@ -44,7 +47,7 @@ for arch in amd64 arm64; do
         --python /opt/python/cp311-cp311/bin/python --artifacts /artifacts --scratch /tmp/check
     '
   mkdir "$scratch/container-$arch"
-  tar -xzf "$scratch/linux-$arch/biomcp-$version-manylinux_2_28_$wheel_arch.tar.gz" -C "$scratch/container-$arch"
+  tar -xzf "$scratch/linux-$arch/biomcp-linux-$archive_arch.tar.gz" -C "$scratch/container-$arch"
   cp "$scratch/proof-$arch/case-runner" "$scratch/container-$arch/case-runner"
   cp -R "$scratch/proof-$arch/fixtures" "$scratch/container-$arch/fixtures"
   cp release/Dockerfile "$scratch/container-$arch/Dockerfile"

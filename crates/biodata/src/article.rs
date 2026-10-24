@@ -1,4 +1,6 @@
 mod card;
+mod indexing;
+pub use indexing::{Indexing, MeshHeading, MeshQualifier};
 mod input;
 use crate::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
 pub use card::{AbstractPart, Article, Correction, CorrectionKind, CorrectionRelation};

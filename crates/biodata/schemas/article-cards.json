@@ -394,42 +394,42 @@
     "ArticleSection": {
       "description": "A landed article section.",
       "enum": [
-        "pdf",
         "fulltext",
         "supplements",
         "annotations",
         "tldr",
-        "citations"
+        "citations",
+        "indexing"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Explicit publisher PDF outline; excluded from all.",
         " Licensed PMC body outline.",
         " Supplementary files confirmed by PMC metadata.",
         " Normalized text-mined entities from PubTator3.",
         " Machine-written Semantic Scholar summary and counts.",
-        " Citation counts from NIH iCite."
+        " Citation counts from NIH iCite.",
+        " MeSH, keywords and author indexing from the citation."
       ]
     },
     "ArticleSectionWord": {
       "description": "Article section request including all landed sections.",
       "enum": [
         "annotations",
-        "pdf",
         "fulltext",
         "supplements",
         "tldr",
         "citations",
+        "indexing",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
-        " Explicit publisher PDF outline; excluded from all.",
         " Licensed PMC body outline.",
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
+        " MeSH, keywords and author indexing from the citation.",
         " Every landed article section."
       ]
     },
@@ -470,7 +470,7 @@
           ],
           "description": "Licensed PMC body outline."
         },
-        "pdf": {
+        "indexing": {
           "anyOf": [
             {
               "$ref": "#/$defs/Section"
@@ -479,7 +479,7 @@
               "type": "null"
             }
           ],
-          "description": "Publisher PDF outline, requested explicitly and excluded from all."
+          "description": "Index terms from the card's own EFetch citation."
         },
         "supplements": {
           "anyOf": [
@@ -744,6 +744,44 @@
       ],
       "type": "object"
     },
+    "Indexing": {
+      "additionalProperties": false,
+      "description": "Index terms and author identities supplied by this article's EFetch citation.",
+      "properties": {
+        "affiliations": {
+          "$ref": "#/$defs/Capped",
+          "description": "First ten author affiliations and the complete count."
+        },
+        "keywords": {
+          "description": "Author keywords in source order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "mesh": {
+          "description": "MeSH headings in source order.",
+          "items": {
+            "$ref": "#/$defs/MeshHeading"
+          },
+          "type": "array"
+        },
+        "orcids": {
+          "description": "Author ORCID identifiers, as supplied by the source.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mesh",
+        "keywords",
+        "affiliations",
+        "orcids"
+      ],
+      "type": "object"
+    },
     "License": {
       "description": "License reported by the bucket metadata record.",
       "enum": [
@@ -778,23 +816,51 @@
       "minLength": 1,
       "type": "string"
     },
-    "OpenAccessStatus": {
-      "description": "Open-access status supplied by the paper-link provider.",
-      "enum": [
-        "gold",
-        "hybrid",
-        "bronze",
-        "green",
-        "closed"
+    "MeshHeading": {
+      "additionalProperties": false,
+      "description": "A MeSH descriptor and its qualifiers retain their independent major-topic flags.",
+      "properties": {
+        "descriptor": {
+          "$ref": "#/$defs/Text",
+          "description": "Source descriptor."
+        },
+        "major": {
+          "description": "Descriptor major-topic flag.",
+          "type": "boolean"
+        },
+        "qualifiers": {
+          "description": "Source qualifiers.",
+          "items": {
+            "$ref": "#/$defs/MeshQualifier"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "descriptor",
+        "major",
+        "qualifiers"
       ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Publisher open access.",
-        " Open article in a subscription journal.",
-        " Free publisher copy without an open license claim.",
-        " Repository copy.",
-        " No open copy."
-      ]
+      "type": "object"
+    },
+    "MeshQualifier": {
+      "additionalProperties": false,
+      "description": "A qualifier attached to a MeSH descriptor.",
+      "properties": {
+        "major": {
+          "description": "Qualifier major-topic flag.",
+          "type": "boolean"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source qualifier."
+        }
+      },
+      "required": [
+        "name",
+        "major"
+      ],
+      "type": "object"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -847,92 +913,6 @@
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
-    },
-    "PdfPart": {
-      "additionalProperties": false,
-      "description": "One bounded PDF text part in original page order.",
-      "properties": {
-        "first_page": {
-          "description": "Original first page of this part.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "last_page": {
-          "description": "Original last page of this part.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "number": {
-          "description": "One-based reader selector.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "tokens": {
-          "description": "Compact serialized text bytes divided by four, rounded up.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "number",
-        "first_page",
-        "last_page",
-        "tokens"
-      ],
-      "type": "object"
-    },
-    "PdfText": {
-      "additionalProperties": false,
-      "description": "Publisher PDF identity and bounded plain-text outline.",
-      "properties": {
-        "license": {
-          "$ref": "#/$defs/License",
-          "description": "Provider's normalized license; other never grants reuse rights."
-        },
-        "origin": {
-          "$ref": "#/$defs/TextOrigin",
-          "description": "Distinguishes PDF extraction from the structured body reader."
-        },
-        "pages": {
-          "description": "Original document page count.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "parts": {
-          "description": "Bounded selectable parts.",
-          "items": {
-            "$ref": "#/$defs/PdfPart"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/OpenAccessStatus",
-          "description": "Provider's open-access status."
-        },
-        "truncated": {
-          "description": "Whether later pages were omitted by the extraction bound.",
-          "type": "boolean"
-        },
-        "url": {
-          "$ref": "#/$defs/Text",
-          "description": "Checked publisher link."
-        }
-      },
-      "required": [
-        "origin",
-        "url",
-        "status",
-        "license",
-        "pages",
-        "truncated",
-        "parts"
-      ],
-      "type": "object"
     },
     "Pmcid": {
       "pattern": "^PMC[1-9][0-9]*$",
@@ -1077,7 +1057,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -1098,7 +1077,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The publisher link returned a body without a PDF signature.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
@@ -1124,7 +1102,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/PdfText",
+              "$ref": "#/$defs/Indexing",
               "description": "Whole section data."
             },
             "source": {
@@ -1891,20 +1869,6 @@
       "oneOf": [
         {
           "additionalProperties": false,
-          "description": "PDF text can lose layout, tables and figures; it is not the structured JATS body.",
-          "properties": {
-            "kind": {
-              "const": "pdf_text",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
           "properties": {
             "fallback": {
@@ -2161,13 +2125,6 @@
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
-      "type": "string"
-    },
-    "TextOrigin": {
-      "description": "Origin of extracted article text.",
-      "enum": [
-        "pdf"
-      ],
       "type": "string"
     },
     "TextPart": {

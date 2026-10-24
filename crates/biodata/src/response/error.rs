@@ -67,6 +67,8 @@ singleton! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    url: Option<crate::Text>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     source: Option<crate::Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     option: Option<crate::ArticleFilter>,
@@ -97,6 +99,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: None,
@@ -115,6 +118,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: None,
@@ -130,6 +134,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: None,
@@ -145,6 +150,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Local,
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: None,
@@ -166,6 +172,7 @@ impl ErrorEnvelope {
                 ErrorStatus::Expired
             },
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: None,
@@ -192,6 +199,7 @@ impl ErrorEnvelope {
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
+                url: None,
                 source: None,
                 option: None,
                 count: Some(count),
@@ -211,6 +219,15 @@ impl ErrorEnvelope {
         out.error.option = Some(option);
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
+        out
+    }
+}
+
+impl ErrorEnvelope {
+    /// Refuse a save while retaining the source URL for the caller.
+    pub fn pdf_save_refused(url: crate::Text) -> Self {
+        let mut out = Self::arguments();
+        out.error.url = Some(url);
         out
     }
 }

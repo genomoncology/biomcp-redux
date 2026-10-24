@@ -4,10 +4,6 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
-        "crates/biomcp-fetch/src/destination_tests.rs",
-        "Classify security-sensitive DNS ranges and relative redirect targets without public network calls.",
-    ),
-    (
         "crates/biodata/tests/article_ids.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),
@@ -58,6 +54,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-adapters/tests/pmc_limits.rs",
         "Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table.",
+    ),
+    (
+        "crates/biomcp-fetch/src/destination_tests.rs",
+        "Cover public DNS address and redirect rejection tables without contacting private destinations.",
     ),
     (
         "crates/biomcp-fetch/src/retry_tests.rs",

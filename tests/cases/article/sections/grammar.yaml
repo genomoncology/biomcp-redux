@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-annotations",
-  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
+  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar. The indexing section adds required data; the expanded response measured10689 bytes and keeps15 percent headroom.",
   "replay": "article/fulltext/live-all",
   "steps": [
     {
@@ -12,6 +12,7 @@
       ],
       "expect": {
         "/result/items/0/more": [
+          "indexing",
           "annotations",
           "fulltext",
           "supplements",
@@ -23,6 +24,7 @@
           "get",
           "article",
           "33123537",
+          "indexing",
           "annotations",
           "fulltext",
           "supplements",
@@ -39,7 +41,7 @@
         "/result/items/0/sections/fulltext/state": "data",
         "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [
@@ -74,7 +76,7 @@
         "33123537",
         "all"
       ],
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [
@@ -89,7 +91,7 @@
         "/result/items/0/sections/fulltext/state": "data",
         "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [
@@ -128,5 +130,5 @@
       "exit": 2
     }
   ],
-  "verified": "2026-10-24 combined reader/citation measurement j9656: all sections response 8969 bytes. Ceiling 10315 is measured plus 15 percent; no comparable 0.9 baseline exists because fulltext returned a file path. Dedicated component ceilings remain unchanged."
+  "verified": "Actual source recordings; expanded indexing output measured by0053 development jobs. The enforcing case ceiling retains15 percent headroom and all required card and section data."
 }

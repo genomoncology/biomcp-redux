@@ -1,6 +1,7 @@
 # 0074 — Give installed command proofs canonical temporary space
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8abfaf464ba25f05415f93cdd712103e5b040637
 
 Milestone: 1
 

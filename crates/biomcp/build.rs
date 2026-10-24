@@ -35,6 +35,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     for (verb, file, index) in [
+        ("article pdf", "article/pdf/synthetic.yaml", 1),
+        ("article pdf", "article/pdf/synthetic.yaml", 2),
         ("get gene", "gene/kras.yaml", 0),
         ("get gene", "gene/braf.yaml", 0),
         ("search gene", "gene/search.yaml", 0),

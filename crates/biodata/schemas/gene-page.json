@@ -338,7 +338,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -359,7 +358,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The publisher link returned a body without a PDF signature.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
@@ -424,20 +422,6 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "PDF text can lose layout, tables and figures; it is not the structured JATS body.",
-          "properties": {
-            "kind": {
-              "const": "pdf_text",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind"
-          ],
-          "type": "object"
-        },
         {
           "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",

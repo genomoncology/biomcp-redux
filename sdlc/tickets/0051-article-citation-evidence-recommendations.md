@@ -1,6 +1,7 @@
 # 0051 — Add article citation-evidence and article recommendations
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6f27782211fe0914b083f497984437bef4b3c95b
 
 Milestone: 1
 

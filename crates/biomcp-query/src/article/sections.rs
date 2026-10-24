@@ -2,9 +2,8 @@
 mod annotations;
 mod citations;
 pub(crate) mod fulltext;
-pub(super) mod pdf;
-mod pdf_parts;
-mod pdf_text;
+pub(super) mod indexing;
+pub(in crate::article) mod pdf;
 mod tldr;
 use crate::{Ctx, status};
 use biodata::{
@@ -20,10 +19,9 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
-                pdf: (query.sections().contains(&ArticleSectionWord::Pdf)
-                    && card.pmid.is_none()
-                    && card.doi.is_none())
-                .then_some(Section::NotApplicable),
+                pdf: (selected(query, ArticleSectionWord::Pdf) && card.pmid.is_none() && card.doi.is_none()).then_some(Section::NotApplicable),
+                indexing: selected(query, ArticleSectionWord::Indexing)
+                    .then_some(Section::NotApplicable),
                 supplements: (selected(query, ArticleSectionWord::Supplements)
                     && card.pmcid.is_none())
                 .then_some(Section::NotApplicable),
@@ -43,6 +41,12 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
             });
         }
         item.more = [
+            (ArticleSectionWord::Pdf, ArticleSection::Pdf, card.pmid.is_some() || card.doi.is_some()),
+            (
+                ArticleSectionWord::Indexing,
+                ArticleSection::Indexing,
+                card.pmid.is_some() && card.europepmc_id.is_none(),
+            ),
             (
                 ArticleSectionWord::Annotations,
                 ArticleSection::Annotations,
@@ -90,12 +94,10 @@ pub(super) fn run<'a>(
             super::preprint::fulltext(cx, deadline, out);
         }
     }
-    if query.sections().contains(&ArticleSectionWord::Pdf) {
-        pdf::run(cx, deadline, out);
-    }
     if selected(query, ArticleSectionWord::Tldr) {
         tldr::run(cx, deadline, out);
     }
+    if selected(query, ArticleSectionWord::Pdf) { pdf::run(cx, deadline, out); }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;
     };

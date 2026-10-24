@@ -412,6 +412,10 @@
           "minimum": 1,
           "type": "integer"
         },
+        "no_preprints": {
+          "description": "Exclude preprints using the source's native filter.",
+          "type": "boolean"
+        },
         "offset": {
           "default": 0,
           "description": "Number of pool items to skip.",
@@ -419,9 +423,21 @@
           "minimum": 0,
           "type": "integer"
         },
+        "open_access": {
+          "description": "Require the source's native open-access filter; Semantic Scholar means a public PDF.",
+          "type": "boolean"
+        },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Stable snapshot from an earlier response."
+        },
+        "retracted": {
+          "$ref": "#/$defs/RetractionFilter",
+          "description": "Include retracted papers by default, or exclude them using a native filter.",
+          "x-cli-flags": {
+            "exclude-retracted": "exclude",
+            "include-retracted": "include"
+          }
         },
         "since": {
           "$ref": "#/$defs/PartialDate",
@@ -802,7 +818,6 @@
       "enum": [
         "not_found",
         "not_open",
-        "not_pdf",
         "unsupported",
         "too_large",
         "rate_limited",
@@ -823,7 +838,6 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
-        " The publisher link returned a body without a PDF signature.",
         " The local reader does not support the file or container format.",
         " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
@@ -840,6 +854,14 @@
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
       ]
+    },
+    "RetractionFilter": {
+      "description": "Native retraction inclusion policy.",
+      "enum": [
+        "include",
+        "exclude"
+      ],
+      "type": "string"
     },
     "SemanticScholarId": {
       "pattern": "^[a-f0-9]{40}$",
@@ -892,20 +914,6 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "PDF text can lose layout, tables and figures; it is not the structured JATS body.",
-          "properties": {
-            "kind": {
-              "const": "pdf_text",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind"
-          ],
-          "type": "object"
-        },
         {
           "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",

@@ -11,7 +11,6 @@ const LAYERS: &[(&str, &[&str])] = &[
         &[
             "biodata",
             "ureq",
-            "url",
             "rustls",
             "rustls-platform-verifier",
             "httpdate",
@@ -32,7 +31,6 @@ const LAYERS: &[(&str, &[&str])] = &[
             "serde",
             "quick-xml",
             "thiserror",
-            "pdf-extract",
             "calamine",
             "csv",
             "zip",
@@ -47,7 +45,6 @@ const LAYERS: &[(&str, &[&str])] = &[
             "rusqlite",
             "serde_json",
             "sha2",
-            "serde",
             "thiserror",
         ],
     ),
@@ -59,8 +56,9 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-adapters",
             "biomcp-query",
             "clap",
-            "cap",
-            "rlimit",
+            "httparse",
+            "ctrlc",
+            "base64",
             "serde",
             "serde_json",
         ],
@@ -72,7 +70,6 @@ fn read(path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
 }
 
 pub(super) fn check(root: &Path) -> Check {
-    pdf_chain(root)?;
     let workspace = read(&root.join("Cargo.toml"))?;
     for (name, allowed) in LAYERS {
         let path = root.join("crates").join(name).join("Cargo.toml");
@@ -170,54 +167,6 @@ fn collect_sqlite(manifest: &Value, workspace: &Value, aliases: &mut Vec<String>
                     aliases.push(alias.replace('-', "_"));
                 }
             }
-        }
-    }
-    Ok(())
-}
-
-// Approval of the advisory exception covers only this parser chain. Keep the
-// reviewed versions here so a lockfile refresh cannot silently broaden it.
-fn pdf_chain(root: &Path) -> Check {
-    let path = root.join("Cargo.lock");
-    // Isolated dependency-table fixtures do not build or carry a lockfile.
-    // The real routine gate builds with --locked before reaching this contract.
-    if !path.exists() {
-        return Ok(());
-    }
-    let lock = read(&path)?;
-    let packages = lock
-        .get("package")
-        .and_then(Value::as_array)
-        .ok_or("missing packages")?;
-    for (name, version, parent) in [
-        ("pdf-extract", "0.12.1", "biomcp-adapters"),
-        ("lopdf", "0.42.0", "pdf-extract"),
-        ("ttf-parser", "0.25.1", "lopdf"),
-    ] {
-        let found: Vec<_> = packages
-            .iter()
-            .filter(|p| p.get("name").and_then(Value::as_str) == Some(name))
-            .collect();
-        for package in packages {
-            let depends = package
-                .get("dependencies")
-                .and_then(Value::as_array)
-                .is_some_and(|dependencies| {
-                    dependencies
-                        .iter()
-                        .filter_map(Value::as_str)
-                        .any(|dependency| dependency.split_whitespace().next() == Some(name))
-                });
-            if depends && package.get("name").and_then(Value::as_str) != Some(parent) {
-                return Err(format!("PDF advisory approval permits {name} only through {parent}; obtain a new ruling for another edge").into());
-            }
-        }
-        if found.len() != 1
-            || found
-                .iter()
-                .any(|p| p.get("version").and_then(Value::as_str) != Some(version))
-        {
-            return Err(format!("PDF advisory approval requires reviewed {name} {version}; obtain a new ruling before changing the parser chain").into());
         }
     }
     Ok(())

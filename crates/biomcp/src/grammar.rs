@@ -27,9 +27,13 @@ pub(crate) struct Parsed {
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
+    pub(crate) http: Option<(String, Vec<String>)>,
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::ArticlePdf(_) => "biodata.article-pdf/1",
+        Request::ArticleEvidence(_) => "biodata.article-evidence/1",
+        Request::ArticleRecommend(_) => "biodata.article-recommend/1",
         Request::ArticleSupplement(_) => "biodata.article-supplement/1",
         Request::ArticleText(_) => "biodata.article-text/2",
         Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/2",
@@ -45,9 +49,12 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "article", "biodata.article-search/1"),
     ("get", "article", "biodata.article-get/2"),
     ("article", "supplement", "biodata.article-supplement/1"),
+    ("article", "pdf", "biodata.article-pdf/1"),
     ("article", "text", "biodata.article-text/2"),
     ("article", "citations", "biodata.article-edges/2"),
     ("article", "references", "biodata.article-edges/2"),
+    ("article", "citation-evidence", "biodata.article-evidence/1"),
+    ("article", "recommendations", "biodata.article-recommend/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -128,34 +135,44 @@ fn root() -> Result<Command, ()> {
                     .subcommand(Command::new("article")),
             ),
     );
-    Ok(root.subcommand(Command::new("serve")))
+    Ok(root.subcommand(serve_command()))
 }
+fn serve_command() -> Command {
+    Command::new("serve")
+        .arg(
+            Arg::new("http")
+                .long("http")
+                .num_args(0..=1)
+                .default_missing_value("127.0.0.1:8080"),
+        )
+        .arg(
+            Arg::new("allow-host")
+                .long("allow-host")
+                .action(ArgAction::Append)
+                .requires("http"),
+        )
+}
+
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let root = root()?;
     let matches = root
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
-    let globals = Globals {
-        disable_sources: matches
-            .get_many::<String>("disable-sources")
-            .into_iter()
-            .flatten()
-            .cloned()
-            .collect(),
-        replay: matches.get_one::<PathBuf>("replay").cloned(),
-        observe: matches.get_one::<PathBuf>("observe").cloned(),
-        record: matches.get_one::<PathBuf>("record").cloned(),
-        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
-        offline: matches.get_flag("offline"),
-        fresh: matches.get_flag("fresh"),
-        format: matches
-            .get_one::<String>("format")
-            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
-    };
-    globals.check()?;
+    let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
         return Ok(Parsed {
+            http: matches.get_one::<String>("http").map(|address| {
+                (
+                    address.clone(),
+                    matches
+                        .get_many::<String>("allow-host")
+                        .into_iter()
+                        .flatten()
+                        .cloned()
+                        .collect(),
+                )
+            }),
             action: None,
             globals,
             help: None,
@@ -206,11 +223,34 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     };
     Ok(Parsed {
+        http: None,
         action: Some(action),
         globals,
         help,
     })
 }
+fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
+    let globals = Globals {
+        disable_sources: matches
+            .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
+        replay: matches.get_one::<PathBuf>("replay").cloned(),
+        observe: matches.get_one::<PathBuf>("observe").cloned(),
+        record: matches.get_one::<PathBuf>("record").cloned(),
+        case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
+        offline: matches.get_flag("offline"),
+        fresh: matches.get_flag("fresh"),
+        format: matches
+            .get_one::<String>("format")
+            .map(|v| if v == "md" { Format::Md } else { Format::Json }),
+    };
+    globals.check()?;
+    Ok(globals)
+}
+
 fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
     schema
         .get("properties")
@@ -222,6 +262,17 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
+        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
+            for flag in flags.keys() {
+                command = command.arg(
+                    Arg::new(flag.clone())
+                        .long(flag.clone())
+                        .action(ArgAction::SetTrue)
+                        .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()),
+                );
+            }
+            continue;
+        }
         let mut argument = Arg::new(name.clone());
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
@@ -235,10 +286,6 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
         {
             argument = argument.required(true);
         }
-        if property.get("type").and_then(Value::as_str) == Some("boolean") {
-            command = command.arg(argument.action(ArgAction::SetTrue));
-            continue;
-        }
         if property.get("type").and_then(Value::as_str) == Some("array") {
             argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
                 argument
@@ -251,13 +298,27 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
                 argument.num_args(1..).action(ArgAction::Append)
             };
         }
-        command = command.arg(argument.value_parser(clap::builder::StringValueParser::new()));
+        command = command.arg(
+            if property.get("type").and_then(Value::as_str) == Some("boolean") {
+                argument.action(ArgAction::SetTrue)
+            } else {
+                argument.value_parser(clap::builder::StringValueParser::new())
+            },
+        );
     }
     Ok(command)
 }
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
     for (name, property) in properties(schema)? {
+        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
+            for (flag, value) in flags {
+                if matches.get_flag(flag) {
+                    result.insert(name.clone(), value.clone());
+                }
+            }
+            continue;
+        }
         if property.get("type").and_then(Value::as_str) == Some("boolean") {
             if matches.get_flag(name) {
                 result.insert(name.clone(), Value::Bool(true));
@@ -351,6 +412,17 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("article", "pdf") => serde_json::from_value::<biodata::ArticlePdf>(value).map(Request::ArticlePdf).map_err(|_| ()),
+        ("article", "citation-evidence") => {
+            serde_json::from_value::<biodata::ArticleEvidence>(value)
+                .map(Request::ArticleEvidence)
+                .map_err(|_| ())
+        }
+        ("article", "recommendations") => {
+            serde_json::from_value::<biodata::ArticleRecommend>(value)
+                .map(Request::ArticleRecommend)
+                .map_err(|_| ())
+        }
         ("article", "supplement") => serde_json::from_value::<biodata::ArticleSupplement>(value)
             .map(Request::ArticleSupplement)
             .map_err(|_| ()),

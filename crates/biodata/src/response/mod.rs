@@ -1,5 +1,5 @@
-pub use article::{OpenAccessStatus, PdfPart, PdfText, TextOrigin};
 mod article;
+pub use article::{ArticlePdfResult, PdfLink, PdfSaved, OpenAccessStatus};
 pub use article::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
@@ -57,4 +57,9 @@ pub use article_sections::{
 };
 
 mod health;
-pub use health::{Health, SourceHealth};
+pub use health::{Health, HttpHealth, SourceHealth};
+
+pub use article::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

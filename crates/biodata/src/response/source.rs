@@ -46,8 +46,6 @@ pub struct SourceOutcome {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
-    /// PDF text can lose layout, tables and figures; it is not the structured JATS body.
-    PdfText,
     /// The source still has graph pages after the bounded fetch window.
     GraphTruncated {
         /// Default-source command offering another graph view.

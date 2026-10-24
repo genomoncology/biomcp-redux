@@ -8,7 +8,7 @@ Depends on: 0042
 
 ## Outcome
 
-Capture a successful keyless Semantic Scholar search from landed main and verify its source-native identifiers and order. In the same bounded job, capture the positive TLDR for PMID 17611497. This follow-up gates the Semantic Scholar roadmap tick; it never blocks code landing.
+Capture a successful keyless Semantic Scholar search from landed main and verify its source-native identifiers and order. In the same bounded job, capture the positive TLDR for PMID 17611497, a successful search with the openAccessPdf filter from 0053, and the closed-access 17611497 and HTML 33377972 paper-link answers from 0052. This follow-up gates the Semantic Scholar roadmap tick; it never blocks code landing.
 
 - Starts from: the recorded-proof landing decision and 0042. Job j9693 recorded three HTTP 429 attempts at the shared keyless interval. The failure envelope and successful synthetic response remain routine replay proof.
 - Keeps: the shared quota, credential isolation, canonical request identity and offline landing gate.

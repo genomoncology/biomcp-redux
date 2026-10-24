@@ -65,13 +65,14 @@ pub fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
         false
     };
     if requested {
+        super::sections::indexing::join(query, &records, &mut out);
         super::sections::run(cx, &mut deadline, query, &mut out);
     }
     super::next::get(query, &mut out);
     command.finish(deadline.remaining());
     out
 }
-type Record = (Article, i64);
+pub(super) type Record = (pubmed::FetchedArticle, i64);
 type Failure = (Pmid, RequestError);
 fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure>) {
     let chunks: Vec<_> = ids.chunks(200).collect();
@@ -84,8 +85,10 @@ fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure
         match result {
             Ok((rows, metadata)) => {
                 for row in rows {
-                    if row.pmid.is_some_and(|id| ids.contains(&id))
-                        && !records.iter().any(|(r, _): &Record| r.pmid == row.pmid)
+                    if row.article.pmid.is_some_and(|id| ids.contains(&id))
+                        && !records
+                            .iter()
+                            .any(|(r, _): &Record| r.article.pmid == row.article.pmid)
                     {
                         records.push((row, metadata.fetched));
                     }
@@ -129,7 +132,7 @@ fn append(
     for id in ids {
         if let Some((card, fetched)) = records
             .iter()
-            .find(|(card, _)| card.pmid == Some(*id) && agrees(input, card))
+            .find(|(card, _)| card.article.pmid == Some(*id) && agrees(input, &card.article))
         {
             found = true;
             items.push(item(
@@ -140,7 +143,7 @@ fn append(
                     Status::Complete
                 },
                 Some(ArticleResolution::Resolved {
-                    card: card.clone().card(),
+                    card: card.article.clone().card(),
                     r#match: ArticleMatch { kind: input.kind() },
                     fetched: u64::try_from(*fetched).unwrap_or_default(),
                 }),

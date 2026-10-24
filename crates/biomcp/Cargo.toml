@@ -6,7 +6,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-cap.workspace = true
+base64.workspace = true
+httparse.workspace = true
+ctrlc.workspace = true
 clap.workspace = true
 serde.workspace = true
 biomcp-fetch = { path = "../biomcp-fetch" }
@@ -14,9 +16,6 @@ biomcp-adapters = { path = "../biomcp-adapters" }
 biomcp-query = { path = "../biomcp-query" }
 serde_json.workspace = true
 biodata = { path = "../biodata", features = ["schema"] }
-
-[target.'cfg(unix)'.dependencies]
-rlimit.workspace = true
 
 [build-dependencies]
 serde-saphyr.workspace = true
@@ -38,3 +37,6 @@ workspace = true
 [[test]]
 name = "cases"
 harness = false
+
+[target.'cfg(unix)'.dev-dependencies]
+nix = { version = "=0.31.3", default-features = false, features = ["signal", "process"] }

@@ -4,7 +4,8 @@
     clippy::disallowed_methods,
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
-mod pdf;
+mod evidence;
+pub(crate) use evidence::EvidenceState;
 mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
@@ -16,7 +17,7 @@ pub const VERSION: u32 = 3;
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
-    tables: &["pool", "pool_current", "pool_item", "pdf_parts"],
+    tables: &["pool", "pool_current", "pool_item", "citation_evidence"],
 };
 /// One command's owned connection, retaining the replay directory capability.
 #[derive(Debug)]
@@ -127,4 +128,9 @@ fn db(error: rusqlite::Error) -> CacheError {
         }
         _ => CacheError::Database,
     }
+}
+
+/// Validate and open the owned query store without making a source request.
+pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Result<(), CacheError> {
+    Store::open(fetch.cache_access()?, fetch.deadline(budget)).map(|_| ())
 }

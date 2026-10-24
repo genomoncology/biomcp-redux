@@ -17,6 +17,10 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
+        if item.sections.as_ref().is_some_and(|s| matches!(s.fulltext, Some(biodata::Section::NotApplicable | biodata::Section::Unavailable { reason: biodata::Reason::NotOpen, .. })))
+            && let Some(input) = card.pmid.map(ArticleInput::Pmid).or_else(|| card.doi.clone().map(ArticleInput::Doi))
+            && let Ok(query) = ArticleGet::with_sections(vec![input].into(), vec![biodata::ArticleSectionWord::Pdf].into())
+        { push(&mut out.next, StepKind::Section, Request::GetArticle(query)); }
         let input = card
             .pmid
             .map(ArticleInput::Pmid)
@@ -24,21 +28,6 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(input) = input else {
             continue;
         };
-        if item.sections.as_ref().is_some_and(|sections| {
-            matches!(
-                sections.fulltext,
-                Some(biodata::Section::NotApplicable)
-                    | Some(biodata::Section::Unavailable {
-                        reason: biodata::Reason::NotOpen,
-                        ..
-                    })
-            )
-        }) && let Ok(query) = ArticleGet::with_sections(
-            vec![input.clone()].into(),
-            vec![biodata::ArticleSectionWord::Pdf].into(),
-        ) {
-            push(&mut out.next, StepKind::Section, Request::GetArticle(query));
-        }
         if !item.more.is_empty() {
             let words = item
                 .more
@@ -57,12 +46,18 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
             StepKind::Disambiguate,
             Request::ArticleCitations(biodata::ArticleEdges::new(id)),
         );
+
         push(
             &mut out.next,
             StepKind::Disambiguate,
             Request::ArticleCitations(
                 biodata::ArticleEdges::new(id).sourced(biodata::EdgeSource::SemanticScholar),
             ),
+        );
+        push(
+            &mut out.next,
+            StepKind::Disambiguate,
+            Request::ArticleRecommend(biodata::ArticleRecommend::new(ArticleInput::Pmid(id))),
         );
     }
 }

@@ -12,6 +12,7 @@ import zipfile
 
 from artifacts import cargo, inspect
 from smoke import environment, smoke
+from local_server import server
 
 
 def install_wheel(wheel, venv, root, host_python, name="biomcp"):
@@ -56,7 +57,7 @@ def installed(args):
         tools = smoke(binary, executable, fixtures, record["version"], server_args)
         if declared_tools is not None and sorted(tools) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")
-        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
+        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process", "mcp-http"]})
         print(json.dumps(results[-1]), flush=True)
     check("wheel", install_wheel(wheel, root / "venv", root, args.python))
     bundle = next(output.glob("*.mcpb"))
@@ -85,10 +86,22 @@ def installed(args):
         raise ValueError("registry package launch contract differs")
     registry_binary = install_wheel(wheel, root / "registry-venv", root, args.python, package["identifier"])
     check("mcp-registry", registry_binary, arguments)
-    archive = next(output.glob("*.tar.gz"))
+    archive = next(path for path in output.iterdir() if path.name.endswith((".tar.gz", ".zip")))
+    suffix = ".exe" if archive.name.endswith(".zip") else ""
+    bash = shutil.which("bash") or "/bin/bash"
     destination = root / "installer-bin"
-    subprocess.run(["/bin/bash", str(source / "release/install.sh"), str(archive), hashlib.sha256(archive.read_bytes()).hexdigest(), str(destination)], check=True)
-    check("install-script", destination / "biomcp")
+    subprocess.run([bash, (source / "release/install.sh").as_posix(), archive.as_posix(), hashlib.sha256(archive.read_bytes()).hexdigest(), destination.as_posix()], check=True)
+    check("install-script", destination / ("biomcp" + suffix))
+    downloads = root / "downloads"
+    release = downloads / "download" / ("v" + record["version"])
+    release.mkdir(parents=True)
+    for item in [archive, archive.with_name(archive.name + ".sha256")]:
+        shutil.copy2(item, release / item.name)
+    public_destination = root / "download-installer-bin"
+    with server(downloads) as base:
+        download_env = {**environment(root), "PATH": os.defpath, "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix()}
+        subprocess.run([bash, (source / "release/install.sh").as_posix(), "--version", record["version"]], env=download_env, check=True)
+    check("download-install-script", public_destination / ("biomcp" + suffix))
     brew = shutil.which("brew")
     if brew:
         # Clone only the local tool. Never install into the person's shared prefix.

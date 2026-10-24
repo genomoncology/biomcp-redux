@@ -65,6 +65,14 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Explicit PDF save result.
+    ArticlePdf(crate::ArticlePdfResult),
+    /// Invalid destination or unavailable save surface, retaining the source link.
+    PdfSaveRefused(crate::PdfLink),
+    /// Citation context evidence.
+    ArticleEvidence(crate::ArticleEvidenceResult),
+    /// Source-native recommendations.
+    ArticleRecommendations(crate::ArticleRecommendations),
     /// Licensed supplement reader.
     ArticleSupplement(crate::ArticleSupplementResult),
     /// A selected source cannot apply the checked filters.
