@@ -25,7 +25,9 @@
           "equals": {}
         },
         "/result/candidates/0/sections/gwas/state": "empty"
-      }
+      },
+      "max_bytes": 535,
+      "max_tokens": 134
     }
   ]
 }

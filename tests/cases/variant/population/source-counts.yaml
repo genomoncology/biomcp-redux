@@ -29,7 +29,9 @@
         "population",
         "CA123643",
         "--detail"
-      ]
+      ],
+      "max_bytes": 5020,
+      "max_tokens": 1255
     },
     {
       "run": [
@@ -53,7 +55,9 @@
         "/page/returned": 10,
         "/page/offset": 10
       },
-      "offline": true
+      "offline": true,
+      "max_bytes": 5023,
+      "max_tokens": 1256
     },
     {
       "run": [
@@ -77,7 +81,9 @@
         "/page/returned": 9,
         "/page/offset": 20
       },
-      "offline": true
+      "offline": true,
+      "max_bytes": 4504,
+      "max_tokens": 1126
     },
     {
       "run": [
@@ -96,7 +102,9 @@
         "/result/candidates/0/sections/population/state": "data",
         "/result/candidates/0/sections/population/data/exome/allele_count": 2,
         "/result/candidates/0/sections/population/data/exome/allele_number": 1460618
-      }
+      },
+      "max_bytes": 1322,
+      "max_tokens": 331
     }
   ]
 }

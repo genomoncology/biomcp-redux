@@ -23,7 +23,9 @@
         "/status": "failed",
         "/result/population/state": "unavailable",
         "/result/population/reason": "rate_limited"
-      }
+      },
+      "max_bytes": 434,
+      "max_tokens": 109
     },
     {
       "run": [
@@ -37,7 +39,9 @@
       "expect": {
         "/status": "failed",
         "/result/population/reason": "offline"
-      }
+      },
+      "max_bytes": 423,
+      "max_tokens": 106
     }
   ]
 }
