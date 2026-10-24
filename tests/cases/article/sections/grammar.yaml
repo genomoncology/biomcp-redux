@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-annotations",
-  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar.",
+  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar. The indexing section adds required data; the expanded response measured10689 bytes and keeps15 percent headroom.",
   "replay": "article/fulltext/live-all",
   "steps": [
     {
@@ -41,7 +41,7 @@
         "/result/items/0/sections/fulltext/state": "data",
         "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [
@@ -76,7 +76,7 @@
         "33123537",
         "all"
       ],
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [
@@ -91,7 +91,7 @@
         "/result/items/0/sections/fulltext/state": "data",
         "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 10315
+      "max_bytes": 12293
     },
     {
       "run": [

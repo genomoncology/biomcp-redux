@@ -81,7 +81,7 @@ struct Fields {
     no_preprints: bool,
     /// Include retracted papers by default, or exclude them using a native filter.
     #[serde(default, skip_serializing_if = "is_include")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-cli-flags" = {"include-retracted":"include", "exclude-retracted":"exclude"})))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-cli-flags" = {"include-retracted":RetractionFilter::Include, "exclude-retracted":RetractionFilter::Exclude})))]
     retracted: RetractionFilter,
     /// Words sent to each named source in its default fields.
     #[serde(
