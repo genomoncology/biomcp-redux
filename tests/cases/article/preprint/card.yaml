@@ -1,0 +1,27 @@
+{
+  "feature": "article-preprints",
+  "story": "Europe PMC preprint card preserves its native identity and source metadata",
+  "replay": "article/preprint/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1064174"
+      ],
+      "mcp": [
+        "get",
+        "article",
+        "PPR1064174"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/match/kind": "europepmc_id",
+        "/result/items/0/answer/card/europepmc_id": "PPR1064174",
+        "/result/items/0/answer/card/doi": "10.21203/rs.3.rs-7293078/v1",
+        "/result/items/0/answer/card/authors/total": 33
+      },
+      "max_bytes": 2500
+    }
+  ]
+}
