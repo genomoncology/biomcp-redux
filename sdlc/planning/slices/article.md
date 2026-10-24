@@ -739,25 +739,26 @@ Tokens are estimated as bytes divided by 4. The original investigation used a sc
 
 ### Layers, densest and highest priority first
 
-| Layer | What it holds | Tokens | Why it sits here |
-| --- | --- | --- | --- |
-| 1. `search article` item | PMID, DOI, PMCID, whole title, journal, date, clinical types, first author with count; on a fold, sources with ranks; the cited-by count when sorted by citations | 80 to 120 per item | Lets the agent pick a trial, guideline or landmark paper without a get |
-| 2. `get article` card | Identifiers, title, journal, date, all clinical types, corrections, ten authors with total, whole abstract, one `next` step listing sections | 470 to 730 | Answers "what did this paper find" alone. The abstract is 60 to 75% of it |
-| 3. `citations` | Cited-by, clinical cited-by, references, relative citation ratio | about 35 | Smallest section; marks landmark papers |
-| 4. `supplements` | License and each supplement file's name, kind, label and caption | 95 for 2 files, 290 for 16 | Example 31 and 32 start here |
-| 5. `annotations` | Up to 20 normalized entities with IDs and counts | 200 to 230 | Chains to gene and variant cards |
-| 6. `fulltext` | License, part outline, table and figure captions | 220 to 380 | Tells the agent which part to read |
-| 7. `article supplement --find` | Matching rows with sheet, row, header and checksum | about 165 per hit | One fact from a large file |
-| 8. `article citations`, `article references` | Ten headers, most cited first, and a total | about 780 per page | Pivots that grow without bound |
-| 9. `article text --part N` | One part of the body, split at 4,000 tokens | up to 4,000 per reply; 5,800 to 14,100 for a whole body | Bulky prose, read only on request |
-| 10. `tldr` | Semantic Scholar's one-sentence summary, its model, citation and influential citation counts | about 80 | A shorter digest than the abstract, asked for by name |
-| 11. `indexing` | MeSH headings with major flags, keywords, up to ten affiliations with the total, ORCID iDs | 200 to 400 | Restates the paper in PubMed's vocabulary |
-| 12. `pdf` | Origin, URL, open access status, license, page count and part outline | about 150 | Tells the agent the PDF exists and which part to read |
-| 13. `article citations --source semantic-scholar` | Ten edge items with intents, the influential flag and the first context with the total | up to 1,800 per page | Why a paper is cited, one pivot away |
-| 14. `article citation-evidence` | Every context and the intents for one pair; with `--fulltext`, the citing paragraphs as Markdown | up to 900; up to 4,000 with `--fulltext` | The passage behind one citation |
-| 15. `article recommendations` | Ten headers in Semantic Scholar's order | up to 1,300 per page | Discovery at the edges |
-| 16. `article text --pdf --part N` | One part of PDF text, marked `origin: pdf` | up to 4,000 per reply | Bulky text, read only on request |
-| Options | `--gene`, `--variant`, `--disease`, `--drug`, `--author`, `--journal`, `--since`, `--until`, `--type`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, cursor | per item | Each option narrows or reorders; none adds fields |
+| Layer | What it holds | Tokens | Why it sits here | Enforcing case |
+| --- | --- | --- | --- | --- |
+| 1. `search article` item | PMID, DOI, PMCID, whole title, journal, date, clinical types, first author with count; on a fold, sources with ranks; the cited-by count when sorted by citations | 80 to 120 per item | Lets the agent pick a trial, guideline or landmark paper without a get | search/pubmed-floor.yaml: whole page max_tokens; per-item size remains an estimate. |
+| 2. `get article` card | Identifiers, title, journal, date, all clinical types, corrections, ten authors with total, whole abstract, one `next` step listing sections | 470 to 730 | Answers "what did this paper find" alone. The abstract is 60 to 75% of it | get/card.yaml: whole card max_bytes. |
+| 3. `citations` | Cited-by, clinical cited-by, references, relative citation ratio | about 35 | Smallest section; marks landmark papers | citations/section.yaml: section max_tokens. |
+| 4. `supplements` | License and each supplement file's name, kind, label and caption | 95 for 2 files, 290 for 16 | Example 31 and 32 start here | supplements/file-list.yaml: whole output max_bytes; per-file size remains an estimate. |
+| 5. `annotations` | Up to 20 normalized entities with IDs and counts | 200 to 230 | Chains to gene and variant cards | sections/annotations.yaml: section max_tokens. |
+| 6. `fulltext` | License, part outline, table and figure captions | 220 to 380 | Tells the agent which part to read | fulltext/outline.yaml: section max_tokens. |
+| 7. `article supplement --find` | Matching rows with sheet, row, header and checksum | about 165 per hit | One fact from a large file | supplements/protein-change.yaml: whole output max_bytes. |
+| 8. `article citations`, `article references` | Ten headers, most cited first, and a total | about 780 per page | Pivots that grow without bound | citations/citing.yaml and citations/references.yaml: page max_bytes and max_tokens; references preserve all headers within its measured bound. |
+| 9. `article text --part N` | One part of the body, split at 4,000 tokens | up to 4,000 per reply; 5,800 to 14,100 for a whole body | Bulky prose, read only on request | fulltext/continuations.yaml: each response max_tokens. |
+| 10. `tldr` | Semantic Scholar's one-sentence summary, its model, citation and influential citation counts | about 80 | A shorter digest than the abstract, asked for by name | tldr/data.yaml: section max_tokens on synthetic source text; positive original-paper size remains external. |
+| 11. `indexing` | MeSH headings with major flags, keywords, up to ten affiliations with the total, ORCID iDs | 200 to 400 | Restates the paper in PubMed's vocabulary | indexing/own-record.yaml: section max_tokens. |
+| 12. `pdf` | Origin, URL, open access status, license, page count and part outline | about 150 | Tells the agent the PDF exists and which part to read | Pending PDF ruling; no shipped budget claim. |
+| 13. `article citations --source semantic-scholar` | Ten edge items with intents, the influential flag and the first context with the total | up to 1,800 per page | Why a paper is cited, one pivot away | edges/references.yaml: page max_bytes. |
+| 14. `article citation-evidence` | Every context and the intents for one pair; with `--fulltext`, the citing paragraphs as Markdown | up to 900; up to 4,000 with `--fulltext` | The passage behind one citation | evidence/source.yaml and runner/evidence.rs: output max_bytes and bounded exact-fragment continuations. |
+| 15. `article recommendations` | Ten headers in Semantic Scholar's order | up to 1,300 per page | Discovery at the edges | recommendations/single.yaml and recommendations/multi.yaml: output max_bytes. |
+| 16. `article text --pdf --part N` | One part of PDF text, marked `origin: pdf` | up to 4,000 per reply | Bulky text, read only on request | Pending PDF ruling; no shipped budget claim. |
+| Options | `--gene`, `--variant`, `--disease`, `--drug`, `--author`, `--journal`, `--since`, `--until`, `--type`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, cursor | per item | Each option narrows or reorders; none adds fields | filters/*.yaml and the owning source cases enforce selector behavior and page ceilings. |
+
 
 ### Token table, 1.0 against 0.9.3
 

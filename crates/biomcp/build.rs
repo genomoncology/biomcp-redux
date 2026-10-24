@@ -32,6 +32,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
+    embed_examples()
+}
+
+fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();

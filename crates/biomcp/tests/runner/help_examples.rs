@@ -77,11 +77,33 @@ pub(super) fn check() -> Result<(), String> {
 }
 
 fn source_description(commands: &[Value]) -> Result<(), String> {
-    let arguments = commands.iter().find(|c| c["command"] == serde_json::json!(["search", "article"]))
-        .and_then(|c| c["arguments"].as_array()).ok_or("article search help missing")?;
-    let description = arguments.iter().find(|v| v["name"] == "--source")
-        .and_then(|v| v["description"].as_str()).ok_or("source description missing")?;
-    for word in ["pubmed:", "dropped words", "europepmc:", "incidental mentions", "litvar:", "--variant", "candidates", "semantic-scholar:", "429", "optional", "litsense:", "resemblance, not a match", "timeouts", "pubtator:", "HGNC Entrez"] {
+    let arguments = commands
+        .iter()
+        .find(|c| c["command"] == serde_json::json!(["search", "article"]))
+        .and_then(|c| c["arguments"].as_array())
+        .ok_or("article search help missing")?;
+    let description = arguments
+        .iter()
+        .find(|v| v["name"] == "--source")
+        .and_then(|v| v["description"].as_str())
+        .ok_or("source description missing")?;
+    for word in [
+        "pubmed:",
+        "dropped words",
+        "europepmc:",
+        "incidental mentions",
+        "litvar:",
+        "--variant",
+        "candidates",
+        "semantic-scholar:",
+        "429",
+        "optional",
+        "litsense:",
+        "resemblance, not a match",
+        "timeouts",
+        "pubtator:",
+        "HGNC Entrez",
+    ] {
         if !description.contains(word) {
             return Err(format!("source help omits job or failure mode: {word}"));
         }

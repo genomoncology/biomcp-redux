@@ -120,7 +120,7 @@ Sources:
 
 Sources:
 - [x] PubMed search and page summaries (optional key)
-- [x] PubTator3 export for annotations
+- [x] PubTator3 export for annotations and named entity/word search
 - [x] Europe PMC
 - [x] Semantic Scholar graph, summaries and recommendations (optional key; successful live search and access-filter capture remain unchecked below)
 - [x] PMC Open Access full-text records and JATS
@@ -133,7 +133,7 @@ Sources:
 
 Live source checks retained as open proof boundaries:
 - [ ] Successful Semantic Scholar search and native open-access filter capture
-- [ ] Positive Semantic Scholar TLDR for17611497
+- [ ] Positive Semantic Scholar TLDR for 17611497
 - [ ] Successful LitSense2 AKT1 search
 
 PDF extraction awaits the PM ruling. Its source and output checks remain open.
