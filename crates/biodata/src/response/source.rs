@@ -1,18 +1,17 @@
 use crate::{Reason, Source};
 use serde::{Deserialize, Serialize};
+super::status::wire_enum! {
 /// State of a source actually asked by the command.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum SourceState {
+SourceState {
     /// Checked data is current.
-    Ok,
+    Ok => "ok",
     /// Checked stale data answered.
-    Stale,
+    Stale => "stale",
     /// Another process is synchronizing the bundle.
-    Syncing,
+    Syncing => "syncing",
     /// The source failed.
-    Failed,
+    Failed => "failed",
+}
 }
 /// One source's outcome, without provider text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

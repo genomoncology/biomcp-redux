@@ -148,7 +148,10 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(maximum.as_u64().ok_or("unsupported maximum")?);
     }
-    if node.get("format").is_some_and(|format| format != "uint32") {
+    if node
+        .get("format")
+        .is_some_and(|format| format != "uint32" && format != "uint64")
+    {
         return Err("unsupported format".into());
     }
     if let Some(values) = node.get("enum") {

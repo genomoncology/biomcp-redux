@@ -10,7 +10,7 @@ pub trait ResponseBody: Serialize {
 }
 /// One versioned command response; schema identity comes only from its body type.
 #[derive(Clone, Debug, Serialize)]
-#[serde(bound = "T: ResponseBody")]
+#[serde(bound = "T: ResponseBody", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
     feature = "schema",
@@ -30,13 +30,13 @@ pub struct Envelope<T: ResponseBody> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
     /// Sources actually asked.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<SourceOutcome>,
     /// Rejected source fields.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub problems: Vec<Problem>,
     /// Available next commands.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub next: Vec<Step>,
 }
 impl<T: ResponseBody> Envelope<T> {

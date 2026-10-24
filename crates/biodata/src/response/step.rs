@@ -1,17 +1,16 @@
 use serde::{Deserialize, Serialize};
+super::status::wire_enum! {
 /// Purpose of an available next command.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum StepKind {
+StepKind {
     /// Read another page.
-    Page,
+    Page => "page",
     /// Retry without a cached reply.
-    Fresh,
+    Fresh => "fresh",
     /// Select a canonical identity.
-    Disambiguate,
+    Disambiguate => "disambiguate",
     /// Synchronize a missing or stale identity file.
-    Sync,
+    Sync => "sync",
+}
 }
 /// A command argument list spelled from a typed action.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
