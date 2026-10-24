@@ -22,14 +22,13 @@ impl SourceKey {
     /// Invalid declarations fail here, including during constant evaluation.
     pub const fn declare(name: &'static str) -> Self {
         assert!(!name.is_empty(), "empty source key");
-        let bytes = name.as_bytes();
-        let mut i = 0;
-        while let Some(byte) = bytes.get(i) {
+        let mut bytes = name.as_bytes();
+        while let [byte, rest @ ..] = bytes {
             assert!(
                 byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-',
                 "invalid source key"
             );
-            i += 1;
+            bytes = rest;
         }
         Self(name)
     }
