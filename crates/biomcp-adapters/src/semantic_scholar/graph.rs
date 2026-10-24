@@ -70,7 +70,7 @@ pub fn summary(leg: &Leg<'_>, input: &ArticleInput) -> Result<PaperSummary, Requ
     )
 }
 /// One source graph page; `next` is a provider offset, never a client guess.
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Edges {
     /// Provider continuation offset.
     pub next: Option<u32>,
@@ -92,18 +92,27 @@ pub struct Edge {
     /// Missing is distinct from a reported empty list.
     pub contexts: Option<Vec<Text>>,
 }
-impl Reply for Edges {
+#[derive(Debug, Deserialize)]
+struct RawEdges {
+    next: Option<u32>,
+    #[serde(deserialize_with = "edge_data")]
+    data: Option<Vec<Edge>>,
+}
+impl Reply for RawEdges {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > 1000
-            || self
-                .data
-                .iter()
-                .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
-        {
+        if self.data.as_ref().is_some_and(|data| {
+            data.len() > 1000
+                || data
+                    .iter()
+                    .any(|e| e.citing_paper.is_some() == e.cited_paper.is_some())
+        }) {
             return Err(BadReply);
         }
         Ok(())
     }
+}
+fn edge_data<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<Vec<Edge>>, D::Error> {
+    Option::<Vec<Edge>>::deserialize(decoder)
 }
 impl Edge {
     /// Keep the selected direction's paper and first whole context.
@@ -148,7 +157,17 @@ pub fn edges(
     if let Some(offset) = offset {
         args.push(("offset", Arg::Num(u64::from(offset))));
     }
-    leg.json(&endpoint, &args)
+    let raw = leg.json::<RawEdges>(&endpoint, &args)?;
+    let data = raw.data.ok_or(biomcp_fetch::SourceError {
+        source: biodata::Source::SemanticScholar,
+        reason: biodata::Reason::Unavailable,
+        status: Some(200),
+        retry_after: None,
+    })?;
+    Ok(Edges {
+        next: raw.next,
+        data,
+    })
 }
 
 fn summary_field<'de, D: serde::Deserializer<'de>>(

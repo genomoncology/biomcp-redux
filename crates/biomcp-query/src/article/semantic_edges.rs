@@ -10,12 +10,15 @@ pub(super) fn create<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
+    let Some(input) = resolve_input(cx, query, references, deadline, out)? else {
+        return Ok(None);
+    };
     let leg = cx
         .fetch
         .leg(&semantic_scholar::SPEC, *deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = collect(&leg, query, references);
+    let result = collect(&leg, &input, references);
     *deadline = super::consume(*deadline, started, leg.remaining());
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::SemanticScholar, leg.finish(), error);
@@ -70,14 +73,14 @@ pub(super) fn create<'a>(
 }
 fn collect(
     leg: &biomcp_fetch::Leg<'_>,
-    query: &ArticleEdges,
+    input: &biodata::ArticleInput,
     references: bool,
 ) -> Result<(Vec<ArticleItem>, u64, bool), RequestError> {
     let mut offset = None;
     let mut items = Vec::new();
     let mut count = 0;
     for _ in 0..5 {
-        let reply = semantic_scholar::edges(leg, query.input(), references, offset)?;
+        let reply = semantic_scholar::edges(leg, input, references, offset)?;
         count += reply.data.len() as u64;
         for edge in reply.data {
             let item = edge.item(references).map_err(|_| bad_reply())?;
@@ -104,7 +107,7 @@ fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
     if out
         .sources
         .iter()
-        .any(|s| s.reason == Some(Reason::RateLimited))
+        .any(|s| s.source == Source::SemanticScholar && s.reason == Some(Reason::RateLimited))
     {
         out.next
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
@@ -120,4 +123,45 @@ fn failure(query: &ArticleEdges, references: bool, out: &mut Outcome) {
             fresh: true,
         },
     ));
+}
+
+fn resolve_input<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleEdges,
+    references: bool,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<Option<biodata::ArticleInput>, RequestError> {
+    if !matches!(query.input(), biodata::ArticleInput::Pmcid(_)) {
+        return Ok(Some(query.input().clone()));
+    }
+    let leg = cx
+        .fetch
+        .leg(&biomcp_adapters::pubmed::SPEC, *deadline)
+        .fresh(cx.fresh);
+    let started = leg.remaining();
+    let result = biomcp_adapters::pubmed::resolve_ids(&leg, query.input(), cx.ncbi_email.as_ref());
+    *deadline = super::consume(*deadline, started, leg.remaining());
+    let error = result.as_ref().err().copied();
+    let mut source = status::source(Source::PubMed, leg.finish(), error);
+    let input = match result {
+        Ok(ids) if ids.len() == 1 => ids.first().copied().map(biodata::ArticleInput::Pmid),
+        Ok(ids) => {
+            source.state = biodata::SourceState::Failed;
+            source.reason = Some(if ids.is_empty() {
+                Reason::NotFound
+            } else {
+                Reason::BadReply
+            });
+            None
+        }
+        Err(error) if status::local(error).is_some() => return Err(error),
+        Err(_) => None,
+    };
+    out.sources.push(source);
+    if input.is_none() {
+        out.status = Status::Failed;
+        failure(query, references, out);
+    }
+    Ok(input)
 }
