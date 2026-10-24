@@ -15,7 +15,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut problems = Vec::new();
     let result = resolve(query, &leg, &mut problems);
     let error = result.as_ref().err().copied();
-    let mut sources = vec![status::source(spec.source, leg.finish(), error)];
+    let mut main_source = status::source(spec.source, leg.finish(), error);
     let mut candidates = Vec::new();
     let mut rejection = None;
     let mut resolution = VariantResolution::Unavailable;
@@ -34,9 +34,10 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         resolution = VariantResolution::Absent;
     }
     if rejection.is_some() {
-        sources[0].state = biodata::SourceState::Failed;
-        sources[0].reason = Some(Reason::Rejected);
+        main_source.state = biodata::SourceState::Failed;
+        main_source.reason = Some(Reason::Rejected);
     }
+    let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
     if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
         let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
@@ -44,7 +45,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         local = local.or(error);
     }
     let next = next(query, resolution, &candidates);
-    let overall = if resolution == VariantResolution::Unavailable {
+    let overall = if matches!(resolution, VariantResolution::Unavailable | VariantResolution::Rejected) {
         Status::Failed
     } else if resolution == VariantResolution::Absent {
         Status::Absent

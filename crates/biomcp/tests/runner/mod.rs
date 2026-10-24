@@ -2,6 +2,7 @@ mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
+mod variant;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -269,6 +270,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
     trials.extend(http::trials());
     trials.extend(corporate::trials());
+    trials.extend(variant::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());
