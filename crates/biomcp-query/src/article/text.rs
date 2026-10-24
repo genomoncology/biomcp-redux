@@ -120,7 +120,7 @@ fn execute<'a>(
             reason: Reason::NotOpen,
         },
         Some(document) => {
-            let Some(content) = select(query, &document, out) else {
+            let Some(content) = select(query, ArticleInput::Pmcid(id), &document, out) else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
@@ -138,6 +138,7 @@ fn execute<'a>(
 }
 fn select(
     query: &ArticleText,
+    input: ArticleInput,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<TextContent> {
@@ -175,7 +176,7 @@ fn select(
         .ok();
         if part.continuation {
             super::sections::fulltext::next_input(
-                query.input().clone(),
+                input,
                 number.checked_add(1)?,
                 &mut out.next,
             );
@@ -301,7 +302,7 @@ fn preprint<'a>(
     }
     out.sources.push(source);
     let document = result?;
-    let Some(content) = select(query, &document, out) else {
+    let Some(content) = select(query, query.input().clone(), &document, out) else {
         out.body = QueryBody::TextPositionError;
         return Ok(());
     };
