@@ -17,9 +17,13 @@ struct Peer {
 }
 impl Peer {
     fn new(env: &Environment) -> Result<Self, String> {
-        let mut child = env.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
-            .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
-            .spawn().map_err(|e| e.to_string())?;
+        let mut child = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())?;
         let input = child.stdin.take();
         let output = child.stdout.take().ok_or("stdout missing")?;
         let (tx, replies) = mpsc::channel();
@@ -32,23 +36,39 @@ impl Peer {
                     }
                     Ok(value)
                 });
-                if tx.send(value).is_err() { break; }
+                if tx.send(value).is_err() {
+                    break;
+                }
             }
         });
-        Ok(Self { process: Some(Process::new(child)?), input, replies, reader: Some(reader) })
+        Ok(Self {
+            process: Some(Process::new(child)?),
+            input,
+            replies,
+            reader: Some(reader),
+        })
     }
     fn send(&mut self, frame: &Value) -> Result<(), String> {
         let writer = self.input.as_mut().ok_or("stdin missing")?;
         serde_json::to_writer(&mut *writer, frame).map_err(|e| e.to_string())?;
-        writer.write_all(b"\n").and_then(|()| writer.flush()).map_err(|e| e.to_string())
+        writer
+            .write_all(b"\n")
+            .and_then(|()| writer.flush())
+            .map_err(|e| e.to_string())
     }
     fn next(&self) -> Result<Value, String> {
-        self.replies.recv_timeout(Duration::from_secs(30)).map_err(|_| "publication watchdog")?
+        self.replies
+            .recv_timeout(Duration::from_secs(30))
+            .map_err(|_| "publication watchdog")?
     }
     fn finish(mut self) -> Result<(), String> {
         drop(self.input.take());
         let (status, _, stderr) = self.process.take().ok_or("process missing")?.finish()?;
-        self.reader.take().ok_or("reader missing")?.join().map_err(|_| "reader panicked")?;
+        self.reader
+            .take()
+            .ok_or("reader missing")?
+            .join()
+            .map_err(|_| "reader panicked")?;
         if !status.success() || !stderr.is_empty() || self.replies.try_recv().is_ok() {
             return Err("extra stdout or unsuccessful MCP shutdown".into());
         }
@@ -64,11 +84,18 @@ impl Drop for Peer {
     }
 }
 
-pub(super) fn check(env: &Environment, release: impl FnOnce() -> Result<(), String>) -> Result<Vec<Value>, String> {
+pub(super) fn check(
+    env: &Environment,
+    release: impl FnOnce() -> Result<(), String>,
+) -> Result<Vec<Value>, String> {
     let mut peers = [Peer::new(env)?, Peer::new(env)?];
     for peer in &mut peers {
-        peer.send(&request(json!("search"), "tools/call", json!({"name":"biomcp","arguments":{
-            "args":["search","article","AKT1 E17K","--limit","2","--offline","--fresh"]}})))?;
+        peer.send(&request(
+            json!("search"),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{
+            "args":["search","article","AKT1 E17K","--limit","2","--offline","--fresh"]}}),
+        ))?;
         peer.send(&request(json!("accepted"), "ping", json!({})))?;
     }
     // Ping is consumed after the search is admitted. Both searches remain
@@ -83,10 +110,17 @@ pub(super) fn check(env: &Environment, release: impl FnOnce() -> Result<(), Stri
     let mut results = Vec::new();
     for peer in peers {
         let reply = peer.next()?;
-        if reply.get("id") != Some(&json!("search")) || reply.pointer("/result/isError") != Some(&json!(false)) {
+        if reply.get("id") != Some(&json!("search"))
+            || reply.pointer("/result/isError") != Some(&json!(false))
+        {
             return Err(format!("ordinary-cache search failed: {reply}"));
         }
-        results.push(reply.pointer("/result/structuredContent").ok_or("content missing")?.clone());
+        results.push(
+            reply
+                .pointer("/result/structuredContent")
+                .ok_or("content missing")?
+                .clone(),
+        );
         peer.finish()?;
     }
     Ok(results)

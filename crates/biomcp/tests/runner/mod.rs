@@ -138,10 +138,10 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             .config(config)
             .map_err(|error| error.to_string())?;
     }
-    let replay = case.replay.as_ref().map(|name| {
-        launch::fixtures().join("replies")
-            .join(name)
-    });
+    let replay = case
+        .replay
+        .as_ref()
+        .map(|name| launch::fixtures().join("replies").join(name));
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         previous = Some(

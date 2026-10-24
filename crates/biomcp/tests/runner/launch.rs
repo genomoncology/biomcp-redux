@@ -57,7 +57,8 @@ impl Environment {
         let installed = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
             .then(|| std::env::var_os("BIOMCP_TEST_EXECUTABLE"))
             .flatten();
-        let mut command = Command::new(installed.as_deref().unwrap_or(program.as_ref().as_os_str()));
+        let mut command =
+            Command::new(installed.as_deref().unwrap_or(program.as_ref().as_os_str()));
         command
             .args(args)
             .env_clear()

@@ -406,29 +406,44 @@ pub(super) fn article_processes() -> Check {
     let parent = env.root().join("cache/biomcp");
     fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
     let file = parent.join(format!(
-        "cache-{}-{}.sqlite", biomcp_fetch::VERSION, biomcp_query::store::VERSION
+        "cache-{}-{}.sqlite",
+        biomcp_fetch::VERSION,
+        biomcp_query::store::VERSION
     ));
     // Replay and ordinary caches have the same owned schema. Copy only after
     // the seed process closes; it has checkpointed the WAL and released locks.
     fs::copy(case.join("replay.sqlite"), &file).map_err(|e| e.to_string())?;
     let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
-        cache: Some(file), mode: biomcp_fetch::Mode::Offline,
-        cache_owners: vec![biomcp_query::store::OWNER], ..Default::default()
-    }).map_err(|e| e.to_string())?;
-    let connection = fetch.cache_access().map_err(|e| e.to_string())?
-        .connect().map_err(|e| e.to_string())?;
-    connection.execute_batch("BEGIN IMMEDIATE").map_err(|e| e.to_string())?;
+        cache: Some(file),
+        mode: biomcp_fetch::Mode::Offline,
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    })
+    .map_err(|e| e.to_string())?;
+    let connection = fetch
+        .cache_access()
+        .map_err(|e| e.to_string())?
+        .connect()
+        .map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
     let replies = super::publication::check(&env, || {
-        connection.execute_batch("COMMIT").map_err(|e| e.to_string())
+        connection
+            .execute_batch("COMMIT")
+            .map_err(|e| e.to_string())
     })?;
     let mut pools = std::collections::BTreeSet::new();
     for reply in replies {
         if reply.pointer("/result/items") != Some(expected) {
             return Err("concurrent ordinary-cache search lost items".into());
         }
-        let pool = reply.pointer("/page/pool/id").and_then(Value::as_str)
+        let pool = reply
+            .pointer("/page/pool/id")
+            .and_then(Value::as_str)
             .ok_or("published pool missing")?;
-        if !pools.insert(pool.to_owned()) || initial.pointer("/page/pool/id") == Some(&json!(pool)) {
+        if !pools.insert(pool.to_owned()) || initial.pointer("/page/pool/id") == Some(&json!(pool))
+        {
             return Err("concurrent fresh pools collided".into());
         }
         let mut args: Vec<String> = base.iter().map(|v| (*v).into()).collect();
