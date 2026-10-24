@@ -145,7 +145,7 @@
     "sort": {
       "$ref": "#/$defs/ArticleSort",
       "default": "rank",
-      "description": "Native relevance order."
+      "description": "Native provider order."
     },
     "source": {
       "default": [
