@@ -14,7 +14,7 @@ crate::macros::wire_enum! {
         Other => "other",
     }
 }
-/// Checked registry search with source-native filters.
+/// Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -59,7 +59,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     intervention: Option<Text>,
-    /// Resolve one checked gene before registry discovery.
+    /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -67,7 +67,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
-    /// Caller-supplied variant discovery text; no eligibility inference.
+    /// Literal variant text for registry discovery only; no eligibility judgment.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -75,7 +75,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
-    /// Literal eligibility-field discovery text.
+    /// Search literal registry eligibility text for discovery only; no eligibility judgment.
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -290,15 +290,15 @@ impl TrialSearch {
     pub fn intervention(&self) -> Option<&Text> {
         self.0.intervention.as_ref()
     }
-    /// Resolve one checked gene before registry discovery.
+    /// Resolve one checked gene for registry text discovery only; no eligibility judgment.
     pub fn gene(&self) -> Option<&GeneInput> {
         self.0.gene.as_ref()
     }
-    /// Caller-supplied variant discovery text; no eligibility inference.
+    /// Literal variant text for registry discovery only; no eligibility judgment.
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }
-    /// Literal eligibility-field discovery text.
+    /// Search literal registry eligibility text for discovery only; no eligibility judgment.
     pub fn criteria(&self) -> Option<&Text> {
         self.0.criteria.as_ref()
     }

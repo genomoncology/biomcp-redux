@@ -139,7 +139,7 @@ The projecting crate's normalized view extends this with `AlleleKey` and its pro
 
 ### 3.6 Annotations as statements
 
-Every variant assertion from any source becomes one `Statement`. A statement never merges two sources and never maps one framework onto another.
+Every variant assertion whose source classification belongs to a proposition this model defines becomes one `Statement`. A statement never merges two sources and never maps one framework onto another. A source classification outside those propositions, such as ClinVar's drug response, risk factor, protective, affects, association, association not found, confers sensitivity, other or not provided, stays in the consumer's native source record with its label, IDs, domain, condition, review status, dates and provenance, and carries `statement_unmapped: true` instead of a `Statement`. A new proposition for such labels needs both PMs' agreement before either crate builds it.
 
 ```text
 Statement {
@@ -161,7 +161,7 @@ Statement {
 
 | Type | Fields and wire form | Rule | Standard |
 | --- | --- | --- | --- |
-| `VariantRef` | Internally tagged by `"level"`: `allele` with `id` or `hgvs`; `protein` with `gene` and `hgvs` or `label`; `profile` with `record`, `label` and member refs | A reference by ID and label, never an embedded entity. A protein-level claim such as BRAF V600E never becomes a genomic allele. A compound profile stays a profile | Cat-VRS `CategoricalVariant`, its protein-consequence recipe, and CIViC molecular profiles |
+| `VariantRef` | Internally tagged by `"level"`: `allele` with `id` or `hgvs`; `protein` with `gene` and `hgvs` or `label`; `profile` with `record`, `label` and member refs, each an `allele` or `protein` ref; a profile never contains a profile | A reference by ID and label, never an embedded entity. A protein-level claim such as BRAF V600E never becomes a genomic allele. A compound profile stays a profile | Cat-VRS `CategoricalVariant`, its protein-consequence recipe, and CIViC molecular profiles |
 | `Proposition` | `pathogenicity`, `oncogenicity`, `clinical_significance`, `therapeutic_response`, `diagnostic`, `prognostic`, `functional_impact` | `#[non_exhaustive]` | VA-Spec proposition classes |
 | `Predicate` | snake_case forms of the VA-Spec predicates, such as `is_causal_for`, `predicts_sensitivity_to`, `predicts_resistance_to` | Confirm the full list against VA-Spec 1.1 when coded | VA-Spec |
 | `Direction` | `supports`, `disputes`, `neutral` | CIViC `DOES_NOT_SUPPORT` maps to `disputes` | VA-Spec `direction` |

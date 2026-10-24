@@ -156,7 +156,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     journal: Option<Text>,
-    /// Inclusive lower publication-date bound at the stated precision.
+    /// Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
     #[serde(
         default,
         deserialize_with = "present",
@@ -164,7 +164,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     since: Option<PartialDate>,
-    /// Inclusive upper publication-date bound at the stated precision.
+    /// Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
     #[serde(
         default,
         deserialize_with = "present",
@@ -349,6 +349,29 @@ impl ArticleSearch {
 }
 
 impl ArticleSearch {
+    /// Restart once per supplied word group, dropping only that group in fixed order.
+    /// Gene identity and every other selector remain unchanged.
+    pub fn term_drops(&self) -> Vec<Self> {
+        let present = [&self.0.text, &self.0.variant, &self.0.disease, &self.0.drug];
+        if present.iter().filter(|term| term.is_some()).count() < 2 {
+            return Vec::new();
+        }
+        present
+            .iter()
+            .enumerate()
+            .filter_map(|(index, term)| {
+                term.as_ref()?;
+                let mut next = self.page(0, None);
+                match index {
+                    0 => next.0.text = None,
+                    1 => next.0.variant = None,
+                    2 => next.0.disease = None,
+                    _ => next.0.drug = None,
+                }
+                Some(next)
+            })
+            .collect()
+    }
     /// Exact variant selector, kept distinct from ordinary word search.
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()

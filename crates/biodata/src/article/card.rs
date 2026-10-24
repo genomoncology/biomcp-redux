@@ -59,6 +59,9 @@ article! {
     /// Publication date at source precision.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<PartialDate>,
+    /// Electronic publication date when different from the publication date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub electronic_date: Option<PartialDate>,
     /// Every clinically meaningful source publication type.
     pub types: Box<[PublicationType]>,
     /// Related correction notices or originals.
@@ -79,6 +82,7 @@ impl Article {
             title: self.title,
             journal: self.journal,
             date: self.date,
+            electronic_date: self.electronic_date,
             types: self.types,
             corrections: self.corrections,
             authors: Capped {
