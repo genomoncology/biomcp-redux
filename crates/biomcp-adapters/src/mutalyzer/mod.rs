@@ -46,6 +46,12 @@ impl Reply for Normalized {
         }
     }
     fn check(&self) -> Result<(), BadReply> {
+        if self.errors.len() > 1000 || self.errors.iter().any(|error| {
+            let code = error.code.as_str();
+            code.len() > 128 || !code.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+        }) {
+            return Err(BadReply);
+        }
         if !self.errors.is_empty()
             || self.input_description.is_some() && self.normalized_description.is_some()
         {

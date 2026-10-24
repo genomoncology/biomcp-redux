@@ -111,7 +111,10 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::MyVariant => ("/metadata", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
         Source::Mutalyzer => ("/normalize/NM_004333.4:c.1799T%3EA", vec![]),
-        Source::VariantValidator => ("/hello", vec![]),
+        Source::VariantValidator => (
+            "/variantvalidator/GRCh38/LRG_321p1%3Ap.Arg273His/all",
+            vec![("content-type", Arg::Text("application/json"))],
+        ),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::UniProt => (
