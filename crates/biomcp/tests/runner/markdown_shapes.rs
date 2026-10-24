@@ -78,6 +78,27 @@ const SHAPES: &[Shape] = &[
         max_bytes: 650,
     },
     Shape {
+        args: &[
+            "article",
+            "supplement",
+            "28944238",
+            "MGG3-5-553-s002.xlsx",
+            "--sheet",
+            "ST2",
+            "--rows",
+            "84-120",
+        ],
+        replies: "article/supplements/live",
+        required: &[
+            "Rows",
+            "| Sheet | Row | Header | Cells |",
+            "AXIN2",
+            "p.Pro245Ser",
+            "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",
+        ],
+        max_bytes: 0,
+    },
+    Shape {
         args: &["get", "gene"],
         replies: "gene/main",
         required: &["# Error", "**status:** usage", "usage.arguments"],
