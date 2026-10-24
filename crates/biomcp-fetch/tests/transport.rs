@@ -72,7 +72,9 @@ impl Stub {
                     let _ = wait.recv();
                     let _ = stream.write_all(body.as_bytes());
                 } else {
-                    if blocked.is_some() { let _ = wait.recv(); }
+                    if blocked.is_some() {
+                        let _ = wait.recv();
+                    }
                     let _ = stream.write_all(reply.as_bytes());
                 }
             }
@@ -250,9 +252,14 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
         let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, Some(block));
         let spec = stub.spec(KeyUse::None, Duration::from_secs(1));
         let fetch = fetch();
-        let error = fetch.leg(spec, fetch.deadline(Duration::from_secs(30)))
-            .json::<Answer>(&spec.get("/answer"), &[]).unwrap_err();
-        assert_eq!((error.reason, error.status), (Reason::DeadlineExceeded, status));
+        let error = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(30)))
+            .json::<Answer>(&spec.get("/answer"), &[])
+            .unwrap_err();
+        assert_eq!(
+            (error.reason, error.status),
+            (Reason::DeadlineExceeded, status)
+        );
         // The server stays blocked until after the call returns. No elapsed-time assertion.
         assert_eq!(stub.finish().len(), 1);
     }
