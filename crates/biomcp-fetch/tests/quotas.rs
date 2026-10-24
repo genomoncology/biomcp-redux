@@ -1,4 +1,8 @@
 //! Public quota declaration boundaries and shared provider behavior.
+#![expect(
+    clippy::disallowed_methods,
+    reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
+)]
 use biomcp_fetch::{Quota, Rate, SourceKey};
 
 #[test]

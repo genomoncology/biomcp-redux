@@ -1,4 +1,8 @@
 //! Event-driven local HTTP server; each observed request owns its response release.
+#![expect(
+    clippy::unwrap_used,
+    reason = "Fixture setup and worker failures must fail the contract test"
+)]
 use biomcp_fetch::{BadReply, KeyUse, Quota, Reply, SourceSpec};
 use serde::Deserialize;
 use std::{
