@@ -1,8 +1,11 @@
 # 0062 — Fill the 0.9 parity ledger and the feature list
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 09c32721051b340f8e248bee9bc33affcfb2e3af
 
 Milestone: 1
+
+Changes: Makefile, ROADMAP.md, scripts/, sdlc/features.md, sdlc/planning/slices/gene.md
 
 ## Outcome
 

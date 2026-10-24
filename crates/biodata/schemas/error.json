@@ -211,7 +211,8 @@
         "fresh",
         "disambiguate",
         "sync",
-        "key"
+        "key",
+        "configure"
       ],
       "type": "string"
     }

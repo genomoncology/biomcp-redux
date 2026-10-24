@@ -19,6 +19,9 @@ serde-saphyr.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
+rcgen = { version = "=0.13.2", default-features = false, features = ["pem", "ring"] }
+time = { version = "0.3.55", default-features = false, features = ["std"] }
+rustls.workspace = true
 jsonschema.workspace = true
 libtest-mimic.workspace = true
 serde-saphyr.workspace = true
