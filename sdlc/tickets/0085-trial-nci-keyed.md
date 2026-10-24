@@ -1,6 +1,7 @@
 # 0085 — Search and get NCI trials with the user's key
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f7a4b2b8848967955c061f80b97ff4954aaaa0f9
 
 Milestone: 2
 
