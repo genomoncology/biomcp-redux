@@ -6,7 +6,6 @@ use biomcp_fetch::{BadReply, Reply, RequestError};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct ReplyBody {
-    #[serde(default)]
     pub data: Option<Vec<Record>>,
     status: Status,
 }
@@ -14,7 +13,6 @@ pub(super) struct ReplyBody {
 struct Status {
     code: u16,
     name: String,
-    #[serde(default)]
     msg: Option<String>,
 }
 impl Reply for ReplyBody {
@@ -56,28 +54,24 @@ pub(super) struct Record {
     #[serde(rename = "docVersion")]
     version: String,
     classification: String,
-    #[serde(default)]
     uuid: Option<String>,
-    #[serde(default)]
     condition: Option<String>,
-    #[serde(default, rename = "mondoId")]
+    #[serde(rename = "mondoId")]
     mondo: Option<String>,
-    #[serde(default)]
     ep: Option<String>,
-    #[serde(default)]
     gene: Option<String>,
-    #[serde(default, rename = "metCodes")]
-    criteria: Vec<String>,
-    #[serde(default, rename = "unMetCodes")]
-    unmet: Vec<String>,
-    #[serde(default, rename = "summaryDesc")]
+    #[serde(rename = "metCodes")]
+    criteria: Option<Vec<String>>,
+    #[serde(rename = "unMetCodes")]
+    unmet: Option<Vec<String>>,
+    #[serde(rename = "summaryDesc")]
     summary: Option<String>,
-    #[serde(default, rename = "approvedDate")]
+    #[serde(rename = "approvedDate")]
     approved: Option<String>,
-    #[serde(default, rename = "publishedDate")]
+    #[serde(rename = "publishedDate")]
     published: Option<String>,
-    #[serde(default, rename = "versionsList")]
-    versions: Vec<String>,
+    #[serde(rename = "versionsList")]
+    versions: Option<Vec<String>>,
 }
 impl Record {
     pub(super) fn map(self) -> Result<VariantAssertion, RequestError> {
@@ -106,7 +100,7 @@ impl Record {
         let detail = AssertionDetail {
             conditions: conditions.into(),
             summary: self.summary.as_deref().map(text).transpose()?,
-            unmet_criteria: strings(self.unmet)?,
+            unmet_criteria: strings(self.unmet.unwrap_or_default())?,
             published: self
                 .published
                 .map(|s| s.parse().map_err(|_| super::bad()))
@@ -115,7 +109,7 @@ impl Record {
                 .approved
                 .map(|s| s.parse().map_err(|_| super::bad()))
                 .transpose()?,
-            versions: strings(self.versions)?,
+            versions: strings(self.versions.unwrap_or_default())?,
             ..Default::default()
         };
         let mut row = crate::assertion::row(
@@ -128,7 +122,7 @@ impl Record {
             None,
         );
         if let Some(statement) = &mut row.statement {
-            statement.criteria = strings(self.criteria)?;
+            statement.criteria = strings(self.criteria.unwrap_or_default())?;
             statement.gene_context = self
                 .gene
                 .map(|s| s.parse().map_err(|_| super::bad()))
