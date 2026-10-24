@@ -50,4 +50,7 @@ pub struct Mutation {
 macro_rules! reply {
     ($($t:ty),+ $(,)?) => {$ (impl Reply for $t { fn check(&self) -> Result<(), BadReply> { Ok(()) } })+};
 }
-reply!(Study, Profile, SampleList, Vec<Mutation>);
+#[derive(Deserialize)]
+#[serde(transparent)]
+pub(super) struct Mutations(pub Vec<Mutation>);
+reply!(Study, Profile, SampleList, Mutations);

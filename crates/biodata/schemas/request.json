@@ -114,6 +114,10 @@
         " Every landed section."
       ]
     },
+    "GeneSymbol": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "enum": [
@@ -151,6 +155,13 @@
         "not-applicable",
         "1/2",
         "2/3"
+      ],
+      "type": "string"
+    },
+    "RecurrenceSource": {
+      "description": "Source requiring explicit study, profile and sample set.",
+      "enum": [
+        "cbioportal"
       ],
       "type": "string"
     },
@@ -272,6 +283,66 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Observe an exact allele in an explicitly selected cohort.",
+      "properties": {
+        "command": {
+          "const": "variant_recurrence",
+          "type": "string"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "HGNC symbol resolved to the source's Entrez gene identifier."
+        },
+        "input": {
+          "$ref": "#/$defs/VariantInput",
+          "description": "Published variant identity; ambiguous identities are never selected silently.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Source mutation rows per page, including excluded alleles.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page": {
+          "default": 0,
+          "description": "Zero-based native source page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit mutation molecular profile."
+        },
+        "sample_set": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit sample list; selected size is never an allele denominator."
+        },
+        "source": {
+          "$ref": "#/$defs/RecurrenceSource",
+          "description": "Explicit cohort source."
+        },
+        "study": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit study; there is no default cohort."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "source",
+        "gene",
+        "study",
+        "profile",
+        "sample_set"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Read a published variant identifier.",

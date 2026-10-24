@@ -2015,6 +2015,7 @@
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
         "hgnc",
+        "cbioportal",
         "mygene",
         "reactome",
         "hpa",
@@ -2041,6 +2042,7 @@
       "type": "string",
       "x-enum-descriptions": [
         " HGNC.",
+        " Public cBioPortal with study-specific reuse terms.",
         " MyGene.info.",
         " Reactome.",
         " Human Protein Atlas.",

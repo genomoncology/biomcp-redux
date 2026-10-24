@@ -110,4 +110,9 @@ pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(
 pub(crate) static NCI: Quota = Quota::new(SourceKey::declare("nci"), Rate::per_second(1), None, 1);
 
 // Conservative serial public portal policy, not a claimed published provider quota.
-pub(crate) static CBIOPORTAL: Quota = Quota::new(SourceKey::declare("cbioportal"), Rate::per_second(2), None, 1);
+pub(crate) static CBIOPORTAL: Quota = Quota::new(
+    SourceKey::declare("cbioportal"),
+    Rate::per_second(2),
+    None,
+    1,
+);

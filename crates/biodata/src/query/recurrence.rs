@@ -31,12 +31,20 @@ struct Fields {
     #[serde(default)]
     page: u32,
 }
-fn limit() -> u32 { 10 }
+fn limit() -> u32 {
+    10
+}
 impl TryFrom<Fields> for VariantRecurrenceQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=100).contains(&v.limit) || v.page.checked_mul(v.limit).is_none()
-            || [&v.study, &v.profile, &v.sample_set].iter().any(|s| !s.as_str().bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))) {
+        if !(1..=100).contains(&v.limit)
+            || v.page.checked_mul(v.limit).is_none()
+            || [&v.study, &v.profile, &v.sample_set].iter().any(|s| {
+                !s.as_str()
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
+            })
+        {
             return Err(super::gene::QueryInvalid);
         }
         Ok(Self(v))
@@ -44,19 +52,33 @@ impl TryFrom<Fields> for VariantRecurrenceQuery {
 }
 impl VariantRecurrenceQuery {
     /// Unchanged variant identifier.
-    pub fn input(&self) -> &VariantInput { &self.0.input }
+    pub fn input(&self) -> &VariantInput {
+        &self.0.input
+    }
     /// Caller-selected gene symbol.
-    pub fn gene(&self) -> &GeneSymbol { &self.0.gene }
+    pub fn gene(&self) -> &GeneSymbol {
+        &self.0.gene
+    }
     /// Caller-selected study.
-    pub fn study(&self) -> &Text { &self.0.study }
+    pub fn study(&self) -> &Text {
+        &self.0.study
+    }
     /// Caller-selected mutation profile.
-    pub fn profile(&self) -> &Text { &self.0.profile }
+    pub fn profile(&self) -> &Text {
+        &self.0.profile
+    }
     /// Caller-selected sample list.
-    pub fn sample_set(&self) -> &Text { &self.0.sample_set }
+    pub fn sample_set(&self) -> &Text {
+        &self.0.sample_set
+    }
     /// Source row page size.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Native source page number.
-    pub fn page(&self) -> u32 { self.0.page }
+    pub fn page(&self) -> u32 {
+        self.0.page
+    }
     /// Continue without changing cohort, allele or page size.
     pub fn next_page(&self) -> Option<Self> {
         let mut q = self.clone();
