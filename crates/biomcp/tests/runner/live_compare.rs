@@ -88,7 +88,10 @@ fn terminal(items: &[Observation]) -> Vec<&Observation> {
     let mut result: Vec<&Observation> = Vec::new();
     for item in items {
         if let Some(old) = result.iter_mut().find(|old| old.identity == item.identity) {
-            *old = item;
+            // A cache read cannot erase a transport attempt in this command.
+            if !item.cached || old.cached {
+                *old = item;
+            }
         } else {
             result.push(item);
         }
