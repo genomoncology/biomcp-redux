@@ -1744,6 +1744,7 @@ The landing gate fails when line coverage falls more than 0.2 points below the f
 The ratchet test holds the list. Each entry names a file and its reason.
 
 - `crates/biodata/tests/`: identifier, date and notation tables through the public API, the schema drift, compatibility and subset test, and the JSON round trip. These are outside-in for the library.
+- `crates/biomcp-fetch/tests/`: the transport contract through the crate's public API against a local stub server with no network: source-key rate limits, deadlines, retries, keyed-source skips, reply checks, the cache and record, replay and offline. These are outside-in for the library, so the transport lands before any command. When a runner case later proves the same behavior through the binary, the duplicate library test is removed.
 - `crates/biomcp-query/src/article/rank.rs`: the ranker's tie-break table, because a ranking rule is easier to state as rows than as recorded pools.
 - `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
 - `crates/biomcp-fetch/src/xml.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
