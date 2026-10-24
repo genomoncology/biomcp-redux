@@ -98,6 +98,10 @@
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
     },
+    "MyVariantQuery": {
+      "pattern": "\\S",
+      "type": "string"
+    },
     "PageInfo": {
       "additionalProperties": false,
       "description": "Search counts after filtering and deduplication.",
@@ -698,8 +702,8 @@
           "type": "array"
         },
         "source_query": {
-          "$ref": "#/$defs/Text",
-          "description": "Exact query sent to the named source, without rewriting raw query text."
+          "description": "Exact query sent to the named source, without rewriting raw query text.",
+          "type": "string"
         }
       },
       "required": [
@@ -766,7 +770,7 @@
           "description": "Explicit substitution using checked one-letter or three-letter amino-acid codes."
         },
         "query": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/MyVariantQuery",
           "description": "Raw MyVariant query, passed and echoed unchanged; requires --source myvariant."
         },
         "region": {

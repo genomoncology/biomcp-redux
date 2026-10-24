@@ -14,11 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn walk() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("synthetic-ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}", stub.address),"ca_bundle":ca}))
-        .map_err(|e| e.to_string())?;
+    let env = environment(&stub)?;
     let mut args: Vec<String> = [
         "search",
         "variant",

@@ -30,7 +30,7 @@ impl Reply for Page {
 /// Send one declared native query window and validate it before cache admission.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let page = leg.json_checked_cache::<Page>(
+    let (page, _) = leg.json_received_checked::<Page>(
         &QUERY,
         &[
             ("q", Arg::Text(&term)),
@@ -47,12 +47,8 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             ),
         ],
         |page| {
-            page.hits.len() <= query.limit() as usize
-                && (page.hits.len() as u64
-                    == page
-                        .total
-                        .saturating_sub(u64::from(query.offset()))
-                        .min(u64::from(query.limit())))
+            if page.hits.len() <= query.limit() as usize
+                && page.hits.len() as u64 == page.total.saturating_sub(u64::from(query.offset())).min(u64::from(query.limit())) { Ok(()) } else { Err(BadReply) }
         },
     )?;
     let mut rows = Mapped {
