@@ -1,75 +1,213 @@
-use super::{Snapshot,bad,source};
-use crate::{Ctx,Outcome,status};
-use biodata::{ArticleEvidence,ArticleInput,Capped,CitationContexts,Doi,EvidenceContext,EvidenceNotice,Pmid,Section,Source,Text};
-use biomcp_adapters::{pubmed,semantic_scholar};
-use biomcp_fetch::{Deadline,RequestError};
+use super::{Snapshot, bad, source};
+use crate::{Ctx, Outcome, status};
+use biodata::{
+    ArticleEvidence, ArticleInput, Capped, CitationContexts, Doi, EvidenceContext, EvidenceNotice,
+    Pmid, Section, Source, Text,
+};
+use biomcp_adapters::{pubmed, semantic_scholar};
+use biomcp_fetch::{Deadline, RequestError};
 /// A target's independently checked native identities, never a rendered citation match.
-pub(super) struct Target {pub pmid:Option<Pmid>,pub doi:Option<Doi>}
-pub(super) fn target<'a>(cx:&Ctx<'a>,query:&ArticleEvidence,deadline:&mut Deadline<'a>,snapshot:&mut Snapshot,out:&mut Outcome)->Result<Target,RequestError> {
-    if let ArticleInput::Doi(doi)=query.cited() {return Ok(Target{pmid:None,doi:Some(doi.clone())})}
-    let leg=cx.fetch.leg(&pubmed::SPEC,*deadline).fresh(cx.fresh);let started=leg.remaining();
-    let result=(|| {
-        let ids=match query.cited() {
-            ArticleInput::Pmid(id)=>vec![*id],
-            input=>pubmed::resolve_ids(&leg,input,cx.ncbi_email.as_ref())?,
-        };
-        if ids.len()!=1 {return Err(bad())}
-        let mapped=pubmed::summaries(&leg,&ids,cx.ncbi_email.as_ref())?;
-        status::append(&mut out.problems,mapped.problems);
-        let header=mapped.value.into_iter().find(|h|h.pmid==ids.first().copied()).ok_or_else(bad)?;
-        Ok(Target{pmid:header.pmid,doi:header.doi})
-    })();
-    *deadline=crate::article::consume(*deadline,started,leg.remaining());
-    source(snapshot,status::source(Source::PubMed,leg.finish(),result.as_ref().err().copied()));result
+pub(super) struct Target {
+    pub pmid: Option<Pmid>,
+    pub doi: Option<Doi>,
 }
-pub(super) fn read<'a>(cx:&Ctx<'a>,query:&ArticleEvidence,snapshot:&mut Snapshot,deadline:&mut Deadline<'a>,out:&mut Outcome)->Result<(),RequestError> {
-    let target=match target(cx,query,deadline,snapshot,out) {Ok(value)=>value,Err(error)=>{snapshot.graph=Section::unavailable(Source::SemanticScholar,reason(error));out.local=status::local(error);return Ok(())}};
-    let leg=cx.fetch.leg(&semantic_scholar::SPEC,*deadline).fresh(cx.fresh);let started=leg.remaining();
-    let mut result=Ok(());
+pub(super) fn target<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleEvidence,
+    deadline: &mut Deadline<'a>,
+    snapshot: &mut Snapshot,
+    out: &mut Outcome,
+) -> Result<Target, RequestError> {
+    if let ArticleInput::Doi(doi) = query.cited() {
+        return Ok(Target {
+            pmid: None,
+            doi: Some(doi.clone()),
+        });
+    }
+    let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let result = (|| {
+        let ids = match query.cited() {
+            ArticleInput::Pmid(id) => vec![*id],
+            input => pubmed::resolve_ids(&leg, input, cx.ncbi_email.as_ref())?,
+        };
+        if ids.len() != 1 {
+            return Err(bad());
+        }
+        let mapped = pubmed::summaries(&leg, &ids, cx.ncbi_email.as_ref())?;
+        status::append(&mut out.problems, mapped.problems);
+        let header = mapped
+            .value
+            .into_iter()
+            .find(|h| h.pmid == ids.first().copied())
+            .ok_or_else(bad)?;
+        Ok(Target {
+            pmid: header.pmid,
+            doi: header.doi,
+        })
+    })();
+    *deadline = crate::article::consume(*deadline, started, leg.remaining());
+    source(
+        snapshot,
+        status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied()),
+    );
+    result
+}
+pub(super) fn read<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleEvidence,
+    snapshot: &mut Snapshot,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let target = match target(cx, query, deadline, snapshot, out) {
+        Ok(value) => value,
+        Err(error) => {
+            snapshot.graph = Section::unavailable(Source::SemanticScholar, reason(error));
+            out.local = status::local(error);
+            return Ok(());
+        }
+    };
+    let leg = cx
+        .fetch
+        .leg(&semantic_scholar::SPEC, *deadline)
+        .fresh(cx.fresh);
+    let started = leg.remaining();
+    let mut result = Ok(());
     for _ in 0..5 {
-        match semantic_scholar::edges(&leg,query.citing(),true,snapshot.cursor) {
-            Ok(reply)=>{
+        match semantic_scholar::edges(&leg, query.citing(), true, snapshot.cursor) {
+            Ok(reply) => {
                 for edge in reply.data {
-                    let matches=edge.cited_paper.as_ref().and_then(|p|p.external_ids.as_ref()).is_some_and(|ids|target.pmid.is_some()&&ids.pubmed==target.pmid || ids.doi.as_ref().zip(target.doi.as_ref()).is_some_and(|(a,b)|a==b));
-                    if matches {retain(snapshot,edge)?;}
+                    let matches = edge
+                        .cited_paper
+                        .as_ref()
+                        .and_then(|p| p.external_ids.as_ref())
+                        .is_some_and(|ids| {
+                            target.pmid.is_some() && ids.pubmed == target.pmid
+                                || ids
+                                    .doi
+                                    .as_ref()
+                                    .zip(target.doi.as_ref())
+                                    .is_some_and(|(a, b)| a == b)
+                        });
+                    if matches {
+                        retain(snapshot, edge)?;
+                    }
                 }
                 match reply.next {
-                    None=>{snapshot.terminal=true;snapshot.cursor=None;break},
-                    Some(next) if next>snapshot.cursor.unwrap_or(0)=>snapshot.cursor=Some(next),
-                    Some(_)=>{result=Err(bad());break},
+                    None => {
+                        snapshot.terminal = true;
+                        snapshot.cursor = None;
+                        break;
+                    }
+                    Some(next) if next > snapshot.cursor.unwrap_or(0) => {
+                        snapshot.cursor = Some(next)
+                    }
+                    Some(_) => {
+                        result = Err(bad());
+                        break;
+                    }
                 }
             }
-            Err(error)=>{result=Err(error);break},
+            Err(error) => {
+                result = Err(error);
+                break;
+            }
         }
     }
-    *deadline=crate::article::consume(*deadline,started,leg.remaining());
-    source(snapshot,status::source(Source::SemanticScholar,leg.finish(),result.as_ref().err().copied()));
-    if let Err(error)=result {
-        out.local=status::local(error);
-        if !matches!(snapshot.graph,Section::Data{..}) {snapshot.graph=Section::unavailable(Source::SemanticScholar,reason(error));}
-    }
-    finish(snapshot);Ok(())
-}
-fn retain(snapshot:&mut Snapshot,edge:semantic_scholar::Edge)->Result<(),RequestError> {
-    if snapshot.matched {return Ok(())} // A provider graph edge is one citing/cited pair.
-    snapshot.matched=true;
-    let mut contexts=Vec::new();
-    for (index,text) in edge.contexts.unwrap_or_default().into_iter().enumerate() {
-        for (offset,text) in super::page::split(text.as_str()) {
-            contexts.push(EvidenceContext{position:u32::try_from(index+1).map_err(|_|bad())?,character_offset:offset,text:Text::new(&text).map_err(|_|bad())?});
+    *deadline = crate::article::consume(*deadline, started, leg.remaining());
+    source(
+        snapshot,
+        status::source(
+            Source::SemanticScholar,
+            leg.finish(),
+            result.as_ref().err().copied(),
+        ),
+    );
+    if let Err(error) = result {
+        out.local = status::local(error);
+        if !matches!(snapshot.graph, Section::Data { .. }) {
+            snapshot.graph = Section::unavailable(Source::SemanticScholar, reason(error));
         }
     }
-    snapshot.graph=Section::Data{source:Source::SemanticScholar,data:CitationContexts{contexts:Capped{total:contexts.len() as u64,items:contexts.into()},complete:false,source_cursor:None,intents:edge.intents,influential:edge.is_influential,notice:None}};
+    finish(snapshot);
     Ok(())
 }
-fn finish(snapshot:&mut Snapshot) {
-    if let Section::Data{data,..}=&mut snapshot.graph {
-        data.complete=snapshot.terminal;data.source_cursor=snapshot.cursor;
-        data.notice=(snapshot.terminal&&data.contexts.items.is_empty()).then_some(EvidenceNotice::NoContexts);
-    }else if snapshot.terminal {
-        snapshot.graph=Section::Data{source:Source::SemanticScholar,data:CitationContexts{contexts:Capped{total:0,items:Box::default()},complete:true,source_cursor:None,intents:None,influential:None,notice:Some(EvidenceNotice::NotInReferences)}};
-    }else if !matches!(snapshot.graph,Section::Unavailable{..}|Section::Skipped{..}) {
-        snapshot.graph=Section::Data{source:Source::SemanticScholar,data:CitationContexts{contexts:Capped{total:0,items:Box::default()},complete:false,source_cursor:snapshot.cursor,intents:None,influential:None,notice:None}};
+fn retain(snapshot: &mut Snapshot, edge: semantic_scholar::Edge) -> Result<(), RequestError> {
+    if snapshot.matched {
+        return Ok(());
+    } // A provider graph edge is one citing/cited pair.
+    snapshot.matched = true;
+    let mut contexts = Vec::new();
+    for (index, text) in edge.contexts.unwrap_or_default().into_iter().enumerate() {
+        for (offset, text) in super::page::split(text.as_str()) {
+            contexts.push(EvidenceContext {
+                position: u32::try_from(index + 1).map_err(|_| bad())?,
+                character_offset: offset,
+                text: Text::new(&text).map_err(|_| bad())?,
+            });
+        }
+    }
+    snapshot.graph = Section::Data {
+        source: Source::SemanticScholar,
+        data: CitationContexts {
+            contexts: Capped {
+                total: contexts.len() as u64,
+                items: contexts.into(),
+            },
+            complete: false,
+            source_cursor: None,
+            intents: edge.intents,
+            influential: edge.is_influential,
+            notice: None,
+        },
+    };
+    Ok(())
+}
+fn finish(snapshot: &mut Snapshot) {
+    if let Section::Data { data, .. } = &mut snapshot.graph {
+        data.complete = snapshot.terminal;
+        data.source_cursor = snapshot.cursor;
+        data.notice = (snapshot.terminal && data.contexts.items.is_empty())
+            .then_some(EvidenceNotice::NoContexts);
+    } else if snapshot.terminal {
+        snapshot.graph = Section::Data {
+            source: Source::SemanticScholar,
+            data: CitationContexts {
+                contexts: Capped {
+                    total: 0,
+                    items: Box::default(),
+                },
+                complete: true,
+                source_cursor: None,
+                intents: None,
+                influential: None,
+                notice: Some(EvidenceNotice::NotInReferences),
+            },
+        };
+    } else if !matches!(
+        snapshot.graph,
+        Section::Unavailable { .. } | Section::Skipped { .. }
+    ) {
+        snapshot.graph = Section::Data {
+            source: Source::SemanticScholar,
+            data: CitationContexts {
+                contexts: Capped {
+                    total: 0,
+                    items: Box::default(),
+                },
+                complete: false,
+                source_cursor: snapshot.cursor,
+                intents: None,
+                influential: None,
+                notice: None,
+            },
+        };
     }
 }
-pub(super) fn reason(error:RequestError)->biodata::Reason {match error {RequestError::Source(e)=>e.reason,_=>biodata::Reason::Unavailable}}
+pub(super) fn reason(error: RequestError) -> biodata::Reason {
+    match error {
+        RequestError::Source(e) => e.reason,
+        _ => biodata::Reason::Unavailable,
+    }
+}

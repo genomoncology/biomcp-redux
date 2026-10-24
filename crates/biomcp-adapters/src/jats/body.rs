@@ -5,6 +5,8 @@ use biomcp_fetch::BadReply;
 /// One source row and its rendered representation, before bounded fragmentation.
 #[derive(Debug)]
 pub struct BodyRow {
+    /// This row is an original body paragraph, rather than a title, caption or table row.
+    pub paragraph: bool,
     /// Source text used for literal matching.
     pub plain: String,
     /// Whole rendered source row.
@@ -55,6 +57,7 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
     let mut group = Group::section(path.clone());
     if let Some(title) = node.child("title")? {
         group.rows.push(BodyRow {
+            paragraph: false,
             plain: title.text()?,
             markdown: format!(
                 "{} {}",
@@ -90,6 +93,7 @@ pub(super) fn section(node: Element<'_>, ancestors: &[Text]) -> Result<Vec<Group
                 let plain = child.text()?;
                 if !plain.trim().is_empty() {
                     group.rows.push(BodyRow {
+                        paragraph: name == "p",
                         plain,
                         markdown: markdown::inline(child.0)?.trim().to_owned(),
                         context: false,
@@ -114,6 +118,7 @@ pub(super) fn figure(fig: Element<'_>) -> Result<Option<BodyRow>, BadReply> {
         return Ok(None);
     }
     Ok(Some(BodyRow {
+        paragraph: false,
         plain,
         markdown: format!(
             "**{}.** {}",
@@ -142,6 +147,7 @@ pub(super) fn groups(name: &str, node: Element<'_>) -> Result<Vec<Group>, BadRep
             None
         } else {
             Some(BodyRow {
+                paragraph: name == "p",
                 plain,
                 markdown: markdown::inline(node.0)?.trim().to_owned(),
                 context: false,

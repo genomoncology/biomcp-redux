@@ -4,8 +4,8 @@
     clippy::disallowed_methods,
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
-mod pool;
 mod evidence;
+mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
 use rusqlite::{Connection, params};

@@ -58,7 +58,8 @@ pub fn recommendations(
         ("fields", Arg::Text("externalIds,title,year")),
     ];
     if let [seed] = seeds
-        && negative.is_empty() {
+        && negative.is_empty()
+    {
         let id = paper_id(seed)?;
         let segment = PathSegment::new(&id).map_err(RequestError::Input)?;
         return leg.json(&GET.clone().with_segments(&[segment]), &args);

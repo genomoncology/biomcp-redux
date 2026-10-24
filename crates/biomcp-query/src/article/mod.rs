@@ -1,7 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
-pub mod evidence;
-pub mod recommend;
 mod edges;
+pub mod evidence;
 mod fold;
 pub mod get;
 mod next;
@@ -9,6 +8,7 @@ mod order;
 mod page;
 mod preprint;
 mod protein_change;
+pub mod recommend;
 mod sections;
 mod semantic_edges;
 pub mod semantic_scholar;

@@ -58,6 +58,7 @@ pub(super) fn append(
         let source_row = originals.values.len();
         let pieces = split(&row.markdown, budget);
         originals.values.push(BodyRow {
+            paragraph: row.paragraph,
             plain: row.plain.clone(),
             markdown: row.markdown.clone(),
             context: row.context,

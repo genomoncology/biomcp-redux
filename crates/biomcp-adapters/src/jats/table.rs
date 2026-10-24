@@ -45,6 +45,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
             .collect();
         md.resize(width, String::new());
         rendered.push(BodyRow {
+            paragraph: false,
             plain: cells.plain,
             markdown: format!("| {} |", md.join(" | ")),
             context: false,
@@ -52,6 +53,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         });
     }
     let mut rows = vec![BodyRow {
+            paragraph: false,
         plain: format!("{label} {}", table.value(&["caption"])?.unwrap_or_default()),
         markdown: caption.clone(),
         context: true,
@@ -65,6 +67,7 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         context.push_str(&format!("\n\n{}\n{separator}", header.markdown));
         rows.push(header);
         rows.push(BodyRow {
+            paragraph: false,
             plain: String::new(),
             markdown: separator,
             context: true,

@@ -34,7 +34,7 @@ impl Cursor<'_> {
     fn request(self, offset: u32, pool: Option<Text>) -> Request {
         match self {
             Self::Search(q) => Request::SearchArticle(q.page(offset, pool)),
-            Self::Recommend(q) => Request::ArticleRecommend(q.page(offset,pool)),
+            Self::Recommend(q) => Request::ArticleRecommend(q.page(offset, pool)),
             Self::Edges(q, true) => Request::ArticleReferences(q.page(offset, pool)),
             Self::Edges(q, false) => Request::ArticleCitations(q.page(offset, pool)),
         }
@@ -175,7 +175,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
             candidates: Vec::new(),
         }),
         Cursor::Edges(_, _) => QueryBody::ArticleEdges(ArticleEdgePage { items }),
-        Cursor::Recommend(_) => QueryBody::ArticleRecommendations(super::recommend::body(items,total==0)),
+        Cursor::Recommend(_) => {
+            QueryBody::ArticleRecommendations(super::recommend::body(items, total == 0))
+        }
     };
     actions(query, pool, returned, total, out);
     if let Cursor::Search(search) = query {
@@ -223,17 +225,39 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
         QueryBody::ArticleEdges(page) => page.items.as_ref(),
         _ => &[],
     };
-    if let Cursor::Edges(parent,references)=query {
-        if let Some(item)=items.iter().find(|item|item.contexts.as_ref().is_some_and(|c|c.total>1)) {
-            let input=item.pmid.map(biodata::ArticleInput::Pmid).or_else(|| match item.key.as_ref() {
-                Some(biodata::ArticleKey::Doi(id))=>Some(biodata::ArticleInput::Doi(id.clone())),
-                Some(biodata::ArticleKey::Pmc(id))=>Some(biodata::ArticleInput::Pmcid(*id)),_=>None,
-            });
-            if let Some(input)=input {
-                let (citing,cited)=if references {(parent.input().clone(),input)}else{(input,parent.input().clone())};
-                out.next.push((StepKind::Disambiguate,Action::Run{request:Request::ArticleEvidence(biodata::ArticleEvidence::new(citing,cited)),fresh:false}));
+    if let Cursor::Edges(parent, references) = query
+        && let Some(item) = items
+            .iter()
+            .find(|item| item.contexts.as_ref().is_some_and(|c| c.total > 1))
+        {
+            let input =
+                item.pmid
+                    .map(biodata::ArticleInput::Pmid)
+                    .or_else(|| match item.key.as_ref() {
+                        Some(biodata::ArticleKey::Doi(id)) => {
+                            Some(biodata::ArticleInput::Doi(id.clone()))
+                        }
+                        Some(biodata::ArticleKey::Pmc(id)) => {
+                            Some(biodata::ArticleInput::Pmcid(*id))
+                        }
+                        _ => None,
+                    });
+            if let Some(input) = input {
+                let (citing, cited) = if references {
+                    (parent.input().clone(), input)
+                } else {
+                    (input, parent.input().clone())
+                };
+                out.next.push((
+                    StepKind::Disambiguate,
+                    Action::Run {
+                        request: Request::ArticleEvidence(biodata::ArticleEvidence::new(
+                            citing, cited,
+                        )),
+                        fresh: false,
+                    },
+                ));
             }
-        }
     }
     if let Some(first) = items.first()
         && let Some(id) = first.pmid
