@@ -55,6 +55,8 @@ canonical_enum! {
         MyGene => "mygene",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// Human Protein Atlas.
+        Hpa => "hpa",
         /// PubMed.
         PubMed => "pubmed",
         /// Europe PMC.

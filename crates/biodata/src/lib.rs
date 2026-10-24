@@ -40,3 +40,5 @@ pub use response::{
 pub use response::{SyncQuery, SyncResult};
 
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};
+
+pub use response::{Expression, TissueNtpm, CancerPtpm};
