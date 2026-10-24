@@ -55,7 +55,25 @@ pub(super) fn check() -> Check {
     ] {
         closed(server.address, bytes.as_bytes())?;
     }
-    let mut slow = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    slow_header(server.address)?;
+    let mut held = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
+    held.set_read_timeout(Some(Duration::from_secs(4)))
+        .map_err(|e| e.to_string())?;
+    server.stop()?;
+    let mut byte = [0];
+    match held.read(&mut byte) {
+        Ok(0) => (),
+        Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
+        other => return Err(format!("HTTP shutdown retained a client socket: {other:?}")),
+    }
+    if TcpStream::connect(server.address).is_ok() {
+        return Err("shutdown left a listener".into());
+    }
+    Ok(())
+}
+
+fn slow_header(address: SocketAddr) -> Check {
+    let mut slow = TcpStream::connect(address).map_err(|e| e.to_string())?;
     slow.set_read_timeout(Some(Duration::from_secs(4)))
         .map_err(|e| e.to_string())?;
     slow.write_all(b"GET /health HTTP/1.1\r\nX-Slow: ")
@@ -75,29 +93,24 @@ pub(super) fn check() -> Check {
     });
     let mut byte = [0];
     let result = slow.read(&mut byte);
+    // Measure the observed read event before stopping and joining the writer.
+    let close_elapsed = started.elapsed();
+    let cleanup_started = Instant::now();
     let _ = stop.send(());
     let _ = slow.shutdown(std::net::Shutdown::Both);
-    writer.join().map_err(|_| "slow writer stopped")?;
-    let ended = match result {
+    let joined = writer.join();
+    let cleanup_elapsed = cleanup_started.elapsed();
+    let ended = match &result {
         Ok(0) => true,
         Err(error) => error.kind() == std::io::ErrorKind::ConnectionReset,
         _ => false,
     };
-    if !ended || started.elapsed() > Duration::from_secs(4) {
-        return Err("slow header retained a worker beyond the absolute deadline".into());
-    }
-    let mut held = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-    held.set_read_timeout(Some(Duration::from_secs(4)))
-        .map_err(|e| e.to_string())?;
-    server.stop()?;
-    let mut byte = [0];
-    match held.read(&mut byte) {
-        Ok(0) => (),
-        Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
-        other => return Err(format!("HTTP shutdown retained a client socket: {other:?}")),
-    }
-    if TcpStream::connect(server.address).is_ok() {
-        return Err("shutdown left a listener".into());
+    if !ended || close_elapsed > Duration::from_secs(4) || joined.is_err() {
+        return Err(format!(
+            "slow header deadline: read={result:?}, close_elapsed={close_elapsed:?}, \
+             cleanup_elapsed={cleanup_elapsed:?}, writer_panicked={}",
+            joined.is_err()
+        ));
     }
     Ok(())
 }
