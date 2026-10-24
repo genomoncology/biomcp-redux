@@ -192,6 +192,25 @@
       ],
       "type": "object"
     },
+    "NciDiseaseRef": {
+      "additionalProperties": false,
+      "description": "Compact source disease reference; the diseases section retains every coding field.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source name."
+        },
+        "nci_thesaurus_concept_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source NCIt identity."
+        }
+      },
+      "required": [
+        "name",
+        "nci_thesaurus_concept_id"
+      ],
+      "type": "object"
+    },
     "NciEligibilityPage": {
       "additionalProperties": false,
       "description": "Native eligibility fields and whole unclassified criteria.",
@@ -440,16 +459,48 @@
       },
       "type": "object"
     },
+    "NciTextPage": {
+      "additionalProperties": false,
+      "description": "Exact source text fragment with an honest original character count.",
+      "properties": {
+        "offset": {
+          "description": "Original Unicode scalar position.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "description": "Original source fragment, including whitespace.",
+          "type": "string"
+        },
+        "total_characters": {
+          "description": "Complete source length in Unicode scalar values.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "text",
+        "offset",
+        "total_characters"
+      ],
+      "type": "object"
+    },
     "NciTrial": {
       "additionalProperties": false,
       "description": "NCI trial card without registry status or phase coercion.",
       "properties": {
         "brief_summary": {
-          "description": "Native short summary, only on exact retrieval.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NciTextPage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native short summary, only on exact retrieval."
         },
         "brief_title": {
           "$ref": "#/$defs/Text",
@@ -585,7 +636,7 @@
         "arms": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
@@ -596,7 +647,7 @@
         "diseases": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section4"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -607,7 +658,7 @@
         "eligibility": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section2"
             },
             {
               "type": "null"
@@ -618,13 +669,24 @@
         "outcomes": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section3"
             },
             {
               "type": "null"
             }
           ],
           "description": "Source outcomes without registry type coercion."
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native summary with character continuations."
         }
       },
       "type": "object"
@@ -813,7 +875,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/NciEligibilityPage",
+              "$ref": "#/$defs/NciTextPage",
               "description": "Whole section data."
             },
             "source": {
@@ -934,7 +996,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords3",
+              "$ref": "#/$defs/NciEligibilityPage",
               "description": "Whole section data."
             },
             "source": {
@@ -1055,7 +1117,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords4",
+              "$ref": "#/$defs/TrialRecords3",
               "description": "Whole section data."
             },
             "source": {
@@ -1176,7 +1238,128 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords",
+              "$ref": "#/$defs/TrialRecords4",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialRecords5",
               "description": "Whole section data."
             },
             "source": {
@@ -1593,7 +1776,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciDisease"
+            "$ref": "#/$defs/NciDiseaseRef"
           },
           "type": "array"
         },
@@ -1710,6 +1893,37 @@
       ],
       "type": "object"
     },
+    "TrialRecords5": {
+      "additionalProperties": false,
+      "description": "Whole-record page retaining collection order.",
+      "properties": {
+        "items": {
+          "description": "Complete records in source order.",
+          "items": {
+            "$ref": "#/$defs/NciDisease"
+          },
+          "type": "array"
+        },
+        "offset": {
+          "description": "Offset in the unchanged source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Original collection size.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
     "TrialSection": {
       "description": "Available source protocol sections.",
       "enum": [
@@ -1717,7 +1931,8 @@
         "outcomes",
         "arms",
         "all",
-        "diseases"
+        "diseases",
+        "summary"
       ],
       "type": "string"
     },

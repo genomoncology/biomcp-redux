@@ -4,59 +4,17 @@
       "pattern": "\\S",
       "type": "string"
     },
-    "NciDisease": {
+    "NciDiseaseRef": {
       "additionalProperties": false,
-      "description": "One NCI disease concept; names never substitute for an NCIt identity.",
+      "description": "Compact source disease reference; the diseases section retains every coding field.",
       "properties": {
-        "inclusion_indicator": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Publisher coding provenance, without local interpretation."
-        },
-        "is_lead_disease": {
-          "description": "Native lead-disease marker.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
         "name": {
           "$ref": "#/$defs/Text",
-          "description": "Source concept name."
+          "description": "Native source name."
         },
         "nci_thesaurus_concept_id": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher NCIt identity."
-        },
-        "parents": {
-          "default": [],
-          "description": "Original immediate ancestors.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "synonyms": {
-          "default": [],
-          "description": "Original alternative labels.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "type": {
-          "default": [],
-          "description": "Original concept categories.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
+          "description": "Source NCIt identity."
         }
       },
       "required": [
@@ -65,16 +23,48 @@
       ],
       "type": "object"
     },
+    "NciTextPage": {
+      "additionalProperties": false,
+      "description": "Exact source text fragment with an honest original character count.",
+      "properties": {
+        "offset": {
+          "description": "Original Unicode scalar position.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "description": "Original source fragment, including whitespace.",
+          "type": "string"
+        },
+        "total_characters": {
+          "description": "Complete source length in Unicode scalar values.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "text",
+        "offset",
+        "total_characters"
+      ],
+      "type": "object"
+    },
     "NciTrial": {
       "additionalProperties": false,
       "description": "NCI trial card without registry status or phase coercion.",
       "properties": {
         "brief_summary": {
-          "description": "Native short summary, only on exact retrieval.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NciTextPage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native short summary, only on exact retrieval."
         },
         "brief_title": {
           "$ref": "#/$defs/Text",
@@ -607,7 +597,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/NciDisease"
+            "$ref": "#/$defs/NciDiseaseRef"
           },
           "type": "array"
         },

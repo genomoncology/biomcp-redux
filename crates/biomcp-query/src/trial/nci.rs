@@ -110,7 +110,7 @@ fn apply(
                 StepKind::Page,
                 Action::Run {
                     request: Request::SearchTrial(q.at_page(token)),
-                    fresh: fresh,
+                    fresh,
                 },
             ));
         }

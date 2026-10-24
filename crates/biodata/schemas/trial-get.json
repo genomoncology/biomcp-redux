@@ -16,7 +16,8 @@
         "outcomes",
         "arms",
         "all",
-        "diseases"
+        "diseases",
+        "summary"
       ],
       "type": "string"
     },

@@ -84,18 +84,7 @@ pub(super) fn render(
             serde_json::to_vec,
         )?));
     }
-    let more: Box<[_]> = SECTIONS.into_iter().filter(|s| !requested(*s)).collect();
-    for section in &more {
-        out.next.push((
-            StepKind::Section,
-            Action::Run {
-                request: Request::GetTrial(
-                    TrialGet::single(id, Some(*section), q.limit()).with_source(TrialSource::Nci),
-                ),
-                fresh: false,
-            },
-        ));
-    }
+    let more = omitted(q, id, out);
     let unsupported: Box<[_]> = q
         .sections()
         .iter()
@@ -229,4 +218,23 @@ fn eligibility(
             record: None,
         }
     })
+}
+
+fn omitted(q: &TrialGet, id: biodata::NctId, out: &mut Outcome) -> Box<[TrialSection]> {
+    let more: Box<[_]> = SECTIONS
+        .into_iter()
+        .filter(|s| !q.sections().contains(s) && !q.sections().contains(&TrialSection::All))
+        .collect();
+    for section in &more {
+        out.next.push((
+            StepKind::Section,
+            Action::Run {
+                request: Request::GetTrial(
+                    TrialGet::single(id, Some(*section), q.limit()).with_source(TrialSource::Nci),
+                ),
+                fresh: false,
+            },
+        ));
+    }
+    more
 }

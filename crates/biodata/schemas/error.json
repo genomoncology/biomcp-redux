@@ -1,25 +1,5 @@
 {
   "$defs": {
-    "ArticleFilter": {
-      "description": "Source capability selectors checked before any lookup or transport request.",
-      "enum": [
-        "TEXT",
-        "--gene",
-        "--variant",
-        "--disease",
-        "--drug",
-        "--author",
-        "--journal",
-        "--since",
-        "--until",
-        "--type",
-        "--sort date",
-        "--open-access",
-        "--no-preprints",
-        "--exclude-retracted"
-      ],
-      "type": "string"
-    },
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
       "enum": [
@@ -54,7 +34,7 @@
         "option": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArticleFilter"
+              "$ref": "#/$defs/FilterOption"
             },
             {
               "type": "null"
@@ -156,6 +136,41 @@
         "usage",
         "local",
         "expired"
+      ],
+      "type": "string"
+    },
+    "FilterOption": {
+      "enum": [
+        "TEXT",
+        "--gene",
+        "--variant",
+        "--disease",
+        "--drug",
+        "--author",
+        "--journal",
+        "--since",
+        "--until",
+        "--type",
+        "--sort date",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted",
+        "--criteria",
+        "--intervention",
+        "--status",
+        "--phase",
+        "--study-type",
+        "--sex",
+        "--age",
+        "--facility",
+        "--lat",
+        "--sponsor",
+        "--sponsor-type",
+        "--updated-since",
+        "--updated-until",
+        "--id",
+        "--has-results",
+        "--keyword"
       ],
       "type": "string"
     },
