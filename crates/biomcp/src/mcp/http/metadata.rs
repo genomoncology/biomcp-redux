@@ -46,7 +46,7 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
         .unwrap_or_default();
     if !["application/json", "text/event-stream"]
         .iter()
-        .all(|wanted| accept.split(',').any(|v| v.trim() == *wanted))
+        .all(|wanted| accept.split(',').any(|v| accepts(v, wanted)))
     {
         return Err(mismatch());
     }
@@ -94,4 +94,31 @@ fn decode(value: &str) -> Option<String> {
             .all(|b| b == b'\t' || (0x20..=0x7e).contains(&b))
             .then(|| value.to_owned())
     }
+}
+
+// RFC 9110 sections 12.4.2 and 12.5.1: media types ignore case;
+// a positive quality advertises support, while zero does not.
+fn accepts(range: &str, wanted: &str) -> bool {
+    let mut parts = range.split(';').map(str::trim);
+    if !parts.next().is_some_and(|media| media.eq_ignore_ascii_case(wanted)) {
+        return false;
+    }
+    let mut quality = None;
+    for parameter in parts {
+        let Some((name, value)) = parameter.split_once('=') else { return false; };
+        if name.trim().eq_ignore_ascii_case("q") {
+            if quality.is_some() { return false; }
+            let value = value.trim();
+            let (whole, fraction) = value.split_once('.').unwrap_or((value, ""));
+            if fraction.len() > 3 || !fraction.bytes().all(|byte| byte.is_ascii_digit()) {
+                return false;
+            }
+            quality = Some(match whole {
+                "0" => fraction.bytes().any(|byte| byte != b'0'),
+                "1" if fraction.bytes().all(|byte| byte == b'0') => true,
+                _ => return false,
+            });
+        }
+    }
+    quality.unwrap_or(true)
 }
