@@ -55,10 +55,15 @@ pub(super) fn section(
             let continuation = offset
                 .checked_add(returned)
                 .filter(|next| u64::from(*next) < page.total)
-                .map(|next| {
+                .and_then(|next| {
                     query
-                        .at_section_offset(next)
-                        .with_sections(Box::new([biodata::VariantSection::Gwas]))
+                        .for_candidate(id.to_string().parse().ok()?)
+                        .ok()
+                        .map(|query| {
+                            query
+                                .at_section_offset(next)
+                                .with_sections(Box::new([biodata::VariantSection::Gwas]))
+                        })
                 });
             Section::Data {
                 source: Source::Gwas,
