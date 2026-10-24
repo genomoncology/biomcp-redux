@@ -41,7 +41,8 @@ impl XmlReply for Body {
         let mut emitted = Vec::new();
         let mut parts = Vec::new();
         let mut rows = Vec::new();
-        for sec in body.children("sec")? {
+        for (name, sec) in blocks::body_nodes(body.0)? {
+            if matches!(name.as_str(), "table-wrap" | "table-wrap-group" | "fig" | "supplementary-material") { continue; }
             let title = sec
                 .value(&["title"])?
                 .filter(|v| !v.trim().is_empty())

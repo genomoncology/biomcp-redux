@@ -49,6 +49,7 @@ pub fn read(
         &LIST,
         &[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))],
     )?;
+    if listing.contents.iter().any(|e| !e.key.starts_with(&prefix)) { return Err(bad(BadReply)); }
     let Some(version) = listing
         .contents
         .iter()
