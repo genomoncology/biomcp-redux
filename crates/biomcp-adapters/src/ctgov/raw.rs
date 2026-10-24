@@ -81,18 +81,15 @@ struct Updated {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Design {
-    #[serde(default)]
-    phases: Box<[TrialPhase]>,
+    phases: Option<Box<[TrialPhase]>>,
 }
 #[derive(Deserialize)]
 struct Conditions {
-    #[serde(default)]
-    conditions: Box<[Text]>,
+    conditions: Option<Box<[Text]>>,
 }
 #[derive(Deserialize)]
 struct Interventions {
-    #[serde(default)]
-    interventions: Vec<Intervention>,
+    interventions: Option<Vec<Intervention>>,
 }
 #[derive(Deserialize)]
 struct Intervention {
@@ -109,13 +106,17 @@ impl Protocol {
             .map_err(|_| BadReply)?,
             title: self.identification_module.brief_title,
             status: self.status_module.overall_status,
-            phases: self.design_module.phases,
+            phases: self.design_module.phases.unwrap_or_default(),
             conditions: names(
                 self.conditions_module
-                    .map_or_else(Vec::new, |v| v.conditions.into_vec()),
+                    .map_or_else(Vec::new, |v| v.conditions.unwrap_or_default().into_vec()),
             ),
             interventions: names(self.arms_interventions_module.map_or_else(Vec::new, |v| {
-                v.interventions.into_iter().map(|i| i.name).collect()
+                v.interventions
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|i| i.name)
+                    .collect()
             })),
             updated: self.status_module.last_update_post_date_struct.date,
         })

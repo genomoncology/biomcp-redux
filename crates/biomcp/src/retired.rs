@@ -200,8 +200,8 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
         let retired = find(table, flag);
         if retired.is_some() {
             result.retired_option = result.retired_option.or(retired);
-        } else if !recognized(flag, &result.positional) {
-            return None;
+        } else if !takes_value(flag, &result.positional)? && inline.is_none() {
+            continue;
         }
         let value = inline.or_else(|| args.next().and_then(|arg| arg.to_str()));
         if flag == "--section" {
@@ -214,18 +214,18 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
     Some(result)
 }
 
-fn recognized(flag: &str, positional: &[&str]) -> bool {
+fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
     if ["--replay", "--record", "--case-cache"].contains(&flag) {
-        return true;
+        return Some(true);
     }
     let Some([verb, entity]) = positional.get(..2) else {
-        return false;
+        return None;
     };
     let Some((_, _, id)) = crate::grammar::QUERIES
         .iter()
         .find(|(v, e, _)| v == verb && e == entity)
     else {
-        return false;
+        return None;
     };
     crate::schema::find(id)
         .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
@@ -233,12 +233,17 @@ fn recognized(flag: &str, positional: &[&str]) -> bool {
             schema
                 .get("properties")
                 .and_then(serde_json::Value::as_object)
-                .map(|properties| {
-                    properties.iter().any(|(name, property)| {
-                        property.get("x-positional").is_none()
-                            && flag == format!("--{}", name.replace('_', "-"))
-                    })
+                .and_then(|properties| {
+                    properties
+                        .iter()
+                        .find(|(name, property)| {
+                            property.get("x-positional").is_none()
+                                && flag == format!("--{}", name.replace('_', "-"))
+                        })
+                        .map(|(_, property)| {
+                            property.get("type").and_then(serde_json::Value::as_str)
+                                != Some("boolean")
+                        })
                 })
         })
-        .unwrap_or(false)
 }
