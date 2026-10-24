@@ -9,10 +9,7 @@ type Error = Box<dyn std::error::Error>;
     clippy::disallowed_methods,
     reason = "Public adapter proof edits response exchanges in an isolated replay directory"
 )]
-fn read(
-    change: impl FnOnce(&mut Value),
-    xml: &str,
-) -> Result<Result<Option<pmc_oa::Document>, RequestError>, Error> {
+fn fixture(change: impl FnOnce(&mut Value), xml: &str) -> Result<tempfile::TempDir, Error> {
     let directory = tempfile::tempdir()?;
     let source = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies/article/fulltext/live-introduction/pmc-oa");
@@ -37,6 +34,10 @@ fn read(
         }
         fs::write(target.join(file.file_name()), serde_json::to_vec(&record)?)?;
     }
+    Ok(directory)
+}
+fn read(change: impl FnOnce(&mut Value), xml: &str) -> Result<Result<Option<pmc_oa::Document>, RequestError>, Error> {
+    let directory = fixture(change, xml)?;
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: directory.path().into(),
