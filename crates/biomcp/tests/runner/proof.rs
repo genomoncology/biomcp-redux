@@ -191,12 +191,18 @@ fn isolation() -> Check {
     let before: Vec<_> = env::vars_os().collect();
     let first = Environment::new().map_err(|error| error.to_string())?;
     let second = Environment::new().map_err(|error| error.to_string())?;
+    let profiles = tempfile::tempdir().map_err(|error| error.to_string())?;
+    let profile = env::var_os("LLVM_PROFILE_FILE")
+        .unwrap_or_else(|| profiles.path().join("probe-%m-%p.profraw").into_os_string());
     let read = |environment: &Environment| -> Result<serde_json::Value, String> {
         let output = environment
             .command(
                 env::current_exe().map_err(|error| error.to_string())?,
                 &["--runner-environment-probe".into()],
             )
+            .env("LLVM_PROFILE_FILE", &profile)
+            .env("NCBI_API_KEY", "hostile-test-credential")
+            .env("HTTPS_PROXY", "http://hostile.invalid")
             .output()
             .map_err(|error| error.to_string())?;
         if !output.status.success() {
@@ -218,6 +224,23 @@ fn isolation() -> Check {
             return Err(format!(
                 "{key}: case steps must share environment; cases must differ"
             ));
+        }
+    }
+    for child in [&first_step, &next_step, &other_case] {
+        let nested = child.get("nested").ok_or("nested probe missing")?;
+        for values in [child, nested] {
+            if values.get("LLVM_PROFILE_FILE").and_then(serde_json::Value::as_str)
+                != profile.to_str()
+            {
+                return Err("profiling must survive nested child launches".into());
+            }
+        }
+        for key in ["NCBI_API_KEY", "HTTPS_PROXY"] {
+            if child.get(key).is_none_or(serde_json::Value::is_null)
+                || nested.get(key) != Some(&serde_json::Value::Null)
+            {
+                return Err(format!("nested launch failed to clear {key}"));
+            }
         }
     }
     if before != env::vars_os().collect::<Vec<_>>() {
@@ -252,10 +275,30 @@ fn output_failure() -> Check {
 // This probe belongs only to the test executable. It observes the same child
 // launch boundary as case steps without adding any command to the product.
 pub(crate) fn environment_probe() -> std::process::ExitCode {
-    let values: std::collections::BTreeMap<_, _> = ENV_PATHS
+    let mut values: serde_json::Map<_, _> = ENV_PATHS
         .iter()
-        .map(|(key, _)| (*key, env::var(key).ok()))
+        .map(|(key, _)| *key)
+        .chain(["LLVM_PROFILE_FILE", "NCBI_API_KEY", "HTTPS_PROXY"])
+        .map(|key| (key.to_owned(), serde_json::json!(env::var(key).ok())))
         .collect();
+    if env::args().nth(2).as_deref() != Some("--leaf") {
+        let nested = (|| -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+            let output = Environment::new()?
+                .command(
+                    env::current_exe()?,
+                    &["--runner-environment-probe".into(), "--leaf".into()],
+                )
+                .output()?;
+            if !output.status.success() {
+                return Err("nested probe failed".into());
+            }
+            Ok(serde_json::from_slice(&output.stdout)?)
+        })();
+        let Ok(nested) = nested else {
+            return std::process::ExitCode::FAILURE;
+        };
+        values.insert("nested".into(), nested);
+    }
     match serde_json::to_writer(std::io::stdout().lock(), &values) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(_) => std::process::ExitCode::FAILURE,
