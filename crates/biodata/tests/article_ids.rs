@@ -2,8 +2,15 @@
 use biodata::{ArticleSearch, Doi, Pmcid, Pmid};
 #[test]
 fn article_identifiers_check_namespaces_and_doi_equality() {
-    for valid in ["PPR1295425", "MED17611497", "PMC6181777"] { assert_eq!(valid.parse::<biodata::EuropePmcId>().unwrap().to_string(), valid); }
-    for bad in ["PPR", "ppr1", "PPR0", "PPR1/2", "1", "PPR-1"] { assert!(bad.parse::<biodata::EuropePmcId>().is_err()); }
+    for valid in ["PPR1295425", "MED17611497", "PMC6181777"] {
+        assert_eq!(
+            valid.parse::<biodata::EuropePmcId>().unwrap().to_string(),
+            valid
+        );
+    }
+    for bad in ["PPR", "ppr1", "PPR0", "PPR1/2", "1", "PPR-1"] {
+        assert!(bad.parse::<biodata::EuropePmcId>().is_err());
+    }
     for bad in ["0", "01", "-1", "4294967296", "PMC1", ""] {
         assert!(bad.parse::<Pmid>().is_err(), "{bad}");
     }

@@ -1,6 +1,6 @@
-use crate::{ArticleHeader, ArticleSearch, ArticleSource, Pmid, Pmcid, Doi, EuropePmcId};
-use std::collections::BTreeMap;
+use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 /// Stable identity independent of whether citation metadata was accepted.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "namespace", content = "id", rename_all = "snake_case")]
@@ -48,5 +48,10 @@ impl super::ResponseBody for ArticlePage {
 
 impl ArticleKey {
     /// PubMed identity, when this key carries one.
-    pub fn pmid(&self) -> Option<Pmid> { match self { Self::Pubmed(id)=>Some(*id), _=>None } }
+    pub fn pmid(&self) -> Option<Pmid> {
+        match self {
+            Self::Pubmed(id) => Some(*id),
+            _ => None,
+        }
+    }
 }

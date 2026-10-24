@@ -103,13 +103,18 @@ impl FromStr for EuropePmcId {
             return Err(Error::ArticleIdInvalid);
         }
         let digits = &value[prefix..];
-        if digits.is_empty() || !digits.bytes().all(|b|b.is_ascii_digit()) || digits.bytes().all(|b|b==b'0') {
+        if digits.is_empty()
+            || !digits.bytes().all(|b| b.is_ascii_digit())
+            || digits.bytes().all(|b| b == b'0')
+        {
             return Err(Error::ArticleIdInvalid);
         }
         Ok(Self(value.into()))
     }
 }
 impl fmt::Display for EuropePmcId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 text_value!(EuropePmcId, "EuropePmcId", r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$");

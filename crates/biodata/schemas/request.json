@@ -15,7 +15,8 @@
     "ArticleSource": {
       "description": "Source selectors supported by article search.",
       "enum": [
-        "pubmed"
+        "pubmed",
+        "europepmc"
       ],
       "type": "string"
     },
@@ -237,7 +238,7 @@
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 1,
+          "maxItems": 2,
           "minItems": 1,
           "type": "array"
         },

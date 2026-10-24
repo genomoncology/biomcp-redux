@@ -1,6 +1,6 @@
 mod card;
 mod input;
-use crate::{EuropePmcId, Doi, PartialDate, Pmcid, Pmid, Text};
+use crate::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid, Text};
 pub use card::{AbstractPart, Article, Correction, CorrectionKind, CorrectionRelation};
 pub use input::{ArticleInput, ArticleMatchKind};
 use serde::{Deserialize, Serialize};
@@ -89,4 +89,6 @@ pub struct ArticleHeader {
     pub author_count: u32,
 }
 
-fn is_false(value: &bool) -> bool { !value }
+fn is_false(value: &bool) -> bool {
+    !value
+}

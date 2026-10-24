@@ -62,11 +62,16 @@ struct Fields {
     )]
     #[cfg_attr(feature="schema", schemars(with="Text", extend("x-positional"=0)))]
     text: Option<Text>,
-    /// Sources in caller order; defaults to PubMed.
+    /// Sources to search in caller order, comma separated. Default: pubmed.
+    /// Several sources take turns, remove duplicates and show every native rank.
+    /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
+    /// europepmc: words in open full text, and preprints.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2)))]
     source: Box<[ArticleSource]>,
-    /// Native provider order.
+    /// rank (default): native provider order; several sources take turns.
+    /// date: newest first in each source; PubMed means date added to PubMed.
+    /// Both pubmed and europepmc support rank and date.
     #[serde(default = "sort")]
     sort: ArticleSort,
     /// Gene input resolved through HGNC.
@@ -171,7 +176,9 @@ impl TryFrom<Fields> for ArticleSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
-            || v.source.is_empty() || v.source.len() > 2 || (v.source.len() == 2 && v.source[0] == v.source[1])
+            || v.source.is_empty()
+            || v.source.len() > 2
+            || (v.source.len() == 2 && v.source[0] == v.source[1])
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -200,7 +207,9 @@ impl TryFrom<Fields> for ArticleSearch {
 }
 impl ArticleSearch {
     /// Sources in the caller’s turn order.
-    pub fn sources(&self) -> &[ArticleSource] { &self.0.source }
+    pub fn sources(&self) -> &[ArticleSource] {
+        &self.0.source
+    }
     /// Native provider order requested by the caller.
     pub fn sort(&self) -> ArticleSort {
         self.0.sort

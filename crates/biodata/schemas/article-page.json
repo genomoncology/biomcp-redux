@@ -32,6 +32,17 @@
           ],
           "description": "Checked DOI, when supplied."
         },
+        "europepmc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Europe PMC source-local identity."
+        },
         "first_author": {
           "anyOf": [
             {
@@ -79,6 +90,10 @@
             "$ref": "#/$defs/PublicationType"
           },
           "type": "array"
+        },
+        "types_unknown": {
+          "description": "The provider does not supply checked publication types.",
+          "type": "boolean"
         }
       },
       "required": [
@@ -93,6 +108,23 @@
       "additionalProperties": false,
       "description": "One original pool position, including a summary hole.",
       "properties": {
+        "found_by": {
+          "additionalProperties": false,
+          "description": "Native one-based source positions, disclosed only for multiple sources.",
+          "properties": {
+            "europepmc": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pubmed": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
         "header": {
           "anyOf": [
             {
@@ -130,6 +162,57 @@
             },
             "namespace": {
               "const": "pubmed",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PMC identity when PubMed is absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Pmcid"
+            },
+            "namespace": {
+              "const": "pmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "DOI when both indexed numeric identities are absent.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Doi"
+            },
+            "namespace": {
+              "const": "doi",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Europe PMC local source identity.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/EuropePmcId"
+            },
+            "namespace": {
+              "const": "europepmc",
               "type": "string"
             }
           },
@@ -270,7 +353,7 @@
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 1,
+          "maxItems": 2,
           "minItems": 1,
           "type": "array"
         },
@@ -305,7 +388,8 @@
     "ArticleSource": {
       "description": "Source selectors supported by article search.",
       "enum": [
-        "pubmed"
+        "pubmed",
+        "europepmc"
       ],
       "type": "string"
     },
@@ -324,6 +408,10 @@
     },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "EuropePmcId": {
+      "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
     },
     "GeneInput": {

@@ -1,15 +1,14 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
-pub mod get;
-mod term;
-mod sources;
 mod fold;
+pub mod get;
+mod sources;
+mod term;
 use crate::{
     Action, Ctx, Outcome, status,
     store::{Pool, Store, StoredItem},
 };
 use biodata::{
-    ArticlePage, ArticleSearch, PageInfo, QueryBody, Request, Source,
-    Status, StepKind, Text,
+    ArticlePage, ArticleSearch, PageInfo, QueryBody, Request, Source, Status, StepKind, Text,
 };
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
@@ -54,15 +53,19 @@ fn execute<'a>(
         }
         None => {
             let term = if query.sources().contains(&biodata::ArticleSource::Pubmed) {
-                let Some(term)=term::resolve(cx,query,deadline,out)? else { return Ok(()); };
+                let Some(term) = term::resolve(cx, query, deadline, out)? else {
+                    return Ok(());
+                };
                 term
-            } else { String::new() };
-            let Some(items)=sources::search(cx,query,&term,deadline,out)? else {
-                retry(query,None,out);
+            } else {
+                String::new()
+            };
+            let Some(items) = sources::search(cx, query, &term, deadline, out)? else {
+                retry(query, None, out);
                 return Ok(());
             };
             store.set_deadline(*deadline);
-            store.publish(&key,&items,&out.sources)?
+            store.publish(&key, &items, &out.sources)?
         }
     };
     out.sources = pool.sources.clone();
@@ -154,7 +157,11 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     out.body = QueryBody::ArticlePage(ArticlePage {
         items: rows
             .into_iter()
-            .map(|r| { let mut item=r.item; item.header=r.header; item })
+            .map(|r| {
+                let mut item = r.item;
+                item.header = r.header;
+                item
+            })
             .collect(),
     });
     if let Some(offset) = query
@@ -173,8 +180,7 @@ fn finish(query: &ArticleSearch, pool: &Pool, rows: Vec<StoredItem>, out: &mut O
     if let QueryBody::ArticlePage(page) = &out.body
         && let Some(first) = page.items.first()
         && let Some(id) = first.pmid
-        && let Ok(query) =
-            biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
+        && let Ok(query) = biodata::ArticleGet::new(vec![biodata::ArticleInput::Pmid(id)].into())
     {
         out.next.push((
             StepKind::Disambiguate,
