@@ -1,0 +1,53 @@
+{
+  "feature": "trial-search",
+  "live_check": "synthetic",
+  "story": "NCI requires explicit disease identity and a user key without registry fallback.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition",
+        "C3224"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition",
+        "C3224"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/sources/0/source": "nci",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "no_key",
+        "/next/0/args": [
+          "help",
+          "key",
+          "nci"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition",
+        "melanoma"
+      ],
+      "exit": 2,
+      "offline": true,
+      "expect": {
+        "/error/message": "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text"
+      }
+    }
+  ]
+}
