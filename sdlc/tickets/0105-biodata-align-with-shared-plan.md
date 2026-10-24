@@ -1,6 +1,7 @@
 # 0105 — Align BioMCP's biodata names and grammars with the shared plan
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d3d9cd105d8226d6b9d16c76bbe4e12559132f6b
 
 Milestone: 2
 

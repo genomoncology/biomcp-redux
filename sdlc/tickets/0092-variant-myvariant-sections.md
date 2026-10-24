@@ -1,6 +1,7 @@
 # 0092 — Show MyVariant's predictor, conservation and historical COSMIC fields
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aec1212878acbda96656f90d497269bef1cb40aa
 
 Milestone: 2
 

@@ -1,6 +1,7 @@
 # 0096 — Port each 0.9 variant search filter that has a known-positive case
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aba1e318d8152b826b4327b14a422880ea7b3571
 
 Milestone: 2
 

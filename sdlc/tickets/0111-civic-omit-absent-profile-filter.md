@@ -1,6 +1,7 @@
 # 0111 — Send no CIViC ids filter when no profile is selected
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 062b780482a50b1d784bea33761570284c710429
 
 Milestone: 2
 
