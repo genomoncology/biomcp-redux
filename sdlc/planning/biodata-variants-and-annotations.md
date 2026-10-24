@@ -179,7 +179,7 @@ Statement {
 | `Term` | `{"label": Text, "coding"?: Coding}` | `label` is the source's whole text, always kept. `coding` is present only when the label is a documented value of a closed vocabulary below | VA-Spec `MappableConcept` |
 | `Coding` | Internally tagged by `"system"`, with a checked `"code"` | Each system is one Rust enum of its documented codes | VA-Spec `Coding` |
 | `Concept` | `{"id"?: Curie, "label": Text}` | `Curie` is checked `prefix:local` text, such as `MONDO:0005105` or `NCIT:C3224` | VA-Spec `MappableConcept` |
-| `Attribution` | `{"source", "record"?, "version"?, "release"?, "submitter"?, "evaluated"?, "url"?}` | `record` is the source's own ID for this assertion. `version` is that record's version. `release` is the dataset release as the source labels it. `evaluated` is a `PartialDate` | VA-Spec `contributions` and `reportedIn`; the projecting crate's `Provenance`; the standalone crate's `source_release` |
+| `Attribution` | `{"source", "record"?, "version"?, "release"?, "submitter"?, "evaluated"?, "url"?}` | `source` is text naming the source family; each consumer keeps its own closed list of sources and writes its spelling here. `record` is the source's own ID for this assertion. `version` is that record's version. `release` is the dataset release as the source labels it. `evaluated` is a `PartialDate` | VA-Spec `contributions` and `reportedIn`; the projecting crate's `Provenance`; the standalone crate's `source_release` |
 
 The first coding systems are those with a published closed vocabulary. Each code below is a snake_case spelling. Export to VA-Spec uses the VA-Spec code text, such as `likely pathogenic`.
 
