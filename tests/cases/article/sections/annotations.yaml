@@ -1,0 +1,30 @@
+{
+  "feature": "article-annotations",
+  "story": "Article annotation export follows a card section action and preserves source identities.",
+  "replay": "article/annotations/live",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "33123537",
+        "annotations"
+      ],
+      "expect": {
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/annotations/data/items/0/hgvs": "p.E17K",
+        "/result/items/0/sections/annotations/data/items/0/rsid": "rs121434592",
+        "/result/items/0/sections/annotations": {
+          "max_tokens": 350
+        }
+      },
+      "mcp": [
+        "get",
+        "article",
+        "33123537",
+        "annotations"
+      ],
+      "max_bytes": 4000
+    }
+  ]
+}
