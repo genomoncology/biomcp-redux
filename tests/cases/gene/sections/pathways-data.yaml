@@ -21,8 +21,7 @@
         "/result/items/0/sections/pathways/state": "data",
         "/result/items/0/sections/pathways/data/total": 16,
         "/result/items/0/sections/pathways/data/items/*/stId": {
-          "includes": "R-HSA-1295596",
-          "unique": true
+          "includes": "R-HSA-1295596"
         },
         "/result/items/0/sections/pathways": {
           "max_tokens": 600
