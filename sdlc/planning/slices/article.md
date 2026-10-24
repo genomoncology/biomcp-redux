@@ -139,7 +139,7 @@ Thirty-five examples, each from a public paper or a public issue. Every PMID was
 | 23 | A larger topic | Papers on EGFR lung cancer | public issue 69 | 31,816 matches; the first 9,999 by relevance; `truncated` set with the total | PubMed |
 | 24 | A typo or nonsense | Search "xqzvw zzyzxq kinase" | public issue 4 | PubMed's results for the word it kept, with a notice naming the dropped words xqzvw and zzyzxq | PubMed `phrasesnotfound` |
 | 25 | A source is unreachable | Search while one source fails | public issue 97 | Status partial with the failed source named; never an empty success | Every source |
-| 26 | An agent types HER2 as the gene | Papers on HER2-low disease with `--gene HER2` | genomoncology/biomcp issue 113 | ERBB2 resolved and the term `(ERBB2 OR HER2 OR NGL) AND low trastuzumab deruxtecan` sent; 35665782 on page one. The term `ERBB2 low trastuzumab deruxtecan` loses it | HGNC bundle, PubMed |
+| 26 | An agent types HER2 as the gene | Papers on HER2-low disease with `--gene HER2` | genomoncology/biomcp issue 113 | ERBB2 resolved and the term `(ERBB2 OR HER2) AND low trastuzumab deruxtecan` sent; 35665782 on page one. The term `ERBB2 low trastuzumab deruxtecan` loses it | HGNC bundle, PubMed |
 | 27 | An agent holds a DOI | Get 10.1056/NEJMoa1203421 | PMID 22663011 | METRIC trametinib trial, NEJM 2012, PMID 22663011; not in PMC | PubMed `[doi]` |
 | 28 | An agent holds a PMCID | Get PMC6181777 | PMID 30209399 | Saturation genome editing of BRCA1, Nature 2018; full text and 16 supplement files | PubMed, PMC OA |
 | 29 | A cited paper was retracted | Get 17057710 | PMID 17057710 | Flagged retracted, with retraction notice PMID 21217686 | PubMed EFetch |
@@ -286,21 +286,25 @@ For KRAS G12C the LitVar2 column uses rs121913530, LitVar2's entry for p.G12C, w
 | Full text and supplement list, with license | PMC OA bucket | One 0.15 s call lists the license, the JATS and every file, including author manuscripts |
 | Preprint full text | Europe PMC `fullTextXML` | The only source here that holds it |
 | Normalized entities | PubTator3 export | Gene, variant and disease IDs that chain to other commands |
+| Papers by normalized entity | PubTator3 search | Finds other spellings of a gene, disease or chemical by its ID |
+| Sentences that resemble a question | LitSense2 | The only sentence-similarity search here |
+| Machine-written summary, citation contexts and intents, recommendations, open PDF links | Semantic Scholar | The only source here that holds them |
+| MeSH headings, keywords, affiliations, ORCID iDs | PubMed EFetch | Already in the card's reply |
 
 ### Requests and speed for the design below
 
 - `get article <PMID>`: one EFetch call of about 0.2 s. A DOI adds one ESearch call. A PMCID adds one ESearch call.
-- Each card section adds requests in parallel: `annotations` 0.2 s, `citations` 0.1 s, `fulltext` and `supplements` one OA bucket listing and record of 0.15 s each, plus the JATS download of about 0.2 s for `fulltext` and for the captions in `supplements`.
+- Each card section adds requests in parallel: `annotations` 0.2 s, `citations` 0.1 s, `fulltext` and `supplements` one OA bucket listing and record of 0.15 s each, plus the JATS download of about 0.2 s for `fulltext` and for the captions in `supplements`. `indexing` reads the card's reply and adds none. `tldr` adds one Semantic Scholar call of 0.1 to 0.2 s, plus any wait for the shared pool. `pdf` adds the same call and the PDF download, 4.8 MB for 41351423, with extraction of about 45 ms for 16 pages.
 - `search article` with the default: one ESearch of 0.2 to 1.0 s for the whole window, then ESummary for the page of ten at 0.25 s. A fold adds each named source in parallel, so a cold first page takes the time of the slowest named source: 0.2 to 0.5 s for LitVar2, 0.5 to 2.2 s for Europe PMC, up to 21 s when LitSense2 stalls. `--sort citations` adds iCite for the whole pool, about 1 s per 1,000 PMIDs at four batches at a time. A warm page reads the store and makes no network request.
 
 ## 4. Delight questions
 
 1. **What does the agent ask first, and which command answers it?** "What does the literature say about X?", where X is a variant, a drug in a biomarker group, a trial name or a guideline topic. `search article <words>` answers it with plain PubMed relevance. The agent may pick another strategy by name: another order with `--sort`, another source with `--source`, or a fold of several. Help says what each is built to find and what it costs. "Show me this paper" comes second, and `get article <ID>` answers it.
 2. **What is the smallest header that lets the agent choose its next step?** PMID, DOI, PMCID when present, the whole title, journal, date, the first author with the author count, and the clinical publication types (trial phase, randomized, review, guideline, case report, retracted). On a fold, the item adds the sources that found it with each one's native rank. The citation count joins the item when the request sorts by citations.
-3. **Which drill-downs does the agent need next, and does `next` name each one?** A search page's `next` names the next page with its pool and `get article` for the first header. It also names the most-cited order over the same term, with its cost. A card's `next` names the sections that have data behind them and `article citations`. A `supplements` section names `article supplement <ID> <FILE>`.
+3. **Which drill-downs does the agent need next, and does `next` name each one?** A search page's `next` names the next page with its pool and `get article` for the first header. It also names the most-cited order over the same term, with its cost. A card's `next` names the sections that have data behind them, `article citations` with each source, and `article recommendations`. A `supplements` section names `article supplement <ID> <FILE>`.
 4. **Which identifiers must come back exact?** The PMID for every next call, the PMCID for full text and supplements, the DOI and Europe PMC ID for papers outside PubMed, and the supplement file name as PMC lists it. Annotations return Entrez gene IDs, rsIDs and HGVS for the gene and variant slices.
 5. **Where do sources disagree, and how does the output show it?** On a fold, each item lists every source that found it with that source's own rank, and the order rule is named in the query echo. BioMCP never blends the ranks into a score. Citation counts come from iCite alone and say so.
-6. **What can fail or come back empty, and how does the status tell them apart?** Search: complete with zero hits; complete and truncated at PubMed's 9,999 window; PubMed dropped some words, named in a notice on its source outcome while its state stays ok; a named source failed, so the status is partial with that source named and a `fresh` step. LitSense2 never returns zero, and help says its results are similar sentences, not matches. Get: resolved, not found, or a section that is data, empty, not applicable (no PMCID), unavailable (for example `not_open`) or skipped.
+6. **What can fail or come back empty, and how does the status tell them apart?** Search: complete with zero hits; complete and truncated at PubMed's 9,999 window; PubMed dropped some words, named in a notice on its source outcome while its state stays ok; a named source failed, so the status is partial with that source named and a `fresh` step. LitSense2 almost never returns zero, and help says its results are resembling sentences, not matches. A Semantic Scholar call that meets 429 past its retries fails with reason rate_limited and a `key` step. Recommendations and citation evidence can be complete and empty. Get: resolved, not found, or a section that is data, empty, not applicable (no PMCID), unavailable (for example `not_open`) or skipped.
 7. **How fast is a cold and a warm call?** A default search cold in 0.2 to 1.0 s, set by PubMed. A fold cold in the time of its slowest source, 1 to 4 s for most and up to 21 s when LitSense2 stalls. A citation sort adds about 1 s per 1,000 PMIDs. A card cold in about 0.2 s. A warm page or card reads the store and makes no network request.
 8. **What does 0.9 return that no example needs, and what does it miss?** It returns ranking weights, a semantic signal that is always zero, a session loop breaker, a debug plan and a 50 KB asset manifest of figure images. It misses the floor, totals, stable pages, a page one that does not depend on `--limit`, retraction notices and full text an agent can read. It hides which source found what and blends their ranks into one order.
 9. **What lets the agent stop early with the right answer?** A first page that is exactly what the agent asked for. If it asked PubMed, it gets PubMed's first ten. If it asked for the most cited first, it gets that. The header's types tell a review from a trial without a get.
@@ -318,7 +322,7 @@ The agent chooses the strategy. BioMCP runs only the sources the agent named, ke
 | --- | --- | --- | --- | --- | --- |
 | `pubmed` | Keyword matches in MEDLINE and PubMed records, with PubMed's own mapping of words to MeSH terms and gene concepts | The term BioMCP builds and echoes, with filters as PubMed field tags | Best Match relevance, or most recently added with `--sort date` | 0.2 to 1.0 s | The floor. It misses papers that spell a variant another way or name it only in full text. Its top order can move between runs |
 | `europepmc` | Words anywhere in the full text of open articles, and preprints | The words, with Europe PMC field filters | Europe PMC relevance, or newest first with `--sort date` | 0.5 to 2.2 s | Reads open full text, so it finds papers that name a term only in the body. Its counts run 3 to 6 times PubMed's, and many hits mention the words in passing |
-| `pubtator` | Papers whose text names a normalized gene, variant, disease or chemical | The words, or `@GENE_`, `@DISEASE_` and `@CHEMICAL_` entity IDs from `--gene`, `--disease` and `--drug` | PubTator3's own order | 0.3 to 1.7 s | Catches other spellings of an entity. Its autocomplete can pick another species: on 2026-10-24 its first gene match for AKT1 was the rat gene 24185. BioMCP therefore sends the Entrez ID that HGNC resolution gives, such as `@GENE_207` for AKT1 |
+| `pubtator` | Papers whose text names a normalized gene, variant, disease or chemical | The words, with `--gene` as `@GENE_<Entrez ID>` from HGNC resolution | PubTator3's own order | 0.3 to 1.7 s | Catches other spellings of an entity. Its autocomplete can pick another species: on 2026-10-24 its first gene match for AKT1 was the rat gene 24185. BioMCP therefore sends the Entrez ID that HGNC resolution gives, such as `@GENE_207` for AKT1 |
 | `litvar` | Every paper that names a variant, in any spelling, including rsIDs | `--variant`, required: an rsID alone, or a protein change with `--gene` | The order LitVar2 returns, which it does not explain | 0.2 to 0.5 s for the whole list | Lists can be very long: 32,239 PMIDs for BRAF V600E. Its native order carries no stated meaning, so `--sort citations` is the usual companion |
 | `litsense` | Sentences that resemble the words, from abstracts and open full text | The words as a sentence | Sentence similarity | 0.4 to 3.5 s; 2 of 17 calls took 21 s | A hit is a resembling sentence, not a match: it returned 50 papers for a nonsense query on 2026-10-23. Some calls stall: a nonsense query answered HTTP 502 after 30 s on 2026-10-24. Each item carries the sentence that matched |
 | `semantic-scholar` | Relevance ranking over a large multidisciplinary index | The words, with year filters | Semantic Scholar relevance | 0.1 to 0.9 s per call, plus any wait for the shared pool | Runs without a key through a shared pool that often answers 429 for search; the user's optional key raises the limit. 39% of rows carry no PMID until resolved |
@@ -341,11 +345,11 @@ The query echo names the strategy: `sources: ["pubmed"]`, `order: "rank"` and `t
 
 #### How `--gene` builds the PubMed term
 
-`--gene` resolves the input through the HGNC bundle, then sends PubMed `(SYMBOL OR input-as-typed OR previous symbols) AND words`. For `--gene HER2 low trastuzumab deruxtecan` the term is `(ERBB2 OR HER2 OR NGL) AND low trastuzumab deruxtecan`. The plain term `ERBB2 low trastuzumab deruxtecan` loses the DESTINY-Breast04 trial 35665782, and `(ERBB2 OR HER2) low trastuzumab deruxtecan` ranks it first. An old name such as SUR1 for ABCC8 reaches PubMed as typed, which 0.9 failed to do. The floor for a `--gene` search is the plain PubMed result for the exact echoed term. A case checks the term.
+`--gene` resolves the input through the HGNC bundle, then sends PubMed `(SYMBOL OR input-as-typed) AND words`, with one name when the two are equal. For `--gene HER2 low trastuzumab deruxtecan` the term is `(ERBB2 OR HER2) AND low trastuzumab deruxtecan`. The plain term `ERBB2 low trastuzumab deruxtecan` loses the DESTINY-Breast04 trial 35665782, and `(ERBB2 OR HER2) low trastuzumab deruxtecan` ranks it first. Previous symbols stay out of the term, as `decisions/2026-10-24-no-text-heuristics.md` rules: a bare previous symbol drags in unrelated papers, and SUR, a previous symbol of ABCC8, matches the French word and grew the ABCC8 group from 2,216 to 171,977 records. An old name such as SUR1 reaches PubMed only when the agent types it, which 0.9 failed to do even then. The floor for a `--gene` search is the plain PubMed result for the exact echoed term. A case checks the term.
 
 #### How `--variant` is recognized
 
-Milestone 1 has no local protein-change parser; the variant slice brings one. When `litvar` is named, BioMCP sends LitVar2 autocomplete the gene and the change, or the rsID, and takes only a hit whose gene and protein change, or rsID, match. For "KRAS G12C" the first autocomplete hit is rs121913529, which LitVar2 names p.G12D; the matching hit is rs121913530, p.G12C, with 8,915 PMIDs. No match, or several, returns the candidates with how each matched, and BioMCP picks none, as the gene slice ruled for aliases. For word sources, `--variant` joins the words as typed.
+biodata gains `ProteinChange`, a typed parse of an input the agent marked with `--variant`, using the standard one-letter and three-letter amino-acid codes, such as P245S, Pro245Ser and p.P245S. BioMCP never looks for variant shapes in free text, as `decisions/2026-10-24-no-text-heuristics.md` rules. The readers use the parse to search a protein change's forms. When `litvar` is named, BioMCP sends LitVar2 autocomplete the gene and the change, or the rsID, and takes only a hit whose gene and protein change, or rsID, match. For "KRAS G12C" the first autocomplete hit is rs121913529, which LitVar2 names p.G12D; the matching hit is rs121913530, p.G12C, with 8,915 PMIDs. No match, or several, returns the candidates with how each matched, and BioMCP picks none, as the gene slice ruled for aliases. For word sources, `--variant` joins the words as typed.
 
 #### Several sources: a fold
 
@@ -380,7 +384,7 @@ A source applies a filter itself or not at all. BioMCP never filters a source's 
 | words | yes | yes | yes | no | yes | yes |
 | `--gene` | in the term, as above | as words | entity ID | required with a protein change | as words | as words |
 | `--variant` | as words | as words | as words | required | as words | as words |
-| `--disease`, `--drug` | as words | as words | entity IDs | no | as words | as words |
+| `--disease`, `--drug` | as words | as words | as words, until the disease and drug slices give IDs | no | as words | as words |
 | `--author`, `--journal` | `[au]`, `[ta]` | `AUTH:`, `JOURNAL:` | no | no | no | no |
 | `--since`, `--until` | `[dp]` | `FIRST_PDATE` | no | no | no | `year=A-B` |
 | `--type` | `[pt]` | `PUB_TYPE:` | no | no | no | no |
@@ -403,7 +407,7 @@ Semantic Scholar documents `publicationTypes`, `venue` and `publicationDateOrYea
 
 The default exclusion changes the default term. A default search sends `<words> NOT retracted publication[pt]`, echoes that term, and its floor is PubMed's relevance list for that echoed term. So that the agent still learns what was left out, PubMed's outcome carries a notice `retracted_excluded` with the count of retracted papers that match the words, from one ESearch with `retmax=0` of about 0.2 s, and `next` holds the same search with `--include-retracted` when that count is above zero. A card still flags a retracted paper and names its notice.
 
-An explicit filter that a named source cannot apply is `unsupported_filter`, as for every filter. The default exclusion is not an explicit filter: a named source that cannot apply it runs unfiltered, and its outcome carries the notice `retracted_not_excluded`. Europe PMC's fields were not checked live on 2026-10-24, because its search answered 503 all day; ticket 0052 checks them before landing.
+An explicit filter that a named source cannot apply is `unsupported_filter`, as for every filter. The default exclusion is not an explicit filter: a named source that cannot apply it runs unfiltered, and its outcome carries the notice `retracted_not_excluded`. Europe PMC's fields were not checked live on 2026-10-24, because its search answered 503 all day; ticket 0053 checks them before landing.
 
 #### Pools and pages
 
@@ -467,7 +471,7 @@ The query echo holds the ordered sources, the sort and the exact term each sourc
 | Paging never finishes (26) | The pool is fixed, so the walk ends at its last item |
 | Date sort puts future issues first (27) | PubMed's date order is most recently added. Other sources apply their own date sort or refuse it |
 | Narrow fields missed papers (28) | Each source receives the agent's words in its own default fields. Europe PMC searches full text by default |
-| Old gene names not searched (30) | `--gene` sends the input as typed and every previous symbol with the approved symbol |
+| Old gene names not searched (30) | `--gene` sends the input as typed with the approved symbol, so an old name the agent types reaches PubMed. BioMCP adds no previous symbol by itself. LitVar2 and Europe PMC full text find other spellings from the source side |
 | A variant named only in a supplementary table (31) | `article supplement --find` and `article text --find` search the open full text and its supplementary files |
 | PubTator autocomplete picks another species (17), LitVar2's first hit is another change | LitVar2 hits must match gene and protein change; PubTator3 entity IDs come from human gene resolution |
 | A source failure looks empty (20) | Every named source reports its own state, and the status is partial or failed |
@@ -484,7 +488,7 @@ Identifier newtypes, each with a checked constructor, `FromStr` and `Display`:
 | `Doi` | `10.1056/NEJMoa1203421` | Prefix `10.`, a registrant, a slash and a suffix. Compares and hashes without ASCII case, prints as given |
 | `EuropePmcId` | `PPR1064174` | Europe PMC source prefix and digits, for records with no PMID |
 
-Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `clinical_trial`, `clinical_trial_phase_1` to `clinical_trial_phase_4`, `meta_analysis`, `systematic_review`, `review`, `practice_guideline`, `guideline`, `case_report`, `observational_study`, `multicenter_study`, `letter`, `comment`, `editorial`, `preprint`, `retracted_publication`, `retraction_notice`, `erratum`). PubMed's funding types such as "Research Support, N.I.H., Extramural" and "Journal Article" map to no value and are dropped without a problem, because they carry no clinical meaning. `CorrectionKind` (`retraction`, `erratum`, `expression_of_concern`). `License` (non-exhaustive: `cc0`, `cc_by`, `cc_by_sa`, `cc_by_nc`, `cc_by_nc_sa`, `cc_by_nd`, `cc_by_nc_nd`, `public_domain`, `tdm`). `FileKind` (non-exhaustive: `xlsx`, `xls`, `csv`, `tsv`, `docx`, `doc`, `pdf`, `zip`, `txt`, `image`, `video`). `ArticleMatchKind` (`pmid`, `pmcid`, `doi`, `europepmc_id`). `Order` (`rank`, `date`, `citations`).
+Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `clinical_trial`, `clinical_trial_phase_1` to `clinical_trial_phase_4`, `meta_analysis`, `systematic_review`, `review`, `practice_guideline`, `guideline`, `case_report`, `observational_study`, `multicenter_study`, `letter`, `comment`, `editorial`, `preprint`, `retracted_publication`, `retraction_notice`, `erratum`). PubMed's funding types such as "Research Support, N.I.H., Extramural" and "Journal Article" map to no value and are dropped without a problem, because they carry no clinical meaning. `CorrectionKind` (`retraction`, `erratum`, `expression_of_concern`). `License` (non-exhaustive: `cc0`, `cc_by`, `cc_by_sa`, `cc_by_nc`, `cc_by_nc_sa`, `cc_by_nd`, `cc_by_nc_nd`, `public_domain`, `tdm`). `FileKind` (non-exhaustive: `xlsx`, `xls`, `csv`, `tsv`, `docx`, `doc`, `pdf`, `zip`, `txt`, `image`, `video`). `ArticleMatchKind` (`pmid`, `pmcid`, `doi`, `europepmc_id`). `Order` (`rank`, `date`, `citations`). `EdgeSource` (`icite`, `semantic-scholar`). `CitationIntent` (non-exhaustive: `background`, `methodology`, `result`), Semantic Scholar's three intents. `TextOrigin` (`jats`, `pdf`). `OpenAccessStatus` (non-exhaustive: `gold`, `green`, `hybrid`, `bronze`, `closed`), as Semantic Scholar reports it.
 
 `ArticleInput` is free text that the edge parses into a `Pmid` (digits), a `Pmcid`, a `Doi` (starts `10.`, or a `doi.org` URL) or a `EuropePmcId`.
 
@@ -496,11 +500,15 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 - `corrections: Box<[Correction]>`, each `{ kind: CorrectionKind, relation: CorrectionRelation, pmid: Option<Pmid> }`, where `relation` is `notice` when the PMID names the correction notice and `original` when it names the corrected paper
 - `published_as: Option<ArticleRef>`, for a preprint whose Europe PMC record links its published version
 - `authors: Box<[Text]>`, whole
-- `abstract_parts: Box<[AbstractPart]>`, each `{ label: Option<Text>, text: Text }`, with inline tags reduced to text through `MixedText`
+- `abstract_parts: Box<[AbstractPart]>`, each `{ label: Option<Text>, text: Markdown }`, where the JATS converter below turns italics, bold, superscripts and subscripts into Markdown
 
 `ArticleHeader` (schema `biodata.article_header/1`): `pmid`, `doi`, `pmcid`, `europepmc_id`, `title`, `journal`, `date`, `types`, `first_author` and `author_count`. A header for a row with no PMID carries `types_unknown: true`, because no PubMed record says whether it was retracted.
 
-`ArticleItem` (response type, per `architecture.md` section 3.6): `header`, `found_by`, `cited_by: Option<u32>`. `found_by` prints as a map from source to native rank and appears only when the pool has several sources. `cited_by` comes from iCite and appears only under `--sort citations`. Both sit on the item and never on the biodata header, because they come from other sources.
+`ArticleItem` (response type, per `architecture.md` section 3.6): `header`, `found_by`, `cited_by: Option<u32>`, `sentence: Option<MatchedSentence>`. `found_by` prints as a map from source to native rank and appears only when the pool has several sources. `cited_by` comes from iCite and appears only under `--sort citations`. `sentence` holds `{ section, text }` and appears only on an item LitSense2 found. All three sit on the item and never on the biodata header, because they come from other sources.
+
+`ArticleEdgeItem` (response type for `article citations` and `article references`): `header`, and with `--source semantic-scholar` also `intents: Box<[CitationIntent]>`, `influential: bool` and `contexts: Capped<Text>`, the sentences where the citing paper cites the cited one. A page holds the first context of each item with the total; `article citation-evidence` returns them all.
+
+`Markdown` is a `Text` newtype whose content is Markdown. It tells the Markdown view to print the field as it is.
 
 `ArticleResolution`: `resolved { card }` or `not_found`. An article input is never ambiguous: each identifier names one record. A DOI input is looked up with ESearch `[doi]`, and the returned record's DOI must equal the input, compared without ASCII case, or the result is `not_found`. A DOI shared by two PMIDs resolves to both as two items, never merged, as `architecture.md` section 6.5 says.
 
@@ -512,8 +520,8 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 | --- | --- | --- | --- |
 | 1. Header | PMID, DOI, PMCID, title, journal, date, clinical types, first author and author count | PubMed ESummary, or Europe PMC for a record with no PMID | Shown on search pages; never requested alone |
 | 2. Card | The header fields plus all clinical types, corrections with notice PMIDs, the published version of a preprint, ten authors with the total, the whole abstract with its labels, and the date the record was fetched | PubMed EFetch, one call; Europe PMC core for a record with no PMID | Every `get article` |
-| 3. Sections, each a `Section<T>` with five states | `fulltext`: license and the outline of the body. `supplements`: license and each supplementary file. `annotations`: normalized entities. `citations`: counts | `fulltext` and `supplements`: the PMC OA bucket alone, or Europe PMC full text for a preprint. `annotations`: PubTator3. `citations`: iCite | One request each, in parallel |
-| 4. Steps | `article text <ID> --part N`, `article supplement <ID> <FILE>`, `article citations`, `article references` | As the section | One request per step, plus the file download for a supplement |
+| 3. Sections, each a `Section<T>` with five states | `fulltext`: license and the outline of the body. `supplements`: license and each supplementary file. `annotations`: normalized entities. `citations`: counts. `tldr`: Semantic Scholar's one-sentence summary and its citation counts. `pdf`: the open PDF's status, license, page count and part outline. `indexing`: MeSH headings, keywords, affiliations and ORCID iDs | `fulltext` and `supplements`: the PMC OA bucket alone, or Europe PMC full text for a preprint. `annotations`: PubTator3. `citations`: iCite. `tldr`: Semantic Scholar's paper record. `pdf`: Semantic Scholar's `openAccessPdf` and the PDF it names. `indexing`: the card's EFetch reply | One request each, in parallel. `indexing` reads the card's reply and costs none. `pdf` adds the PDF download |
+| 4. Steps | `article text <ID> --part N`, `article text <ID> --pdf --part N`, `article supplement <ID> <FILE>`, `article citations`, `article references`, `article citation-evidence`, `article recommendations` | As the section | One request per step, plus the file download for a supplement or a PDF |
 
 **Abstract.** The abstract is the card's main content, 60 to 75% of its tokens.
 
@@ -523,20 +531,61 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 
 **Retractions.** The card shows `fetched`, the time its EFetch record was read. Records from ESummary and EFetch, which carry retraction status, use a freshness of one day in the cache, shorter than the default.
 
-`next` on a card names only sections that can have data behind them: `fulltext` and `supplements` only when the paper has a PMCID or is a preprint with full text.
+**Indexing.** 0.9's `indexing` section stays. PubMed EFetch already returns MeSH headings with their major-topic flags, author keywords, affiliations and ORCID iDs in the reply the card reads, so the section is built from that reply and makes no request. MeSH headings help an agent restate a question in PubMed's own vocabulary. The section caps affiliations at ten with the total.
+
+**TLDR.** `tldr` holds Semantic Scholar's machine-written one-sentence summary with its model name, and Semantic Scholar's `cited_by` and `influential_cited_by` counts, which 0.9 showed as influence counts. For 17611497 on 2026-10-24 it returned "The identification of a somatic mutation in human breast, colorectal and ovarian cancers that results in a glutamic acid to lysine substitution at amino acid 17 (E17K) in the lipid-binding pocket of AKT1 is reported." with model `tldr@v2.0.0`, 1,332 citations and 82 influential ones. The section says the summary is machine-written. A paper Semantic Scholar holds without a summary gives `empty`. A paper it does not know gives `unavailable` with reason `not_found`. A 429 that outlasts the retries gives `unavailable` with reason `rate_limited` and a `key` step, because the optional key raises the limit. The section asks `GET /graph/v1/paper/PMID:<pmid>?fields=tldr,citationCount,influentialCitationCount`, or `DOI:<doi>` for a paper with no PMID.
+
+**PDF full text.** `pdf` reads the open PDF that Semantic Scholar's `openAccessPdf` names, for papers whose full text the PMC OA bucket does not hold. It asks the same paper record with `fields=openAccessPdf`, then downloads the URL.
+
+- **Confinement.** The URL comes from a third party, so BioMCP accepts only `https` or `http`, a DNS host name and no IP literal, follows at most three redirects and checks each one by the same rules, and sends no credential. The body must start with `%PDF-`, or the section is `unavailable` with reason `not_pdf`.
+- **Limits.** Downloads stop at 25 MB. The reader extracts at most the first 100 pages and marks `truncated` with the page count when there are more. Extraction runs on the leg's thread under the leg's deadline. An encrypted PDF gives `unsupported`. A PDF with no text layer, such as a scan, gives `empty`. A panic or a parse error inside the extractor gives `unavailable` with reason `bad_reply`.
+- **Output.** The section holds `origin: pdf`, the URL, Semantic Scholar's open access status and license, the page count, and parts of at most 4,000 tokens, each with its first and last page. Every PDF reply carries `origin: pdf` and the notice `pdf_text`: the text was extracted from a PDF, so headings, tables, symbols and reading order may be wrong. PDF text is plain text, not Markdown. The extracted parts are stored with the pool store for a week. The PDF bytes are not stored.
+- **States.** On 2026-10-24, 41351423 (Front Biosci 2025, CC BY, no PMCID) named `storage.imrpress.com`, which returned a 4.8 MB, 16-page PDF; the extractor read 79,744 characters in 45 ms, and "E17K" appears 9 times. 17611497 is `closed` with an empty URL, which gives `unavailable` with reason `not_open`. 22663011 names a publisher PDF that answered HTTP 403 with an HTML page, which gives `unavailable` with reason `rejected`. 33377972 names a PMC page that answered HTTP 200 with HTML, not a PDF, which gives `unavailable` with reason `not_pdf`.
+- **Crate.** `pdf-extract` 0.12.1 (MIT, released 2026-09-16, pure Rust on `lopdf`) reads the text page by page. With the repo's `deny.toml` its 75 crates pass `cargo deny` except `unicode-normalization` 0.1.26 under `Unicode-3.0`, which needs a license exception like the one `unicode-ident` already has. `pdf_oxide` 0.3.78 pulls 170 crates and five more licenses outside the allowlist.
+
+`next` on a card names only sections that can have data behind them: `fulltext` and `supplements` only when the paper has a PMCID or is a preprint with full text. A `fulltext` section that is `not_applicable` or `unavailable` with reason `not_open` names `get article <ID> pdf`. A card always names `tldr` as a choice, because whether Semantic Scholar holds a summary is unknown until asked.
 
 ### Readers for full text and supplementary files
 
 | Reader | What it does | Limits |
 | --- | --- | --- |
-| `article text <ID> --part N` | Returns one part of the outline. `--part` is required | A part is split at 4,000 tokens, and a split part carries a step to its continuation. Each table is its own part |
-| `article text <ID> --find TEXT` | Returns the paragraphs and table rows that contain the text, each with its part number | 25 hits per call with a page step |
+| `article text <ID> --part N` | Returns one part of the outline as Markdown | A part is split at 4,000 tokens, and a split part carries a step to its continuation. Each table is its own part |
+| `article text <ID> --find TEXT` | Returns the paragraphs and tables that contain the text, as Markdown, each with its part number | 25 hits per call with a page step |
+| `article text <ID> --pdf (--part N \| --find TEXT)` | The same over the `pdf` section's parts, as plain text marked `origin: pdf` | Same limits; hits name the page |
 | `article supplement <ID> <FILE>` | Without `--find`, returns the file's sheet list with each sheet's row count, and pages of rows by range with `--rows A-B` | 200 rows per page |
-| `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256 | 25 hits per call. Protein changes match their one-letter, three-letter and `p.` forms |
+| `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256 | 25 hits per call. The match is literal and ignores case |
+| `article supplement <ID> <FILE> --variant CHANGE`, `article text <ID> --variant CHANGE` | The same hits for any form of a protein change | `ProteinChange` parses the change, and the reply prints the forms it searched: for P245S, `P245S`, `Pro245Ser`, `p.P245S` and `p.Pro245Ser`. Each form matches literally, ignoring case |
 
-The first version reads xlsx, csv, tsv and txt. A pdf or docx file returns `unsupported` with the file's URL. Downloads stop at 50 MB; the largest example file was 2.3 MB. These readers are drill-downs under `get article`, within `decisions/2026-10-23-search-and-get-is-the-1-0-scope.md`.
+#### Body text as Markdown
+
+The JATS reader turns each part of the body into Markdown, so the structure an agent needs to read a paper survives. One small converter serves the PMC OA bucket's JATS, Europe PMC's preprint JATS and the labelled abstract parts from PubMed EFetch.
+
+- **What survives.** Section titles become headings at their depth. Lists become Markdown lists. `bold` and `italic` become `**` and `*`. `sup` and `sub` stay as `<sup>` and `<sub>`, so IC<sub>50</sub> keeps its meaning. A citation `xref` prints its marker in square brackets, such as `[11]` or `[9,11,13]`, and a `sup` that holds only citation markers prints the brackets alone. Figure captions print as `**Figure 2.** caption`. Everything else prints as its text.
+- **A text part** is `{ part, heading_path, markdown }`, where `heading_path` lists the section titles above the part, such as `["Results", "Identification of candidate driver mutations in AKT1, AKT2, and AKT3"]`.
+- **A table part** appears once, as Markdown: its label and caption, then a Markdown table. A cell that spans columns repeats its text in each column it spans. There are no separate row arrays for body tables.
+- **`--find`.** A hit in a paragraph quotes that paragraph's Markdown. A hit inside a table quotes the table's caption, its header row and the matching rows as a small Markdown table, with the part number, so the agent can read the whole table with `--part`.
+- **`--format md`.** The Markdown view prints a `Markdown` field as it is instead of escaping it.
+- **Supplementary spreadsheets** keep their sheet and row numbers, because a spreadsheet's row number is its natural address and `--rows` pages through it.
+
+On 2026-10-24, PMC9018718 (35440569, CC BY) held nested section titles under Results, 82 numbered citation markers, 58 `sup` and 2 `sub` elements; its first Results subsection writes *AKT1* in italics and cites `<sup>11</sup>`. PMC5606870 (28944238, CC BY) held 9 tables; Table 1, "Sample characteristics", has a header row of sites and a row "Age at diagnosis of cases (range)". None of the open papers checked held a JATS `list`, so lists are proved by a hand-built synthetic JATS file.
+
+The first version of the supplement reader reads xlsx, csv, tsv and txt. A pdf or docx supplement returns `unsupported` with the file's URL. Downloads stop at 50 MB; the largest example file was 2.3 MB. These readers are drill-downs under `get article`, within `decisions/2026-10-23-search-and-get-is-the-1-0-scope.md`.
 
 New dependencies, added to `architecture.md` section 2.2 by the stage that builds the readers: `calamine` for xlsx and `csv` for csv and tsv. JATS uses the planned `quick-xml`. Both crates are MIT licensed; the stage runs `cargo deny` and brings any transitive license outside the allowlist through the license exception process.
+
+### Semantic Scholar's citation graph and recommendations
+
+These commands restore 0.9's Semantic Scholar capabilities as pivots. Each takes a PMID, a PMCID or a DOI, sent to Semantic Scholar as `PMID:`, `PMCID:` or `DOI:`. Every request runs without a key at the shared-pool quota of section 7, or with the user's optional key at the keyed rate. None of them is part of a default command.
+
+**`article citations --source semantic-scholar` and `article references --source semantic-scholar`.** iCite stays the default source, because it gives PMIDs and a total in one call. With `--source semantic-scholar`, BioMCP asks `GET /graph/v1/paper/<ID>/citations` (or `/references`) with `fields=contexts,intents,isInfluential,externalIds,title,year` and `limit=1000`, and follows `next` for at most five calls, so the pool holds up to 5,000 rows. The total is the row count when Semantic Scholar's reply holds no `next`. When rows remain after five calls, `page.truncated` is set and a notice names iCite's `article citations` for the full count. The order is Semantic Scholar's own, which lists newer citing papers first. Rows with a PubMed ID take ESummary headers; other rows keep Semantic Scholar's title, year and DOI with `types_unknown`.
+
+On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 KB, with `next` 1,000; the second returned the last 332, so Semantic Scholar lists 1,332 citing papers. 501 of the first 1,000 carried contexts, 65 were marked influential and 885 carried a PubMed ID. Intents counted 398 `background`, 13 `result` and 8 `methodology`. References for 33123537 (CC BY) returned 116 rows, 80 with contexts. References for 34096690 returned 38 rows and no contexts, and its phase 1 reference 32955176 carried no PubMed ID in Semantic Scholar, only a title, so a publisher can withhold contexts.
+
+**`article citation-evidence <CITING> <CITED>`.** BioMCP reads the citing paper's references from Semantic Scholar, as above, and keeps the row whose PubMed ID equals the cited PMID, or whose DOI equals the cited paper's DOI from ESummary. The reply holds every context, the intents and the influential flag. For 33123537 citing 17611497 on 2026-10-24, Semantic Scholar gave 6 contexts, intent `background` and `isInfluential` true. A pair with no matching row is `empty` with the notice `not_in_references`. A matching row with no contexts is `empty` with the notice `no_contexts`, as for 34096690 and 32955176. With `--fulltext`, BioMCP also reads the citing paper's JATS from the PMC OA bucket, finds the `ref` whose `pub-id` equals the cited PMID or DOI, and returns each paragraph that holds an `xref` to it, as Markdown with its part number. PMC7573235, the JATS of 33123537, cites 17611497 as reference B17 in 7 paragraphs. A citing paper with no PMCID or outside the bucket gives that part `not_applicable` or `unavailable` with reason `not_open`, beside Semantic Scholar's contexts.
+
+**`article recommendations <ID>... [--negative ID]...`.** One seed and no negatives asks `GET /recommendations/v1/papers/forpaper/<ID>`; several seeds or any negative asks `POST /recommendations/v1/papers` with `positivePaperIds` and `negativePaperIds`. Both send `fields=externalIds,title,year` and `limit`. The page keeps Semantic Scholar's order, and its query echo says recommendations come from Semantic Scholar's pool of recent papers. As Ian ruled, a recommended paper may not share the seed's gene or topic; it serves discovery at the edges. On 2026-10-24, `forpaper/PMID:34096690` returned five 2026 papers, among them 42745055 and 42685317, and the POST with 34096690 and 32955176 against 33433946 returned the same first two. `forpaper/PMID:17611497` returned `{"recommendedPapers": []}`, which gives a complete page with total 0 and the notice `no_recommendations`.
+
+**Failure.** A 429 that outlasts the retries makes the command failed with reason `rate_limited` and adds a `key` step, `biomcp help key semantic-scholar`. A seed Semantic Scholar does not know answers 404, which gives `not_found` for that input.
 
 ### Command tree
 
@@ -545,21 +594,23 @@ New dependencies, added to `architecture.md` section 2.2 by the stage that build
 | `biomcp search article [TEXT]` | `ArticleItem` page from the pool | Words as the agent would type them into PubMed |
 | `--source LIST` | Which sources run, in round-robin order | `pubmed` (default), `europepmc`, `pubtator`, `litvar`, `litsense`, `semantic-scholar` |
 | `--sort RULE` | The stated order | `rank` (default), `date`, `citations` |
-| `--gene INPUT` | Resolved through the HGNC bundle | PubMed term `(SYMBOL OR input OR previous symbols) AND words`; entity ID for `pubtator`; gene for `litvar` |
+| `--gene INPUT` | Resolved through the HGNC bundle | PubMed term `(SYMBOL OR input) AND words`; entity ID for `pubtator`; gene for `litvar` |
 | `--variant TEXT` | Protein change or rsID | Required by `litvar`, matched through LitVar2 autocomplete; words for the others. `variant articles` becomes this flag |
-| `--disease TEXT`, `--drug TEXT` | Words, or PubTator3 entity IDs | PubMed maps words to MeSH itself |
+| `--disease TEXT`, `--drug TEXT` | Words | PubMed maps words to MeSH itself |
 | `--author TEXT`, `--journal TEXT` | Native field filters | Usage error for a named source that cannot apply them |
 | `--since DATE`, `--until DATE` | Native date filters | PubMed, Europe PMC and Semantic Scholar only |
 | `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted` | Native access, preprint and retraction filters | Retracted papers are excluded by default where the source can apply it |
 | `--type TYPE` | Native publication type filters | `trial`, `randomized`, `review`, `systematic_review`, `meta_analysis`, `guideline`, `case_report` |
 | `--limit N`, `--offset N`, `--pool ID` | The shared cursor | Limit 1 to 50, default 10 |
-| `biomcp get article <INPUT>... [SECTION]...` | One card per input, in input order | PMIDs, PMCIDs, DOIs and Europe PMC IDs, up to 20. Sections `fulltext`, `supplements`, `annotations`, `citations`, `all` |
-| `biomcp article text <ID> (--part N \| --find TEXT)` | One part, or matching passages | The outline names the parts |
-| `biomcp article supplement <ID> <FILE> [--rows A-B \| --find TEXT]` | Sheet list, a page of rows, or matching rows | xlsx, csv, tsv and txt |
-| `biomcp article citations <PMID>` | Headers of citing papers, most cited first, with the total | iCite |
-| `biomcp article references <PMID>` | Headers of cited papers, most cited first, with the total | iCite |
+| `biomcp get article <INPUT>... [SECTION]...` | One card per input, in input order | PMIDs, PMCIDs, DOIs and Europe PMC IDs, up to 20. Sections `fulltext`, `supplements`, `annotations`, `citations`, `indexing`, `tldr`, `pdf`, `all`. `all` leaves out `pdf`, because `pdf` downloads up to 25 MB |
+| `biomcp article text <ID> (--part N \| --find TEXT \| --variant CHANGE) [--pdf]` | One part, or matching passages | The outline names the parts. `--pdf` reads the `pdf` section's parts |
+| `biomcp article supplement <ID> <FILE> [--rows A-B \| --find TEXT \| --variant CHANGE]` | Sheet list, a page of rows, or matching rows | xlsx, csv, tsv and txt |
+| `biomcp article citations <ID> [--source icite\|semantic-scholar]` | Citing papers with the total | `icite` (default): headers, most cited first. `semantic-scholar`: Semantic Scholar's order, with intents, the influential flag and the first context |
+| `biomcp article references <ID> [--source icite\|semantic-scholar]` | Cited papers with the total | As `article citations` |
+| `biomcp article citation-evidence <CITING> <CITED> [--fulltext]` | Every context where one paper cites another, with intents | Semantic Scholar; `--fulltext` adds the citing paper's paragraphs from the PMC OA bucket |
+| `biomcp article recommendations <ID>... [--negative ID]... [--limit N]` | Papers Semantic Scholar recommends | Up to 10 seeds and 10 negatives; limit 1 to 100, default 10 |
 
-`next` on a search page: the next page with `--pool`, `get article` for the first item, and the alternative orders and sources described above. On a card: one `get article <PMID>` step listing the sections that can have data, then `article citations <PMID>`. On a `fulltext` section: `article text <ID> --part 1`. On a `supplements` section: `article supplement <ID> <FILE>` for the first readable file.
+`next` on a search page: the next page with `--pool`, `get article` for the first item, and the alternative orders and sources described above. On a card: one `get article <PMID>` step listing the sections that can have data, then `article citations <PMID>`, `article citations <PMID> --source semantic-scholar` and `article recommendations <PMID>`. On a `fulltext` section: `article text <ID> --part 1`. On a `pdf` section: `article text <ID> --pdf --part 1`. On a `supplements` section: `article supplement <ID> <FILE>` for the first readable file. On a Semantic Scholar edge item with more contexts: `article citation-evidence <CITING> <CITED>`.
 
 ### Keep, change or drop each 0.9 feature
 
@@ -569,7 +620,7 @@ New dependencies, added to `architecture.md` section 2.2 by the stage that build
 | `-k` | Drop | The positional `TEXT` carries the words |
 | `-q` | Drop | Same |
 | `--query` | Drop | Same |
-| `-g`/`--gene` | Keep, change | Resolved through HGNC and sent with previous symbols and the input as typed. Example 26 |
+| `-g`/`--gene` | Keep, change | Resolved through HGNC and sent as the approved symbol and the input as typed. Example 26 |
 | `-d`/`--disease` | Keep | Words for PubMed's MeSH mapping |
 | `--drug` | Keep | Same |
 | `-a`/`--author` | Keep | Example 18 |
@@ -579,46 +630,46 @@ New dependencies, added to `architecture.md` section 2.2 by the stage that build
 | `--year-min` | Drop | `--since` covers it |
 | `--year-max` | Drop | `--until` covers it |
 | `--type` | Keep, change | Values from `PublicationType`, including `guideline` and `trial`. Example 16 |
-| `--open-access` | Drop | No example. A PMCID does not prove open full text, so the filter would need the OA bucket for every result. The `fulltext` section answers per paper |
-| `--no-preprints` | Drop | No example. Preprints carry the `preprint` type |
-| `--exclude-retracted` | Drop | Retracted papers stay in results with the flag |
-| `--include-retracted` | Drop | Same; it is the only behavior |
+| `--open-access` | Keep, change | Native filters only: PubMed's PMC open access subset, Europe PMC `OPEN_ACCESS:y`, Semantic Scholar's public PDF. Other sources refuse it |
+| `--no-preprints` | Keep, change | Native filters only: PubMed `NOT preprint[pt]`, Europe PMC `NOT SRC:PPR` |
+| `--exclude-retracted` | Keep, change | The default, as in 0.9, applied natively. PubMed's outcome counts the papers it left out |
+| `--include-retracted` | Keep | Sends no retraction clause |
 | `--sort` | Keep, change | `rank`, `date` and `citations`. Issue 69 |
-| `--ranking-mode` | Drop | No fused score |
-| `--weight-semantic` | Drop | The weight was always zero |
-| `--weight-lexical` | Drop | No fused score |
-| `--weight-citations` | Drop | `--sort citations` states the rule |
-| `--weight-position` | Drop | No fused score |
+| `--ranking-mode` | Retired usage error | It maps to no blend: 1.0 has no score blends, as `decisions/2026-10-24-no-text-heuristics.md` rules. Each source keeps its own order |
+| `--weight-semantic` | Retired usage error | Maps to no blend. The weight was always zero |
+| `--weight-lexical` | Retired usage error | Maps to no blend |
+| `--weight-citations` | Retired usage error | Maps to no blend. The message names `--sort citations`, a sort the agent asks for |
+| `--weight-position` | Retired usage error | Maps to no blend |
 | `--source` | Keep, change | The agent's strategy choice: one source or several, in round-robin order. No `all` |
 | `--max-per-source` | Drop | It dropped rows before ranking |
 | `--session` | Drop | No example. Next steps replace loop-breaker suggestions |
 | `--debug-plan` | Drop | The global `--explain` |
 | `--full` | Drop | One header shape. The abstract lives on the card |
 | `--limit`, `--offset` | Change | The shared cursor with `--pool` |
-| `get article <ID>` | Keep, change | Many inputs at once. All publication types and corrections. No Semantic Scholar call |
+| `get article <ID>` | Keep, change | Many inputs at once. All publication types and corrections. The default card makes no Semantic Scholar call; `tldr` and `pdf` are sections |
 | `annotations` | Keep | Example 34 |
-| `indexing` | Drop | No example. MeSH and affiliations serve bench and bibliometric questions |
+| `indexing` | Keep | MeSH headings, keywords, affiliations and ORCID iDs from the card's EFetch reply, with no extra request |
 | `fulltext` | Change | The section returns the outline from the OA bucket. No file writes |
 | `--outline` | Drop | The section is the outline |
 | `--lines` | Change to `article text --part N` | Parts replace line ranges |
-| `--pdf` | Drop, pending question C | Loses full text for papers whose only open copy is a PDF outside PMC |
+| `--pdf` | Keep, change | The `pdf` section and `article text --pdf`, from Semantic Scholar's `openAccessPdf`, for papers whose full text the PMC OA bucket does not hold. Text is marked `origin: pdf` |
 | `--out` | Drop | Output is JSON on standard output |
 | `--output` | Drop | Same |
-| `tldr` | Drop, pending question C | Needs Semantic Scholar |
+| `tldr` | Keep | Section from Semantic Scholar's paper record, with its citation and influential citation counts |
 | `assets` | Rename `supplements` | Supplementary files only, with license. Figures stay in the full-text outline |
 | `--asset-view` | Drop | One view |
 | `--asset-limit` | Drop | Files are few; the section lists them all |
 | `--asset-offset` | Drop | Same |
 | `asset <key>` | Change to `article supplement <ID> <FILE>` | Returns extracted rows. Raw bytes are left to the file's URL |
-| `article supplement-search` | Fold into `article supplement --find` | Examples 31 and 32 |
+| `article supplement-search` | Fold into `article supplement --find` and `--variant` | Example 31 by `--find`, example 32 by `--variant` |
 | `article authors` | Drop | Authors are on the card |
 | `article entities` | Fold into `annotations` | One spelling |
 | `article batch` | Fold into `get article` with several inputs | One spelling |
 | `batch article` | Fold into `get article` with several inputs | One spelling |
-| `article citations` | Keep, change | iCite PMIDs, most cited first, with a total. Citation contexts drop, pending question C |
+| `article citations` | Keep, change | iCite PMIDs, most cited first, with a total, by default. `--source semantic-scholar` gives Semantic Scholar's list with citation contexts, intents and the influential flag |
 | `article references` | Keep, change | Same |
-| `article citation-evidence` | Drop, pending question C | Needs Semantic Scholar contexts or reference parsing |
-| `article recommendations` | Drop, pending question C | Returned nothing for 17611497 |
+| `article citation-evidence` | Keep | Semantic Scholar's contexts and intents for one citing and one cited paper; `--fulltext` adds the citing paper's own paragraphs from the PMC OA bucket |
+| `article recommendations` | Keep | Semantic Scholar's recommendations for one or more papers, with `--negative`. An empty answer is a stated state |
 | `variant articles` | Move to `search article --variant` | The variant slice owns variant parsing |
 | MCP `variant_articles` | Move to the one MCP tool's `search article --variant` | One MCP tool |
 | `gene articles` | Move to `search article --gene` | The gene slice ruled it |
@@ -628,9 +679,9 @@ New dependencies, added to `architecture.md` section 2.2 by the stage that build
 
 ### Sources kept and dropped
 
-Search sources the agent names: PubMed (the default), Europe PMC, LitVar2 and Semantic Scholar (keyed), with LitSense2 and PubTator3 search pending question B. Get and support sources: PubMed ESummary and EFetch, the PMC OA bucket, Europe PMC core records and preprint full text, PubTator3 export and iCite.
+Search sources the agent names: PubMed (the default), Europe PMC, PubTator3, LitVar2, LitSense2 and Semantic Scholar, which runs without a key and uses the user's optional key for a higher limit. Get and support sources: PubMed ESummary and EFetch, the PMC OA bucket, Europe PMC core records and preprint full text, PubTator3 export, iCite, and Semantic Scholar's paper record, citation graph, recommendations and open PDF links.
 
-Dropped from the article slice: NCBI EFetch for PMC (the OA bucket holds the JATS for every open article, including the example author manuscripts), Europe PMC supplement files (its ZIP for PMC6181777 held one empty file), OpenCitations (iCite covers PMIDs, and its count for 37879444 was 1 against iCite's 405), Figshare (no example), PMC article HTML pages (bot challenges), the PMC ID converter (ESearch `[doi]` and `[pmc]` and the OA JSON cover it) and the bioRxiv API (Europe PMC holds the preprints the examples need).
+Replaced, with each capability kept through another source: NCBI EFetch for PMC (the OA bucket holds the JATS for every open article, including the example author manuscripts), Europe PMC supplement files (its ZIP for PMC6181777 held one empty file), OpenCitations (iCite covers PMIDs, and its count for 37879444 was 1 against iCite's 405), Figshare (no example), PMC article HTML pages (bot challenges), the PMC ID converter (ESearch `[doi]` and `[pmc]` and the OA JSON cover it) and the bioRxiv API (Europe PMC holds the preprints the examples need).
 
 Every E-utilities request sends `tool=biomcp`, and sends `email` only when the user configures one.
 
@@ -642,14 +693,16 @@ Every E-utilities request sends `tool=biomcp`, and sends `email` only when the u
 | 3.8 `SourceOutcome` | `source`, `state`, `reason`, `count` | Add `term` (the exact query sent), `fetched` (depth held) and `notices` (such as PubMed's dropped words) |
 | 3.8 `Reason` | Eleven reasons | Add `unsupported_filter`, carried by the usage error, and `not_open` for a PMC article outside the OA bucket or a preprint without full text |
 | 3.10 rule 2 | One section has one source and one request | State that `fulltext` and `supplements` each have one source, the PMC OA bucket, with Europe PMC full text for preprints, and that the readers are steps |
-| 4.5 Quotas | One limiter per source key | Add keys: `ncbi-eutils` (3 per second, 10 with a key, already planned), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `litsense` (assumed 3 per second), `semantic-scholar` (1 per second with a key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Assumed rates are confirmed against each provider before the adapter lands |
-| 5.7 Size | Estimates per adapter kind; the article slice measures first | Estimate for this slice: PubMed 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 200, iCite 150, PMC OA bucket 200, the JATS reader 300 and the supplement readers 250, about 2,400 lines in all |
+| 4.5 Quotas | One limiter per source key | Add keys: `ncbi-eutils` (3 per second, 10 with a key, already planned), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `litsense` (assumed 3 per second), `semantic-scholar` (1 request every 2 seconds without a key, 1 per second with the user's optional key, one in flight), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Assumed rates are confirmed against each provider before the adapter lands |
+| 5.7 Size | Estimates per adapter kind; the article slice measures first | Estimate for this slice: PubMed 400 lines, Europe PMC 350, PubTator3 300, LitVar2 150, LitSense2 120, Semantic Scholar 350 with its paper record, citation graph and recommendations, iCite 150, PMC OA bucket 200, the JATS reader with its Markdown converter 400, the PDF reader 150 and the supplement readers 250, about 2,800 lines in all |
 | 6.4 Fan-out | One job per source, each with its own deadline | Keep. Article jobs run only for named sources |
 | 6.5 Merge | Pure union by canonical ID, `found_by` kept | Keep. Resolve DOI-only rows to PMIDs at build; key on PMID, PMCID, DOI, then Europe PMC ID; dedupe within a source too. Print `found_by` as a map, and only on pages with several sources |
 | 6.6 Rank | One pure ranker over title, abstract, curation, families and best rank | Replace for articles with the closed `Order` enum `rank`, `date`, `citations`. `Features` shrinks to the iCite count, filled only for `citations`. Gene ranking is unchanged |
 | 6.7 Pools and paging | An immutable snapshot keyed without order; headers in the pool | Key on the ordered source list and the sort. Keep the pool immutable: each source is fetched to a fixed depth at build and never extended. Page headers come from one ESummary call per page and are stored with the pool |
 | 6.8 Article pool | Fan out to every article source; one mandatory PubMed leg; enrich headers and abstracts | Run only the named sources; the default names PubMed alone. Keep the rule that a cap never drops a PubMed item. Drop abstract enrichment, which served a ranker this design removes. iCite runs for the whole pool only for `citations` |
-| 8.2 Trees | `search article` placeholder flags | Add `--source LIST`, `--sort RULE`, `--journal`, and the commands `article text` and `article supplement` |
+| 8.2 Trees | `search article` placeholder flags | Add `--source LIST`, `--sort RULE`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, the sections `tldr`, `pdf` and `indexing`, and the commands `article text`, `article supplement`, `article citation-evidence` and `article recommendations`, with `--source` on `article citations` and `article references` |
+| 4.3 Keyed sources | A source whose terms need the user's key declares `KeyUse::Required` | State that Semantic Scholar declares the existing `KeyUse::Optional`, as NCBI E-utilities does, so a missing key never skips its leg. A 429 that outlasts the retries on an optional-key source adds one `key` step |
+| 8.6 Markdown view | Renders the JSON by structure | A `Markdown` field prints as it is, unescaped |
 
 ## 6. Progressive disclosure and token budget
 
@@ -672,7 +725,14 @@ Tokens are estimated as bytes divided by 4. BioMCP 1.0 does not exist yet, so a 
 | 7. `article supplement --find` | Matching rows with sheet, row, header and checksum | about 165 per hit | One fact from a large file |
 | 8. `article citations`, `article references` | Ten headers, most cited first, and a total | about 780 per page | Pivots that grow without bound |
 | 9. `article text --part N` | One part of the body, split at 4,000 tokens | up to 4,000 per reply; 5,800 to 14,100 for a whole body | Bulky prose, read only on request |
-| Options | `--gene`, `--variant`, `--disease`, `--drug`, `--author`, `--journal`, `--since`, `--until`, `--type`, `--sort`, cursor | per item | Each option narrows or reorders; none adds fields |
+| 10. `tldr` | Semantic Scholar's one-sentence summary, its model, citation and influential citation counts | about 80 | A shorter digest than the abstract, asked for by name |
+| 11. `indexing` | MeSH headings with major flags, keywords, up to ten affiliations with the total, ORCID iDs | 200 to 400 | Restates the paper in PubMed's vocabulary |
+| 12. `pdf` | Origin, URL, open access status, license, page count and part outline | about 150 | Tells the agent the PDF exists and which part to read |
+| 13. `article citations --source semantic-scholar` | Ten edge items with intents, the influential flag and the first context with the total | up to 1,800 per page | Why a paper is cited, one pivot away |
+| 14. `article citation-evidence` | Every context and the intents for one pair; with `--fulltext`, the citing paragraphs as Markdown | up to 900; up to 4,000 with `--fulltext` | The passage behind one citation |
+| 15. `article recommendations` | Ten headers in Semantic Scholar's order | up to 1,300 per page | Discovery at the edges |
+| 16. `article text --pdf --part N` | One part of PDF text, marked `origin: pdf` | up to 4,000 per reply | Bulky text, read only on request |
+| Options | `--gene`, `--variant`, `--disease`, `--drug`, `--author`, `--journal`, `--since`, `--until`, `--type`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, cursor | per item | Each option narrows or reorders; none adds fields |
 
 ### Token table, 1.0 against 0.9.3
 
@@ -713,19 +773,37 @@ The citations facts are the total and the count source. 0.9 states neither total
 
 ### Budget
 
-Article page cases use the recorded real output plus 15 percent, capped by the recorded 0.9 JSON tokens for the same question (PM m4341). The 1,300-token page figure is a design target. Provisional page maxima in the investigation table are replaced with exact measured case ceilings before handoff; exceptions explain the responsible facts on the owning ticket. Other command ceilings remain as ruled. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80.
+Article page cases use the recorded real output plus 15 percent, capped by the recorded 0.9 JSON tokens for the same question (PM m4341). The 1,300-token page figure is a design target. Provisional page maxima in the investigation table are replaced with exact measured case ceilings before handoff; exceptions explain the responsible facts on the owning ticket. Other command ceilings remain as ruled. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80; `tldr` 120; `indexing` 400; `pdf` 250; a Semantic Scholar citations or references page 1,800, under 0.9's 1,811 for `article citations 17611497 --limit 10`; `article citation-evidence` 900, or 4,000 with `--fulltext`; a recommendations page 1,300; an `article text --pdf` reply 4,000. 0.9 printed no recorded JSON for citation evidence, recommendations, `tldr` or `--pdf` on these examples, so those budgets make no 0.9 comparison claim until 0047 measures 0.9 on the same inputs.
 
 ## 7. Keyed and optional-key sources
 
-`decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` governs keyed sources.
+`decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` governs sources whose terms need the user's own key, and no article source is one. Semantic Scholar is free, and its key is optional and only raises the request limit, as `decisions/2026-10-24-article-keeps-every-source-one-option-away.md` records. It therefore runs like NCBI E-utilities: without a key at a conservative quota, and with the user's key at the higher limit.
 
 | Source | Key | Serves | Rule |
 | --- | --- | --- | --- |
 | NCBI E-utilities | `ncbi_api_key`, optional | Raises PubMed and EFetch from 3 to 10 requests per second | Runs without a key at the lower limit |
-| Semantic Scholar | `semantic_scholar_api_key` | The `semantic-scholar` search source | Runs only with the user's key and only when named. Without a key the source is skipped with reason `no_key` and a hint, and no request is made. Unkeyed calls in this investigation failed 22 of 27 times |
+| Semantic Scholar | `semantic_scholar_api_key`, optional, in header `x-api-key` | The `semantic-scholar` search source, `tldr`, `pdf`, the Semantic Scholar edges, citation evidence and recommendations | Runs without a key at 1 request every 2 seconds with one in flight, and with the user's key at 1 per second. Never part of a default command. A 429 that outlasts the retries fails the leg with reason `rate_limited` and adds a `key` step |
 | PubTator3, LitVar2, LitSense2, iCite, Europe PMC, PMC OA bucket | none | | Public, no key |
 
-Cases: no case calls a keyed source live. The Semantic Scholar adapter's cases replay recorded replies, which hold only identifiers, titles and ranks.
+The key is config key `keys.semantic_scholar_api_key` or environment variable `SEMANTIC_SCHOLAR_API_KEY`. It is outgoing only: it never appears in a request key, a recording, a trace, an error or an envelope, and BioMCP never prints it. `biomcp help key semantic-scholar` names both places and says the key is free and raises the limit.
+
+### Keyless access, checked 2026-10-24
+
+Semantic Scholar's API page (https://www.semanticscholar.org/product/api) says: "Most Semantic Scholar endpoints are available to the public without authentication. They are rate-limited to 1000 requests per second shared among all unauthenticated users." It says an API key gets higher limits, and that "the introductory rate limit for an API key is 1 RPS on all endpoints". The Graph API description at https://api.semanticscholar.org/graph/v1/swagger.json documents the `x-api-key` header, `/paper/search` (at most 100 per page and 1,000 relevance-ranked results), `/paper/{paper_id}` with `tldr` and `openAccessPdf`, `/paper/{paper_id}/citations` and `/references` (at most 1,000 per page, with `contexts`, `intents`, `contextsWithIntent` and `isInfluential`) and `/paper/batch`. The recommendations description at https://api.semanticscholar.org/recommendations/v1/swagger.json documents `GET /papers/forpaper/{paper_id}` and `POST /papers`, with a `from` pool of `recent` (the default) or `all-cs`, and at most 500 results.
+
+Keyless calls from one machine, 3 or more seconds apart, retrying a 429 after 5, 10, 15, 20 and 25 seconds:
+
+| Call | Tries | HTTP 200 | What came back |
+| --- | --- | --- | --- |
+| `/paper/search` | 19 | 1 | "EGFR T790M osimertinib": total 10,282; first row 27959700 with PubMed, PMC and DOI IDs |
+| `/paper/{PMID:...}` with `tldr` or `openAccessPdf` | 40 | 6 | The TLDR and counts for 17611497; `openAccessPdf` for 22663011, 38834388, 37879444 and 33377972 |
+| `/paper/batch` | 5 | 0 | |
+| `/paper/{PMID:...}/citations` and `/references` | 6 | 6 | Contexts, intents and influential flags, as section 5 says |
+| `/recommendations/v1/papers/forpaper/...` and `POST /papers` | 4 | 4 | As section 5 says |
+
+Every keyless endpoint answered without a key. Search and paper lookups met the shared pool's 429 most of the time, and citation, reference and recommendation calls never did on this day. The design therefore paces keyless calls at 1 every 2 seconds, retries 429 within the leg's deadline as `architecture.md` section 4.6 says, and tells the agent that the optional key raises the limit. No call in this investigation used a key, and none of these facts depends on one.
+
+Cases: no case calls Semantic Scholar live. Its cases replay keyless replies recorded once, with a 429 reply for the failure cases. Contexts are sentences from the citing papers, so recordings in the repo hold contexts only from CC BY citing papers, such as 33123537's references; other context recordings and the TLDR recordings run from outside the repo through `--cases DIR`, as abstracts do, unless the PM rules otherwise.
 
 ## 8. Outside-in cases
 
@@ -733,13 +811,13 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 
 | # | Story | Run | Expect | Ceiling |
 | --- | --- | --- | --- | --- |
-| 1 | The default is plain PubMed (PMID 33123537) | `search article "AKT1 E17K"`, walked to the end | the walk equals the recorded PubMed relevance list of 192 PMIDs for the echoed term, in order, with no duplicates; `sources` is pubmed and `order` is rank; no item carries `found_by`; 33123537 in the first 10 | 7,000 bytes per page of 10 |
+| 1 | The default is plain PubMed (PMID 33123537) | `search article "AKT1 E17K"`, walked to the end | `term` is `AKT1 E17K NOT retracted publication[pt]`; the walk equals the recorded PubMed relevance list for that echoed term, 190 PMIDs on 2026-10-24, in order, with no duplicates; `sources` is pubmed and `order` is rank; no item carries `found_by`; 33123537 in the first 10; PubMed's outcome carries `retracted_excluded` with count 2 and `next` holds the `--include-retracted` step | 7,000 bytes per page of 10 |
 | 2 | PubMed is asked the right way | the recorded requests of case 1 | one ESearch with `sort=relevance`, `retmax=9999` and `tool=biomcp`, and no `email` when none is configured; one ESummary per page read; no second ESearch | none |
 | 3 | PubMed's window | `search article "EGFR lung cancer"` | `page.truncated` true; PubMed's outcome total above 30,000; 9,999 items in the pool; status complete | 7,000 bytes |
 | 4 | Dropped words (issue 4) | `search article "xqzvw zzyzxq kinase"` | PubMed's outcome state ok with a notice naming xqzvw and zzyzxq as dropped; status complete | 7,000 bytes |
 | 5 | ESearch error inside HTTP 200 | any search with a recorded 200 reply holding `ERROR` | PubMed's outcome failed with reason bad_reply; status failed | 600 bytes |
-| 6 | Gene term (issue 113, PMID 35665782) | `search article --gene HER2 low trastuzumab deruxtecan` | `term` is `(ERBB2 OR HER2 OR NGL) AND low trastuzumab deruxtecan`; 35665782 in the first 10; the walk equals the recorded plain PubMed result for that term | 7,000 bytes |
-| 7 | An old gene name | `search article --gene SUR1 R1437Q` | `term` holds ABCC8, SUR1, SUR and HRINS; the walk equals the recorded plain PubMed result for that term | 7,000 bytes |
+| 6 | Gene term (issue 113, PMID 35665782) | `search article --gene HER2 low trastuzumab deruxtecan` | `term` is `(ERBB2 OR HER2) AND low trastuzumab deruxtecan`; 35665782 in the first 10; the walk equals the recorded plain PubMed result for that term | 7,000 bytes |
+| 7 | An old gene name the agent types | `search article --gene SUR1 R1437Q` | `term` is `(ABCC8 OR SUR1) AND R1437Q`, with no other previous symbol; the walk equals the recorded plain PubMed result for that term | 7,000 bytes |
 | 8 | LitVar2 takes the matching variant | `search article --gene KRAS --variant G12C --source litvar` | LitVar2's outcome `term` is rs121913530, not rs121913529; total 8,915 | 7,000 bytes |
 | 9 | LitVar2 finds no match | `search article --gene KRAS --variant G12Q --source litvar` with a recorded autocomplete reply that holds no KRAS G12Q hit | candidates returned with how each matched; no search runs | 2,000 bytes |
 | 10 | A variant source beyond PubMed (PMID 19228619) | `search article --gene IDH1 --variant R132H --source litvar --sort citations` | 19228619 in the first 3; order echo citations; items carry `cited_by` | 7,500 bytes |
@@ -748,16 +826,16 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 13 | Most cited first (PMID 9145676) | `search article "BRCA1 185delAG Ashkenazi" --sort citations` | 9145676 in the first 3; counts never increase down the walk; items missing from iCite come last with no `cited_by` | 7,500 bytes |
 | 14 | Citation sort above its cap | `search article --gene BRAF --variant V600E --source pubmed,litvar --sort citations` | usage error naming the PMID count above 10,000 and asking to narrow; no iCite request | 600 bytes |
 | 15 | Round-robin rule (PMID 33123537) | `search article "AKT1 E17K" --source pubmed,europepmc`, walked | the k-th result of the i-th listed source sits at position 2(k−1)+i or earlier; no PMID appears twice; each item's `found_by` holds its recorded native ranks; Europe PMC's outcome shows the actual captured depth (at most 100) and its recorded total | 8,000 bytes per page |
-| 16 | DOI-only rows (PMID 27959700) | `search article "EGFR T790M osimertinib" --source pubmed,semantic-scholar` with a recorded key reply | rows with only a DOI resolve to their PMIDs where a record with the same DOI exists; 27959700 appears once, with both sources in `found_by` | 8,000 bytes |
+| 16 | DOI-only rows (PMID 27959700) | `search article "EGFR T790M osimertinib" --source pubmed,semantic-scholar` with a recorded keyless reply | rows with only a DOI resolve to their PMIDs where a record with the same DOI exists; 27959700 appears once, with both sources in `found_by` | 8,000 bytes |
 | 17 | A source repeats a paper | a recorded Europe PMC reply that lists one PMID twice | the item appears once, at the source's first rank | none |
 | 18 | The pool is fixed | case 15's walk run twice, then a page read with the network disabled | identical order; the last page has no page step; the offline page makes no request | none |
 | 19 | A named source fails (issue 97) | case 15 with a recorded Europe PMC HTTP 500 | status partial; europepmc named with reason; the walk still holds all 192 PubMed PMIDs; `next` holds a `fresh` step | 8,000 bytes |
 | 20 | PubMed fails in a fold | case 15 with a recorded PubMed timeout | status failed; the error names pubmed | 600 bytes |
-| 21 | Similarity is not a match | `search article "xqzvw zzyzxq kinase" --source litsense` | items returned; status complete; help text for `litsense` says it always returns results | 7,000 bytes |
+| 21 | Similarity is not a match | `search article "AKT1 E17K capivasertib breast cancer" --source litsense` | items returned in LitSense2's order, each with `sentence` holding a section and text; status complete; help text for `litsense` says a hit is a resemblance, not a match | 7,000 bytes |
 | 22 | A filter a source cannot apply | `search article --gene AKT1 --variant E17K --author Carpten --source pubmed,litvar` | usage error with code unsupported_filter naming litvar and `--author`; no request | 400 bytes |
 | 23 | A sort a source cannot apply | `search article --gene AKT1 --variant E17K --source litvar --sort date` | usage error with code unsupported_filter naming litvar and `--sort date` | 400 bytes |
 | 24 | LitVar2 without a variant | `search article AKT1 --source litvar` | usage error naming `--variant` | 400 bytes |
-| 25 | Keyed source without a key | `search article "EGFR T790M" --source semantic-scholar` with no key configured | semantic-scholar skipped with reason no_key and a hint; no request made | 600 bytes |
+| 25 | Semantic Scholar without a key | `search article "EGFR T790M osimertinib" --source semantic-scholar` with no key configured, once on the recorded keyless reply and once on a recorded 429 | the first runs and returns 27959700 first; the second fails with reason rate_limited and a `key` step naming `semantic-scholar`, and the request held no `x-api-key` header | 600 bytes for the failure |
 | 26 | Date filter and date order (issue 69) | `search article "KRAS G12C sotorasib" --since 2024 --sort date --limit 5` | five items, each dated 2024 or later, in PubMed's most recently added order; `next` holds a page step | 3,500 bytes |
 | 27 | Guideline filter (PMID 38834388) | `search article "next-generation sequencing advanced cancer ESMO" --type guideline` | 38834388 in the first 3; every item typed practice_guideline or guideline | 7,000 bytes |
 | 28 | Both AKT1 papers (PMIDs 33123537 and 17611497) | `search article "AKT1 E17K"`, then the `--sort citations` step from its `next` | the default page holds 33123537 and a `next` step for the same term with `--sort citations` and its cost; that step's page holds 17611497 in the first 3 | 7,500 bytes per page |
@@ -774,7 +852,7 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 39 | Several inputs (replaces `article batch`) | `get article 17611497 34096690 21639808` | three cards in input order | 9,000 bytes |
 | 40 | Supplements listed (PMID 28944238, CC BY) | `get article 28944238 supplements` | license cc_by; files exactly {MGG3-5-553-s001.pdf, MGG3-5-553-s002.xlsx} | 3,800 bytes |
 | 41 | Supplement sheets (PMID 28944238) | `article supplement 28944238 MGG3-5-553-s002.xlsx` | the sheet list includes ST2 with its row count; a page step for rows | 1,500 bytes |
-| 42 | Supplement fact (PMID 28944238) | `article supplement 28944238 MGG3-5-553-s002.xlsx --find P245S` | one hit at sheet ST2 row 85; cells include AXIN2, c.733C>T, p.Pro245Ser, VUS; `sha256` present | 1,500 bytes |
+| 42 | Supplement fact by protein change (PMID 28944238) | `article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245S`, then the same with `--find P245S` | the first prints the forms it searched, including Pro245Ser, and holds one hit at sheet ST2 row 85 with cells AXIN2, c.733C>T, p.Pro245Ser and VUS and `sha256`; the literal `--find P245S` is complete with zero hits, because the file spells only Pro245Ser | 1,500 bytes |
 | 43 | A pdf supplement | `article supplement 28944238 MGG3-5-553-s001.pdf` | `unsupported` with the file's URL | 400 bytes |
 | 44 | Supplement fact in a TDM manuscript, outside the repo (PMID 30209399) | `article supplement 30209399 NIHMS1501643-supplement-2.xlsx --find F1761I` through `--cases DIR` | one hit at Sheet1 row 2780; cells include c.5281T>A and LOF | 1,500 bytes |
 | 45 | A PMCID that is not open | `get article PMC13020499 fulltext supplements` | both sections unavailable with reason not_open; no request beyond the OA bucket listing | 3,000 bytes |
@@ -785,28 +863,45 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 50 | Citations (PMID 17611497) | `article citations 17611497` | `page.total` at least 1,000; items ordered by cited_by, highest first | 4,700 bytes |
 | 51 | References (PMID 34096690) | `article references 34096690`, walked | the walk holds 32955176; total 37 | 4,700 bytes per page |
 | 52 | Retired spelling | `variant articles "AKT1 E17K"` | usage error naming `search article --variant` | 400 bytes |
+| 53 | PubTator3 text search (PMID 38834388) | `search article "next-generation sequencing recommendations advanced cancer ESMO" --source pubtator` | 38834388 in the first 3; PubTator3's outcome carries its total, 992 on 2026-10-24 | 7,000 bytes |
+| 54 | PubTator3 entity search | `search article --gene AKT1 --variant E17K --source pubtator` | PubTator3's `term` is `@GENE_207 AND E17K`, from HGNC's Entrez ID and never from PubTator3's autocomplete; total 750 on 2026-10-24 | 7,000 bytes |
+| 55 | LitSense2 stalls in a fold | `search article "xqzvw zzyzxq kinase" --source pubmed,litsense` with the recorded HTTP 502 that LitSense2 sent after 30 s | status partial; litsense failed with its reason; PubMed's items and dropped-word notice intact; `next` holds a `fresh` step | 7,000 bytes |
+| 56 | TLDR, outside the repo (PMID 17611497) | `get article 17611497 tldr` | `tldr` state data; text contains "E17K"; model `tldr@v2.0.0`; `cited_by` 1,332 and `influential_cited_by` 82 as recorded; the section under 120 tokens | 3,400 bytes |
+| 57 | TLDR states | `get article 33123537 tldr` on a synthetic reply with `"tldr": null`, then on a recorded 429 | the first gives `empty`; the second gives `unavailable` with reason rate_limited, a `key` step and an intact card | 3,000 bytes |
+| 58 | Indexing (PMID 35440569) | `get article 35440569 indexing` | MeSH headings include Proto-Oncogene Proteins c-akt and Neoplasms as major topics; 8 headings; affiliations capped at 10 with total 36; 6 ORCID iDs; no request beyond the card's EFetch | 4,500 bytes |
+| 59 | Citation contexts (PMIDs 33123537, 17611497) | `article references 33123537 --source semantic-scholar`, walked | total 116; the item for 17611497 carries intents [background], influential true, one context and `contexts.total` 6; items with no PubMed ID carry `types_unknown`; each page within the page budget | 7,200 bytes per page |
+| 60 | Many citing papers, outside the repo (PMID 17611497) | `article citations 17611497 --source semantic-scholar` | two recorded calls; total 1,332; the first item's year is 2026; `query.source` semantic-scholar | 7,200 bytes per page |
+| 61 | A publisher withholds contexts (PMID 34096690) | `article references 34096690 --source semantic-scholar` | total 38; no item carries contexts | 7,200 bytes per page |
+| 62 | Citation evidence (PMIDs 33123537, 17611497) | `article citation-evidence 33123537 17611497` | 6 contexts; intents [background]; influential true | 3,600 bytes |
+| 63 | Citation evidence in the full text | `article citation-evidence 33123537 17611497 --fulltext` | Semantic Scholar's 6 contexts, and 7 paragraphs from PMC7573235 that cite reference B17, each as Markdown with its part number | 16,000 bytes |
+| 64 | Citation evidence with no contexts (PMIDs 34096690, 32955176) | `article citation-evidence 34096690 32955176` | the row matches by DOI, 10.1056/NEJMoa1917239 against Semantic Scholar's 10.1056/NEJMOA1917239, compared without ASCII case; state empty with notice no_contexts | 1,200 bytes |
+| 65 | Recommendations (PMID 34096690) | `article recommendations 34096690` | five items in the recorded order, 42745055 first; the query echo says the pool is Semantic Scholar's recent papers | 5,200 bytes |
+| 66 | Recommendations with a negative seed | `article recommendations 34096690 32955176 --negative 33433946` | one POST whose body holds both positive IDs and the negative one; 42745055 first | 5,200 bytes |
+| 67 | No recommendations (PMID 17611497) | `article recommendations 17611497` | status complete; total 0; notice no_recommendations | 600 bytes |
+| 68 | Semantic Scholar rate limit on a pivot | `article citations 33123537 --source semantic-scholar` with a recorded 429 on every try | failed with reason rate_limited; a `key` step naming semantic-scholar; no key appears anywhere in the output | 600 bytes |
+| 69 | PDF full text, outside the repo (PMID 41351423, CC BY) | `get article 41351423 pdf`, then `article text 41351423 --pdf --find E17K` | `pdf` state data with origin pdf, status gold, license cc_by, 16 pages and parts; hits name their pages and carry the `pdf_text` notice | 3,500 bytes, then 6,000 bytes |
+| 70 | PDF states | `get article 17611497 pdf`, `get article 22663011 pdf` and `get article 33377972 pdf` on recorded replies | `unavailable` with reasons not_open (no download request), rejected (HTTP 403) and not_pdf (HTML body) | 3,000 bytes each |
+| 71 | PDF limits | `get article <ID> pdf` on synthetic PDFs: one of 120 pages, one encrypted, one with no text layer, and a redirect to an IP literal | the first holds 100 pages and `truncated` with page count 120; then `unsupported`, `empty`, and `unavailable` with reason rejected and no request to the IP | 3,000 bytes each |
+| 72 | A heading survives (PMID 35440569, CC BY) | `article text 35440569 --part N` for the first Results subsection | `heading_path` is ["Results", "Identification of candidate driver mutations in AKT1, AKT2, and AKT3"]; `markdown` starts with a level-3 heading, writes `*AKT1*`, and cites `[11]` | 17,000 bytes |
+| 73 | A table survives (PMID 28944238, CC BY) | `article text 28944238 --part N` for Table 1 | `markdown` starts with `**Table 1.** Sample characteristics`, then a Markdown table whose header row holds Ontario and Mayo Clinic and whose rows hold "Age at diagnosis of cases (range)" | 6,000 bytes |
+| 74 | A find inside a table (PMID 28944238) | `article text 28944238 --find "Age at diagnosis"` | the hit names Table 1's part number and quotes its caption, its header row and the matching row as a small Markdown table | 2,000 bytes |
+| 75 | Lists, superscripts and `--format md` | `article text <ID> --part 1` on a synthetic JATS file with a list, `IC<sub>50</sub>` and a figure caption, once as JSON and once with `--format md` | list items print as `- ` lines; `IC<sub>50</sub>` survives; the caption prints as `**Figure 1.** …`; the Markdown view prints the `markdown` field unescaped | 3,000 bytes |
+| 76 | An abstract in Markdown (PMID 35440569) | `get article 35440569` | an abstract part's text holds `metabolism<sup>1-8</sup>` | 4,000 bytes |
+| 77 | Open access only | `search article "AKT1 E17K" --open-access` | `term` is `AKT1 E17K AND "pubmed pmc open access"[filter] NOT retracted publication[pt]`; total 66 on 2026-10-24; 33123537 in the first 10 | 7,000 bytes |
+| 78 | No preprints | `search article "AKT1 E17K" --no-preprints` | `term` is `AKT1 E17K NOT preprint[pt] NOT retracted publication[pt]`; total 187; 41415395, 40585122 and 38328122 absent from the walk | 7,000 bytes per page |
+| 79 | Retracted papers included | `search article "AKT1 E17K" --include-retracted` | `term` is `AKT1 E17K`; total 192; the walk holds 22505016 and 20068047, each typed retracted_publication; no `retracted_excluded` notice | 7,000 bytes per page |
+| 80 | Filters a source cannot apply | `search article --gene AKT1 --variant E17K --source pubmed,litvar --open-access`, then the same without `--open-access` | the first is a usage error with code unsupported_filter naming litvar and `--open-access`, with no request; the second runs, and LitVar2's outcome carries the notice retracted_not_excluded | 400 bytes, then 7,500 bytes |
+| 81 | Europe PMC filters, checked before landing | `search article "AKT1 E17K" --source europepmc --open-access --no-preprints` | Europe PMC's `term` holds `OPEN_ACCESS:y`, `NOT SRC:PPR` and `NOT PUB_TYPE:"retracted publication"`; the recorded total matches a live check | 7,000 bytes |
+| 82 | A protein change that does not parse | `article supplement 28944238 MGG3-5-553-s002.xlsx --variant P245` | usage error naming the expected form; no download | 400 bytes |
 
-Cases 44, 46 and 47 hold text under the TDM license, so their recordings stay outside the repo and run through `--cases DIR`. Recordings that hold PubMed abstracts carry publisher text and follow the same rule unless the PM rules otherwise; the cases that need them are the card cases 31 to 35 and 39.
+Cases 44, 46 and 47 hold text under the TDM license, so their recordings stay outside the repo and run through `--cases DIR`. Cases 56, 60 and 69 also run from outside the repo: 56 and 60 hold Semantic Scholar text from papers under other licenses, and 69's recording holds a 4.8 MB PDF. Synthetic recordings are marked synthetic. Recordings that hold PubMed abstracts carry publisher text and follow the same rule unless the PM rules otherwise; the cases that need them are the card cases 31 to 35 and 39.
 
-## 9. Questions for Ian
+## 9. Ian's answers
 
-The PM has accepted the rest of this design. Three questions wait for Ian. The design works with either answer to each.
+Ian answered the design's three questions on 2026-10-24. `decisions/2026-10-24-article-keeps-every-source-one-option-away.md` records the answers.
 
-**A. No strategy puts both AKT1 papers on page one. What should the milestone require?**
+- **A. The AKT1 E17K bar.** Option 2: the default page one holds 33123537, and 17611497 is first on the most-cited order of the same term, which the default page's `next` names with its cost. Cases 1 and 28 assert it.
+- **B. LitSense2 and PubTator3 search.** Both stay as named sources, never defaults. They do a different job from PubMed, and help describes each job and its failure modes.
+- **C. Features that 0.9 had.** All stay: `--pdf` as the `pdf` section and `article text --pdf`, `tldr`, citation contexts and intents on `article citations` and `article references` with `--source semantic-scholar`, `article citation-evidence` and `article recommendations`. Semantic Scholar runs without a key, and its optional key raises the limit.
 
-- Option 1: require both 33123537, PubMed's second result, and 17611497, the 2007 discovery paper, on the default page one. No measured strategy does this: PubMed's relevance order puts 17611497 about 90th, and its most-cited order puts 33123537 46th. Meeting it would need a ranker that blends orders, which Ian's ruling rejects.
-- Option 2: keep the honest PubMed default and require each paper on page one of a strategy the agent can reach in one step: 33123537 on the default page, and 17611497 first on the most-cited order of the same term, which the default page's `next` names with its cost.
-- Recommendation: option 2. Case 1 and case 28 assert it.
-
-**B. Should LitSense2 and PubTator3 search stay in 1.0 as sources the agent may name?**
-
-- Option 1: keep both as named sources, never defaults. LitSense2 is the only sentence-similarity search, which Ian named as a source he wants agents to have, and PubTator3 is the only search by normalized entity across genes, diseases and chemicals. Each costs one adapter of about 120 and 300 lines.
-- Option 2: drop both from 1.0 search until an example needs them. On the examples, LitSense2 put 1 of 20 accepted papers in its first ten and returned 50 papers for a nonsense query; PubTator3 text search put 2 of 20 there. PubTator3 export stays for the `annotations` section either way.
-- Recommendation: option 1, with help text that says LitSense2 always returns results and that its hits are resemblances. The design works either way: the source list loses two values and two adapters.
-
-**C. Which 0.9 features that can lose answers should 1.0 drop?** Each is ruled on its own.
-
-- `--pdf`, full text from open-access PDFs outside PMC through Semantic Scholar. Keep: some papers have an open PDF and no PMC copy. Drop: it needs Semantic Scholar and a PDF text reader, and no example needed it. Recommendation: drop.
-- `tldr`, Semantic Scholar's one-sentence summary. Keep: a shorter digest than the abstract. Drop: the abstract answered every example and it needs a key. Recommendation: drop.
-- Citation contexts on `article citations` and `article citation-evidence`, the sentence where one paper cites another. Keep: it shows why a paper is cited. Drop: it needs Semantic Scholar or reference parsing of full text, and no example needed it. Recommendation: drop.
-- `article recommendations`, related papers from Semantic Scholar. Keep: a discovery path no other source offers. Drop: it returned nothing for 17611497 and needs a key. Recommendation: drop.
+The same ruling keeps every other 0.9 capability, so this design also keeps the `indexing` section and the `--open-access`, `--no-preprints`, `--exclude-retracted` and `--include-retracted` filters. `decisions/2026-10-24-no-text-heuristics.md`, decided the same day, removes previous symbols from the `--gene` term, keeps `--find` literal, adds `--variant` to the readers and retires 0.9's ranking flags as usage errors.

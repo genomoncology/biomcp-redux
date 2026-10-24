@@ -21,3 +21,4 @@ Depends on: 0043
 - Defers: Preprint supplements wait for an example. The bioRxiv API stays dropped, as article.md rules.
 
 - Reviewed markup/dispatch: Parse abstractText mixed markup through the existing checked XML document boundary and MixedText, never string stripping. Route Europe PMC fulltext through the owning section preparation/dispatch modules. No inferred published-version link. A source 500 is unavailable after retries and does not prove not_open. In-repo text captures retain checked CC BY provenance; external licensed cases remain outside Git.
+- PM decision, 2026-10-24, the Markdown ruling: the preprint's `abstract_parts` and its `fulltextXML` parts go through 0043's JATS-to-Markdown converter, so a preprint's text parts and abstract carry `Markdown` like a PMC article's.
