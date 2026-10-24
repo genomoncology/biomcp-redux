@@ -14,8 +14,10 @@ use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty();
-    let deadline = cx.fetch.deadline(cx.budget);
-    let result = execute(cx, query, deadline, &mut out);
+    let command = cx.fetch.command_deadline(cx.budget);
+    let mut deadline = command.deadline();
+    let result = execute(cx, query, &mut deadline, &mut out);
+    command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = status::local(error);
         out.status = Status::Failed;
@@ -25,10 +27,10 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
 fn execute<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
-    mut deadline: Deadline<'a>,
+    deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
+    let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let bytes = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
     let key = Sha256::digest([b"biomcp.article_page/1\0".as_slice(), &bytes].concat());
     let explicit = query.pool().map(Text::as_str);
@@ -48,16 +50,16 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(term) = term::resolve(cx, query, &mut deadline, out)? else {
+            let Some(term) = term::resolve(cx, query, deadline, out)? else {
                 return Ok(());
             };
-            store.set_deadline(deadline);
-            deadline = store.deadline();
-            let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
+            store.set_deadline(*deadline);
+            *deadline = store.deadline();
+            let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
             let started = leg.remaining();
             let result = pubmed::search_ids(&leg, &term, cx.ncbi_email.as_ref());
-            deadline = consume(deadline, started, leg.remaining());
-            store.set_deadline(deadline);
+            *deadline = consume(*deadline, started, leg.remaining());
+            store.set_deadline(*deadline);
             let mut source =
                 status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
             source.term = Text::new(&term).ok();
@@ -80,7 +82,9 @@ fn execute<'a>(
         }
     };
     out.sources = pool.sources.clone();
-    read_page(cx, query, &mut store, &pool, out)
+    let result = read_page(cx, query, &mut store, &pool, out);
+    *deadline = store.deadline();
+    result
 }
 fn read_page<'a>(
     cx: &Ctx<'a>,

@@ -36,6 +36,9 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article/persistent-replay-command-epochs", || {
+            article_replay_epoch().map_err(Into::into)
+        }),
         Trial::test("article/owners-refused-before-journal-and-tables", || {
             article_owners().map_err(Into::into)
         }),
@@ -361,4 +364,31 @@ fn article_owners() -> Check {
         }
     }
     Ok(())
+}
+
+fn article_replay_epoch() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let root = env.root().join("recordings");
+    let pubmed = root.join("pubmed");
+    fs::create_dir_all(&pubmed).map_err(|e| e.to_string())?;
+    let original = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/article/search/synthetic-small/pubmed");
+    for entry in fs::read_dir(original).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        let exchanges = value
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
+            .ok_or("exchanges missing")?;
+        let first = exchanges.first().ok_or("exchange missing")?.clone();
+        *exchanges = vec![first; 32];
+        fs::write(
+            pubmed.join(entry.file_name()),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    mcp::article_sequence(&env, &env.globals(Some(&root), false))
 }

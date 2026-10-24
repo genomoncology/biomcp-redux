@@ -245,3 +245,58 @@ fn concurrent_hydration_retains_accepted_headers_and_snapshot_metadata() {
     let (_, items) = page(run(&fetch, query(Some(info.id.as_str()), 0), false));
     assert!(items.items.iter().all(|i| i.header.is_some()));
 }
+
+#[test]
+fn sequential_replay_commands_receive_new_budgets_after_provider_quota_waits() {
+    let cache = ReplayCache::temporary().unwrap();
+    let fetch = fetch("synthetic-small", cache);
+    for _ in 0..6 {
+        let out = biomcp_query::run(
+            &Ctx {
+                fetch: &fetch,
+                budget: Duration::from_secs(2),
+                fresh: true,
+                ncbi_email: None,
+            },
+            &Request::SearchArticle(query(None, 0)),
+        );
+        page(out);
+    }
+}
+#[test]
+fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
+    let cache = ReplayCache::temporary().unwrap();
+    let fetch = fetch("synthetic-small", cache);
+    for _ in 0..3 {
+        let outcomes = std::thread::scope(|scope| {
+            let one = scope.spawn(|| {
+                biomcp_query::run(
+                    &Ctx {
+                        fetch: &fetch,
+                        budget: Duration::from_secs(2),
+                        fresh: true,
+                        ncbi_email: None,
+                    },
+                    &Request::SearchArticle(query(None, 0)),
+                )
+            });
+            let two = scope.spawn(|| {
+                biomcp_query::run(
+                    &Ctx {
+                        fetch: &fetch,
+                        budget: Duration::from_secs(2),
+                        fresh: true,
+                        ncbi_email: None,
+                    },
+                    &Request::SearchArticle(query(None, 0)),
+                )
+            });
+            [one.join().unwrap(), two.join().unwrap()]
+        });
+        let ids = outcomes
+            .into_iter()
+            .map(|out| page(out).0.pool.unwrap().id.to_string())
+            .collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(ids.len(), 2);
+    }
+}

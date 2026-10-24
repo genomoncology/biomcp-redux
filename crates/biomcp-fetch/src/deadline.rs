@@ -11,6 +11,7 @@ use std::{
 #[derive(Clone, Copy, Debug)]
 pub struct Deadline<'a> {
     end: Instant,
+    frozen: Option<Instant>,
     clock: Option<&'a VirtualClock>,
 }
 
@@ -29,7 +30,9 @@ impl VirtualClock {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
     pub(crate) fn join(&self, other: &Self) {
-        let completed = other.now();
+        self.reach(other.now());
+    }
+    fn reach(&self, completed: Instant) {
         let mut now = self
             .0
             .lock()
@@ -54,6 +57,7 @@ impl<'a> Deadline<'a> {
         let now = clock.map_or_else(Instant::now, VirtualClock::now);
         Self {
             end: now.checked_add(budget).unwrap_or(now),
+            frozen: None,
             clock,
         }
     }
@@ -63,6 +67,7 @@ impl<'a> Deadline<'a> {
     pub(crate) fn bind<'b>(&self, clock: Option<&'b VirtualClock>) -> Deadline<'b> {
         Deadline {
             end: self.end,
+            frozen: None,
             clock,
         }
     }
@@ -70,7 +75,8 @@ impl<'a> Deadline<'a> {
         self.clock.map(|_| VirtualClock(Mutex::new(self.now())))
     }
     pub(crate) fn now(&self) -> Instant {
-        self.clock.map_or_else(Instant::now, VirtualClock::now)
+        self.frozen
+            .unwrap_or_else(|| self.clock.map_or_else(Instant::now, VirtualClock::now))
     }
     /// Report whether this budget advances in replay time.
     pub fn virtual_time(&self) -> bool {
@@ -93,8 +99,38 @@ impl<'a> Deadline<'a> {
     /// Cap this deadline with a budget starting now.
     pub fn child(&self, cap: Duration) -> Self {
         Self {
-            end: self.end.min(Self::start(cap, self.clock).end),
+            end: self
+                .end
+                .min(self.now().checked_add(cap).unwrap_or(self.now())),
+            frozen: self.frozen,
             clock: self.clock,
+        }
+    }
+}
+
+/// A sequential command's fixed replay origin, completed once into shared time.
+#[derive(Debug)]
+pub struct CommandDeadline<'a>(Deadline<'a>);
+impl<'a> CommandDeadline<'a> {
+    pub(crate) fn start(budget: Duration, clock: Option<&'a VirtualClock>) -> Self {
+        let mut deadline = Deadline::start(budget, clock);
+        deadline.frozen = clock.map(VirtualClock::now);
+        Self(deadline)
+    }
+    /// Start the command's stages from the same absolute origin.
+    pub fn deadline(&self) -> Deadline<'a> {
+        self.0
+    }
+    /// Join the completed absolute endpoint, including an early failure.
+    /// Concurrent completions take the maximum endpoint; they never add durations.
+    pub fn finish(self, remaining: Duration) {
+        if let (Some(clock), Some(origin)) = (self.0.clock, self.0.frozen) {
+            let spent = self
+                .0
+                .end
+                .saturating_duration_since(origin)
+                .saturating_sub(remaining);
+            clock.reach(origin.checked_add(spent).unwrap_or(self.0.end));
         }
     }
 }

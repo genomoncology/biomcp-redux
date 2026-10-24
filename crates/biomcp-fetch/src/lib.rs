@@ -20,7 +20,7 @@ pub mod xml;
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat};
 pub use cache::{SchemaOwner, VERSION, check_owners};
-pub use deadline::Deadline;
+pub use deadline::{CommandDeadline, Deadline};
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
 };
@@ -173,6 +173,11 @@ impl Fetch {
     /// Create a real deadline or an initial replay budget for independent legs.
     pub fn deadline(&self, budget: Duration) -> Deadline<'_> {
         Deadline::start(budget, self.clock.as_ref())
+    }
+
+    /// Own a sequential command's replay origin without changing independent leg consumers.
+    pub fn command_deadline(&self, budget: Duration) -> CommandDeadline<'_> {
+        CommandDeadline::start(budget, self.clock.as_ref())
     }
 
     /// Start a leg capped by this source's budget.
