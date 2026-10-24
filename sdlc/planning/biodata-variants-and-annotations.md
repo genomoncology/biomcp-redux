@@ -112,7 +112,7 @@ A MyVariant `_id` such as `chr7:g.140453136A>T` is not reference-qualified HGVS.
 | Variant | Wire text | Check | Standard |
 | --- | --- | --- | --- |
 | `Rs` | `"rs113488022"` | `rs` and a positive number, stored as u64 | dbSNP |
-| `Ca` | `"CA123643"` | `CA` and a positive number | ClinGen Allele Registry nucleotide allele |
+| `Ca` | `"CA123643"`, `"CA000434"` | `CA` and a positive number written with at least six digits, zero-padded to six as the registry publishes it. Text with fewer than six digits, or more than six digits starting with zero, is refused. It serializes as that canonical text and compares by its number | ClinGen Allele Registry nucleotide allele |
 | `Pa` | `"PA..."` | `PA` and a positive number | ClinGen Allele Registry protein allele; confirm the form against the registry when built |
 | `ClinVarVariation` | `"clinvar:13961"` | Positive number with the `clinvar:` prefix | identifiers.org and Bioregistry `clinvar` |
 | `ClinVarAllele` | `"clinvar.allele:..."` | Positive number | ClinVar AlleleID |
