@@ -7,6 +7,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("source-controls/outcomes-retain-registry-terms", || {
             envelopes().map_err(Into::into)
         }),
+        Trial::test("runner/markdown-terms-subtraction-keeps-payload-ceilings", || {
+            markdown_subtraction().map_err(Into::into)
+        }),
         Trial::test("runner/terms-subtraction-keeps-payload-ceilings", || {
             subtraction().map_err(Into::into)
         }),
@@ -147,6 +150,56 @@ fn subtraction() -> Result<(), String> {
         .remove("terms");
     if size(&envelope, "").is_ok() {
         return Err("missing terms earned a deduction".into());
+    }
+    Ok(())
+}
+
+/// Measure only new publisher columns in the source table of the paired JSON view.
+pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String> {
+    comparable(value, "")?;
+    let Some(rows) = value.get("sources").and_then(Value::as_array).filter(|r| !r.is_empty()) else { return Ok(0); };
+    let table = text.split_once("## Sources\n\n").ok_or("missing source table")?.1;
+    let lines: Vec<_> = table.lines().take_while(|line| line.starts_with('|')).collect();
+    if lines.len() != rows.len() + 2 { return Err("source table lost outcome rows".into()); }
+    let columns: Vec<_> = lines.first().ok_or("missing source columns")?
+        .split('|').enumerate().filter_map(|(i, cell)| match cell {
+            " Terms " => Some((i, "terms")), " Terms url " => Some((i, "terms_url")),
+            " Use " => Some((i, "use")), _ => None,
+        }).collect();
+    if columns.len() != 3 || columns.iter().map(|(_, field)| *field).collect::<std::collections::BTreeSet<_>>().len() != 3 { return Err("source table lost required publisher columns".into()); }
+    let mut bytes = 0;
+    for (number, line) in lines.iter().enumerate() {
+        let cells: Vec<_> = line.split('|').collect();
+        for (column, field) in &columns {
+            let cell = cells.get(*column).ok_or("missing publisher cell")?;
+            if number == 1 && *cell != " --- " { return Err("changed source separator".into()); }
+            if number > 1 {
+                let expected = rows.get(number - 2).and_then(|r| r.get(*field)).and_then(Value::as_str).ok_or("missing publisher value")?;
+                if *cell != format!(" {} ", markdown_scalar(expected)) { return Err("changed Markdown publisher terms".into()); }
+            }
+            bytes += cell.len() + 1;
+        }
+    }
+    Ok(bytes)
+}
+fn markdown_scalar(value: &str) -> String {
+    value.chars().map(|c| match c {
+        '&' => "&amp;".into(), '<' => "&lt;".into(), '>' => "&gt;".into(),
+        '\n' | '\r' => " ".into(),
+        '\\' | '*' | '_' | '`' | '|' | '[' | ']' => format!("\\{c}"),
+        _ => c.to_string(),
+    }).collect()
+}
+fn markdown_subtraction() -> Result<(), String> {
+    let outcome = biomcp_adapters::registry::outcome(biomcp_types::Source::Hgnc, biomcp_types::SourceState::Ok, None);
+    let text = format!("## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n", outcome.terms, outcome.terms_url);
+    let value = json!({"sources":[outcome]});
+    let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
+    if text.len() - markdown_bytes(&text, &value)? != expected.len() { return Err("Markdown changed prior table bytes".into()); }
+    let added = format!("{text}ordinary added content");
+    if added.len() - markdown_bytes(&added, &value)? <= expected.len() { return Err("ordinary Markdown earned a deduction".into()); }
+    for changed in [text.replace("CC0 1.0", "wrong terms"), text.replace(" Terms ", " Missing ")] {
+        if markdown_bytes(&changed, &value).is_ok() { return Err("invalid Markdown terms earned a deduction".into()); }
     }
     Ok(())
 }
