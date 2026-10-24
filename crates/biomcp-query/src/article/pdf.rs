@@ -39,6 +39,7 @@ fn execute<'a>(cx: &Ctx<'a>, query: &ArticlePdf, allow_save: bool, deadline: &mu
 }
 
 /// Bounded download before the binary decides how to install the file.
+#[derive(Debug)]
 pub struct Download {
     /// Typed source outcome.
     pub out: Outcome,
