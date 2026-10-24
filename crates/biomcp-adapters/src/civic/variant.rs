@@ -56,7 +56,7 @@ pub fn variant(
         after = connection.page_info.end_cursor;
     }
 }
-fn request<'a>(query: &VariantGet, allele: &'a str, after: Option<&'a Text>) -> Query<'a> {
+fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) -> Query<'a> {
     let limit = query.section_limit();
     let (evidence, assertions) = match query.civic_kind() {
         Some(CivicClaimKind::Evidence) => (limit, 0),

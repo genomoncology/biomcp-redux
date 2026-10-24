@@ -61,11 +61,12 @@ fn map(
         .collect::<Result<Vec<_>, _>>()?;
     let record = record(raw.id, &raw.link)?;
     let subject = if raw.is_complex || members.len() != 1 {
-        Some(VariantRef::profile(
+        VariantRef::profile(
             record.id.clone(),
             raw.name.clone(),
             members.iter().filter_map(|m| m.subject.clone()).collect(),
-        ))
+        )
+        .ok()
     } else {
         members.first().and_then(|m| m.subject.clone())
     };
