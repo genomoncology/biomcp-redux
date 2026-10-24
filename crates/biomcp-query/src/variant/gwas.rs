@@ -12,12 +12,7 @@ pub(super) fn section(
     query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
-) -> (
-    Section<VariantGwas>,
-    Vec<SourceOutcome>,
-    Vec<Problem>,
-    Option<RequestError>,
-) {
+) -> super::sections::Result<VariantGwas> {
     let Some(id) = rs_id(query, candidates) else {
         return (
             Section::Unavailable {
