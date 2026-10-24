@@ -123,7 +123,9 @@ fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::VariantPopulation(_)) {
+        if matches!(request, Request::VariantAssertions(_)) {
+            "assertions"
+        } else if matches!(request, Request::VariantPopulation(_)) {
             "population"
         } else if matches!(request, Request::VariantAssertions(_)) {
             "assertions"
