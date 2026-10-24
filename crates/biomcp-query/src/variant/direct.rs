@@ -10,17 +10,7 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
         return None;
     };
     use VariantSection as S;
-    let source = match section {
-        S::Clinvar => Source::ClinVar,
-        S::Erepo => Source::Erepo,
-        S::Gwas => Source::Gwas,
-        S::Civic => Source::Civic,
-        S::Population => Source::Gnomad,
-        S::Hotspots => Source::CancerHotspots,
-        S::Oncokb => Source::Oncokb,
-        S::Predict | S::Conservation | S::Cosmic => Source::MyVariant,
-        _ => return None,
-    };
+    let source = super::sections::source(*section)?;
     if cx.fetch.disabled(source) {
         return Some(source);
     }

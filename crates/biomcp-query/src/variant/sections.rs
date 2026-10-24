@@ -41,6 +41,16 @@ pub(super) fn apply(
     for candidate in candidates {
         let mut sections = VariantSections::default();
         for section in requested(query) {
+            macro_rules! attach {
+                ($field:ident,$read:expr) => {
+                    sections.$field = Some(retain(
+                        permitted(cx, section, || $read),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ))
+                };
+            }
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
@@ -50,75 +60,46 @@ pub(super) fn apply(
                     } else {
                         AssertionSource::Erepo
                     };
-                    let value = Some(retain(
-                        super::assertions::section(cx, query, candidates, deadline, source),
+                    let result = retain(
+                        permitted(cx, section, || {
+                            super::assertions::section(cx, query, candidates, deadline, source)
+                        }),
                         &mut sources,
                         &mut problems,
                         &mut local,
-                    ));
+                    );
                     if section == S::Clinvar {
-                        sections.clinvar = value;
+                        sections.clinvar = Some(result)
                     } else {
-                        sections.erepo = value;
+                        sections.erepo = Some(result)
                     }
                 }
-                S::Population => {
-                    sections.population = Some(retain(
-                        super::population::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Gwas => {
-                    sections.gwas = Some(retain(
-                        super::gwas::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Civic => {
-                    sections.civic = Some(retain(
-                        super::civic::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Hotspots => {
-                    sections.hotspots = Some(retain(
-                        super::hotspots::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Predict => {
-                    sections.predict = Some(retain(
-                        super::predict::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Conservation => {
-                    sections.conservation = Some(retain(
-                        super::conservation::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Cosmic => {
-                    sections.cosmic = Some(retain(
-                        super::cosmic::section(cx, query, candidates, deadline),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Oncokb => sections.oncokb = Some(pending(Source::Oncokb, &mut sources)),
+                S::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, deadline)
+                ),
+                S::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
+                S::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                S::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
+                S::Predict => attach!(
+                    predict,
+                    super::predict::section(cx, query, candidates, deadline)
+                ),
+                S::Conservation => attach!(
+                    conservation,
+                    super::conservation::section(cx, query, candidates, deadline)
+                ),
+                S::Cosmic => attach!(
+                    cosmic,
+                    super::cosmic::section(cx, query, candidates, deadline)
+                ),
+                S::Oncokb => attach!(oncokb, pending(Source::Oncokb)),
                 S::All => {}
                 _ => {}
             }
@@ -129,17 +110,48 @@ pub(super) fn apply(
     }
     (sources, problems, local)
 }
-fn pending<T>(source: Source, sources: &mut Vec<SourceOutcome>) -> Section<T> {
-    sources.push(SourceOutcome {
-        source,
-        state: SourceState::Failed,
-        reason: Some(Reason::Unavailable),
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
-    });
-    Section::unavailable(source, Reason::Unavailable)
+pub(super) fn source(section: VariantSection) -> Option<Source> {
+    use VariantSection as S;
+    Some(match section {
+        S::Clinvar => Source::ClinVar,
+        S::Erepo => Source::Erepo,
+        S::Population => Source::Gnomad,
+        S::Gwas => Source::Gwas,
+        S::Civic => Source::Civic,
+        S::Hotspots => Source::CancerHotspots,
+        S::Predict | S::Conservation | S::Cosmic => Source::MyVariant,
+        S::Oncokb => Source::Oncokb,
+        _ => return None,
+    })
+}
+fn permitted<T>(
+    cx: &Ctx<'_>,
+    section: VariantSection,
+    read: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
+        return unavailable(source, Reason::Disabled, SourceState::Skipped);
+    }
+    read()
+}
+fn pending<T>(source: Source) -> Result<T> {
+    unavailable(source, Reason::Unavailable, SourceState::Failed)
+}
+fn unavailable<T>(source: Source, reason: Reason, state: SourceState) -> Result<T> {
+    (
+        Section::unavailable(source, reason),
+        vec![SourceOutcome {
+            source,
+            state,
+            reason: Some(reason),
+            term: None,
+            count: None,
+            fetched: None,
+            notices: Vec::new(),
+        }],
+        Vec::new(),
+        None,
+    )
 }
 pub(super) fn retain<T>(
     value: Result<T>,
