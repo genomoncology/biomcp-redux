@@ -180,6 +180,11 @@
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
+            },
+            "semantic-scholar": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
             }
           },
           "type": "object"
@@ -271,6 +276,23 @@
             },
             "namespace": {
               "const": "europepmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Semantic Scholar local identity when no indexed identifier exists.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SemanticScholarId"
+            },
+            "namespace": {
+              "const": "semantic_scholar",
               "type": "string"
             }
           },
@@ -512,6 +534,10 @@
         " Identity lacks the identifier required to join this source."
       ]
     },
+    "SemanticScholarId": {
+      "pattern": "^[a-f0-9]{40}$",
+      "type": "string"
+    },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
@@ -524,6 +550,7 @@
         "clingen",
         "pubmed",
         "europepmc",
+        "semantic-scholar",
         "icite",
         "pubtator",
         "ctgov",
@@ -541,6 +568,7 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
+        " Semantic Scholar.",
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",

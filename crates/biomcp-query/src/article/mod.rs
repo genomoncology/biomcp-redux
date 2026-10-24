@@ -6,8 +6,8 @@ mod next;
 mod order;
 mod page;
 mod sections;
-mod sources;
 pub mod semantic_scholar;
+mod sources;
 mod term;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
@@ -135,7 +135,8 @@ pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> O
 pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
     use biodata::{ArticleFilter as F, ArticleSource as S};
     if query.sources().contains(&S::SemanticScholar) {
-        return query.rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
+        return query
+            .rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
             .map(|filter| (biodata::Source::SemanticScholar, filter));
     }
     None

@@ -124,8 +124,11 @@ fn fetch_using(
     }
     let scholar = variable("SEMANTIC_SCHOLAR_API_KEY")
         .map(|v| v.to_string_lossy().into_owned())
-        .or_else(|| file.as_ref().and_then(|f| f.keys.as_ref())
-            .and_then(|k| k.semantic_scholar_api_key.clone()));
+        .or_else(|| {
+            file.as_ref()
+                .and_then(|f| f.keys.as_ref())
+                .and_then(|k| k.semantic_scholar_api_key.clone())
+        });
     if let Some(key) = scholar {
         secrets.insert(SecretName::SemanticScholarApiKey, Secret::new(key));
     }

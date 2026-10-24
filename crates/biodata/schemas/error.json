@@ -1,5 +1,22 @@
 {
   "$defs": {
+    "ArticleFilter": {
+      "description": "Source capability selectors checked before any lookup or transport request.",
+      "enum": [
+        "TEXT",
+        "--gene",
+        "--variant",
+        "--disease",
+        "--drug",
+        "--author",
+        "--journal",
+        "--since",
+        "--until",
+        "--type",
+        "--sort date"
+      ],
+      "type": "string"
+    },
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
       "enum": [
@@ -9,7 +26,8 @@
         "local.failure",
         "pool.expired",
         "usage.pool_mismatch",
-        "usage.too_many_pmids"
+        "usage.too_many_pmids",
+        "usage.unsupported_filter"
       ],
       "type": "string"
     },
@@ -29,6 +47,26 @@
         },
         "message": {
           "$ref": "#/$defs/ErrorMessage"
+        },
+        "option": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleFilter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Source"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -40,6 +78,7 @@
     "ErrorMessage": {
       "description": "Fixed input-free error and migration guidance.",
       "enum": [
+        "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
@@ -97,6 +136,44 @@
         "expired"
       ],
       "type": "string"
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "semantic-scholar",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " Semantic Scholar.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
     },
     "Step": {
       "additionalProperties": false,

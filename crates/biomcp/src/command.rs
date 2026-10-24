@@ -60,10 +60,16 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
-    if let Action::Run { request: Request::SearchArticle(query), .. } = &action
+    if let Action::Run {
+        request: Request::SearchArticle(query),
+        ..
+    } = &action
         && let Some((source, option)) = biomcp_query::article::unsupported(query)
     {
-        return encode(biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage);
+        return encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        );
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
@@ -115,7 +121,9 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .collect::<Result<Vec<_>, _>>()?;
     match (request, result.body) {
         (_, QueryBody::UnsupportedFilter { source, option }) => encode(
-            biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage),
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        ),
         (_, QueryBody::TooManyPmids { count }) => encode(
             biodata::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
@@ -289,7 +297,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
 }
 fn key_help(source: biodata::Source) -> io::Result<Outcome> {
     let (config, environment) = match source {
-        biodata::Source::SemanticScholar => ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY"),
+        biodata::Source::SemanticScholar => {
+            ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY")
+        }
         _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
     };
     let data = biodata::KeyHelp {

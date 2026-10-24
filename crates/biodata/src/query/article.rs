@@ -185,7 +185,10 @@ impl TryFrom<Fields> for ArticleSearch {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
             || v.source.len() > 3
-            || v.source.iter().enumerate().any(|(i, s)| v.source[..i].contains(s))
+            || v.source
+                .iter()
+                .enumerate()
+                .any(|(i, s)| v.source[..i].contains(s))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
