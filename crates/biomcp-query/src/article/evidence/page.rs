@@ -97,9 +97,7 @@ pub(super) fn render(
             },
         ));
     }
-    for incoming in snapshot.sources {
-        if let Some(original)=out.sources.iter_mut().find(|s|s.source==incoming.source) {crate::status::retain_source_state(original,&incoming);}else{out.sources.push(incoming)}
-    }
+    sources(out,snapshot.sources);
     out.body = QueryBody::ArticleEvidence(ArticleEvidenceResult {
         semantic_scholar: snapshot.graph,
         fulltext: snapshot.fulltext,
@@ -125,4 +123,10 @@ fn page<T: Clone + serde::Serialize>(
         out.push(item.clone());
     }
     Ok(out)
+}
+
+fn sources(out:&mut Outcome,sources:Vec<biodata::SourceOutcome>) {
+    for incoming in sources {
+        if let Some(original)=out.sources.iter_mut().find(|s|s.source==incoming.source) {crate::status::retain_source_state(original,&incoming);}else{out.sources.push(incoming)}
+    }
 }

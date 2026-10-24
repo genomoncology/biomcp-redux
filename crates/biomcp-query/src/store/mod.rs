@@ -5,6 +5,7 @@
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
 mod evidence;
+pub(crate) use evidence::EvidenceState;
 mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
