@@ -3,7 +3,11 @@ use super::{Outcome, ResponseMeta};
 use biodata::{QueryBody, Request};
 use std::io;
 
-pub(super) fn response(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+pub(super) fn response(
+    meta: ResponseMeta,
+    request: Request,
+    body: QueryBody,
+) -> io::Result<Outcome> {
     match (request, body) {
         (Request::VariantNormalize(query), QueryBody::VariantNormalization(body)) => {
             meta.encode(query, Some(body))

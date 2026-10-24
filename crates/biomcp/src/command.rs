@@ -263,7 +263,6 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
     }
 }
 
-
 pub(crate) fn tool(
     args: &[OsString],
     globals: &crate::grammar::Globals,
