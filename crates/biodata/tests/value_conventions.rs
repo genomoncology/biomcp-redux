@@ -4,7 +4,10 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
 use std::{fmt::Debug, str::FromStr};
 
-#[expect(clippy::unwrap_used, reason = "Public boundary table uses valid round-trip fixtures")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Public boundary table uses valid round-trip fixtures"
+)]
 fn text_roundtrip<T: FromStr + Serialize + DeserializeOwned + Eq + Debug + ToString>(text: &str)
 where
     T::Err: Debug,
