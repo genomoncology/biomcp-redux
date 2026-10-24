@@ -12,7 +12,7 @@
       "body": {
         "kind": "json",
         "value": {
-          "total": 4,
+          "total": 6,
           "data": [
             {
               "paperId": "1111111111111111111111111111111111111111",
@@ -45,6 +45,18 @@
             {
               "paperId": "4444444444444444444444444444444444444444",
               "title": null
+            },
+            {
+              "paperId": null,
+              "externalIds": null,
+              "title": "Anonymous source record",
+              "year": 2009
+            },
+            {
+              "paperId": null,
+              "externalIds": null,
+              "title": "Anonymous source record",
+              "year": 2009
             }
           ]
         }
