@@ -57,7 +57,7 @@ crate::macros::wire_enum! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
     /// Exact query sent to the named source, without rewriting raw query text.
-    pub source_query: Text,
+    pub source_query: String,
     /// Assembly sent to the source, never inferred from a candidate label.
     pub build: crate::Build,
     /// Native source order, preserving every candidate including repeated source identities.

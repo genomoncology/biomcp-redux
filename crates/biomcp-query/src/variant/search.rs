@@ -16,7 +16,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::VariantPage(VariantPage {
-            source_query: query.source_query().into(),
+            source_query: query.source_query(),
             build: query.build(),
             items: Box::default(),
         }),
@@ -45,7 +45,7 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         });
         out.problems = reply.rows.problems;
         out.body = QueryBody::VariantPage(VariantPage {
-            source_query: query.source_query().into(),
+            source_query: query.source_query(),
             build: query.build(),
             items: reply.rows.value.into(),
         });
