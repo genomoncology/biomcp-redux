@@ -3,15 +3,19 @@
     clippy::indexing_slicing,
     reason = "Checked captures fail directly when a fixture shape changes"
 )]
-use super::response_cases::checked_steps;
+use super::response_cases::{checked_case, checked_steps};
 use libtest_mimic::Trial;
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "trial/source-failures-never-assert-zero",
-        || failures().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("trial/disabled-cache-and-source-usage", || {
+            policy().map_err(Into::into)
+        }),
+        Trial::test("trial/source-failures-never-assert-zero", || {
+            failures().map_err(Into::into)
+        }),
+    ]
 }
 fn failures() -> Check {
     let args = ["search", "trial", "--condition", "melanoma"];
@@ -63,5 +67,37 @@ fn failures() -> Check {
             return Err(format!("{kind} invented a count or result").into());
         }
     }
+    Ok(())
+}
+
+fn policy() -> Check {
+    let args = ["search", "trial", "--condition", "melanoma"];
+    let output = checked_steps(
+        "trial/condition",
+        |_, _| {},
+        json!([
+            {"run":args,"expect":{"/status":"complete","/page/total":3780}},
+            {"run":["--disable-sources","ctgov","search","trial","--condition","melanoma"],"exit":4,"expect":{"/status":"failed","/sources/0/state":"skipped","/sources/0/reason":"disabled"}}
+        ]),
+    )?;
+    if output.get("page").is_some() || output.get("result").is_some() {
+        return Err("disabled cached source returned a result".into());
+    }
+    checked_case(
+        "trial/condition",
+        &args,
+        |_, record| {
+            if record["url"]
+                .as_str()
+                .is_some_and(|url| url.contains("/studies?"))
+            {
+                record["exchanges"][0]["status"] = json!(400);
+                record["exchanges"][0]["body"] =
+                    json!({"kind":"json","value":{"error":"Invalid status OPEN"}});
+            }
+        },
+        json!({"/status":"usage","/error/code":"usage.arguments"}),
+        2,
+    )?;
     Ok(())
 }

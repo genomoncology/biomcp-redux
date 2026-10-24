@@ -1,0 +1,51 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Registry native distance search preserves captured total and native identity order; historical provider response captured 2026-10-23 and delivered locally through the actual CLI record path.",
+  "replay": "trial/distance",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--lat",
+        "42.3601",
+        "--lon=-71.0589",
+        "--distance",
+        "50mi"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--lat",
+        "42.3601",
+        "--lon=-71.0589",
+        "--distance",
+        "50mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 424,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT05355701",
+            "NCT00094653",
+            "NCT02431572",
+            "NCT02339571",
+            "NCT05229601",
+            "NCT03075072",
+            "NCT02709889",
+            "NCT00003027",
+            "NCT02607813",
+            "NCT04007588"
+          ]
+        },
+        "/result/source_updated": "2026-10-23T09:00:04"
+      }
+    }
+  ]
+}

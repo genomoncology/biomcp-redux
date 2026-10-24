@@ -1,0 +1,45 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Registry native intervention search preserves captured total and native identity order; historical provider response captured 2026-10-23 and delivered locally through the actual CLI record path.",
+  "replay": "trial/intervention",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "pembrolizumab"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "pembrolizumab"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 399,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT04631731",
+            "NCT03006887",
+            "NCT05061017",
+            "NCT05338580",
+            "NCT04860076",
+            "NCT04955743",
+            "NCT02896335",
+            "NCT03228667",
+            "NCT04146064",
+            "NCT05180799"
+          ]
+        },
+        "/result/source_updated": "2026-10-23T09:00:04"
+      }
+    }
+  ]
+}
