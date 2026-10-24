@@ -53,7 +53,7 @@ impl SaveTarget {
         Ok(SavedFile {
             path: self.path,
             bytes: bytes.len() as u64,
-            sha256: format!("{:x}", Sha256::digest(bytes)),
+            sha256: Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect(),
         })
     }
 }
