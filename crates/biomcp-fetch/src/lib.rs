@@ -25,7 +25,7 @@ pub mod xml;
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat};
 pub use cache::{SchemaOwner, VERSION, check_owners};
-pub use deadline::{CommandDeadline, Deadline};
+pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, PathSegment, SecretName, SourceSpec,
     Terms,
@@ -292,6 +292,10 @@ impl Leg<'_> {
     }
     pub(crate) fn budget(&self) -> Deadline<'_> {
         self.deadline.bind(self.clock.as_ref())
+    }
+    /// Bind the source leg's remaining budget for cooperative local parsing.
+    pub fn local_deadline(&self) -> LocalDeadline {
+        self.budget().local()
     }
     /// Return this source leg's remaining real or virtual budget.
     pub fn remaining(&self) -> Duration {

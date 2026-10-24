@@ -1,0 +1,26 @@
+{
+  "feature": "article-supplements",
+  "story": "Synthetic empty first row stays the empty header; later data does not become the header. Workbook response bytes alone change the captured command.",
+  "replay": "article/supplements/synthetic-blank-header",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "supplement",
+        "28944238",
+        "MGG3-5-553-s002.xlsx",
+        "--sheet",
+        "ST1",
+        "--rows",
+        "2-2"
+      ],
+      "expect": {
+        "/result/content/data/rows/0/row": 2,
+        "/result/content/data/rows/0/header": [],
+        "/result/content/data/rows/0/cells": [
+          "data"
+        ]
+      }
+    }
+  ]
+}

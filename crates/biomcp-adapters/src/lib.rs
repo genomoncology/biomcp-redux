@@ -35,3 +35,4 @@ pub mod semantic_scholar;
 mod xml_element;
 
 pub mod registry;
+pub mod sheet;

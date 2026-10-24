@@ -22,7 +22,11 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         next: Vec::new(),
         local: None,
     };
-    let result = execute(cx, query, &mut deadline, &mut out);
+    let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
+        out.body = QueryBody::TextPositionError;
+        return out;
+    };
+    let result = execute(cx, query, &selection, &mut deadline, &mut out);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
@@ -44,13 +48,13 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     }
     out
 }
-fn resolve<'a>(
+pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,
-    query: &ArticleText,
+    input: &ArticleInput,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Pmcid>, RequestError> {
-    match query.input() {
+    match input {
         ArticleInput::Pmcid(id) => Ok(Some(*id)),
         ArticleInput::Pmid(id) => {
             let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
@@ -86,10 +90,11 @@ fn resolve<'a>(
 fn execute<'a>(
     cx: &Ctx<'a>,
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let Some(id) = resolve(cx, query, deadline, out)? else {
+    let Some(id) = resolve(cx, query.input(), deadline, out)? else {
         return Ok(());
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
@@ -108,7 +113,7 @@ fn execute<'a>(
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
-            let Some(content) = select(query, id, &document, out) else {
+            let Some(content) = select(query, selection, id, &document, out) else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
@@ -126,11 +131,13 @@ fn execute<'a>(
 }
 fn select(
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     id: Pmcid,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<TextContent> {
     let mut content = TextContent {
+        forms: selection.forms.clone(),
         license: document.license,
         processing_version: document.version,
         manuscript: document.manuscript,
@@ -161,22 +168,27 @@ fn select(
             super::sections::fulltext::next(id, number.checked_add(1)?, &mut out.next);
         }
     } else {
-        content.hits = Some(find(query, document, out)?);
+        content.hits = Some(find(query, selection, document, out)?);
     }
     Some(content)
 }
 
 fn find(
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<Box<[TextHit]>> {
-    let needle = query.find()?.as_str().to_lowercase();
+    let needles: Vec<_> = selection.needles.iter().map(|v| v.to_lowercase()).collect();
     let matching: Vec<_> = document
         .body
         .rows
         .iter()
-        .map(|r| r.plain.to_lowercase().contains(&needle))
+        .map(|r| {
+            needles
+                .iter()
+                .any(|needle| r.plain.to_lowercase().contains(needle))
+        })
         .collect();
     let hits = matches(document, &matching);
     let offset = usize::try_from(query.offset()).ok()?;

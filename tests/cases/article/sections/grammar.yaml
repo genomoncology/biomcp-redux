@@ -14,6 +14,7 @@
         "/result/items/0/more": [
           "annotations",
           "fulltext",
+          "supplements",
           "citations"
         ],
         "/next/0/kind": "section",
@@ -23,6 +24,7 @@
           "33123537",
           "annotations",
           "fulltext",
+          "supplements",
           "citations"
         ]
       },

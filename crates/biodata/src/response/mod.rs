@@ -1,4 +1,8 @@
 mod article;
+pub use article::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 mod article_cards;
 pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, LitVarCandidate};
 mod article_text;

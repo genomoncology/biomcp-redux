@@ -23,6 +23,7 @@ mod schema;
 mod schema_proof;
 mod scholar;
 mod source_controls;
+mod supplement_tables;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -226,6 +227,10 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.push(Trial::test(
+        "article-supplements/ping-after-bounded-refusal",
+        || supplement_tables::ping_after_refusal().map_err(Into::into),
+    ));
     trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());

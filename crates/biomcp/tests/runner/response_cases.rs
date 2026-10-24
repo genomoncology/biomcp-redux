@@ -66,7 +66,14 @@ pub(super) fn copy_capture(
         fs::create_dir_all(recordings.join(&name))?;
         for file in fs::read_dir(source.path())? {
             let file = file?;
-            if !file.file_type()?.is_file() || file.path().extension().is_none_or(|v| v != "json") {
+            if !file.file_type()?.is_file() {
+                continue;
+            }
+            if file.path().extension().is_some_and(|v| v == "bin") {
+                fs::copy(file.path(), recordings.join(&name).join(file.file_name()))?;
+                continue;
+            }
+            if file.path().extension().is_none_or(|v| v != "json") {
                 continue;
             }
             let mut record = serde_json::from_slice(&fs::read(file.path())?)?;

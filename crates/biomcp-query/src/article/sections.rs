@@ -16,6 +16,9 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
         };
         if requested {
             item.sections = Some(ArticleSections {
+                supplements: (selected(query, ArticleSectionWord::Supplements)
+                    && card.pmcid.is_none())
+                .then_some(Section::NotApplicable),
                 annotations: (selected(query, ArticleSectionWord::Annotations)
                     && card.pmid.is_none())
                 .then_some(Section::NotApplicable),
@@ -37,6 +40,11 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 card.pmcid.is_some(),
             ),
             (
+                ArticleSectionWord::Supplements,
+                ArticleSection::Supplements,
+                card.pmcid.is_some(),
+            ),
+            (
                 ArticleSectionWord::Citations,
                 ArticleSection::Citations,
                 card.pmid.is_some(),
@@ -55,8 +63,10 @@ pub(super) fn run<'a>(
     query: &ArticleGet,
     out: &mut crate::Outcome,
 ) {
-    if selected(query, ArticleSectionWord::Fulltext) {
-        fulltext::run(cx, deadline, out);
+    let fulltext = selected(query, ArticleSectionWord::Fulltext);
+    let supplements = selected(query, ArticleSectionWord::Supplements);
+    if fulltext || supplements {
+        fulltext::run(cx, deadline, out, fulltext, supplements);
     }
     let biodata::QueryBody::ArticleCards(cards) = &mut out.body else {
         return;

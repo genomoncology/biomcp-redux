@@ -23,6 +23,11 @@
       "required": [
         "find"
       ]
+    },
+    {
+      "required": [
+        "variant"
+      ]
     }
   ],
   "description": "Read one bounded body part or a page of matching paragraphs and table rows.",
@@ -48,6 +53,10 @@
       "format": "uint32",
       "minimum": 1,
       "type": "integer"
+    },
+    "variant": {
+      "$ref": "#/$defs/Text",
+      "description": "Explicit checked protein substitution."
     }
   },
   "required": [

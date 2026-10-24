@@ -9,6 +9,7 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
         "citations",
         "all"
       ],
@@ -16,6 +17,7 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files confirmed by PMC metadata.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
@@ -110,6 +112,10 @@
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
+    "SheetRows": {
+      "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -122,6 +128,55 @@
   "oneOf": [
     {
       "additionalProperties": false,
+      "description": "Read a licensed supplementary file.",
+      "properties": {
+        "command": {
+          "const": "article_supplement",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact file name from the supplements section.",
+          "x-positional": 1
+        },
+        "find": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal case-insensitive needle."
+        },
+        "input": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "PubMed or PMC identity.",
+          "x-positional": 0
+        },
+        "offset": {
+          "default": 0,
+          "description": "Matching-row or text-fragment offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rows": {
+          "$ref": "#/$defs/SheetRows",
+          "description": "Inclusive original row range."
+        },
+        "sheet": {
+          "$ref": "#/$defs/Text",
+          "description": "Sheet name for row selection."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit protein substitution."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "file"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
       "anyOf": [
         {
           "required": [
@@ -131,6 +186,11 @@
         {
           "required": [
             "find"
+          ]
+        },
+        {
+          "required": [
+            "variant"
           ]
         }
       ],
@@ -161,6 +221,10 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit checked protein substitution."
         }
       },
       "required": [
