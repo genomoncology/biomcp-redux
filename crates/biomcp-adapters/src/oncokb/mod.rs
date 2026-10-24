@@ -54,7 +54,7 @@ pub fn gene(
         }
     }
     let value = if accepted.len() == 1 {
-        accepted.pop().map(raw::Gene::mapped)
+        accepted.pop().map(|row| row.mapped(&mut problems))
     } else {
         if accepted.len() > 1 {
             problem(&mut problems, id, "entrezGeneId");

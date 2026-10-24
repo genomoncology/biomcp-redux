@@ -1,3 +1,4 @@
+use crate::raw::Field;
 use biodata::{EntrezGeneId, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
@@ -16,38 +17,39 @@ pub(super) struct Gene {
     pub entrez_gene_id: EntrezGeneId,
     hugo_symbol: biodata::GeneSymbol,
     gene_type: OncokbGeneType,
-    highest_sensitive_level: Option<String>,
-    highest_resistance_level: Option<String>,
-    summary: Option<String>,
-    background: Option<String>,
-    grch37_isoform: Option<String>,
+    highest_sensitive_level: Option<Field<String>>,
+    highest_resistance_level: Option<Field<String>>,
+    summary: Option<Field<String>>,
+    background: Option<Field<String>>,
+    grch37_isoform: Option<Field<String>>,
     #[serde(rename = "grch37RefSeq")]
-    grch37_refseq: Option<String>,
-    grch38_isoform: Option<String>,
+    grch37_refseq: Option<Field<String>>,
+    grch38_isoform: Option<Field<String>>,
     #[serde(rename = "grch38RefSeq")]
-    grch38_refseq: Option<String>,
+    grch38_refseq: Option<Field<String>>,
 }
 impl Gene {
-    pub(super) fn mapped(self) -> super::GeneData {
+    pub(super) fn mapped(self, problems: &mut Vec<biodata::Problem>) -> super::GeneData {
+        let mut text = |value, field| text(value, self.entrez_gene_id, field, problems);
         let _symbol = self.hugo_symbol;
         super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
-                highest_sensitive_level: text(self.highest_sensitive_level),
-                highest_resistance_level: text(self.highest_resistance_level),
+                highest_sensitive_level: text(self.highest_sensitive_level, "highestSensitiveLevel"),
+                highest_resistance_level: text(self.highest_resistance_level, "highestResistanceLevel"),
                 version: None,
             },
             section: Oncokb {
                 version: None,
-                summary: text(self.summary),
-                background: text(self.background),
+                summary: text(self.summary, "summary"),
+                background: text(self.background, "background"),
                 grch37: OncokbTranscript {
-                    isoform: text(self.grch37_isoform),
-                    refseq: text(self.grch37_refseq),
+                    isoform: text(self.grch37_isoform, "grch37Isoform"),
+                    refseq: text(self.grch37_refseq, "grch37RefSeq"),
                 },
                 grch38: OncokbTranscript {
-                    isoform: text(self.grch38_isoform),
-                    refseq: text(self.grch38_refseq),
+                    isoform: text(self.grch38_isoform, "grch38Isoform"),
+                    refseq: text(self.grch38_refseq, "grch38RefSeq"),
                 },
             },
         }
@@ -73,6 +75,17 @@ fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<EntrezGeneId, D::Err
     EntrezGeneId::new(value).map_err(serde::de::Error::custom)
 }
 
-fn text(value: Option<String>) -> Option<Text> {
-    value.and_then(|text| Text::new(&text).ok())
+fn text(
+    value: Option<Field<String>>,
+    id: EntrezGeneId,
+    field: &str,
+    problems: &mut Vec<biodata::Problem>,
+) -> Option<Text> {
+    let value = value?;
+    if let Some(value) = value.value().and_then(|value| Text::new(&value).ok()) {
+        Some(value)
+    } else {
+        super::problem(problems, id, field);
+        None
+    }
 }
