@@ -9,6 +9,12 @@ use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("trial/missing-study-array-is-not-an-empty-page", || {
+            missing_studies().map_err(Into::into)
+        }),
+        Trial::test("trial/gene-and-registry-share-command-budget", || {
+            sequential_budget().map_err(Into::into)
+        }),
         Trial::test("trial/count-failure-preserves-continuation-rows", || {
             count_failure().map_err(Into::into)
         }),
@@ -19,6 +25,49 @@ pub(super) fn trials() -> Vec<Trial> {
             failures().map_err(Into::into)
         }),
     ]
+}
+
+fn missing_studies() -> Check {
+    for continuation in [false, true] {
+        let mut args = vec!["search", "trial", "--condition", "melanoma"];
+        if continuation {
+            args.extend(["--next-page", "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"]);
+        }
+        let output = checked_steps(
+            if continuation { "trial/walk" } else { "trial/condition" },
+            |_, record| {
+                if record["url"].as_str().is_some_and(|url| {
+                    url.contains("/studies?") && (!continuation || url.contains("pageToken="))
+                }) {
+                    let body = &mut record["exchanges"][0]["body"]["value"];
+                    body.as_object_mut().expect("captured registry object").remove("studies");
+                }
+            },
+            json!([
+                {"run":args,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"bad_reply"}},
+                {"run":args,"offline":true,"exit":4,"expect":{"/status":"failed","/sources/0/reason":"offline"}}
+            ]),
+        )?;
+        if output.get("page").is_some() || output.get("result").is_some() {
+            return Err("missing studies became a successful empty page".into());
+        }
+    }
+    Ok(())
+}
+
+fn sequential_budget() -> Check {
+    checked_case(
+        "trial/gene",
+        &["search", "trial", "--condition", "melanoma", "--gene", "BRAF"],
+        |source, record| {
+            if source == "hgnc" || record["url"].as_str().is_some_and(|url| url.contains("/studies?")) {
+                record["exchanges"][0]["delay_ms"] = json!(12000);
+            }
+        },
+        json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"}),
+        4,
+    )?;
+    Ok(())
 }
 fn failures() -> Check {
     let args = ["search", "trial", "--condition", "melanoma"];
