@@ -50,15 +50,22 @@ pub fn gene(leg: &Leg<'_>, id: HgncId) -> Result<Option<ClinGenGene>, RequestErr
     if dosage.len() > 1 {
         return Err(bad());
     }
-    let dosage = dosage.into_iter().next();
+    let (haploinsufficiency, triplosensitivity, dosage_date) = match dosage.into_iter().next() {
+        Some(row) => (
+            Some(row.haploinsufficiency.ok_or_else(bad)?),
+            Some(row.triplosensitivity.ok_or_else(bad)?),
+            Some(row.date.ok_or_else(bad)?),
+        ),
+        None => (None, None, None),
+    };
     Ok(Some(ClinGenGene {
         validity: validity
             .into_iter()
             .map(raw::Validity::checked)
             .collect::<Result<_, _>>()?,
-        haploinsufficiency: dosage.as_ref().and_then(|v| v.haploinsufficiency.clone()),
-        triplosensitivity: dosage.as_ref().and_then(|v| v.triplosensitivity.clone()),
-        dosage_date: dosage.and_then(|v| v.date),
+        haploinsufficiency,
+        triplosensitivity,
+        dosage_date,
     }))
 }
 fn bad() -> RequestError {

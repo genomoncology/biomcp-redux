@@ -34,7 +34,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .collect();
     let report = leg.finish();
     let mut values: Vec<_> = values;
-    if report.stale {
+    if !report.failures.is_empty() {
         let reason = report
             .failures
             .first()
