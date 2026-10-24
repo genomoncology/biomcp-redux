@@ -49,8 +49,8 @@ pub(super) fn inline(xml: &str) -> Result<String, BadReply> {
 }
 fn marker(name: &str, closing: bool) -> &'static str {
     match (name, closing) {
-        ("bold", _) => "**",
-        ("italic", _) => "*",
+        ("bold" | "b", _) => "**",
+        ("italic" | "i", _) => "*",
         ("sub", false) => "<sub>",
         ("sub", true) => "</sub>",
         ("p" | "title", true) => "\n\n",
