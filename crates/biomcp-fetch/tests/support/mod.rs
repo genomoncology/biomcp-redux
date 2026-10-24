@@ -75,7 +75,10 @@ impl<T: Default + Send + 'static> Server<T> {
                 let mut byte = [0];
                 while stream.read(&mut byte).unwrap_or(0) == 1 {
                     bytes.push(byte[0]);
-                    assert!(bytes.len() <= 64 * 1024, "request headers exceed fixture limit");
+                    assert!(
+                        bytes.len() <= 64 * 1024,
+                        "request headers exceed fixture limit"
+                    );
                     if bytes.ends_with(b"\r\n\r\n") {
                         break;
                     }
@@ -83,13 +86,23 @@ impl<T: Default + Send + 'static> Server<T> {
                 if bytes.is_empty() {
                     break;
                 }
-                assert!(bytes.len() <= 64 * 1024, "request headers exceed fixture limit");
+                assert!(
+                    bytes.len() <= 64 * 1024,
+                    "request headers exceed fixture limit"
+                );
                 let text = String::from_utf8(bytes).unwrap();
-                let length = text.lines().find_map(|line| {
-                    let (name, value) = line.split_once(':')?;
-                    name.eq_ignore_ascii_case("content-length").then(|| value.trim().parse::<usize>().unwrap())
-                }).unwrap_or(0);
-                assert!(length <= 16 * 1024 * 1024, "request body exceeds fixture limit");
+                let length = text
+                    .lines()
+                    .find_map(|line| {
+                        let (name, value) = line.split_once(':')?;
+                        name.eq_ignore_ascii_case("content-length")
+                            .then(|| value.trim().parse::<usize>().unwrap())
+                    })
+                    .unwrap_or(0);
+                assert!(
+                    length <= 16 * 1024 * 1024,
+                    "request body exceeds fixture limit"
+                );
                 let mut body = vec![0; length];
                 stream.read_exact(&mut body).unwrap();
                 let (reply, receive) = mpsc::channel();

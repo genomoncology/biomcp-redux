@@ -53,6 +53,8 @@ struct Recording {
     method: String,
     source: biodata::Source,
     url: String,
+    #[serde(flatten)]
+    post: Option<crate::prepared::PostMetadata>,
     exchanges: Vec<Exchange>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -173,6 +175,7 @@ impl Recordings {
         source: biodata::Source,
         key: &[u8; 32],
         url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
         max_body: u64,
     ) -> Result<Option<Exchange>, RecordError> {
         let Self::Replay { dir, cursors } = self else {
@@ -182,7 +185,7 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let recording = read(&path(dir, source, key), source, url)?;
+                let recording = read(&path(dir, source, key), source, url, post)?;
                 entry.insert(Cursor { recording, next: 0 })
             }
         };
@@ -202,6 +205,7 @@ impl Recordings {
         source: biodata::Source,
         key: &[u8; 32],
         url: &str,
+        post: Option<&crate::prepared::PostMetadata>,
         exchange: Exchange,
     ) -> Result<(), RecordError> {
         let Self::Capture(capture) = self else {
@@ -214,7 +218,8 @@ impl Recordings {
         let recording = sequences
             .entry((source, *key))
             .or_insert_with(|| Recording {
-                method: "GET".into(),
+                method: if post.is_some() { "POST" } else { "GET" }.into(),
+                post: post.cloned(),
                 source,
                 url: url.into(),
                 exchanges: Vec::new(),
@@ -234,7 +239,12 @@ fn path(dir: &Path, source: biodata::Source, key: &[u8; 32]) -> PathBuf {
     let key: String = key.iter().map(|byte| format!("{byte:02x}")).collect();
     dir.join(source.to_string()).join(format!("{key}.json"))
 }
-fn read(path: &Path, source: biodata::Source, url: &str) -> Result<Recording, RecordError> {
+fn read(
+    path: &Path,
+    source: biodata::Source,
+    url: &str,
+    post: Option<&crate::prepared::PostMetadata>,
+) -> Result<Recording, RecordError> {
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
@@ -250,7 +260,8 @@ fn read(path: &Path, source: biodata::Source, url: &str) -> Result<Recording, Re
         return Err(RecordError::Limit);
     }
     let value: Recording = serde_json::from_slice(&bytes).map_err(|_| RecordError::Malformed)?;
-    if value.method != "GET"
+    if value.method != if post.is_some() { "POST" } else { "GET" }
+        || value.post.as_ref() != post
         || value.source != source
         || value.url != url
         || value.url.len() > MAX_METADATA_BYTES

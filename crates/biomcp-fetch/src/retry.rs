@@ -53,13 +53,7 @@ pub(crate) fn wait(delay: Duration, deadline: Deadline<'_>) -> bool {
 
 // The same credential-free URL is both persisted and hashed.
 pub(crate) fn canonical(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> String {
-    let credential = match key {
-        KeyUse::Optional(c) | KeyUse::Required(c) => match c.place {
-            KeyPlace::Query(name) => Some(name),
-            _ => None,
-        },
-        KeyUse::None => None,
-    };
+    let credential = credential_query(key);
     let mut canonical = url.to_owned();
     for (name, value) in params.iter().filter(|(name, _)| Some(*name) != credential) {
         canonical.push(if canonical.contains('?') { '&' } else { '?' });
@@ -68,6 +62,15 @@ pub(crate) fn canonical(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> S
         encode(&mut canonical, &value.value());
     }
     canonical
+}
+pub(crate) fn credential_query(key: KeyUse) -> Option<&'static str> {
+    match key {
+        KeyUse::Optional(c) | KeyUse::Required(c) => match c.place {
+            KeyPlace::Query(name) => Some(name),
+            _ => None,
+        },
+        KeyUse::None => None,
+    }
 }
 pub(crate) fn identity(canonical: &str) -> [u8; 32] {
     let mut hash = Sha256::new();
