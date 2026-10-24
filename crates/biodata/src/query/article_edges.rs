@@ -110,6 +110,7 @@ impl ArticleEdges {
 /// Graph edge provider, independent of article search providers.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["icite", "semantic-scholar"])))]
 pub enum EdgeSource {
     /// NIH iCite PubMed graph.
     #[default]
