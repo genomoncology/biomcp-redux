@@ -1,8 +1,4 @@
 //! The hidden child consumes a single PDF after installing its resource limits.
-#![expect(
-    clippy::disallowed_methods,
-    reason = "The hidden child owns only bounded stdin and its typed stdout response"
-)]
 use biomcp_adapters::pdf::{self, Extraction};
 use std::{
     io::{Read, Write},

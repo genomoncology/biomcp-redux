@@ -8,10 +8,6 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Run and terminate the current executable's isolated PDF child with bounded pipes",
     ),
     (
-        "crates/biomcp/src/pdf_worker.rs",
-        "Read bounded PDF stdin and write the typed child response",
-    ),
-    (
         "crates/biomcp-adapters/src/pmc_oa/supplement.rs",
         "Retain one parsed binary reply across its checked cache admission callback",
     ),
