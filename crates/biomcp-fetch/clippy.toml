@@ -1,0 +1,18 @@
+too-many-lines-threshold = 80
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
+allow-indexing-slicing-in-tests = true
+
+disallowed-methods = [
+    { path = "std::env::var", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::var_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::vars", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::vars_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::args", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::args_os", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::current_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::current_exe", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::home_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+    { path = "std::env::temp_dir", reason = "Keep I/O and state at their reviewed boundaries" },
+]
