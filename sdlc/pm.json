@@ -1,4 +1,5 @@
 {
+  "ticketsGate": "make landing-gate",
   "inertPaths": [
     "sdlc/plan.md",
     "sdlc/planning/*.md",
