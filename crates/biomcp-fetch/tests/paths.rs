@@ -1,37 +1,100 @@
 //! Runtime source paths preserve declared ownership and ordinary request identities.
-#![expect(clippy::disallowed_methods, reason = "Local public transport fixture owns capture and cache files")]
+#![expect(
+    clippy::disallowed_methods,
+    reason = "Local public transport fixture owns capture and cache files"
+)]
 mod support;
-use biomcp_fetch::{Fetch, FetchConfig, Freshness, InputError, KeyUse, Mode, Quota, Rate, SourceKey};
+use biomcp_fetch::{
+    Fetch, FetchConfig, Freshness, InputError, KeyUse, Mode, Quota, Rate, SourceKey,
+};
 use std::{thread, time::Duration};
 use support::Answer;
 type Server = support::Server<()>;
 #[test]
 fn runtime_paths_share_literal_capture_and_cache_identity_without_host_override() {
     let server = Server::new();
-    let spec = server.spec(Box::leak(Box::new(Quota::new(SourceKey::declare("paths"), Rate::per_second(1000), None, 4))), KeyUse::None);
-    let literal = spec.get("/mapping/P15056/pathways").fresh(Freshness::Days(7));
-    let dynamic = spec.get("/mapping").fresh(Freshness::Days(7))
-        .with_path(format!("/mapping/{}/pathways", "P15056")).unwrap();
-    for path in ["https://other.example/x", "//other.example/x", "/x?host=other", "/x#other", "/../x", "/x/./y", "/x%2Fy", "/x\\y", "/x\ny"] {
-        assert!(matches!(spec.get("/mapping").with_path(path), Err(InputError::Path)), "{path:?}");
-    }
+    let spec = server.spec(
+        Box::leak(Box::new(Quota::new(
+            SourceKey::declare("paths"),
+            Rate::per_second(1000),
+            None,
+            4,
+        ))),
+        KeyUse::None,
+    );
+    let literal = spec
+        .get("/mapping/P15056/pathways")
+        .fresh(Freshness::Days(7));
+    let dynamic = spec
+        .get("/mapping")
+        .fresh(Freshness::Days(7))
+        .with_path(format!("/mapping/{}/pathways", "P15056"))
+        .unwrap();
     let directory = tempfile::tempdir().unwrap();
     let capture = directory.path().join("capture");
-    let fetch = Fetch::open(FetchConfig { mode: Mode::Record { dir: capture.clone() }, ..Default::default() }).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: capture.clone(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
     thread::scope(|scope| {
-        let worker = scope.spawn(|| fetch.leg(spec, fetch.deadline(Duration::from_secs(10))).json::<Answer>(&dynamic, &[]));
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                .json::<Answer>(&dynamic, &[])
+        });
         let request = server.next();
-        assert!(request.text.starts_with("GET /mapping/P15056/pathways HTTP/1.1\r\n"));
+        assert!(
+            request
+                .text
+                .starts_with("GET /mapping/P15056/pathways HTTP/1.1\r\n")
+        );
         request.ok();
         assert!(worker.join().unwrap().unwrap().answer);
     });
     drop(fetch);
-    let fetch = Fetch::open(FetchConfig { mode: Mode::Replay { dir: capture }, ..Default::default() }).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: capture },
+        ..Default::default()
+    })
+    .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     assert!(leg.json::<Answer>(&literal, &[]).unwrap().answer);
-    // The exhausted recording can only succeed again through the same cache key.
-    assert!(leg.json::<Answer>(&dynamic, &[]).unwrap().answer);
-    let different = spec.get("/mapping").with_path("/mapping/P04637/pathways").unwrap();
-    assert!(matches!(leg.json::<Answer>(&different, &[]), Err(biomcp_fetch::RequestError::Recording(biomcp_fetch::RecordError::Missing))));
+    assert!(matches!(leg.json::<Answer>(&dynamic, &[]), Err(biomcp_fetch::RequestError::Recording(biomcp_fetch::RecordError::Exhausted))));
+    let different = spec
+        .get("/mapping")
+        .with_path("/mapping/P04637/pathways")
+        .unwrap();
+    assert!(matches!(
+        leg.json::<Answer>(&different, &[]),
+        Err(biomcp_fetch::RequestError::Recording(
+            biomcp_fetch::RecordError::Missing
+        ))
+    ));
     assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn runtime_paths_reject_other_url_parts_and_noncanonical_segments() {
+    let server = Server::new();
+    let quota = Box::leak(Box::new(Quota::new(SourceKey::declare("path-validation"), Rate::per_second(1), None, 1)));
+    let spec = server.spec(quota, KeyUse::None);
+    for path in [
+        "https://other.example/x",
+        "//other.example/x",
+        "/x?host=other",
+        "/x#other",
+        "/../x",
+        "/x/./y",
+        "/x%2Fy",
+        "/x\\y",
+        "/x\ny",
+    ] {
+        assert!(
+            matches!(spec.get("/mapping").with_path(path), Err(InputError::Path)),
+            "{path:?}"
+        );
+    }
 }

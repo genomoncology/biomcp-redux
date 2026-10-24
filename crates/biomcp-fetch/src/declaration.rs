@@ -163,8 +163,11 @@ impl Endpoint {
     /// Accept canonical absolute paths with unreserved ASCII segments only.
     pub fn with_path(mut self, path: impl Into<String>) -> Result<Self, crate::InputError> {
         let path = path.into();
-        if !path.starts_with('/') || path.starts_with("//")
-            || !path.bytes().all(|ch| ch.is_ascii_alphanumeric() || b"/-._~".contains(&ch))
+        if !path.starts_with('/')
+            || path.starts_with("//")
+            || !path
+                .bytes()
+                .all(|ch| ch.is_ascii_alphanumeric() || b"/-._~".contains(&ch))
             || path.split('/').any(|part| matches!(part, "." | ".."))
         {
             return Err(crate::InputError::Path);
