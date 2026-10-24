@@ -1,0 +1,219 @@
+{
+  "feature": "trial-search",
+  "live_check": "synthetic HGNC subset; ClinicalTrials.gov responses are public captures",
+  "story": "A zero rare-variant registry search offers separate variant removal and gene eligibility-text alternatives. The captured variant-removal search returns 99 trials. Captured through actual CLI record requests on 2026-10-24; source processing timestamp 2026-10-23T09:00:04.",
+  "replay": "trial/wider-zero",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--gene",
+        "KIT",
+        "--variant",
+        "L576P",
+        "--condition",
+        "gastrointestinal stromal tumor",
+        "--limit",
+        "100"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--gene",
+        "KIT",
+        "--variant",
+        "L576P",
+        "--condition",
+        "gastrointestinal stromal tumor",
+        "--limit",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items/*/nct_id": {
+          "equals": []
+        },
+        "/next": [
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "gastrointestinal stromal tumor",
+              "--gene",
+              "KIT",
+              "--limit",
+              "100"
+            ]
+          },
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "gastrointestinal stromal tumor",
+              "--criteria",
+              "KIT",
+              "--limit",
+              "100",
+              "--variant",
+              "L576P"
+            ]
+          }
+        ]
+      },
+      "max_bytes": 1541,
+      "max_tokens": 386
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--gene",
+        "KIT",
+        "--condition",
+        "gastrointestinal stromal tumor",
+        "--limit",
+        "100"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--gene",
+        "KIT",
+        "--condition",
+        "gastrointestinal stromal tumor",
+        "--limit",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 99,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT03602092",
+            "NCT01294202",
+            "NCT03353753",
+            "NCT04409223",
+            "NCT02607332",
+            "NCT02268435",
+            "NCT05751733",
+            "NCT06772233",
+            "NCT01091207",
+            "NCT06038552",
+            "NCT01643278",
+            "NCT03171389",
+            "NCT00028002",
+            "NCT04821895",
+            "NCT02489422",
+            "NCT07825701",
+            "NCT03923400",
+            "NCT05009927",
+            "NCT02401815",
+            "NCT00940563",
+            "NCT05381753",
+            "NCT07837271",
+            "NCT04908176",
+            "NCT06087263",
+            "NCT06208748",
+            "NCT00103168",
+            "NCT03291288",
+            "NCT00116935",
+            "NCT05208047",
+            "NCT04566614",
+            "NCT03465722",
+            "NCT07171203",
+            "NCT06948955",
+            "NCT06630234",
+            "NCT01541709",
+            "NCT01227746",
+            "NCT01738139",
+            "NCT00112632",
+            "NCT00570635",
+            "NCT02638766",
+            "NCT00293124",
+            "NCT07273045",
+            "NCT07454967",
+            "NCT00500188",
+            "NCT03963544",
+            "NCT04530981",
+            "NCT06628739",
+            "NCT03944304",
+            "NCT01440959",
+            "NCT01874665",
+            "NCT05970900",
+            "NCT06805825",
+            "NCT00457743",
+            "NCT04106024",
+            "NCT02216578",
+            "NCT02931929",
+            "NCT01505205",
+            "NCT02365441",
+            "NCT04193553",
+            "NCT05366816",
+            "NCT00633295",
+            "NCT05734105",
+            "NCT03673501",
+            "NCT02508532",
+            "NCT02571036",
+            "NCT04181970",
+            "NCT03092128",
+            "NCT01735955",
+            "NCT02877368",
+            "NCT04557969",
+            "NCT01389583",
+            "NCT02331914",
+            "NCT00009906",
+            "NCT07559864",
+            "NCT02336724",
+            "NCT01524848",
+            "NCT03609424",
+            "NCT02171286",
+            "NCT07109024",
+            "NCT05400018",
+            "NCT04927260",
+            "NCT01396148",
+            "NCT05895942",
+            "NCT00716820",
+            "NCT00117299",
+            "NCT05453292",
+            "NCT00751036",
+            "NCT00171912",
+            "NCT00359333",
+            "NCT00367861",
+            "NCT00278876",
+            "NCT00685828",
+            "NCT02606097",
+            "NCT02443948",
+            "NCT05160168",
+            "NCT01172548",
+            "NCT00237185",
+            "NCT02260505",
+            "NCT05178030"
+          ]
+        },
+        "/next": [
+          {
+            "kind": "disambiguate",
+            "args": [
+              "search",
+              "trial",
+              "--condition",
+              "gastrointestinal stromal tumor",
+              "--criteria",
+              "KIT",
+              "--limit",
+              "100"
+            ]
+          }
+        ]
+      },
+      "max_bytes": 47371,
+      "max_tokens": 11843
+    }
+  ]
+}
