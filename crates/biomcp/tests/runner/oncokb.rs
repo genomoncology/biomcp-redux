@@ -91,10 +91,12 @@ fn wire() -> Result<(), String> {
     let directory = env.root().join("recorded");
     recorded.extend(["--record".into(), directory.to_string_lossy().into()]);
     let data = invoke(&env, &recorded, 0)?;
-    println!(
-        "OncoKB synthetic complete envelope: {} bytes",
-        data.to_string().len()
-    );
+    let size = data.to_string().len();
+    if size > 0 {
+        return Err(format!(
+            "annotation complete envelope exceeds measured ceiling: {size} bytes"
+        ));
+    }
     if data.pointer(&format!("{SECTION}/state")) != Some(&json!("data")) {
         return Err(format!("keyed annotation missing: {data}"));
     }
