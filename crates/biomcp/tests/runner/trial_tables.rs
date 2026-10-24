@@ -13,7 +13,10 @@ pub(super) fn trials() -> Vec<Trial> {
             missing_studies().map_err(Into::into)
         }),
         Trial::test("trial/gene-and-registry-share-command-budget", || {
-            sequential_budget().map_err(Into::into)
+            sequential_budget(false).map_err(Into::into)
+        }),
+        Trial::test("trial/version-timeout-preserves-search-rows", || {
+            sequential_budget(true).map_err(Into::into)
         }),
         Trial::test("trial/count-failure-preserves-continuation-rows", || {
             count_failure().map_err(Into::into)
@@ -55,17 +58,23 @@ fn missing_studies() -> Check {
     Ok(())
 }
 
-fn sequential_budget() -> Check {
+fn sequential_budget(version_timeout: bool) -> Check {
     checked_case(
         "trial/gene",
         &["search", "trial", "--condition", "melanoma", "--gene", "BRAF"],
         |source, record| {
-            if source == "hgnc" || record["url"].as_str().is_some_and(|url| url.contains("/studies?")) {
-                record["exchanges"][0]["delay_ms"] = json!(12000);
-            }
+            record["exchanges"][0]["delay_ms"] = json!(if source == "hgnc" {
+                12000
+            } else if record["url"].as_str().is_some_and(|url| url.contains("/studies?")) {
+                if version_timeout { 4000 } else { 12000 }
+            } else if version_timeout { 6000 } else { 0 });
         },
-        json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"}),
-        4,
+        if version_timeout {
+            json!({"/status":"partial","/result/items":{"count":10},"/page/total":354,"/sources/1/reason":"deadline_exceeded"})
+        } else {
+            json!({"/status":"failed","/sources/0/state":"ok","/sources/1/reason":"deadline_exceeded"})
+        },
+        if version_timeout { 3 } else { 4 },
     )?;
     Ok(())
 }
