@@ -209,16 +209,22 @@ fn expanded(record: &mut Value) {
     let Some(protocol) = body.get_mut("protocolSection") else {
         return;
     };
-    for pointer in [
-        "/outcomesModule/primaryOutcomes",
-        "/armsInterventionsModule/armGroups",
-        "/contactsLocationsModule/locations",
-        "/referencesModule/references",
+    for (pointer, field) in [
+        ("/outcomesModule/primaryOutcomes", "measure"),
+        ("/armsInterventionsModule/armGroups", "label"),
+        ("/contactsLocationsModule/locations", "facility"),
+        ("/referencesModule/references", "citation"),
     ] {
         if let Some(rows) = protocol.pointer_mut(pointer).and_then(Value::as_array_mut)
             && let Some(row) = rows.first().cloned()
         {
-            *rows = vec![row; 3];
+            *rows = (0..3)
+                .map(|index| {
+                    let mut row = row.clone();
+                    row[field] = json!(format!("Synthetic row {index}"));
+                    row
+                })
+                .collect();
         }
     }
     protocol["outcomesModule"]["secondaryOutcomes"] = json!([]);
@@ -226,9 +232,9 @@ fn expanded(record: &mut Value) {
     protocol["armsInterventionsModule"]["interventions"] = json!([]);
     protocol["contactsLocationsModule"]["overallOfficials"] = json!([]);
     protocol["contactsLocationsModule"]["centralContacts"] = json!([
-        {"name":"Synthetic office A","role":"CONTACT","phone":"000","email":"a@example.invalid"},
-        {"name":"Synthetic office B","role":"CONTACT","phone":"001","email":"b@example.invalid"},
-        {"name":"Synthetic office C","role":"CONTACT","phone":"002","email":"c@example.invalid"}
+        {"name":"Synthetic row 0","role":"CONTACT","phone":"000","email":"a@example.invalid"},
+        {"name":"Synthetic row 1","role":"CONTACT","phone":"000","email":"a@example.invalid"},
+        {"name":"Synthetic row 2","role":"CONTACT","phone":"000","email":"a@example.invalid"}
     ]);
     protocol["eligibilityModule"]["eligibilityCriteria"] =
         json!(" Ω source whitespace \n".repeat(800));
@@ -237,7 +243,13 @@ fn expanded(record: &mut Value) {
         .and_then(Value::as_array_mut)
         && let Some(row) = rows.first().cloned()
     {
-        *rows = vec![row; 3];
+        *rows = (0..3)
+            .map(|index| {
+                let mut row = row.clone();
+                row["filename"] = json!(format!("Synthetic_{index}.pdf"));
+                row
+            })
+            .collect();
     }
 }
 fn continuation_args(q: &Value) -> Result<Vec<String>, Box<dyn std::error::Error>> {
@@ -291,6 +303,7 @@ fn continuations() -> Check {
             data["items"].as_array().ok_or("items")?.len()
         };
         let mut text = data["criteria"].as_str().unwrap_or_default().to_owned();
+        let mut recovered = data["items"].as_array().cloned().unwrap_or_default();
         let total = data[if name == "eligibility" {
             "total_characters"
         } else {
@@ -325,12 +338,16 @@ fn continuations() -> Check {
                 count += s.chars().count();
                 text.push_str(s);
             } else {
-                count += data["items"].as_array().ok_or("items")?.len();
+                let rows = data["items"].as_array().ok_or("items")?;
+                count += rows.len();
+                recovered.extend_from_slice(rows);
             }
         }
         assert_eq!(count, total, "{name} stranded source content");
         if name == "eligibility" {
             assert_eq!(text, " Ω source whitespace \n".repeat(800));
+        } else {
+            ordered_records(name, &recovered)?;
         }
     }
     Ok(())
@@ -377,5 +394,36 @@ fn reference() -> Check {
         article,
         super::mcp::call_with_globals(&env, &selected, false, &env.globals(Some(&replay), false))?
     );
+    Ok(())
+}
+
+// Distinct source rows expose repeats, gaps, reordering, and changes to attached fields.
+fn ordered_records(name: &str, rows: &[Value]) -> Check {
+    let field = match name {
+        "outcomes" => "/measure",
+        "arms" => "/data/label",
+        "locations" => "/facility",
+        "contacts" => "/data/name",
+        "references" => "/citation",
+        "documents" => "/filename",
+        _ => return Err("unexpected records section".into()),
+    };
+    assert_eq!(rows.len(), 3, "{name}");
+    let first = rows.first().ok_or("first source record")?;
+    for (index, row) in rows.iter().enumerate() {
+        let mut expected = first.clone();
+        let marker = if name == "documents" {
+            format!("Synthetic_{index}.pdf")
+        } else {
+            format!("Synthetic row {index}")
+        };
+        *expected.pointer_mut(field).ok_or("source field")? = json!(marker);
+        if name == "documents" {
+            expected["url"] = json!(format!(
+                "https://cdn.clinicaltrials.gov/large-docs/64/NCT03511664/{marker}"
+            ));
+        }
+        assert_eq!(row, &expected, "{name} source record {index}");
+    }
     Ok(())
 }
