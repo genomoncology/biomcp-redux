@@ -17,7 +17,9 @@
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
           "includes": "gnomad"
-        }
+        },
+        "/result/items/0/sections/clingen/state": "data",
+        "/result/items/0/sections/clingen/data/validity/0/mondo_id": "MONDO:0018875"
       },
       "max_bytes": 14200,
       "mcp": [

@@ -32,10 +32,24 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             (*id, SectionValue::ClinGen(section))
         })
         .collect();
+    let report = leg.finish();
+    let mut values: Vec<_> = values;
+    if report.stale {
+        let reason = report
+            .failures
+            .first()
+            .map_or(Reason::Unavailable, |e| e.reason);
+        for (_, value) in &mut values {
+            *value = SectionValue::ClinGen(Section::Unavailable {
+                source: Source::ClinGen,
+                reason,
+            });
+        }
+    }
     SectionResult {
         section: GeneSection::ClinGen,
         values,
-        source: status::source(Source::ClinGen, leg.finish(), error),
+        source: status::source(Source::ClinGen, report, error),
         problems: Vec::new(),
         local: error.and_then(status::local),
     }

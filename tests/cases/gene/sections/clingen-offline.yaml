@@ -1,0 +1,41 @@
+{
+  "feature": "gene-sections",
+  "story": "An offline missing ClinGen bundle preserves cached identity and offers sync",
+  "replay": "gene/clingen",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "clingen"
+      ],
+      "offline": true,
+      "exit": 3,
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/answer/gene/symbol": "TP53",
+        "/result/items/0/sections/clingen/state": "unavailable",
+        "/result/items/0/sections/clingen/reason": "offline",
+        "/next/1/args": [
+          "sync",
+          "clingen"
+        ],
+        "/sources/*/source": {
+          "includes": "clingen",
+          "excludes": "gnomad"
+        }
+      }
+    }
+  ]
+}
