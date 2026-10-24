@@ -442,6 +442,10 @@
           ],
           "description": "Common source-attributed claim."
         },
+        "statement_unmapped": {
+          "description": "Native claim cannot be represented by the common subject or proposition model.",
+          "type": "boolean"
+        },
         "status": {
           "$ref": "#/$defs/Text",
           "description": "Native curation state, without implying that every row is accepted."
