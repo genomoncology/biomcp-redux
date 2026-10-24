@@ -44,7 +44,7 @@ for arch in amd64 arm64; do
         --python /opt/python/cp311-cp311/bin/python --artifacts /artifacts --scratch /tmp/check
     '
   mkdir "$scratch/container-$arch"
-  tar -xzf "$scratch/linux-$arch/biomcp-$version-manylinux_2_28_$wheel_arch.tar.gz" -C "$scratch/container-$arch"
+  tar -xzf "$scratch/linux-$arch/biomcp-linux-$(case "$arch" in amd64) echo x86_64;; arm64) echo arm64;; esac).tar.gz" -C "$scratch/container-$arch"
   cp "$scratch/proof-$arch/case-runner" "$scratch/container-$arch/case-runner"
   cp -R "$scratch/proof-$arch/fixtures" "$scratch/container-$arch/fixtures"
   cp release/Dockerfile "$scratch/container-$arch/Dockerfile"
