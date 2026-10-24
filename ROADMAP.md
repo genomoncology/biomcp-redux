@@ -65,7 +65,7 @@ Sources:
 - [x] HGNC (bundle, identity and names)
 - [x] MyGene.info
 - [ ] UniProt
-- [ ] Reactome
+- [x] Reactome
 - [ ] CIViC
 - [ ] ClinGen
 - [ ] GenCC (bundle)
