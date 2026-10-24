@@ -653,6 +653,7 @@ fn release_large_bundle_capture_round_trips() {
         ..Default::default()
     })
     .unwrap();
+    ordinary.sync(&b).unwrap();
     assert!(matches!(
         ordinary
             .leg(b.spec, ordinary.deadline(Duration::from_secs(5)))
