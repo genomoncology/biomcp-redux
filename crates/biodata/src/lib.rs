@@ -14,6 +14,7 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
+    CivicMembership, CivicProfile, HotspotAlternate, HotspotRecord, VariantCivic, VariantHotspots,
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
 };
 pub use response::{
