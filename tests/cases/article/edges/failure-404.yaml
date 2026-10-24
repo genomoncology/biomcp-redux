@@ -1,6 +1,6 @@
 {
   "feature": "article-semantic-sections",
-  "story": "Synthetic Semantic Scholar failure keeps a useful card independent and exposes a later offline result.",
+  "story": "A Semantic Scholar404 stays a confirmed negative-cache result during a later offline call.",
   "replay": "article/edges/synthetic-404",
   "steps": [
     {
@@ -28,7 +28,7 @@
       "offline": true,
       "expect": {
         "/status": "failed",
-        "/sources/0/reason": "offline"
+        "/sources/0/reason": "not_found"
       },
       "exit": 4
     }
