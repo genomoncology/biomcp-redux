@@ -1,6 +1,7 @@
 # 0002 — Enforce Rust boundaries and size ratchets
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5b1d2e10dfae711e59c97a07e635e923a38aa65c
 
 Milestone: 1
 

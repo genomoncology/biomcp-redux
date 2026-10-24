@@ -1,6 +1,7 @@
 # 0001 — Establish the Cargo workspace and landing gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1ea89af819b0d5ac9d98394743492c4de74c7a2a
 
 Milestone: 1
 
