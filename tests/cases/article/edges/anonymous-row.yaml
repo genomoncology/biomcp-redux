@@ -1,0 +1,54 @@
+{
+  "feature": "article-semantic-sections",
+  "story": "Semantic Scholar native references retain every source row and distinguish reported empty contexts from missing fields.",
+  "verified": "Exact keyless command capture2026-10-24;33123537 reference contexts are itsCCBY text,34096690 contexts are empty. Missing source records remain independently typed. Bounds will use actual replay plus15percent; no comparable0.9 source-edge command is recorded.",
+  "replay": "article/edges/live-references",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "references",
+        "33123537",
+        "--source",
+        "semantic-scholar",
+        "--offset",
+        "112",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "article",
+        "references",
+        "33123537",
+        "--source",
+        "semantic-scholar",
+        "--offset",
+        "112",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 116,
+        "/page/offset": 112,
+        "/result/items/0/header": {
+          "equals": {
+            "title": "AKT1 E17K pleckstrin",
+            "date": "2009",
+            "types": [],
+            "types_unknown": true,
+            "author_count": 0
+          }
+        },
+        "/result/items/0/contexts/total": 3,
+        "/result/items/0/intents": [
+          "background"
+        ],
+        "/result/items/0/influential": false,
+        "/next/*/kind": [
+          "page"
+        ]
+      }
+    }
+  ]
+}

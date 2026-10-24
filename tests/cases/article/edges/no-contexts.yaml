@@ -1,0 +1,75 @@
+{
+  "feature": "article-semantic-sections",
+  "story": "Semantic Scholar native references retain every source row and distinguish reported empty contexts from missing fields.",
+  "verified": "Exact keyless command capture2026-10-24;33123537 reference contexts are itsCCBY text,34096690 contexts are empty. Missing source records remain independently typed. Bounds will use actual replay plus15percent; no comparable0.9 source-edge command is recorded.",
+  "replay": "article/edges/live-no-contexts",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "references",
+        "34096690",
+        "--source",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "article",
+        "references",
+        "34096690",
+        "--source",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 38,
+        "/result/items": {
+          "count": 38
+        },
+        "/result/items/*/contexts/total": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 30
+      }
+    }
+  ]
+}
