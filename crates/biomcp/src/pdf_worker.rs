@@ -5,9 +5,9 @@ use std::{
     process::ExitCode,
 };
 
-pub(crate) const ARGUMENT: &str = "--pdf-worker";
-const MEMORY: u64 = 512 * 1024 * 1024;
-const CPU_SECONDS: u64 = 15;
+pub(crate) const ARGUMENT: &str = biomcp_fetch::PdfWorker::ARGUMENT;
+const MEMORY: u64 = biomcp_fetch::PdfWorker::MEMORY;
+const CPU_SECONDS: u64 = biomcp_fetch::PdfWorker::CPU_SECONDS;
 
 pub(crate) fn run() -> ExitCode {
     let result = match limits().and_then(|()| input()) {

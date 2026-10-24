@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
 /// Maximum publisher PDF bytes, independent of the ordinary source body limit.
-pub const MAX_BYTES: u64 = 25 * 1024 * 1024;
+pub const MAX_BYTES: u64 = biomcp_fetch::PdfWorker::MAX_BYTES;
 /// Maximum original pages decoded into text.
-pub const MAX_PAGES: usize = 100;
+pub const MAX_PAGES: usize = biomcp_fetch::PdfWorker::MAX_PAGES;
 /// Maximum materialized text bytes across all selected pages.
-pub const MAX_TEXT: usize = 4 * 1024 * 1024;
+pub const MAX_TEXT: usize = biomcp_fetch::PdfWorker::MAX_TEXT;
 /// Maximum serialized worker response, allowing JSON escaping of every text byte.
-pub const MAX_RESULT: u64 = (MAX_TEXT as u64) * 6 + 16 * 1024;
+pub const MAX_RESULT: u64 = biomcp_fetch::PdfWorker::MAX_RESULT;
 
 /// Typed output shared by the child and its parent; no PDF bytes survive extraction.
 #[derive(Debug, Deserialize, Serialize)]
