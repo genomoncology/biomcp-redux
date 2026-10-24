@@ -17,6 +17,7 @@ pub(super) fn check() -> Result<(), String> {
         .pointer("/result/commands")
         .and_then(Value::as_array)
         .ok_or("help commands missing")?;
+    source_description(commands)?;
     let mut printed = BTreeSet::new();
     for command in commands.iter().filter(|c| {
         c["command"].as_array().is_some_and(|words| {
@@ -71,6 +72,19 @@ pub(super) fn check() -> Result<(), String> {
     }
     if !printed.is_empty() {
         return Err("printed example has no owning case witness".into());
+    }
+    Ok(())
+}
+
+fn source_description(commands: &[Value]) -> Result<(), String> {
+    let arguments = commands.iter().find(|c| c["command"] == serde_json::json!(["search", "article"]))
+        .and_then(|c| c["arguments"].as_array()).ok_or("article search help missing")?;
+    let description = arguments.iter().find(|v| v["name"] == "--source")
+        .and_then(|v| v["description"].as_str()).ok_or("source description missing")?;
+    for word in ["pubmed:", "dropped words", "europepmc:", "incidental mentions", "litvar:", "--variant", "candidates", "semantic-scholar:", "429", "optional", "litsense:", "resemblance, not a match", "timeouts", "pubtator:", "HGNC Entrez"] {
+        if !description.contains(word) {
+            return Err(format!("source help omits job or failure mode: {word}"));
+        }
     }
     Ok(())
 }

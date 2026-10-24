@@ -79,10 +79,7 @@
           "rank",
           "date",
           "citations"
-        ],
-        "/result/commands/0/arguments/14/description": {
-          "regex": "(?s)pubmed:.*europepmc:.*litvar:.*semantic-scholar:.*429.*litsense:.*resemblance, not a match.*timeouts.*pubtator:.*HGNC Entrez"
-        }
+        ]
       },
       "max_bytes": 14000
     },
