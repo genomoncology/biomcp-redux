@@ -335,7 +335,7 @@ The original 1.0 design estimates below use bytes divided by 4. Before implement
 | `search gene p16` | 3 | 602 | 2 | 240 | 2 | 130 | 3 | 163 |
 | `search gene KRAS` | 3 | 163 | 1 | 105 | 1 | 88 | 3 | 116 |
 | `get gene CDKN2A protein` | 2 | 1332 | 1 | 364 | 1 | 1133 | 2 | 1,187 |
-| `get gene MIR21 protein constraint` | 3, and no wrong protein | 1529 (orangutan PARN) | 0 | 591 | 0 | 516 | 3 | not measured in this section order; `constraint protein`: 584 |
+| `get gene MIR21 protein constraint` | 3, and no wrong protein | 1529 (orangutan PARN) | 0 | 591 | 0 | 516 | 3 | not measured in this section order; `constraint protein`: 564 |
 | `get gene VISTA civic` | 3 | 1096 | 1 | 229 | 1 | 407 | 3 | 451 |
 | `get gene ERBB2 civic` | 4 | 2689 | 0 | 280 | 0 | 735 | 4 | 780 |
 | `get gene TP53 constraint clingen` | 6 | 1401 | 5 | 404 | 5 | 585 | 6 | 719 |

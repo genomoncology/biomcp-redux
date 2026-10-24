@@ -48,9 +48,16 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .collect::<Vec<_>>();
         commands.push(HelpCommand {
             command: vec![verb.into(), "gene".into()],
-            description: text(&schema, "description"), arguments,
-            section_rule: (!sections.is_empty()).then(|| text(field(field(&schema, "properties"), "section"), "description")),
-            sections, examples: examples.get(verb).cloned().unwrap_or_default(),
+            description: text(&schema, "description"),
+            arguments,
+            section_rule: (!sections.is_empty()).then(|| {
+                text(
+                    field(field(&schema, "properties"), "section"),
+                    "description",
+                )
+            }),
+            sections,
+            examples: examples.get(verb).cloned().unwrap_or_default(),
         });
     }
     for (command, description) in [

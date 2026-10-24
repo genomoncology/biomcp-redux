@@ -47,13 +47,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             .get("steps")
             .and_then(serde_json::Value::as_array)
             .ok_or("case steps required")?;
-            let run = serde_json::from_value(
-                steps
-                    .get(index)
-                    .and_then(|step| step.get("run"))
-                    .ok_or("missing example step")?
-                    .clone(),
-            )?;
+        let run = serde_json::from_value(
+            steps
+                .get(index)
+                .and_then(|step| step.get("run"))
+                .ok_or("missing example step")?
+                .clone(),
+        )?;
         examples.entry(verb.into()).or_default().push(run);
     }
     fs::write(
