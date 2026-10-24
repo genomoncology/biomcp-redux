@@ -112,7 +112,12 @@ pub enum TrialArmRecord {
 
 /// Distinct registry-wide contact collections; site contacts stay on locations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "record", content = "data", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(
+    tag = "record",
+    content = "data",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialContactRecord {
     /// A central contact for this trial.

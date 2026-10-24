@@ -174,7 +174,10 @@ struct Intervention {
 impl Protocol {
     fn detail(self) -> Detail {
         let arms = self.arms_interventions_module;
-        let (locations, contacts, officials) = self.contacts_locations_module.map_or_else(|| (Box::default(), Box::default(), Box::default()), sites::ContactsLocations::rows);
+        let (locations, contacts, officials) = self.contacts_locations_module.map_or_else(
+            || (Box::default(), Box::default(), Box::default()),
+            sites::ContactsLocations::rows,
+        );
         let card = TrialCard {
             nct_id: self.identification_module.nct_id,
             url: format!(
@@ -216,7 +219,9 @@ impl Protocol {
         let (arm_rows, interventions) =
             arms.map_or_else(|| (Box::default(), Box::default()), Arms::rows);
         Detail {
-            locations, contacts, officials,
+            locations,
+            contacts,
+            officials,
             card,
             eligibility: self.eligibility_module.map(|v| TrialEligibility {
                 minimum_age: age(v.minimum_age),

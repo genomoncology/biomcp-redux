@@ -37,26 +37,69 @@ struct Location {
     contacts: Option<Box<[Contact]>>,
 }
 impl ContactsLocations {
-    pub(super) fn rows(self) -> (Box<[TrialLocation]>, Box<[TrialContact]>, Box<[TrialOfficial]>) {
-        let locations = self.locations.unwrap_or_default().into_vec().into_iter()
-            .map(Location::mapped).collect();
-        (locations,
-            self.central_contacts.unwrap_or_default().into_vec().into_iter().map(Contact::mapped).collect(),
-            self.overall_officials.unwrap_or_default().into_vec().into_iter().map(|v| TrialOfficial {name:v.name, affiliation:v.affiliation, role:v.role}).collect())
+    pub(super) fn rows(
+        self,
+    ) -> (
+        Box<[TrialLocation]>,
+        Box<[TrialContact]>,
+        Box<[TrialOfficial]>,
+    ) {
+        let locations = self
+            .locations
+            .unwrap_or_default()
+            .into_vec()
+            .into_iter()
+            .map(Location::mapped)
+            .collect();
+        (
+            locations,
+            self.central_contacts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(Contact::mapped)
+                .collect(),
+            self.overall_officials
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(|v| TrialOfficial {
+                    name: v.name,
+                    affiliation: v.affiliation,
+                    role: v.role,
+                })
+                .collect(),
+        )
     }
 }
 impl Contact {
     fn mapped(self) -> TrialContact {
-        TrialContact {name:self.name, role:self.role, phone:self.phone, phone_ext:self.phone_ext, email:self.email}
+        TrialContact {
+            name: self.name,
+            role: self.role,
+            phone: self.phone,
+            phone_ext: self.phone_ext,
+            email: self.email,
+        }
     }
 }
 impl Location {
     fn mapped(self) -> TrialLocation {
         TrialLocation {
-            facility:self.facility, city:self.city, state:self.state, zip:self.zip, country:self.country,
-            status:self.status,
+            facility: self.facility,
+            city: self.city,
+            state: self.state,
+            zip: self.zip,
+            country: self.country,
+            status: self.status,
             coordinates: self.geo_point.map(|v| v.0),
-            contacts:self.contacts.unwrap_or_default().into_vec().into_iter().map(Contact::mapped).collect(),
+            contacts: self
+                .contacts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .map(Contact::mapped)
+                .collect(),
         }
     }
 }

@@ -20,7 +20,13 @@ impl Snapshot {
             .map_err(|_| CacheError::Database)
     }
     pub(super) fn decode(payload: &str) -> Result<Self, CacheError> {
-        let (detail, fetched, version, sources): Saved = serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
-        Ok(Self {detail, fetched, version, sources})
+        let (detail, fetched, version, sources): Saved =
+            serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
+        Ok(Self {
+            detail,
+            fetched,
+            version,
+            sources,
+        })
     }
 }

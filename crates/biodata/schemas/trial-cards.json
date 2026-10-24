@@ -1,5 +1,10 @@
 {
   "$defs": {
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
+    },
     "Markdown": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "format": "markdown",
@@ -194,7 +199,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialEligibilityPage",
+              "$ref": "#/$defs/TrialRecords",
               "description": "Whole section data."
             },
             "source": {
@@ -315,7 +320,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords",
+              "$ref": "#/$defs/TrialRecords2",
               "description": "Whole section data."
             },
             "source": {
@@ -436,7 +441,249 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/TrialRecords2",
+              "$ref": "#/$defs/TrialEligibilityPage",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section4": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialRecords3",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialRecords4",
               "description": "Whole section data."
             },
             "source": {
@@ -1141,6 +1388,123 @@
       ],
       "type": "object"
     },
+    "TrialContact": {
+      "additionalProperties": false,
+      "description": "A registry contact with its source role and original contact details.",
+      "properties": {
+        "email": {
+          "description": "Source email address.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Source name.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phone": {
+          "description": "Source telephone number, without normalization.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phone_ext": {
+          "description": "Source extension, kept separate from the number.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialContactRole"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source contact role, absent if the registry omitted it."
+        }
+      },
+      "type": "object"
+    },
+    "TrialContactRecord": {
+      "description": "Distinct registry-wide contact collections; site contacts stay on locations.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "A central contact for this trial.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialContact"
+            },
+            "record": {
+              "const": "central",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "An overall official for this trial.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/TrialOfficial"
+            },
+            "record": {
+              "const": "official",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TrialContactRole": {
+      "description": "Native contact role.",
+      "enum": [
+        "CONTACT",
+        "STUDY_CHAIR",
+        "STUDY_DIRECTOR",
+        "PRINCIPAL_INVESTIGATOR",
+        "SUB_INVESTIGATOR"
+      ],
+      "type": "string"
+    },
+    "TrialCoordinates": {
+      "additionalProperties": false,
+      "description": "Checked geographic coordinates in degrees; no genomic coordinate type is involved.",
+      "properties": {
+        "latitude": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Latitude in degrees."
+        },
+        "longitude": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Longitude in degrees."
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "type": "object"
+    },
     "TrialDate": {
       "additionalProperties": false,
       "description": "A registry date retains its actual or estimated qualifier.",
@@ -1246,7 +1610,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1254,7 +1618,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1346,6 +1710,122 @@
       ],
       "type": "string"
     },
+    "TrialLocation": {
+      "additionalProperties": false,
+      "description": "One source site, kept whole during pagination.",
+      "properties": {
+        "city": {
+          "description": "Source city.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contacts": {
+          "description": "Contacts belong only to this site, in source order.",
+          "items": {
+            "$ref": "#/$defs/TrialContact"
+          },
+          "type": "array"
+        },
+        "coordinates": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialCoordinates"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Registry coordinates without a derived distance."
+        },
+        "country": {
+          "description": "Source country.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "facility": {
+          "description": "Source facility name, absent only when not supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "description": "Source state or region.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialSiteStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "This site's native status; never copied from the overall trial status."
+        },
+        "zip": {
+          "description": "Source postal code.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contacts"
+      ],
+      "type": "object"
+    },
+    "TrialOfficial": {
+      "additionalProperties": false,
+      "description": "An overall official, distinct from a central or site contact.",
+      "properties": {
+        "affiliation": {
+          "description": "Source organization.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Registered name.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialOfficialRole"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source official role."
+        }
+      },
+      "type": "object"
+    },
+    "TrialOfficialRole": {
+      "description": "Native overall official role.",
+      "enum": [
+        "SUB_INVESTIGATOR",
+        "PRINCIPAL_INVESTIGATOR",
+        "STUDY_DIRECTOR",
+        "STUDY_CHAIR"
+      ],
+      "type": "string"
+    },
     "TrialOutcome": {
       "additionalProperties": false,
       "description": "One whole registered outcome with its attached time frame.",
@@ -1411,7 +1891,7 @@
         "items": {
           "description": "Complete records in source order.",
           "items": {
-            "$ref": "#/$defs/TrialOutcome"
+            "$ref": "#/$defs/TrialLocation"
           },
           "type": "array"
         },
@@ -1436,6 +1916,68 @@
       "type": "object"
     },
     "TrialRecords2": {
+      "additionalProperties": false,
+      "description": "Whole-record page retaining collection order.",
+      "properties": {
+        "items": {
+          "description": "Complete records in source order.",
+          "items": {
+            "$ref": "#/$defs/TrialContactRecord"
+          },
+          "type": "array"
+        },
+        "offset": {
+          "description": "Offset in the unchanged source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Original collection size.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
+    "TrialRecords3": {
+      "additionalProperties": false,
+      "description": "Whole-record page retaining collection order.",
+      "properties": {
+        "items": {
+          "description": "Complete records in source order.",
+          "items": {
+            "$ref": "#/$defs/TrialOutcome"
+          },
+          "type": "array"
+        },
+        "offset": {
+          "description": "Offset in the unchanged source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Original collection size.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
+    "TrialRecords4": {
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
@@ -1472,6 +2014,8 @@
         "eligibility",
         "outcomes",
         "arms",
+        "locations",
+        "contacts",
         "all"
       ],
       "type": "string"
@@ -1483,7 +2027,7 @@
         "arms": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -1491,7 +2035,29 @@
           ],
           "description": "Whole source arm and intervention records."
         },
+        "contacts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Central contacts followed by overall officials, each in source order."
+        },
         "eligibility": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source eligibility fields and exact text fragment."
+        },
+        "locations": {
           "anyOf": [
             {
               "$ref": "#/$defs/Section"
@@ -1500,12 +2066,12 @@
               "type": "null"
             }
           ],
-          "description": "Source eligibility fields and exact text fragment."
+          "description": "Whole sites with their original contacts attached."
         },
         "outcomes": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
@@ -1522,6 +2088,21 @@
         "ALL",
         "FEMALE",
         "MALE"
+      ],
+      "type": "string"
+    },
+    "TrialSiteStatus": {
+      "description": "Native site recruitment status, distinct from overall trial status.",
+      "enum": [
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "ENROLLING_BY_INVITATION",
+        "ACTIVE_NOT_RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "COMPLETED",
+        "WITHDRAWN",
+        "AVAILABLE"
       ],
       "type": "string"
     },

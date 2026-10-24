@@ -184,6 +184,8 @@
         "eligibility",
         "outcomes",
         "arms",
+        "locations",
+        "contacts",
         "all"
       ],
       "type": "string"
@@ -241,7 +243,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -249,7 +251,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

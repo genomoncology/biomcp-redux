@@ -173,9 +173,17 @@ fn advance(
     }
 }
 
-fn records_sections(query: &TrialGet, snapshot: &Snapshot, pool: Option<&Text>, sections: &mut TrialSections, out: &mut Outcome) -> Result<(), RequestError> {
+fn records_sections(
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    pool: Option<&Text>,
+    sections: &mut TrialSections,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
     let id = snapshot.detail.card.nct_id;
-    let requested = |section| query.sections().contains(&section) || query.sections().contains(&TrialSection::All);
+    let requested = |section| {
+        query.sections().contains(&section) || query.sections().contains(&TrialSection::All)
+    };
     if requested(TrialSection::Outcomes) {
         let items = &snapshot.detail.outcomes;
         let page = records(query, items, 8000, serde_json::to_vec)?;
