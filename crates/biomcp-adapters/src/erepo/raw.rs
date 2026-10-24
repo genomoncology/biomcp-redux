@@ -52,7 +52,7 @@ pub(super) struct Record {
     #[serde(rename = "PCERDocID")]
     pub id: String,
     #[serde(rename = "docVersion")]
-    version: String,
+    pub version: String,
     classification: String,
     pub uuid: Option<String>,
     condition: Option<String>,

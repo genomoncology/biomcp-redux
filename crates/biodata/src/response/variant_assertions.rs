@@ -198,11 +198,26 @@ pub struct AssertionDocument {
 pub struct AssertionAssessment {
     /// Native criterion code.
     pub criterion: Text,
+    /// Native criterion identifier.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub criterion_id: Option<Text>,
+    /// Native criterion IRI.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub criterion_iri: Option<Text>,
     /// Native default strength, distinct from an applied evidence strength.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_strength: Option<Text>,
+    /// Native default-strength identifier; not an applied evidence strength.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_strength_id: Option<Text>,
+    /// Native default-strength IRI.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_strength_iri: Option<Text>,
     /// Source outcome label.
     pub outcome: Text,
+    /// The supplied outcome identifier contradicts its supplied Met/Not Met label.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub outcome_conflict: bool,
     /// Source outcome identifier, including known conflicting ID/label pairs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outcome_id: Option<Text>,

@@ -31,15 +31,19 @@ pub fn assertions(
     let records = records(leg, caid)?;
     if let Some((id, Some(version))) = selection {
         let record = records.iter().find(|r| r.id == id).ok_or_else(bad)?;
-        let uuid = record.uuid.as_deref().ok_or_else(bad)?;
-        if !record
-            .versions
-            .as_ref()
-            .is_some_and(|v| v.iter().any(|v| v == version))
-        {
-            return Err(bad());
+        // The summary names its own exact current document version.
+        // Older selections use their own SEPIO body and cannot borrow these facts.
+        if record.version != version {
+            let uuid = record.uuid.as_deref().ok_or_else(bad)?;
+            if !record
+                .versions
+                .as_ref()
+                .is_some_and(|v| v.iter().any(|v| v == version))
+            {
+                return Err(bad());
+            }
+            return history::fetch(leg, caid, id, uuid, version).map(|r| vec![r]);
         }
-        return history::fetch(leg, caid, id, uuid, version).map(|r| vec![r]);
     }
     records.into_iter().map(raw::Record::map).collect()
 }

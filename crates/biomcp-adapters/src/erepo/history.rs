@@ -95,6 +95,9 @@ struct Assessment {
 #[derive(Deserialize)]
 struct Criterion {
     label: String,
+    id: Option<String>,
+    #[serde(rename = "@id")]
+    iri: Option<String>,
     #[serde(rename = "defaultStrength")]
     strength: Option<Label>,
 }
@@ -166,10 +169,44 @@ impl Assessment {
         let outcome = self.outcome.ok_or_else(super::bad)?;
         Ok(AssertionAssessment {
             criterion: text(&criterion.label)?,
-            default_strength: criterion.strength.map(|s| text(&s.label)).transpose()?,
+            criterion_id: criterion.id.as_deref().map(text).transpose()?,
+            criterion_iri: criterion.iri.as_deref().map(text).transpose()?,
+            default_strength: criterion
+                .strength
+                .as_ref()
+                .map(|s| text(&s.label))
+                .transpose()?,
+            default_strength_id: criterion
+                .strength
+                .as_ref()
+                .and_then(|s| s.id.as_deref())
+                .map(text)
+                .transpose()?,
+            default_strength_iri: criterion
+                .strength
+                .as_ref()
+                .and_then(|s| s.iri.as_deref())
+                .map(text)
+                .transpose()?,
+            outcome_conflict: outcome_conflict(&outcome),
             outcome: text(&outcome.label)?,
             outcome_id: outcome.id.as_deref().map(text).transpose()?,
             outcome_iri: outcome.iri.as_deref().map(text).transpose()?,
         })
     }
+}
+
+// ClinGen's documented CriterionAssessment outcomes are 0000223 Met and 0000224 Not Met.
+// Preserve contrary source values without silently repairing them.
+// https://dataexchange.clinicalgenome.org/interpretation/entities/CriterionAssessment.html
+fn outcome_conflict(outcome: &Label) -> bool {
+    [outcome.id.as_deref(), outcome.iri.as_deref()]
+        .into_iter()
+        .flatten()
+        .any(|id| {
+            matches!(
+                (id, outcome.label.as_str()),
+                ("SEPIO:0000224", "Met") | ("SEPIO:0000223", "Not Met")
+            )
+        })
 }

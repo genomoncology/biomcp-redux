@@ -18,7 +18,7 @@ struct Fields {
     /// Native assertion accession or document ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     assertion: Option<Text>,
-    /// Selected record version, never borrowed from another record.
+    /// VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     version: Option<Text>,
     /// Assertions per page.

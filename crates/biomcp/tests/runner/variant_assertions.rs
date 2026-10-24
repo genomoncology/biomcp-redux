@@ -6,6 +6,10 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
+            "variant/assertions-current-version-keeps-summary-panel",
+            || current_version().map_err(Into::into),
+        ),
+        Trial::test(
             "variant/assertions-disabled-before-identity-and-join",
             || disabled().map_err(Into::into),
         ),
@@ -191,6 +195,8 @@ fn history(wrong: bool) -> Result<(), String> {
                 || row.pointer("/statement/criteria").is_some()
                 || row.pointer("/detail/document/assessments/0/outcome_iri")
                     != Some(&json!("SEPIO:0000224"))
+                || row.pointer("/detail/document/assessments/0/outcome_conflict")
+                    != Some(&json!(true))
             {
                 return Err(format!(
                     "current summary facts contaminated historical document: {value}"
@@ -331,7 +337,7 @@ fn history_stub(wrong: bool) -> Result<Stub, String> {
             "variant":{"id":"CAR:CA000434"},
             "condition":{"label":"Synthetic historical condition"},
             "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
-            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":"PM2","defaultStrength":{"label":"Pathogenic Supporting"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
+            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":"PM2","id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030","defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
         }}).to_string())
         },
         |_| 200,
@@ -381,4 +387,48 @@ fn native_row(value: &Value, offset: u32) -> Result<Value, String> {
         ));
     }
     Ok(record.clone())
+}
+
+fn current_version() -> Result<(), String> {
+    let stub = Stub::for_source("erepo.clinicalgenome.org", "application/json", |_| {
+        Ok(body("CA000434"))
+    })?;
+    let env = environment(&stub)?;
+    let args = [
+        "variant",
+        "assertions",
+        "CA000434",
+        "--source",
+        "erepo",
+        "--assertion",
+        "PCER000001171",
+        "--version",
+        "1.1.0",
+    ]
+    .map(String::from);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if value.pointer("/result/assertions/0/statement/attribution/submitter")
+        != Some(&json!("TP53 VCEP"))
+        || value.pointer("/result/assertions/0/statement/attribution/version")
+            != Some(&json!("1.1.0"))
+        || value
+            .pointer("/result/assertions/0/statement/criteria")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(7)
+        || value
+            .pointer("/result/assertions/0/statement/attribution/evaluated")
+            .is_some()
+        || super::mcp::call_with_globals(&env, &args, false, &[])? != value
+    {
+        return Err(format!("exact current summary details changed: {value}"));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("current version fetched an unnecessary historical document".into());
+    }
+    Ok(())
 }
