@@ -29,7 +29,6 @@ pub use recurrence::{RecurrenceSource, VariantRecurrenceQuery};
 mod variant;
 pub use variant::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 mod variant_normalize;
-pub use variant::{VariantGet, VariantResolver};
 pub use variant_normalize::{NormalizationSource, VariantNormalize};
 
 mod variant_input;
