@@ -6,7 +6,7 @@ use biodata::{
 };
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
-pub fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
+pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let (population, groups, sources, problems, local) = read(cx, query, deadline);
