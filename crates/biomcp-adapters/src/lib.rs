@@ -53,3 +53,5 @@ pub mod variantvalidator;
 
 mod assertion;
 pub mod erepo;
+
+pub mod clinvar;
