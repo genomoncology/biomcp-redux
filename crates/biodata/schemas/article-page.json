@@ -116,6 +116,17 @@
             "null"
           ]
         },
+        "contexts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Capped"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First citation context and the source's complete context count."
+        },
         "found_by": {
           "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
@@ -134,6 +145,11 @@
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
+            },
+            "semantic-scholar": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
             }
           },
           "type": "object"
@@ -149,18 +165,32 @@
           ],
           "description": "Citation metadata when accepted."
         },
+        "influential": {
+          "description": "Provider's influential flag; absent is distinct from false.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "intents": {
+          "description": "Citation intents in provider order; absent means not reported.",
+          "items": {
+            "$ref": "#/$defs/CitationIntent"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "key": {
           "$ref": "#/$defs/ArticleKey",
-          "description": "Stable checked pool key."
+          "description": "Stable checked paper identity when the provider supplies one."
         },
         "pmid": {
           "$ref": "#/$defs/Pmid",
           "description": "The selected PMID, retained when summary mapping fails."
         }
       },
-      "required": [
-        "key"
-      ],
       "type": "object"
     },
     "ArticleKey": {
@@ -225,6 +255,23 @@
             },
             "namespace": {
               "const": "europepmc",
+              "type": "string"
+            }
+          },
+          "required": [
+            "namespace",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Semantic Scholar local identity when no indexed identifier exists.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/SemanticScholarId"
+            },
+            "namespace": {
+              "const": "semantic_scholar",
               "type": "string"
             }
           },
@@ -368,7 +415,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
@@ -410,7 +457,8 @@
       "enum": [
         "pubmed",
         "europepmc",
-        "litvar"
+        "litvar",
+        "semantic-scholar"
       ],
       "type": "string"
     },
@@ -426,6 +474,44 @@
         "case_report"
       ],
       "type": "string"
+    },
+    "Capped": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "CitationIntent": {
+      "description": "Source-reported reason for citing a paper.",
+      "enum": [
+        "background",
+        "result",
+        "methodology"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The source cites background information.",
+        " The source cites a reported result.",
+        " The source cites a method."
+      ]
     },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
@@ -668,6 +754,8 @@
       "enum": [
         "not_found",
         "not_open",
+        "unsupported",
+        "too_large",
         "rate_limited",
         "unavailable",
         "tls",
@@ -686,6 +774,8 @@
       "x-enum-descriptions": [
         " The requested record was not found.",
         " The public bucket does not hold an open text record.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
         " The source limited the request rate.",
         " The source was unavailable.",
         " Platform or configured certificate verification failed.",
@@ -700,6 +790,10 @@
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
       ]
+    },
+    "SemanticScholarId": {
+      "pattern": "^[a-f0-9]{40}$",
+      "type": "string"
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
@@ -746,6 +840,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",
