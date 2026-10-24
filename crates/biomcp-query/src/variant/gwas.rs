@@ -2,7 +2,7 @@
 use crate::{Ctx, status};
 use biodata::{
     GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source,
-    SourceOutcome, VariantGet, VariantGwas, VariantHeader, VariantId,
+    VariantGet, VariantGwas, VariantHeader, VariantId,
 };
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, RequestError};

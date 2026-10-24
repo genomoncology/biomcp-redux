@@ -37,20 +37,6 @@ crate::macros::wire_enum! {
         Genome => "genome",
     }
 }
-/// One bounded page of source ancestry rows in source order.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct VariantPopulationDetail {
-    /// Source allele identifier.
-    pub variant: Text,
-    /// Source dataset selector.
-    pub dataset: Text,
-    /// Source assembly.
-    pub build: Build,
-    /// Selected groups in source order, each qualified by its subset.
-    pub groups: Box<[PopulationGroup]>,
-}
 /// One page of exact rsID catalog associations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
