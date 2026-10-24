@@ -118,8 +118,8 @@ Sources:
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
 - [x] Plain PubMed search MCP parity
-- [ ] Docs
-- [ ] 0.9 accounting
+- [x] Docs for landed article commands, with generated help and executable examples
+- [x] 0.9 capability mapping; PDF remains pending and pathway identifiers remain with the pathway slice
 
 Sources:
 - [x] PubMed search and page summaries (optional key)

@@ -49,7 +49,7 @@ The slice's bar is the PubMed floor. A plain PubMed search by relevance must nev
 | MCP | the shared `search` and `get` tools and a separate `variant_articles` tool | | | One `biomcp` MCP tool accepts the CLI argument array; the old tool names retire. |
 The `--pdf` mapping is pending 0052. Ian's download-only ruling, `decisions/2026-10-24-pdfs-are-downloaded-not-read.md`, replaces the earlier PDF text reader: `get article <ID> pdf` will report a link, status and license, and `article pdf <ID> --save PATH` will download it. BioMCP will not extract PDF text. Neither command is claimed by shipped help before 0052 lands.
 
-The article family holds 16 commands and 88 arguments, options and section names, not counting the three global flags.
+The investigation listed 16 article-family command spellings and 88 arguments, options and section names, excluding global flags. Those are not the historical leaf-command denominator: generic entity choices and retired spellings are separated in the accounting below.
 
 
 ### Leaf-command parity accounting
