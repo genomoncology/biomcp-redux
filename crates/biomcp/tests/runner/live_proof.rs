@@ -290,6 +290,7 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("real HTTP status drift hidden".into());
     }
+    cache_after_transport(&after)?;
     report_context(&after)?;
     cache_reuse(&env, &original, &after)?;
     Ok(())
@@ -405,6 +406,22 @@ fn report_context(observed: &[Observation]) -> Result<(), Box<dyn std::error::Er
         || evidence.pointer("/items/1/kind") != Some(&json!("same-request"))
     {
         return Err("changed pool stole a surviving exact request".into());
+    }
+    Ok(())
+}
+
+fn cache_after_transport(observed: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
+    let old = observed.iter().find(|item| item.shape.header.is_some())
+        .ok_or("missing actual bundle observation")?;
+    let mut changed = old.clone();
+    changed.shape.header = Some("changed header".into());
+    let mut cached = changed.clone();
+    cached.cached = true;
+    cached.shape = Default::default();
+    let mut changes = Vec::new();
+    live::compare(std::slice::from_ref(old), &[changed, cached], &mut changes, &mut BTreeMap::new());
+    if !changes.iter().any(|item| item.contains("bundle header changed")) {
+        return Err("later cache reuse hid a real transport contract change".into());
     }
     Ok(())
 }
