@@ -19,6 +19,7 @@ const EXPORT: Endpoint = SPEC
     .get("/publications/export/biocjson")
     .fresh(Freshness::Days(7));
 /// One PMID's independently mapped export section.
+#[derive(Debug)]
 pub struct ArticleAnnotations {
     /// Requested document identity.
     pub id: Pmid,
@@ -26,10 +27,7 @@ pub struct ArticleAnnotations {
     pub annotations: Mapped<Section<Annotations>>,
 }
 /// Export unique PMIDs in one bounded request and retain absent documents as empty sections.
-pub fn annotations(
-    leg: &Leg<'_>,
-    ids: &[Pmid],
-) -> Result<Vec<ArticleAnnotations>, RequestError> {
+pub fn annotations(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<ArticleAnnotations>, RequestError> {
     if ids.is_empty() || ids.len() > BATCH_LIMIT {
         return Err(biomcp_fetch::SourceError {
             source: Source::PubTator,
@@ -48,7 +46,10 @@ pub fn annotations(
         .iter()
         .map(|id| {
             let document = reply.documents.iter().find(|doc| doc.id == *id);
-            ArticleAnnotations { id: *id, annotations: map::document(*id, document) }
+            ArticleAnnotations {
+                id: *id,
+                annotations: map::document(*id, document),
+            }
         })
         .collect())
 }
