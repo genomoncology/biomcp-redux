@@ -201,13 +201,19 @@ fn coordinates() -> Check {
     Ok(())
 }
 fn old_owner() -> Check {
+    for version in [1, 2] {
+        old_version(version)?;
+    }
+    Ok(())
+}
+fn old_version(version: u32) -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
     copy_capture("trial/get/NCT03734029", &replay, |_, _| {})?;
     let args = ["get", "trial", "NCT03734029", "locations"].map(str::to_owned);
     let first = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
     let next = super::action(&first, "page")?;
-    // Reclassify this row as an old owner's positional payload. The key lookup
+    // Reclassify this row as an old owner's incompatible payload. The key lookup
     // must reject it before decode, even though the bytes are intentionally invalid.
     let database = env.root().join("case-cache").join("replay.sqlite");
     let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
@@ -218,7 +224,7 @@ fn old_owner() -> Check {
     })?;
     let db = fetch.cache_access()?.connect()?;
     use sha2::{Digest, Sha256};
-    let old_key = Sha256::digest(b"biomcp.trial_snapshot/1\0NCT03734029").to_vec();
+    let old_key = Sha256::digest(format!("biomcp.trial_snapshot/{version}\0NCT03734029").as_bytes()).to_vec();
     db.execute(
         "UPDATE trial_snapshot SET request_key=?1,payload='[\"old positional snapshot\"]'",
         [old_key],
