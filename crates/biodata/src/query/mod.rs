@@ -28,4 +28,4 @@ mod trial;
 pub use trial::{PhaseFilter, SponsorType, TrialSearch};
 
 mod trial_get;
-pub use trial_get::{TrialGet,TrialSection};
+pub use trial_get::{TrialGet, TrialSection};

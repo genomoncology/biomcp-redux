@@ -5,7 +5,10 @@ use rusqlite::{OptionalExtension, params};
 impl Store<'_> {
     /// Read source dependencies before any saved protocol content.
     pub(crate) fn trial_snapshot(
-        &self, id: &str, key: &[u8], disabled: impl Fn(Source) -> bool,
+        &self,
+        id: &str,
+        key: &[u8],
+        disabled: impl Fn(Source) -> bool,
     ) -> Result<Option<String>, CacheError> {
         self.read(|cx| {
             let outcomes:Option<String>=cx.query_row("SELECT outcomes FROM trial_snapshot WHERE id=?1 AND request_key=?2 AND expires>?3",params![id,key,Self::now()],|r|r.get(0)).optional().map_err(db)?;
@@ -16,7 +19,10 @@ impl Store<'_> {
         })
     }
     pub(crate) fn save_trial_snapshot(
-        &mut self, key: &[u8], payload: &str, sources: &[SourceOutcome],
+        &mut self,
+        key: &[u8],
+        payload: &str,
+        sources: &[SourceOutcome],
     ) -> Result<Text, CacheError> {
         self.write(|tx| {
             let id:String=tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?;

@@ -1,9 +1,12 @@
-use crate::{NctId, Section, Status, TrialArm, TrialCard, TrialAgeBound, TrialSex, TrialIntervention, TrialOutcome, TrialSection};
+use crate::{
+    NctId, Section, Status, TrialAgeBound, TrialArm, TrialCard, TrialIntervention, TrialOutcome,
+    TrialSection, TrialSex,
+};
 use serde::{Deserialize, Serialize};
 /// Trial answers in original input order, retaining independent states.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCards {
     /// One answer per requested input, including absence and failure.
     pub items: Box<[TrialCardItem]>,
@@ -19,44 +22,44 @@ impl super::ResponseBody for TrialCards {
 /// Result for one exact requested NCT identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCardItem {
     /// Exact requested identity.
     pub input: NctId,
     /// Independent resolution state.
     pub status: Status,
     /// Source card, absent after confirmed 404 or failed lookup.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub card: Option<TrialCard>,
     /// Original record retrieval timestamp.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u64>,
     /// Explicitly requested source sections.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sections: Option<TrialSections>,
     /// Available sections omitted from this request.
-    #[serde(default,skip_serializing_if="<[_]>::is_empty")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub more: Box<[TrialSection]>,
 }
 /// Independently bounded sections from the same source protocol snapshot.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialSections {
     /// Source eligibility fields and exact text fragment.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub eligibility: Option<Section<TrialEligibilityPage>>,
     /// Whole registered outcomes.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub outcomes: Option<Section<TrialRecords<TrialOutcome>>>,
     /// Whole source arm and intervention records.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub arms: Option<Section<TrialRecords<TrialArmRecord>>>,
 }
 /// Character paging preserves source whitespace and counts Unicode scalar values.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
     /// Source minimum age.
     pub minimum_age: TrialAgeBound,
@@ -76,7 +79,7 @@ pub struct TrialEligibilityPage {
 /// Whole-record page retaining collection order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
     /// Complete records in source order.
     pub items: Box<[T]>,
@@ -87,8 +90,13 @@ pub struct TrialRecords<T> {
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag="record",content="data",rename_all="snake_case",deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[serde(
+    tag = "record",
+    content = "data",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialArmRecord {
     /// Original arm with its intervention names.
     Arm(TrialArm),

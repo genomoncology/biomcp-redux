@@ -1,78 +1,209 @@
 use super::snapshot::Snapshot;
-use crate::{Action,Outcome};
+use crate::{Action, Outcome};
 use biodata::{
-    NctId,Request,Section,Source,SourceRecord,Status,StepKind,Text,TrialArmRecord,
-    TrialCardItem,TrialEligibilityPage,TrialGet,TrialRecords,TrialSection,TrialSections,
+    NctId, Request, Section, Source, SourceRecord, Status, StepKind, Text, TrialArmRecord,
+    TrialCardItem, TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
-use biomcp_fetch::{CacheError,RequestError};
-const SECTIONS:[TrialSection;3]=[TrialSection::Eligibility,TrialSection::Outcomes,TrialSection::Arms];
-pub(super) fn valid(query:&TrialGet,snapshot:&Snapshot)->bool{
-    let d=&snapshot.detail;
-    let total=match query.sections().first(){
-        Some(TrialSection::Eligibility)=>d.eligibility.as_ref().and_then(|e|e.criteria.as_ref()).map_or(0,|s|s.as_str().chars().count()),
-        Some(TrialSection::Outcomes)=>d.outcomes.len(),
-        Some(TrialSection::Arms)=>d.arms.len()+d.interventions.len(),
-        _=>0,
+use biomcp_fetch::{CacheError, RequestError};
+const SECTIONS: [TrialSection; 3] = [
+    TrialSection::Eligibility,
+    TrialSection::Outcomes,
+    TrialSection::Arms,
+];
+pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
+    let d = &snapshot.detail;
+    let total = match query.sections().first() {
+        Some(TrialSection::Eligibility) => d
+            .eligibility
+            .as_ref()
+            .and_then(|e| e.criteria.as_ref())
+            .map_or(0, |s| s.as_str().chars().count()),
+        Some(TrialSection::Outcomes) => d.outcomes.len(),
+        Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
+        _ => 0,
     };
-    query.offset() as usize<=total
+    query.offset() as usize <= total
 }
-pub(super) fn render(query:&TrialGet,snapshot:Snapshot,pool:Option<Text>,out:&mut Outcome)->Result<TrialCardItem,RequestError>{
-    let requested=|section|query.sections().contains(&section)||query.sections().contains(&TrialSection::All);
-    let id=snapshot.detail.card.nct_id;
-    let mut sections=TrialSections::default();
-    if requested(TrialSection::Eligibility){sections.eligibility=Some(eligibility(query,&snapshot,pool.as_ref(),out));}
-    if requested(TrialSection::Outcomes){
-        let items=&snapshot.detail.outcomes;
-        let page=records(query,items,8000, |v|serde_json::to_vec(v))?;
-        advance(query,id,TrialSection::Outcomes,pool.as_ref(),page.offset+page.items.len() as u32,page.total,out);
-        sections.outcomes=Some(section(page,id));
+pub(super) fn render(
+    query: &TrialGet,
+    snapshot: Snapshot,
+    pool: Option<Text>,
+    out: &mut Outcome,
+) -> Result<TrialCardItem, RequestError> {
+    let requested = |section| {
+        query.sections().contains(&section) || query.sections().contains(&TrialSection::All)
+    };
+    let id = snapshot.detail.card.nct_id;
+    let mut sections = TrialSections::default();
+    if requested(TrialSection::Eligibility) {
+        sections.eligibility = Some(eligibility(query, &snapshot, pool.as_ref(), out));
     }
-    if requested(TrialSection::Arms){
-        let rows:Vec<_>=snapshot.detail.arms.iter().cloned().map(TrialArmRecord::Arm)
-            .chain(snapshot.detail.interventions.iter().cloned().map(TrialArmRecord::Intervention)).collect();
-        let page=records(query,&rows,4500, |v|serde_json::to_vec(v))?;
-        advance(query,id,TrialSection::Arms,pool.as_ref(),page.offset+page.items.len() as u32,page.total,out);
-        sections.arms=Some(section(page,id));
+    if requested(TrialSection::Outcomes) {
+        let items = &snapshot.detail.outcomes;
+        let page = records(query, items, 8000, |v| serde_json::to_vec(v))?;
+        advance(
+            query,
+            id,
+            TrialSection::Outcomes,
+            pool.as_ref(),
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        sections.outcomes = Some(section(page, id));
     }
-    for section in SECTIONS.into_iter().filter(|s|!requested(*s)){
-        out.next.push((StepKind::Section,Action::Run{request:Request::GetTrial(TrialGet::single(id,Some(section),query.limit())),fresh:false}));
+    if requested(TrialSection::Arms) {
+        let rows: Vec<_> = snapshot
+            .detail
+            .arms
+            .iter()
+            .cloned()
+            .map(TrialArmRecord::Arm)
+            .chain(
+                snapshot
+                    .detail
+                    .interventions
+                    .iter()
+                    .cloned()
+                    .map(TrialArmRecord::Intervention),
+            )
+            .collect();
+        let page = records(query, &rows, 4500, |v| serde_json::to_vec(v))?;
+        advance(
+            query,
+            id,
+            TrialSection::Arms,
+            pool.as_ref(),
+            page.offset + page.items.len() as u32,
+            page.total,
+            out,
+        );
+        sections.arms = Some(section(page, id));
     }
-    Ok(TrialCardItem{input:id,status:if super::partial(&snapshot){Status::Partial}else{Status::Complete},
-        card:Some(snapshot.detail.card),fetched:Some(snapshot.fetched),
-        sections:(!query.sections().is_empty()).then_some(sections),more:SECTIONS.into_iter().filter(|s|!requested(*s)).collect()})
+    for section in SECTIONS.into_iter().filter(|s| !requested(*s)) {
+        out.next.push((
+            StepKind::Section,
+            Action::Run {
+                request: Request::GetTrial(TrialGet::single(id, Some(section), query.limit())),
+                fresh: false,
+            },
+        ));
+    }
+    Ok(TrialCardItem {
+        input: id,
+        status: if super::partial(&snapshot) {
+            Status::Partial
+        } else {
+            Status::Complete
+        },
+        card: Some(snapshot.detail.card),
+        fetched: Some(snapshot.fetched),
+        sections: (!query.sections().is_empty()).then_some(sections),
+        more: SECTIONS.into_iter().filter(|s| !requested(*s)).collect(),
+    })
 }
-fn eligibility(query:&TrialGet,snapshot:&Snapshot,pool:Option<&Text>,out:&mut Outcome)->Section<TrialEligibilityPage>{
-    let id=snapshot.detail.card.nct_id;
-    let Some(e)=snapshot.detail.eligibility.as_ref()else{return Section::Empty{source:Source::ClinicalTrialsGov,record:record(id)}};
-    let text=e.criteria.as_ref().map_or("",|s|s.as_str());
-    let total=text.chars().count() as u32;
-    let mut fragment=String::new();
-    let mut bytes=0;
-    for ch in text.chars().skip(query.offset() as usize){
-        let cost=biomcp_adapters::jats::escaped_bytes(&ch.to_string());
-        if bytes+cost>6000{break;}
-        bytes+=cost;fragment.push(ch);
+fn eligibility(
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    pool: Option<&Text>,
+    out: &mut Outcome,
+) -> Section<TrialEligibilityPage> {
+    let id = snapshot.detail.card.nct_id;
+    let Some(e) = snapshot.detail.eligibility.as_ref() else {
+        return Section::Empty {
+            source: Source::ClinicalTrialsGov,
+            record: record(id),
+        };
+    };
+    let text = e.criteria.as_ref().map_or("", |s| s.as_str());
+    let total = text.chars().count() as u32;
+    let mut fragment = String::new();
+    let mut bytes = 0;
+    for ch in text.chars().skip(query.offset() as usize) {
+        let cost = biomcp_adapters::jats::escaped_bytes(&ch.to_string());
+        if bytes + cost > 6000 {
+            break;
+        }
+        bytes += cost;
+        fragment.push(ch);
     }
-    let end=query.offset()+fragment.chars().count() as u32;
-    advance(query,id,TrialSection::Eligibility,pool,end,total,out);
-    Section::Data{source:Source::ClinicalTrialsGov,data:TrialEligibilityPage{minimum_age:e.minimum_age.clone(),maximum_age:e.maximum_age.clone(),sex:e.sex,healthy_volunteers:e.healthy_volunteers,criteria:fragment.into(),offset:query.offset(),total_characters:total}}
-}
-fn records<T:Clone>(query:&TrialGet,rows:&[T],budget:usize,size:impl Fn(&T)->Result<Vec<u8>,serde_json::Error>)->Result<TrialRecords<T>,RequestError>{
-    let mut items=Vec::new();
-    let mut bytes=0;
-    for item in rows.iter().skip(query.offset() as usize).take(query.limit() as usize){
-        let size=size(item).map_err(|_|CacheError::Database)?.len()+1;
-        if !items.is_empty()&&bytes+size>budget{break;}
-        bytes+=size;items.push(item.clone());
+    let end = query.offset() + fragment.chars().count() as u32;
+    advance(query, id, TrialSection::Eligibility, pool, end, total, out);
+    Section::Data {
+        source: Source::ClinicalTrialsGov,
+        data: TrialEligibilityPage {
+            minimum_age: e.minimum_age.clone(),
+            maximum_age: e.maximum_age.clone(),
+            sex: e.sex,
+            healthy_volunteers: e.healthy_volunteers,
+            criteria: fragment.into(),
+            offset: query.offset(),
+            total_characters: total,
+        },
     }
-    Ok(TrialRecords{items:items.into(),offset:query.offset(),total:rows.len() as u32})
 }
-fn section<T>(page:TrialRecords<T>,id:NctId)->Section<TrialRecords<T>>{
-    if page.total==0{Section::Empty{source:Source::ClinicalTrialsGov,record:record(id)}}else{Section::Data{source:Source::ClinicalTrialsGov,data:page}}
+fn records<T: Clone>(
+    query: &TrialGet,
+    rows: &[T],
+    budget: usize,
+    size: impl Fn(&T) -> Result<Vec<u8>, serde_json::Error>,
+) -> Result<TrialRecords<T>, RequestError> {
+    let mut items = Vec::new();
+    let mut bytes = 0;
+    for item in rows
+        .iter()
+        .skip(query.offset() as usize)
+        .take(query.limit() as usize)
+    {
+        let size = size(item).map_err(|_| CacheError::Database)?.len() + 1;
+        if !items.is_empty() && bytes + size > budget {
+            break;
+        }
+        bytes += size;
+        items.push(item.clone());
+    }
+    Ok(TrialRecords {
+        items: items.into(),
+        offset: query.offset(),
+        total: rows.len() as u32,
+    })
 }
-fn record(id:NctId)->Option<SourceRecord>{Text::new(&id.to_string()).ok().map(|id|SourceRecord{id,url:None})}
-fn advance(query:&TrialGet,id:NctId,section:TrialSection,pool:Option<&Text>,end:u32,total:u32,out:&mut Outcome){
-    if end<total&&let Some(pool)=pool{
-        out.next.push((StepKind::Page,Action::Run{request:Request::GetTrial(query.page(id,section,pool.clone(),end)),fresh:false}));
+fn section<T>(page: TrialRecords<T>, id: NctId) -> Section<TrialRecords<T>> {
+    if page.total == 0 {
+        Section::Empty {
+            source: Source::ClinicalTrialsGov,
+            record: record(id),
+        }
+    } else {
+        Section::Data {
+            source: Source::ClinicalTrialsGov,
+            data: page,
+        }
+    }
+}
+fn record(id: NctId) -> Option<SourceRecord> {
+    Text::new(&id.to_string())
+        .ok()
+        .map(|id| SourceRecord { id, url: None })
+}
+fn advance(
+    query: &TrialGet,
+    id: NctId,
+    section: TrialSection,
+    pool: Option<&Text>,
+    end: u32,
+    total: u32,
+    out: &mut Outcome,
+) {
+    if end < total
+        && let Some(pool) = pool
+    {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::GetTrial(query.page(id, section, pool.clone(), end)),
+                fresh: false,
+            },
+        ));
     }
 }

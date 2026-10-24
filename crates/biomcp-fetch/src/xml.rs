@@ -124,7 +124,9 @@ impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;
         reply.check().ok()?;
-        if let Some(check) = self.check { check(&reply).ok()?; }
+        if let Some(check) = self.check {
+            check(&reply).ok()?;
+        }
         Some(reply)
     }
 }

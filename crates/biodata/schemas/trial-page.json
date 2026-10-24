@@ -1132,6 +1132,16 @@
           "description": "Publisher attribution.",
           "type": "string"
         },
+        "count_request": {
+          "description": "Exact cached native count request when a continuation omits its total.",
+          "items": {
+            "$ref": "#/$defs/TrialParameter"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "gene_resolution": {
           "anyOf": [
             {

@@ -18,7 +18,13 @@ pub const VERSION: u32 = 4;
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
-    tables: &["pool", "pool_current", "pool_item", "citation_evidence", "trial_snapshot"],
+    tables: &[
+        "pool",
+        "pool_current",
+        "pool_item",
+        "citation_evidence",
+        "trial_snapshot",
+    ],
 };
 /// One command's owned connection, retaining the replay directory capability.
 #[derive(Debug)]
