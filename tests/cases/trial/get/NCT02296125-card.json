@@ -1,0 +1,27 @@
+{
+  "nct_id": "NCT02296125",
+  "title": "AZD9291 Versus Gefitinib or Erlotinib in Patients With Locally Advanced or Metastatic Non-small Cell Lung Cancer",
+  "status": "COMPLETED",
+  "phases": [
+    "PHASE3"
+  ],
+  "study_type": "INTERVENTIONAL",
+  "conditions": [
+    "Locally Advanced or Metastatic EGFR Sensitising Mutation Positive Non Small Cell Lung Cancer"
+  ],
+  "interventions": [
+    "AZD9291 80 mg/40 mg + placebo",
+    "Placebo Erlotinib 150/100mg",
+    "Placebo Gefitinib 250 mg",
+    "Erlotinib 150/100 mg",
+    "Gefitinib 250 mg",
+    "Placebo AZD9291 80 mg/ 40 mg"
+  ],
+  "sponsor": "AstraZeneca",
+  "start": "2014-12-03",
+  "primary_completion": "2017-06-19",
+  "completion": "2025-11-20",
+  "updated": "2026-04-21",
+  "brief_summary": "To assess the efficacy and safety of AZD9291 versus a standard of care epidermal growth factor receptor tyrosine kinase inhibitor in patients with locally advanced or Metastatic Non Small Cell Lung Cancer",
+  "url": "https://clinicaltrials.gov/study/NCT02296125"
+}

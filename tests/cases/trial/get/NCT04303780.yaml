@@ -1,0 +1,29 @@
+{
+  "live_check": "local-only retained source capture delivered over local TLS",
+  "feature": "trial-get",
+  "story": "Exact NCT04303780 card retains the clinically reviewed study identity and whole registry summary",
+  "replay": "trial/get/NCT04303780",
+  "verified": "Source collected 2026-10-24 in trial investigation; unchanged reply delivered through local TLS to actual CLI --record. Fetch timestamp is local delivery. Ceiling is measured compact CLI bytes plus 15 percent. No eligibility inference.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04303780"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT04303780"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/input": "NCT04303780",
+        "/result/items/0/card": {
+          "equals_file": "NCT04303780-card.json"
+        }
+      },
+      "max_bytes": 1463
+    }
+  ]
+}
