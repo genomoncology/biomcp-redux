@@ -197,7 +197,7 @@ fn invoke(
         .collect::<Result<_, _>>()?;
     Ok((value, observations))
 }
-fn compare(
+pub(super) fn compare(
     before: &[Observation],
     after: &[Observation],
     changes: &mut Vec<String>,
