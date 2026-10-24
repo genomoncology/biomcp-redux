@@ -26,7 +26,9 @@
         "/result/candidates/0/sections/population/reason": "disabled",
         "/sources/0/source": "gnomad",
         "/sources/0/reason": "disabled"
-      }
+      },
+      "max_bytes": 567,
+      "max_tokens": 142
     },
     {
       "run": [
@@ -51,7 +53,9 @@
         "/result/candidates/0/sections/gwas/reason": "disabled",
         "/sources/0/source": "gwas",
         "/sources/0/reason": "disabled"
-      }
+      },
+      "max_bytes": 544,
+      "max_tokens": 136
     }
   ]
 }
