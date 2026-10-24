@@ -52,6 +52,9 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Oncokb {
+        return leg.probe(&crate::oncokb::INFO, &[]);
+    }
     if matches!(spec.source, Source::Gnomad | Source::Civic) {
         let path = if spec.source == Source::Gnomad {
             "/api"
@@ -82,7 +85,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     Some(match source {
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
-        Source::Oncokb => ("/info", vec![]),
         Source::UniProt => (
             "/uniprotkb/P15056.json",
             vec![("fields", Arg::Text("accession"))],

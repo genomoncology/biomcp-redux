@@ -332,19 +332,32 @@ fn enabled_fold() -> Check {
 
 fn keyed_health() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let disabled = biomcp_adapters::registry::SOURCES.iter()
+    let disabled = biomcp_adapters::registry::SOURCES
+        .iter()
         .filter(|s| s.source != biodata::Source::Oncokb)
-        .map(|s| s.source.to_string()).collect::<Vec<_>>();
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>();
     env.config(&json!({"disable_sources": disabled,
         "keys":{"oncokb_api_key":"synthetic-placeholder"}}))
         .map_err(|e| e.to_string())?;
     let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies/gene/oncokb-synthetic/data");
-    let result = invoke(&env, vec!["health".into(), "--replay".into(),
-        fixture.to_string_lossy().into()], 0)?;
-    let rows = result.pointer("/result/sources").and_then(Value::as_array)
+    let result = invoke(
+        &env,
+        vec![
+            "health".into(),
+            "--replay".into(),
+            fixture.to_string_lossy().into(),
+        ],
+        0,
+    )?;
+    let rows = result
+        .pointer("/result/sources")
+        .and_then(Value::as_array)
         .ok_or("missing health rows")?;
-    let oncokb = rows.iter().find(|s| s.get("source") == Some(&json!("oncokb")))
+    let oncokb = rows
+        .iter()
+        .find(|s| s.get("source") == Some(&json!("oncokb")))
         .ok_or("missing keyed source")?;
     if oncokb.get("state") != Some(&json!("ok")) || oncokb.get("latency_ms").is_none() {
         return Err("keyed probe did not use the declared API endpoint".into());
