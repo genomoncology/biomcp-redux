@@ -42,8 +42,6 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("article", "citation-evidence", "biodata.article-evidence/1"),
-    ("article", "recommendations", "biodata.article-recommend/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -52,6 +50,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("article", "text", "biodata.article-text/2"),
     ("article", "citations", "biodata.article-edges/2"),
     ("article", "references", "biodata.article-edges/2"),
+    ("article", "citation-evidence", "biodata.article-evidence/1"),
+    ("article", "recommendations", "biodata.article-recommend/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
