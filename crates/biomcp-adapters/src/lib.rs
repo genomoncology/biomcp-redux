@@ -31,3 +31,5 @@ pub mod icite;
 /// Exact variant publication lookup.
 pub mod litvar;
 mod xml_element;
+
+pub mod registry;

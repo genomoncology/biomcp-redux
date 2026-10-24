@@ -50,6 +50,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     for (command, description) in [
         (
+            vec!["health"],
+            "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
+        ),
+        (
             vec!["sync", "[hgnc|clingen]"],
             "Synchronize a local source bundle.",
         ),

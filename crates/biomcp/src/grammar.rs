@@ -13,6 +13,7 @@ pub(crate) struct Globals {
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
     pub(crate) format: Option<Format>,
+    pub(crate) disable_sources: Vec<String>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Format {
@@ -57,6 +58,14 @@ fn root() -> Result<Command, ()> {
             .global(true)
             .value_parser(["json", "md"]),
     );
+    root = root.arg(
+        Arg::new("disable-sources")
+            .long("disable-sources")
+            .global(true)
+            .num_args(1)
+            .value_delimiter(',')
+            .action(ArgAction::Append),
+    );
     for name in ["replay", "record", "case-cache"] {
         root = root.arg(
             Arg::new(name)
@@ -85,6 +94,7 @@ fn root() -> Result<Command, ()> {
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
+    root = root.subcommand(Command::new("health"));
     root = root.subcommand(
         Command::new("help")
             .subcommand(
@@ -118,6 +128,12 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|_| ())?;
     let globals = Globals {
+        disable_sources: matches
+            .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
         replay: matches.get_one::<PathBuf>("replay").cloned(),
         record: matches.get_one::<PathBuf>("record").cloned(),
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),
@@ -151,7 +167,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else {
         None
     };
-    let action = if verb == "help" {
+    let action = if verb == "health" {
+        Action::Health
+    } else if verb == "help" {
         Action::KeyHelp
     } else if verb == "sync" {
         Action::Sync {
@@ -243,6 +261,9 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 
 impl Globals {
     pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
+        self.disable_sources.extend(process.disable_sources.clone());
+        self.disable_sources.sort();
+        self.disable_sources.dedup();
         self.replay = process.replay.clone();
         self.record = process.record.clone();
         self.case_cache = process.case_cache.clone();
@@ -252,6 +273,7 @@ impl Globals {
         self.check()
     }
     fn check(&self) -> Result<(), ()> {
+        biomcp_adapters::registry::disabled(&self.disable_sources).map_err(|_| ())?;
         if usize::from(self.replay.is_some())
             + usize::from(self.record.is_some())
             + usize::from(self.offline)

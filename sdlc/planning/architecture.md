@@ -669,6 +669,7 @@ pub struct Quota {
 }
 
 pub struct SourceSpec {
+    pub terms: Terms, // publisher name, terms page and reviewed Use category
     pub source: Source,
     pub base: &'static str,
     pub key: KeyUse,
@@ -1865,3 +1866,11 @@ Ian ruled on 2026-10-24, and this file applies each ruling:
 None. Section 8.7 settles the pinned MCP revisions.
 
 EFetch provenance uses `LegReport.replies`, keyed by the canonical credential-free request identity. `Leg::xml_received` returns the selected reply metadata alongside its checked value. Capture stores Unix seconds per exchange; replay restores them, and cached replies retain their original row fetch time. Legacy recordings without this field report zero. Replay cache freshness starts at import while provenance retains the captured time.
+
+### Source terms and switches
+
+Each implemented adapter owns its publisher terms in `SourceSpec::terms`. `biomcp-adapters::registry` references those declarations and owns the bounded health endpoints. The structural check refuses missing terms and omitted source declarations. Terms metadata was checked against publisher pages on 2026-10-24. HGNC, CIViC and ClinGen explicitly publish CC0 data. gnomAD's publisher-owned [terms source](https://github.com/broadinstitute/gnomad-browser/blob/main/browser/about/policies/terms.md) names CC0 for primary data and separate conditions for some annotations; this adapter requests constraint data and does not request those restricted annotations. [Reactome's current agreement](https://reactome.org/license) dedicates database data and derived files to CC0; its graphics and software use separate licenses. [iCite's publisher support page](https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview) explicitly identifies its citation database as public domain. The UniProt and HPA declarations link their attribution terms; HPA retains its separate third-party conditions. MyGene's terms retain upstream rights. PubMed, Europe PMC, PubTator export text and PMC preserve publisher-specific text rights under the restricted category. OncoKB requires the user's license and key. These source categories do not authorize individual uses or replace a record's license. Per-section categories remain deferred.
+
+The configuration's `disable_sources` and CLI `--disable-sources` combine by union. Expansion uses implemented source declarations and source identities, never quota keys. The transport checks disabled before credentials, quota, replay, reply caches and bundle synchronization. Stored article pools refuse disabled source rows before paging or hydration. Source and section skips retain reason `disabled` and never become confirmed absence. MCP process policy cannot be weakened by a tool call. `Fetch::restrict_sources` creates an immutable command view that unions disabled identities while sharing connection pools, quotas, replay cursors and clocks, checked settings, caches and bundle reservations. A disabled search leg does not hide rows supplied by an enabled leg; disabled header hydration leaves those rows partial.
+
+CLI health uses these same declarations and transport policies. Its probes bypass the checked data cache and do not synchronize bundles. `PROBE_BUDGET` caps each source leg within the command budget. A skipped source has no latency; each attempted probe reports bounded elapsed time and a typed state. Local recording or cache failures remain local errors. HTTP service health separately checks owned local storage.

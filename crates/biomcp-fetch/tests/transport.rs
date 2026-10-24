@@ -88,6 +88,11 @@ impl Stub {
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            terms: biomcp_fetch::Terms {
+                name: "Synthetic test data",
+                url: "https://example.test/terms",
+                usage: biodata::Use::Open,
+            },
             source: Source::PubMed,
             base: self.base,
             key,
@@ -502,6 +507,35 @@ fn outgoing_contact_and_optional_key_never_enter_persistent_identity() {
 }
 
 #[test]
+fn bounded_reachability_probes_share_policy_and_never_cache_data() {
+    let stub = Stub::new(200, "text/plain", "reachable", None);
+    let spec = stub.spec(KeyUse::None, Duration::from_secs(2));
+    let fetch = fetch();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
+    leg.probe(&spec.get("/probe"), &[]).unwrap();
+    leg.probe_json(
+        &spec.post_json("/probe").idempotent(),
+        &serde_json::json!({"query":"health"}),
+    )
+    .unwrap();
+    assert_eq!(stub.finish().len(), 2);
+    let stub = Stub::new(200, "application/json", "sensitive", None);
+    let spec = stub.spec(
+        KeyUse::Required(credential(KeyPlace::Bearer)),
+        Duration::from_secs(2),
+    );
+    let fetch = Fetch::open(FetchConfig {
+        disabled_sources: [spec.source].into(),
+        ..Default::default()
+    })
+    .unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(2)));
+    let error = leg.probe(&spec.get("/probe"), &[]).unwrap_err();
+    assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::Disabled));
+    assert!(stub.finish().is_empty());
+}
+
+#[test]
 fn checked_no_proxy_boundaries_select_direct_routes() {
     for (rule, direct) in [
         ("*", true),
@@ -551,6 +585,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         let spec = Box::leak(Box::new(SourceSpec {
             base: Box::leak(base.into_boxed_str()),
             source: original.source,
+            terms: original.terms,
             key: original.key,
             quota: original.quota,
             deadline: original.deadline,
@@ -568,6 +603,10 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         }
         assert_eq!(stub.finish().len(), usize::from(direct));
     }
+}
+
+#[test]
+fn invalid_no_proxy_boundaries_are_configuration_errors() {
     for invalid in [
         "example.org:abc",
         "example.org:",

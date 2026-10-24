@@ -121,3 +121,17 @@ canonical_enum! {
         NoJoinId => "no_join_id",
     }
 }
+
+crate::response::wire_enum! {
+    /// Reviewed source-use category, without inferring rights in individual records.
+    Use {
+        /// Public-domain or unrestricted source data.
+        Open => "open",
+        /// Attribution is required.
+        Attribution => "attribution",
+        /// Commercial use requires separate permission.
+        Noncommercial => "noncommercial",
+        /// Source-specific or mixed rights require checking the publisher's terms.
+        Restricted => "restricted",
+    }
+}

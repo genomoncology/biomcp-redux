@@ -30,18 +30,15 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                             status::append(&mut problems, value.civic.problems.clone());
                             value.civic.value.clone()
                         }
-                        None => Section::Unavailable {
-                            source: Source::Civic,
-                            reason: Reason::BadReply,
-                        },
+                        None => Section::unavailable(Source::Civic, Reason::BadReply),
                     },
-                    Err(error) => Section::Unavailable {
-                        source: Source::Civic,
-                        reason: match error {
+                    Err(error) => Section::unavailable(
+                        Source::Civic,
+                        match error {
                             RequestError::Source(error) => error.reason,
                             _ => Reason::Unavailable,
                         },
-                    },
+                    ),
                 }
             } else {
                 problems.push(Problem {
@@ -50,10 +47,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     field: "entrez_id".into(),
                     code: ProblemCode::ValueUnknown,
                 });
-                Section::Unavailable {
-                    source: Source::Civic,
-                    reason: Reason::NoJoinId,
-                }
+                Section::unavailable(Source::Civic, Reason::NoJoinId)
             };
             (*id, SectionValue::Civic(section))
         })

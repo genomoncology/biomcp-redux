@@ -509,6 +509,11 @@ fn bundle_sync_child() {
     };
     let base = Box::leak(std::env::var("BUNDLE_BASE").unwrap().into_boxed_str());
     let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        terms: biomcp_fetch::Terms {
+            name: "Synthetic test data",
+            url: "https://example.test/terms",
+            usage: biodata::Use::Open,
+        },
         base,
         source: biodata::Source::PubMed,
         key: KeyUse::None,

@@ -7,10 +7,10 @@ use std::{
     path::{Path, PathBuf},
 };
 type Check = Result<(), String>;
-fn root() -> PathBuf {
+pub(super) fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main")
 }
-fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
@@ -24,7 +24,7 @@ fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, Stri
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
-fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
+pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
     let mut args: Vec<String> = args.iter().map(|arg| (*arg).into()).collect();
     if let Some(recording) = recording {
         args.extend(["--replay".into(), recording.to_string_lossy().into()]);
