@@ -104,13 +104,25 @@ fn root() -> Result<Command, ()> {
 }
 fn help_command() -> Command {
     let mut help = Command::new("help")
-        .subcommand(Command::new("network").arg(Arg::new("setting").required(true)
-            .value_parser(["ca_bundle", "proxy"])))
-        .subcommand(Command::new("key").arg(Arg::new("source").required(true)
-            .value_parser(["oncokb", "semantic-scholar"])));
+        .subcommand(
+            Command::new("network").arg(
+                Arg::new("setting")
+                    .required(true)
+                    .value_parser(["ca_bundle", "proxy"]),
+            ),
+        )
+        .subcommand(
+            Command::new("key").arg(
+                Arg::new("source")
+                    .required(true)
+                    .value_parser(["oncokb", "semantic-scholar"]),
+            ),
+        );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
     for &(verb, entity, _) in QUERIES {
-        let command = verbs.remove(verb).unwrap_or_else(|| Command::new(verb).subcommand_required(true));
+        let command = verbs
+            .remove(verb)
+            .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
         verbs.insert(verb, command.subcommand(Command::new(entity)));
     }
     for command in verbs.into_values() {

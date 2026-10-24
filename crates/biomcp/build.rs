@@ -67,7 +67,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .ok_or("missing example step")?
                 .clone(),
         )?;
-        let command = run.get(..2).ok_or("example needs a verb and entity")?.join(" ");
+        let command = run
+            .get(..2)
+            .ok_or("example needs a verb and entity")?
+            .join(" ");
         examples.entry(command).or_default().push(run);
         witnesses.push((file, index));
     }
