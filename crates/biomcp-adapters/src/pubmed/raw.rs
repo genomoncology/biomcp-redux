@@ -9,7 +9,8 @@ pub(super) struct Search {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct SearchResult {
-    pub count: String,
+    #[serde(deserialize_with = "count")]
+    pub count: u64,
     pub idlist: Vec<Pmid>,
     pub errorlist: Option<ErrorList>,
     #[serde(rename = "ERROR")]
@@ -22,7 +23,7 @@ pub(super) struct ErrorList {
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
         let r = &self.esearchresult;
-        let count = r.count.parse::<u64>().map_err(|_| BadReply)?;
+        let count = r.count;
         let unique: std::collections::BTreeSet<_> = r.idlist.iter().collect();
         if r.error.is_some()
             || r.idlist.len() > 9999
@@ -72,4 +73,10 @@ impl Reply for Summary {
             _ => Err(BadReply),
         }
     }
+}
+
+fn count<'de, D: serde::Deserializer<'de>>(d: D) -> Result<u64, D::Error> {
+    String::deserialize(d)?
+        .parse()
+        .map_err(|_| serde::de::Error::custom("invalid PubMed count"))
 }

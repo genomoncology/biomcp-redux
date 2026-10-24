@@ -15,6 +15,11 @@ fn article_identifiers_check_namespaces_and_doi_equality() {
         "10.1056/NEJMoa1203421".parse::<Doi>().unwrap(),
         "10.1056/nejmoa1203421".parse::<Doi>().unwrap()
     );
+    let ids = std::collections::HashSet::from([
+        "10.1056/NEJMoa1203421".parse::<Doi>().unwrap(),
+        "10.1056/nejmoa1203421".parse::<Doi>().unwrap(),
+    ]);
+    assert_eq!(ids.len(), 1);
     for bad in ["10./x", "10.a/x", "10.1/", "10.1/a b"] {
         assert!(bad.parse::<Doi>().is_err());
     }

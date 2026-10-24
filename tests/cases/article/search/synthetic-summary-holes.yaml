@@ -44,6 +44,15 @@
         },
         "/next/*/kind": {
           "includes": "fresh"
+        },
+        "/problems/*/field": {
+          "includes_all_of": [
+            "summary",
+            "pmid",
+            "doi",
+            "pmcid",
+            "articleids"
+          ]
         }
       }
     },

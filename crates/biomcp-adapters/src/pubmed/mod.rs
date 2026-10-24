@@ -65,7 +65,7 @@ pub fn search_ids(
         .collect();
     Ok(SearchIds {
         ids: raw.idlist,
-        count: raw.count.parse().map_err(|_| bad())?,
+        count: raw.count,
         notices,
     })
 }
@@ -90,13 +90,4 @@ pub fn summaries(
     }
     let reply = leg.json::<raw::Summary>(&SUMMARY, &params)?;
     Ok(map::summaries(reply, &ids))
-}
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::PubMed,
-        reason: biodata::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
-    }
-    .into()
 }

@@ -189,200 +189,7 @@
               "sortfirstauthor": "Bleeker FE",
               "vernaculartitle": ""
             },
-            "31138602": {
-              "uid": "31138602",
-              "pubdate": "2019 Sep",
-              "epubdate": "2019 May 28",
-              "source": "Mol Cancer Res",
-              "authors": [
-                {
-                  "name": "Kircher DA",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Trombetti KA",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Silvis MR",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Parkman GL",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Fischer GM",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Angel SN",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Stehn CM",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Strain SC",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Grossmann AH",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Duffy KL",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Boucher KM",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "McMahon M",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Davies MA",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Mendoza MC",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "VanBrocklin MW",
-                  "authtype": "Author",
-                  "clusterid": ""
-                },
-                {
-                  "name": "Holmen SL",
-                  "authtype": "Author",
-                  "clusterid": ""
-                }
-              ],
-              "lastauthor": "Holmen SL",
-              "title": "AKT1(E17K) Activates Focal Adhesion Kinase and Promotes Melanoma Brain Metastasis.",
-              "sorttitle": "akt1 e17k activates focal adhesion kinase and promotes melanoma brain metastasis",
-              "volume": "17",
-              "issue": "9",
-              "pages": "1787-1800",
-              "lang": [
-                "eng"
-              ],
-              "nlmuniqueid": "101150042",
-              "issn": "1541-7786",
-              "essn": "1557-3125",
-              "pubtype": [
-                "Journal Article",
-                "Research Support, N.I.H., Extramural",
-                "Research Support, Non-U.S. Gov't"
-              ],
-              "recordstatus": "PubMed - indexed for MEDLINE",
-              "pubstatus": "256",
-              "articleids": [
-                {
-                  "idtype": "pubmed",
-                  "idtypen": 1,
-                  "value": "31138602"
-                },
-                {
-                  "idtype": "mid",
-                  "idtypen": 8,
-                  "value": "NIHMS1530406"
-                },
-                {
-                  "idtype": "pmc",
-                  "idtypen": 8,
-                  "value": "PMC6726552"
-                },
-                {
-                  "idtype": "pmcid",
-                  "idtypen": 5,
-                  "value": "pmc-id: PMC6726552;manuscript-id: NIHMS1530406;"
-                },
-                {
-                  "idtype": "doi",
-                  "idtypen": 3,
-                  "value": "10.1158/1541-7786.MCR-18-1372"
-                },
-                {
-                  "idtype": "pii",
-                  "idtypen": 4,
-                  "value": "1541-7786.MCR-18-1372"
-                }
-              ],
-              "history": [
-                {
-                  "pubstatus": "received",
-                  "date": "2018/12/27 00:00"
-                },
-                {
-                  "pubstatus": "revised",
-                  "date": "2019/03/18 00:00"
-                },
-                {
-                  "pubstatus": "accepted",
-                  "date": "2019/05/22 00:00"
-                },
-                {
-                  "pubstatus": "pubmed",
-                  "date": "2019/05/30 06:00"
-                },
-                {
-                  "pubstatus": "medline",
-                  "date": "2020/06/18 06:00"
-                },
-                {
-                  "pubstatus": "entrez",
-                  "date": "2019/05/30 06:00"
-                },
-                {
-                  "pubstatus": "pmc-release",
-                  "date": "2020/09/01 00:00"
-                }
-              ],
-              "references": [],
-              "attributes": [
-                "Has Abstract"
-              ],
-              "pmcrefcount": 55,
-              "fulljournalname": "Molecular cancer research : MCR",
-              "elocationid": "doi: 10.1158/1541-7786.MCR-18-1372",
-              "doctype": "citation",
-              "srccontriblist": [],
-              "booktitle": "",
-              "medium": "",
-              "edition": "",
-              "publisherlocation": "",
-              "publishername": "",
-              "srcdate": "",
-              "reportnumber": "",
-              "availablefromurl": "",
-              "locationlabel": "",
-              "doccontriblist": [],
-              "docdate": "",
-              "bookname": "",
-              "chapter": "",
-              "sortpubdate": "2019/09/01 00:00",
-              "sortfirstauthor": "Kircher DA",
-              "vernaculartitle": ""
-            },
+            "31138602": 17,
             "33030203": {
               "uid": "33030203",
               "pubdate": "2020 Dec 18",
@@ -768,7 +575,7 @@
                 }
               ],
               "lastauthor": "Solit DB",
-              "title": "AKT1 E17K Inhibits Cancer Cell Migration by Abrogating β-Catenin Signaling.",
+              "title": "AKT1 E17K Inhibits Cancer Cell Migration by Abrogating \u03b2-Catenin Signaling.",
               "sorttitle": "akt1 e17k inhibits cancer cell migration by abrogating catenin signaling",
               "volume": "19",
               "issue": "4",
@@ -872,7 +679,8 @@
               "chapter": "",
               "sortpubdate": "2021/04/01 00:00",
               "sortfirstauthor": "Gao SP",
-              "vernaculartitle": ""
+              "vernaculartitle": "",
+              "error": "synthetic source summary missing"
             },
             "34837233": {
               "uid": "34837233",
@@ -1025,7 +833,7 @@
               "source": "Head Neck Pathol",
               "authors": [
                 {
-                  "name": "Skálová A",
+                  "name": "Sk\u00e1lov\u00e1 A",
                   "authtype": "Author",
                   "clusterid": ""
                 },
@@ -1059,30 +867,14 @@
               "pubstatus": "256",
               "articleids": [
                 {
-                  "idtype": "pubmed",
-                  "idtypen": 1,
-                  "value": "35312980"
+                  "idtype": "doi",
+                  "value": "bad doi"
                 },
                 {
                   "idtype": "pmc",
-                  "idtypen": 8,
-                  "value": "PMC9018948"
+                  "value": "PMC0"
                 },
-                {
-                  "idtype": "pmcid",
-                  "idtypen": 5,
-                  "value": "pmc-id: PMC9018948;"
-                },
-                {
-                  "idtype": "doi",
-                  "idtypen": 3,
-                  "value": "10.1007/s12105-022-01420-1"
-                },
-                {
-                  "idtype": "pii",
-                  "idtypen": 4,
-                  "value": "10.1007/s12105-022-01420-1"
-                }
+                17
               ],
               "history": [
                 {
@@ -1133,7 +925,7 @@
               "bookname": "",
               "chapter": "",
               "sortpubdate": "2022/03/01 00:00",
-              "sortfirstauthor": "Skálová A",
+              "sortfirstauthor": "Sk\u00e1lov\u00e1 A",
               "vernaculartitle": ""
             },
             "39506119": {
@@ -1455,6 +1247,10 @@
               "sortpubdate": "2025/05/01 00:00",
               "sortfirstauthor": "Wang J",
               "vernaculartitle": ""
+            },
+            "99999999": {
+              "uid": "99999999",
+              "title": "synthetic unexpected row"
             }
           }
         }
