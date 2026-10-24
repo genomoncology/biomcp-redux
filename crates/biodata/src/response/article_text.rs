@@ -82,7 +82,9 @@ pub struct TextHit {
     /// Outline part containing this text.
     pub part: u32,
     /// Whole bounded source row.
-    pub text: Text,
+    pub markdown: crate::Markdown,
+    /// Section ancestry in source order.
+    pub heading_path: Box<[Text]>,
 }
 /// Body text response; the envelope supplies advancing reader steps.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -113,7 +115,10 @@ pub struct TextContent {
     pub part: Option<u32>,
     /// Bounded body text for a direct part selection.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text: Option<Text>,
+    pub markdown: Option<crate::Markdown>,
+    /// Section ancestry for a selected part.
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub heading_path: Option<Box<[Text]>>,
     /// Matching source rows for a find selection.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hits: Option<Box<[TextHit]>>,

@@ -139,7 +139,8 @@ fn select(
         manuscript: document.manuscript,
         scope: Text::new("PMC body sections and tables").ok()?,
         part: None,
-        text: None,
+        markdown: None,
+        heading_path: None,
         hits: None,
     };
     if let Some(number) = query.selected_part() {
@@ -149,13 +150,14 @@ fn select(
             .iter()
             .find(|p| p.meta.number == number)?;
         content.part = Some(number);
-        content.text = Text::new(
+        content.heading_path = Some(part.heading_path.clone());
+        content.markdown = biodata::Markdown::new(
             &part
                 .rows
                 .iter()
                 .map(|r| r.text.as_str())
                 .collect::<Vec<_>>()
-                .join("\n"),
+                .join("\n\n"),
         )
         .ok();
         if part.continuation {
@@ -177,26 +179,27 @@ fn find(
         .body
         .rows
         .iter()
-        .map(|r| r.to_lowercase().contains(&needle))
+        .map(|r| r.plain.to_lowercase().contains(&needle))
         .collect();
-    let hits: Vec<_> = document
-        .body
-        .parts
-        .iter()
-        .flat_map(|p| {
-            p.rows
-                .iter()
-                .filter(|row| matching.get(row.source_row).copied().unwrap_or(false))
-                .map(|row| (p.meta.number, &row.text))
-        })
-        .collect();
+    let mut hits = Vec::new();
+    for part in &document.body.parts {
+        let matching_rows: Vec<_> = part.rows.iter().filter(|r| matching.get(r.source_row).copied().unwrap_or(false)).collect();
+        if matching_rows.is_empty() { continue; }
+        if let Some(context) = &part.context {
+            let data: Vec<_> = matching_rows.iter().filter(|r| document.body.rows.get(r.source_row).is_some_and(|r| !r.context)).map(|r| r.text.as_str()).collect();
+            let markdown = if data.is_empty() { context.clone() } else { format!("{context}\n{}", data.join("\n")) };
+            hits.push((part.meta.number, part.heading_path.clone(), markdown));
+        } else {
+            hits.extend(matching_rows.into_iter().map(|r| (part.meta.number, part.heading_path.clone(), r.text.clone())));
+        }
+    }
     let offset = usize::try_from(query.offset()).ok()?;
     if offset > hits.len() {
         return None;
     }
     let mut page = Vec::new();
     let mut size = 0;
-    for (part, row) in hits.iter().skip(offset).take(25) {
+    for (part, path, row) in hits.iter().skip(offset).take(25) {
         let bytes = jats::escaped_bytes(row) + 64;
         if !page.is_empty() && size + bytes > jats::TEXT_BYTES {
             break;
@@ -204,7 +207,8 @@ fn find(
         size += bytes;
         page.push(TextHit {
             part: *part,
-            text: Text::new(row).ok()?,
+            markdown: biodata::Markdown::new(row).ok()?,
+            heading_path: path.clone(),
         });
     }
     let returned = u32::try_from(page.len()).ok()?;

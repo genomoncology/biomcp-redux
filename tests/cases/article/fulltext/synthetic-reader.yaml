@@ -14,7 +14,7 @@
       "expect": {
         "/status": "complete",
         "/result/content/data/license": "cc_by",
-        "/result/content/data/text": "Introduction\nIntroduction text."
+        "/result/content/data/markdown": "## Introduction\nIntroduction text."
       },
       "mcp": [
         "article",

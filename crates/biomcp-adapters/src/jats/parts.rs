@@ -1,4 +1,5 @@
-use biodata::{Text, TextPart, TextPartKind};
+use biodata::{Text, TextPart};
+use super::body::{BodyRow, Group};
 use biomcp_fetch::BadReply;
 /// Serialized text capacity leaves room for reader envelope and advancing step.
 pub const TEXT_BYTES: usize = 12_000;
@@ -9,6 +10,10 @@ pub struct Part {
     pub meta: TextPart,
     /// Source paragraphs or table rows, split only for the output bound.
     pub rows: Vec<Row>,
+    /// Source heading ancestry.
+    pub heading_path: Box<[Text]>,
+    /// Caption and column headings for table find excerpts.
+    pub context: Option<String>,
     /// Following part is a continuation of this source section or table.
     pub continuation: bool,
 }
@@ -20,24 +25,19 @@ pub struct Row {
     /// Whole fragment text; concatenating fragments preserves the original row.
     pub text: String,
 }
-pub(super) fn append(
-    out: &mut Vec<Part>,
-    title: &str,
-    kind: TextPartKind,
-    rows: Vec<String>,
-    originals: &mut Vec<String>,
-) -> Result<(), BadReply> {
+pub(super) fn append(out: &mut Vec<Part>, group: Group, originals: &mut Vec<BodyRow>) -> Result<(), BadReply> {
+    let source = group;
     let start = out.len();
     let mut group = Vec::new();
     let mut bytes = 0;
-    for row in rows {
+    for row in source.rows.iter() {
         let source_row = originals.len();
-        let pieces = split(&row);
-        originals.push(row);
+        let pieces = split(&row.markdown);
+        originals.push(BodyRow { plain: row.plain.clone(), markdown: row.markdown.clone(), context: row.context, references: row.references.clone() });
         for piece in pieces {
             let size = escaped_bytes(&piece);
             if !group.is_empty() && bytes + size + 2 > TEXT_BYTES {
-                push(out, title, kind, std::mem::take(&mut group), bytes)?;
+                push(out, &source, std::mem::take(&mut group), bytes)?;
                 bytes = 0;
             }
             if !group.is_empty() {
@@ -51,7 +51,7 @@ pub(super) fn append(
         }
     }
     if !group.is_empty() {
-        push(out, title, kind, group, bytes)?;
+        push(out, &source, group, bytes)?;
     }
     let end = out.len();
     for (i, part) in out.iter_mut().enumerate().skip(start) {
@@ -61,20 +61,21 @@ pub(super) fn append(
 }
 fn push(
     out: &mut Vec<Part>,
-    title: &str,
-    kind: TextPartKind,
+    source: &Group,
     rows: Vec<Row>,
     bytes: usize,
 ) -> Result<(), BadReply> {
     out.push(Part {
         meta: TextPart {
             number: u32::try_from(out.len() + 1).map_err(|_| BadReply)?,
-            title: Text::new(title).map_err(|_| BadReply)?,
-            kind,
+            title: Text::new(&source.title).map_err(|_| BadReply)?,
+            kind: source.kind,
             tokens: u32::try_from((bytes + 2).div_ceil(4)).map_err(|_| BadReply)?,
         },
         rows,
         continuation: false,
+        heading_path: source.path.clone().into(),
+        context: source.context.clone(),
     });
     Ok(())
 }

@@ -1,8 +1,16 @@
 //! Source-specific JATS body mapping after the transport's bounded XML check.
 mod blocks;
 mod parts;
+mod body;
+mod table;
+mod references;
+pub use body::BodyRow;
+pub use references::Reference;
+mod markdown;
+/// Preserve JATS inline markup in a checked Markdown value.
+pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> { markdown::checked(xml) }
 use crate::xml_element::Element;
-use biodata::{FigureCaption, Pmcid, Text, TextPartKind};
+use biodata::{FigureCaption, Pmcid, Text};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
 pub use parts::{Part, Row, TEXT_BYTES, escaped_bytes};
 use serde::{Deserialize, Deserializer};
@@ -14,7 +22,9 @@ pub struct Body {
     /// Bounded body parts.
     pub parts: Vec<Part>,
     /// Whole original paragraphs and table rows, used to find text across fragment boundaries.
-    pub rows: Vec<String>,
+    pub rows: Vec<BodyRow>,
+    /// Source bibliography identifiers without inferred citation joins.
+    pub references: Vec<Reference>,
     /// Figure captions in source order.
     pub figures: Vec<FigureCaption>,
 }
@@ -41,49 +51,28 @@ impl XmlReply for Body {
         let mut emitted = Vec::new();
         let mut parts = Vec::new();
         let mut rows = Vec::new();
-        for (name, sec) in blocks::body_nodes(body.0)? {
-            if matches!(
-                name.as_str(),
-                "table-wrap" | "table-wrap-group" | "fig" | "supplementary-material"
-            ) {
-                continue;
-            }
-            let title = sec
-                .value(&["title"])?
-                .filter(|v| !v.trim().is_empty())
-                .unwrap_or_else(|| "Body".into());
-            parts::append(
-                &mut parts,
-                &title,
-                TextPartKind::Section,
-                blocks::rows(sec.0, true)?,
-                &mut rows,
-            )?;
+        for (name, node) in blocks::body_nodes(body.0)? {
+            if matches!(name.as_str(), "table-wrap" | "table-wrap-group") { continue; }
+            let groups = if name == "sec" { body::section(node, &[])? } else {
+                let mut group = body::Group::section(Vec::new());
+                let rendered = if name == "fig" { body::figure(node)? } else {
+                    let plain = node.text()?;
+                    if plain.trim().is_empty() { None } else { Some(body::BodyRow { plain, markdown: markdown::inline(node.0)?.trim().to_owned(), context: false, references: references::ids(node.0)? }) }
+                };
+                if let Some(row) = rendered { group.rows.push(row); }
+                vec![group]
+            };
+            for group in groups { body::append(&mut parts, group, &mut rows)?; }
             for table in &tables {
-                let id = table.attr("id")?;
-                if id
-                    .as_ref()
-                    .is_some_and(|id| cited(sec, id).unwrap_or(false))
-                    && !emitted.contains(&table.0)
-                {
-                    append_table(&mut parts, *table, &mut rows)?;
+                let mentioned = match table.attr("id")? { Some(id) => cited(node, &id)?, None => false };
+                if mentioned && !emitted.contains(&table.0) {
+                    body::append(&mut parts, table::group(*table, &[])?, &mut rows)?;
                     emitted.push(table.0);
                 }
             }
         }
-        if parts.is_empty() {
-            parts::append(
-                &mut parts,
-                "Body",
-                TextPartKind::Section,
-                blocks::rows(body.0, true)?,
-                &mut rows,
-            )?;
-        }
         for table in tables {
-            if !emitted.contains(&table.0) {
-                append_table(&mut parts, table, &mut rows)?;
-            }
+            if !emitted.contains(&table.0) { body::append(&mut parts, table::group(table, &[])?, &mut rows)?; }
         }
         let figures = blocks::descendants(body.0, "fig")?
             .into_iter()
@@ -102,6 +91,7 @@ impl XmlReply for Body {
             pmcid,
             parts,
             rows,
+            references: references::rows(root.0)?,
             figures,
         })
     }
@@ -141,21 +131,4 @@ fn cited(sec: Element<'_>, id: &str) -> Result<bool, BadReply> {
         }
     }
     Ok(false)
-}
-fn append_table(
-    parts: &mut Vec<Part>,
-    table: Element<'_>,
-    rows: &mut Vec<String>,
-) -> Result<(), BadReply> {
-    let title = table
-        .value(&["label"])?
-        .filter(|v| !v.trim().is_empty())
-        .unwrap_or_else(|| "Table".into());
-    parts::append(
-        parts,
-        &title,
-        TextPartKind::Table,
-        blocks::rows(table.0, false)?,
-        rows,
-    )
 }
