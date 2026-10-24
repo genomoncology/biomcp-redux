@@ -56,6 +56,9 @@ crate::macros::wire_enum! {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
+    /// Independent publisher terms for named ClinVar filters, present only when requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filter_terms: Option<crate::ComponentTerms>,
     /// Exact query sent to the named source, without rewriting raw query text.
     pub source_query: String,
     /// Assembly sent to the source, never inferred from a candidate label.

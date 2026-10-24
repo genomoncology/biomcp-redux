@@ -78,6 +78,8 @@ pub enum QueryBody {
     },
     /// Fixed NCI disease identity guidance.
     NciDiseaseError,
+    /// Opaque source syntax cannot enforce a selected component terms restriction.
+    VariantQueryPolicyError,
 
     /// Source-qualified variant identity.
     VariantCard(crate::VariantCard),

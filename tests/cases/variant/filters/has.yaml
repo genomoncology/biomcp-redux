@@ -241,6 +241,121 @@
         "--has",
         "clinvar",
         "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--has",
+        "clinvar",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "equals": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:40389"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>C"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>C"
+              }
+            },
+            {
+              "identity": {
+                "ids": [
+                  "rs397516897",
+                  "clinvar:44817"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453134_140453136del"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453134_140453136del"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 3,
+            "total": 3
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--has",
+        "clinvar",
+        "--disable-sources",
         "restricted"
       ],
       "exit": 4,

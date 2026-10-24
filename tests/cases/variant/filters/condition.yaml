@@ -141,6 +141,71 @@
         "--condition",
         "Carcinoma of colon (CRC)",
         "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "equals": [
+            {
+              "identity": {
+                "ids": [
+                  "rs113488022",
+                  "clinvar:13961"
+                ],
+                "representations": [
+                  {
+                    "source": "myvariant",
+                    "expression": {
+                      "syntax": "hgvs.g",
+                      "value": "chr7:g.140453136A>T"
+                    },
+                    "build": "GRCh37"
+                  }
+                ],
+                "genes": [
+                  "BRAF"
+                ]
+              },
+              "source": "myvariant",
+              "record": {
+                "id": "chr7:g.140453136A>T"
+              }
+            }
+          ]
+        },
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 1,
+            "total": 1
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--condition",
+        "Carcinoma of colon (CRC)",
+        "--disable-sources",
         "restricted"
       ],
       "exit": 4,

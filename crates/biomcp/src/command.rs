@@ -190,6 +190,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
+        (_, QueryBody::VariantQueryPolicyError) => usage_envelope(biodata::ErrorEnvelope::variant_query_policy()),
         (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
             biodata::ErrorEnvelope::unsupported_trial_filter(source, option),
         ),

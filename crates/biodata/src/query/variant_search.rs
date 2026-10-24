@@ -204,6 +204,10 @@ impl VariantSearch {
     pub fn uses_clinvar_filters(&self) -> bool {
         self.0.filtered()
     }
+    /// Whether the caller selected opaque source syntax rather than declared selectors.
+    pub fn raw_query(&self) -> bool {
+        self.0.query.is_some()
+    }
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
