@@ -24,7 +24,11 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleSupplement) -> Outcome {
         next: Vec::new(),
         local: None,
     };
-    let result = execute(cx, query, &mut deadline, &mut out);
+    let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
+        out.body = QueryBody::TextPositionError;
+        return out;
+    };
+    let result = execute(cx, query, &selection, &mut deadline, &mut out);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
@@ -60,6 +64,7 @@ fn failure(reason: Reason) -> RequestError {
 fn execute<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSupplement,
+    selection: &super::protein_change::Selection,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
@@ -94,7 +99,7 @@ fn execute<'a>(
             reason: None,
             sheets: None,
             rows: None,
-            forms: query.forms(),
+            forms: selection.forms.clone(),
         };
         if !file.file.kind.readable() {
             content.url = Some(file.url.clone());
@@ -110,6 +115,7 @@ fn execute<'a>(
                 &sheets,
                 &mut content,
                 out,
+                &selection.needles,
                 std::time::Instant::now() + leg.remaining(),
             )
             .map_err(failure)?

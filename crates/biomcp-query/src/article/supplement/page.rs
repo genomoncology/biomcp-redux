@@ -41,9 +41,10 @@ pub(super) fn select(
     sheets: &[sheet::Sheet],
     content: &mut SupplementContent,
     out: &mut Outcome,
+    selected: &[String],
     end: Instant,
 ) -> Result<bool, Reason> {
-    if query.rows().is_none() && query.needles().is_empty() {
+    if query.rows().is_none() && selected.is_empty() {
         content.sheets = Some(
             sheets
                 .iter()
@@ -78,7 +79,7 @@ pub(super) fn select(
     {
         return Ok(false);
     }
-    let needles: Vec<_> = query.needles().iter().map(|v| v.to_lowercase()).collect();
+    let needles: Vec<_> = selected.iter().map(|v| v.to_lowercase()).collect();
     let mut page = Page {
         offset: query.offset(),
         total: 0,

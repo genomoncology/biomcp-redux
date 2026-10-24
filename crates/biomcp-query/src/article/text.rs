@@ -22,7 +22,11 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         next: Vec::new(),
         local: None,
     };
-    let result = execute(cx, query, &mut deadline, &mut out);
+    let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
+        out.body = QueryBody::TextPositionError;
+        return out;
+    };
+    let result = execute(cx, query, &selection, &mut deadline, &mut out);
     command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
@@ -86,6 +90,7 @@ pub(super) fn resolve<'a>(
 fn execute<'a>(
     cx: &Ctx<'a>,
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
@@ -111,7 +116,7 @@ fn execute<'a>(
             reason: Reason::NotOpen,
         },
         Some(document) => {
-            let Some(content) = select(query, id, &document, out) else {
+            let Some(content) = select(query, selection, id, &document, out) else {
                 out.body = QueryBody::TextPositionError;
                 return Ok(());
             };
@@ -129,12 +134,13 @@ fn execute<'a>(
 }
 fn select(
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     id: Pmcid,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<TextContent> {
     let mut content = TextContent {
-        forms: query.forms(),
+        forms: selection.forms.clone(),
         license: document.license,
         processing_version: document.version,
         manuscript: document.manuscript,
@@ -165,19 +171,20 @@ fn select(
             super::sections::fulltext::next(id, number.checked_add(1)?, &mut out.next);
         }
     } else {
-        content.hits = Some(find(query, document, out)?);
+        content.hits = Some(find(query, selection, document, out)?);
     }
     Some(content)
 }
 
 fn find(
     query: &ArticleText,
+    selection: &super::protein_change::Selection,
     document: &pmc_oa::Document,
     out: &mut Outcome,
 ) -> Option<Box<[TextHit]>> {
-    let needles: Vec<_> = query
-        .needles()
-        .into_iter()
+    let needles: Vec<_> = selection
+        .needles
+        .iter()
         .map(|v| v.to_lowercase())
         .collect();
     let matching: Vec<_> = document

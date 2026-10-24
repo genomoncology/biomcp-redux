@@ -41,8 +41,6 @@ impl fmt::Display for HgncId {
 
 text_value!(HgncId, "HgncId", format!("^{}[1-9][0-9]*$", Self::PREFIX));
 
-mod protein_change;
-pub use protein_change::ProteinChange;
 mod article;
 pub use article::{Doi, Pmcid, Pmid};
 mod gene;

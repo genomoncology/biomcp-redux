@@ -1,5 +1,6 @@
-use crate::{Error, macros::text_value};
-use std::{fmt, str::FromStr};
+// The future shared notation crate replaces this private reader-only parser.
+use biodata::Text;
+use std::str::FromStr;
 const AMINO: &[(&str, &str)] = &[
     ("A", "Ala"),
     ("R", "Arg"),
@@ -27,43 +28,43 @@ const AMINO: &[(&str, &str)] = &[
 ];
 /// Explicit protein substitution with checked residue codes and a positive position.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ProteinChange {
+pub(super) struct ProteinChange {
     from: usize,
     position: u32,
     to: usize,
 }
 impl FromStr for ProteinChange {
-    type Err = Error;
-    fn from_str(value: &str) -> Result<Self, Error> {
+    type Err = ();
+    fn from_str(value: &str) -> Result<Self, ()> {
         let value = value.strip_prefix("p.").unwrap_or(value);
         let first = value
             .find(|c: char| c.is_ascii_digit())
-            .ok_or(Error::ArticleIdInvalid)?;
+            .ok_or(())?;
         let end = value
             .rfind(|c: char| c.is_ascii_digit())
-            .ok_or(Error::ArticleIdInvalid)?
+            .ok_or(())?
             + 1;
         let residue = |v: &str| {
             AMINO
                 .iter()
                 .position(|(one, three)| v == *one || v == *three)
-                .ok_or(Error::ArticleIdInvalid)
+                .ok_or(())
         };
-        let digits = value.get(first..end).ok_or(Error::ArticleIdInvalid)?;
+        let digits = value.get(first..end).ok_or(())?;
         if digits.starts_with('0') || !digits.bytes().all(|c| c.is_ascii_digit()) {
-            return Err(Error::ArticleIdInvalid);
+            return Err(());
         }
-        let position = digits.parse().map_err(|_| Error::ArticleIdInvalid)?;
+        let position = digits.parse().map_err(|_| ())?;
         Ok(Self {
-            from: residue(value.get(..first).ok_or(Error::ArticleIdInvalid)?)?,
+            from: residue(value.get(..first).ok_or(())?)?,
             position,
-            to: residue(value.get(end..).ok_or(Error::ArticleIdInvalid)?)?,
+            to: residue(value.get(end..).ok_or(())?)?,
         })
     }
 }
 impl ProteinChange {
     /// Literal spellings searched by readers, in stable order.
-    pub fn forms(&self) -> [String; 4] {
+    pub(super) fn forms(&self) -> [String; 4] {
         let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
         let (to, to_three) = AMINO.get(self.to).copied().unwrap_or(("", ""));
         let one = format!("{from}{}{to}", self.position);
@@ -76,13 +77,15 @@ impl ProteinChange {
         ]
     }
 }
-impl fmt::Display for ProteinChange {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.forms().first().map(String::as_str).unwrap_or(""))
+#[derive(Debug)]
+pub(super) struct Selection {
+    pub(super) forms: Option<[String; 4]>,
+    pub(super) needles: Vec<String>,
+}
+impl Selection {
+    pub(super) fn new(find: Option<&Text>, variant: Option<&Text>) -> Result<Self, ()> {
+        let forms = variant.map(|v| v.as_str().parse::<ProteinChange>().map(|p| p.forms())).transpose()?;
+        let needles = forms.clone().map(|v| v.to_vec()).unwrap_or_else(|| find.map(|v| vec![v.as_str().to_owned()]).unwrap_or_default());
+        Ok(Self { forms, needles })
     }
 }
-text_value!(
-    ProteinChange,
-    "ProteinChange",
-    r"^(p\.)?([A-Z*]|[A-Z][a-z]{2})[1-9][0-9]*([A-Z*]|[A-Z][a-z]{2})$"
-);

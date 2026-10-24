@@ -3,6 +3,7 @@ pub mod get;
 mod next;
 mod sections;
 pub mod supplement;
+mod protein_change;
 mod term;
 pub mod text;
 use crate::{

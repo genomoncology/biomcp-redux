@@ -1,5 +1,5 @@
 use super::gene::{QueryInvalid, present};
-use crate::{ArticleInput, Error, ProteinChange, Text, macros::text_value};
+use crate::{ArticleInput, Error, Text, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Inclusive original one-based row range, at most one page.
@@ -69,8 +69,8 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "ProteinChange"))]
-    variant: Option<ProteinChange>,
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    variant: Option<Text>,
     /// Matching-row or text-fragment offset.
     #[serde(default)]
     offset: u32,
@@ -123,20 +123,10 @@ impl ArticleSupplement {
     pub fn sheet(&self) -> Option<&Text> {
         self.0.sheet.as_ref()
     }
-    /// Literal needles; no shape detection occurs.
-    pub fn needles(&self) -> Vec<String> {
-        self.forms().map(|v| v.to_vec()).unwrap_or_else(|| {
-            self.0
-                .find
-                .as_ref()
-                .map(|v| vec![v.as_str().to_owned()])
-                .unwrap_or_default()
-        })
-    }
-    /// Spellings of an explicit variant.
-    pub fn forms(&self) -> Option<[String; 4]> {
-        self.0.variant.as_ref().map(ProteinChange::forms)
-    }
+    /// Literal case-insensitive selector.
+    pub fn find(&self) -> Option<&Text> { self.0.find.as_ref() }
+    /// Explicit variant selector; the reader validates its private notation before I/O.
+    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
     /// Result offset.
     pub fn offset(&self) -> u32 {
         self.0.offset

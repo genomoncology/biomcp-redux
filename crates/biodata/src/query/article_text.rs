@@ -36,8 +36,8 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "crate::ProteinChange"))]
-    variant: Option<crate::ProteinChange>,
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    variant: Option<Text>,
     /// Number of matching rows already returned.
     #[serde(default)]
     offset: u32,
@@ -83,22 +83,8 @@ impl ArticleText {
     pub fn find(&self) -> Option<&Text> {
         self.0.find.as_ref()
     }
-    /// Literal needles chosen only by an explicit selector.
-    pub fn needles(&self) -> Vec<String> {
-        self.0
-            .variant
-            .as_ref()
-            .map(|v| v.forms().to_vec())
-            .unwrap_or_else(|| {
-                self.find()
-                    .map(|v| vec![v.as_str().to_owned()])
-                    .unwrap_or_default()
-            })
-    }
-    /// Explicit variant forms for the reply.
-    pub fn forms(&self) -> Option<[String; 4]> {
-        self.0.variant.as_ref().map(crate::ProteinChange::forms)
-    }
+    /// Explicit variant selector; the reader validates its private notation before I/O.
+    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
     /// Checked hit offset.
     pub fn offset(&self) -> u32 {
         self.0.offset
