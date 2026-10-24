@@ -14,7 +14,13 @@ pub(super) struct Result {
 pub(super) fn ids(items: &[ArticleCardItem]) -> Vec<Pmid> {
     let mut ids = Vec::new();
     for item in items {
-        if item.sections.as_ref().is_none_or(|s| s.annotations.is_some()) { continue; }
+        if item
+            .sections
+            .as_ref()
+            .is_none_or(|s| s.annotations.is_some())
+        {
+            continue;
+        }
         if let Some(ArticleResolution::Resolved { card, .. }) = &item.answer
             && let Some(id) = card.pmid
             && !ids.contains(&id)

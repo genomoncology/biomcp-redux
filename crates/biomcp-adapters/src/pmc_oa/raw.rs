@@ -15,7 +15,11 @@ pub(super) struct Entry {
 }
 impl Reply for Listing {
     fn check(&self) -> Result<(), BadReply> {
-        if self.truncated { Err(BadReply) } else { Ok(()) }
+        if self.truncated {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }
 impl XmlReply for Listing {}
@@ -29,6 +33,10 @@ pub(super) struct Record {
 }
 impl Reply for Record {
     fn check(&self) -> Result<(), BadReply> {
-        if self.pmid == Some(0) || self.license_code.trim().is_empty() { Err(BadReply) } else { Ok(()) }
+        if self.pmid == Some(0) || self.license_code.trim().is_empty() {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }

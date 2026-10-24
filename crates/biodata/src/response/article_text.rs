@@ -37,7 +37,7 @@ crate::source::canonical_enum! {
 /// One independently readable bounded part.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextPart {
     /// One-based reader selector.
     pub number: u32,
@@ -51,7 +51,7 @@ pub struct TextPart {
 /// Figure text in document order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FigureCaption {
     /// Source label.
     pub label: Text,
@@ -61,7 +61,7 @@ pub struct FigureCaption {
 /// Bucket license and body outline; processing version is not publication chronology.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FullText {
     /// Selected bucket license.
     pub license: License,
@@ -77,7 +77,7 @@ pub struct FullText {
 /// One matching paragraph or table row, split when necessary to fit the text budget.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextHit {
     /// Outline part containing this text.
     pub part: u32,
@@ -87,10 +87,10 @@ pub struct TextHit {
 /// Body text response; the envelope supplies advancing reader steps.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleTextResult {
     /// Requested PMC record when known.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pmcid: Option<Pmcid>,
     /// Explicit section outcome including not applicable and not open.
     pub content: crate::Section<TextContent>,
@@ -98,7 +98,7 @@ pub struct ArticleTextResult {
 /// One bounded part or matching rows with the bucket license.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TextContent {
     /// Bucket license.
     pub license: License,
@@ -109,13 +109,13 @@ pub struct TextContent {
     /// Scope of returned source text.
     pub scope: Text,
     /// Part number for a direct part selection.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub part: Option<u32>,
     /// Bounded body text for a direct part selection.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Text>,
     /// Matching source rows for a find selection.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub hits: Option<Box<[TextHit]>>,
 }
 impl super::ResponseBody for ArticleTextResult {

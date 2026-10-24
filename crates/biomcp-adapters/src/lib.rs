@@ -22,5 +22,7 @@ pub mod hpa;
 
 pub mod pubtator;
 
-pub mod pmc_oa;
 pub mod jats;
+pub mod pmc_oa;
+
+mod xml_element;

@@ -1,4 +1,5 @@
-use super::{SPEC, element::Element, map::publication_type};
+use super::{SPEC, map::publication_type};
+use crate::xml_element::Element;
 use biodata::{
     AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
     PartialDate, Pmid, Text,

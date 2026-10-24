@@ -79,12 +79,20 @@ impl<T: Reply> Decoder<T> {
             },
         }
     }
-    pub(crate) fn octet_stream(mut self, accepted: bool) -> Self { self.octet_stream = accepted; self }
+    pub(crate) fn octet_stream(mut self, accepted: bool) -> Self {
+        self.octet_stream = accepted;
+        self
+    }
     pub(crate) fn name(&self) -> &'static str {
         self.codec.name()
     }
     pub(crate) fn accepts(&self, media: &str) -> bool {
-        self.codec.accepts(media) || self.octet_stream && media.split(';').next().is_some_and(|v| v.trim().eq_ignore_ascii_case("binary/octet-stream"))
+        self.codec.accepts(media)
+            || self.octet_stream
+                && media
+                    .split(';')
+                    .next()
+                    .is_some_and(|v| v.trim().eq_ignore_ascii_case("binary/octet-stream"))
     }
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;

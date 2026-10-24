@@ -104,7 +104,10 @@ fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
                 .map(|(kind, action)| crate::spell::step(*kind, action))
                 .collect::<Result<Vec<_>, _>>()?;
             match (request, result.body) {
-                (Request::ArticleText(_), QueryBody::TextPositionError) => encode(biodata::ErrorEnvelope::arguments(), crate::exit::Status::Usage),
+                (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
+                    biodata::ErrorEnvelope::arguments(),
+                    crate::exit::Status::Usage,
+                ),
                 (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
                     let mut envelope = Envelope::new(result.status, query, Some(body));
                     envelope.sources = result.sources;

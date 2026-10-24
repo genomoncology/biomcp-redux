@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{ArticleText, ArticleGet, ArticleSearch, GeneGet, GeneSearch, Request};
+use biodata::{ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};

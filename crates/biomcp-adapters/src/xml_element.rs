@@ -2,9 +2,9 @@ use biomcp_fetch::{BadReply, xml::MixedText};
 use quick_xml::{Reader, events::Event};
 /// Borrowed element in the transport-checked document.
 #[derive(Clone, Copy)]
-pub(super) struct Element<'a>(pub(super) &'a str);
+pub(crate) struct Element<'a>(pub(crate) &'a str);
 impl<'a> Element<'a> {
-    pub(super) fn children(self, wanted: &str) -> Result<Vec<Self>, BadReply> {
+    pub(crate) fn children(self, wanted: &str) -> Result<Vec<Self>, BadReply> {
         let mut reader = Reader::from_str(self.0);
         let mut root = false;
         let mut out = Vec::new();
@@ -27,10 +27,10 @@ impl<'a> Element<'a> {
             }
         }
     }
-    pub(super) fn child(self, name: &str) -> Result<Option<Self>, BadReply> {
+    pub(crate) fn child(self, name: &str) -> Result<Option<Self>, BadReply> {
         Ok(self.children(name)?.into_iter().next())
     }
-    pub(super) fn at(self, path: &[&str]) -> Result<Option<Self>, BadReply> {
+    pub(crate) fn at(self, path: &[&str]) -> Result<Option<Self>, BadReply> {
         let mut node = Some(self);
         for part in path {
             node = match node {
@@ -40,13 +40,13 @@ impl<'a> Element<'a> {
         }
         Ok(node)
     }
-    pub(super) fn text(self) -> Result<String, BadReply> {
+    pub(crate) fn text(self) -> Result<String, BadReply> {
         Ok(MixedText::from_xml(self.0)?.as_str().to_owned())
     }
-    pub(super) fn value(self, path: &[&str]) -> Result<Option<String>, BadReply> {
+    pub(crate) fn value(self, path: &[&str]) -> Result<Option<String>, BadReply> {
         self.at(path)?.map(Self::text).transpose()
     }
-    pub(super) fn attr(self, name: &str) -> Result<Option<String>, BadReply> {
+    pub(crate) fn attr(self, name: &str) -> Result<Option<String>, BadReply> {
         let mut reader = Reader::from_str(self.0);
         match reader.read_event().map_err(|_| BadReply)? {
             Event::Start(tag) | Event::Empty(tag) => {

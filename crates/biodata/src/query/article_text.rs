@@ -15,12 +15,20 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     input: ArticleInput,
     /// One-based outline part number.
-    #[serde(default, deserialize_with="present", skip_serializing_if="Option::is_none")]
-    #[cfg_attr(feature="schema", schemars(with="u32", range(min=1)))]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1)))]
     part: Option<u32>,
     /// Case-insensitive literal text to find.
-    #[serde(default, deserialize_with="present", skip_serializing_if="Option::is_none")]
-    #[cfg_attr(feature="schema", schemars(with="Text"))]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     find: Option<Text>,
     /// Number of matching rows already returned.
     #[serde(default)]
@@ -29,8 +37,11 @@ struct Fields {
 impl TryFrom<Fields> for ArticleText {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if matches!(v.input, ArticleInput::Doi(_)) || v.part.is_some() == v.find.is_some()
-            || v.part == Some(0) || v.part.is_some() && v.offset != 0 {
+        if matches!(v.input, ArticleInput::Doi(_))
+            || v.part.is_some() == v.find.is_some()
+            || v.part == Some(0)
+            || v.part.is_some() && v.offset != 0
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -39,16 +50,34 @@ impl TryFrom<Fields> for ArticleText {
 impl ArticleText {
     /// Build a part selector used in source continuation actions.
     pub fn part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
-        Fields { input, part: Some(part), find: None, offset: 0 }.try_into()
+        Fields {
+            input,
+            part: Some(part),
+            find: None,
+            offset: 0,
+        }
+        .try_into()
     }
     /// Original checked identity.
-    pub fn input(&self) -> &ArticleInput { &self.0.input }
+    pub fn input(&self) -> &ArticleInput {
+        &self.0.input
+    }
     /// Selected part.
-    pub fn selected_part(&self) -> Option<u32> { self.0.part }
+    pub fn selected_part(&self) -> Option<u32> {
+        self.0.part
+    }
     /// Literal search term.
-    pub fn find(&self) -> Option<&Text> { self.0.find.as_ref() }
+    pub fn find(&self) -> Option<&Text> {
+        self.0.find.as_ref()
+    }
     /// Checked hit offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Continue a find page without changing its selector.
-    pub fn page(&self, offset: u32) -> Self { let mut v = self.clone(); v.0.offset = offset; v }
+    pub fn page(&self, offset: u32) -> Self {
+        let mut v = self.clone();
+        v.0.offset = offset;
+        v
+    }
 }

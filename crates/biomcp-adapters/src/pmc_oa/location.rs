@@ -5,22 +5,37 @@ pub(super) struct Location {
     pub md5: Option<String>,
 }
 impl Location {
-    pub fn checked(url: &str, prefix: &str) -> Result<Self, BadReply> {
-        let path = url.strip_prefix("s3://pmc-oa-opendata/")
+    pub(super) fn checked(url: &str, prefix: &str) -> Result<Self, BadReply> {
+        let path = url
+            .strip_prefix("s3://pmc-oa-opendata/")
             .or_else(|| url.strip_prefix("https://pmc-oa-opendata.s3.amazonaws.com/"))
             .ok_or(BadReply)?;
-        let (path, query) = path.split_once('?').map_or((path, None), |(p,q)| (p, Some(q)));
+        let (path, query) = path
+            .split_once('?')
+            .map_or((path, None), |(p, q)| (p, Some(q)));
         let file = path.strip_prefix(prefix).ok_or(BadReply)?;
-        if file.is_empty() || file.contains('/') || !file.ends_with(".xml")
-            || !path.bytes().all(|b| b.is_ascii_alphanumeric() || b"/.-_".contains(&b)) {
+        if file.is_empty()
+            || file.contains('/')
+            || !file.ends_with(".xml")
+            || !path
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b"/.-_".contains(&b))
+        {
             return Err(BadReply);
         }
-        let md5 = query.map(|q| {
-            let value = q.strip_prefix("md5=").ok_or(BadReply)?;
-            if value.len() != 32 || !value.bytes().all(|b| b.is_ascii_hexdigit()) { return Err(BadReply); }
-            Ok(value.to_owned())
-        }).transpose()?;
-        Ok(Self { path: format!("/{path}"), md5 })
+        let md5 = query
+            .map(|q| {
+                let value = q.strip_prefix("md5=").ok_or(BadReply)?;
+                if value.len() != 32 || !value.bytes().all(|b| b.is_ascii_hexdigit()) {
+                    return Err(BadReply);
+                }
+                Ok(value.to_owned())
+            })
+            .transpose()?;
+        Ok(Self {
+            path: format!("/{path}"),
+            md5,
+        })
     }
 }
 pub(super) fn version(key: &str, id: biodata::Pmcid) -> Option<u32> {
