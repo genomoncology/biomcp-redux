@@ -66,7 +66,7 @@ pub use article::{
 
 mod variant;
 mod variant_normalize;
-pub use variant::{VariantCard, VariantHeader, VariantResolution};
+pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution};
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };

@@ -58,6 +58,8 @@ fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),

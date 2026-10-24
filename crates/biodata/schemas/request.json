@@ -114,6 +114,10 @@
         " Every landed section."
       ]
     },
+    "GeneSymbol": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
     "HgvsText": {
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
@@ -135,6 +139,10 @@
         " Phenotype.",
         " HGNC's stated other group."
       ]
+    },
+    "MyVariantQuery": {
+      "pattern": "\\S",
+      "type": "string"
     },
     "NctId": {
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
@@ -166,6 +174,10 @@
         "1/2",
         "2/3"
       ],
+      "type": "string"
+    },
+    "ProteinChange": {
+      "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
     "RetractionFilter": {
@@ -272,12 +284,23 @@
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
     },
+    "VariantRegion": {
+      "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
+      "type": "string"
+    },
     "VariantResolver": {
       "description": "Explicit source service for reference-qualified notation.",
       "enum": [
         "car",
         "mutalyzer",
         "variantvalidator"
+      ],
+      "type": "string"
+    },
+    "VariantSearchSource": {
+      "description": "The source-native query language exposed by variant search.",
+      "enum": [
+        "myvariant"
       ],
       "type": "string"
     }
@@ -384,6 +407,80 @@
       "required": [
         "command",
         "input"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "gene",
+            "protein"
+          ]
+        },
+        {
+          "required": [
+            "region",
+            "build"
+          ]
+        },
+        {
+          "required": [
+            "query",
+            "source"
+          ]
+        }
+      ],
+      "description": "Discover source-native variant candidates.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly."
+        },
+        "command": {
+          "const": "search_variant",
+          "type": "string"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Exact checked gene symbol for the fixed MyVariant gene/protein field query."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Native candidates per page, default 10, maximum 50; all candidates remain candidates.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native offset within this command's bounded result window; larger native totals remain visible.",
+          "format": "uint32",
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "protein": {
+          "$ref": "#/$defs/ProteinChange",
+          "description": "Explicit substitution using checked one-letter or three-letter amino-acid codes."
+        },
+        "query": {
+          "$ref": "#/$defs/MyVariantQuery",
+          "description": "Raw MyVariant query, passed and echoed unchanged; requires --source myvariant."
+        },
+        "region": {
+          "$ref": "#/$defs/VariantRegion",
+          "description": "Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build."
+        },
+        "source": {
+          "$ref": "#/$defs/VariantSearchSource",
+          "description": "Explicit source language; required for a raw query."
+        }
+      },
+      "required": [
+        "command"
       ],
       "type": "object"
     },

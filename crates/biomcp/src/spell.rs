@@ -57,9 +57,10 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchTrial(_) | Request::SearchGene(_) | Request::SearchArticle(_) => {
-                "search"
-            }
+            Request::SearchVariant(_)
+            | Request::SearchTrial(_)
+            | Request::SearchGene(_)
+            | Request::SearchArticle(_) => "search",
         }
         .into(),
         if matches!(request, Request::VariantNormalize(_)) {
@@ -68,7 +69,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             "document"
         } else if matches!(request, Request::SearchTrial(_)) {
             "trial"
-        } else if matches!(request, Request::GetVariant(_)) {
+        } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
             "variant"
         } else if matches!(request, Request::ArticlePdf(_)) {
             "pdf"
@@ -105,6 +106,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchVariant(query) => serde_json::to_value(query),
         Request::VariantNormalize(query) => serde_json::to_value(query),
         Request::GetVariant(query) => serde_json::to_value(query),
         Request::TrialDocument(query) => serde_json::to_value(query),
