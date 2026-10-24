@@ -51,3 +51,12 @@ for arch in amd64 arm64; do
   python3 release/container_check.py "biomcp-local-0058:$arch" "$arch" "$scratch/container-$arch" "$version"
   docker image rm "biomcp-local-0058:$arch"
 done
+
+python3 - <<'PYTHON'
+import json
+import platform
+for native in ["macOS arm64", "macOS x86_64", "Windows x86_64"]:
+    if native == "macOS " + platform.machine() and platform.system() == "Darwin":
+        continue
+    print(json.dumps({"platform": native, "result": "deferred", "reason": "Native platform execution requires its release rehearsal machine"}))
+PYTHON

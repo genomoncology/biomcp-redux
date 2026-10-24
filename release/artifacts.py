@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import sys
 import subprocess
 import tarfile
 import zipfile
@@ -30,6 +31,8 @@ def cargo(profile, tests=False):
     found = None
     for line in process.stdout:
         message = json.loads(line)
+        if message.get("reason") == "compiler-message" and message["message"].get("rendered"):
+            print(message["message"]["rendered"], file=sys.stderr, end="")
         if message.get("reason") == "compiler-artifact" and message.get("executable") and message["target"]["name"] == ("cases" if tests else "biomcp"):
             found = message
     if process.wait() or not found:

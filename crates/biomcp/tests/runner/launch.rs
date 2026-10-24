@@ -3,6 +3,8 @@ use std::{fs, io, path::Path, process::Command};
 pub(super) const ENV_PATHS: &[(&str, &str)] = &[
     ("HOME", "home"),
     ("USERPROFILE", "home"),
+    ("APPDATA", "config"),
+    ("LOCALAPPDATA", "cache"),
     ("XDG_CONFIG_HOME", "config"),
     ("XDG_CACHE_HOME", "cache"),
 ];
