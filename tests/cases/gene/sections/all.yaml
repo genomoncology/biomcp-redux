@@ -17,6 +17,13 @@
         "/result/items/0/sections/constraint/state": "data",
         "/sources/*/source": {
           "includes": "gnomad"
+        },
+        "/result/items/0/sections/expression/state": "data",
+        "/sources": {
+          "includes": {
+            "source": "hpa",
+            "state": "ok"
+          }
         }
       },
       "max_bytes": 14200,

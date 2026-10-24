@@ -1,6 +1,6 @@
 mod constraint;
 mod expression;
-pub use expression::{Expression, TissueNtpm, CancerPtpm};
+pub use expression::{Expression, TissueNtpm, CancerPtpm, RnaAbundance};
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};

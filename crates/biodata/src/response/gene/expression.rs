@@ -8,7 +8,7 @@ pub struct TissueNtpm {
     /// Exact source tissue name.
     pub tissue: Text,
     /// Finite nonnegative nTPM.
-    pub ntpm: FiniteNumber,
+    pub ntpm: RnaAbundance,
 }
 /// HPA cancer RNA abundance in protein-coding transcripts per million.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -18,7 +18,7 @@ pub struct CancerPtpm {
     /// Exact source cancer tissue name.
     pub tissue: Text,
     /// Finite nonnegative pTPM.
-    pub ptpm: FiniteNumber,
+    pub ptpm: RnaAbundance,
 }
 /// Gene-level HPA expression and subcellular annotations.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -46,4 +46,21 @@ pub struct Expression {
     /// Source additional subcellular locations.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub subcellular_additional: Box<[Text]>,
+}
+
+/// A finite nonnegative RNA abundance expressed in the field's stated unit.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(try_from = "f64", into = "f64")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "f64", extend("minimum" = 0)))]
+pub struct RnaAbundance(FiniteNumber);
+impl TryFrom<f64> for RnaAbundance {
+    type Error = crate::FiniteNumberError;
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        if value < 0.0 { return Err(crate::FiniteNumberError); }
+        FiniteNumber::try_from(value).map(Self)
+    }
+}
+impl From<RnaAbundance> for f64 {
+    fn from(value: RnaAbundance) -> Self { value.0.into() }
 }

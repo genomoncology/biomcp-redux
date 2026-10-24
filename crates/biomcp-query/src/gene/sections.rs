@@ -1,24 +1,30 @@
 mod constraint;
+mod expression;
 use crate::Ctx;
 use biodata::{
-    Constraint, Gene, GeneGet, GeneItem, GeneResolution, GeneSection, GeneSectionWord,
+    Constraint, Expression, Gene, GeneGet, GeneItem, GeneResolution, GeneSection, GeneSectionWord,
     GeneSections, HgncId, Problem, Section, SourceOutcome, SourceState, Status,
 };
 use biomcp_fetch::{Deadline, RequestError};
+pub(super) enum SectionValue {
+    Constraint(Section<Constraint>),
+    Expression(Section<Expression>),
+}
 pub(super) struct SectionResult {
     pub section: GeneSection,
-    pub values: Vec<(HgncId, Section<Constraint>)>,
+    pub values: Vec<(HgncId, SectionValue)>,
     pub source: SourceOutcome,
     pub problems: Vec<Problem>,
     pub local: Option<RequestError>,
 }
 pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
-    [GeneSection::Constraint]
+    [GeneSection::Constraint, GeneSection::Expression]
         .into_iter()
         .filter(|section| {
             query.sections().iter().any(|word| match word {
                 GeneSectionWord::All => true,
                 GeneSectionWord::Constraint => *section == GeneSection::Constraint,
+                GeneSectionWord::Expression => *section == GeneSection::Expression,
                 _ => false,
             })
         })
@@ -28,6 +34,7 @@ pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
 fn applicable(section: GeneSection, gene: &Gene) -> bool {
     match section {
         GeneSection::Constraint => constraint::applicable(gene),
+        GeneSection::Expression => expression::applicable(gene),
         _ => false,
     }
 }
@@ -38,12 +45,13 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
         let Some(GeneResolution::Resolved { gene, .. }) = &item.answer else {
             continue;
         };
-        item.more = [GeneSection::Constraint]
+        item.more = [GeneSection::Constraint, GeneSection::Expression]
             .into_iter()
             .filter(|section| !requested.contains(section) && applicable(*section, gene))
             .collect();
         if !requested.is_empty() {
             item.sections = Some(GeneSections {
+                expression: requested.contains(&GeneSection::Expression).then_some(Section::NotApplicable),
                 constraint: requested
                     .contains(&GeneSection::Constraint)
                     .then_some(Section::NotApplicable),
@@ -69,6 +77,13 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(constraint::run(cx, deadline, genes))
         }));
     }
+    if requested(query).contains(&GeneSection::Expression)
+        && genes.iter().any(|(_, gene)| expression::applicable(gene))
+    {
+        jobs.push(Box::new(move || {
+            super::get::Job::Section(expression::run(cx, deadline, genes))
+        }));
+    }
     jobs
 }
 pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
@@ -76,25 +91,32 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         let Some(GeneResolution::Resolved { gene, .. }) = &item.answer else {
             continue;
         };
-        let Some((_, section)) = result.values.iter().find(|(id, _)| *id == gene.hgnc_id) else {
-            continue;
+        let Some((_, value)) = result.values.iter().find(|(id, _)| *id == gene.hgnc_id) else { continue; };
+        let unavailable = match value {
+            SectionValue::Constraint(value) => matches!(value, Section::Unavailable { .. }),
+            SectionValue::Expression(value) => matches!(value, Section::Unavailable { .. }),
         };
-        if matches!(section, Section::Unavailable { .. })
+        if requested_section_matches(result.section, value)
+            && let Some(sections) = &mut item.sections {
+            match value {
+                SectionValue::Constraint(value) => sections.constraint = Some(value.clone()),
+                SectionValue::Expression(value) => sections.expression = Some(value.clone()),
+            }
+        }
+        if unavailable
             || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
-                    gene.ensembl_id
-                        .as_ref()
-                        .is_some_and(|id| record.as_str() == id.base())
+                    gene.ensembl_id.as_ref().is_some_and(|id| record.as_str() == id.base())
                 })
             })
         {
             item.status = Status::Partial;
         }
-        if let Some(sections) = &mut item.sections
-            && result.section == GeneSection::Constraint
-        {
-            sections.constraint = Some(section.clone());
-        }
     }
+}
+fn requested_section_matches(section: GeneSection, value: &SectionValue) -> bool {
+    matches!((section, value),
+        (GeneSection::Constraint, SectionValue::Constraint(_))
+        | (GeneSection::Expression, SectionValue::Expression(_)))
 }

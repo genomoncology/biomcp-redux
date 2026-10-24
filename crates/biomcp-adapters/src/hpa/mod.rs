@@ -1,0 +1,26 @@
+//! Human Protein Atlas gene-level RNA expression and subcellular annotations.
+mod map;
+mod raw;
+use crate::{Mapped, quotas};
+use biodata::{EnsemblGeneId, Expression, Reason, Source};
+use biomcp_fetch::{Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec};
+use std::time::Duration;
+/// HPA source policy with a conservative local quota.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::Hpa,
+    base: "https://www.proteinatlas.org",
+    key: KeyUse::None,
+    quota: &quotas::HPA,
+    deadline: Duration::from_secs(8),
+};
+/// Fetch one HGNC Ensembl identity, preserving the source's own miss.
+pub fn expression(leg: &Leg<'_>, id: &EnsemblGeneId) -> Result<Option<Mapped<Expression>>, RequestError> {
+    let endpoint = SPEC.get("/").fresh(Freshness::Days(7)).with_path(format!("/{}.json", id.base()))?;
+    let raw = leg.json_opt::<raw::Gene>(&endpoint, &[])?;
+    raw.map(|raw| {
+        if raw.ensembl != id.base() {
+            return Err(SourceError { source: Source::Hpa, reason: Reason::BadReply, status: None, retry_after: None }.into());
+        }
+        Ok(map::expression(raw, id))
+    }).transpose()
+}

@@ -1,0 +1,30 @@
+{
+  "feature": "gene-sections",
+  "story": "HPA owns MIR21 absence as an empty section",
+  "replay": "gene/expression",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "MIR21",
+        "expression"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/expression/state": "empty",
+        "/sources/*/source": {
+          "includes": "hpa",
+          "excludes": "gnomad"
+        }
+      },
+      "max_bytes": 3500,
+      "mcp": [
+        "get",
+        "gene",
+        "MIR21",
+        "expression"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-use super::SectionResult;
+use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, GeneSection, HgncId, LocusGroup, Reason, Section, Source};
 use biomcp_adapters::gnomad;
@@ -66,7 +66,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 },
             },
         };
-        sections.push((*id, section));
+        sections.push((*id, SectionValue::Constraint(section)));
     }
     SectionResult {
         section: GeneSection::Constraint,
