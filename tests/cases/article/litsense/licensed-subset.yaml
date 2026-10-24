@@ -37,9 +37,7 @@
           "35656107"
         ],
         "/result/items/0/sentence/section": "METHODS",
-        "/result/items/0/sentence/text": {
-          "regex": ".+"
-        }
+        "/result/items/0/sentence/text": "T4 Polynucleotide Kinase (NEB) 5' radiolabelled oligonucleotides were used for detection of mitochondrial transcripts (MT-ATP8/6 5'-TGGGTGATGAGGAATAGTGTAAGGAG; MT-CO3 5'-ATAGGCATGTGATTGGTGGGTCAT; MT-ATP6:MT-CO3 border 5'-ATTGGTGGGTCATTATGTGTTGTC)."
       }
     },
     {
