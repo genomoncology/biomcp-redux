@@ -56,7 +56,8 @@
           "1",
           "--fresh"
         ]
-      }
+      },
+      "is_error": true
     }
   ],
   "verified": "2026-10-24 actual command captured three source HTTP500 responses; these do not prove that the article is not open."
