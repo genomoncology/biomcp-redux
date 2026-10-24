@@ -15,8 +15,14 @@ pub struct Reference {
 pub(super) fn rows(xml: &str) -> Result<Vec<Reference>, BadReply> {
     let mut out = Vec::new();
     for reference in blocks::descendants(xml, "ref")? {
-        let Some(id) = reference.attr("id")? else { continue; };
-        let mut row = Reference { id: Text::new(&id).map_err(|_| BadReply)?, pmid: None, doi: None };
+        let Some(id) = reference.attr("id")? else {
+            continue;
+        };
+        let mut row = Reference {
+            id: Text::new(&id).map_err(|_| BadReply)?,
+            pmid: None,
+            doi: None,
+        };
         for node in blocks::descendants(reference.0, "pub-id")? {
             let value = node.text()?;
             match node.attr("pub-id-type")?.as_deref() {
@@ -32,11 +38,15 @@ pub(super) fn rows(xml: &str) -> Result<Vec<Reference>, BadReply> {
 pub(super) fn ids(xml: &str) -> Result<Box<[Text]>, BadReply> {
     let mut out = Vec::new();
     for node in blocks::descendants(xml, "xref")? {
-        if !matches!(node.attr("ref-type")?.as_deref(), Some("bibr" | "ref")) { continue; }
+        if !matches!(node.attr("ref-type")?.as_deref(), Some("bibr" | "ref")) {
+            continue;
+        }
         if let Some(ids) = node.attr("rid")? {
             for id in ids.split_whitespace() {
                 let id = Text::new(id).map_err(|_| BadReply)?;
-                if !out.contains(&id) { out.push(id); }
+                if !out.contains(&id) {
+                    out.push(id);
+                }
             }
         }
     }

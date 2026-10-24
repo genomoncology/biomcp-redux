@@ -56,7 +56,7 @@ pub struct FigureCaption {
     /// Source label.
     pub label: Text,
     /// Source caption.
-    pub caption: Text,
+    pub caption: crate::Markdown,
 }
 /// Bucket license and body outline; processing version is not publication chronology.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -117,7 +117,7 @@ pub struct TextContent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub markdown: Option<crate::Markdown>,
     /// Section ancestry for a selected part.
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub heading_path: Option<Box<[Text]>>,
     /// Matching source rows for a find selection.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -36,7 +36,10 @@ pub(super) fn body_nodes(xml: &str) -> Result<Vec<(String, Element<'_>)>, BadRep
                 ));
             }
             Event::Empty(tag) if root => {
-                out.push((tag.name().as_ref().to_owned(), Element(&xml[begin..reader.buffer_position() as usize])));
+                out.push((
+                    tag.name().as_ref().to_owned(),
+                    Element(&xml[begin..reader.buffer_position() as usize]),
+                ));
             }
             Event::Eof => return Ok(out),
             _ => {}

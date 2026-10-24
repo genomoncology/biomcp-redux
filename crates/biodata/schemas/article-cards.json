@@ -16,7 +16,7 @@
           "description": "Source label, when supplied."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Markdown",
           "description": "Whole paragraph text."
         }
       },
@@ -628,6 +628,12 @@
         " Text and data mining manuscript terms.",
         " The bucket reports another license."
       ]
+    },
+    "Markdown": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "format": "markdown",
+      "minLength": 1,
+      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,

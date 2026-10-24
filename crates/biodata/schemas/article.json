@@ -16,7 +16,7 @@
           "description": "Source label, when supplied."
         },
         "text": {
-          "$ref": "#/$defs/Text",
+          "$ref": "#/$defs/Markdown",
           "description": "Whole paragraph text."
         }
       },
@@ -76,6 +76,12 @@
     },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "Markdown": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "format": "markdown",
+      "minLength": 1,
       "type": "string"
     },
     "PartialDate": {

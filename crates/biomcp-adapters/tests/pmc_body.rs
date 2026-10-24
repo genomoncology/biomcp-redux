@@ -23,11 +23,13 @@ fn bounded_parts_preserve_original_unicode_rows_and_escapes()
                 .push_str(&row.text);
         }
     }
-    assert_eq!(reconstructed, document.body.rows);
+    assert_eq!(reconstructed, document.body.rows.iter().map(|r|r.markdown.clone()).collect::<Vec<_>>());
     assert!(reconstructed.contains(&format!("Large {}", "αβ\\\" ".repeat(5000))));
-    assert!(reconstructed.contains(&"AXIN2 row\tValue".to_owned()));
-    assert!(reconstructed.contains(&format!("Large cell\t{}", "β".repeat(13000))));
+    assert!(reconstructed.contains(&"| AXIN2 row | Value |".to_owned()));
+    assert!(reconstructed.contains(&format!("| Large cell | {} |", "β".repeat(13000))));
     assert!(reconstructed.contains(&"Trailing body text.".to_owned()));
     assert_eq!(document.version, 12);
+    assert!(document.body.rows.iter().any(|r|r.references.iter().any(|id|id.as_str()=="B1")));
+    assert!(document.body.references.iter().any(|r|r.id.as_str()=="B1" && r.pmid.is_some_and(|id|id.get()==1) && r.doi.is_some()));
     Ok(())
 }

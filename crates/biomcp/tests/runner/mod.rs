@@ -7,6 +7,7 @@ mod negative_cases;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod markdown;
 mod schema;
 mod schema_proof;
 
@@ -213,6 +214,7 @@ fn run_step(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(configuration::trials());
+    trials.extend(markdown::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)
     }));

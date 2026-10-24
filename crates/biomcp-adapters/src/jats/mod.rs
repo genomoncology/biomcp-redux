@@ -1,14 +1,16 @@
 //! Source-specific JATS body mapping after the transport's bounded XML check.
 mod blocks;
-mod parts;
 mod body;
-mod table;
+mod parts;
 mod references;
+mod table;
 pub use body::BodyRow;
 pub use references::Reference;
 mod markdown;
 /// Preserve JATS inline markup in a checked Markdown value.
-pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> { markdown::checked(xml) }
+pub fn markdown(xml: &str) -> Result<biodata::Markdown, biomcp_fetch::BadReply> {
+    markdown::checked(xml)
+}
 use crate::xml_element::Element;
 use biodata::{FigureCaption, Pmcid, Text};
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
@@ -52,19 +54,41 @@ impl XmlReply for Body {
         let mut parts = Vec::new();
         let mut rows = Vec::new();
         for (name, node) in blocks::body_nodes(body.0)? {
-            if matches!(name.as_str(), "table-wrap" | "table-wrap-group") { continue; }
-            let groups = if name == "sec" { body::section(node, &[])? } else {
+            if matches!(name.as_str(), "table-wrap" | "table-wrap-group") {
+                continue;
+            }
+            let groups = if name == "sec" {
+                body::section(node, &[])?
+            } else {
                 let mut group = body::Group::section(Vec::new());
-                let rendered = if name == "fig" { body::figure(node)? } else {
+                let rendered = if name == "fig" {
+                    body::figure(node)?
+                } else {
                     let plain = node.text()?;
-                    if plain.trim().is_empty() { None } else { Some(body::BodyRow { plain, markdown: markdown::inline(node.0)?.trim().to_owned(), context: false, references: references::ids(node.0)? }) }
+                    if plain.trim().is_empty() {
+                        None
+                    } else {
+                        Some(body::BodyRow {
+                            plain,
+                            markdown: markdown::inline(node.0)?.trim().to_owned(),
+                            context: false,
+                            references: references::ids(node.0)?,
+                        })
+                    }
                 };
-                if let Some(row) = rendered { group.rows.push(row); }
+                if let Some(row) = rendered {
+                    group.rows.push(row);
+                }
                 vec![group]
             };
-            for group in groups { body::append(&mut parts, group, &mut rows)?; }
+            for group in groups {
+                body::append(&mut parts, group, &mut rows)?;
+            }
             for table in &tables {
-                let mentioned = match table.attr("id")? { Some(id) => cited(node, &id)?, None => false };
+                let mentioned = match table.attr("id")? {
+                    Some(id) => cited(node, &id)?,
+                    None => false,
+                };
                 if mentioned && !emitted.contains(&table.0) {
                     body::append(&mut parts, table::group(*table, &[])?, &mut rows)?;
                     emitted.push(table.0);
@@ -72,7 +96,9 @@ impl XmlReply for Body {
             }
         }
         for table in tables {
-            if !emitted.contains(&table.0) { body::append(&mut parts, table::group(table, &[])?, &mut rows)?; }
+            if !emitted.contains(&table.0) {
+                body::append(&mut parts, table::group(table, &[])?, &mut rows)?;
+            }
         }
         let figures = blocks::descendants(body.0, "fig")?
             .into_iter()
@@ -80,10 +106,7 @@ impl XmlReply for Body {
                 Ok(FigureCaption {
                     label: Text::new(&fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()))
                         .map_err(|_| BadReply)?,
-                    caption: Text::new(
-                        &fig.value(&["caption"])?.unwrap_or_else(|| "Figure".into()),
-                    )
-                    .map_err(|_| BadReply)?,
+                    caption: markdown(fig.child("caption")?.ok_or(BadReply)?.0)?,
                 })
             })
             .collect::<Result<Vec<_>, BadReply>>()?;

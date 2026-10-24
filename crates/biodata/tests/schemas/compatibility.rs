@@ -166,10 +166,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
     if let Some(maximum) = node.get("maximum") {
         shape.maximum = Some(bound(node, maximum)?);
     }
-    if node
-        .get("format")
-        .is_some_and(|format| format != "uint32" && format != "uint64" && format != "double" && format != "markdown")
-    {
+    if node.get("format").is_some_and(|format| {
+        format != "uint32" && format != "uint64" && format != "double" && format != "markdown"
+    }) {
         return Err("unsupported format".into());
     }
     shape.markdown = node.get("format").is_some_and(|v| v == "markdown");

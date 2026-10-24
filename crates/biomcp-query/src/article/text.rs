@@ -157,7 +157,7 @@ fn select(
                 .iter()
                 .map(|r| r.text.as_str())
                 .collect::<Vec<_>>()
-                .join("\n\n"),
+                .join(part.separator),
         )
         .ok();
         if part.continuation {
@@ -181,18 +181,7 @@ fn find(
         .iter()
         .map(|r| r.plain.to_lowercase().contains(&needle))
         .collect();
-    let mut hits = Vec::new();
-    for part in &document.body.parts {
-        let matching_rows: Vec<_> = part.rows.iter().filter(|r| matching.get(r.source_row).copied().unwrap_or(false)).collect();
-        if matching_rows.is_empty() { continue; }
-        if let Some(context) = &part.context {
-            let data: Vec<_> = matching_rows.iter().filter(|r| document.body.rows.get(r.source_row).is_some_and(|r| !r.context)).map(|r| r.text.as_str()).collect();
-            let markdown = if data.is_empty() { context.clone() } else { format!("{context}\n{}", data.join("\n")) };
-            hits.push((part.meta.number, part.heading_path.clone(), markdown));
-        } else {
-            hits.extend(matching_rows.into_iter().map(|r| (part.meta.number, part.heading_path.clone(), r.text.clone())));
-        }
-    }
+    let hits = matches(document, &matching);
     let offset = usize::try_from(query.offset()).ok()?;
     if offset > hits.len() {
         return None;
@@ -231,4 +220,45 @@ fn find(
         truncated: None,
     });
     Some(page.into())
+}
+
+type Hit = (u32, Box<[Text]>, String);
+fn matches(document: &pmc_oa::Document, matching: &[bool]) -> Vec<Hit> {
+    let mut hits = Vec::new();
+    for part in &document.body.parts {
+        let matching_rows: Vec<_> = part
+            .rows
+            .iter()
+            .filter(|r| matching.get(r.source_row).copied().unwrap_or(false))
+            .collect();
+        if matching_rows.is_empty() {
+            continue;
+        }
+        if let Some(context) = &part.context {
+            let data: Vec<_> = matching_rows
+                .iter()
+                .filter(|r| {
+                    document
+                        .body
+                        .rows
+                        .get(r.source_row)
+                        .is_some_and(|r| !r.context)
+                })
+                .map(|r| r.text.as_str())
+                .collect();
+            let markdown = if data.is_empty() {
+                context.clone()
+            } else {
+                format!("{context}\n{}", data.join("\n"))
+            };
+            hits.push((part.meta.number, part.heading_path.clone(), markdown));
+        } else {
+            hits.extend(
+                matching_rows
+                    .into_iter()
+                    .map(|r| (part.meta.number, part.heading_path.clone(), r.text.clone())),
+            );
+        }
+    }
+    hits
 }

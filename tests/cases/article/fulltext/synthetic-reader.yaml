@@ -14,7 +14,9 @@
       "expect": {
         "/status": "complete",
         "/result/content/data/license": "cc_by",
-        "/result/content/data/markdown": "## Introduction\nIntroduction text."
+        "/result/content/data/heading_path": [
+          "Introduction"
+        ]
       },
       "mcp": [
         "article",
@@ -203,6 +205,32 @@
         "/page/returned": 1
       },
       "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "First choice"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/content/data/hits/0/part": 1
+      }
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "**choice**"
+      ],
+      "expect": {
+        "/page/total": 0,
+        "/result/content/data/hits": []
+      }
     }
   ]
 }

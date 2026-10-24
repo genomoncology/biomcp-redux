@@ -6,14 +6,20 @@ use serde::{Deserialize, Serialize};
 pub struct Markdown(Text);
 impl Markdown {
     /// Check the same nonempty boundary as ordinary text.
-    pub fn new(value: &str) -> Result<Self, Error> { Text::new(value).map(Self) }
+    pub fn new(value: &str) -> Result<Self, Error> {
+        Text::new(value).map(Self)
+    }
     /// Borrow the source Markdown.
-    pub fn as_str(&self) -> &str { self.0.as_str() }
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }
 
-#[cfg(feature="schema")]
+#[cfg(feature = "schema")]
 impl schemars::JsonSchema for Markdown {
-    fn schema_name() -> std::borrow::Cow<'static, str> { "Markdown".into() }
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "Markdown".into()
+    }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = <Text as schemars::JsonSchema>::json_schema(generator);
         schema.insert("format".into(), "markdown".into());
