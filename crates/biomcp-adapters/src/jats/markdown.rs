@@ -53,7 +53,7 @@ fn marker(name: &str, closing: bool) -> &'static str {
         ("italic", _) => "*",
         ("sub", false) => "<sub>",
         ("sub", true) => "</sub>",
-        ("p", true) => "\n\n",
+        ("p" | "title", true) => "\n\n",
         _ => "",
     }
 }
