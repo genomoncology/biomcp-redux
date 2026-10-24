@@ -170,6 +170,7 @@ pub fn search(
     Ok(SearchPage {
         items: raw
             .studies
+            .unwrap_or_default()
             .into_iter()
             .map(|row| row.protocol_section.header())
             .collect::<Result<Vec<_>, _>>()
@@ -218,19 +219,21 @@ impl Reply for Version {
 #[serde(rename_all = "camelCase")]
 struct RawPage {
     total_count: Option<u64>,
-    #[serde(default)]
-    studies: Vec<Study>,
+    studies: Option<Vec<Study>>,
     next_page_token: Option<Text>,
 }
 impl Reply for RawPage {
     fn check(&self) -> Result<(), BadReply> {
+        // The registry omits studies for a successful zero count. An absent array
+        // without that explicit zero is an incomplete reply, never an empty page.
+        let studies = self.studies.as_deref().unwrap_or_default();
         let mut ids = std::collections::BTreeSet::new();
-        if self.studies.len() > 100
+        if (self.studies.is_none() && self.total_count != Some(0))
+            || studies.len() > 100
             || self
                 .total_count
-                .is_some_and(|total| self.studies.len() as u64 > total)
-            || self
-                .studies
+                .is_some_and(|total| studies.len() as u64 > total)
+            || studies
                 .iter()
                 .any(|r| !ids.insert(r.protocol_section.identification_module.nct_id))
         {

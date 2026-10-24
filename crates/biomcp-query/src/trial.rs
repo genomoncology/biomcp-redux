@@ -8,11 +8,14 @@ use biomcp_adapters::{ctgov, hgnc};
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = empty();
-    let deadline = cx.fetch.deadline(cx.budget);
-    let Some(gene) = gene(cx, query, &mut outcome, deadline) else {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let mut deadline = command.deadline();
+    let Some(gene) = gene(cx, query, &mut outcome, &mut deadline) else {
+        command.finish(deadline.remaining());
         return outcome;
     };
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let params = ctgov::parameters(query, gene.as_deref());
     let result = ctgov::search(&leg, &params);
     let rejected = matches!(
@@ -34,6 +37,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         .or(version.as_ref().err())
         .copied()
         .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
+    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     outcome.status = if result.is_err() {
         Status::Failed
@@ -85,6 +89,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
+    command.finish(deadline.remaining());
     outcome
 }
 fn parameters(
@@ -114,17 +119,19 @@ fn empty() -> Outcome {
         local: None,
     }
 }
-fn gene(
-    cx: &Ctx<'_>,
+fn gene<'a>(
+    cx: &Ctx<'a>,
     query: &TrialSearch,
     outcome: &mut Outcome,
-    deadline: biomcp_fetch::Deadline<'_>,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
 ) -> Option<Option<String>> {
     let Some(input) = query.gene() else {
         return Some(None);
     };
-    let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let result = crate::gene::resolve(&leg, input);
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let error = result.as_ref().err().copied();
     outcome
         .sources

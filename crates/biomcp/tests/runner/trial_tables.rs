@@ -37,13 +37,19 @@ fn missing_studies() -> Check {
             args.extend(["--next-page", "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"]);
         }
         let output = checked_steps(
-            if continuation { "trial/walk" } else { "trial/condition" },
+            if continuation {
+                "trial/walk"
+            } else {
+                "trial/condition"
+            },
             |_, record| {
                 if record["url"].as_str().is_some_and(|url| {
                     url.contains("/studies?") && (!continuation || url.contains("pageToken="))
                 }) {
                     let body = &mut record["exchanges"][0]["body"]["value"];
-                    body.as_object_mut().expect("captured registry object").remove("studies");
+                    body.as_object_mut()
+                        .expect("captured registry object")
+                        .remove("studies");
                 }
             },
             json!([
@@ -61,13 +67,27 @@ fn missing_studies() -> Check {
 fn sequential_budget(version_timeout: bool) -> Check {
     checked_case(
         "trial/gene",
-        &["search", "trial", "--condition", "melanoma", "--gene", "BRAF"],
+        &[
+            "search",
+            "trial",
+            "--condition",
+            "melanoma",
+            "--gene",
+            "BRAF",
+        ],
         |source, record| {
             record["exchanges"][0]["delay_ms"] = json!(if source == "hgnc" {
                 12000
-            } else if record["url"].as_str().is_some_and(|url| url.contains("/studies?")) {
+            } else if record["url"]
+                .as_str()
+                .is_some_and(|url| url.contains("/studies?"))
+            {
                 if version_timeout { 4000 } else { 12000 }
-            } else if version_timeout { 6000 } else { 0 });
+            } else if version_timeout {
+                6000
+            } else {
+                0
+            });
         },
         if version_timeout {
             json!({"/status":"partial","/result/items":{"count":10},"/page/total":354,"/sources/1/reason":"deadline_exceeded"})
