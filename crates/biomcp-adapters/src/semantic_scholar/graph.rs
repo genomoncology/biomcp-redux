@@ -8,6 +8,7 @@ const PAPER: Endpoint = super::SPEC.get("/paper").fresh(Freshness::Days(1));
 #[serde(rename_all = "camelCase")]
 pub struct PaperSummary {
     /// Null means the source has no summary.
+    #[serde(deserialize_with = "summary_field")]
     pub tldr: Option<Summary>,
     /// Independently reported citation count.
     pub citation_count: Option<u64>,
@@ -147,4 +148,10 @@ pub fn edges(
         args.push(("offset", Arg::Num(u64::from(offset))));
     }
     leg.json(&endpoint, &args)
+}
+
+fn summary_field<'de, D: serde::Deserializer<'de>>(
+    decoder: D,
+) -> Result<Option<Summary>, D::Error> {
+    Option::<Summary>::deserialize(decoder)
 }
