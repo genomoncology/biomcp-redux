@@ -24,18 +24,6 @@
         "variantvalidator"
       ],
       "type": "string"
-    },
-    "VariantSection": {
-      "description": "Explicit implemented variant source sections.",
-      "enum": [
-        "population",
-        "gwas"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " gnomAD population observations.",
-        " GWAS Catalog associations."
-      ]
     }
   },
   "$id": "biodata.variant-get/1",
@@ -78,29 +66,6 @@
       "$ref": "#/$defs/VariantResolver",
       "default": "car",
       "description": "Resolver for reference-qualified notation; never repairs the input locally."
-    },
-    "section": {
-      "description": "Named source sections; omitted by default.",
-      "items": {
-        "$ref": "#/$defs/VariantSection"
-      },
-      "type": "array",
-      "x-positional": 1
-    },
-    "section_limit": {
-      "default": 3,
-      "description": "Rows per named source section page.",
-      "format": "uint32",
-      "maximum": 50,
-      "minimum": 1,
-      "type": "integer"
-    },
-    "section_offset": {
-      "default": 0,
-      "description": "Source rows to skip independently of identity candidate paging.",
-      "format": "uint32",
-      "minimum": 0,
-      "type": "integer"
     }
   },
   "required": [
