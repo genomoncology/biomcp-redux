@@ -1,102 +1,133 @@
-//! Render typed Markdown strings once, using the same checked response schema as JSON.
+//! One structural view of serialized JSON and its schema presentation hints.
+mod hints;
 use serde_json::Value;
-use std::io;
+use std::{collections::BTreeSet, io};
+
 pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
-    let schema = value
-        .get("schema")
-        .and_then(Value::as_str)
-        .and_then(crate::schema::find)
-        .ok_or_else(|| io::Error::other("missing response schema"))?;
-    let root: Value = serde_json::from_str(schema)?;
+    let identity = value.get("schema").and_then(Value::as_str).unwrap_or_default();
+    let schema: Value = crate::schema::find(identity)
+        .map(serde_json::from_str).transpose()?.unwrap_or(Value::Null);
+    let hint = hints::find(identity);
     let mut out = String::new();
-    render(value, &root, &root, 1, &mut out);
+    if value.get("error").is_some() { out.push_str("# Error\n\n"); }
+    let view = View { root: &schema, hint };
+    view.object(value, &schema, 2, &mut out);
     Ok(out.into_bytes())
 }
-fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    node.get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|r| r.strip_prefix('#'))
-        .and_then(|p| root.pointer(p))
-        .map_or(node, |v| resolve(v, root))
-}
-fn property<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Value> {
-    let node = resolve(node, root);
-    node.get("properties")
-        .and_then(|p| p.get(name))
-        .or_else(|| {
-            ["anyOf", "oneOf"]
-                .into_iter()
-                .filter_map(|k| node.get(k).and_then(Value::as_array))
-                .flatten()
-                .find_map(|n| property(n, name, root))
-        })
-}
-fn render(value: &Value, node: &Value, root: &Value, depth: usize, out: &mut String) {
-    let node = resolve(node, root);
-    match value {
-        Value::Object(fields) => {
-            for (name, value) in fields {
-                out.push_str(&format!(
-                    "{} {}\n\n",
-                    "#".repeat(depth.min(6)),
-                    name.replace('_', " ")
-                ));
-                render(
-                    value,
-                    property(node, name, root).unwrap_or(&Value::Null),
-                    root,
-                    depth + 1,
-                    out,
-                );
-            }
-        }
-        Value::Array(items) => {
-            for value in items {
-                render(
-                    value,
-                    array_items(node, root).unwrap_or(&Value::Null),
-                    root,
-                    depth,
-                    out,
-                );
-            }
-        }
-        Value::String(text) => {
-            let formatted = if marked(node, root) {
-                text.clone()
+struct View<'a> { root: &'a Value, hint: Option<&'a hints::Hint> }
+impl View<'_> {
+    fn object(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
+        let Some(fields) = value.as_object() else { return; };
+        for (name, value) in fields {
+            if name == "schema" { continue; }
+            let node = property(schema, name, self.root).unwrap_or(&Value::Null);
+            if value.is_object() || value.is_array() {
+                heading(name, depth, out);
+                if name == "next" { steps(value, out); }
+                else { self.render(value, node, depth + 1, out); }
+            } else if marked(node, self.root) {
+                out.push_str(value.as_str().unwrap_or_default());
+                out.push_str("\n\n");
             } else {
-                text.replace('\\', "\\\\")
-                    .replace('*', "\\*")
-                    .replace('_', "\\_")
-                    .replace('`', "\\`")
-            };
-            out.push_str(&formatted);
-            out.push_str("\n\n");
+                out.push_str(&format!("**{}:** {}\n\n", escape(name), scalar(value)));
+            }
         }
-        _ => {
-            out.push_str(&value.to_string());
-            out.push_str("\n\n");
+    }
+    fn render(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
+        match value {
+            Value::Object(_) => self.object(value, schema, depth, out),
+            Value::Array(items) => self.array(items, schema, depth, out),
+            _ => { out.push_str(&scalar(value)); out.push_str("\n\n"); }
+        }
+    }
+    fn array(&self, items: &[Value], schema: &Value, depth: usize, out: &mut String) {
+        let item_schema = member(schema, "items", self.root).unwrap_or(&Value::Null);
+        if items.is_empty() { out.push_str("None\n\n"); return; }
+        if let Some(hint) = self.hint.filter(|h| !h.title.is_empty())
+            && items.iter().any(|item| item.pointer(hint.title).is_some()) {
+            for item in items {
+                let title = item.pointer(hint.title).or_else(|| item.get("input"));
+                out.push_str(&format!("# {}\n\n", title.map_or_else(String::new, scalar)));
+                self.object(item, item_schema, depth, out);
+            }
+        } else if items.iter().all(Value::is_object) && !contains_markdown(item_schema, self.root) {
+            table(items, self.hint.map_or(&[], |h| h.columns), out);
+        } else {
+            for item in items {
+                if item.is_object() { self.object(item, item_schema, depth, out); }
+                else { out.push_str(&format!("- {}\n", scalar(item))); }
+            }
+            out.push('\n');
         }
     }
 }
-
-fn marked(node: &Value, root: &Value) -> bool {
-    let node = resolve(node, root);
-    node.get("format").and_then(Value::as_str) == Some("markdown")
-        || ["anyOf", "oneOf"]
-            .into_iter()
-            .filter_map(|k| node.get(k).and_then(Value::as_array))
-            .flatten()
-            .any(|n| marked(n, root))
+fn heading(name: &str, depth: usize, out: &mut String) {
+    out.push_str(&format!("{} {}\n\n", "#".repeat(depth.min(6)), label(name)));
 }
-
-fn array_items<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
+fn label(name: &str) -> String {
+    let name = name.rsplit('/').next().unwrap_or(name).replace('_', " ");
+    let mut chars = name.chars();
+    chars.next().map_or_else(String::new, |c| c.to_uppercase().collect::<String>() + chars.as_str())
+}
+fn escape(text: &str) -> String {
+    text.replace('\\', "\\\\").replace('*', "\\*").replace('_', "\\_")
+        .replace('`', "\\`").replace('|', "\\|").replace(['\n', '\r'], " ")
+        .replace('<', "&lt;").replace('>', "&gt;").replace('[', "\\[").replace(']', "\\]")
+}
+fn scalar(value: &Value) -> String {
+    escape(&value.as_str().map_or_else(|| value.to_string(), str::to_owned))
+}
+fn leaf_paths(value: &Value, prefix: &str, fields: &mut BTreeSet<String>) {
+    if let Some(object) = value.as_object().filter(|o| !o.is_empty()) {
+        for (key, value) in object {
+            let key = key.replace('~', "~0").replace('/', "~1");
+            let path = if prefix.is_empty() { key } else { format!("{prefix}/{key}") };
+            leaf_paths(value, &path, fields);
+        }
+    } else { fields.insert(prefix.to_owned()); }
+}
+fn table(items: &[Value], preferred: &[&str], out: &mut String) {
+    let mut fields = BTreeSet::new();
+    for item in items { leaf_paths(item, "", &mut fields); }
+    let mut columns: Vec<_> = preferred.iter().copied().filter(|k| fields.contains(*k)).collect();
+    columns.extend(fields.iter().map(String::as_str).filter(|k| !preferred.contains(k)));
+    out.push_str("| ");
+    out.push_str(&columns.iter().map(|name| label(name)).collect::<Vec<_>>().join(" | "));
+    out.push_str(" |\n| "); out.push_str(&vec!["---"; columns.len()].join(" | ")); out.push_str(" |\n");
+    for item in items {
+        out.push_str("| ");
+        out.push_str(&columns.iter().map(|name| item.pointer(&format!("/{name}")).map_or_else(String::new, scalar)).collect::<Vec<_>>().join(" | "));
+        out.push_str(" |\n");
+    }
+    out.push('\n');
+}
+fn steps(value: &Value, out: &mut String) {
+    for step in value.as_array().into_iter().flatten() {
+        let Some(args) = step.get("args").and_then(Value::as_array) else { continue; };
+        let args = args.iter().filter_map(Value::as_str).map(|arg| {
+            if arg.chars().all(|c| c.is_ascii_alphanumeric() || "_./:-".contains(c)) && !arg.is_empty() { arg.to_owned() }
+            else { format!("'{}'", arg.replace('\'', "'\\''")) }
+        }).collect::<Vec<_>>().join(" ");
+        out.push_str(&format!("```sh\nbiomcp {args}\n```\n\n"));
+    }
+}
+fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
+    node.get("$ref").and_then(Value::as_str).and_then(|r| r.strip_prefix('#'))
+        .and_then(|p| root.pointer(p)).map_or(node, |v| resolve(v, root))
+}
+fn member<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Value> {
     let node = resolve(node, root);
-    node.get("items").or_else(|| {
-        ["anyOf", "oneOf"]
-            .into_iter()
-            .filter_map(|kind| node.get(kind).and_then(Value::as_array))
-            .flatten()
-            .find_map(|branch| array_items(branch, root))
-    })
+    node.get(name).or_else(|| ["anyOf", "oneOf"].into_iter()
+        .filter_map(|k| node.get(k).and_then(Value::as_array)).flatten()
+        .find_map(|n| member(n, name, root)))
+}
+fn property<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Value> {
+    member(node, "properties", root).and_then(|properties| properties.get(name))
+}
+fn marked(node: &Value, root: &Value) -> bool {
+    member(node, "format", root).and_then(Value::as_str) == Some("markdown")
+}
+fn contains_markdown(node: &Value, root: &Value) -> bool {
+    marked(node, root) || member(node, "properties", root).and_then(Value::as_object)
+        .is_some_and(|properties| properties.values().any(|p| contains_markdown(p, root)))
 }

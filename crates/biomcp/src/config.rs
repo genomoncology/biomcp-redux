@@ -7,6 +7,7 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
+    format: Option<crate::grammar::Format>,
     proxy: Option<String>,
     ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
@@ -184,4 +185,8 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
         roots,
     )
     .map_err(|_| ())
+}
+
+pub(crate) fn format() -> Option<crate::grammar::Format> {
+    read_file().ok().flatten().and_then(|file| file.format)
 }
