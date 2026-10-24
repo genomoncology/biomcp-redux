@@ -46,7 +46,7 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
         .unwrap_or_default();
     if !["application/json", "text/event-stream"]
         .iter()
-        .all(|wanted| accept.split(',').any(|v| accepts(v, wanted)))
+        .all(|wanted| accepts(accept, wanted))
     {
         return Err(mismatch());
     }
@@ -96,29 +96,43 @@ fn decode(value: &str) -> Option<String> {
     }
 }
 
-// RFC 9110 sections 12.4.2 and 12.5.1: media types ignore case;
-// a positive quality advertises support, while zero does not.
-fn accepts(range: &str, wanted: &str) -> bool {
-    let mut parts = range.split(';').map(str::trim);
-    if !parts.next().is_some_and(|media| media.eq_ignore_ascii_case(wanted)) {
-        return false;
+// RFC 9110 sections 12.4.2 and 12.5.1: the most specific media
+// range determines acceptance, including an explicit zero weight.
+fn accepts(value: &str, wanted: &str) -> bool {
+    let mut best = None;
+    for range in value.split(',') {
+        let mut parts = range.split(';').map(str::trim);
+        let Some(media) = parts.next() else { continue; };
+        let specificity = if media.eq_ignore_ascii_case(wanted) { 2 }
+            else if media.strip_suffix("/*").is_some_and(|kind| wanted.split_once('/').is_some_and(|(prefix, _)| kind.eq_ignore_ascii_case(prefix))) { 1 }
+            else if media == "*/*" { 0 }
+            else { continue; };
+        let Some(quality) = quality(parts) else { return false; };
+        if best.is_none_or(|(prior, _)| specificity > prior) {
+            best = Some((specificity, quality));
+        } else if best.is_some_and(|(prior, _)| specificity == prior) && quality {
+            best = Some((specificity, true));
+        }
     }
+    best.is_some_and(|(_, quality)| quality)
+}
+fn quality<'a>(parts: impl Iterator<Item = &'a str>) -> Option<bool> {
     let mut quality = None;
     for parameter in parts {
-        let Some((name, value)) = parameter.split_once('=') else { return false; };
+        let (name, value) = parameter.split_once('=')?;
         if name.trim().eq_ignore_ascii_case("q") {
-            if quality.is_some() { return false; }
+            if quality.is_some() { return None; }
             let value = value.trim();
             let (whole, fraction) = value.split_once('.').unwrap_or((value, ""));
             if fraction.len() > 3 || !fraction.bytes().all(|byte| byte.is_ascii_digit()) {
-                return false;
+                return None;
             }
             quality = Some(match whole {
                 "0" => fraction.bytes().any(|byte| byte != b'0'),
                 "1" if fraction.bytes().all(|byte| byte == b'0') => true,
-                _ => return false,
+                _ => return None,
             });
         }
     }
-    quality.unwrap_or(true)
+    Some(quality.unwrap_or(true))
 }
