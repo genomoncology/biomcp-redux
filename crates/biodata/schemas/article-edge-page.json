@@ -37,18 +37,13 @@
           "type": "integer"
         },
         "pmid": {
-          "$ref": "#/$defs/ArticleInput",
-          "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
           "x-positional": 0
         },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Fixed snapshot from an earlier page."
-        },
-        "source": {
-          "$ref": "#/$defs/EdgeSource",
-          "default": "icite",
-          "description": "Graph provider; iCite remains the default."
         }
       },
       "required": [
@@ -159,10 +154,6 @@
       ],
       "type": "object"
     },
-    "ArticleInput": {
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
-      "type": "string"
-    },
     "ArticleItem": {
       "additionalProperties": false,
       "description": "One original pool position, including a summary hole.",
@@ -176,17 +167,6 @@
             "null"
           ]
         },
-        "contexts": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Capped"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "First citation context and the source's complete context count."
-        },
         "found_by": {
           "additionalProperties": false,
           "description": "Native one-based source positions, disclosed only for multiple sources.",
@@ -197,11 +177,6 @@
               "type": "integer"
             },
             "pubmed": {
-              "format": "uint32",
-              "minimum": 0,
-              "type": "integer"
-            },
-            "semantic-scholar": {
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
@@ -219,23 +194,6 @@
             }
           ],
           "description": "Citation metadata when accepted."
-        },
-        "influential": {
-          "description": "Provider's influential flag; absent is distinct from false.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "intents": {
-          "description": "Citation intents in provider order; absent means not reported.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": [
-            "array",
-            "null"
-          ]
         },
         "key": {
           "$ref": "#/$defs/ArticleKey",
@@ -321,60 +279,11 @@
             "id"
           ],
           "type": "object"
-        },
-        {
-          "description": "Semantic Scholar local identity when no indexed identifier exists.",
-          "properties": {
-            "id": {
-              "$ref": "#/$defs/SemanticScholarId"
-            },
-            "namespace": {
-              "const": "semantic_scholar",
-              "type": "string"
-            }
-          },
-          "required": [
-            "namespace",
-            "id"
-          ],
-          "type": "object"
         }
       ]
     },
-    "Capped": {
-      "additionalProperties": false,
-      "description": "A bounded list with the total before its cap was applied.",
-      "properties": {
-        "items": {
-          "description": "References in stable source order.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "total": {
-          "description": "Distinct references before capping.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "items",
-        "total"
-      ],
-      "type": "object"
-    },
     "Doi": {
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
-      "type": "string"
-    },
-    "EdgeSource": {
-      "description": "Graph edge provider, independent of article search providers.",
-      "enum": [
-        "icite",
-        "semantic-scholar"
-      ],
       "type": "string"
     },
     "EuropePmcId": {
@@ -578,6 +487,8 @@
         "not_open",
         "rate_limited",
         "unavailable",
+        "tls",
+        "proxy",
         "rejected",
         "bad_reply",
         "deadline_exceeded",
@@ -594,6 +505,8 @@
         " The public bucket does not hold an open text record.",
         " The source limited the request rate.",
         " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
         " The source rejected the request.",
         " The reply could not be used.",
         " The request exhausted its deadline.",
@@ -604,10 +517,6 @@
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
       ]
-    },
-    "SemanticScholarId": {
-      "pattern": "^[a-f0-9]{40}$",
-      "type": "string"
     },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
@@ -621,7 +530,6 @@
         "clingen",
         "pubmed",
         "europepmc",
-        "semantic-scholar",
         "pmc-oa",
         "icite",
         "pubtator",
@@ -640,7 +548,6 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
-        " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",
@@ -652,25 +559,6 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
-        {
-          "additionalProperties": false,
-          "description": "The source still has graph pages after the bounded fetch window.",
-          "properties": {
-            "fallback": {
-              "$ref": "#/$defs/Text",
-              "description": "Default-source command offering another graph view."
-            },
-            "kind": {
-              "const": "graph_truncated",
-              "type": "string"
-            }
-          },
-          "required": [
-            "kind",
-            "fallback"
-          ],
-          "type": "object"
-        },
         {
           "additionalProperties": false,
           "description": "PubMed did not index these words.",
@@ -814,7 +702,8 @@
         "fresh",
         "disambiguate",
         "sync",
-        "key"
+        "key",
+        "configure"
       ],
       "type": "string"
     },
@@ -824,7 +713,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article_edges/2",
+  "$id": "biomcp.article_edges/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -870,7 +759,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_edges/2",
+      "const": "biomcp.article_edges/1",
       "type": "string"
     },
     "sources": {

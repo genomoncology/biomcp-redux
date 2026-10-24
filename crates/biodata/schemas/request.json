@@ -9,7 +9,6 @@
       "enum": [
         "annotations",
         "fulltext",
-        "tldr",
         "citations",
         "all"
       ],
@@ -17,7 +16,6 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
-        " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
@@ -35,8 +33,7 @@
       "description": "Source selectors supported by article search.",
       "enum": [
         "pubmed",
-        "europepmc",
-        "semantic-scholar"
+        "europepmc"
       ],
       "type": "string"
     },
@@ -55,14 +52,6 @@
     },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
-      "type": "string"
-    },
-    "EdgeSource": {
-      "description": "Graph edge provider, independent of article search providers.",
-      "enum": [
-        "icite",
-        "semantic-scholar"
-      ],
       "type": "string"
     },
     "GeneInput": {
@@ -115,13 +104,17 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
     }
   },
-  "$id": "biodata.request/2",
+  "$id": "biodata.request/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -198,18 +191,13 @@
           "type": "integer"
         },
         "pmid": {
-          "$ref": "#/$defs/ArticleInput",
-          "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
           "x-positional": 0
         },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Fixed snapshot from an earlier page."
-        },
-        "source": {
-          "$ref": "#/$defs/EdgeSource",
-          "default": "icite",
-          "description": "Graph provider; iCite remains the default."
         }
       },
       "required": [
@@ -242,18 +230,13 @@
           "type": "integer"
         },
         "pmid": {
-          "$ref": "#/$defs/ArticleInput",
-          "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
+          "$ref": "#/$defs/Pmid",
+          "description": "PMID whose graph edges to read.",
           "x-positional": 0
         },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Fixed snapshot from an earlier page."
-        },
-        "source": {
-          "$ref": "#/$defs/EdgeSource",
-          "default": "icite",
-          "description": "Graph provider; iCite remains the default."
         }
       },
       "required": [
@@ -407,10 +390,11 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nsemantic-scholar: broad discovery; an optional free key raises the limit.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
+          "maxItems": 2,
           "minItems": 1,
           "type": "array",
           "x-comma-separated": true
