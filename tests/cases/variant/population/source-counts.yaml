@@ -32,8 +32,8 @@
         "CA123643",
         "--detail"
       ],
-      "max_bytes": 5020,
-      "max_tokens": 1255
+      "max_bytes": 5351,
+      "max_tokens": 1338
     },
     {
       "run": [
@@ -58,8 +58,8 @@
         "/page/offset": 10
       },
       "offline": true,
-      "max_bytes": 5023,
-      "max_tokens": 1256
+      "max_bytes": 5354,
+      "max_tokens": 1339
     },
     {
       "run": [
@@ -84,8 +84,8 @@
         "/page/offset": 20
       },
       "offline": true,
-      "max_bytes": 4504,
-      "max_tokens": 1126
+      "max_bytes": 4807,
+      "max_tokens": 1202
     },
     {
       "run": [
@@ -105,8 +105,8 @@
         "/result/candidates/0/sections/population/data/exome/allele_count": 2,
         "/result/candidates/0/sections/population/data/exome/allele_number": 1460618
       },
-      "max_bytes": 1322,
-      "max_tokens": 331
+      "max_bytes": 1377,
+      "max_tokens": 345
     }
   ]
 }
