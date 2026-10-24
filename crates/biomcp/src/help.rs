@@ -25,27 +25,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .iter()
             .map(|(name, node)| argument(name, node, &schema))
             .collect();
-        let section = resolve(
-            field(field(field(&schema, "properties"), "section"), "items"),
-            &schema,
-        );
-        let sections = field(section, "enum")
-            .as_array()
-            .into_iter()
-            .flatten()
-            .enumerate()
-            .filter_map(|(i, v)| {
-                Some(HelpWord {
-                    word: v.as_str()?.into(),
-                    description: field(section, "x-enum-descriptions")
-                        .get(i)
-                        .unwrap_or(&Value::Null)
-                        .as_str()?
-                        .trim()
-                        .into(),
-                })
-            })
-            .collect::<Vec<_>>();
+        let sections = section_words(&schema);
         commands.push(HelpCommand {
             command: vec![verb.into(), "gene".into()],
             description: text(&schema, "description"),
@@ -163,4 +143,28 @@ pub(crate) fn tree() -> String {
 
 fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
     node.get(key).unwrap_or(&Value::Null)
+}
+
+fn section_words(schema: &Value) -> Vec<HelpWord> {
+    let section = resolve(
+            field(field(field(schema, "properties"), "section"), "items"),
+            schema,
+        );
+field(section, "enum")
+            .as_array()
+            .into_iter()
+            .flatten()
+            .enumerate()
+            .filter_map(|(i, v)| {
+                Some(HelpWord {
+                    word: v.as_str()?.into(),
+                    description: field(section, "x-enum-descriptions")
+                        .get(i)
+                        .unwrap_or(&Value::Null)
+                        .as_str()?
+                        .trim()
+                        .into(),
+                })
+            })
+            .collect::<Vec<_>>()
 }
