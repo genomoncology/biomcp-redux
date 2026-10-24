@@ -82,7 +82,10 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(constraint::run(cx, deadline, genes))
         }));
     }
-    if !genes.is_empty() && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey) || genes.iter().any(|(_, gene)| gene.entrez_id.is_some())) {
+    if !genes.is_empty()
+        && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
+            || genes.iter().any(|(_, gene)| gene.entrez_id.is_some()))
+    {
         jobs.push(Box::new(move || {
             super::get::Job::Section(oncokb::run(cx, deadline, genes))
         }));
@@ -122,9 +125,7 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
                 {
                     item.status = Status::Partial;
                 }
-                if let Some(sections) = &mut item.sections
-                   
-                {
+                if let Some(sections) = &mut item.sections {
                     sections.constraint = Some(section.clone());
                 }
             }

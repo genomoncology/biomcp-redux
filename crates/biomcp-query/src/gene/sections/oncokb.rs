@@ -48,7 +48,9 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 for (_, value) in &mut values {
                     if let SectionValue::Oncokb(section, Some(card), _) = value {
                         card.version = Some(version.clone());
-                        if let Section::Data { data, .. } = section { data.version = Some(version.clone()); }
+                        if let Section::Data { data, .. } = section {
+                            data.version = Some(version.clone());
+                        }
                     }
                 }
             }
@@ -87,15 +89,59 @@ fn reason(error: RequestError) -> Reason {
 
 fn skipped(genes: &[(HgncId, Gene)]) -> SectionResult {
     SectionResult {
-        values: genes.iter().map(|(id, _)| (*id, SectionValue::Oncokb(Section::Skipped { source: Source::Oncokb, reason: Reason::NoKey }, None, false))).collect(),
-        source: SourceOutcome { source: Source::Oncokb, state: SourceState::Skipped, reason: Some(Reason::NoKey) },
-        problems: Vec::new(), local: None,
+        values: genes
+            .iter()
+            .map(|(id, _)| {
+                (
+                    *id,
+                    SectionValue::Oncokb(
+                        Section::Skipped {
+                            source: Source::Oncokb,
+                            reason: Reason::NoKey,
+                        },
+                        None,
+                        false,
+                    ),
+                )
+            })
+            .collect(),
+        source: SourceOutcome {
+            source: Source::Oncokb,
+            state: SourceState::Skipped,
+            reason: Some(Reason::NoKey),
+        },
+        problems: Vec::new(),
+        local: None,
     }
 }
-fn mapped_value(data: Option<oncokb::GeneData>, partial: bool) -> (Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool) {
+fn mapped_value(
+    data: Option<oncokb::GeneData>,
+    partial: bool,
+) -> (Section<biodata::Oncokb>, Option<biodata::OncokbCard>, bool) {
     match data {
-        Some(data) => (Section::Data { source: Source::Oncokb, data: data.section }, Some(data.card), partial),
-        None if partial => (Section::Unavailable { source: Source::Oncokb, reason: Reason::BadReply }, None, true),
-        None => (Section::Empty { source: Source::Oncokb, record: None }, None, false),
+        Some(data) => (
+            Section::Data {
+                source: Source::Oncokb,
+                data: data.section,
+            },
+            Some(data.card),
+            partial,
+        ),
+        None if partial => (
+            Section::Unavailable {
+                source: Source::Oncokb,
+                reason: Reason::BadReply,
+            },
+            None,
+            true,
+        ),
+        None => (
+            Section::Empty {
+                source: Source::Oncokb,
+                record: None,
+            },
+            None,
+            false,
+        ),
     }
 }

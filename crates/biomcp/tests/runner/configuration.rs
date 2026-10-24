@@ -182,6 +182,8 @@ fn boundaries() -> Check {
     fs::create_dir(&directory).map_err(|e| e.to_string())?;
     for config in [
         json!({"unknown":"sensitive"}),
+        json!({"keys":{"unknown":"sensitive"}}),
+        json!({"keys":{"oncokb_api_key":9}}),
         json!({"proxy":9}),
         json!({"proxy":"http://[invalid"}),
     ] {
@@ -200,6 +202,21 @@ fn boundaries() -> Check {
             return Err("configuration echoed input".into());
         }
     }
+    key_boundaries()
+}
+fn key_boundaries() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"unknown":"sensitive"})).map_err(|e| e.to_string())?;
+    let help = invoke(&env, vec!["help".into(), "key".into(), "oncokb".into()], 0)?;
+    if help.pointer("/result/config") != Some(&json!("keys.oncokb_api_key")) { return Err("key help read malformed settings".into()); }
+    if env.root().join("cache/biomcp").exists() { return Err("key help opened a cache".into()); }
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"keys":{"oncokb_api_key":""}})).map_err(|e| e.to_string())?;
+    let recording = root().parent().ok_or("fixture root")?.join("oncokb-synthetic/data");
+    let args = vec!["--replay".into(), recording.to_string_lossy().into(), "get".into(), "gene".into(), "TP53".into()];
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).env("ONCOKB_API_KEY", "synthetic-override").output().map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if !output.status.success() || value.pointer("/result/items/0/oncokb/version") != Some(&json!("synthetic-1")) { return Err("environment key did not override the empty file key".into()); }
     Ok(())
 }
 

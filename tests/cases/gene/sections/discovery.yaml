@@ -13,8 +13,8 @@
         "/result/items/0/more": [
           "constraint"
         ],
-        "/next/0/kind": "section",
-        "/next/0/args": [
+        "/next/1/kind": "section",
+        "/next/1/args": [
           "get",
           "gene",
           "HGNC:11998",
