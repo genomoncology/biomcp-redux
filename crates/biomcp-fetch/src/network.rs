@@ -72,8 +72,12 @@ impl Bypass {
             return Err(FetchError::Proxy);
         }
         // Authority accepts a nonnumeric port; refuse rather than silently widen a rule.
-        let port = authority.port_u16();
-        if authority.port().is_some() && port.is_none() { return Err(FetchError::Proxy); }
+        let tail = if text.starts_with('[') {
+            text.split_once(']').map(|(_, tail)| tail).ok_or(FetchError::Proxy)?
+        } else { text.strip_prefix(authority.host()).ok_or(FetchError::Proxy)? };
+        let port = if tail.is_empty() { None } else {
+            Some(tail.strip_prefix(':').ok_or(FetchError::Proxy)?.parse::<u16>().map_err(|_| FetchError::Proxy)?)
+        };
         Ok(Self { host, port, suffix, bare })
     }
     fn matches(&self, uri: &ureq::http::Uri) -> bool {
