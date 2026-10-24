@@ -45,6 +45,16 @@ pub fn lookup(
     } else {
         "hg19"
     };
+    if query.starts_with("clinvar.variant_id:") && components::disabled_on_leg(leg, "clinvar") {
+        return Err(biomcp_fetch::SourceError {
+            source: Source::MyVariant,
+            reason: biodata::Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into());
+    }
+    let fields = fields(leg);
     let mut offset = 0;
     let mut hits = Vec::new();
     loop {
@@ -54,7 +64,7 @@ pub fn lookup(
                 ("q", Arg::Text(query)),
                 ("size", Arg::Num(1000)),
                 ("from", Arg::Num(offset)),
-                ("fields", Arg::Text(FIELDS)),
+                ("fields", Arg::Text(&fields)),
                 ("assembly", Arg::Text(assembly)),
             ],
             |page| page.hits.iter().all(|hit| hit.matches(query)),
@@ -98,10 +108,11 @@ fn annotation(
         "hg19"
     };
     let endpoint = VARIANT.clone().with_segments(&[PathSegment::new(id)?]);
+    let fields = fields(leg);
     let (hit, _) = leg.json_received_checked::<raw::Hit>(
         &endpoint,
         &[
-            ("fields", Arg::Text(FIELDS)),
+            ("fields", Arg::Text(&fields)),
             ("assembly", Arg::Text(assembly)),
         ],
         |hit| {
@@ -113,4 +124,13 @@ fn annotation(
         },
     )?;
     Ok(map::candidates(vec![hit], id, build))
+}
+
+/// Filter independently disabled carried components before creating a request identity.
+pub(super) fn fields(leg: &Leg<'_>) -> String {
+    FIELDS
+        .split(',')
+        .filter(|field| !components::disabled_on_leg(leg, field.split('.').next().unwrap_or(field)))
+        .collect::<Vec<_>>()
+        .join(",")
 }

@@ -42,7 +42,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             ("q", Arg::Text(&term)),
             ("size", Arg::Num(u64::from(query.limit()))),
             ("from", Arg::Num(u64::from(query.offset()))),
-            ("fields", Arg::Text(super::FIELDS)),
+            ("fields", Arg::Text(&super::fields(leg))),
             (
                 "assembly",
                 Arg::Text(if query.build() == Build::Grch38 {
