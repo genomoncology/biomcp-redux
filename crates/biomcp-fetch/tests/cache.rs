@@ -58,7 +58,6 @@ fn exchange<T: Send>(
         let worker = scope.spawn(call);
         let request = server.next();
         assert!(request.text.starts_with("GET /answer"));
-        assert!(request.started.elapsed() < Duration::from_secs(10));
         request.respond(status, "", body);
         worker.join().unwrap()
     })

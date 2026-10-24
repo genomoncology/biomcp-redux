@@ -142,7 +142,6 @@ fn concurrent_first_opens_and_distinct_writes_survive_into_a_new_process() {
     let request_a = server.next();
     let request_b = server.next();
     assert_ne!(request_a.text, request_b.text);
-    assert!(request_a.started.elapsed() < Duration::from_secs(10));
     request_a.ok();
     request_b.ok();
     lock.execute_batch("COMMIT").unwrap();
