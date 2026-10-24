@@ -197,8 +197,39 @@ impl Leg<'_> {
             .get("retry-after")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
-        let mut body = Vec::new();
         let recording = matches!(self.fetch.config.mode, crate::Mode::Record { .. });
+        let body = self.read_body(&mut response, status, recording)?;
+        if recording {
+            let exchange = Exchange {
+                status,
+                content_type: content_type.clone(),
+                body: Body::capture(body.clone()).map_err(local)?,
+                delay_ms: crate::record::millis(started.elapsed()).map_err(local)?,
+                retry_after_ms: retry_after
+                    .map(crate::record::millis)
+                    .transpose()
+                    .map_err(local)?,
+            };
+            self.fetch
+                .recordings
+                .append(self.spec.source, identity, url, exchange)
+                .map_err(local)?;
+        }
+        Ok(Wire {
+            status,
+            content_type,
+            body,
+            retry_after,
+        })
+    }
+
+    fn read_body(
+        &self,
+        response: &mut ureq::http::Response<ureq::Body>,
+        status: u16,
+        recording: bool,
+    ) -> Result<Vec<u8>, Failure> {
+        let mut body = Vec::new();
         if recording || (200..300).contains(&status) {
             response
                 .body_mut()
@@ -226,28 +257,7 @@ impl Leg<'_> {
                 ));
             }
         }
-        if recording {
-            let exchange = Exchange {
-                status,
-                content_type: content_type.clone(),
-                body: Body::capture(body.clone()).map_err(local)?,
-                delay_ms: crate::record::millis(started.elapsed()).map_err(local)?,
-                retry_after_ms: retry_after
-                    .map(crate::record::millis)
-                    .transpose()
-                    .map_err(local)?,
-            };
-            self.fetch
-                .recordings
-                .append(self.spec.source, identity, url, exchange)
-                .map_err(local)?;
-        }
-        Ok(Wire {
-            status,
-            content_type,
-            body,
-            retry_after,
-        })
+        Ok(body)
     }
 
     fn decode<T: Reply>(&self, response: Wire) -> Result<(T, u16, Vec<u8>), SourceError> {

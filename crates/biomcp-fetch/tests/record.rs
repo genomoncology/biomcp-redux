@@ -145,7 +145,8 @@ fn replay_advances_long_response_and_retry_delays_and_enforces_each_leg_budget()
         &[(200, "", r#"{"answer":true}"#)],
     );
     change(dir.path(), |v| {
-        let success = v["exchanges"][0].clone();
+        let mut success = v["exchanges"][0].clone();
+        success["delay_ms"] = 0.into();
         v["exchanges"] = serde_json::json!([
             {"status":503,"content_type":"application/json","delay_ms":120000,"retry_after_ms":240000,"body":{"kind":"text","value":"unavailable"}}, success]);
     });
@@ -259,10 +260,7 @@ fn invalid_recordings_are_local_bounded_errors_with_no_fallback() {
     for (field, value) in [
         ("status", serde_json::json!(999)),
         ("delay_ms", serde_json::json!(-1)),
-        (
-            "retry_after_ms",
-            serde_json::json!(18446744073709551616u128),
-        ),
+        ("retry_after_ms", serde_json::json!(18446744073709551616.0)),
     ] {
         std::fs::write(file(dir.path()), &original).unwrap();
         change(dir.path(), |v| v["exchanges"][0][field] = value);
@@ -350,4 +348,25 @@ fn capture_keeps_retry_status_headers_and_rejected_json_without_credentials() {
     assert!(
         matches!(get(&replay, spec), Err(RequestError::Source(e)) if e.reason == biodata::Reason::NoKey)
     );
+}
+
+#[test]
+fn non_utf8_capture_is_a_typed_refusal_and_never_publishes_a_partial_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    let recording = fetch(Mode::Record {
+        dir: dir.path().to_owned(),
+    });
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| get(&recording, spec));
+        let mut response = b"HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 1\r\nConnection: close\r\n\r\n".to_vec();
+        response.push(255);
+        server.next().bytes(response);
+        assert_eq!(
+            worker.join().unwrap().unwrap_err(),
+            RequestError::Recording(RecordError::NonUtf8)
+        );
+    });
+    assert!(!dir.path().join("pubmed").exists());
 }

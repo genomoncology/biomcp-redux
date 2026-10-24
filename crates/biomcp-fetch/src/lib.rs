@@ -64,11 +64,11 @@ impl Default for FetchConfig {
 /// One blocking client shared across source legs.
 pub struct Fetch {
     agent: ureq::Agent,
-    config: FetchConfig,
     limiters: quota::Limiters,
     cache: Option<std::sync::Arc<cache::Cache>>,
     recordings: record::Recordings,
     clock: Option<deadline::VirtualClock>,
+    config: FetchConfig,
 }
 
 impl fmt::Debug for Fetch {
@@ -178,7 +178,6 @@ pub struct Leg<'a> {
 /// Request policy for live provider access.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Mode {
-    /// Force a provider refresh when `fresh` is true, while still writing results.
     /// Capture each provider response in a new or empty directory.
     Record {
         /// Exclusive capture directory.

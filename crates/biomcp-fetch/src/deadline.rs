@@ -1,3 +1,7 @@
+#![expect(
+    clippy::disallowed_types,
+    reason = "Advance the shared replay clock atomically without sleeping"
+)]
 use std::{
     sync::Mutex,
     time::{Duration, Instant},
@@ -11,10 +15,6 @@ pub struct Deadline<'a> {
 }
 
 #[derive(Debug)]
-#[expect(
-    clippy::disallowed_types,
-    reason = "Advance the shared replay clock atomically without sleeping"
-)]
 pub(crate) struct VirtualClock(Mutex<Instant>);
 impl Default for VirtualClock {
     fn default() -> Self {
