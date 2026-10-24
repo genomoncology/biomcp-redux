@@ -116,7 +116,7 @@ fn store_corruption_and_exhausted_budget_remain_typed_local_failures() {
         .unwrap()
         .connect()
         .unwrap()
-        .execute_batch("DROP TABLE pool_current")
+        .execute_batch("ALTER TABLE pool_current RENAME COLUMN request_key TO corrupt_key")
         .unwrap();
     let sql_failure = run(&fetch, query(None, 0), false);
     assert_eq!(
