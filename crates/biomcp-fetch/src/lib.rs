@@ -11,6 +11,7 @@ mod record;
 mod request;
 mod retry;
 mod secret;
+pub mod xml;
 
 pub use cache::VERSION;
 pub use deadline::Deadline;

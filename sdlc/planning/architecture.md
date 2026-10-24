@@ -68,7 +68,7 @@ winnow = { version = "1", default-features = false, features = ["ascii", "alloc"
 thiserror = "2"
 ureq = { version = "3", default-features = false, features = ["rustls", "platform-verifier", "gzip", "json"] }
 rusqlite = { version = "0.37", features = ["bundled"] }
-quick-xml = { version = "0.38", features = ["serialize"] }
+quick-xml = { version = "0.42", default-features = false, features = ["serialize"] }
 sha2 = { version = "0.10", default-features = false }
 clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions", "string"] }
 
@@ -1078,17 +1078,26 @@ pub(super) struct SummaryResult {
     #[serde(flatten)] pub docs: HashMap<String, DocSum>,
 }
 
-/// EFetch PubMed XML, reduced to the abstract text.
+/// EFetch PubMed XML uses an explicit raw XML decoder for mixed abstracts.
 #[derive(Deserialize)]
 pub(super) struct ArticleSet { #[serde(rename = "PubmedArticle")] pub articles: Option<Vec<PubmedArticle>> }
 #[derive(Deserialize)]
-pub(super) struct AbstractText {
+pub(super) struct AbstractLabel {
     #[serde(rename = "@Label")] pub label: Option<String>,
-    #[serde(rename = "$value")] pub text: MixedText,     // keeps BRAF<sup>V600E</sup> as BRAFV600E
+}
+#[derive(Deserialize)]
+pub(super) struct AbstractText { pub label: Option<String>, pub text: MixedText }
+impl AbstractText {
+    fn decode_element(xml: &str) -> Result<Self, BadReply> {
+        let label: AbstractLabel = quick_xml::de::from_str(xml).map_err(|_| BadReply)?;
+        Ok(Self { label: label.label, text: MixedText::from_xml(xml)? })
+    }
 }
 ```
 
-`biomcp_fetch::xml::MixedText` deserializes an element's whole text content with inline tags such as `sup`, `sub`, `i` and `b` reduced to their text. Without it, a serde XML decode drops or refuses mixed content, and an abstract that writes `BRAF<sup>V600E</sup>` would lose the variant. A recorded case asserts that this abstract's text contains `V600E`. `#[serde(flatten)]` appears in `SummaryResult` because ESummary mixes one fixed key with a map, and raw types never use `deny_unknown_fields`.
+`Leg::xml<T: XmlReply>` calls the raw type's `XmlReply::decode_xml` method. Ordinary XML replies use its bounded serde default. A raw type with mixed elements overrides this boundary, reads the element fragments with quick-xml's event Reader and calls `MixedText::from_xml` on each complete fragment. It uses serde for the remaining structured fields. The article adapter supplies this source-specific element selection when that source is built.
+
+`MixedText::from_xml` preserves an element's text, whitespace and inline order with arbitrary nested markup removed. It keeps `BRAF<sup>V600E</sup>` as `BRAFV600E`. It ignores attributes and comments, decodes built-in and numeric references and CDATA, and returns empty text for an empty element. Its reader is iterative and bounded by the same XML nesting limit as the decoder. Generic quick-xml serde drops whitespace-only mixed events, so an arbitrary `$value` serde field cannot provide this contract. A recorded article case asserts that its abstract contains `V600E`. `#[serde(flatten)]` appears in `SummaryResult` because ESummary mixes one fixed key with a map, and raw types never use `deny_unknown_fields`.
 
 ### 5.5 How adapters are tested
 
@@ -1747,7 +1756,7 @@ The ratchet test holds the list. Each entry names a file and its reason.
 - `crates/biomcp-fetch/tests/`: the transport contract through the crate's public API against a local stub server with no network: source-key rate limits, deadlines, retries, keyed-source skips, reply checks, the cache and record, replay and offline. These are outside-in for the library, so the transport lands before any command. When a runner case later proves the same behavior through the binary, the duplicate library test is removed.
 - `crates/biomcp-query/src/article/rank.rs`: the ranker's tie-break table, because a ranking rule is easier to state as rows than as recorded pools.
 - `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
-- `crates/biomcp-fetch/src/xml.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
+- `crates/biomcp-fetch/src/xml_tests.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
 
 Everything else goes through the runner.
 

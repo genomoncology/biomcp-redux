@@ -12,6 +12,7 @@ serde_json = { workspace = true, features = ["raw_value"] }
 ureq.workspace = true
 sha2.workspace = true
 httpdate.workspace = true
+quick-xml.workspace = true
 rusqlite.workspace = true
 
 tempfile.workspace = true

@@ -1,4 +1,5 @@
 use crate::record::{Body, Exchange};
+use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
 use biodata::Reason;
@@ -25,6 +26,24 @@ impl Leg<'_> {
         ep: &Endpoint,
         params: &[(&str, Arg<'_>)],
     ) -> Result<T, RequestError> {
+        self.parameters(ep, params, Decoder::json())
+    }
+
+    /// Send checked XML from a GET or form POST.
+    pub fn xml<T: XmlReply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+    ) -> Result<T, RequestError> {
+        self.parameters(ep, params, Decoder::xml())
+    }
+
+    fn parameters<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        codec: Decoder<T>,
+    ) -> Result<T, RequestError> {
         self.validate(ep, false)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
         let (url, body) = if ep.method == Method::Get {
@@ -38,7 +57,11 @@ impl Leg<'_> {
                 crate::prepared::form(params, self.spec.key, self.fetch.config.max_body)?,
             )
         };
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent))
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            codec,
+        )
     }
 
     /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
@@ -69,9 +92,14 @@ impl Leg<'_> {
         body: &B,
     ) -> Result<T, RequestError> {
         self.validate(ep, true)?;
+        let codec = Decoder::json();
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path);
-        self.send(ep, Prepared::new(url, body, ep.method, ep.idempotent))
+        self.send(
+            ep,
+            Prepared::new(url, body, ep.method, ep.idempotent),
+            codec,
+        )
     }
 
     fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
@@ -89,15 +117,20 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn send<T: Reply>(&self, ep: &Endpoint, prepared: Prepared) -> Result<T, RequestError> {
+    fn send<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        prepared: Prepared,
+        codec: Decoder<T>,
+    ) -> Result<T, RequestError> {
         let keyed = match self.spec.key {
             KeyUse::Optional(c) | KeyUse::Required(c) => {
                 self.fetch.config.secrets.get(c.secret).is_some()
             }
             KeyUse::None => false,
         };
-        self.cached(ep, &prepared.url, &prepared.identity, || {
-            self.attempts(&prepared, keyed)
+        self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
+            self.attempts(&prepared, keyed, &codec)
         })
     }
 
@@ -105,6 +138,7 @@ impl Leg<'_> {
         &self,
         prepared: &Prepared,
         keyed: bool,
+        codec: &Decoder<T>,
     ) -> Result<(T, u16, Vec<u8>), RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
@@ -112,11 +146,11 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
-            let (mut error, retryable, delay) = match self.exchange(prepared) {
+            let (mut error, retryable, delay) = match self.exchange(prepared, codec) {
                 Ok(response) => {
                     let status = response.status;
                     if (200..300).contains(&status) {
-                        return self.decode(response).map_err(Into::into);
+                        return self.decode(response, codec).map_err(Into::into);
                     }
                     let delay = response.retry_after;
                     (
@@ -168,13 +202,17 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn call(&self, prepared: &Prepared) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+    fn call<T: Reply>(
+        &self,
+        prepared: &Prepared,
+        codec: &Decoder<T>,
+    ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let mut request = if prepared.post.is_some() {
             self.fetch.agent.post(&prepared.url)
         } else {
             self.fetch.agent.get(&prepared.url).force_send_body()
         }
-        .header("Accept", "application/json");
+        .header("Accept", codec.name());
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.config.secrets.get(c.secret)
         {
@@ -197,7 +235,7 @@ impl Leg<'_> {
             .send(prepared.body.as_slice())
     }
 
-    fn exchange(&self, prepared: &Prepared) -> Result<Wire, Failure> {
+    fn exchange<T: Reply>(&self, prepared: &Prepared, codec: &Decoder<T>) -> Result<Wire, Failure> {
         let local = |error| Failure::Local(RequestError::Recording(error));
         if let Some(exchange) = self
             .fetch
@@ -228,7 +266,7 @@ impl Leg<'_> {
             });
         }
         let started = Instant::now();
-        let mut response = self.call(prepared).map_err(Failure::Transport)?;
+        let mut response = self.call(prepared, codec).map_err(Failure::Transport)?;
         let status = response.status().as_u16();
         let content_type = response
             .headers()
@@ -310,26 +348,20 @@ impl Leg<'_> {
         Ok(body)
     }
 
-    fn decode<T: Reply>(&self, response: Wire) -> Result<(T, u16, Vec<u8>), SourceError> {
+    fn decode<T: Reply>(
+        &self,
+        response: Wire,
+        codec: &Decoder<T>,
+    ) -> Result<(T, u16, Vec<u8>), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
-        let content_type = response
-            .content_type
-            .split(';')
-            .next()
-            .unwrap_or("")
-            .trim()
-            .to_ascii_lowercase();
-        if content_type != "application/json"
-            && !(content_type.starts_with("application/") && content_type.ends_with("+json"))
-        {
+        if !codec.accepts(&response.content_type) {
             return Err(bad());
         }
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
-        let reply: T = serde_json::from_slice(&response.body).map_err(|_| bad())?;
-        reply.check().map_err(|_| bad())?;
+        let reply = codec.decode(&response.body).ok_or_else(bad)?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }

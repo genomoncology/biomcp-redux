@@ -1,4 +1,5 @@
 //! Checked cache reuse around the single live request path.
+use crate::xml::Decoder;
 use crate::{
     Endpoint, Leg, Mode, Reply, RequestError,
     cache::{Cache, Entry, now},
@@ -17,20 +18,21 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         url: &str,
         key: &[u8; 32],
+        codec: &Decoder<T>,
         live: impl FnOnce() -> Result<(T, u16, Vec<u8>), RequestError>,
     ) -> Result<T, RequestError> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
         if self.fetch.config.mode == Mode::Offline {
-            return self.offline(endpoint, key);
+            return self.offline(endpoint, key, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
             return live().map(|(reply, _, _)| reply);
         };
         let mut stale = None;
         if self.fetch.config.mode == (Mode::Live { fresh: false }) {
-            match self.checked_cached(cache, key)? {
+            match self.checked_cached(cache, key, codec)? {
                 Some(Checked::Positive(reply, true)) => return Ok(reply),
                 Some(Checked::Positive(reply, false)) => stale = Some(reply),
                 Some(Checked::Absent) => {
@@ -45,7 +47,7 @@ impl Leg<'_> {
                     key,
                     self.spec.source,
                     url,
-                    &Entry::new(status, body, seconds),
+                    &Entry::new(status, body, seconds, codec.name()),
                     self.budget(),
                 )?;
                 Ok(reply)
@@ -57,7 +59,7 @@ impl Leg<'_> {
                     key,
                     self.spec.source,
                     url,
-                    &Entry::new(404, Vec::new(), NEGATIVE_SECONDS),
+                    &Entry::new(404, Vec::new(), NEGATIVE_SECONDS, codec.name()),
                     self.budget(),
                 )?;
                 Err(error.into())
@@ -79,14 +81,19 @@ impl Leg<'_> {
         }
     }
 
-    fn offline<T: Reply>(&self, endpoint: &Endpoint, key: &[u8; 32]) -> Result<T, RequestError> {
+    fn offline<T: Reply>(
+        &self,
+        endpoint: &Endpoint,
+        key: &[u8; 32],
+        codec: &Decoder<T>,
+    ) -> Result<T, RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
             .as_ref()
             .filter(|_| endpoint.fresh.seconds().is_some())
         {
-            match self.checked_cached(cache, key)? {
+            match self.checked_cached(cache, key, codec)? {
                 Some(Checked::Positive(reply, fresh)) => {
                     if !fresh {
                         self.report
@@ -109,6 +116,7 @@ impl Leg<'_> {
         &self,
         cache: &Cache,
         key: &[u8; 32],
+        codec: &Decoder<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
         let Some(entry) = cache.read(key, self.fetch.config.max_body, self.budget())? else {
             return Ok(None);
@@ -117,9 +125,9 @@ impl Leg<'_> {
         if entry.status == 404 {
             return Ok(fresh.then_some(Checked::Absent));
         }
-        let reply = serde_json::from_slice::<T>(&entry.body)
-            .ok()
-            .filter(|reply| reply.check().is_ok());
+        let reply = (entry.content_type.as_deref() == Some(codec.name()))
+            .then(|| codec.decode(&entry.body))
+            .flatten();
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and
             // cannot become a stale fallback after the live request fails.
