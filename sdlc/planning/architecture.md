@@ -1,55 +1,52 @@
 # Architecture
 
-BioMCP is a Rust command and a one-tool MCP server for biomedical search and get. Its user is an agent that supports cancer care decisions for clinicians. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
+BioMCP is a Rust command and a one-tool MCP server for biomedical search and get. Its user is an agent that supports cancer care decisions for clinicians. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles such as HGNC, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
 
-Every choice here follows `decisions/2026-10-23-least-code-easy-upkeep-fast.md`: the least code we own, easy upkeep, and fast. Where this design picks a lighter option over a heavier one, it says what it rejected and why. Where it changes earlier planning text, it marks the change **Overrides**, and section 13 lists every override in one place. Decisions in `decisions/` are settled, and this design works inside them. Section 14 holds the questions that need Ian.
+Every choice here follows `decisions/2026-10-23-least-code-easy-upkeep-fast.md`: the least code we own, easy upkeep, and fast. Where this design picks a lighter option over a heavier one, it says what it rejected and why. Decisions in `decisions/` are settled, and this design works inside them. Section 13 records the PM's rulings on this design's earlier open questions, and section 14 lists what remains open.
 
-The flags, sections and field names in the sketches below are placeholders. Each entity's slice settles its own, as `planning/slices.md` says. The shapes, the rules and the signatures are the design.
+The gene sketches follow `planning/slices/gene.md` and `decisions/2026-10-24-gene-slice-rulings.md`. Flags, sections and field names for other entities are placeholders that each slice settles, as `planning/slices.md` says. The shapes, the rules and the signatures are the design.
 
 ## 1. Goals and how the design meets them
 
 | Goal | Mechanism |
 | --- | --- |
-| Far less code | One transport does every request step once. An adapter is a constant source description, serde raw types and pure mapping functions. One grammar serves the CLI and MCP. One generic view renders Markdown from JSON. |
+| Far less code | One transport does every request step once. An adapter is a constant source description, serde raw types with one validity check and pure mapping functions. One grammar serves the CLI and MCP. One generic view renders Markdown from JSON. |
 | Easy upkeep | Five crates whose direction Cargo enforces. Lints and a ratchet test enforce size, state and dependency rules from the first commit. |
-| Very fast | Blocking I/O on threads with no async runtime. One leg per source, each with its own deadline and limits. A SQLite reply cache, stored pools and stored bundle rows make warm calls local. A budget per command, measured in replay. |
-| Right information in context | Search returns headers. Get returns one card with requested sections. Every response names the sections it left out and the next commands that go deeper. Nulls, empty lists and unrequested sections are omitted. |
+| Very fast | Blocking I/O on threads with no async runtime. One leg per source, each with its own deadline, under a limiter keyed by the source key its adapter declares. A SQLite reply cache, pinned pools and indexed bundle rows make warm calls local. A budget per command, measured in replay. |
+| Right information in context | The densest facts sit at the top of the tree, as `decisions/2026-10-24-dense-facts-first-with-a-token-budget.md` says. Search returns capped headers. Get returns cards with requested sections. Every response names the sections it left out and typed next steps that go deeper. Nulls, empty lists and unrequested sections are omitted. Cases hold size ceilings per command and per section. |
 | JSON by default, shaped by biodata | Every response is one envelope type from `biodata`, with a generated, checked-in and versioned JSON Schema. |
 | MCP as one tool over the CLI | The tool takes the CLI argument list. The same grammar parses it and the same service call runs. |
-| Search and get scope | The request type has search, get and drill-down commands only. |
-| Data bundles as local APIs | A bundle is an endpoint kind in the transport. Its rows sit in SQLite and its adapter maps them like any reply. |
-| Cache that later backs a wiki | One SQLite file. Its tables already hold typed results with their sources and times. |
-| Outside-in tests with record and replay | Record and replay live in the transport. One small runner drives the binary and the MCP tool from YAML cases. |
+| Search and get scope | The request type holds search, get and drill-down commands only. |
+| Data bundles as local APIs | A bundle is an endpoint kind in the transport. Its rows sit in SQLite with lookup keys and a word index, and its adapter maps them like any reply. |
+| Cache that later backs a wiki | One SQLite file holds typed results with their sources and times, and the wiki tables join it when the wiki arrives. |
+| Outside-in tests with record and replay | Record and replay live in the transport as user features. One small runner drives the binary and the MCP tool from YAML cases. |
 | Lint ratchets | Workspace lints, per-crate `clippy.toml` files and one ratchet test, all in `make landing-gate`. |
 
 ## 2. Workspace and crates
 
 ### 2.1 The crates
 
-Five crates. Each one exists because a rule needs a crate boundary to enforce it.
+Five crates. Each exists because a rule needs a crate boundary to enforce it.
 
 | Crate | Job | May import | May not import |
 | --- | --- | --- | --- |
 | `biodata` | Typed values for every entity, identifier, closed set, query, request and response. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
-| `biomcp-fetch` | The transport: HTTP, deadlines, rate limits, retry, body limits, decoding, the reply cache, offline, record and replay, bundle download and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types and mapping into biodata | `biodata`, `biomcp-fetch`, `serde` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the entity store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
 | `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
-- `biodata` does no I/O and may later merge with another biodata crate, as `decisions/2026-10-23-biodata-is-the-base-data-layer.md` says. Only a crate with its own `Cargo.toml` and `clippy.toml` can hold that line.
-- `biomcp-fetch` is the only crate that names an HTTP client, as `decisions/2026-10-23-one-transport.md` says. A separate crate makes that a dependency fact.
-- `biomcp-adapters` must not reach the store, the services or the interface. It sits below `biomcp-query`, so Cargo refuses any such import. It also cannot name `ureq`, so it cannot build a client.
+- `biodata` does no I/O and may later merge with another biodata crate, as `decisions/2026-10-23-biodata-is-the-base-data-layer.md` says. Only a crate with its own manifest and `clippy.toml` can hold that line.
+- `biomcp-fetch` is the only crate that names an HTTP client, as `decisions/2026-10-23-one-transport.md` says.
+- `biomcp-adapters` sits below `biomcp-query`, so Cargo refuses any import of the store or the services. It cannot name `ureq`, so it cannot build a client.
 - `biomcp-query` holds the logic that the CLI, MCP and the later web mode share. Splitting it from the binary keeps clap and the config file out of it.
 - `biomcp` is the only binary.
 
-**Overrides** the earlier seven-crate table. Two planned crates fold into others:
+The store is the `store` module of `biomcp-query`. The ratchet test confines `rusqlite` inside `biomcp-query` to `src/store/`. The Markdown view is the `view` module of the binary. It takes the serialized `serde_json::Value` of a response and returns text, so it cannot fetch, read a file or show content the JSON lacks.
 
-- `biomcp-store` becomes the `store` module of `biomcp-query`. The store holds pools and later entities and links that only the services write. A separate crate would add a `Cargo.toml`, an error enum and a public API whose only caller is `biomcp-query`. The ratchet test confines `rusqlite` inside `biomcp-query` to `src/store/`. The adapters still cannot reach the store, because they sit below `biomcp-query`.
-- `biomcp-render` becomes the `view` module of the binary. The view takes the serialized `serde_json::Value` of a response and returns text. It receives no fetch handle, no store and no typed record. It therefore cannot fetch, read a file or show content the JSON lacks. That property held only by review in the earlier plan. Here the function signature holds it.
-
-Rejected: a crate per entity, a crate per source family, a separate `biomcp-types` crate beside `biodata`, and a separate MCP crate. Each adds a manifest and a public surface without enforcing a rule the five crates miss.
+Rejected: a crate per entity, a crate per source family, a separate store crate, a separate render crate, a `biomcp-types` crate beside `biodata`, and a separate MCP crate. Each adds a manifest and a public surface without enforcing a rule the five crates miss.
 
 ### 2.2 The workspace manifest
 
@@ -69,16 +66,16 @@ serde_json = "1"
 schemars = "1"                   # JSON Schema 2020-12
 winnow = { version = "1", default-features = false, features = ["ascii", "alloc"] }
 thiserror = "2"
-ureq = { version = "3", default-features = false, features = ["rustls", "gzip"] }
+ureq = { version = "3", default-features = false, features = ["rustls", "platform-verifier", "gzip", "json"] }
 rusqlite = { version = "0.37", features = ["bundled"] }
 quick-xml = { version = "0.38", features = ["serialize"] }
 sha2 = { version = "0.10", default-features = false }
-clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions"] }
+clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions", "string"] }
 
 [workspace.lints.rust]
-unsafe_code = "forbid"
-unreachable_pub = "forbid"
-missing_debug_implementations = "forbid"
+unsafe_code = "deny"
+unreachable_pub = "deny"
+missing_debug_implementations = "deny"
 missing_docs = "deny"
 
 [workspace.lints.clippy]
@@ -97,7 +94,11 @@ disallowed_methods = "deny"
 disallowed_types = "deny"
 ```
 
-The version numbers above are the stage 1 starting point. The stage that adds each dependency confirms its current release and records the code it saves, as `planning/rust-standards.md` says.
+Lints are `deny`, never `forbid`, so a rare exception can carry `#[expect(lint, reason = "...")]` where a reviewer sees it. `allow_attributes_without_reason` makes every such exception state its reason, and the ratchet test lists the files allowed to carry one.
+
+`ureq` uses rustls with the ring provider and the platform's trust roots, so corporate roots installed on the machine work without a CA bundle. Its proxy comes only from the config file. The client never reads proxy environment variables, because only `config.rs` reads the environment. `clap`'s `string` feature lets the grammar build arguments from owned names read out of the schemas.
+
+The version numbers above are the stage 1 starting point. The stage that adds each dependency confirms its current release and feature names and records the code it saves, as `planning/rust-standards.md` says.
 
 ### 2.3 How tools enforce the boundaries
 
@@ -106,16 +107,19 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
 1. **Cargo.** A crate can import only what its manifest lists. Transitive crates cannot be named. The adapters depend on `biomcp-fetch`, which depends on `ureq`, and still cannot name `ureq`.
 2. **clippy, per crate.** clippy reads the nearest `clippy.toml`, so each crate carries its own, and each repeats the test allowances and `too-many-lines-threshold = 80`.
    - `biodata`: disallows file, environment, network, process, thread and clock items one by one, and the interior mutability types `Cell`, `RefCell`, `Mutex`, `RwLock`, `OnceLock`, `LazyLock` and the atomics. Without `unsafe` and without those types, no global state can exist.
-   - `biomcp-adapters`: the same list. An adapter has no reason to touch a file, the clock, the environment, a thread or shared state.
-   - `biomcp-query`: disallows environment, file and process items, `std::thread::sleep`, `std::thread::spawn` and the interior mutability types. `std::thread::scope` is allowed only in `fanout.rs`, through one `#[expect(clippy::disallowed_methods, reason = "...")]`.
-   - `biomcp-fetch`: disallows environment and process items. Its `Mutex`, `Condvar` and `Cell` uses each carry an `expect` with a written reason.
-   - `biomcp`: disallows environment reads everywhere except `config.rs`, which carries one `expect` with a reason.
+   - `biomcp-adapters`: the same list.
+   - `biomcp-query`: disallows environment, file and process items, `std::thread::sleep`, `std::thread::spawn` and the interior mutability types. `std::thread::scope` is allowed only in `fanout.rs`, through one reasoned `expect`.
+   - `biomcp-fetch`: disallows environment and process items. Its `Mutex`, `Condvar`, `Cell` and `std::thread::scope` uses each carry a reasoned `expect`.
+   - `biomcp`: disallows environment reads everywhere except `config.rs`, and thread spawns everywhere except `mcp.rs`, each through one reasoned `expect`.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
    - Each crate's direct dependencies are a subset of its allowed list, which the test holds as one table that mirrors section 2.1.
    - `rusqlite` appears in `biomcp-query` only under `src/store/`.
-   - No product file exceeds 600 lines. No file in an adapter module exceeds 300.
+   - No product file exceeds 600 lines. No file in an adapter folder exceeds 300.
    - `#[test]` appears in product crates only in the listed exception files.
+   - `#[serde(default)]` never appears in an adapter's `raw.rs` (section 5.1).
+   - `#[expect(` appears only in the listed files.
    - Every `Quirk:` comment names a case file that exists.
+   - `SourceKey::declare` and `Quota` statics appear only in `biomcp-adapters/src/quotas.rs`, and no two quotas declare the same key.
 
 `cargo deny check licenses advisories` also runs in the gate. It refuses GPL, LGPL and AGPL code and known advisories.
 
@@ -124,77 +128,79 @@ Rejected: a separate script for the ratchets. A Rust test needs no second langua
 ### 2.4 File layout
 
 ```
-Cargo.toml  rust-toolchain.toml  rustfmt.toml  deny.toml  Makefile
+Cargo.toml  rust-toolchain.toml  rustfmt.toml  deny.toml  Makefile  .gitattributes
 crates/
   biodata/
     clippy.toml  README.md
     src/lib.rs  macros.rs  error.rs  text.rs  date.rs  coord.rs  source.rs
-    src/id/        pmid.rs  pmcid.rs  doi.rs  nct.rs  hgnc.rs  entrez.rs  symbol.rs  ...
+    src/id/        hgnc.rs  entrez.rs  ensembl.rs  symbol.rs  uniprot.rs  pmid.rs  nct.rs  ...
     src/gene.rs  article.rs  trial.rs  ...            one file per entity
-    src/query/     request.rs  page.rs  gene.rs  article.rs  trial.rs  ...
-    src/response/  envelope.rs  section.rs  outcome.rs  problem.rs  gene.rs  article.rs  ...
+    src/query/     request.rs  gene.rs  article.rs  trial.rs  ...
+    src/response/  envelope.rs  section.rs  step.rs  problem.rs  gene.rs  article.rs  ...
     schemas/       generated *.schema.json, checked in
     tests/         schemas.rs  roundtrip.rs  ids.rs  (public API tables)
   biomcp-fetch/
     clippy.toml
-    src/lib.rs  spec.rs  endpoint.rs  leg.rs  deadline.rs  rate.rs  send.rs  retry.rs
-    src/decode.rs  cache.rs  record.rs  bundle.rs  secret.rs  error.rs
+    src/lib.rs  spec.rs  quota.rs  endpoint.rs  leg.rs  deadline.rs  clock.rs  send.rs  retry.rs
+    src/decode.rs  xml.rs  cache.rs  record.rs  bundle.rs  secret.rs  error.rs
   biomcp-adapters/
     clippy.toml
-    src/lib.rs  raw.rs  mapped.rs
+    src/lib.rs  raw.rs  mapped.rs  quotas.rs
     src/<source>/mod.rs  raw.rs  map.rs
   biomcp-query/
     clippy.toml
     src/lib.rs  ctx.rs  run.rs  fanout.rs  status.rs  error.rs
     src/<entity>/search.rs  get.rs  next.rs
+    src/gene/resolve.rs
     src/article/pool.rs  rank.rs
     src/store/mod.rs  schema.sql  pool.rs
   biomcp/
     clippy.toml
-    src/main.rs  config.rs  grammar.rs  spell.rs  output.rs  exit.rs
-    src/mcp.rs  src/view/mod.rs  hints.rs
+    src/main.rs  config.rs  paths.rs  grammar.rs  retired.rs  spell.rs  output.rs  exit.rs  mcp.rs
+    src/view/mod.rs  hints.rs
     tests/cases.rs  ratchets.rs  runner/
 tests/
   cases/<feature>/*.yaml
   replies/<recording>/<source>/<key>.json
 ```
 
+`.gitattributes` sets `eol=lf` for every text file, so recordings, schemas and cases hash and diff the same on Windows.
+
 ## 3. biodata
 
-`biodata` holds every value that crosses a layer or appears in output. Values that stay inside one layer, such as an adapter's raw reply types or a pool's internal features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
+`biodata` holds every value that crosses a layer or appears in output. Values that stay inside one layer, such as an adapter's raw reply types or a pool's ranking features, stay in that layer. `biodata` names no other project, depends on no other workspace crate and has no command.
 
 Its modules group what a later merge would keep together. Identifiers, coordinates, dates, text and the entity types form the shareable core. `query` and `response` hold BioMCP's request and response contract, and a later split can lift them out without touching the core.
+
+A minimal set of these types lands before the transport stage, because the transport's signatures name `Source`, `Reason` and the problem type.
 
 ### 3.1 Identifiers
 
 Every identifier is a newtype with a private field, one checked way in, `FromStr` and `Display` that round-trip, and serde in both directions through the same check. Every identifier serializes as its canonical text, so an agent can pass any ID back exactly as it received it.
 
 ```rust
-/// A PubMed identifier, such as `17611497`.
+/// An HGNC gene identifier, such as `HGNC:1097`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Pmid(NonZeroU32);
+pub struct HgncId(NonZeroU32);
 
-impl Pmid {
-    pub fn new(n: u32) -> Result<Self, IdError>;
+impl HgncId {
+    pub fn new(n: u32) -> Result<Self, IdError>;   // where the caller knows the namespace is HGNC
     pub fn get(self) -> u32;
 }
-impl FromStr for Pmid { type Err = IdError; /* digits only, nonzero, at most nine */ }
-impl fmt::Display for Pmid { /* plain digits */ }
-text_value!(Pmid, "Pmid", r"^[1-9][0-9]{0,8}$");
+impl FromStr for HgncId { type Err = IdError; /* requires the HGNC: prefix */ }
+impl fmt::Display for HgncId { /* HGNC:1097 */ }
+text_value!(HgncId, "HgncId", r"^HGNC:[1-9][0-9]*$");
 
-/// A ClinicalTrials.gov identifier, such as `NCT02576665`.
-pub struct NctId(u32);                       // renders as NCT plus eight digits
-
-/// An HGNC gene identifier, such as `HGNC:1097`.
-pub struct HgncId(NonZeroU32);               // FromStr requires the prefix; new() takes the number
+pub struct EntrezGeneId(NonZeroU32);         // 673
+pub struct EnsemblGeneId { number: u64, version: Option<NonZeroU16> }   // ENSG00000157764, version kept apart
+pub struct Cytoband(Box<str>);               // 7q34, 9p21.3; checked chromosome, arm and band
+pub struct Pmid(NonZeroU32);                 // 17611497
+pub struct NctId(u32);                       // NCT plus eight digits
 
 /// A gene symbol as written, compared and hashed without case.
 pub struct GeneSymbol(Box<str>);
 impl PartialEq for GeneSymbol { /* eq_ignore_ascii_case */ }
 impl Hash for GeneSymbol { /* hashes the ASCII-lowercased bytes, so Hash agrees with Eq */ }
-
-/// A DOI, kept as written and compared without case.
-pub struct Doi(Box<str>);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
 #[non_exhaustive]
@@ -220,7 +226,7 @@ macro_rules! text_value {
 }
 ```
 
-The visitor accepts borrowed and owned strings, so every serde format works. Error messages carry the stable code and never the input text, because inputs may hold patient data.
+The visitor accepts borrowed and owned strings. Error messages carry the stable code and never the input text, because inputs may hold patient data.
 
 ### 3.2 Closed sets, dates, text and coordinates
 
@@ -231,10 +237,10 @@ A closed set is an enum with snake_case names. A set that may grow is `#[non_exh
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "snake_case")]
-pub enum TrialPhase { EarlyPhase1, Phase1, Phase1Phase2, Phase2, Phase2Phase3, Phase3, Phase4, NotApplicable }
+pub enum LocusGroup { ProteinCoding, NonCodingRna, Pseudogene, Phenotype, Other }
 ```
 
-The enum parses only its own canonical names. Each provider's spelling, such as `PHASE1` or `Phase 1/Phase 2`, maps to the enum in that adapter's `map.rs`. A provider value outside the set becomes a problem on the record and leaves the field absent. No enum carries an `Other(String)` escape.
+The enum parses only its own canonical names. Each provider's spelling, such as HGNC's `protein-coding gene` or ClinicalTrials.gov's `PHASE1`, maps to the enum in that adapter's `map.rs`. A provider value outside the set becomes a problem on the record and leaves the field absent. No enum carries an `Other(String)` escape.
 
 Dates from literature are often partial, so one type holds what the source stated:
 
@@ -245,93 +251,145 @@ impl PartialDate { pub fn new(year: u16, month: Option<u8>, day: Option<u8>) -> 
 // FromStr and Display use 2007, 2007-07 and 2007-07-15.
 ```
 
-Free text is `Text(Box<str>)`, checked nonempty and trimmed. An abstract, a summary or eligibility criteria stay text. Display text, such as a formatted date, never lives in a value.
+Free text is `Text(Box<str>)`, checked nonempty and trimmed. A summary, an abstract or eligibility criteria stay text. Alias text stays text, because aliases hold spaces, slashes and parentheses, such as `HER-2/neu`. Display text, such as a formatted date, never lives in a value.
 
-Coordinates carry their assembly and counting rule in the type: `Position1(NonZeroU32)`, `Span0 { start: u32, end: u32 }` and `GenomicInterval { build: Build, contig: Contig, span: Span0 }`. `Build` has an explicit `Unstated` case for sources that do not say. Nothing defaults to one build. Variant parsing has one implementation, and the variant slice decides whether it lives here or in a shared parser crate.
+Coordinates carry their assembly and counting rule in the type: `Position1(NonZeroU32)`, `Span0 { start: u32, end: u32 }` and `GenomicInterval { build: Build, contig: Contig, span: Span0, strand: Option<Strand> }`. `Build` has an explicit `Unstated` case for sources that do not say. Nothing defaults to one build. Variant parsing has one implementation, and the variant slice decides whether it lives here or in a shared parser crate.
 
 ### 3.3 Entities, headers and cards
 
 Each entity has two levels, so progressive disclosure is a type fact.
 
-- A **header** is what a search returns: the identifiers and the few fields an agent needs to choose its next step.
-- The **entity** is the full record a get returns. It contains its header.
-- A **card** is the get response. It holds the entity, the requested sections and the names of the sections left out.
+- A **header** is what a search returns: the identifiers and the few fields an agent needs to choose its next step. Every list inside a header is capped by its type, such as the first three authors and a count.
+- The **entity** is the full record a get returns.
+- A **card** is one get result. It holds the entity, the requested sections and the names of the sections left out.
+
+The gene types follow `planning/slices/gene.md`:
 
 ```rust
+/// How an input reached a gene.
+pub struct Match { pub kind: MatchKind, pub text: Text }
+#[non_exhaustive]
+pub enum MatchKind { Symbol, PreviousSymbol, Alias, NcbiAlias, HgncId, EntrezId, EnsemblId }
+
 /// Enough to pick a gene and chain the next command.
 pub struct GeneHeader {
+    pub hgnc_id: HgncId,
     pub symbol: GeneSymbol,
-    pub hgnc: Option<HgncId>,
-    pub entrez: Option<EntrezId>,
-    pub name: Option<Text>,
-    pub gene_type: Option<GeneType>,
+    pub name: Text,
+    pub locus_group: LocusGroup,
+    pub location: Option<Cytoband>,
+    pub status: GeneStatus,
+    pub r#match: Option<Match>,          // present when the header answers an input
 }
 
-/// One human gene as its primary source describes it.
+/// One human gene: HGNC identity with MyGene.info's summary and spans.
 pub struct Gene {
-    #[serde(flatten)]
-    pub header: GeneHeader,
-    pub aliases: Box<[GeneSymbol]>,
-    pub summary: Option<Text>,
-    pub location: Option<GenomicInterval>,
-    pub ensembl: Option<EnsemblGeneId>,
-    pub uniprot: Box<[UniProtAccession]>,
+    pub hgnc_id: HgncId,
+    pub symbol: GeneSymbol,
+    pub name: Text,
+    pub status: GeneStatus,
+    pub locus_group: LocusGroup,
+    pub locus_type: Option<LocusType>,
+    pub location: Option<Cytoband>,
+    pub previous_symbols: Box<[GeneSymbol]>,
+    pub aliases: Box<[Text]>,
+    pub ncbi_aliases: Box<[Text]>,       // aliases NCBI holds and HGNC lacks
+    pub entrez_id: Option<EntrezGeneId>,
+    pub ensembl_id: Option<EnsemblGeneId>,
+    pub uniprot: Box<[UniProtAcc]>,
+    pub omim: Box<[OmimId]>,
+    pub mane_select: Option<ManeSelect>,
+    pub spans: Box<[GenomicInterval]>,   // one per build, each with strand
+    pub summary: Option<Summary>,        // whole RefSeq text with its source and date
 }
 
-/// The get gene response.
+/// The get gene result for one resolved input.
 pub struct GeneCard {
     pub gene: Gene,
-    pub sources: Box<[Source]>,          // where the core fields came from
+    pub r#match: Match,
+    pub sources: Box<[Source]>,
     pub sections: GeneSections,          // requested sections only
     pub more: Box<[GeneSection]>,        // sections that exist and were not requested
+    pub oncokb: Option<Section<OncoKbBrief>>,   // default with an OncoKB key: gene type and highest levels
 }
 
 #[derive(Default)]
 pub struct GeneSections {
-    pub civic: Option<Section<CivicGeneSummary>>,
+    pub protein: Option<Section<Box<[Protein]>>>,
+    pub civic: Option<Section<CivicGene>>,
+    pub clingen: Option<Section<ClinGenGene>>,
+    pub constraint: Option<Section<Constraint>>,
+    pub expression: Option<Section<Expression>>,
     pub pathways: Option<Section<Box<[PathwayRef]>>>,
-    // one field per GeneSection variant; None means not requested
+    pub oncokb: Option<Section<OncoKbGene>>,
 }
 
 #[non_exhaustive]
-pub enum GeneSection { Civic, Pathways, /* the gene slice names the rest */ }
+pub enum GeneSection { Protein, Civic, Clingen, Constraint, Expression, Pathways, Oncokb }
 ```
 
-Every field skips serialization when it is `None` or empty. A header and an entity are biodata core types. A card and its sections are BioMCP response types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
+No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Headers and entities are biodata core types. Cards and sections are BioMCP response types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
 
-### 3.4 Sections and their four states
+### 3.4 Resolution
 
-A requested section is always present in the card and always in one of four states. One generic type holds the state and the data together, so a section can never carry data and an error at once.
+A get answers each input with a resolution. Ambiguous and withdrawn inputs are answers, never failures.
+
+```rust
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "resolution", rename_all = "snake_case")]
+pub enum GeneResolution {
+    Resolved { card: GeneCard },
+    Ambiguous { candidates: Box<[GeneHeader]> },        // ranked; each carries how it matched
+    Withdrawn { hgnc_id: HgncId, symbol: GeneSymbol, locus_type: Option<LocusType> },
+    NotFound,
+}
+
+/// One input of a get and its answer, in input order.
+pub struct GeneItem { pub input: Text, pub status: ItemStatus, pub answer: GeneResolution }
+pub struct GeneCards { pub items: Box<[GeneItem]> }
+```
+
+Each later entity defines its resolution the same way, with the variants its sources can give.
+
+### 3.5 Sections and their five states
+
+A requested section is always present and always in one of five states. One generic type holds the state and the data together, so a section can never carry data and an error at once.
 
 ```rust
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "state", rename_all = "snake_case")]
 pub enum Section<T> {
     Data { source: Source, data: T },
-    Empty { source: Source },                     // the source answered and had nothing
+    Empty { source: Source, record: Option<SourceRecord> },
     Unavailable { source: Source, reason: Reason },
-    NotApplicable,                                // the section cannot apply to this record
+    Skipped { source: Source, reason: Reason },     // no_key or disabled
+    NotApplicable,
 }
+
+/// The source's own entry for this entity: its ID and a link.
+pub struct SourceRecord { pub id: Text, pub url: Option<Text> }
 ```
 
-**Overrides** the earlier envelope, which kept section states in a top-level `sections` map beside a `result.sections` map. One object per section now carries both. The card's `more` list replaces any listing of unrequested sections, so 0.9's sixteen `not_requested` entries become one short list of names.
+`Empty` with a `record` means the source holds an entry for this entity with nothing in it. CIViC holds VSIR with no variants. `Empty` without a `record` means the source holds no entry at all. CIViC lacks ABCC8. Both are answers, and the agent can tell them apart. `Skipped` means BioMCP did not ask the source: the source needs the user's own key and none is configured, or the user disabled it. A skip is the user's setting, never a failure. `NotApplicable` means the record's own facts rule the section out, such as `protein` for MIR21, which HGNC lists with no UniProt accession.
 
-### 3.5 Provenance and problems
+A card's `more` lists the sections the caller did not request, so 0.9's sixteen `not_requested` entries become one short list of names.
 
-Source identity is one enum. Adding a source adds one variant.
+### 3.6 Provenance and problems
+
+Source identity is one enum. Each variant carries the short name 0.9 users already know.
 
 ```rust
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Source {
+    #[serde(rename = "hgnc")] Hgnc,
     #[serde(rename = "mygene")] MyGene,
     #[serde(rename = "pubmed")] PubMed,
     #[serde(rename = "europepmc")] EuropePmc,
     #[serde(rename = "pubtator")] PubTator,
     #[serde(rename = "ctgov")] ClinicalTrialsGov,
     #[serde(rename = "civic")] Civic,
-    #[serde(rename = "ema")] Ema,
-    // one variant per source; each carries the short name 0.9 users already know
+    // one variant per source
 }
 ```
 
@@ -342,46 +400,62 @@ Provenance appears at three levels, each as small as its question needs:
 - A pooled search item lists every source that found it, with the native rank:
 
 ```rust
-pub struct Found { pub source: Source, pub rank: NonZeroU32 }
-pub struct ArticleItem { pub header: ArticleHeader, pub found_by: Box<[Found]> }
+pub struct FoundBy { pub source: Source, pub rank: NonZeroU32 }
+pub struct ArticleItem { pub header: ArticleHeader, pub found_by: Box<[FoundBy]> }
 ```
 
-Field-level provenance does not exist, because no field is ever merged from two sources (section 6.4).
+No field is merged from two sources (section 6.5), so field-level provenance needs no type.
 
 A problem is a typed note about one field of one record. It lets a record survive one bad field.
 
 ```rust
 pub struct Problem {
     pub source: Source,
-    pub record: Option<Box<str>>,     // the record's canonical ID text, when known
-    pub field: &'static str,          // the biodata field name, such as "pmid"
+    pub record: Option<Text>,         // the record's canonical ID text, when known
+    pub field: Box<str>,              // the biodata field name, such as "pmid"
     pub code: ProblemCode,            // such as id.zero, date.invalid, value.unknown
 }
 ```
 
-`field` serializes as text and deserializes into a checked field name. A required field that fails drops the record and leaves a problem. An optional field that fails leaves the field absent and a problem.
+A required field that fails drops the record and leaves a problem. An optional field that fails leaves the field absent and a problem.
 
-### 3.6 Queries and the request type
+### 3.7 Queries and the request type
 
 Every command is one query type. Its doc comments become the CLI help, the MCP description and the reference docs, through `schemars`. Two extension keys carry what a schema cannot say about argument spelling: `x-positional` for a positional argument's index and `x-short` for a one-letter flag.
 
 ```rust
-/// Search human genes by symbol, name or alias.
+/// Get gene cards for symbols, previous symbols, aliases, HGNC IDs, Entrez IDs or Ensembl IDs.
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
+pub struct GeneGet {
+    /// One to twenty gene inputs. Cards return in input order.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    pub input: Box<[GeneInput]>,
+    /// Sections to add to each card.
+    pub section: Box<[GeneSection]>,
+}
+
+/// Search human genes by text, band or locus group.
 #[derive(Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(deny_unknown_fields)]
 pub struct GeneSearch {
-    /// Free text matched against symbols, names and aliases.
+    /// Words matched against symbols, previous symbols, aliases and names.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub query: Option<Text>,
-    /// Return headers for these exact genes.
-    pub id: Box<[GeneId]>,
-    #[serde(flatten)]
-    pub page: Page,
+    /// Genes in this cytoband or any band inside it, such as 9p21.
+    pub band: Option<Cytoband>,
+    pub locus_group: Option<LocusGroup>,
+    /// Results per page, 1 to 50.
+    #[serde(default)]
+    pub limit: Limit,
+    /// Results to skip.
+    #[serde(default)]
+    pub offset: u32,
+    /// The pool to page, from a previous page's next step.
+    pub pool: Option<PoolId>,
 }
-
-/// The paging window every search shares.
-pub struct Page { pub limit: Limit, pub offset: u32 }    // Limit is 1 to 50, default 10
 
 /// One command. The tag is the CLI path joined by underscores.
 #[non_exhaustive]
@@ -401,17 +475,27 @@ pub enum Request {
 }
 ```
 
+Query types never use `#[serde(flatten)]`, because serde refuses `deny_unknown_fields` beside it. Each search names its own `limit`, `offset` and `pool` fields. `GeneInput` is free text that the edge parses into an HGNC ID, an Ensembl ID, an Entrez ID or symbol-like text, as `planning/slices/gene.md` says.
+
 The CLI path maps to the tag mechanically: `search gene` is `search_gene` and `trial locations` is `trial_locations`. A next step is a `Request` value, so the services never build command text.
 
-### 3.7 The envelope
+### 3.8 The envelope
 
-Every command returns one envelope. Its body type changes by command.
+Every command returns one envelope. Its body type changes by command, and each body names its own query type, so `query` echoes only the command that ran.
 
 ```rust
-pub struct Envelope<T> {
-    pub schema: SchemaId,                  // such as biomcp.gene_card/1
-    pub status: Status,                    // complete, partial or failed
-    pub query: Request,                    // the request as parsed and resolved
+/// Every response body names its schema and the query that produced it.
+pub trait Body: Serialize {
+    const SCHEMA: SchemaId;
+    type Query: Serialize;
+}
+
+#[derive(Serialize)]
+#[serde(bound = "T: Body")]
+pub struct Envelope<T: Body> {
+    pub schema: SchemaId,                  // such as biomcp.gene_cards/1
+    pub status: Status,
+    pub query: T::Query,                   // the query as parsed and resolved
     pub result: Option<T>,
     pub page: Option<PageInfo>,            // searches only
     pub sources: Box<[SourceOutcome]>,     // one per source asked
@@ -421,29 +505,34 @@ pub struct Envelope<T> {
 }
 
 pub struct SchemaId { pub name: &'static str, pub major: u16 }   // text form name/major
-pub enum Status { Complete, Partial, Failed }
-pub struct PageInfo { pub offset: u32, pub returned: u32, pub total: Option<u64>, pub pool: Option<PoolInfo> }
+pub enum Status { Complete, Partial, Absent, Failed }
+pub enum ItemStatus { Complete, Partial, Absent, Failed }
+pub struct PageInfo { pub offset: u32, pub returned: u32, pub total: Option<u64>, pub truncated: bool, pub pool: Option<PoolInfo> }
+pub struct PoolInfo { pub id: PoolId, pub size: u32, pub created: Timestamp, pub expires: Timestamp }
 pub struct SourceOutcome { pub source: Source, pub state: SourceState, pub reason: Option<Reason>, pub count: Option<u64> }
-pub enum SourceState { Ok, Empty, Partial, Stale, Failed, Disabled }
-pub struct Step { pub args: Box<[Box<str>]> }     // the argument list after the program name
+pub enum SourceState { Ok, Empty, Partial, Stale, Syncing, Failed, Skipped }
+
+/// One next command, with what it does.
+pub struct Step { pub kind: StepKind, pub args: Box<[Box<str>]> }
+#[non_exhaustive]
+pub enum StepKind { Page, Fresh, Section, Pivot, Disambiguate, Restart, Sync, Key }
 
 #[non_exhaustive]
-pub enum Reason { RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, MissingKey, NotInBundle, ReplayMiss }
-
-/// Every response type names its schema.
-pub trait Body: Serialize { const SCHEMA: SchemaId; }
+pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing }
 ```
 
-`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Request` into a `Step` through the grammar (section 8.3). The view prints a `Step` as a quoted shell command.
+`Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Request` into a `Step` through the grammar (section 8.3). The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
 
-### 3.8 Schemas and versions
+### 3.9 Schemas and versions
 
-- `schemars` derives every schema behind the `schema` feature. The schema dialect is JSON Schema 2020-12, which `schemars` 1.x emits by default.
+- `schemars` derives every schema behind the `schema` feature. The dialect is JSON Schema 2020-12, which `schemars` 1.x emits by default.
+- The binary depends on `biodata` with the `schema` feature on. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
 - The generated files sit in `crates/biodata/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
 - `crates/biodata/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
-- The same test runs a compatibility check. Every property path and type in the checked-in schema must still exist with the same type in the new one, unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it. The check is about a hundred lines and catches what a reviewer misses.
-- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are therefore the one authority, and the drift test keeps them equal to the types.
-- `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON, MessagePack, CBOR, YAML and TOML. Those format crates are test dependencies only.
+- The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
+- The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value. A query type outside the subset fails here, before the grammar sees it.
+- The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
+- `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ## 4. The transport
 
@@ -451,31 +540,34 @@ pub trait Body: Serialize { const SCHEMA: SchemaId; }
 
 ### 4.1 Blocking I/O on threads
 
-The transport uses blocking I/O through `ureq` with rustls, and the services fan out on scoped standard threads. No crate depends on an async runtime.
+The transport uses blocking I/O through `ureq`, and the services fan out on scoped standard threads. No crate depends on an async runtime.
 
 - A command makes at most a few dozen requests to at most a dozen sources. One thread per source leg costs nothing measurable at that scale.
-- Blocking code is shorter. Deadlines are timeouts, rate waits are sleeps, and a leg is a plain function call. No future, no `Send` bound puzzle, no runtime handle threads through the layers.
-- The dependency tree shrinks by the async runtime, the async HTTP stack and their transitive crates. Builds get faster and the binary smaller.
+- Blocking code is shorter. Deadlines are timeouts, quota waits are sleeps, and a leg is a plain function call.
+- The dependency tree loses the async runtime, the async HTTP stack and their transitive crates. Builds get faster and the binary smaller.
 
-Rejected: `reqwest` with `tokio`. It is the heavier stack for no gain at this concurrency. `reqwest`'s blocking client also starts a hidden runtime. **Overrides** the earlier text that named `reqwest` and left blocking against async open. Section 14 asks Ian to confirm, because the one-transport decision names `reqwest`.
+Rejected: `reqwest` with `tokio`. It is the heavier stack for no gain at this concurrency. `reqwest`'s blocking client also starts a hidden runtime.
 
 ### 4.2 The API
 
 ```rust
 /// One per process. Shared by reference across legs and threads.
-pub struct Fetch { /* ureq agent, reply cache, mode, per-source limiters, secrets, clock */ }
+pub struct Fetch { /* ureq agent, reply cache, mode, quota state, secrets, clock */ }
 
 pub struct FetchConfig {
     pub mode: Mode,
     pub cache_path: PathBuf,
     pub secrets: Secrets,
+    pub proxy: Option<ProxyUrl>,
     pub max_body: u64,
-    pub source_deadlines: BTreeMap<Source, Duration>,   // config overrides of each spec's default
+    pub source_deadlines: BTreeMap<Source, Duration>,
+    pub sync_budget: Duration,
+    pub auto_sync_max_bytes: u64,
 }
 
 pub enum Mode {
     Live { fresh: bool },              // fresh refetches and rewrites the cache
-    Offline,                           // cache only; a miss fails the leg with reason offline
+    Offline,                           // cache and bundles only; a miss fails the leg with reason offline
     Record { dir: PathBuf },           // live, and writes each exchange to dir
     Replay { dir: PathBuf },           // recordings only; a miss fails with reason replay_miss
 }
@@ -484,47 +576,70 @@ impl Fetch {
     pub fn open(config: FetchConfig) -> Result<Self, FetchError>;
     pub fn deadline(&self, budget: Duration) -> Deadline;
     pub fn leg(&self, spec: &'static SourceSpec, deadline: Deadline) -> Leg<'_>;
-    pub fn sync<R: DeserializeOwned>(&self, bundle: &'static Bundle<R>, deadline: Deadline) -> Result<BundleInfo, SourceError>;
+    pub fn sync<R: Row>(&self, bundle: &'static Bundle<R>) -> Result<BundleInfo, SourceError>;
 }
 
-/// One source's work inside one command. Used on one thread.
+/// A raw reply type that knows whether a decoded reply is a real answer.
+pub trait Reply: DeserializeOwned {
+    /// Refuse a 2xx reply that carries an error or lacks the fields an answer needs.
+    fn check(&self) -> Result<(), BadReply>;
+}
+
+/// One source's work inside one command.
 pub struct Leg<'a> { /* fetch, spec, deadline, trace */ }
 
 impl Leg<'_> {
-    pub fn json<T: DeserializeOwned>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError>;
-    pub fn xml<T: DeserializeOwned>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError>;
-    pub fn text(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<Box<str>, SourceError>;
-    pub fn post_json<B: Serialize, T: DeserializeOwned>(&self, ep: &Endpoint, body: &B) -> Result<T, SourceError>;
-    pub fn rows<R: DeserializeOwned>(&self, bundle: &'static Bundle<R>, find: Find<'_>) -> Result<Vec<R>, SourceError>;
+    pub fn json<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError>;
+    pub fn json_opt<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<Option<T>, SourceError>;   // 404 is None
+    pub fn xml<T: Reply>(&self, ep: &Endpoint, params: &[(&str, Arg<'_>)]) -> Result<T, SourceError>;
+    pub fn post_json<B: Serialize, T: Reply>(&self, ep: &Endpoint, body: &B) -> Result<T, SourceError>;
+    pub fn rows<R: Row>(&self, bundle: &'static Bundle<R>, find: Find<'_>) -> Result<Vec<R>, SourceError>;
+    /// Run one call per chunk on scoped threads, each under the source's quota. Returns in chunk order.
+    pub fn batch<C: Sync, T: Send>(&self, chunks: &[C], call: impl Fn(&Leg<'_>, &C) -> Result<T, SourceError> + Sync) -> Vec<Result<T, SourceError>>;
     pub fn finish(self) -> LegReport;      // state, requests, cache hits, stale flag, elapsed, trace
 }
 
-pub enum Arg<'a> { Text(&'a str), Num(u64) }   // From<&str>, From<u32>, From<u64>
-
-pub trait Found<T> { fn found(self) -> Result<Option<T>, SourceError>; }   // NotFound becomes Ok(None)
+pub enum Arg<'a> { Text(&'a str), Num(u64), Ids(&'a [Box<str>]) }   // Ids are sorted and joined with commas
 ```
 
-A source and its endpoints are constants built with `const fn`:
+A source and its endpoints are statics and constants built with `const fn`. A quota is one provider limit, named by a source key and shared by every source that draws on it.
 
 ```rust
+/// The name of one provider limit, such as `ncbi-eutils`. The adapter author picks it from the provider's documented quota.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct SourceKey(&'static str);
+impl SourceKey {
+    /// Accepts lowercase letters, digits and hyphens. Called only in quotas.rs, in a const.
+    pub const fn declare(name: &'static str) -> Self;
+}
+
+/// One provider limit with its unkeyed and keyed rates.
+pub struct Quota {
+    pub key: SourceKey,
+    pub rate: Rate,                    // without the user's key
+    pub keyed_rate: Option<Rate>,      // with it
+    pub in_flight: u8,
+}
+
 pub struct SourceSpec {
     pub source: Source,
     pub base: &'static str,
-    pub auth: Auth,
-    pub rate: Rate,                    // without a key
-    pub keyed_rate: Option<Rate>,      // with a key, when the source allows more
-    pub in_flight: u8,                 // concurrent requests to this source
+    pub key: KeyUse,
+    pub quota: &'static Quota,
     pub deadline: Duration,            // default leg budget
 }
 
-pub enum Auth {
+/// Whether a source takes the user's key, and whether it runs without one.
+pub enum KeyUse {
     None,
-    Query { secret: SecretName, param: &'static str, required: bool },
-    Header { secret: SecretName, name: &'static str, required: bool },
+    Optional(Credential),              // runs without the key at the unkeyed rate
+    Required(Credential),              // never called without the key
 }
+pub struct Credential { pub secret: SecretName, pub place: KeyPlace }
+pub enum KeyPlace { Query(&'static str), Header(&'static str) }
 
 pub struct Rate { per_second: u16, burst: u16 }
-pub enum Freshness { Never, Hours(u16), Days(u16) }
+pub enum Freshness { Never, Minutes(u16), Hours(u16), Days(u16) }
 pub enum Method { Get, PostForm, PostJson }
 
 pub struct Endpoint { pub spec: &'static SourceSpec, pub method: Method, pub path: &'static str, pub fresh: Freshness, pub idempotent: bool }
@@ -534,47 +649,78 @@ impl SourceSpec {
     pub const fn post_form(&'static self, path: &'static str) -> Endpoint;
     pub const fn post_json(&'static self, path: &'static str) -> Endpoint;
 }
-impl Endpoint {
-    pub const fn fresh(self, fresh: Freshness) -> Self;
-}
+impl Endpoint { pub const fn fresh(self, fresh: Freshness) -> Self; }
 ```
 
-### 4.3 The request path
+The quotas live in one file, `biomcp-adapters/src/quotas.rs`, so two sources on one provider can never declare two limits:
+
+```rust
+pub(crate) static NCBI_EUTILS: Quota = Quota { key: SourceKey::declare("ncbi-eutils"), rate: Rate::per_second(3), keyed_rate: Some(Rate::per_second(10)), in_flight: 3 };
+pub(crate) static PUBTATOR: Quota = Quota { key: SourceKey::declare("pubtator"), rate: Rate::per_second(3), keyed_rate: None, in_flight: 3 };
+```
+
+### 4.3 Keyed sources
+
+A source whose terms require the user's own license or account, such as OncoKB, declares `KeyUse::Required`, as `decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` says. Each slice names its keyed sources.
+
+- `Fetch::leg` checks the key before anything else. When the key is not configured, the leg is skipped. Every call on it returns `SourceError` with reason `no_key` and touches no network, cache entry or recording. This holds for the source's public endpoints too.
+- The fan-out sees the same check first and records the source as `skipped` with reason `no_key` without starting a thread.
+- A requested section from that source reports `Skipped` with reason `no_key`. The source outcome reports `skipped`, once per envelope. The response's next steps include one `key` step, `biomcp help key <source>`, whose help names the config key and the environment variable that supply it.
+- A skip changes no status. A card whose only gap is a skipped keyed source is complete.
+- Replay cases for a keyed source set a placeholder key in the case's temporary config. The reply key never includes a credential, so the recording matches.
+
+
+### 4.4 The request path
 
 Every call on a `Leg` runs the same steps in this order:
 
-1. Build the URL from the base, the path and the parameters. Add the credential from `Secrets` when the spec names one. A required key that is missing fails the leg with `missing_key` before any send.
-2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body. Parameter order is the adapter's order, which is fixed.
-3. In replay mode, serve the recording for the key, or fail with `replay_miss`.
-4. Look up the reply cache. A fresh reply returns at once. In offline mode, a stale reply returns marked stale, and a miss fails with `offline`.
-5. Wait for the source's rate slot and an in-flight permit. Both waits are bounded by the leg's deadline.
-6. Send with a timeout equal to the deadline's remaining time.
-7. Retry as section 4.5 says.
+1. Build the URL from the base, the path and the parameters. An `Arg::Ids` list is sorted before joining, so the same set of IDs always makes the same request. Add the user's key from `Secrets` when the spec takes one and it is configured. A leg whose required key is missing never reaches this step (section 4.3).
+2. Compute the reply key: SHA-256 over the method, the URL without the credential parameter and the body.
+3. In replay mode, take the recording for the key, or fail with `replay_miss`. Skip to step 8.
+4. Look up the reply cache. A fresh entry skips to step 10. In offline mode, a stale entry skips to step 10 marked stale, and a miss fails with `offline`.
+5. Wait for a FIFO permit from the source's quota: a rate slot and an in-flight place. The wait is bounded by the leg's deadline.
+6. Send. The request's timeouts bound DNS resolution, connect, receiving the response head and receiving the body, and the overall timeout equals the deadline's remaining time.
+7. Retry as section 4.6 says.
 8. Check the content type and read the body up to the size limit.
-9. Store the reply in the cache with its fresh-until time. In record mode, also write the recording file.
-10. Map the status into a `SourceError` or decode the body into the caller's raw type. A decode failure is `bad_reply`.
+9. Decode the body into the caller's raw type and run its `check`. A decode failure or a failed check is `bad_reply`.
+10. Store the reply. Only a 2xx reply that decoded and passed its check is stored, with its endpoint's freshness. A 404 is stored with a fixed short freshness of ten minutes, so a repeated miss costs no request and a new record appears soon. No other status is ever stored. In record mode, write the recording file whatever the status.
+11. Map the status into a `SourceError`, or return the decoded value.
 
-When steps 5 to 8 fail and the cache holds a stale reply for the key, the leg serves the stale reply and reports `stale` with the failure's reason. A source failure never becomes an empty success.
+A 200 reply that carries an error, such as an NCBI reply with an `ERROR` field and no ID list, therefore fails its check, is never cached and reaches the agent as `bad_reply`. A recorded case holds exactly that reply.
 
-### 4.4 Rate limits and concurrency
+When steps 5 to 9 fail and the cache holds a stale entry for the key, the leg serves the stale entry and reports `stale` with the failure's reason. A source failure never becomes an empty success.
 
-- Each source has one limiter keyed by source and by whether a key is present. NCBI allows more requests with a key, so PubMed's spec has a `keyed_rate`. PubTator stays at the same rate either way, so its spec has none.
-- A limiter holds the next free slot time under a `Mutex`. A caller takes the slot, releases the lock and sleeps outside it. `in_flight` caps concurrent requests to one source with a `Mutex` and `Condvar` permit count.
-- Limits are per source, and each leg runs on its own thread. A slow or rate-limited source therefore delays only its own leg. No queue, permit or deadline is shared across sources.
-- The limiter is per process. Several BioMCP processes sharing a key can exceed a source's limit together. The source then answers 429, and step 7 retries within the deadline. A cross-process limiter waits until a recorded failure shows the need.
+### 4.5 Quotas and concurrency
 
-### 4.5 Retries
+Limiters are keyed by a source key and never by a URL, a host name or an endpoint.
+
+- Each adapter's `SourceSpec` names the `Quota` that matches the provider's documented limit, and each `Quota` names its `SourceKey`. Sources that share one provider limit declare the same quota. PubMed, NCBI Gene and ClinVar all draw on E-utilities, so all three use `ncbi-eutils`, and a gene leg and an article leg in one command cannot together exceed NCBI's limit. Sources on one host with separate limits declare separate keys. PubTator sits on an NCBI host with its own limit, so it uses `pubtator`.
+- `Fetch` holds one limiter per `SourceKey`, built from its `Quota` on first use. The limiter's constructor takes only a `&'static Quota`, so nothing can derive a limiter from a URL or host. The ratchet test checks that `SourceKey::declare` and `Quota` statics appear only in `quotas.rs` and that no two quotas declare the same key.
+- Each limiter applies the keyed rate when the leg's source has its key configured, and the unkeyed rate otherwise.
+- Permits are served in arrival order. A waiter takes a ticket under a `Mutex`, and a `Condvar` wakes tickets in order. A caller sleeps for its rate slot outside the lock.
+- Each leg runs on its own thread, and only sources on the same quota wait for each other. A slow or rate-limited source therefore delays only the legs that share its provider.
+- A recorded case sends eight parallel calls to one E-utilities quota without a key and asserts from `--explain` that their start times keep the quota's rate. 0.9 drew seven 429 replies from the same pattern.
+- The limiter is per process. Several BioMCP processes sharing a key can exceed a provider's limit together. The provider then answers 429, and step 7 retries within the deadline.
+
+### 4.6 Retries
 
 - Retry on 429, 500, 502, 503, 504, a reset connection and a connect timeout, when the endpoint is idempotent. All GET endpoints are. A POST that only reads, such as ESummary, declares itself idempotent.
 - At most three attempts. Backoff starts at 250 ms and doubles. A deterministic jitter from the reply key spreads retries without a random number crate.
 - `Retry-After` in seconds or as an HTTP date replaces the backoff. When the wait would pass the deadline, the leg fails at once with `rate_limited` and the stated wait. One function in `retry.rs` parses the header.
-- A 4xx other than 429 is `rejected` and never retried. A 404 is `NotFound`, which an adapter turns into `None` with `.found()`.
+- A 4xx other than 404 and 429 is `rejected` and never retried. A 404 is `not_found`, which `json_opt` turns into `None`.
 
-### 4.6 Deadlines and time
+### 4.7 Deadlines and time
 
-The command has one budget, 20 seconds by default and set in config. Each leg's deadline is the smaller of the command budget and the source's own budget from its spec or the config. A leg that runs out fails with `deadline_exceeded` and the others continue. The scope in section 6.3 ends when the last leg ends, and every leg ends by its deadline, so a command ends within its budget plus a small margin.
+The command has one budget, 20 seconds by default and set in config. Each leg's deadline is the smaller of the command budget and the source's own budget. A leg that runs out fails with `deadline_exceeded`, and the others continue. Every leg ends by its deadline, so a command ends within its budget plus a small margin. Bundle syncs run under their own `sync_budget` (section 4.11).
 
-`Deadline` reads a `Clock` owned by `Fetch`. In live and record modes the clock is real time. In replay mode the clock is virtual: a recorded delay, a backoff or a `Retry-After` wait advances the leg's virtual time instead of sleeping. A recording with a 30-second delay therefore produces `deadline_exceeded` at once, and no case ever waits on a real clock.
+`Deadline` reads a `Clock` owned by `Fetch`. In live and record modes the clock is real time. In replay mode the clock is virtual, and nothing sleeps:
+
+- Each leg carries its own virtual time, starting at zero.
+- A request asks its quota for a slot at the leg's virtual time. The quota grants the later of that time and its next free slot, and moves its next free slot forward by one rate interval.
+- The recorded `delay_ms`, any backoff and any `Retry-After` wait advance the leg's virtual time.
+- Deadlines compare against the leg's virtual time.
+
+A recording with a 30-second delay therefore produces `deadline_exceeded` at once, and quota spacing shows in `--explain` exactly as it would live. Thread scheduling can change which parallel leg gets the earlier slot, so cases assert spacing and outcomes and never assert which of two parallel legs started first.
 
 ```rust
 pub struct Deadline { /* end instant or virtual budget */ }
@@ -585,62 +731,73 @@ impl Deadline {
 }
 ```
 
-### 4.7 The reply cache
+### 4.8 The reply cache
 
-The cache stores raw reply bodies keyed by reply key, in the `reply` table of the one SQLite file (section 7). Each endpoint declares how long its replies stay fresh. A literature summary may stay fresh for thirty days, and a trial's status for a day. `Freshness::Never` skips the cache, for the rare endpoint that must always be live.
+The cache stores checked reply bodies keyed by reply key, in the `reply` table of the cache file (section 7). Each endpoint declares how long its replies stay fresh. A literature summary may stay fresh for thirty days and a trial's status for a day. `Freshness::Never` skips the cache.
 
-`--fresh` sets `Mode::Live { fresh: true }`. The leg skips step 4 and rewrites the entry. Decoding runs on every read, so a raw type change never needs a cache migration.
+`--fresh` sets `Mode::Live { fresh: true }`. The leg skips step 4 and rewrites the entry. Decoding and the check run on every read, so a raw type change never needs a cache migration.
 
-### 4.8 Record, replay and offline
+### 4.9 Record, replay and offline
 
-Offline, record and replay are user features, so no test hook exists in product code. `--offline` answers from the cache. `--record DIR` lets a user capture a failing command and attach the folder to a bug report. `--replay DIR` reruns it anywhere. The runner uses the same two flags.
+Offline, record and replay are user features, so no test hook exists in product code. `--offline` answers from the cache and bundles. `--record DIR` lets a user capture a failing command and attach the folder to a bug report. `--replay DIR` reruns it anywhere. The runner uses the same flags, and `biomcp serve --replay DIR` serves MCP over recordings.
 
-A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`, so a diff shows exactly what changed:
+A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ```json
 {
   "request": { "method": "GET", "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=AKT1+E17K&sort=relevance&retmode=json&retstart=0&retmax=10000" },
   "replies": [
     { "status": 429, "retry_after_s": 1, "delay_ms": 120 },
-    { "status": 200, "content_type": "application/json", "delay_ms": 412, "body": "{\"esearchresult\":{...}}" }
+    { "status": 200, "content_type": "application/json", "delay_ms": 412, "json": { "esearchresult": { "count": "192", "idlist": ["33123537", "17611497"] } } }
   ]
 }
 ```
 
-- `replies` serves in order within one run, so a retry sequence is one file. A single reply is the common case.
-- A failure case is an ordinary file: a status, a large `delay_ms` for a timeout, or a cut `body` for a broken reply.
-- A binary body sits beside the file as `<key>.bin`.
-- Recorded URLs never hold a credential, because step 2 removes it before the key and the file exist.
+- A JSON body is embedded as JSON under `json`, so a diff shows the changed field. An XML or text body sits under `text`. A binary body sits beside the file as `<key>.bin`.
+- `replies` serves in order within one run, so a retry sequence is one file.
+- A failure case is an ordinary file: a status, a large `delay_ms` for a timeout, a cut `text` for a broken body, or a 200 whose `json` carries the provider's error field.
+- Recorded URLs never hold a credential, because step 2 removes it before the key and the file exist. Batch ID lists are sorted before keying, so a recording matches whatever order the caller asked in.
 - A recorded bundle holds a slice of the real published file with the rows its cases need.
 
-### 4.9 Credentials
+### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. A proxy comes only from the config file's `proxy` key.
 
-### 4.10 Bundles
+### 4.11 Bundles
 
 A bundle is a published file that BioMCP downloads and queries locally, as `decisions/2026-10-23-data-bundles-are-local-apis.md` says. The transport owns its download, its revalidation and its rows.
 
 ```rust
-pub struct Bundle<R: 'static> {
+/// A bundle row type: its raw shape and the keys that find it.
+pub trait Row: DeserializeOwned {
+    fn keys(&self) -> Keys;
+}
+
+pub struct Bundle<R: Row + 'static> {
     pub spec: &'static SourceSpec,
     pub name: &'static str,                      // the name `biomcp sync` takes
     pub path: &'static str,                      // the published file under the spec's base
-    pub format: RowFormat,                       // JsonArray { pointer }, JsonLines, Tsv, Csv
+    pub format: RowFormat,                       // JsonArray { pointer }, JsonLines, Tsv { list_separator }, Csv
     pub fresh: Freshness,
-    pub keys: fn(&R) -> Keys,                    // pure, from the adapter's map.rs
+    pub row: PhantomData<R>,
 }
 
-pub struct Keys(Vec<(KeyKind, Box<str>)>);       // normalized lookup keys for one row
-pub enum KeyKind { Id, Name, Synonym }
-pub enum Find<'a> { Id(&'a str), Name(&'a str), Prefix(&'a str) }
+pub struct Keys { pub exact: Vec<(KeyKind, Box<str>)>, pub words: Vec<Box<str>> }
+pub enum KeyKind { Id, Symbol, PreviousSymbol, Alias, Xref, Band }
+pub enum Find<'a> { Exact(KeyKind, &'a str), Prefix(KeyKind, &'a str), Words(&'a str) }
 ```
 
-`Fetch::sync` downloads the file with an ETag or date check, splits it into rows, runs `keys` on each row and stores each row's original JSON text with its keys in one transaction. `Leg::rows` looks rows up by key, deserializes them into `R` and returns them. The adapter maps them like any reply. A query therefore reads a few indexed rows and never parses the whole file.
+`Fetch::sync` downloads the file with an ETag or date check, splits it into rows, calls `keys` on each row, and stores each row's original text, its exact keys and its words in one transaction. `Leg::rows` finds rows by an exact key, by a key prefix such as `9p21` for every band inside it, or by words through an SQLite FTS5 index. The rows deserialize into `R`, and the adapter maps them like any reply. A query therefore reads a few indexed rows and never parses the whole file. The bundled SQLite build includes FTS5, and the first bundle stage confirms it with a case.
 
-When a bundle is absent, the first query syncs it under the bundle's own deadline and reports the sync in its source outcome. Offline mode never syncs. A stale bundle answers with `stale` and a `sync` next step. `biomcp sync <name>` refreshes one bundle on request.
+Sync rules:
 
-### 4.11 Errors
+- `biomcp sync` with no name syncs every bundle the enabled sources use. The install guide recommends running it once after install.
+- A query that needs an absent or stale bundle syncs it on first use only when the bundle's last known size is below `auto_sync_max_bytes`, 32 MB by default. A larger bundle answers `syncing` with a `sync` next step. Offline mode never syncs.
+- A sync takes a lock row in `bundle_sync`. Another process that finds the lock held answers `syncing` with a retry step, and a lock older than the sync budget is taken over.
+- A sync runs under `sync_budget`, separate from the command budget. The download writes to a part file in the cache folder and resumes with a range request when the server supports one. A sync that runs out of budget leaves the part file, answers `syncing` with a retry step, and the next sync resumes it.
+- A stale bundle that cannot sync answers from its stale rows with `stale` and a `sync` next step.
+
+### 4.12 Errors
 
 ```rust
 #[derive(Debug, thiserror::Error)]
@@ -651,6 +808,7 @@ pub struct SourceError { pub source: Source, pub reason: Reason, pub status: Opt
 #[non_exhaustive]
 pub enum FetchError {                 // opening the transport only
     #[error("fetch.cache_open")] CacheOpen(rusqlite::Error),
+    #[error("fetch.cache_version")] CacheVersion,
     #[error("fetch.tls")] Tls,
     #[error("fetch.recordings")] Recordings(std::io::Error),
 }
@@ -664,9 +822,11 @@ pub enum FetchError {                 // opening the transport only
 
 An adapter is one folder with three files:
 
-- `mod.rs` holds the `SourceSpec` constant, the endpoint constants and one short public function per question the source answers. Each function builds parameters, makes one or two `Leg` calls and hands the raw reply to `map`.
-- `raw.rs` holds serde types that mirror only the fields the mapping reads.
+- `mod.rs` holds the `SourceSpec` static, the endpoint constants and one short public function per question the source answers. Each function builds parameters, makes one or two `Leg` calls and hands the raw reply to `map`.
+- `raw.rs` holds serde types that mirror only the fields the mapping reads, and the `Reply` or `Row` impl for each top-level type.
 - `map.rs` holds pure functions from raw types to biodata values. Each failed check becomes a `Problem`.
+
+`#[serde(default)]` is banned in `raw.rs`. A field the provider may omit is an `Option`, and the top-level `check` decides whether its absence makes the reply an error. A missing result list can therefore never decode as an empty answer.
 
 Shared helpers live once in `biomcp-adapters/src/`:
 
@@ -677,162 +837,166 @@ Shared helpers live once in `biomcp-adapters/src/`:
 
 // mapped.rs: a value with the problems found while building it
 pub struct Mapped<T> { pub value: T, pub problems: Vec<Problem> }
-pub struct Problems { source: Source, record: Option<Box<str>>, list: Vec<Problem> }
+pub struct Problems { source: Source, record: Option<Text>, list: Vec<Problem> }
 impl Problems {
-    pub(crate) fn required<T, E: Into<ProblemCode>>(&mut self, field: &'static str, r: Result<T, E>) -> Option<T>;
-    pub(crate) fn optional<T, E: Into<ProblemCode>>(&mut self, field: &'static str, r: Option<Result<T, E>>) -> Option<T>;
+    pub(crate) fn required<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Result<T, E>) -> Option<T>;
+    pub(crate) fn optional<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Option<Result<T, E>>) -> Option<T>;
 }
 
 // one page from one source, before any merge
 pub struct SourcePage<T> { pub items: Vec<Mapped<T>>, pub total: Option<u64> }
 ```
 
-`SourcePage` and `Mapped` stay in the adapters crate, because no output ever shows them.
+`SourcePage` and `Mapped` stay in the adapters crate, because no output shows them.
 
-### 5.2 Worked example: MyGene.info
+### 5.2 Worked example: HGNC, a local bundle that owns gene identity
+
+HGNC owns gene identity and resolution, as `planning/slices/gene.md` says. It ships as two bundles: the CC0 complete set of about 17 MB and the withdrawn file. Both sit under the default threshold, so they sync on first use.
+
+```rust
+// crates/biomcp-adapters/src/hgnc/mod.rs
+//! HGNC: approved human gene symbols, previous symbols, aliases, bands and cross-references.
+
+pub(crate) static SPEC: SourceSpec = SourceSpec {
+    source: Source::Hgnc,
+    base: "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/",
+    key: KeyUse::None,
+    quota: &quotas::HGNC,
+    deadline: Duration::from_secs(5),
+};
+
+pub(crate) static COMPLETE: Bundle<raw::GeneRow> = Bundle {
+    spec: &SPEC,
+    name: "hgnc",
+    path: "hgnc_complete_set.txt",
+    format: RowFormat::Tsv { list_separator: '|' },
+    fresh: Freshness::Days(7),
+    row: PhantomData,
+};
+
+/// Every HGNC record an input can name, with how it matched.
+pub fn lookup(leg: &Leg<'_>, input: &GeneInput) -> Result<Vec<(Mapped<Gene>, MatchKind)>, SourceError> {
+    let finds = map::finds(input);                  // ID inputs give one exact find; text gives symbol, previous symbol, alias
+    let mut out = Vec::new();
+    for (find, kind) in finds {
+        out.extend(leg.rows(&COMPLETE, find)?.into_iter().filter_map(map::gene).map(|g| (g, kind)));
+    }
+    Ok(out)
+}
+
+/// Genes in a band or any band inside it.
+pub fn in_band(leg: &Leg<'_>, band: &Cytoband) -> Result<Vec<Mapped<GeneHeader>>, SourceError>;
+
+/// Genes whose symbols, aliases or names hold these words.
+pub fn by_words(leg: &Leg<'_>, words: &Text) -> Result<Vec<Mapped<GeneHeader>>, SourceError>;
+```
+
+```rust
+// crates/biomcp-adapters/src/hgnc/raw.rs
+#[derive(Deserialize)]
+pub(super) struct GeneRow {
+    pub hgnc_id: String,
+    pub symbol: String,
+    pub name: String,
+    pub status: String,                         // Quirk: exact lookups include withdrawn entries. Case: gene-get/brca3-withdrawn.yaml
+    pub locus_group: String,
+    pub locus_type: Option<String>,
+    pub location: Option<String>,
+    pub alias_symbol: Option<String>,           // Quirk: a quoted, pipe-separated list
+    pub prev_symbol: Option<String>,
+    pub entrez_id: Option<String>,
+    pub ensembl_gene_id: Option<String>,
+    pub uniprot_ids: Option<String>,
+    pub omim_id: Option<String>,
+    pub mane_select: Option<String>,            // RefSeq and Ensembl transcripts, pipe-separated
+}
+
+impl Row for GeneRow {
+    fn keys(&self) -> Keys;   // Id, Symbol, PreviousSymbol, Alias, Xref (Entrez and Ensembl), Band; words from symbol, aliases and name
+}
+```
+
+`map.rs` holds `finds`, `gene`, `header` and the tables from HGNC's spellings to `GeneStatus`, `LocusGroup` and `LocusType`. A second `Bundle` constant, `WITHDRAWN`, reads HGNC's withdrawn file with its own row type, and `lookup` reads both. Resolution into resolved, ambiguous, withdrawn or not found happens in the query layer from these rows (section 6.2). The gene stage confirms both download URLs.
+
+### 5.3 Worked example: MyGene.info, a simple remote source
+
+MyGene.info supplies the RefSeq summary and the spans on both builds for genes HGNC has already resolved. It is called by Entrez ID, never by symbol, because its symbol queries rank aliases badly.
 
 ```rust
 // crates/biomcp-adapters/src/mygene/mod.rs
-//! MyGene.info: human gene identity, names, aliases and location.
-
-use biodata::{GeneHeader, Gene, GeneSymbol, Source, query::GeneSearch};
-use biomcp_fetch::{Auth, Endpoint, Found, Freshness, Leg, Rate, SourceError, SourceSpec};
-use std::time::Duration;
+//! MyGene.info: RefSeq summary and GRCh38 and GRCh37 spans for resolved genes.
 
 pub(crate) static SPEC: SourceSpec = SourceSpec {
     source: Source::MyGene,
     base: "https://mygene.info/v3/",
-    auth: Auth::None,
-    rate: Rate::per_second(10),
-    keyed_rate: None,
-    in_flight: 4,
+    key: KeyUse::None,
+    quota: &quotas::BIOTHINGS,
     deadline: Duration::from_secs(8),
 };
 
-const QUERY: Endpoint = SPEC.get("query").fresh(Freshness::Days(7));
+const GENES: Endpoint = SPEC.post_form("gene").fresh(Freshness::Days(7));
+const FIELDS: &str = "summary,genomic_pos,genomic_pos_hg19";
+const BATCH: usize = 200;
 
-const HEADER_FIELDS: &str = "symbol,name,entrezgene,HGNC,type_of_gene";
-const GENE_FIELDS: &str = "symbol,name,entrezgene,HGNC,type_of_gene,alias,summary,genomic_pos,ensembl.gene,uniprot";
-
-/// Search genes by free text.
-pub fn search(leg: &Leg<'_>, q: &GeneSearch) -> Result<SourcePage<GeneHeader>, SourceError> {
-    let text = q.query.as_ref().map_or("", |t| t.as_str());
-    let raw: raw::Query = leg.json(&QUERY, &[
-        ("q", text.into()),
-        // Quirk: without species MyGene returns every organism. Case: gene-search/human-only.yaml
-        ("species", "human".into()),
-        ("fields", HEADER_FIELDS.into()),
-        ("size", q.page.limit.get().into()),
-        // Quirk: from plus size may not pass 10,000. Case: gene-search/deep-offset.yaml
-        ("from", q.page.offset.into()),
-    ])?;
-    Ok(map::header_page(raw))
-}
-
-/// Get one gene by its official symbol.
-pub fn get(leg: &Leg<'_>, symbol: &GeneSymbol) -> Result<Option<Mapped<Gene>>, SourceError> {
-    let q = format!("symbol:\"{symbol}\"");
-    let raw: Option<raw::Query> = leg.json(&QUERY, &[
-        ("q", q.as_str().into()),
-        ("species", "human".into()),
-        ("fields", GENE_FIELDS.into()),
-        ("size", 1u32.into()),
-    ]).found()?;
-    Ok(raw.and_then(|r| r.hits.into_iter().next()).and_then(map::gene))
+/// Summary and spans for each Entrez ID, keyed by ID. IDs MyGene lacks are absent.
+pub fn genes(leg: &Leg<'_>, ids: &[EntrezGeneId]) -> Result<Vec<Mapped<GeneExtras>>, SourceError> {
+    let ids: Vec<Box<str>> = ids.iter().map(|id| id.to_string().into()).collect();
+    let chunks: Vec<&[Box<str>]> = ids.chunks(BATCH).collect();
+    let pages = leg.batch(&chunks, |leg, chunk| {
+        leg.json::<raw::Genes>(&GENES, &[("ids", Arg::Ids(chunk)), ("fields", FIELDS.into()), ("species", "human".into())])
+    });
+    map::extras(pages)
 }
 ```
-
-The deep-offset limit is enforced once in the query type's `Page` checks for this source, so the adapter never sends an offset MyGene refuses.
 
 ```rust
 // crates/biomcp-adapters/src/mygene/raw.rs
-use crate::raw::{NumOrText, OneOrMany};
-use serde::Deserialize;
-
 #[derive(Deserialize)]
-pub(super) struct Query { pub total: Option<u64>, #[serde(default)] pub hits: Vec<Hit> }
+#[serde(transparent)]
+pub(super) struct Genes(pub Vec<Hit>);
+
+impl Reply for Genes {
+    fn check(&self) -> Result<(), BadReply> { /* a list; each hit has a query field */ }
+}
 
 #[derive(Deserialize)]
 pub(super) struct Hit {
-    pub symbol: Option<String>,
-    pub name: Option<String>,
-    pub entrezgene: Option<NumOrText>,            // Quirk: number or string
-    #[serde(rename = "HGNC")]
-    pub hgnc: Option<OneOrMany<NumOrText>>,       // Quirk: scalar or list
-    pub type_of_gene: Option<String>,
-    pub alias: Option<OneOrMany<String>>,         // Quirk: string or list
+    pub query: String,
+    pub notfound: Option<bool>,                     // Quirk: unknown IDs come back as {query, notfound: true}
     pub summary: Option<String>,
-    pub genomic_pos: Option<OneOrMany<GenomicPos>>,
-    pub ensembl: Option<OneOrMany<Ensembl>>,
-    pub uniprot: Option<Uniprot>,
+    pub genomic_pos: Option<OneOrMany<Pos>>,        // Quirk: an object or a list. GRCh38
+    pub genomic_pos_hg19: Option<OneOrMany<Pos>>,   // GRCh37
 }
 
 #[derive(Deserialize)]
-pub(super) struct GenomicPos { pub chr: String, pub start: u32, pub end: u32 }
-#[derive(Deserialize)]
-pub(super) struct Ensembl { pub gene: String }
-#[derive(Deserialize)]
-pub(super) struct Uniprot { #[serde(rename = "Swiss-Prot")] pub swiss_prot: Option<OneOrMany<String>> }
+pub(super) struct Pos { pub chr: String, pub start: u32, pub end: u32, pub strand: Option<i8> }
 ```
 
-```rust
-// crates/biomcp-adapters/src/mygene/map.rs
-use super::raw;
-use crate::mapped::{Mapped, Problems};
-use biodata::{Gene, GeneHeader, Source};
+`map::extras` builds a `GeneExtras { entrez_id, summary: Option<Summary>, spans: Box<[GenomicInterval]> }` per hit, with the build stated on each span and the summary's "provided by RefSeq" date split from its text. The query layer joins extras onto the HGNC record by Entrez ID. The adapter is about 120 lines.
 
-pub(super) fn header_page(raw: raw::Query) -> SourcePage<GeneHeader> {
-    SourcePage { total: raw.total, items: raw.hits.into_iter().filter_map(header).collect() }
-}
-
-pub(super) fn header(hit: raw::Hit) -> Option<Mapped<GeneHeader>>;
-pub(super) fn gene(hit: raw::Hit) -> Option<Mapped<Gene>>;
-
-// The body of header(), in full, to show the size:
-//     let mut p = Problems::new(Source::MyGene);
-//     let symbol = p.required("symbol", hit.symbol.as_deref().map_or(Err(IdError::Empty), str::parse))?;
-//     p.record(&symbol);
-//     let value = GeneHeader {
-//         hgnc: p.optional("hgnc", hit.hgnc.and_then(first).map(hgnc_id)),
-//         entrez: p.optional("entrez", hit.entrezgene.map(entrez_id)),
-//         name: hit.name.and_then(Text::new),
-//         gene_type: p.optional("gene_type", hit.type_of_gene.as_deref().map(gene_type)),
-//         symbol,
-//     };
-//     Some(p.finish(value))
-//
-// gene() reuses header() and adds aliases, summary, location, Ensembl and Swiss-Prot.
-// Quirk: genomic_pos is a list when a gene has several placements; the first is primary.
-// The gene slice confirms the assembly MyGene states for genomic_pos.
-// gene_type() is the one table from MyGene's type_of_gene spellings to GeneType.
-```
-
-The whole adapter is about 150 lines. 0.9's MyGene adapter is 888 lines, most of it client setup, request plans, decoders and inline tests that the transport and the cases replace.
-
-### 5.3 Worked example: PubMed ESearch and ESummary
+### 5.4 Worked example: PubMed, a paged two-step source
 
 PubMed answers a search in two steps. ESearch returns PMIDs in relevance order, and ESummary returns a header for each PMID.
 
 ```rust
 // crates/biomcp-adapters/src/pubmed/mod.rs
-//! PubMed through NCBI E-utilities: relevance-ordered PMIDs and article headers.
+//! PubMed through NCBI E-utilities: relevance-ordered PMIDs, headers and abstracts.
 
 pub(crate) static SPEC: SourceSpec = SourceSpec {
     source: Source::PubMed,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
-    auth: Auth::Query { secret: SecretName::NcbiApiKey, param: "api_key", required: false },
-    rate: Rate::per_second(3),
-    keyed_rate: Some(Rate::per_second(10)),     // NCBI allows more with a key
-    in_flight: 3,
+    key: KeyUse::Optional(Credential { secret: SecretName::NcbiApiKey, place: KeyPlace::Query("api_key") }),
+    quota: &quotas::NCBI_EUTILS,                // source key ncbi-eutils: 3 per second, 10 with a key
     deadline: Duration::from_secs(10),
 };
 
 const ESEARCH: Endpoint = SPEC.get("esearch.fcgi").fresh(Freshness::Hours(24));
 const ESUMMARY: Endpoint = SPEC.post_form("esummary.fcgi").fresh(Freshness::Days(30));
+const EFETCH: Endpoint = SPEC.post_form("efetch.fcgi").fresh(Freshness::Days(30));
 
 /// ESearch returns at most the first 10,000 records of any search.
 pub const MAX_WINDOW: u32 = 10_000;
-const SUMMARY_BATCH: usize = 200;
+const BATCH: usize = 200;
 
 /// PMIDs for a PubMed term, in PubMed's relevance order.
 pub fn search_ids(leg: &Leg<'_>, term: &PubMedTerm, window: Window) -> Result<SourcePage<Pmid>, SourceError> {
@@ -848,101 +1012,55 @@ pub fn search_ids(leg: &Leg<'_>, term: &PubMedTerm, window: Window) -> Result<So
     Ok(map::ids(raw))
 }
 
-/// Headers for PMIDs, in the order given. Missing PMIDs become problems.
-pub fn summaries(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Mapped<ArticleHeader>>, SourceError> {
-    let mut out = Vec::with_capacity(ids.len());
-    for batch in ids.chunks(SUMMARY_BATCH) {
-        let joined = join_ids(batch);
-        let raw: raw::ESummary = leg.json(&ESUMMARY, &[
-            ("db", "pubmed".into()),
-            ("retmode", "json".into()),
-            ("id", joined.as_str().into()),
-        ])?;
-        out.extend(map::summaries(raw, batch));
-    }
-    Ok(out)
-}
-```
+/// Headers for PMIDs. Missing PMIDs become problems.
+pub fn summaries(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Mapped<ArticleHeader>>, SourceError>;   // ESummary JSON in batches through leg.batch
 
-`PubMedTerm` is built in `map.rs` from the typed article query, so the term grammar has one owner. Paging is the service's choice: the pool build asks for one window of up to `MAX_WINDOW` PMIDs in one request, because a PMID list is small.
+/// Abstract text for PMIDs, with inline markup kept as text.
+pub fn abstracts(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<(Pmid, Text)>, SourceError>;          // EFetch XML in batches
+```
 
 ```rust
 // crates/biomcp-adapters/src/pubmed/raw.rs
 #[derive(Deserialize)]
 pub(super) struct ESearch { pub esearchresult: ESearchResult }
 #[derive(Deserialize)]
-pub(super) struct ESearchResult { pub count: NumOrText, #[serde(default)] pub idlist: Vec<String> }
+pub(super) struct ESearchResult {
+    pub count: Option<NumOrText>,
+    pub idlist: Option<Vec<String>>,
+    #[serde(rename = "ERROR")]
+    pub error: Option<String>,                  // Quirk: NCBI answers 200 with an ERROR field. Case: article-search/esearch-error-200.yaml
+}
+impl Reply for ESearch {
+    fn check(&self) -> Result<(), BadReply> { /* refuse when error is present or idlist or count is absent */ }
+}
 
 /// Quirk: ESummary keys each record by its PMID and lists the order in `uids`.
 #[derive(Deserialize)]
-pub(super) struct ESummary { pub result: SummaryResult }
+pub(super) struct ESummary { pub result: Option<SummaryResult>, pub error: Option<String> }
 #[derive(Deserialize)]
 pub(super) struct SummaryResult {
-    #[serde(default)] pub uids: Vec<String>,
+    pub uids: Option<Vec<String>>,
     #[serde(flatten)] pub docs: HashMap<String, DocSum>,
 }
+
+/// EFetch PubMed XML, reduced to the abstract text.
 #[derive(Deserialize)]
-pub(super) struct DocSum {
-    pub title: Option<String>,
-    pub fulljournalname: Option<String>,
-    pub sortpubdate: Option<String>,              // Quirk: "2007/07/05 00:00"
-    #[serde(default)] pub authors: Vec<Author>,
-    #[serde(default)] pub pubtype: Vec<String>,
-    #[serde(default)] pub articleids: Vec<ArticleIdRow>,   // carries doi and pmc
+pub(super) struct ArticleSet { #[serde(rename = "PubmedArticle")] pub articles: Option<Vec<PubmedArticle>> }
+#[derive(Deserialize)]
+pub(super) struct AbstractText {
+    #[serde(rename = "@Label")] pub label: Option<String>,
+    #[serde(rename = "$value")] pub text: MixedText,     // keeps BRAF<sup>V600E</sup> as BRAFV600E
 }
 ```
 
-```rust
-// crates/biomcp-adapters/src/pubmed/map.rs
-pub(super) fn ids(raw: raw::ESearch) -> SourcePage<Pmid>;           // native rank is list position
-pub(super) fn summaries(raw: raw::ESummary, asked: &[Pmid]) -> Vec<Mapped<ArticleHeader>>;
-pub(super) fn term(q: &ArticleQuery) -> PubMedTerm;                // the one term grammar
-fn pub_date(text: &str) -> Result<PartialDate, DateError>;
-fn pub_type(text: &str) -> Result<PublicationType, ProblemCode>;    // PubMed spellings to the enum
-```
-
-### 5.4 Worked example: a local data bundle
-
-EMA publishes its medicine list as a JSON report. The adapter declares the bundle and maps its rows.
-
-```rust
-// crates/biomcp-adapters/src/ema/mod.rs
-//! EMA medicines: European authorisation status, read from EMA's published JSON report.
-
-pub(crate) static SPEC: SourceSpec = SourceSpec {
-    source: Source::Ema,
-    base: "https://www.ema.europa.eu/en/documents/report/",
-    auth: Auth::None,
-    rate: Rate::per_second(1),
-    keyed_rate: None,
-    in_flight: 1,
-    deadline: Duration::from_secs(60),          // the sync budget; lookups are local
-};
-
-pub(crate) static MEDICINES: Bundle<raw::Medicine> = Bundle {
-    spec: &SPEC,
-    name: "ema",
-    path: "medicines-output-medicines_json-report_en.json",
-    format: RowFormat::JsonArray { pointer: "/data" },
-    fresh: Freshness::Hours(72),
-    keys: map::medicine_keys,
-};
-
-/// EMA authorisations whose medicine name or active substance matches.
-pub fn approvals(leg: &Leg<'_>, name: &DrugName) -> Result<Vec<Mapped<Approval>>, SourceError> {
-    let rows = leg.rows(&MEDICINES, Find::Name(name.normalized()))?;
-    Ok(rows.into_iter().filter_map(map::approval).collect())
-}
-```
-
-`raw::Medicine` mirrors the report's row fields the mapping reads. `map::medicine_keys` returns the normalized medicine name and each active substance. `map::approval` maps a row into `biodata::Approval` with region `Eu`. The JSON pointer and the feed name above follow 0.9's EMA adapter, and the drug slice verifies both against the live file. 0.9 reads six EMA feeds. The drug slice keeps only the feeds its examples need, and each kept feed is one more `Bundle` constant.
+`biomcp_fetch::xml::MixedText` deserializes an element's whole text content with inline tags such as `sup`, `sub`, `i` and `b` reduced to their text. Without it, a serde XML decode drops or refuses mixed content, and an abstract that writes `BRAF<sup>V600E</sup>` would lose the variant. A recorded case asserts that this abstract's text contains `V600E`. `#[serde(flatten)]` appears in `SummaryResult` because ESummary mixes one fixed key with a map, and raw types never use `deny_unknown_fields`.
 
 ### 5.5 How adapters are tested
 
 Adapters have no tests of their own. Cases drive the binary over recordings, and each adapter's lines run because a case needs them.
 
 - Each adapter has at least one success case per public function, recorded live with `--record`.
-- Each adapter has four failure cases built from small hand-edited recordings: a 429 with `Retry-After`, a 500, a delay past the source deadline and a cut body. Each asserts `status: partial` and the source's outcome and reason.
+- Each adapter has five failure cases built from small hand-edited recordings: a 429 with `Retry-After`, a 500, a delay past the source deadline, a cut body and a 200 that carries the provider's error shape. Each asserts the item or envelope status, the source's outcome and its reason, and a later offline step shows nothing bad was cached.
 - Each quirk comment names the case that fails without it. The ratchet test checks that the case file exists.
 - A nightly live run replays every case live and reports each reply whose key fields changed. A person refreshes recordings on purpose with `--record`. A test run never writes a recording.
 
@@ -951,7 +1069,8 @@ Adapters have no tests of their own. Cases drive the binary over recordings, and
 - Build a client, open a socket, sleep, retry or read the clock. The transport does each.
 - Read the environment, a file or the config.
 - Hold or share state across calls.
-- Name `ureq`, `rusqlite` or `serde_json`, or keep a `serde_json::Value` field. Raw types name the fields they read.
+- Name `ureq`, `rusqlite` or `serde_json`, keep a `serde_json::Value` field, or use `#[serde(default)]` in a raw type.
+- Declare its own rate limit. Limits live in the shared quota table.
 - Call another adapter, the store or a service. Chaining across sources belongs to the services.
 - Merge, rank, page across sources or decide a status. It returns what its source said.
 - Build an error string, a command string or display text.
@@ -964,7 +1083,7 @@ Adapters have no tests of their own. Cases drive the binary over recordings, and
 | Simple JSON or XML source | 100 to 250 |
 | Multi-step, paged or GraphQL source | 250 to 500 |
 | Bundle source | 150 to 400 |
-| The transport | 1,500 to 2,500 |
+| The transport | 1,800 to 2,800 |
 
 These are estimates. The article slice measures its adapters first. If they average over 300 lines, this section is revised. Each file in an adapter folder stays under 300 lines.
 
@@ -975,7 +1094,7 @@ These are estimates. The article slice measures its adapters first. If they aver
 ### 6.1 Context and the one entry point
 
 ```rust
-/// What a command needs. Built by the binary from config.
+/// What a command needs. The caller opens one Store per call.
 pub struct Ctx<'a> {
     pub fetch: &'a Fetch,
     pub store: &'a Store,
@@ -991,26 +1110,48 @@ pub struct Outcome<T> {
     pub page: Option<PageInfo>,
     pub sources: Vec<SourceOutcome>,
     pub problems: Vec<Problem>,
-    pub next: Vec<Request>,
+    pub next: Vec<(StepKind, Request)>,
     pub explain: Option<Explain>,
 }
 
-/// Run one request. Source failures become statuses. Errors are input or store failures.
+/// Run one request. Source failures become statuses. Errors are input, pool or store failures.
 pub fn run(cx: &Ctx<'_>, req: &Request) -> Result<Outcome<Body>, QueryError>;
 
 #[derive(Serialize)]
 #[serde(untagged)]
 #[non_exhaustive]
-pub enum Body { GenePage(GenePage), GeneCard(GeneCard), ArticlePage(ArticlePage), ArticleCard(ArticleCard), TrialPage(TrialPage), TrialCard(TrialCard), TrialLocations(TrialLocationPage) }
+pub enum Body { GenePage(GenePage), GeneCards(GeneCards), ArticlePage(ArticlePage), ArticleCards(ArticleCards), TrialPage(TrialPage), TrialCards(TrialCards), TrialLocations(TrialLocationPage) }
 ```
 
-`run` is one `match` from each `Request` variant to its entity function, such as `gene::search(cx, q)`. That match is the routing table, and it stays one line per command. `Body` lives in `biodata::response` beside the types it wraps.
+`run` is one `match` from each `Request` variant to its entity function, such as `gene::get(cx, q)`. That match is the routing table, one line per command. `Body` lives in `biodata::response` beside the types it wraps.
+
+The binary opens one `Store` for each call. A CLI process makes one call. The MCP server opens a `Store` in each call's thread. SQLite's WAL mode lets these connections and other BioMCP processes share the file. A `Store` never crosses into the fan-out, which receives only `&Fetch`.
 
 ### 6.2 Resolve
 
-Each entity function first turns loose input into canonical identifiers. `get gene PD-L1` resolves the alias to `CD274` through the gene source, and the envelope's `query` shows the resolved form. Resolution uses the same adapters and the same cache. A resolution that matches several records returns `Failed` with a `next` search for the ambiguous text. Resolution never guesses.
+Each entity function first turns loose input into canonical identifiers. For genes, `gene::resolve` reads HGNC rows from the bundle with no request:
 
-### 6.3 Fan-out
+1. An HGNC, Entrez or Ensembl ID input matches its exact key.
+2. Text matches an approved symbol first, then previous symbols, then aliases, all without case.
+3. One approved record resolves. A withdrawn record with no approved match answers withdrawn.
+4. Several records answer ambiguous with every candidate as a header, ranked by match kind with previous symbols before aliases and protein-coding genes first, each carrying how it matched.
+5. No record answers not found.
+
+Resolution never guesses. The envelope's `query` echoes the inputs, and each item's answer shows how it matched. Other entities resolve the same way against their own identity source.
+
+### 6.3 Get
+
+`get` takes up to twenty inputs and returns one item per input, in input order. Each item has its own status and answer, so one bad input never hides the others. For genes:
+
+1. Resolve every input (section 6.2).
+2. Fetch the extras for every resolved gene in one batched leg, such as MyGene.info by Entrez ID. With an OncoKB key, one OncoKB leg runs beside it for the card's short `oncokb` block. Without the key, the envelope names OncoKB as skipped once.
+3. Fan out one job per requested section and source, each covering every resolved gene the section applies to, and join the results back per card.
+
+A section is `NotApplicable` when the record's own facts rule it out. The card's `more` lists the sections the caller did not request.
+
+A part of one record is a section when it fits in one reply. It becomes an `<entity> <relation> <id>` drill-down when it pages, such as a trial's locations.
+
+### 6.4 Fan-out
 
 ```rust
 /// One source's work, ready to run on its own thread.
@@ -1020,30 +1161,30 @@ pub(crate) struct Job<'a, T> {
 }
 
 /// Run each job on its own scoped thread with its own deadline. Returns in job order.
-pub(crate) fn fan_out<'a, T: Send>(cx: &Ctx<'a>, jobs: Vec<Job<'a, T>>) -> Vec<LegResult<T>>;
+pub(crate) fn fan_out<'a, T: Send>(fetch: &'a Fetch, budget: Duration, disabled: &BTreeSet<Source>, jobs: Vec<Job<'a, T>>) -> Vec<LegResult<T>>;
 
 pub(crate) struct LegResult<T> { pub source: Source, pub result: Result<T, SourceError>, pub report: LegReport }
 ```
 
-- A disabled source returns `Disabled` without a thread.
-- Each thread opens its `Leg` with `cx.fetch.deadline(cx.budget).child(spec.deadline)`.
+- A disabled source, or a keyed source without its key, returns `skipped` with reason `disabled` or `no_key` without a thread.
+- Each thread opens its `Leg` with `fetch.deadline(budget).child(spec.deadline)`.
 - A panicking leg becomes a failed leg with reason `unavailable` and an `explain` note, so one bad source cannot take down the command.
-- A job with one source runs on the calling thread. Fan-out costs nothing for a single-source get.
+- A single job runs on the calling thread.
 
 Rejected: a worker pool, a channel-based scheduler and an async executor. A dozen scoped threads per command need none of them.
 
-### 6.4 Merge
+### 6.5 Merge
 
 Merge is a pure union. Records are keyed by their canonical identifier. Equal keys merge and distinct keys never do, even when two records share a DOI. Each merged item keeps every source that found it in `found_by`.
 
 ```rust
 pub(crate) fn union<K: Ord + Clone, T>(legs: Vec<(Source, SourcePage<T>)>, key: impl Fn(&T) -> K) -> Vec<Merged<K, T>>;
-pub(crate) struct Merged<K, T> { pub key: K, pub value: T, pub found_by: Vec<Found> }
+pub(crate) struct Merged<K, T> { pub key: K, pub value: T, pub found_by: Vec<FoundBy> }
 ```
 
-Field values are never merged. For each entity the service declares one primary source for headers, such as PubMed ESummary for any item with a PMID. An item the primary source cannot describe keeps the header from the first source that found it, in the order the service lists its sources. Fields from secondary sources reach the agent as sections, each under its own source. Two sources that disagree therefore both show, and BioMCP never picks a winner. Rejected: per-field merge rules with conflict records. They add a rule per field and per source pair and an output shape agents would need to learn.
+Field values are never merged. Each field has one owning source, as each slice's design states. HGNC owns gene identity and MyGene.info owns the summary and spans, so the gene card joins their fields by identifier and never chooses between two values. For a pool, the service declares one primary source for headers, such as PubMed ESummary for any item with a PMID. An item the primary source cannot describe keeps the header from the first source that found it, in the order the service lists its sources. Fields from secondary sources reach the agent as sections under their own source. Rejected: per-field merge rules with conflict records, which add a rule per field and per source pair and an output shape agents would need to learn.
 
-### 6.5 Rank
+### 6.6 Rank
 
 Ranking is a separate pure stage over features the pool already holds.
 
@@ -1052,69 +1193,87 @@ pub(crate) struct Features { pub in_title: bool, pub in_abstract: bool, pub cura
 pub(crate) fn rank(items: &mut [PoolItem], q: &RankQuery);   // stable lexicographic sort, then best native rank, then ID
 ```
 
-One ranker serves every article command. The article slice chooses the features and their order against its question kernel. The ranker's tie-break table is one of the listed unit test exceptions. Other entities use the primary source's order until a slice shows a need for more.
+One ranker serves every article command. The article slice chooses the features and their order against its question kernel. Gene search ranks by match kind, then locus group, as `planning/slices/gene.md` says. The ranker's tie-break table is one of the listed unit test exceptions.
 
-### 6.6 Pools and paging
+### 6.7 Pools and paging
 
 A search whose answer comes from several sources builds a pool once and pages over it.
 
-1. **Key.** The pool key is SHA-256 over the schema version, the normalized request without its page window and the set of enabled sources.
-2. **Hit.** A fresh stored pool serves the page from the store. No request goes out.
-3. **Build.** Otherwise, fan out to every source for IDs and native ranks, union them, fetch headers for the pool in batches from the primary source, compute features, rank, and store the pool with each item's header and features and each source's outcome.
-4. **Page.** Slice the stored order by `offset` and `limit`. The page carries the pool's ID, size, creation time and the stored source outcomes.
+1. **Key.** The request key is SHA-256 over the schema version, the normalized request without `limit`, `offset` and `pool`, and the set of enabled sources.
+2. **Pick.** With `--pool ID`, read that pool. Without it, read the request key's current pool when it is fresh.
+3. **Build.** Otherwise build a new pool (section 6.8), give it a new ID, store it and make it the request key's current pool. A replaced pool stays readable by ID until its own expiry.
+4. **Page.** Slice the stored order by `offset` and `limit`. The page carries the pool's ID, size, creation and expiry times and the stored source outcomes.
 
-Paging needs no token. The same request with a new `--offset` computes the same key and reads the same pool, so two walks give the same order without gaps or duplicates. A pool stays fresh for a time its entity declares. A pool built while a source failed stays partial until it expires or the agent passes `--fresh`, and its `next` includes the `--fresh` rerun. **Overrides** the earlier continuation token, which carried the same pool key and offset that the request already carries.
+Every next-page step carries `--pool <id>`, so an agent's walk reads one snapshot from start to end even if a `--fresh` rerun replaces the current pool midway. A `--pool` ID that no longer exists returns the error `pool.expired` with a `restart` step: the same search at offset zero without `--pool`. A pool built while a source failed is partial, and its next steps include a `fresh` rerun.
 
-A pool holds every item's header, so a warm page is a store read. A pool's size is capped per entity, and a source that could return more reports `partial` with its total.
+A pool holds every item's header and features, so a warm page is a store read with no request.
 
-### 6.7 Get and sections
+A pool's size is capped per entity. A capped pool whose sources all answered is complete, with `page.truncated` set and `page.total` giving the sources' total. Truncation is a fact about the answer's size, and the status stays complete.
 
-`get` fetches the entity from its primary source, then fans out one job per requested section. Each section job returns its `Section<T>` state. A section is `NotApplicable` when the record's type rules it out, such as a gene section that needs a protein the gene lacks. The card's `more` lists the sections the caller did not request.
+### 6.8 Building an article pool
 
-A part of one record is a section when it fits in one reply. It becomes an `<entity> <relation> <id>` drill-down when it pages, such as a trial's locations. One rule decides every entity.
+The article pool has two stages, each with its own budget inside the command budget.
 
-### 6.8 Links across entities
+1. **Acquire.** Fan out to every article source for IDs and native ranks. One leg is mandatory: it sends PubMed the plain words of the query, such as `AKT1 E17K`, with relevance sort, in one window of up to 10,000 PMIDs. Other legs send their own typed queries. Union the results.
+2. **Enrich.** Fetch headers and abstracts for the pool in batches and compute features. Headers come from PubMed ESummary. Abstracts come from Europe PMC's core JSON for items its legs returned, and from PubMed EFetch XML through `MixedText` for the rest. Enrich runs under its own budget, so a slow acquire cannot leave no time for headers.
 
-A link from one entity to another is a search on the target entity with a filter taken from the source entity. The gene card's next steps are searches:
+The pool cap never drops an item the mandatory leg returned. When the cap binds, other legs' items are cut first, by their best native rank. Items that enrich could not describe within its budget stay in the pool with the fields acquire gave them and rank after described items, and the pool is partial with reason `deadline_exceeded` on the enrich stage. The article slice's bar that every plain PubMed hit appears in the full walk therefore holds by construction, or the response says which source was partial and why.
+
+### 6.9 Links across entities
+
+A link from one entity to another is a search on the target entity with a filter taken from the source entity, and the step carries the resolved identifier:
 
 ```rust
-pub(crate) fn gene_next(card: &GeneCard) -> Vec<Request> {
-    let symbol = card.gene.header.symbol.clone();
+pub(crate) fn gene_next(card: &GeneCard) -> Vec<(StepKind, Request)> {
+    let id = GeneInput::from(card.gene.hgnc_id);
     vec![
-        Request::SearchTrial(TrialSearch { gene: Some(symbol.clone()), ..Default::default() }),
-        Request::SearchArticle(ArticleSearch { gene: Some(symbol.clone()), ..Default::default() }),
-        Request::SearchDrug(DrugSearch { target: Some(symbol), ..Default::default() }),
+        (StepKind::Pivot, Request::SearchTrial(TrialSearch { gene: Some(id.clone()), ..Default::default() })),
+        (StepKind::Pivot, Request::SearchArticle(ArticleSearch { gene: Some(id.clone()), ..Default::default() })),
+        (StepKind::Pivot, Request::SearchDrug(DrugSearch { target: Some(id), ..Default::default() })),
     ]
 }
 ```
 
-A drug card's next steps search trials and articles by that drug. A trial card's next steps get its conditions' diseases and its interventions' drugs. An article card's next steps follow its citations, its references and its annotated genes. The chain from gene to drug to trial to article is therefore a walk over typed next steps, each with exact identifiers.
+`search trial --gene HGNC:3430` resolves the ID to ERBB2 and its aliases before it queries trial sources, so the alias failure 0.9 showed with `gene drugs HER2` cannot recur. A drug card's next steps search trials and articles by that drug. A trial card's next steps get its conditions' diseases and its interventions' drugs. An article card's next steps follow its citations, its references and its annotated genes. The chain from gene to drug to trial to article is a walk over typed next steps with exact identifiers.
 
-**Overrides** the earlier `gene trials BRAF` style commands. A relation that equals a filter on the target's search is a next step, so `search trial --gene BRAF` is the one spelling. Drill-down commands remain for a record's paged parts, such as `trial locations`, and for graph edges no search can express, such as `article citations`. This follows "one spelling per idea" in `decisions/2026-10-23-the-user-is-an-agent.md`, and section 14 asks Ian to confirm it.
+Link commands that equal a filter on the target's search do not exist. Drill-down commands remain for a record's paged parts, such as `trial locations`, and for graph edges no search can express, such as `article citations`. 0.9's retired spellings answer with a usage error that names the new command (section 8.3).
 
-The store's `link` table records these edges once the wiki needs them (section 7.3).
+### 6.10 Next steps
 
-### 6.9 Next steps
+Each response type has one pure `next` function in its entity's `next.rs`. It returns typed requests with their kinds, at most five, ordered by what the slice found agents need first:
 
-Each response type has one pure `next` function in its entity's `next.rs`. It returns typed requests, at most five, ordered by what the slice's investigation found agents need first. Searches include the next page when more remain. Partial results include the `--fresh` rerun. Errors include the search that would find the input. The binary spells each request into a `Step`.
+| Kind | When |
+| --- | --- |
+| `page` | More results remain. Carries `--pool` and the next offset. |
+| `fresh` | A source failed or served stale. Reruns with `--fresh`. |
+| `section` | A section in `more` has data behind it, such as `protein` when HGNC lists a UniProt accession. |
+| `pivot` | A search on another entity with this record's resolved ID. |
+| `disambiguate` | One `get` per candidate of an ambiguous input, by its canonical ID. |
+| `restart` | A pool expired. The same search from the start. |
+| `sync` | A bundle is absent, stale or syncing. |
+| `key` | A keyed source was skipped because its key is not configured. Points to `biomcp help key <source>`. |
 
-### 6.10 Status
+The binary spells each request into a `Step`.
+
+### 6.11 Status
 
 ```rust
-pub(crate) fn status(sources: &[SourceOutcome], has_result: bool, sections_unavailable: bool) -> Status;
+pub(crate) fn item_status(answer_found: bool, identity_failed: bool, partial_sections: bool) -> ItemStatus;
+pub(crate) fn status(items: &[ItemStatus]) -> Status;                         // get
+pub(crate) fn search_status(sources: &[SourceOutcome]) -> Status;            // search
 ```
 
-- `Complete`: every asked source answered from live or fresh cache, and no requested section is unavailable.
-- `Partial`: a result exists, and some source failed, came from a stale cache, or reported more than the pool holds, or a requested section is unavailable.
-- `Failed`: no result exists and at least one source failed. A confirmed absence is not a failure (section 8.5).
+- An item is `Complete` when its answer is resolved, ambiguous or withdrawn and nothing it asked for failed. It is `Partial` when a requested section is unavailable or a source served stale. A skipped section leaves the status unchanged, because the user's settings chose it. It is `Absent` when the identity source answered not found. It is `Failed` when the identity source failed.
+- A get's status is `Absent` when every item is absent, `Failed` when every item failed, `Partial` when any item is partial or failed, and `Complete` otherwise.
+- A search is `Complete` when every source answered, even with zero hits. It is `Partial` when some source failed or served stale and others answered, and `Failed` when every source failed. Skipped sources count toward none of these.
 
 ## 7. The store
 
 ### 7.1 One file, two owners
 
-The cache is one SQLite file at `$XDG_CACHE_HOME/biomcp/biomcp.sqlite`, as `decisions/2026-10-23-the-cache-is-a-local-sqlite-database.md` says. The transport owns the reply and bundle tables. The store module of `biomcp-query` owns the rest. Both open the file in WAL mode with a busy timeout, so several BioMCP processes can share it.
+The cache is one SQLite file, as `decisions/2026-10-23-the-cache-is-a-local-sqlite-database.md` says. Its folder is `$XDG_CACHE_HOME/biomcp`, then `~/.cache/biomcp`, and on Windows `%LOCALAPPDATA%\biomcp\cache`. The transport owns the reply and bundle tables. The store module of `biomcp-query` owns the pool tables. Both open the file in WAL mode with a busy timeout.
 
-The file is a cache. Every row can be rebuilt from the sources. Each owner records its schema version in `meta`, and on a mismatch it drops and recreates its own tables. No migration code exists.
+The file name carries both owners' schema versions, such as `cache-f1-s1.sqlite`. Each owner exports its version as a constant, and the binary builds the name from them. A BioMCP release that changes either schema opens a new file and never touches the old one, so two releases can run side by side. Each owner also checks its row in `meta` on open and refuses a mismatch with `fetch.cache_version` or `store.version`. Nothing ever drops a table. `biomcp store clean` deletes cache files from other versions.
 
 ```sql
 -- owner: biomcp-fetch
@@ -1124,7 +1283,7 @@ CREATE TABLE IF NOT EXISTS reply (
   key          BLOB PRIMARY KEY,        -- SHA-256 of method, URL without credential, body
   source       TEXT NOT NULL,
   url          TEXT NOT NULL,           -- without credential
-  status       INTEGER NOT NULL,
+  status       INTEGER NOT NULL,        -- 2xx or 404 only
   content_type TEXT,
   body         BLOB NOT NULL,
   fetched_at   INTEGER NOT NULL,        -- Unix seconds
@@ -1133,25 +1292,30 @@ CREATE TABLE IF NOT EXISTS reply (
 CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);
 
 CREATE TABLE IF NOT EXISTS bundle (
-  name TEXT PRIMARY KEY, source TEXT NOT NULL, etag TEXT, modified TEXT,
+  name TEXT PRIMARY KEY, source TEXT NOT NULL, etag TEXT, modified TEXT, bytes INTEGER NOT NULL,
   rows INTEGER NOT NULL, fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS bundle_sync (name TEXT PRIMARY KEY, holder TEXT NOT NULL, started_at INTEGER NOT NULL, part_bytes INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS bundle_row (bundle TEXT NOT NULL, n INTEGER NOT NULL, row TEXT NOT NULL, PRIMARY KEY (bundle, n));
 CREATE TABLE IF NOT EXISTS bundle_key (bundle TEXT NOT NULL, kind TEXT NOT NULL, key TEXT NOT NULL, n INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key (bundle, kind, key);
+CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5 (bundle UNINDEXED, n UNINDEXED, words);
 
 -- owner: biomcp-query, store module
 CREATE TABLE IF NOT EXISTS pool (
-  key         BLOB PRIMARY KEY,         -- see section 6.6
+  id          BLOB PRIMARY KEY,         -- SHA-256 of request key and build time
+  request_key BLOB NOT NULL,
   schema      TEXT NOT NULL,
   request     TEXT NOT NULL,            -- the normalized request as JSON
   sources     TEXT NOT NULL,            -- each source's outcome as JSON
   size        INTEGER NOT NULL,
+  total       INTEGER,
   created_at  INTEGER NOT NULL,
-  fresh_until INTEGER NOT NULL
+  expires_at  INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS pool_current (request_key BLOB PRIMARY KEY, pool BLOB NOT NULL REFERENCES pool (id));
 CREATE TABLE IF NOT EXISTS pool_item (
-  pool     BLOB NOT NULL REFERENCES pool (key) ON DELETE CASCADE,
+  pool     BLOB NOT NULL REFERENCES pool (id) ON DELETE CASCADE,
   rank     INTEGER NOT NULL,
   kind     TEXT NOT NULL,
   id       TEXT NOT NULL,
@@ -1159,97 +1323,81 @@ CREATE TABLE IF NOT EXISTS pool_item (
   features TEXT NOT NULL,
   PRIMARY KEY (pool, rank)
 );
-
--- arrive with their first reader (section 7.3)
-CREATE TABLE IF NOT EXISTS entity (
-  kind TEXT NOT NULL, id TEXT NOT NULL, schema TEXT NOT NULL, value TEXT NOT NULL,
-  sources TEXT NOT NULL, fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL,
-  PRIMARY KEY (kind, id)
-);
-CREATE TABLE IF NOT EXISTS alias (kind TEXT NOT NULL, text TEXT NOT NULL, id TEXT NOT NULL, source TEXT NOT NULL, PRIMARY KEY (kind, text, id));
-CREATE TABLE IF NOT EXISTS link (
-  from_kind TEXT NOT NULL, from_id TEXT NOT NULL, relation TEXT NOT NULL,
-  to_kind TEXT NOT NULL, to_id TEXT NOT NULL, source TEXT NOT NULL, fetched_at INTEGER NOT NULL,
-  PRIMARY KEY (from_kind, from_id, relation, to_kind, to_id, source)
-);
-CREATE INDEX IF NOT EXISTS link_to ON link (to_kind, to_id);
 ```
 
 ```rust
 pub struct Store { /* rusqlite::Connection */ }
 impl Store {
+    pub const VERSION: u32 = 1;
     pub fn open(path: &Path) -> Result<Self, StoreError>;
     pub fn stats(&self) -> Result<StoreStats, StoreError>;
-    pub fn clean(&self, now: Timestamp) -> Result<Cleaned, StoreError>;     // drops expired pools and replies past their grace
-    pub(crate) fn pool(&self, key: &PoolKey, now: Timestamp) -> Result<Option<Pool>, StoreError>;
-    pub(crate) fn put_pool(&self, pool: &Pool) -> Result<(), StoreError>;
+    pub fn clean(&self, now: Timestamp) -> Result<Cleaned, StoreError>;
+    pub(crate) fn current_pool(&self, request_key: &RequestKey, now: Timestamp) -> Result<Option<Pool>, StoreError>;
+    pub(crate) fn pool(&self, id: &PoolId, now: Timestamp) -> Result<Option<Pool>, StoreError>;
+    pub(crate) fn put_pool(&self, pool: &Pool) -> Result<(), StoreError>;     // also sets pool_current
 }
 ```
 
-The store needs no `Mutex`. Pool writes happen on the calling thread after the fan-out ends. The transport's cache uses one `Mutex<Connection>` because legs write from many threads.
+The store needs no `Mutex`, because each call owns its `Store`. The transport's cache uses one `Mutex<Connection>`, because legs write from many threads.
 
 ### 7.2 Freshness
 
-- A reply is fresh until its endpoint's freshness ends.
-- A pool is fresh until its entity's pool freshness ends or any source's stored outcome says partial and the caller passed `--fresh`.
-- An entity row, once it exists, is fresh until the earliest fresh-until time of the replies it came from.
-- A stale value is served only when its source fails, and then only with `stale` in its source outcome. Offline mode serves stale values the same way.
-- `biomcp store clean` removes expired rows. A size cap in config removes the oldest replies first.
+- A reply is fresh until its endpoint's freshness ends. A 404 is fresh for ten minutes.
+- A pool is readable by ID until it expires. It is the current pool for its request until it expires or a `--fresh` rerun replaces it.
+- A stale reply or bundle is served only when its source fails, and then only with `stale` in its source outcome. Offline mode serves stale values the same way.
+- `biomcp store clean` removes expired replies and pools and old cache files. A size cap in config removes the oldest replies first.
 
 ### 7.3 When each table arrives
 
-- `reply`, `meta`: stage 3, the transport.
-- `bundle`, `bundle_row`, `bundle_key`: the first slice that keeps a bundle.
-- `pool`, `pool_item`: the article slice.
-- `entity`, `alias`, `link`: the first slice or feature that reads them. Alias lookups may arrive early if a slice shows resolution latency matters. Otherwise the wiki brings all three.
+- `meta`, `reply`: the transport stage.
+- `bundle`, `bundle_sync`, `bundle_row`, `bundle_key`, `bundle_words`: the first slice that keeps a bundle. HGNC makes that the gene slice.
+- `pool`, `pool_current`, `pool_item`: the first slice that pools. The article slice pools, and gene search may if its design does.
 
-Until a reader exists, no code writes these rows. Writing data nothing reads is code the cases cannot check.
+Tables for entities, aliases and links are not designed here. They arrive with the wiki, which designs them against what it reads.
 
 ### 7.4 The wiki later
 
-`biomcp serve --http` will serve a browsable wiki over the store. Each stored entity gets a page at `/<kind>/<id>`, rendered from its JSON through the same generic view the Markdown output uses, in HTML. Links come from the `link` table, so a reader clicks from disease to gene to drug to article. Each page shows each fact's source and fetched time from the row. A "fetch more" button runs the page's next steps through the same `run` call and stores the results. When the wiki arrives, the services start writing `entity` and `link` rows at the end of each `run`, in the same transaction as any pool.
+`biomcp serve --http` will serve a browsable wiki over the cache. Each entity gets a page rendered from its JSON through the same generic view the Markdown output uses, in HTML. Links follow the typed next steps. Each page shows each fact's source and fetched time. A "fetch more" button runs the page's next steps through the same `run` call. The wiki's own design adds the tables it needs and the code that writes them.
 
 ### 7.5 Postgres later
 
-All SQL sits in two modules: `biomcp-fetch/src/cache.rs` and `bundle.rs`, and `biomcp-query/src/store/`. The SQL uses only forms both engines accept, such as `INSERT ... ON CONFLICT`. JSON stays text in SQLite and becomes `jsonb` in Postgres. A Postgres backend arrives when a shared deployment needs concurrent writers. Until then no store trait exists.
+All SQL sits in two places: `biomcp-fetch/src/cache.rs` and `bundle.rs`, and `biomcp-query/src/store/`. The SQL uses forms both engines accept, such as `INSERT ... ON CONFLICT`, except the FTS5 table, which maps to a Postgres text search index. JSON stays text in SQLite and becomes `jsonb` in Postgres. A Postgres backend arrives when a shared deployment needs concurrent writers. Until then no store trait exists.
 
 ## 8. Interfaces
 
 ### 8.1 The CLI grammar
 
-The grammar stays as `decisions/2026-10-23-the-user-is-an-agent.md` sets it: `search <entity>` for headers, `get <entity> <id>` for a card and `<entity> <relation> <id>` for drill-downs.
+The grammar stays as `decisions/2026-10-23-the-user-is-an-agent.md` sets it: `search <entity>` for headers, `get <entity> <input>...` for cards and `<entity> <relation> <id>` for drill-downs.
 
-This design recommends that hybrid over a pure entity-first tree such as `biomcp gene search`:
+This design keeps that hybrid over a pure entity-first tree such as `biomcp gene search`:
 
 - `search` and `get` are the two moves every question starts with. `biomcp search` and `biomcp get` each list every entity, which is the map an agent needs first.
-- 0.9 users, 0.9 skills and models trained on 0.9 docs already use this tree. Keeping it costs nothing and saves every one of them a relearning step.
+- 0.9 users, 0.9 skills and models trained on 0.9 docs already use this tree.
 - Drill-downs are entity-specific, so `biomcp trial` listing its drill-downs reads naturally.
-- Internally all three forms map to one `Request` tag, so the hybrid adds no code.
+- All three forms map to one `Request` tag, so the hybrid adds no code.
 
-Rejected: entity-first everywhere. It gains one uniform shape and costs every 0.9 user and skill a change. Rejected: verb-first everywhere, such as `biomcp locations trial NCT...`, which reads poorly and hides drill-downs under verbs no agent would guess.
-
-`get` takes one identifier followed by section names, as 0.9 does. A list of exact records goes through `search <entity> --id A --id B`, which returns their headers. **Overrides** the earlier "several IDs may be given at once" for `get`. A mix of several IDs and positional section names cannot parse without guessing.
+Rejected: entity-first everywhere, which costs every 0.9 user and skill a change for one uniform shape. Rejected: verb-first everywhere, such as `biomcp locations trial NCT...`, which hides drill-downs under verbs no agent would guess.
 
 ### 8.2 The trees for gene, article and trial
 
 ```
-biomcp search gene [QUERY] [--id ID]... [--limit N] [--offset N]
-biomcp get gene <SYMBOL | HGNC:N | ENTREZ> [SECTION]...
-    sections: the gene slice names them, such as civic, pathways, protein, expression
+biomcp search gene [TEXT] [--band BAND] [--locus-group GROUP] [--limit N] [--offset N] [--pool ID]
+biomcp get gene <INPUT>... [SECTION]...
+biomcp get gene <INPUT>... --section SECTION...
+    inputs: symbols, previous symbols, aliases, HGNC:N, Entrez IDs, Ensembl IDs; up to 20
+    sections: protein, civic, clingen, constraint, expression, pathways, oncokb, all
 
-biomcp search article [QUERY] [--gene SYMBOL] [--variant TEXT] [--disease TEXT] [--drug TEXT]
+biomcp search article [TEXT] [--gene INPUT] [--variant TEXT] [--disease TEXT] [--drug TEXT]
                       [--author TEXT] [--since DATE] [--until DATE] [--type TYPE]
-                      [--id PMID]... [--limit N] [--offset N]
-biomcp get article <PMID | PMCID | DOI> [SECTION]...
-    sections: such as abstract, annotations, fulltext, supplements
-biomcp article citations <PMID> [--limit N] [--offset N]
-biomcp article references <PMID> [--limit N] [--offset N]
+                      [--limit N] [--offset N] [--pool ID]
+biomcp get article <PMID | PMCID | DOI>... [SECTION]...
+biomcp article citations <PMID> [--limit N] [--offset N] [--pool ID]
+biomcp article references <PMID> [--limit N] [--offset N] [--pool ID]
 
-biomcp search trial [QUERY] [--condition TEXT] [--gene SYMBOL] [--variant TEXT] [--drug TEXT]
+biomcp search trial [TEXT] [--condition TEXT] [--gene INPUT] [--variant TEXT] [--drug TEXT]
                     [--status STATUS]... [--phase PHASE]... [--sponsor TEXT]
-                    [--near LAT,LON] [--radius KM] [--id NCT]... [--limit N] [--offset N]
-biomcp get trial <NCT> [SECTION]...
-    sections: such as eligibility, arms, outcomes, contacts, references
+                    [--near LAT,LON] [--radius KM] [--limit N] [--offset N] [--pool ID]
+biomcp get trial <NCT>... [SECTION]...
 biomcp trial locations <NCT> [--near LAT,LON] [--radius KM] [--limit N] [--offset N]
 
 global: --format md  --fresh  --offline  --explain  --disable-sources LIST  --config PATH
@@ -1257,7 +1405,9 @@ global: --format md  --fresh  --offline  --explain  --disable-sources LIST  --co
 housekeeping: help, schema, sync, store, serve, mcp-config, health, version, skill
 ```
 
-Every flag above is a placeholder for what its slice names. Each slice keeps only the options its harvested examples need. Ranking weights, source pickers and session labels from 0.9 return only if an example needs them.
+The gene tree follows `planning/slices/gene.md`. The article and trial flags are placeholders for what their slices name.
+
+Sections are a closed enum per entity. Without `--section`, the trailing positional words that exactly name a section are sections, and the words before them are inputs. With `--section`, every positional word is an input. An input that is also a section name therefore needs `--section`, and help says so.
 
 ### 8.3 Parsing from the schemas
 
@@ -1272,19 +1422,30 @@ fn command_for(path: &[&str], schema: &Schema) -> clap::Command;
 pub(crate) fn parse(args: &[String]) -> Result<Parsed, UsageError>;
 pub(crate) enum Parsed { Request(Request, Globals), Housekeeping(Housekeeping, Globals), Help(HelpTopic) }
 
+// crates/biomcp/src/retired.rs
+/// 0.9 spellings that 1.0 retired, with the command that replaces each.
+pub(crate) const RETIRED: &[Retired] = &[
+    Retired { path: &["gene", "trials"], use_instead: "search trial --gene <gene>" },
+    Retired { path: &["gene", "articles"], use_instead: "search article --gene <gene>" },
+    Retired { path: &["gene", "drugs"], use_instead: "search drug --target <gene>" },
+    Retired { path: &["gene", "definition"], use_instead: "get gene <gene>" },
+    // each slice adds its entity's rows from its 0.9 accounting
+];
+
 // crates/biomcp/src/spell.rs
 /// Spell a request back into the argument list that parses to it.
-pub(crate) fn spell(req: &Request) -> Step;
+pub(crate) fn spell(kind: StepKind, req: &Request) -> Step;
 ```
 
-1. The first one or two words pick the request schema from the embedded set. Only that schema is read, so parsing stays well under a millisecond.
-2. Each schema property becomes a clap argument. The property's type sets its parser: a string, an integer, a boolean flag, or a repeatable option for an array. An enum's names become the allowed values. `x-positional` makes it positional, `x-short` adds its letter, and the doc comment becomes its help.
-3. clap's matches become a JSON object, and serde deserializes it into the `Request` variant. Deserialization runs the checked constructors, so a bad identifier fails at the edge with its field and code.
-4. `spell` walks the same schema in reverse: positionals first, then flags in schema order, omitting defaults.
+1. The first one or two words pick the request schema from the embedded set. Only that schema is read.
+2. A retired path returns a usage error whose message names its replacement. The message holds only the fixed replacement text, never the caller's input.
+3. Each schema property becomes a clap argument. The property's type sets its parser: a string, an integer, a boolean flag, a repeatable option for an array, or allowed values for an enum. `x-positional` makes it positional, `x-short` adds its letter, and the doc comment becomes its help.
+4. clap's matches become a JSON object, and serde deserializes it into the `Request` variant. Deserialization runs the checked constructors, so a bad identifier fails at the edge with its field and code.
+5. `spell` walks the same schema in reverse: positionals first, then flags in schema order, omitting defaults. Sections always spell as `--section`, so a spelled step never depends on the collision rule.
 
-The CLI, the MCP input and the schemas therefore cannot drift, because one set of files feeds all three. clap still supplies help formatting, suggestions for misspelled flags and standard error forms.
+The schema test keeps every query schema inside the subset step 3 handles (section 3.9). The CLI, the MCP input and the schemas therefore cannot drift, because one set of files feeds all three.
 
-Rejected: clap derive structs that mirror each query type, which duplicate every field. Rejected: clap derive inside `biodata`, which puts a CLI library in the data crate. Rejected: a hand-written argument parser, which would rebuild what clap's builder already does.
+Rejected: clap derive structs that mirror each query type, which duplicate every field. Rejected: clap derive inside `biodata`, which puts a CLI library in the data crate. Rejected: a hand-written argument parser, which would rebuild what clap's builder does.
 
 ### 8.4 The JSON envelope
 
@@ -1292,58 +1453,63 @@ The CLI prints the envelope as compact JSON on standard output.
 
 ```json
 {
-  "schema": "biomcp.gene_card/1",
+  "schema": "biomcp.gene_cards/1",
   "status": "partial",
-  "query": { "command": "get_gene", "id": "BRAF", "sections": ["civic", "pathways"] },
-  "result": {
-    "gene": { "symbol": "BRAF", "hgnc": "HGNC:1097", "entrez": "673", "name": "B-Raf proto-oncogene, serine/threonine kinase", "gene_type": "protein_coding" },
-    "sources": ["mygene"],
-    "sections": {
-      "civic": { "state": "unavailable", "source": "civic", "reason": "rate_limited" },
-      "pathways": { "state": "data", "source": "reactome", "data": [ { "id": "R-HSA-5673001", "name": "RAF/MAP kinase cascade" } ] }
-    },
-    "more": ["protein", "expression"]
-  },
+  "query": { "input": ["HER2", "MLL2"], "section": ["civic"] },
+  "result": { "items": [
+    { "input": "HER2", "status": "partial", "answer": { "resolution": "resolved", "card": {
+      "gene": { "hgnc_id": "HGNC:3430", "symbol": "ERBB2", "name": "erb-b2 receptor tyrosine kinase 2", "status": "approved", "locus_group": "protein_coding", "location": "17q12", "entrez_id": "2064" },
+      "match": { "kind": "alias", "text": "HER2" },
+      "sources": ["hgnc", "mygene"],
+      "sections": { "civic": { "state": "unavailable", "source": "civic", "reason": "rate_limited" } },
+      "more": ["protein", "clingen", "constraint", "expression", "pathways"] } } },
+    { "input": "MLL2", "status": "complete", "answer": { "resolution": "ambiguous", "candidates": [
+      { "hgnc_id": "HGNC:7133", "symbol": "KMT2D", "locus_group": "protein_coding", "location": "12q13.12", "status": "approved", "match": { "kind": "previous_symbol", "text": "MLL2" } },
+      { "hgnc_id": "HGNC:15840", "symbol": "KMT2B", "locus_group": "protein_coding", "location": "19q13.12", "status": "approved", "match": { "kind": "alias", "text": "MLL2" } } ] } }
+  ] },
   "sources": [
+    { "source": "hgnc", "state": "ok" },
     { "source": "mygene", "state": "ok" },
-    { "source": "civic", "state": "failed", "reason": "rate_limited" },
-    { "source": "reactome", "state": "ok", "count": 1 }
+    { "source": "civic", "state": "failed", "reason": "rate_limited" }
   ],
   "next": [
-    { "args": ["get", "gene", "BRAF", "civic", "--fresh"] },
-    { "args": ["search", "trial", "--gene", "BRAF"] },
-    { "args": ["search", "article", "--gene", "BRAF"] },
-    { "args": ["search", "drug", "--target", "BRAF"] }
+    { "kind": "disambiguate", "args": ["get", "gene", "HGNC:7133"] },
+    { "kind": "disambiguate", "args": ["get", "gene", "HGNC:15840"] },
+    { "kind": "fresh", "args": ["get", "gene", "HGNC:3430", "--section", "civic", "--fresh"] },
+    { "kind": "pivot", "args": ["search", "trial", "--gene", "HGNC:3430"] }
   ]
 }
 ```
 
-The values above are illustrative. Rules:
+The values above are illustrative, and the names in them are omitted from some headers for space. Rules:
 
 - Nulls, empty lists, empty objects, `false` flags and unrequested sections are omitted.
 - Identifiers are canonical text.
-- A header cuts long text to a length its type states and sets `truncated: true`. The get returns it whole.
-- `query` echoes the resolved request, so the agent sees how BioMCP read its input.
-- `next` holds at most five steps and never repeats one.
-- Every output validates against its schema in every case run.
+- Header lists are capped by their types. A header cuts long text to a stated length and sets `truncated: true`. The get returns it whole.
+- `query` echoes only the query that ran.
+- `next` holds at most five steps, each with its kind, and never repeats one.
+- Every output validates against its schema in every case run, and cases cap the size of each command's output and of each section (section 10.1).
 
 ### 8.5 Errors and exit codes
 
-An error also prints one envelope, with schema `biomcp.error/1`:
+An error prints one envelope with schema `biomcp.error/1`:
 
 ```json
-{ "schema": "biomcp.error/1", "status": "failed", "error": { "code": "query.not_found", "message": "no human gene has this symbol" }, "next": [ { "args": ["search", "gene", "BRAFF"] } ] }
+{ "schema": "biomcp.error/1", "status": "usage", "error": { "code": "usage.retired", "message": "use: search trial --gene <gene>" } }
 ```
 
-| Exit | Meaning |
-| --- | --- |
-| 0 | A result, complete or partial |
-| 1 | Confirmed absent: the source answered that the record does not exist |
-| 2 | Usage: the arguments do not parse |
-| 4 | Failed: every source that could answer failed |
-| 5 | Local: config, cache file, recordings, or a replay miss |
+`main` returns `std::process::ExitCode` explicitly. Nothing calls `std::process::exit`. One function in `exit.rs` maps the outcome:
 
-The binary maps each error family to an exit code in one function in `exit.rs`. Messages come from the library's error and never contain input text, although the `next` step may repeat the caller's own input as an argument. A replay miss exits 5 even when the envelope says partial, so a case with a missing recording always fails.
+| Exit | Status | Meaning |
+| --- | --- | --- |
+| 0 | `complete`, `partial` | An answer. Resolved, ambiguous and withdrawn inputs are answers, and so is a search with zero hits |
+| 1 | `absent` | Every input was confirmed absent by its identity source |
+| 2 | `usage` | The arguments do not parse, a retired spelling was used, or a value failed its check |
+| 3 | `expired` | A `--pool` ID no longer exists; the error carries a `restart` step |
+| 4 | `failed` | Every source that could answer failed |
+| 5 | `local` | Config, cache file, recordings, or a replay miss |
+
+Messages come from the library's error and never contain input text. A next step may repeat the caller's input as an argument. A replay miss exits 5 even when the envelope says partial, so a case with a missing recording always fails.
 
 ### 8.6 The Markdown view
 
@@ -1366,28 +1532,36 @@ MCP offers one tool, as `decisions/2026-10-23-mcp-is-one-tool-over-the-cli.md` s
 ```json
 {
   "name": "biomcp",
-  "description": "Search and get biomedical records. Pass CLI arguments as a list. Start with [\"help\"] for the command tree, [\"search\", \"<entity>\", ...] for headers, [\"get\", \"<entity>\", \"<id>\", ...] for one card. Every response lists next steps as argument lists you can pass back.",
+  "description": "Search and get biomedical records for cancer care. Pass CLI arguments as a list.\n<compact command tree generated from the schemas>",
   "inputSchema": {
     "type": "object",
     "properties": { "args": { "type": "array", "items": { "type": "string" }, "description": "The argument list after the program name, such as [\"get\", \"gene\", \"BRAF\"]." } },
     "required": ["args"],
     "additionalProperties": false
   },
-  "outputSchema": { "$comment": "the generic envelope schema; its schema field names the exact response schema" }
+  "outputSchema": { "type": "object", "description": "The BioMCP envelope. Its schema field names the exact response schema.", "properties": { "schema": { "type": "string" }, "status": { "type": "string" } }, "required": ["schema", "status"] }
 }
 ```
 
-- A call parses `args` with the same `grammar::parse` and runs the same `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
-- The result carries the envelope as `structuredContent` and the same compact JSON as text content. MCP added structured tool output in its 2025-06-18 revision. Clients that predate it read the text.
-- The server keeps one `Fetch` and one `Store` open across calls, so later calls reuse connections and the in-process limiter.
+The description embeds a compact command tree of about 300 tokens, generated at startup from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. A case pins the tree under 1,500 bytes. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
 
-`biomcp serve` speaks MCP over standard input and output with a small hand-written JSON-RPC loop. It answers `initialize`, `notifications/initialized`, `ping`, `tools/list` and `tools/call`, and refuses every other method with a standard error. Each `tools/call` runs on its own thread, and responses go out through one locked writer. The loop is a few hundred lines.
+`biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 
-Rejected: an MCP library. The available Rust MCP libraries pull in an async runtime, which section 4.1 avoids, and one tool needs five methods. **Overrides** the earlier plan to use "the MCP library". Section 14 asks Ian to confirm.
+- Messages are newline-delimited JSON-RPC 2.0 objects. A JSON array is refused with an Invalid Request error, because batching is not part of the pinned revisions.
+- `initialize` negotiates the protocol version. The server holds a list of pinned revisions, such as 2025-06-18. It answers with the client's requested version when pinned, and otherwise with its newest pinned version.
+- Every notification is accepted silently, including `notifications/initialized` and `notifications/cancelled`.
+- `ping`, `tools/list` and `tools/call` are answered. Every other request gets a Method Not Found error.
+- `tools/call` parses `args` with `grammar::parse` and runs `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
+- The result carries the envelope as `structuredContent` and the same compact JSON as one text content block. `isError` is false for `complete`, `partial` and `absent`, which are answers. It is true for `usage`, `expired`, `failed` and `local`, whose envelope is the error envelope or a failed result. A malformed `tools/call`, such as a missing `args` or an unknown tool name, is a JSON-RPC Invalid Params error.
+- Each `tools/call` runs on its own thread with its own `Store`. All threads share one `Fetch`. Responses go out through one locked writer.
+
+`biomcp serve --replay DIR` runs the same server over recordings, which the runner uses. Cases cover each pinned revision's `initialize`, a notification, an array, an unknown method and each `isError` value.
+
+Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and one tool needs five methods.
 
 ### 8.8 Help and discovery
 
-Help is JSON by default, like every other output, and comes from the schemas. `biomcp help` lists the entities and the verbs that apply to each. `biomcp help get gene` lists the arguments, the sections and two examples drawn from cases. `biomcp help --all` lists every command and option, and the runner's surface check reads it. An agent can therefore learn the whole tree through the one tool with `["help"]`, and spend no context on parts it never uses.
+Help is JSON by default and comes from the schemas. `biomcp help` lists the entities and the verbs that apply to each. `biomcp help get gene` lists the arguments, the sections and two examples drawn from cases. `biomcp help --all` lists every command and option, and the runner's surface check reads it.
 
 ### 8.9 The web mode later
 
@@ -1397,15 +1571,17 @@ Help is JSON by default, like every other output, and comes from the schemas. `b
 
 ### 9.1 Configuration
 
-`config.rs` is the only code that reads a file or the environment for settings, as `decisions/2026-10-23-settings-live-in-an-xdg-config-file.md` says.
+`config.rs` is the only code that reads a file or the environment for settings, as `decisions/2026-10-23-settings-live-in-an-xdg-config-file.md` says. `paths.rs` resolves folders: the config file is `$XDG_CONFIG_HOME/biomcp/config.json`, then `~/.config/biomcp/config.json`, and on Windows `%APPDATA%\biomcp\config.json`. The cache folder follows section 7.1.
 
 ```json
 {
   "budget_ms": 20000,
   "format": "json",
   "disable_sources": ["semanticscholar"],
-  "cache": { "path": "/home/user/.cache/biomcp/biomcp.sqlite", "max_mb": 1024 },
-  "keys": { "ncbi_api_key": "..." },
+  "proxy": "http://proxy.example:3128",
+  "cache": { "folder": "/home/user/.cache/biomcp", "max_mb": 1024 },
+  "bundles": { "sync_budget_ms": 120000, "auto_sync_max_mb": 32 },
+  "keys": { "ncbi_api_key": "...", "oncokb_api_key": "..." },
   "sources": { "pubmed": { "deadline_ms": 10000 } }
 }
 ```
@@ -1413,15 +1589,14 @@ Help is JSON by default, like every other output, and comes from the schemas. `b
 ```rust
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ConfigFile { budget_ms: Option<u32>, format: Option<Format>, disable_sources: Option<Vec<Source>>, cache: Option<CacheConfig>, keys: Option<KeysConfig>, sources: Option<BTreeMap<Source, SourceConfig>> }
+struct ConfigFile { budget_ms: Option<u32>, format: Option<Format>, disable_sources: Option<Vec<Source>>, proxy: Option<ProxyUrl>, cache: Option<CacheConfig>, bundles: Option<BundleConfig>, keys: Option<KeysConfig>, sources: Option<BTreeMap<Source, SourceConfig>> }
 
 pub(crate) struct Settings { pub fetch: FetchConfig, pub budget: Duration, pub format: Format, pub disabled: BTreeSet<Source>, pub explain: bool }
 pub(crate) fn load(globals: &Globals) -> Result<Settings, ConfigError>;
 ```
 
-- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY` or `S2_API_KEY`.
+- Precedence: the flag, then the config file, then the built-in default. A key comes from the config file, then from its documented environment variable, such as `NCBI_API_KEY`, `ONCOKB_API_KEY` or `S2_API_KEY`. `biomcp help key <source>` names both for each source that takes a key.
 - An unknown key, a wrong type or a bad value fails with a named error that gives the key path.
-- The cache path defaults to `$XDG_CACHE_HOME/biomcp/biomcp.sqlite`.
 - Tests set `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to empty temporary folders per case.
 
 ### 9.2 Observability
@@ -1431,12 +1606,12 @@ BioMCP writes nothing to standard error during a successful command. `--explain`
 ```json
 "explain": {
   "total_ms": 1840,
-  "stages": [ { "stage": "resolve", "ms": 3 }, { "stage": "fan_out", "ms": 1790 }, { "stage": "rank", "ms": 2 }, { "stage": "store", "ms": 9 } ],
-  "requests": [ { "source": "pubmed", "endpoint": "esearch.fcgi", "cache": "miss", "status": 200, "attempts": 1, "ms": 412, "bytes": 98211 } ]
+  "stages": [ { "stage": "resolve", "ms": 3 }, { "stage": "acquire", "ms": 1590 }, { "stage": "enrich", "ms": 200 }, { "stage": "rank", "ms": 2 }, { "stage": "store", "ms": 9 } ],
+  "requests": [ { "source": "pubmed", "quota": "ncbi-eutils", "endpoint": "esearch.fcgi", "cache": "miss", "status": 200, "attempts": 1, "start_ms": 0, "ms": 412, "bytes": 98211 } ]
 }
 ```
 
-A trace line names the source and the endpoint path, never the full URL, a credential or the query text. The agent asked for its own query and already holds it. The binary prints the plan for a command without sending anything when the caller combines `--explain` with `--offline` and an empty cache. No logging crate exists.
+A trace line names the source, the quota and the endpoint path, never the full URL, a credential or the query text. `start_ms` is real or virtual time from the command's start, so quota spacing is visible in live and replay runs alike. No logging crate exists.
 
 ### 9.3 Performance budget
 
@@ -1446,16 +1621,18 @@ Speed is measured against a floor worked out from first principles: the requests
 | --- | --- |
 | Process start to output for `help` or `schema` | under 10 ms |
 | BioMCP's own work for any command in replay with zero recorded delay | under 30 ms at the 95th percentile |
+| A gene resolution from the HGNC bundle | under 5 ms |
 | A command whose replies are all fresh in the cache | under 50 ms |
 | A warm page of a stored pool | under 30 ms and zero requests |
-| Building an article pool of 2,000 items in replay with zero delay | under 150 ms |
+| Enriching and ranking an article pool of 2,000 items in replay with zero delay | under 150 ms |
 | Peak memory for the largest pool | under 100 MB |
 | A cold command | the slowest source it needs plus under 50 ms, within the budget |
 
 Measurement:
 
 - The runner records each case's wall time. `make perf` runs a tagged case set in replay with zero delays, compares each case with its budget and prints the slowest stages from `--explain`. It runs on transport, query and grammar changes and at each milestone's end. The landing gate does not run it, because timing on a shared machine varies.
-- The nightly live run records cold timings and request counts per source, so a source that slows down shows up as a source fact.
+- Replay keeps virtual quota spacing, so the virtual `total_ms` of a cold article case estimates the live cold time from recorded delays and quotas. `make perf` reports it beside the wall time.
+- The nightly live run records cold timings and request counts per source.
 - `biomcp health` reports each source's reachability and latency on demand.
 
 ## 10. Testing
@@ -1464,22 +1641,26 @@ Tests are outside-in, as `decisions/2026-10-23-outside-in-tests-and-one-small-ru
 
 ### 10.1 The runner
 
-`crates/biomcp/tests/cases.rs` is one integration test target with `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It builds nothing itself. It runs the binary Cargo built for the test.
+`crates/biomcp/tests/cases.rs` is one integration test target with `harness = false`. It uses `libtest-mimic` to turn each YAML file under `tests/cases/` into a named test, so Cargo's filter and parallel run work per case. It runs the binary Cargo built for the test.
 
 ```yaml
 feature: article-search
-covers: [search article, --gene, --variant, --offset]
+covers: [search article, --gene, --variant, --offset, --pool]
 story: AKT1 E17K leads to the 2007 discovery paper and keeps every plain PubMed hit
 harvest: paper PMID 17611497
 verified: 2026-10-23 live PubMed ESearch with sort=relevance
 replay: akt1-e17k-2026-10-23
 steps:
   - run: [search, article, --gene, AKT1, --variant, E17K, --limit, "50"]
+    max_tokens: 10000
     expect:
       /status: complete
+      /result/items/0/header:
+        max_tokens: 150
       /result/items/*/header/pmid:
         rank_of: { "17611497": "<= 10", "33123537": "<= 2" }
-  - run: [search, article, --gene, AKT1, --variant, E17K, --limit, "50", --offset, "50", --offline]
+  - follow: { kind: page }
+    offline: true
     expect:
       /status: complete
   - walk: [search, article, --gene, AKT1, --variant, E17K]
@@ -1493,37 +1674,44 @@ The case keys:
 
 - `feature`, `covers`, `story`, `harvest` and `verified` describe the case. `covers` names the commands and options it exercises.
 - `replay` names the recording folder. Each step runs with `--replay` on it, in a fresh temporary config and cache shared by the case's steps.
-- `run` sends one CLI command. `mcp` sends the same arguments through `biomcp serve` as a `tools/call`. A step with both runs each and asserts the two envelopes are equal.
-- `walk` pages through every result by following `next` until no next page remains, and asserts over the concatenated items.
-- `follow: N` runs the Nth next step of the previous output, which tests chaining.
+- `run` sends one CLI command. `mcp` sends the same arguments through `biomcp serve --replay` as a `tools/call`. A step with both runs each and asserts the two envelopes are equal.
+- `follow` runs a next step of the previous output, chosen by `kind` and an optional index. It tests chaining.
+- `walk` pages through every result by following `page` steps until none remain, and asserts over the concatenated items.
+- `offline: true` runs the step with `--offline` and no recordings. A step that succeeds offline made no request.
 - `exit` sets the expected exit code, 0 by default.
+- `max_bytes` and `max_tokens` on a step cap the whole output. As assertions under `expect`, they cap the value at one pointer, such as one section or one header. Each slice's token budget per command and per section becomes these ceilings, as `planning/slices.md` says, so growth fails a case.
+- `config` sets keys in the case's temporary config, such as a placeholder OncoKB key for a replay case. Without it, keyed sources are skipped.
 - `expect` maps JSON pointers to assertions. A `*` segment maps over a list.
 
 The assertion set stays small: equality, subset, `includes`, `includes_all_of` a floor file, count range, `rank_of` ranges, `before` between two items, `unique` and regular expression. Every output is also validated against the schema it names, without any key in the case. A failure prints the pointer, the expected value and the actual value.
 
-The warm-page rule is a step with `--offline` after a step that built the pool. If the offline step succeeds, the page made no request.
+Tokens are counted by one fixed rule in the runner: the compact JSON's bytes divided by four, rounded up. The rule needs no tokenizer and gives the same count on every machine. The slice's comparison with 0.9 counts 0.9's output by the same rule. `make sizes` prints each case step's bytes and tokens and each section's, for the slice's budget table.
 
 The runner takes `--cases DIR`, so case sets that cannot be published run against a built binary from outside the repo. A later `score:` block in place of `expect:` writes metrics against a stored baseline for nightly scoring runs.
 
-The runner is a test, so it may read its own environment and write temporary files. Its YAML reader is a test dependency. The runner stage picks a maintained serde YAML crate, because the original `serde_yaml` is archived.
+The runner's YAML reader is a test dependency. The original `serde_yaml` is archived, so the runner stage picks a maintained serde YAML crate and records why. The `jsonschema` test dependency runs with default features off, so it never fetches a remote schema.
 
 ### 10.2 Checks the runner adds
 
 - **Surface.** One test reads `biomcp help --all` and fails when any command or option appears in no case's `covers`.
-- **Schema.** Every output validates against its schema through the `jsonschema` test dependency, with remote resolution off.
+- **Schema.** Every output validates against its schema.
 - **Parity.** Every step with both `run` and `mcp` compares the two envelopes.
+- **Quota.** The eight-parallel-call case in section 4.5.
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov` and compares line coverage with the floor in `coverage.floor`. The landing gate runs it. The floor starts at the first measured value and rises whenever a landing exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
+`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the report merges them.
+
+The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
 
 ### 10.4 Where unit tests are allowed
 
 The ratchet test holds the list. Each entry names a file and its reason.
 
-- `crates/biodata/tests/`: identifier, date and notation tables through the public API, the schema drift and compatibility test, and the format round trip. These are outside-in for the library.
+- `crates/biodata/tests/`: identifier, date and notation tables through the public API, the schema drift, compatibility and subset test, and the JSON round trip. These are outside-in for the library.
 - `crates/biomcp-query/src/article/rank.rs`: the ranker's tie-break table, because a ranking rule is easier to state as rows than as recorded pools.
 - `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
+- `crates/biomcp-fetch/src/xml.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
 
 Everything else goes through the runner.
 
@@ -1537,25 +1725,33 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | One crate names the HTTP client | `biomcp-fetch` only | the ratchet test's allowed lists |
 | SQL owners | `biomcp-fetch`, and `biomcp-query/src/store/` | allowed lists and the ratchet test's path check |
 | No I/O in `biodata` and adapters | none | per-crate `clippy.toml` `disallowed_methods` and `disallowed_types` |
-| No global or shared mutable state outside the transport | none | per-crate `clippy.toml` `disallowed_types`, and `unsafe_code = "forbid"` |
-| Threads | `fanout.rs`, the transport and the MCP loop only | `disallowed_methods` with one reasoned `expect` each |
+| No global or shared mutable state outside the transport | none | per-crate `clippy.toml` `disallowed_types`, and `unsafe_code` denied |
+| Threads | `fanout.rs`, the transport and `mcp.rs` only | `disallowed_methods` with one reasoned `expect` each |
 | Environment reads | `config.rs` only | `disallowed_methods` with one reasoned `expect` |
+| Lint exceptions | listed files only, each with a reason | `allow_attributes_without_reason`, and the ratchet test's list of files that may hold `#[expect(` |
 | File length | 600 lines; 300 in an adapter folder | the ratchet test |
 | Function length | 80 lines | `clippy::too_many_lines` at 80 |
-| Suppressions without a reason | none | `allow_attributes_without_reason`; `dead_code` and `unused_imports` never allowed |
+| `dead_code` and `unused_imports` allowances | none | review and the ratchet test's `#[expect(` list |
 | Panics, unwraps, indexing, prints | none in product code | workspace clippy lints |
 | Unit tests in product crates | the listed files | the ratchet test counts `#[test]` |
 | Outputs with a checked-in, versioned schema | every command | the schema test and the runner's validation |
 | Breaking schema changes without a major bump | none | the compatibility check in the schema test |
+| Query schemas outside the grammar's subset | none | the subset check in the schema test |
 | Commands and options without a case | none | the runner's surface check |
 | Quirks without a case | none | the ratchet test checks each named case exists |
+| `#[serde(default)]` in adapter raw types | none | the ratchet test |
+| Rate limits outside the quota table | none | `SourceSpec` takes only a `&'static Quota` |
+| Replies cached without a passing check | none | `Leg` stores only after `Reply::check`; a recorded 200 error case per adapter |
 | Format branches in interface code | one dispatch in `output.rs` | review; the view takes JSON only |
 | `String` fields holding IDs, closed sets, dates or coordinates | none | review, visible in each schema |
 | `serde_json::Value` in adapters | none | adapters cannot name `serde_json` |
 | Test hooks in product code | none | record, replay and offline are user features |
-| Feature set tested against feature set shipped | the same | one build profile in the gate |
+| Feature set tested against feature set shipped | the same | the binary enables `schema`; one build profile in the gate |
 | Licenses | no GPL, LGPL or AGPL | `cargo deny` |
-| Outside-in coverage | never falls | `make coverage` with `coverage.floor` |
+| Outside-in coverage | never more than 0.2 points below the floor | `make coverage` with `coverage.floor` |
+| Output size per command and per section | under each case's `max_bytes` and `max_tokens` ceilings | the runner |
+| Keyed sources called without the user's key | none | `KeyUse::Required` checked in `Fetch::leg` and the fan-out; a replay case per keyed source with no key asserts `skipped` and no recording read |
+| Limiters keyed by anything but a declared source key | none | the limiter takes only a `&'static Quota`; the ratchet test confines `SourceKey::declare` and `Quota` statics to `quotas.rs` and refuses duplicate keys |
 | Documented commands that fail | none | a docs check runs each documented command over recordings |
 
 ## 12. Porting 0.9 knowledge
@@ -1564,7 +1760,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 
 ### 12.1 The quirks list
 
-Each slice's investigation reads the 0.9 adapters for its sources and writes a quirks table in its design file, `planning/<entity>.md`:
+Each slice's investigation reads the 0.9 adapters for its sources and writes a quirks table in its design file, `planning/slices/<entity>.md`:
 
 | Source | Quirk | Evidence | 1.0 handling | Case |
 | --- | --- | --- | --- | --- |
@@ -1572,63 +1768,58 @@ Each slice's investigation reads the 0.9 adapters for its sources and writes a q
 
 In the code, each kept quirk is one line with a `// Quirk:` comment that names its case. A quirk the slice drops gets a row that says why.
 
-The seed list below comes from reading the 0.9 sources for this design. Each slice verifies its rows against the live source before relying on them.
+The seed list below comes from the 0.9 sources and `planning/slices/gene.md`. Each slice verifies its rows against the live source before relying on them.
 
 | Source | Quirk |
 | --- | --- |
 | PubMed | Without `sort=relevance`, results come newest first. |
 | PubMed | ESearch returns at most the first 10,000 records. |
+| PubMed | ESearch can answer 200 with an `ERROR` field and no ID list. |
 | PubMed | ESummary JSON keys records by PMID and gives the order in `result.uids`. |
-| NCBI | A key raises the allowed rate from 3 to 10 requests per second. |
+| NCBI E-utilities | All endpoints share one limit: 3 requests per second, 10 with a key. Eight parallel calls without a key drew seven 429s. |
 | PubTator | The rate stays at 3 per second with or without the NCBI key. |
-| MyGene | `species=human` is required, or every organism returns. |
+| HGNC | Exact lookups return withdrawn entries, so the caller checks `status`. Withdrawn entries carry no successor. |
+| HGNC | Aliases and previous symbols are separate lists, and only HGNC keeps them apart. |
+| MyGene | `GET /query?q=HER2` ignores scopes and ranks the wrong gene first, and `q=symbol:HER2` returns nothing. Call by Entrez ID. |
+| MyGene | `species=human` is required, `genomic_pos` can be a list, and replaced Entrez IDs are served without a flag. |
 | MyGene | `from` plus `size` may not pass 10,000. |
-| MyGene | `HGNC` is a scalar or a list, `entrezgene` a number or a string, `alias` a string or a list. |
-| MyGene | `uniprot` separates Swiss-Prot from TrEMBL, and 0.9 prefers Swiss-Prot. |
-| MyGene | A symbol query needs the `symbol:"..."` form with quoting to match exactly. |
+| CIViC | Takes only the exact official symbol. A gene with no variants and a missing gene are different answers. |
 | ClinicalTrials.gov | Pages by `pageToken`, and `countTotal=true` gives the total. |
-| Europe PMC | Pages by `cursorMark` starting from `*`, with `resultType=core` for full records. |
-| Semantic Scholar | A 429 without a key comes from a shared pool, and a key header `x-api-key` lifts it. |
+| Europe PMC | Pages by `cursorMark` starting from `*`, with `resultType=core` for abstracts. |
+| Semantic Scholar | A 429 without a key comes from a shared pool, and an `x-api-key` header lifts it. |
 | openFDA | Some count queries ask for an exact retry through their error body. |
-| EMA | The medicine data is several JSON report feeds of about 11 MB in all, refreshed by EMA about every three days. |
 
 ### 12.2 The rest of the port
 
 - **Recordings.** 0.9's replay recordings convert into the transport's format by a one-time script that lives in the converting ticket and is deleted after. Only recordings a 1.0 case uses are kept.
 - **Spec assertions.** Each slice reads 0.9's executable specs for its entity and turns each clinician-visible fact into a case. Wording checks are dropped.
 - **Help text.** 0.9 help text moves into query type doc comments where a 1.0 option keeps it.
-- **Skills.** The agent guide is rewritten against the 1.0 tree and its examples come from cases.
+- **Retired spellings.** Each slice adds a row to `retired.rs` for every 0.9 command it retires, from its 0.9 accounting.
+- **Skills.** The agent guide is rewritten against the 1.0 tree, and its examples come from cases.
 - **Release pipeline.** The five-platform release, signing and installers carry over in the parity milestone.
 - **Accounting.** Every 0.9 command, section and option for an entity ends as ported, renamed or dropped by a named ruling in its slice's tickets.
 
-## 13. Changes from the earlier architecture text
+## 13. Rulings applied
 
-Each item replaces earlier text in this file. `planning/rust-standards.md` and `plan.md` still name `biomcp-store`, `biomcp-render` and `reqwest` in places. Those lines follow this file once Ian accepts the changes.
+The PM ruled on this design's earlier open questions on 2026-10-23. This file applies each ruling.
 
-1. **Five crates.** `biomcp-store` folds into `biomcp-query` as its `store` module. `biomcp-render` folds into the binary as a JSON-fed `view` module.
-2. **Blocking transport.** `ureq` on standard threads replaces `reqwest`. No async runtime exists.
-3. **Hand-written MCP loop.** A small JSON-RPC loop replaces an MCP library.
-4. **Formats in the transport.** The transport decodes JSON, XML and rows, so adapters never name `serde_json` or `quick-xml`.
-5. **Bundle rows in SQLite.** Sync stores each bundle row with its lookup keys, so a query reads a few rows and never parses the whole file.
-6. **Sections inside the card.** One object per requested section carries its state and data. The card's `more` lists the rest. The envelope's top-level `sections` map is gone.
-7. **Next steps as argument lists.** `next` holds argument lists that the CLI and MCP print alike. The view prints them as shell commands.
-8. **One ID per get.** `get` takes one identifier and positional sections. `search <entity> --id` returns headers for a list.
-9. **Links as next steps.** A relation equal to a filter on another entity's search becomes a next step. Drill-down commands remain for paged parts and for graph edges.
-10. **Paging by offset over a pool.** The request carries the pool key, so no continuation token exists.
-11. **Error envelope and exit codes.** Errors print a `biomcp.error/1` envelope, and a confirmed absence exits 1.
-12. **Grammar from schemas.** clap's builder reads the checked-in schemas at run time. No clap derive exists.
-13. **Ratchet test.** The ratchet check is a Rust integration test. No script holds it.
-14. **Store tables on demand.** `entity`, `alias` and `link` arrive with their first reader. The article slice brings only `pool` and `pool_item`.
-15. **Coverage floor in the gate.** The landing gate fails when outside-in coverage falls below its floor.
+1. **Blocking I/O.** `ureq` on standard threads, with `Leg::batch` under the source's quota, timeouts on every phase, rustls with ring, platform trust roots and proxies only from config. `decisions/2026-10-23-one-transport.md` carries the amendment.
+2. **MCP.** One hand-written file written to the specification, with the rules in section 8.7 and `serve --replay DIR` for the runner.
+3. **Five crates.** The store lives in `biomcp-query` and the view in the binary. Each call opens its own `Store`, and the fan-out receives only `&Fetch`.
+4. **Links as next steps.** Link commands that equal a search filter are gone. Next steps carry the resolved ID, and retired 0.9 spellings return a usage error that names the new command.
+5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
+6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.
+7. **Bundles.** `biomcp sync` at install, auto-sync on first use below a size threshold, a lock row, a separate budget, resumable downloads or a `syncing` outcome, and never offline.
+8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the lander raises it. The subprocess binary is instrumented.
+9. **Wiki tables.** Entity, alias and link tables are deferred to the wiki's own design, and their DDL is gone from this file.
 
-## 14. Open questions for Ian
+Ian ruled on 2026-10-24, and this file applies each ruling:
 
-1. **Blocking I/O with `ureq` in place of `reqwest`.** The one-transport decision names `reqwest`. Recommendation: accept `ureq` with standard threads. It removes the async runtime, shortens every adapter and service function, and shrinks the build. The cost is a one-line amendment to that decision.
-2. **A hand-written MCP loop.** Recommendation: accept. One tool needs five JSON-RPC methods, and the Rust MCP libraries bring the async runtime that question 1 removes. The cost is a few hundred lines we own and must track against MCP revisions.
-3. **Five crates.** Recommendation: accept the store inside `biomcp-query` and the view inside the binary. Every boundary rule still holds through Cargo, clippy or the ratchet test, and two manifests and two public APIs disappear.
-4. **Links as next steps.** Recommendation: drop 0.9's link commands that equal a search filter, such as `gene trials`, and have the gene card point at `search trial --gene`. This keeps one spelling per idea and removes about two dozen commands and their cases. The parity run maps each dropped 0.9 command to its 1.0 search. The cost is that 0.9 users of those commands change their habit.
-5. **One ID per get.** Recommendation: `get` takes one identifier with positional sections, as 0.9 does, and a list of exact records goes through `search --id`. Several IDs and positional sections together cannot parse without guessing.
-6. **Exit code 1 for a confirmed absence.** Recommendation: accept. An agent can tell "no such gene" from "the source failed" from the exit code alone, and the error envelope's next step offers the search.
-7. **Bundles sync on first use.** Recommendation: a query that needs an absent bundle downloads it once under the bundle's own deadline and reports it, and offline mode never downloads. The alternative fails the query with a `sync` next step, which costs every new user one extra round trip.
-8. **Coverage floor in the landing gate.** Recommendation: gate on it, with the floor rising only. It catches deleted cases and untested code at the landing that causes them. The cost is a second instrumented build in each gate run.
-9. **Entity and link rows wait for the wiki.** Recommendation: write no `entity`, `alias` or `link` rows until the wiki or a measured resolution need reads them. The cost is that the wiki starts with an empty graph and fills as it is used.
+10. **Keyed sources.** A source that needs the user's own license runs only with the user's key. `KeyUse::Required` makes it a transport rule, and the output reports it as skipped with a `key` step (section 4.3).
+11. **Limiters by source key.** Each `SourceSpec` names a quota with a declared `SourceKey`, and nothing derives a limiter from a URL or host (section 4.5).
+12. **Gene slice.** HGNC ships as two local bundles and owns identity. Ambiguous inputs return ranked candidates. Gene trials, articles and drugs become next steps. OncoKB is a keyed gene source.
+13. **Token budgets.** Each slice's budget per command and per section becomes `max_bytes` and `max_tokens` ceilings in its cases (section 10.1).
+
+## 14. Open questions
+
+1. **The pinned MCP revisions.** The MCP stage pins the revisions `mcp.rs` supports when it starts, and adds a revision only with its cases.

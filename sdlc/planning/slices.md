@@ -47,7 +47,7 @@ A slice may replace a question with one that fits its entity better. It keeps at
 
 ### 4. Write the slice design
 
-The slice writes `planning/<entity>.md`. It holds the examples' summary, the source findings, the answers to the delight questions, the types and schema, the command tree with each command's header and drill-downs, the sources kept and dropped with reasons, the progressive disclosure strategy and token budget, and the 0.9 accounting. The PM reviews it on its branch and files the slice's tickets from it.
+The slice writes `planning/slices/<entity>.md`. It holds the examples' summary, the source findings, the answers to the delight questions, the types and schema, the command tree with each command's header and drill-downs, the sources kept and dropped with reasons, the progressive disclosure strategy and token budget, and the 0.9 accounting. The PM reviews it on its branch and files the slice's tickets from it.
 
 ### Progressive disclosure and token budget
 

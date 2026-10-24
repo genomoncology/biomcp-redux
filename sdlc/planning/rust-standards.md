@@ -12,11 +12,11 @@ Agents write this code. The compiler, clippy and the ratchet check enforce what 
 
 One lint table sits in the workspace `Cargo.toml`, and every crate inherits it.
 
-- Rust: `unsafe_code`, `unreachable_pub` and `missing_debug_implementations` are forbidden, and `missing_docs` is denied.
+- Rust: `unsafe_code`, `unreachable_pub`, `missing_debug_implementations` and `missing_docs` are denied. Lints are `deny`, never `forbid`, so a rare exception can carry `#[expect(lint, reason = "...")]`. The ratchet check lists the files allowed to hold one.
 - Clippy: `unwrap_used`, `expect_used`, `panic`, `indexing_slicing`, `todo`, `unimplemented`, `dbg_macro`, `print_stdout`, `print_stderr` and `allow_attributes_without_reason` are denied. `too_many_lines` is denied at 80 lines. Tests may unwrap, expect, panic and index through `clippy.toml`.
 - No `dead_code` or `unused_imports` allow, with or without a reason.
-- `disallowed_types` forbids `static` state, `Mutex`, `RwLock`, `OnceLock`, `LazyLock` and `task_local!` outside `biomcp-fetch` and `biomcp-store`. Each such item there carries a written reason.
-- `disallowed_methods` forbids environment reads outside the binary's config module.
+- `disallowed_types` denies `Cell`, `RefCell`, `Mutex`, `RwLock`, `OnceLock`, `LazyLock` and the atomics outside `biomcp-fetch`. With `unsafe_code` denied, no global mutable state can exist elsewhere. Each such item in `biomcp-fetch` carries a written reason. The store needs none, because each call opens its own connection.
+- `disallowed_methods` denies environment reads outside the binary's config module, and thread spawns outside the fan-out, the transport and the MCP server.
 - Warnings fail the gate.
 
 ## Size
@@ -45,9 +45,9 @@ Every type in `biodata` follows these rules.
 6. Values never change after they are built. Owned text and lists that never grow are `Box<str>` and `Box<[T]>`.
 7. Errors are enums with stable codes that implement `Display` and `std::error::Error`. No error message holds input text.
 8. Every identifier derives `Hash` with `Eq`, and they agree. A symbol compared without case hashes without case.
-9. Serde runs in both directions, and deserializing runs the same checks as construction, through `try_from` a raw shape. Enums with data are internally tagged with a `type` field and snake_case names. Field names in JSON are public API, and renaming one raises the schema's major version.
+9. Serde runs in both directions, and deserializing runs the same checks as construction, through `try_from` a raw shape. Enums with data are internally tagged with a field named for what they choose, such as `state`, `resolution` or `command`, and snake_case names. No biodata type uses `#[serde(flatten)]`, because serde refuses it beside `deny_unknown_fields`. Field names in JSON are public API, and renaming one raises the schema's major version.
 10. JSON Schema comes from `schemars` behind the `schema` feature, is checked in under `schemas/`, carries a name and major version such as `biodata.gene/1`, and fails the build on drift.
-11. Each case value round-trips through JSON, MessagePack, CBOR, YAML and TOML. These format crates are test dependencies only.
+11. Each case value round-trips through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 12. Dependencies stay lean: `serde`, `winnow` and optional `schemars`. No HTTP client, XML parser, async runtime or database driver.
 13. Types stay ready for bindings: owned data, no lifetimes, no trait objects and no generic parameter a binding cannot name. Bindings, when a consumer asks for them, live in their own crates.
 14. The crate README is its crate docs through `#![doc = include_str!("../README.md")]`, so its example compiles.
@@ -77,8 +77,16 @@ A dependency is not free. Follow `decisions/2026-10-23-least-code-easy-upkeep-fa
 - Cases reach the code only through the `biomcp` binary and the MCP tool. Inline tests are allowed only for a listed exception with a stated reason, such as a parser table or the ranker's tie-break rules.
 - One case per behavior, on the surface that owns it. Edge cases go in one table per behavior.
 - Assert answers, statuses, exit codes and error codes. Pin message text only where the text is the contract.
-- No case touches the network. Each adapter has a recorded 429, 500, timeout and broken body case.
+- No case touches the network. Each adapter has a recorded 429, 500, timeout, broken body and 200-with-error-body case.
+- The transport caches a reply only after it decodes and passes its raw type's `check`. It never caches another non-2xx reply, and caches a 404 for ten minutes.
+- An adapter's `raw.rs` never uses `#[serde(default)]`. A field the provider may omit is an `Option`, and the type's `check` decides whether its absence is an error. The ratchet check enforces this.
+- Each case step and each section a slice budgets carries a `max_bytes` or `max_tokens` ceiling from the slice's token budget.
 - Product code holds no hook that only tests use. Replay works through the transport's offline mode, so no per-source base URL setting exists.
+
+## Sources
+
+- Each adapter's `SourceSpec` names one quota, and each quota declares a `SourceKey` chosen from the provider's documented limit. Sources that share a provider limit share the key. Nothing derives a limiter from a URL, host or endpoint. The limiter takes only a `&'static Quota`, and the ratchet check confines `SourceKey::declare` and quota statics to `quotas.rs` and refuses duplicate keys.
+- A source whose terms need the user's own license declares `KeyUse::Required`. Without the user's key the transport never calls it, including its public endpoints, and the output reports it as skipped with reason `no_key`.
 
 ## Ratchets
 
@@ -87,12 +95,12 @@ Each ratchet starts at its 1.0 target because the code starts empty. The 0.9 col
 | Ratchet | 0.9 | 1.0 target | Mechanism |
 | --- | --- | --- | --- |
 | Reverse layer edges (render to sources, sources to entities, entities to CLI or render, error to entities) | 21, 44, 3, 30 | 0 | Crate boundaries in Cargo |
-| Crates that depend on `reqwest` | 1 crate, 15 files outside sources | `biomcp-fetch` only | Cargo and the ratchet check |
+| Crates that name the HTTP client (`ureq` in 1.0, `reqwest` in 0.9) | 1 crate, 15 files outside sources | `biomcp-fetch` only | Cargo and the ratchet check |
 | JSON outputs with a checked-in, versioned schema | 0 | every command | Schema drift test and runner validation |
 | Max product file length | 10,718 lines; 160 files over 600 | 600; adapter files 300 | Line count in the ratchet check |
 | Max function length | threshold 645; 179 functions over 80 | 80 | `clippy::too_many_lines` |
 | Per-adapter request helpers and retry paths | 29 and 3 | 0 and 1 | Ratchet check |
-| Global or shared mutable state outside transport and store | 101 statics, 110 lazy, 8 task-local, 47 `Mutex` | 0 | clippy `disallowed_types` |
+| Global or shared mutable state outside the transport | 101 statics, 110 lazy, 8 task-local, 47 `Mutex` | 0 | clippy `disallowed_types` |
 | Unit tests in product crates | 4,061 | listed exceptions only | Ratchet check counts `#[test]` |
 | Environment reads outside the config module | 88 in 47 files | 0 | clippy `disallowed_methods` |
 | Source names as strings in errors | 415 | 0 | Typed source enum |
@@ -100,7 +108,10 @@ Each ratchet starts at its 1.0 target because the code starts empty. The 0.9 col
 | Suppression attributes without a reason | 122 dead code, 56 unused imports, 29 too many arguments | 0 | `allow_attributes_without_reason`; no dead-code allows |
 | `String` fields holding IDs, enums, dates or coordinates | 1,092 `String` fields in entities | free text only | Review and schema types |
 | Test hooks in product code | 23 test variables, 76 base-URL overrides | 0 | Replay through the transport |
-| Feature set tested against feature set shipped | differ | same | One build profile in the gate |
+| Feature set tested against feature set shipped | differ | same | The binary enables `biodata`'s `schema` feature; one build profile in the gate |
+| `#[serde(default)]` in adapter raw types | not measured | 0 | Ratchet check |
+| Limiters keyed by URL or host | not measured | 0 | Limiter takes a `&'static Quota`; ratchet check on `quotas.rs` |
+| Output size per command and section | not measured | under each case's ceiling | Runner `max_bytes` and `max_tokens` |
 | Runtime dependencies | 57 direct, 481 locked | each justified, listed per crate | Allowed list in `architecture.md` |
 | Documented commands run in a check | about 20% of spec pages | every docs example | Docs example check |
 
