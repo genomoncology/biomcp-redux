@@ -95,5 +95,7 @@ canonical_enum! {
         ReplayMiss => "replay_miss",
         /// The source data was being synchronized.
         Syncing => "syncing",
+        /// Identity lacks the identifier required to join this source.
+        NoJoinId => "no_join_id",
     }
 }

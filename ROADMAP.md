@@ -66,7 +66,7 @@ Sources:
 - [x] MyGene.info
 - [x] UniProt
 - [ ] Reactome
-- [ ] CIViC
+- [x] CIViC
 - [ ] ClinGen
 - [ ] GenCC (bundle)
 - [x] gnomAD (constraint)

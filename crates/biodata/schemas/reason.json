@@ -13,7 +13,8 @@
     "no_key",
     "disabled",
     "replay_miss",
-    "syncing"
+    "syncing",
+    "no_join_id"
   ],
   "title": "Reason",
   "type": "string"
