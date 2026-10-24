@@ -74,15 +74,17 @@ pub(crate) fn compare(
                 "after_identity": item.identity, "after_statuses": statuses(after, &item.identity)}));
         }
     }
+    let drift_omitted = found.len().saturating_sub(MAX_CHANGES);
+    let command_drift: Vec<_> = found.iter().take(MAX_CHANGES).cloned().collect();
     changes.extend(found);
     let omitted = changes.len().saturating_sub(MAX_CHANGES);
     changes.truncate(MAX_CHANGES);
     if omitted > 0 {
-        changes.push(format!("{omitted} more drift details omitted"));
+        changes.push("more drift details omitted; counts are in command exchanges".into());
     }
     let omitted = evidence.len().saturating_sub(MAX_EXCHANGES);
     evidence.truncate(MAX_EXCHANGES);
-    json!({"items": evidence, "omitted": omitted})
+    json!({"items": evidence, "omitted": omitted, "drift": command_drift, "drift_omitted": drift_omitted})
 }
 fn terminal(items: &[Observation]) -> Vec<&Observation> {
     let mut result: Vec<&Observation> = Vec::new();
