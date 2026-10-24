@@ -86,10 +86,10 @@ The pure map between (`Build`, `Chromosome`) and the `NC_` accession is a fixed 
 
 | Type | Fields and wire form | Rule | Standard |
 | --- | --- | --- | --- |
-| `Base` | One uppercase IUPAC letter or U | The projecting crate's enum, copied | IUPAC |
+| `Base` | One uppercase IUPAC DNA letter | The projecting crate's enum, copied. `U` is refused; RNA notation stays in `HgvsText` | IUPAC |
 | `Sequence` | A string of bases, such as `"A"`, `"GA"` or `""` | May be empty | VRS literal sequence, SPDI |
-| `Allele` | `{"location": SequenceLocation, "reference": Sequence, "alternate": Sequence}` | Interbase and unpadded. The reference length equals the span length. Both sides empty is refused. The constructor never trims, shifts or checks the reference genome | SPDI `S:P:D:I`; VRS `Allele` with the deleted sequence kept |
-| `AlleleKey` | Same wire form as `Allele` | A newtype over `Allele` that only the projecting crate's normalizer builds. It holds the normalized placement and is the join key for that crate's annotations | The projecting crate's existing rule |
+| `Allele` | `{"location": SequenceLocation, "reference": Sequence, "alternate": Sequence}` | Interbase and unpadded. The reference length equals the span length. Both sides empty is refused. A reference equal to the alternate is allowed and states the reference allele. The constructor never trims, shifts or checks the reference genome | SPDI `S:P:D:I`; VRS `Allele` with the deleted sequence kept |
+| `AlleleKey` | `{"build": Build, "allele": Allele}` | Only the projecting crate's normalizer builds it. It holds the normalized placement and the build, because an accession does not always name its build: `NC_012920.1` is the mitochondrial sequence in both GRCh37 and GRCh38. It is the join key for that crate's annotations | The projecting crate's existing rule |
 
 Equality of two `Allele` values is equality of what the sources stated. It is not variant equivalence. Equivalence needs normalization against the reference sequence, which only the projecting crate does. A VCF row converts to an `Allele` by dropping the padding base and subtracting one from the start. A gnomAD `chrom-pos-ref-alt` ID converts the same way.
 
@@ -135,7 +135,7 @@ Variant {
 }
 ```
 
-The projecting crate's normalized view extends this with `AlleleKey` and its projections in its own types. BioMCP's card, header and sections pick from `Variant` in BioMCP response types, as architecture section 3.10 says.
+The projecting crate's normalized view extends this with `AlleleKey` and its projections in its own types. A `Statement` may be built as a view from a crate's own reader records, which stay the source for that crate's other writers. BioMCP's card, header and sections pick from `Variant` in BioMCP response types, as architecture section 3.10 says.
 
 ### 3.6 Annotations as statements
 
@@ -236,10 +236,14 @@ BioMCP's variant identity branch changes before it lands: the allele strings bec
     - TP53 `NC_000017.10:g.7576633A>G`, which the registry rejects for a wrong reference base.
     - CHEK2 `NM_007194.4:c.1100del`.
     - TERT `NM_198253.3:c.-124C>T`.
-    - One mitochondrial variant on `NC_012920.1`.
+    - One mitochondrial variant on `NC_012920.1`, whose `AlleleKey` rows for GRCh37 and GRCh38 differ only by build.
+    - One reference allele whose reference equals its alternate, which every crate accepts.
+    - One allele text containing `U`, which every crate refuses.
     - One ClinVar germline statement, one CIViC assertion with a tier and level, and one ClinGen expert panel interpretation, each with source labels.
 11. **Copies.** A copied file keeps the owner's spelling and tests. A fix goes to the owner first, through the PMs, and the copy follows.
 12. **Public text.** Shared types and docs name no consumer project.
+13. **Legacy writers.** A writer that must reproduce an existing product's output byte for byte, including its nulls, empty rows and chromosome prefixes, is outside rules 2, 5 and 8 of this list and outside section 3.8. The shared types feed it; its output keeps the legacy shape.
+14. **Lenient chromosome input.** A crate may accept provider spellings such as `chr7`, `M` or `23` in one adapter helper that returns a `Chromosome`. The `Chromosome` type itself parses only its canonical spellings.
 
 ## 5. Merge path
 
