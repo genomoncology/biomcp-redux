@@ -107,7 +107,7 @@ fn source_health() -> Check {
             "not-implemented".into(),
             "--offline".into(),
         ],
-        5,
+        2,
     )?;
     env.config(&json!({})).map_err(|e| e.to_string())?;
     let health = invoke(&env, vec!["health".into(), "--offline".into()], 0)?;

@@ -100,7 +100,9 @@ pub fn probe(
             };
             return leg.probe_json(
                 &spec.post_json(path).idempotent(),
-                &serde_json::json!({"query":"{ __typename }"}),
+                &ProbeQuery {
+                    query: "{ __typename }",
+                },
             );
         }
         _ => {
@@ -114,4 +116,9 @@ pub fn probe(
         }
     };
     leg.probe(&spec.get(path), &params)
+}
+
+#[derive(serde::Serialize)]
+struct ProbeQuery {
+    query: &'static str,
 }
