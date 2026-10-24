@@ -5,6 +5,8 @@ mod negative_cases;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod schema;
+pub(super) mod schema_proof;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -133,12 +135,16 @@ fn run_step(
             if !output.stderr.is_empty() {
                 return Err("error output: expected empty stderr".into());
             }
+            let value = serde_json::from_slice::<Value>(&output.stdout)
+                .map_err(|error| error.to_string())?;
+            schema::validate(&value, args, output.status.success())?;
             assertions::check(&output.stdout, step, expectations)?;
-            serde_json::from_slice::<Value>(&output.stdout).map_err(|error| error.to_string())
+            Ok(value)
         })
         .transpose()?;
     if let Some(args) = &step.mcp {
         let result = mcp::call(environment, args, step.is_error)?;
+        schema::validate(&result, args, !step.is_error)?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,

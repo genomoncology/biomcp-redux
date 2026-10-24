@@ -45,6 +45,7 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
     if default {
         trials.extend(runner::proof::trials());
         trials.extend(runner::protocol_trials());
+        trials.extend(runner::schema_proof::trials());
     }
     Ok((Arguments::from_iter(cargo_args), trials))
 }
