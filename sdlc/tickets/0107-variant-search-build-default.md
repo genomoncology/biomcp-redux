@@ -1,6 +1,7 @@
 # 0107 — Stop inferring a genome build in variant search
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 901bca07ae870178dad34064c4d002df4e26360c
 
 Milestone: 2
 

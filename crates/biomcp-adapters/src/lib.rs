@@ -57,3 +57,4 @@ pub mod cbioportal;
 mod assertion;
 pub mod clinvar;
 pub mod erepo;
+pub mod hotspots;

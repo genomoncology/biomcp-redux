@@ -68,7 +68,7 @@ mod recurrence;
 pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 mod variant_normalize;
-pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution, VariantSections};
+pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution};
 pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
@@ -99,3 +99,14 @@ pub use variant_assertions::{
     AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
     AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
 };
+mod variant_civic;
+pub use variant_civic::{
+    CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile, CivicStatement,
+    VariantCivic,
+};
+mod variant_hotspots;
+pub use variant::VariantSections;
+pub use variant_hotspots::{HotspotAlternate, HotspotMembership, HotspotRecord, VariantHotspots};
+
+mod variant_oncokb;
+pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};

@@ -14,8 +14,18 @@ pub(super) fn source(cx: &Ctx<'_>, query: &VariantGet) -> Option<Source> {
     if cx.fetch.disabled(source) {
         return Some(source);
     }
+    if *section == S::Oncokb
+        && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
+            || query
+                .build()
+                .is_some_and(|build| super::oncokb::input_genomic(query, build).is_some()))
+    {
+        return Some(source);
+    }
     match (query.input().namespace().ok()?, section) {
-        (VariantNamespace::ClinVar, S::Clinvar) | (VariantNamespace::Ca, S::Erepo) => Some(source),
+        (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
+            Some(source)
+        }
         _ => None,
     }
 }
@@ -79,9 +89,13 @@ pub(super) fn get(
             rejection: None,
         }),
         page: None,
-        sources,
+        sources: sources.clone(),
         problems,
-        next,
+        next: {
+            let mut next = next;
+            next.extend(super::oncokb::next(query, &sources));
+            next
+        },
         local,
     }
 }

@@ -45,23 +45,23 @@ impl Leg<'_> {
     pub(crate) fn cached<T: Reply>(
         &self,
         endpoint: &Endpoint,
-        url: &str,
-        key: &[u8; 32],
+        prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
         live: impl FnOnce() -> Result<(T, u16, Vec<u8>, i64), RequestError>,
     ) -> Result<(T, i64), RequestError> {
+        let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
         if self.fetch.config.mode == Mode::Offline {
-            return self.offline(endpoint, key, codec);
+            return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
             return live().map(|(reply, _, _, fetched)| (reply, fetched));
         };
         let mut stale = None;
         if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
-            match self.checked_cached(cache, key, codec)? {
+            match self.checked_cached(cache, prepared, codec)? {
                 Some(Checked::Positive(reply, true, fetched)) => return Ok((reply, fetched)),
                 Some(Checked::Positive(reply, false, fetched)) => stale = Some((reply, fetched)),
                 Some(Checked::Absent) => {
@@ -116,7 +116,7 @@ impl Leg<'_> {
     fn offline<T: Reply>(
         &self,
         endpoint: &Endpoint,
-        key: &[u8; 32],
+        prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
     ) -> Result<(T, i64), RequestError> {
         if let Some(cache) = self
@@ -125,7 +125,7 @@ impl Leg<'_> {
             .as_ref()
             .filter(|_| endpoint.fresh.seconds().is_some())
         {
-            match self.checked_cached(cache, key, codec)? {
+            match self.checked_cached(cache, prepared, codec)? {
                 Some(Checked::Positive(reply, fresh, fetched)) => {
                     if !fresh {
                         self.report
@@ -147,9 +147,10 @@ impl Leg<'_> {
     fn checked_cached<T: Reply>(
         &self,
         cache: &Cache,
-        key: &[u8; 32],
+        prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
+        let key = &prepared.identity;
         let Some(entry) = cache.read(
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
@@ -158,6 +159,12 @@ impl Leg<'_> {
         else {
             return Ok(None);
         };
+        self.contain_response(
+            prepared,
+            entry.content_type.as_deref().unwrap_or(""),
+            &entry.body,
+            entry.status,
+        )?;
         let fresh = entry.fresh_until > now();
         if entry.status == 404 {
             if fresh {

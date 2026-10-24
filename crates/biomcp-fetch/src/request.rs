@@ -181,39 +181,6 @@ impl Leg<'_> {
         }
     }
 
-    /// Send checked JSON from a declared JSON POST endpoint.
-    pub fn post_json<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        body: &B,
-    ) -> Result<T, RequestError> {
-        self.post_json_with_args(ep, &[], body)
-    }
-
-    /// Send a checked JSON body with shared canonical query arguments.
-    pub fn post_json_with_args<B: serde::Serialize, T: Reply>(
-        &self,
-        ep: &Endpoint,
-        params: &[(&str, Arg<'_>)],
-        body: &B,
-    ) -> Result<T, RequestError> {
-        self.validate(ep, true)?;
-        let codec = Decoder::json();
-        let body = crate::prepared::json(body, self.fetch.config.max_body)?;
-        let url = if ep.publisher {
-            ep.path.to_string()
-        } else {
-            format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
-        };
-        let url = crate::retry::canonical(&url, params, self.spec.key);
-        self.send(
-            ep,
-            Prepared::new(url, body, ep.method, ep.idempotent),
-            codec,
-        )
-        .map(|(reply, _)| reply)
-    }
-
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {
         if self.fetch.disabled(self.spec.source) {
             return Err(self.failure(Reason::Disabled, None).into());
@@ -226,7 +193,7 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
+    pub(crate) fn validate(&self, ep: &Endpoint, json_body: bool) -> Result<(), RequestError> {
         self.check_source()?;
         if !std::ptr::eq(self.spec, ep.spec) {
             return Err(self.failure(Reason::Rejected, None).into());
@@ -253,7 +220,7 @@ impl Leg<'_> {
         }
         Ok(())
     }
-    fn send<T: Reply>(
+    pub(crate) fn send<T: Reply>(
         &self,
         ep: &Endpoint,
         mut prepared: Prepared,
@@ -265,10 +232,9 @@ impl Leg<'_> {
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
-        let (reply, fetched) =
-            self.cached(ep, &prepared.url, &prepared.identity, &codec, || {
-                self.attempts(&prepared, keyed, &codec)
-            })?;
+        let (reply, fetched) = self.cached(ep, &prepared, &codec, || {
+            self.attempts(&prepared, keyed, &codec)
+        })?;
         let metadata = crate::ReplyMetadata {
             identity: prepared.identity,
             fetched,
@@ -281,12 +247,6 @@ impl Leg<'_> {
         Ok((reply, metadata))
     }
 
-    pub(crate) fn keyed(&self) -> bool {
-        match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => self.fetch.secrets.get(c.secret).is_some(),
-            KeyUse::None => false,
-        }
-    }
     fn attempts<T: Reply>(
         &self,
         prepared: &Prepared,
@@ -448,22 +408,7 @@ impl Leg<'_> {
                 }
             })?
         {
-            if !self
-                .budget()
-                .advance(Duration::from_millis(exchange.delay_ms))
-            {
-                return Err(Failure::Local(
-                    self.failure(Reason::DeadlineExceeded, Some(exchange.status))
-                        .into(),
-                ));
-            }
-            return Ok(Wire {
-                fetched: exchange.fetched,
-                status: exchange.status,
-                content_type: exchange.content_type,
-                body: exchange.body.bytes().to_vec(),
-                retry_after: exchange.retry_after_ms.map(Duration::from_millis),
-            });
+            return self.replayed_wire(prepared, exchange);
         }
         let started = Instant::now();
         let mut response = self
@@ -487,6 +432,8 @@ impl Leg<'_> {
             &mut response,
             status,
             recording
+                || self.keyed()
+                || !prepared.outgoing.is_empty()
                 || codec.json_rejections && matches!(status, 400 | 422)
                 || codec.json_absence && status == 404,
             codec.limit.unwrap_or(self.fetch.config.max_body),
@@ -498,11 +445,38 @@ impl Leg<'_> {
             body,
             retry_after,
         };
+        self.contain_response(prepared, &wire.content_type, &wire.body, status)
+            .map_err(Failure::Local)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)
                 .map_err(local)?;
         }
         Ok(wire)
+    }
+    fn replayed_wire(&self, prepared: &Prepared, exchange: Exchange) -> Result<Wire, Failure> {
+        if !self
+            .budget()
+            .advance(Duration::from_millis(exchange.delay_ms))
+        {
+            return Err(Failure::Local(
+                self.failure(Reason::DeadlineExceeded, Some(exchange.status))
+                    .into(),
+            ));
+        }
+        self.contain_response(
+            prepared,
+            &exchange.content_type,
+            exchange.body.bytes(),
+            exchange.status,
+        )
+        .map_err(Failure::Local)?;
+        Ok(Wire {
+            fetched: exchange.fetched,
+            status: exchange.status,
+            content_type: exchange.content_type,
+            body: exchange.body.bytes().to_vec(),
+            retry_after: exchange.retry_after_ms.map(Duration::from_millis),
+        })
     }
     fn record_wire<T: Reply>(
         &self,

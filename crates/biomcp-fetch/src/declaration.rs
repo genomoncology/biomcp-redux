@@ -188,7 +188,6 @@ impl Endpoint {
         self.json_absence = true;
         self
     }
-
     /// Decode typed JSON validation rejections (HTTP 400/422), never admitting them to cache.
     /// The reply type must check both success and rejection schemas. Other statuses retain normal retry semantics.
     pub const fn json_rejections(mut self) -> Self {

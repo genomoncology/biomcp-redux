@@ -68,7 +68,11 @@ fn next(
     let mut next = Vec::new();
     for row in rows {
         if let Ok(input) = row.record.id.as_str().parse()
-            && let Ok(q) = VariantGet::new(input, VariantResolver::Car, Some(query.build()))
+            && let Ok(q) = VariantGet::new(
+                input,
+                VariantResolver::Car,
+                row.identity.representations.iter().find_map(|r| r.build),
+            )
         {
             next.push((
                 StepKind::Disambiguate,

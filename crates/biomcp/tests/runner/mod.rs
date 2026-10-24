@@ -2,6 +2,7 @@ mod article_save;
 mod assertions;
 mod configuration;
 mod corporate;
+mod credential_containment;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -25,6 +26,8 @@ mod nci_walk;
 mod negative_cases;
 mod network_stub;
 mod normalization;
+mod oncokb;
+mod oncokb_context;
 mod pdf;
 mod pmc_tables;
 mod pool_tables;
@@ -47,6 +50,8 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
+mod variant_civic;
+mod variant_hotspots;
 mod variant_search;
 
 use libtest_mimic::Trial;
@@ -279,6 +284,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
@@ -289,6 +295,10 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(variant_assertions::trials());
+    trials.extend(oncokb::trials());
+    trials.extend(oncokb_context::trials());
+    trials.extend(variant_civic::trials());
+    trials.extend(variant_hotspots::trials());
     trials.extend(recurrence::trials());
     trials.extend(recurrence_errors::trials());
     trials.extend(recurrence_metadata::trials());

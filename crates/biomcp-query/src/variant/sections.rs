@@ -1,4 +1,4 @@
-//! Explicit source assertion selection under the command's shared deadline.
+//! Candidate-specific source sections under one command deadline.
 use crate::Ctx;
 use biodata::{
     AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
@@ -11,13 +11,6 @@ pub(super) type Result<T> = (
     Vec<Problem>,
     Option<RequestError>,
 );
-pub(super) fn source(section: VariantSection) -> Option<Source> {
-    match section {
-        VariantSection::Clinvar => Some(Source::ClinVar),
-        VariantSection::Erepo => Some(Source::Erepo),
-        _ => None,
-    }
-}
 pub(super) fn apply(
     cx: &Ctx<'_>,
     query: &VariantGet,
@@ -27,63 +20,120 @@ pub(super) fn apply(
     let mut sources = Vec::new();
     let mut problems = Vec::new();
     let mut local = None;
-    if query.sections().is_empty() {
-        return (sources, problems, local);
-    }
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for (selector, assertion_source) in [
-            (VariantSection::Clinvar, AssertionSource::Clinvar),
-            (VariantSection::Erepo, AssertionSource::Erepo),
+        for section in [
+            VariantSection::Clinvar,
+            VariantSection::Erepo,
+            VariantSection::Civic,
+            VariantSection::Hotspots,
+            VariantSection::Oncokb,
         ] {
-            if !query.sections().contains(&selector)
+            if !query.sections().contains(&section)
                 && !query.sections().contains(&VariantSection::All)
             {
                 continue;
             }
-            let value = permitted(cx, assertion_source.source(), || {
-                super::assertions::section(
-                    cx,
-                    query,
-                    std::slice::from_ref(candidate),
-                    deadline,
-                    assertion_source,
-                )
-            });
-            let section = retain(value, &mut sources, &mut problems, &mut local);
-            if selector == VariantSection::Clinvar {
-                sections.clinvar = Some(section)
-            } else {
-                sections.erepo = Some(section)
+            let candidates = std::slice::from_ref(&*candidate);
+            macro_rules! attach {
+                ($field:ident, $read:expr) => {
+                    sections.$field = Some(retain(
+                        permitted(cx, section, || $read),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    ));
+                };
+            }
+            match section {
+                VariantSection::Clinvar | VariantSection::Erepo => {
+                    let source = if section == VariantSection::Clinvar {
+                        AssertionSource::Clinvar
+                    } else {
+                        AssertionSource::Erepo
+                    };
+                    let value = retain(
+                        permitted(cx, section, || {
+                            super::assertions::section(cx, query, candidates, deadline, source)
+                        }),
+                        &mut sources,
+                        &mut problems,
+                        &mut local,
+                    );
+                    if section == VariantSection::Clinvar {
+                        sections.clinvar = Some(value);
+                    } else {
+                        sections.erepo = Some(value);
+                    }
+                }
+                VariantSection::Civic => {
+                    attach!(
+                        civic,
+                        super::civic::section(cx, query, candidates, deadline)
+                    );
+                }
+                VariantSection::Hotspots => {
+                    attach!(
+                        hotspots,
+                        super::hotspots::section(cx, query, candidates, deadline)
+                    );
+                }
+                VariantSection::Oncokb => {
+                    attach!(
+                        oncokb,
+                        super::oncokb::section(cx, query, candidates, deadline)
+                    );
+                }
+                _ => {}
             }
         }
-        candidate.sections = Some(Box::new(sections));
+        if !query.sections().is_empty() {
+            candidate.sections = Some(Box::new(sections));
+        }
     }
     (sources, problems, local)
 }
-fn permitted<T>(cx: &Ctx<'_>, source: Source, read: impl FnOnce() -> Result<T>) -> Result<T> {
-    if !cx.fetch.disabled(source) {
-        return read();
+pub(super) fn source(section: VariantSection) -> Option<Source> {
+    match section {
+        VariantSection::Clinvar => Some(Source::ClinVar),
+        VariantSection::Erepo => Some(Source::Erepo),
+        VariantSection::Civic => Some(Source::Civic),
+        VariantSection::Oncokb => Some(Source::Oncokb),
+        VariantSection::Hotspots => Some(Source::CancerHotspots),
+        _ => None,
     }
-    (
-        Section::Skipped {
-            source,
-            reason: Reason::Disabled,
-        },
-        vec![SourceOutcome {
-            source,
-            state: SourceState::Skipped,
-            reason: Some(Reason::Disabled),
-            term: None,
-            count: None,
-            fetched: None,
-            notices: Vec::new(),
-        }],
-        Vec::new(),
-        None,
-    )
 }
-pub(super) fn retain<T>(
+fn permitted<T>(
+    cx: &Ctx<'_>,
+    section: VariantSection,
+    read: impl FnOnce() -> Result<T>,
+) -> Result<T> {
+    if let Some(source) = source(section).filter(|source| cx.fetch.disabled(*source)) {
+        return (
+            if matches!(section, VariantSection::Clinvar | VariantSection::Erepo) {
+                Section::Skipped {
+                    source,
+                    reason: Reason::Disabled,
+                }
+            } else {
+                Section::unavailable(source, Reason::Disabled)
+            },
+            vec![SourceOutcome {
+                source,
+                state: SourceState::Skipped,
+                reason: Some(Reason::Disabled),
+                term: None,
+                count: None,
+                fetched: None,
+                notices: Vec::new(),
+            }],
+            Vec::new(),
+            None,
+        );
+    }
+    read()
+}
+fn retain<T>(
     value: Result<T>,
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,

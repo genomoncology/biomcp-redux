@@ -23,6 +23,8 @@ pub enum Action {
     },
     /// Explain configuration names for a keyed source.
     KeyHelp(biodata::Source),
+    /// Explain the required arguments for an existing query.
+    QueryHelp(Request),
     /// Synchronize one declared file.
     Sync {
         #[doc = "Bundle selector."]

@@ -89,6 +89,8 @@ canonical_enum! {
         Nci => "nci",
         /// CIViC.
         Civic => "civic",
+        /// Cancer Hotspots residue recurrence.
+        CancerHotspots => "hotspots",
         /// OncoKB.
         Oncokb => "oncokb",
         /// MyVariant.info aggregation.

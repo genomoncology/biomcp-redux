@@ -1,7 +1,7 @@
 use crate::{Source, SourceRecord, Text, Variant, VariantGet};
 use serde::{Deserialize, Serialize};
 /// A compact identity card, including every provider candidate and explicit rejection.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantCard {
@@ -21,7 +21,7 @@ impl super::ResponseBody for VariantCard {
 }
 
 /// Consumer identity header with an exact source selection and compact annotation entity.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantHeader {
@@ -60,7 +60,7 @@ crate::macros::wire_enum! {
 }
 
 /// Source-specific sections, absent unless explicitly selected.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantSections {
@@ -70,21 +70,31 @@ pub struct VariantSections {
     /// ClinGen native assertion rows.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub erepo: Option<crate::Section<crate::VariantAssertions>>,
+    /// Explicit keyed OncoKB source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
+    /// Explicit civic source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub civic: Option<crate::Section<crate::VariantCivic>>,
+    /// Explicit hotspots source result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
 }
 
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPage {
     /// Exact query sent to the named source, without rewriting raw query text.
     pub source_query: String,
     /// Assembly sent to the source, never inferred from a candidate label.
-    pub build: crate::Build,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub build: Option<crate::Build>,
     /// Native source order, preserving every candidate including repeated source identities.
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant_page/1";
+    const SCHEMA: &'static str = "biomcp.variant_page/2";
     type Query = crate::VariantSearch;
 }

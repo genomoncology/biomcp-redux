@@ -39,7 +39,6 @@ macro_rules! contracts {
 
 fn common_registry() -> Vec<Contract> {
     contracts! {
-        Statement => ("statement", "biodata.statement/1"),
         Accession => ("accession", "biodata.accession/1"),
         Chromosome => ("chromosome", "biodata.chromosome/1"),
         Base => ("base", "biodata.base/1"),
@@ -138,12 +137,13 @@ fn variant_contracts() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
         Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
+        Statement => ("statement", "biodata.statement/1"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
         Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
         VariantSearch => ("variant-search", "biodata.variant-search/1"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/2"),
         VariantGet => ("variant-get", "biodata.variant-get/1"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
     }

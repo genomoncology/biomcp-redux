@@ -39,20 +39,23 @@ impl Stub {
         reply: fn(&str) -> Result<String, String>,
         length: fn(&str, usize) -> usize,
     ) -> Result<Self, String> {
-        Self::with_sources(vec![host], content_type, reply, length, |_| 200)
+        Self::with_status(host, content_type, reply, length, |_| 200)
+    }
+    pub(super) fn with_status(
+        host: &'static str,
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        reply: fn(&str) -> Result<String, String>,
+        length: fn(&str, usize) -> usize,
+        status: fn(&str) -> u16,
+    ) -> Result<Self, String> {
+        Self::with_hosts(&[host], content_type, reply, length, status)
     }
     pub(super) fn for_sources(
-        hosts: &[&'static str],
+        hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         reply: fn(&str) -> Result<String, String>,
     ) -> Result<Self, String> {
-        Self::with_sources(
-            hosts.to_vec(),
-            content_type,
-            reply,
-            |_, bytes| bytes,
-            |_| 200,
-        )
+        Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
     }
     pub(super) fn for_source_status(
         host: &'static str,
@@ -60,16 +63,16 @@ impl Stub {
         reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         status: impl FnMut(&str) -> u16 + Send + 'static,
     ) -> Result<Self, String> {
-        Self::with_sources(
-            vec![host],
+        Self::with_hosts(
+            &[host],
             move |_| content_type,
             reply,
             |_, bytes| bytes,
             status,
         )
     }
-    fn with_sources(
-        hosts: Vec<&'static str>,
+    fn with_hosts(
+        hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
@@ -78,7 +81,8 @@ impl Stub {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
-        let (certificate, config) = identity(&hosts)?;
+        let (certificate, config) = identity(hosts)?;
+        let hosts = hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
             for stream in listener.incoming() {
@@ -107,10 +111,10 @@ impl Stub {
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = source_request(&mut tls) {
-                    let status = status(&request);
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
-                    write!(tls, "HTTP/1.1 {status} Source\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
+                    let status = status(&request);
+                    write!(tls, "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
@@ -191,9 +195,8 @@ fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     ca.not_after = now + time::Duration::days(2);
     let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
     let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
-    let mut leaf =
-        CertificateParams::new(hosts.iter().map(|host| (*host).into()).collect::<Vec<_>>())
-            .map_err(|e| e.to_string())?;
+    let mut leaf = CertificateParams::new(hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>())
+        .map_err(|e| e.to_string())?;
     leaf.not_before = now - time::Duration::days(1);
     leaf.not_after = now + time::Duration::days(1);
     leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];

@@ -154,10 +154,13 @@ pub use trial_publications::{TrialDocument, TrialReference};
 pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
 pub use response::VariantPage;
 
-pub use query::{AssertionSource, VariantAssertionsGet, VariantSection};
+pub use query::{AssertionSource, CivicClaimKind, VariantAssertionsGet, VariantSection};
 pub use response::{
     AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
-    AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions, VariantSections,
+    AssertionKind, CivicClaimPage, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
+    CivicStatement, HotspotAlternate, HotspotMembership, HotspotRecord, OncokbCitation,
+    OncokbVariantRecord, UnmappedAssertion, VariantAssertion, VariantAssertions, VariantCivic,
+    VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, Attribution,
