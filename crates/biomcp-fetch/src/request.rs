@@ -208,9 +208,22 @@ impl Leg<'_> {
         body: &B,
     ) -> Result<T, RequestError> {
         self.post_json_decoded(ep, params, body, Decoder::json())
+            .map(|(reply, _)| reply)
     }
 
-    /// Recheck request-bound identity before admitting or reusing a JSON POST reply.
+    /// Check request-bound JSON POST identity before admission and on cache/replay reads.
+    pub fn post_json_received_checked<B: serde::Serialize, T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        body: &B,
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.post_json_decoded(ep, params, body, Decoder::checked_json(&check))
+    }
+
+    /// Keep valid source rows while denying cache admission for mixed request identities.
+    /// The same predicate rejects pre-existing entries before fresh or stale reuse.
     pub fn post_json_checked_cache<B: serde::Serialize, T: Reply>(
         &self,
         ep: &Endpoint,
@@ -218,6 +231,7 @@ impl Leg<'_> {
         cache_if: impl Fn(&T) -> bool,
     ) -> Result<T, RequestError> {
         self.post_json_decoded(ep, &[], body, Decoder::json().cache_if(&cache_if))
+            .map(|(reply, _)| reply)
     }
 
     fn post_json_decoded<B: serde::Serialize, T: Reply>(
@@ -226,7 +240,7 @@ impl Leg<'_> {
         params: &[(&str, Arg<'_>)],
         body: &B,
         codec: Decoder<'_, T>,
-    ) -> Result<T, RequestError> {
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.validate(ep, true)?;
         let body = crate::prepared::json(body, self.fetch.config.max_body)?;
         let url = if ep.publisher {
@@ -240,7 +254,6 @@ impl Leg<'_> {
             Prepared::new(url, body, ep.method, ep.idempotent),
             codec,
         )
-        .map(|(reply, _)| reply)
     }
 
     pub(crate) fn check_source(&self) -> Result<(), RequestError> {

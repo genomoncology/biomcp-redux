@@ -94,11 +94,25 @@ pub(super) struct Citation {
 impl<T> Connection<T> {
     fn check(&self) -> Result<(), BadReply> {
         if self.nodes.len() as u64 > self.total_count
-            || self.page_info.has_next_page && self.page_info.end_cursor.is_none()
+            || self.page_info.has_next_page
+                && !self.nodes.is_empty()
+                && self.page_info.end_cursor.is_none()
         {
             return Err(BadReply);
         }
         Ok(())
+    }
+}
+impl Profiles {
+    pub(super) fn matches(&self, allele: &str, profile: Option<u64>) -> bool {
+        self.data.molecular_profiles.nodes.iter().all(|p| {
+            profile.is_none_or(|id| p.id == id)
+                && p.variants.iter().any(|m| {
+                    m.allele_registry_id
+                        .as_ref()
+                        .is_some_and(|id| id.as_str() == allele)
+                })
+        })
     }
 }
 impl Reply for Profiles {
@@ -108,7 +122,8 @@ impl Reply for Profiles {
         }
         self.data.molecular_profiles.check()?;
         for profile in &self.data.molecular_profiles.nodes {
-            if profile.id == 0 || profile.variants.is_empty()
+            if profile.id == 0
+                || profile.variants.is_empty()
                 || !profile.link.as_str().starts_with("/molecular-profiles/")
                 || profile.variants.iter().any(|v| v.id == 0)
             {
