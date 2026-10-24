@@ -147,10 +147,7 @@ fn synthetic_multiple_index_matches_keep_one_best_identity() {
 }
 
 #[test]
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Expire only the case-owned documented cache metadata to exercise public query stale outcomes"
-)]
+// Expire only the case-owned documented cache metadata.
 fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     use biodata::{GeneGet, GeneSearch, QueryBody, Request, Source, SourceState, Status};
     use biomcp_fetch::ReplayCache;
