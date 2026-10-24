@@ -14,7 +14,22 @@ fn get_rejects_empty_and_oversized_batches_at_constructor_and_json_boundary() {
             (1..=20).contains(&count)
         );
     }
-    assert!(serde_json::from_value::<GeneGet>(json!({"input":["BRAF"],"section":[]})).is_err());
+    for sections in [json!([]), json!(["constraint", "all", "constraint"])] {
+        let query: GeneGet =
+            serde_json::from_value(json!({"input":["BRAF"],"section":sections})).unwrap();
+        assert_eq!(query.sections().len(), sections.as_array().unwrap().len());
+    }
+    for sections in [
+        json!(["Constraint"]),
+        json!(["unknown"]),
+        json!(null),
+        json!("constraint"),
+    ] {
+        assert!(
+            serde_json::from_value::<GeneGet>(json!({"input":["BRAF"],"section":sections}))
+                .is_err()
+        );
+    }
 }
 #[test]
 fn search_checks_selectors_and_page_bounds_at_both_entry_points() {

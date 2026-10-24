@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// The source's own entry for an entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceRecord {
     /// Native source identifier.
     pub id: Text,
@@ -12,6 +13,7 @@ pub struct SourceRecord {
 }
 /// A requested section has exactly one state.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Section<T> {
     /// The source returned data.
@@ -26,6 +28,7 @@ pub enum Section<T> {
         #[doc = "Source identity."]
         source: Source,
         #[doc = "Native entry, if any."]
+        #[serde(skip_serializing_if = "Option::is_none")]
         record: Option<SourceRecord>,
     },
     /// A requested source failed.

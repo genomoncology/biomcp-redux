@@ -1,0 +1,162 @@
+{
+  "feature": "gene-sections",
+  "story": "Parsed suffixes preserve input words, explicit flags and repetitions",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "constraint",
+        "all"
+      ],
+      "expect": {
+        "/query/section": [
+          "constraint",
+          "constraint",
+          "all"
+        ],
+        "/result/items/0/sections/constraint/state": "data"
+      },
+      "max_bytes": 3600,
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "constraint",
+        "all"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "ALL"
+      ],
+      "expect": {
+        "/result/items/0/answer/gene/symbol": "BCR",
+        "/sources/*/source": {
+          "excludes": "gnomad"
+        }
+      },
+      "max_bytes": 3600,
+      "mcp": [
+        "get",
+        "gene",
+        "ALL"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "all"
+      ],
+      "expect": {
+        "/result/items/0/answer/gene/symbol": "BCR",
+        "/query/input": [
+          "all"
+        ]
+      },
+      "max_bytes": 3600,
+      "mcp": [
+        "get",
+        "gene",
+        "all"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--section",
+        "constraint",
+        "--section",
+        "all"
+      ],
+      "expect": {
+        "/query/input": [
+          "TP53",
+          "constraint"
+        ],
+        "/query/section": [
+          "constraint",
+          "all"
+        ],
+        "/result/items/0/sections/constraint/state": "data",
+        "/result/items/1/answer/resolution": "not_found"
+      },
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--section",
+        "constraint",
+        "--section",
+        "all"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "NOTAGENE",
+        "all"
+      ],
+      "expect": {
+        "/query/input": [
+          "TP53",
+          "constraint",
+          "NOTAGENE"
+        ],
+        "/query/section": [
+          "all"
+        ],
+        "/result/items/0/sections/constraint/state": "data"
+      },
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "NOTAGENE",
+        "all"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "--section",
+        "constraint",
+        "--",
+        "-literal"
+      ],
+      "expect": {
+        "/query/input": [
+          "TP53",
+          "-literal"
+        ],
+        "/result/items/0/sections/constraint/state": "data"
+      },
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "--section",
+        "constraint",
+        "--",
+        "-literal"
+      ]
+    }
+  ]
+}

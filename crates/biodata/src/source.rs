@@ -53,6 +53,8 @@ canonical_enum! {
         Hgnc => "hgnc",
         /// MyGene.info.
         MyGene => "mygene",
+        /// gnomAD.
+        Gnomad => "gnomad",
         /// PubMed.
         PubMed => "pubmed",
         /// Europe PMC.

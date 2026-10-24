@@ -9,6 +9,57 @@
       ],
       "type": "string"
     },
+    "Constraint": {
+      "additionalProperties": false,
+      "description": "Source constraint metrics for the source's preferred transcript.",
+      "properties": {
+        "flags": {
+          "description": "Source flags, omitted when empty.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "loeuf": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Upper confidence bound of the observed-to-expected loss-of-function ratio."
+        },
+        "mis_z": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Missense Z score."
+        },
+        "oe_lof": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Observed-to-expected loss-of-function ratio."
+        },
+        "pli": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Probability of loss-of-function intolerance."
+        },
+        "syn_z": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Synonymous Z score."
+        },
+        "transcript": {
+          "$ref": "#/$defs/EnsemblTranscript",
+          "description": "Source MANE Select transcript, otherwise the source canonical transcript."
+        },
+        "version": {
+          "$ref": "#/$defs/Text",
+          "description": "Source dataset family, not a minor release identifier."
+        }
+      },
+      "required": [
+        "pli",
+        "loeuf",
+        "oe_lof",
+        "mis_z",
+        "syn_z",
+        "transcript",
+        "version"
+      ],
+      "type": "object"
+    },
     "Contig": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
@@ -21,9 +72,18 @@
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
+    "EnsemblTranscript": {
+      "pattern": "^ENST[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
     "EntrezGeneId": {
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
+    },
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
     },
     "Gene": {
       "additionalProperties": false,
@@ -195,6 +255,14 @@
           "minItems": 1,
           "type": "array",
           "x-positional": 0
+        },
+        "section": {
+          "description": "Requested section words, preserving caller order and repetitions.",
+          "items": {
+            "$ref": "#/$defs/GeneSectionWord"
+          },
+          "type": "array",
+          "x-trailing-section": true
         }
       },
       "required": [
@@ -280,6 +348,24 @@
         "input": {
           "$ref": "#/$defs/GeneInput",
           "description": "Original checked input."
+        },
+        "more": {
+          "description": "Applicable sections left out of this request.",
+          "items": {
+            "$ref": "#/$defs/GeneSection"
+          },
+          "type": "array"
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested sections, present only for a resolved identity."
         },
         "status": {
           "$ref": "#/$defs/Status",
@@ -393,6 +479,39 @@
           "type": "object"
         }
       ]
+    },
+    "GeneSection": {
+      "description": "A landed section that can be requested for a gene.",
+      "enum": [
+        "constraint"
+      ],
+      "type": "string"
+    },
+    "GeneSectionWord": {
+      "description": "A section request word, including expansion to all landed sections.",
+      "enum": [
+        "constraint",
+        "all"
+      ],
+      "type": "string"
+    },
+    "GeneSections": {
+      "additionalProperties": false,
+      "description": "Landed gene sections, each retaining its source and explicit state.",
+      "properties": {
+        "constraint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Population constraint reported by gnomAD."
+        }
+      },
+      "type": "object"
     },
     "GeneStatus": {
       "description": "HGNC approval status.",
@@ -644,11 +763,133 @@
       ],
       "type": "string"
     },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Constraint",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
         "hgnc",
         "mygene",
+        "gnomad",
         "pubmed",
         "europepmc",
         "pubtator",
@@ -684,6 +925,31 @@
       "required": [
         "source",
         "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
       ],
       "type": "object"
     },
@@ -755,6 +1021,7 @@
     "StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
+        "section",
         "page",
         "fresh",
         "disambiguate",

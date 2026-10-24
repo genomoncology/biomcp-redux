@@ -274,6 +274,7 @@
       "enum": [
         "hgnc",
         "mygene",
+        "gnomad",
         "pubmed",
         "europepmc",
         "pubtator",
@@ -357,6 +358,7 @@
     "StepKind": {
       "description": "Purpose of an available next command.",
       "enum": [
+        "section",
         "page",
         "fresh",
         "disambiguate",

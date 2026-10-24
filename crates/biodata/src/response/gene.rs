@@ -1,8 +1,11 @@
-use super::{ItemStatus, ResponseBody};
+mod constraint;
+use super::{ItemStatus, ResponseBody, Section};
+use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
+pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneItem {
@@ -13,9 +16,15 @@ pub struct GeneItem {
     /// Absent only when identity lookup failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub answer: Option<GeneResolution>,
+    /// Requested sections, present only for a resolved identity.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sections: Option<GeneSections>,
+    /// Applicable sections left out of this request.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub more: Box<[GeneSection]>,
 }
 /// Gene answers in input order.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
@@ -23,7 +32,7 @@ pub struct GeneCards {
     pub items: Box<[GeneItem]>,
 }
 /// One page of gene headers.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
@@ -48,7 +57,7 @@ pub enum QueryBody {
 }
 
 /// Explicit source synchronization selector.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncQuery {
@@ -56,7 +65,7 @@ pub struct SyncQuery {
     pub source: crate::Source,
 }
 /// Published bundle metadata after synchronization.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncResult {
@@ -68,4 +77,14 @@ pub struct SyncResult {
 impl ResponseBody for SyncResult {
     const SCHEMA: &'static str = "biomcp.sync/1";
     type Query = SyncQuery;
+}
+
+/// Landed gene sections, each retaining its source and explicit state.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GeneSections {
+    /// Population constraint reported by gnomAD.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub constraint: Option<Section<Constraint>>,
 }

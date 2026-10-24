@@ -5,6 +5,7 @@ use serde_json::Value;
 pub(super) enum Assertion<'a> {
     Equals(&'a Value),
     Includes(&'a Value),
+    Excludes(&'a Value),
     Count(u64),
     RankOf(&'a str, u64),
     MaxBytes(u64),
@@ -29,6 +30,7 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                 match operator.as_str() {
                     "equals" => assertions.push(Assertion::Equals(expected)),
                     "includes" => assertions.push(Assertion::Includes(expected)),
+                    "excludes" => assertions.push(Assertion::Excludes(expected)),
                     "count" => {
                         assertions.push(Assertion::Count(integer(pointer, operator, expected)?))
                     }
@@ -146,6 +148,15 @@ impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
+            Self::Excludes(expected) => {
+                if !array(pointer, "excludes", actual)?.contains(expected) {
+                    Ok(())
+                } else {
+                    Err(format!(
+                        "{pointer} excludes: unexpected member {expected}, actual {actual}"
+                    ))
+                }
+            }
             Self::Includes(expected) => {
                 if array(pointer, "includes", actual)?.contains(expected) {
                     Ok(())

@@ -108,7 +108,7 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
 2. **clippy, per crate.** clippy reads the nearest `clippy.toml`, so each crate carries its own, and each repeats the test allowances and `too-many-lines-threshold = 80`.
    - `biodata`: disallows file, environment, network, process, thread and clock items one by one, and the interior mutability types `Cell`, `RefCell`, `Mutex`, `RwLock`, `OnceLock`, `LazyLock` and the atomics. Without `unsafe` and without those types, no global state can exist.
    - `biomcp-adapters`: the same list.
-   - `biomcp-query`: disallows environment, file and process items, `std::thread::sleep`, `std::thread::spawn` and the interior mutability types. `std::thread::scope` is allowed only in `fanout.rs`, through one reasoned `expect`.
+   - `biomcp-query`: disallows environment, file and process items, `std::thread::sleep`, `std::thread::spawn` and the interior mutability types. `std::thread::scope` is allowed only in `fan_out.rs`, through one reasoned `expect`.
    - `biomcp-fetch`: disallows environment and process items. Its `Mutex`, `Condvar`, `Cell` and `std::thread::scope` uses each carry a reasoned `expect`.
    - `biomcp`: disallows environment reads everywhere except `config.rs`, and thread spawns everywhere except `mcp.rs`, each through one reasoned `expect`.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
@@ -149,7 +149,7 @@ crates/
     src/<source>/mod.rs  raw.rs  map.rs
   biomcp-query/
     clippy.toml
-    src/lib.rs  ctx.rs  run.rs  fanout.rs  status.rs  error.rs
+    src/lib.rs  ctx.rs  run.rs  fan_out.rs  status.rs  error.rs
     src/<entity>/search.rs  get.rs  next.rs
     src/gene/resolve.rs
     src/article/pool.rs  rank.rs
@@ -305,29 +305,16 @@ pub struct Gene {
     pub summary: Option<Summary>,        // whole RefSeq text with its source and date
 }
 
-/// The get gene result for one resolved input.
-pub struct GeneCard {
-    pub gene: Gene,
-    pub r#match: Match,
-    pub sources: Box<[Source]>,
-    pub sections: GeneSections,          // requested sections only
-    pub more: Box<[GeneSection]>,        // sections that exist and were not requested
-    pub oncokb: Option<Section<OncoKbBrief>>,   // default with an OncoKB key: gene type and highest levels
-}
-
-#[derive(Default)]
+/// Requested landed sections, each with its own source state.
 pub struct GeneSections {
-    pub protein: Option<Section<Box<[Protein]>>>,
-    pub civic: Option<Section<CivicGene>>,
-    pub clingen: Option<Section<ClinGenGene>>,
     pub constraint: Option<Section<Constraint>>,
-    pub expression: Option<Section<Expression>>,
-    pub pathways: Option<Section<Box<[PathwayRef]>>>,
-    pub oncokb: Option<Section<OncoKbGene>>,
 }
 
 #[non_exhaustive]
-pub enum GeneSection { Protein, Civic, Clingen, Constraint, Expression, Pathways, Oncokb }
+pub enum GeneSection { Constraint }
+#[non_exhaustive]
+pub enum GeneSectionWord { Constraint, All }
+
 ```
 
 No struct uses `#[serde(flatten)]`. A header is built from its entity by a method, such as `Gene::header(&self, matched: Option<Match>) -> GeneHeader`. Every field skips serialization when it is `None` or empty. Headers and entities are biodata core types. Cards and sections are BioMCP response types, so sections stay out of entity types, as rule 15 of `planning/rust-standards.md` says.
@@ -340,16 +327,24 @@ A get answers each input with a resolution. Ambiguous and withdrawn inputs are a
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "resolution", rename_all = "snake_case")]
 pub enum GeneResolution {
-    Resolved { card: GeneCard },
+    Resolved { gene: Box<Gene>, r#match: Match },
     Ambiguous { candidates: Box<[GeneHeader]> },        // ranked; each carries how it matched
-    Withdrawn { hgnc_id: HgncId, symbol: GeneSymbol, locus_type: Option<LocusType> },
-    NotFound,
+    Withdrawn { hgnc_id: HgncId, symbol: GeneSymbol, hgnc_status: HgncStatus, merged_into: Box<[HgncId]> },
+    NotFound {},
 }
 
 /// One input of a get and its answer, in input order.
-pub struct GeneItem { pub input: GeneInput, pub status: ItemStatus, pub answer: Option<GeneResolution> }
+pub struct GeneItem {
+    pub input: GeneInput,
+    pub status: ItemStatus,
+    pub answer: Option<GeneResolution>,
+    pub sections: Option<GeneSections>,
+    pub more: Box<[GeneSection]>,
+}
 pub struct GeneCards { pub items: Box<[GeneItem]> }
 ```
+
+Only resolved gene items receive `sections` or `more`. Requested sections have a state even when they do not apply. Unrequested sections appear in `more` only when the HGNC facts permit them. Both fields are omitted when empty. The envelope names each source asked once; a gene item adds no duplicate source list. Later section tickets add their own enum word, response field and source job.
 
 Each later entity defines its resolution the same way, with the variants its sources can give.
 
@@ -397,7 +392,7 @@ pub enum Source {
 
 Provenance appears at three levels, each as small as its question needs:
 
-- A card lists the sources of its core fields in `sources`.
+- The envelope lists every source asked in `sources`.
 - Each section names its one source in its state.
 - A pooled search item lists every source that found it, with the native rank:
 
@@ -423,7 +418,7 @@ A required field that fails drops the record and leaves a problem. An optional f
 
 ### 3.7 Queries and the request type
 
-Every command is one query type. Its doc comments become the CLI help, the MCP description and the reference docs, through `schemars`. Two extension keys carry what a schema cannot say about argument spelling: `x-positional` for a positional argument's index and `x-short` for a one-letter flag.
+Every command is one query type. Its doc comments become the CLI help, the MCP description and the reference docs, through `schemars`. The schema carries argument spelling through extension keys: `x-positional` gives a positional argument's index and `x-trailing-section` marks the section-word suffix. A future short flag can use `x-short` when one is consumed.
 
 ```rust
 /// Get gene cards for symbols, previous symbols, aliases, HGNC IDs, Entrez IDs or Ensembl IDs.
@@ -435,7 +430,8 @@ pub struct GeneGet {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub input: Box<[GeneInput]>,
     /// Sections to add to each card.
-    pub section: Box<[GeneSection]>,
+    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
+    pub section: Box<[GeneSectionWord]>,
 }
 
 /// Search human genes by text, band or locus group.
@@ -516,7 +512,7 @@ pub enum SourceState { Ok, Stale, Syncing, Failed }
 /// One next command, with what it does.
 pub struct Step { pub kind: StepKind, pub args: Box<[Box<str>]> }
 #[non_exhaustive]
-pub enum StepKind { Page, Fresh, Disambiguate, Sync }
+pub enum StepKind { Page, Fresh, Disambiguate, Sync, Section }
 
 #[non_exhaustive]
 pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing }
@@ -1200,22 +1196,15 @@ A part of one record is a section when it fits in one reply. It becomes an `<ent
 ### 6.4 Fan-out
 
 ```rust
-/// One source's work, ready to run on its own thread.
-pub(crate) struct Job<'a, T> {
-    pub spec: &'static SourceSpec,
-    pub run: Box<dyn FnOnce(&Leg<'_>) -> Result<T, SourceError> + Send + 'a>,
-}
-
-/// Run each job on its own scoped thread with its own deadline. Returns in job order.
-pub(crate) fn fan_out<'a, T: Send>(fetch: &'a Fetch, budget: Duration, disabled: &BTreeSet<Source>, jobs: Vec<Job<'a, T>>) -> Vec<LegResult<T>>;
-
-pub(crate) struct LegResult<T> { pub source: Source, pub result: Result<T, SourceError>, pub report: LegReport }
+/// Join every scoped source worker and return results in declaration order.
+pub(crate) fn run<'a, T: Send + 'a>(jobs: Vec<Box<dyn FnOnce() -> T + Send + 'a>>) -> Vec<T>;
 ```
 
-- A disabled source, or a keyed source without its key, returns `skipped` with reason `disabled` or `no_key` without a thread.
-- Each thread opens its `Leg` with `fetch.deadline(budget).child(spec.deadline)`.
-- A panicking leg becomes a failed leg with reason `unavailable` and an `explain` note, so one bad source cannot take down the command.
-- A single job runs on the calling thread.
+The command creates its absolute deadline before identity resolution. Each source job opens one leg capped by its declared source deadline, retaining the command's absolute deadline. MyGene annotations and applicable requested sections run beside each other. The query deduplicates resolved HGNC identities before scheduling and joins each job's results back in caller order, including repeated inputs. A source failure affects only its own identities; local transport failures retain their typed local error.
+
+A pure applicability function for each section serves both scheduling and `more`. Entity facts that rule out a requested section produce `NotApplicable` without a job. Jobs retain their leg reports and mapping problems; stale source failures remain visible. Panics propagate after every scoped worker has joined.
+
+The shared SQLite mutex covers SQL only. Virtual-clock replay legs wait for the in-process SQL owner; external SQLite contention still returns immediately. Live SQL admission keeps its deadline-aware wait. Network work and decoding happen outside that mutex.
 
 Rejected: a worker pool, a channel-based scheduler and an async executor. A dozen scoped threads per command need none of them.
 
@@ -1270,8 +1259,8 @@ The pool cap never drops an item the mandatory leg returned. When the cap binds,
 A link from one entity to another is a search on the target entity with a filter taken from the source entity, and the step carries the resolved identifier:
 
 ```rust
-pub(crate) fn gene_next(card: &GeneCard) -> Vec<(StepKind, Request)> {
-    let id = GeneInput::from(card.gene.hgnc_id);
+pub(crate) fn gene_next(gene: &Gene) -> Vec<(StepKind, Request)> {
+    let id = GeneInput::from(gene.hgnc_id);
     vec![
         (StepKind::Pivot, Request::SearchTrial(TrialSearch { gene: Some(id.clone()), ..Default::default() })),
         (StepKind::Pivot, Request::SearchArticle(ArticleSearch { gene: Some(id.clone()), ..Default::default() })),
@@ -1773,7 +1762,7 @@ Every ratchet starts at its 1.0 target, because the code starts empty. `make lan
 | SQL owners | `biomcp-fetch`, and `biomcp-query/src/store/` | allowed lists and the ratchet test's path check |
 | No I/O in `biodata` and adapters | none | per-crate `clippy.toml` `disallowed_methods` and `disallowed_types` |
 | No global or shared mutable state outside the transport | none | per-crate `clippy.toml` `disallowed_types`, and `unsafe_code` denied |
-| Threads | `fanout.rs`, the transport and `mcp.rs` only | `disallowed_methods` with one reasoned `expect` each |
+| Threads | `fan_out.rs`, the transport and `mcp.rs` only | `disallowed_methods` with one reasoned `expect` each |
 | Environment reads | `config.rs` only | `disallowed_methods` with one reasoned `expect` |
 | Lint exceptions | listed files only, each with a reason | `allow_attributes_without_reason`, and the ratchet test's list of files that may hold `#[expect(` |
 | File length | 600 lines; 300 in an adapter folder | the ratchet test |

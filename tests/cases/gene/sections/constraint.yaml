@@ -1,0 +1,35 @@
+{
+  "feature": "gene-sections",
+  "story": "TP53 reports the preferred gnomAD transcript and finite metrics",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/constraint/state": "data",
+        "/result/items/0/sections/constraint/data/version": "v4",
+        "/result/items/0/sections/constraint/data/loeuf": 0.4183620979251529,
+        "/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
+        "/result/items/0/sections/constraint": {
+          "max_tokens": 100
+        },
+        "/sources/*/source": {
+          "includes": "gnomad"
+        }
+      },
+      "max_bytes": 3600,
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint"
+      ]
+    }
+  ]
+}

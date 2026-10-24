@@ -1,6 +1,16 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
         (
+            "excluded-member",
+            "    expect: {'/enum': {excludes: hgnc}}",
+            "excludes: unexpected member",
+        ),
+        (
+            "excluded-wrong-type",
+            "    expect: {'/type': {excludes: hgnc}}",
+            "excludes: expected an array",
+        ),
+        (
             "mcp-wrong-value",
             "  - mcp: [schema, biodata.source/1]\n    expect: {'/type': integer}",
             "/type: expected",
@@ -100,7 +110,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         (
             "count-wrong",
             "    expect: {'/enum': {count: 1}}",
-            "count: expected 1, actual 7",
+            "count: expected 1, actual",
         ),
         (
             "includes-missing",
@@ -115,7 +125,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         (
             "rank-wrong",
             "    expect: {'/enum': {rank_of: {pubmed: 1}}}",
-            "rank_of pubmed: expected 1, actual 3",
+            "rank_of pubmed: expected 1, actual",
         ),
         (
             "wildcard-type",

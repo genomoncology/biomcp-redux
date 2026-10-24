@@ -1,0 +1,39 @@
+{
+  "feature": "gene-sections",
+  "story": "A default card offers a typed section action that can be followed",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53"
+      ],
+      "expect": {
+        "/result/items/0/more": [
+          "constraint"
+        ],
+        "/next/0/kind": "section",
+        "/next/0/args": [
+          "get",
+          "gene",
+          "HGNC:11998",
+          "constraint"
+        ]
+      },
+      "max_bytes": 3600
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "HGNC:11998",
+        "constraint"
+      ],
+      "expect": {
+        "/result/items/0/sections/constraint/state": "data"
+      },
+      "max_bytes": 3600
+    }
+  ]
+}
