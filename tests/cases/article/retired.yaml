@@ -46,7 +46,7 @@
     {"run": ["search", "article", "--author", "--date-from"], "mcp": ["search", "article", "--author", "--date-from"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "--source=--query"], "mcp": ["search", "article", "--source=--query"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["article", "supplement", "assets", "indexing"], "mcp": ["article", "supplement", "assets", "indexing"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
-    {"run": ["search", "article", "--", "--query"], "mcp": ["search", "article", "--", "--query"], "expect": {"/schema": "biomcp.article_page/1", "/query/text": "--query", "/status": "failed"}, "exit": 1},
+    {"run": ["search", "article", "--", "--query"], "mcp": ["search", "article", "--", "--query"], "expect": {"/schema": "biomcp.article_page/1", "/query/text": "--query", "/status": "failed"}, "exit": 5},
     {"run": ["get", "article", "secret-input", "--section", "annotations", "assets"], "mcp": ["get", "article", "secret-input", "--section", "annotations", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "secret-input", "--open-access"], "mcp": ["search", "article", "secret-input", "--open-access"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "secret-input", "--no-preprints"], "mcp": ["search", "article", "secret-input", "--no-preprints"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
@@ -57,6 +57,7 @@
     {"run": ["article", "citation-evidence", "secret-input"], "mcp": ["article", "citation-evidence", "secret-input"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["article", "recommendations", "secret-input"], "mcp": ["article", "recommendations", "secret-input"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["get", "article", "33123537", "--section", "annotations"], "expect": {"/result/items/0/sections/annotations/state": "data"}, "mcp": ["get", "article", "33123537", "--section", "annotations"]},
-    {"run": ["article", "--", "entities"], "expect": {"/error/code": "usage.arguments"}, "exit": 2}
+    {"run": ["article", "--", "entities"], "expect": {"/error/code": "usage.arguments"}, "exit": 2},
+    {"run": ["schema", "article"], "expect": {"/error/code": "usage.schema"}, "exit": 2}
   ]
 }
