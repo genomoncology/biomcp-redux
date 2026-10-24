@@ -60,7 +60,17 @@ pub(super) fn check(root: &Path) -> Check {
         return Ok(());
     }
     for entry in fs::read_dir(crates)? {
-        for path in rust_files(&entry?.path().join("src"))? {
+        let crate_root = entry?.path();
+        for path in rust_files(&crate_root.join("tests"))? {
+            let text = fs::read_to_string(&path)?;
+            if text.lines().count() > FILE_LIMIT {
+                return fail(
+                    &path.strip_prefix(root)?.to_string_lossy(),
+                    "file line limit exceeded",
+                );
+            }
+        }
+        for path in rust_files(&crate_root.join("src"))? {
             let relative = path
                 .strip_prefix(root)?
                 .to_string_lossy()
