@@ -83,7 +83,7 @@ Sources:
 - [ ] Investigation
 - [ ] Questions answered by Ian
 - [ ] Biodata types and schema
-- [x] Search, with plain PubMed as the floor
+- [ ] Search, with plain PubMed as the floor
 - [ ] Get, full text, supplementary material and citations
 - [ ] Outside-in cases, including AKT1 E17K
 - [ ] Token budget
@@ -124,13 +124,13 @@ Sources:
 - [ ] ClinVar through NCBI EFetch (optional key)
 - [ ] dbSNP
 - [ ] gnomAD
-- [x] CIViC
+- [ ] CIViC
 - [ ] cBioPortal
 - [ ] Cancer Hotspots
 - [ ] OncoKB (keyed)
 - [ ] GWAS Catalog
 - [ ] ClinGen evidence repository
-- [x] UniProt and InterPro (investigate)
+- [ ] UniProt and InterPro (investigate)
 - [ ] Mutalyzer and VariantValidator (investigate)
 - [ ] AlphaGenome (keyed, investigate)
 
