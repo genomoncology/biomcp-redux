@@ -1,0 +1,107 @@
+{
+  "feature": "trial-help",
+  "live_check": "local-only generated command help",
+  "story": "Trial help describes source discovery, intact sections and explicit document saves with executable examples.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "trial"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "trial"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": [
+          "--age",
+          "--condition",
+          "--count-only",
+          "--criteria",
+          "--distance",
+          "--facility",
+          "--gene",
+          "--has-results",
+          "--id",
+          "--intervention",
+          "--keyword",
+          "--lat",
+          "--limit",
+          "--lon",
+          "--next-page",
+          "--phase",
+          "query",
+          "--sex",
+          "--source",
+          "--sponsor",
+          "--sponsor-type",
+          "--status",
+          "--study-type",
+          "--updated-since",
+          "--updated-until",
+          "--variant"
+        ]
+      },
+      "max_bytes": 10000
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "trial"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "trial"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": [
+          "eligibility",
+          "outcomes",
+          "arms",
+          "locations",
+          "contacts",
+          "references",
+          "documents",
+          "all",
+          "diseases",
+          "summary"
+        ]
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "help",
+        "trial",
+        "document"
+      ],
+      "mcp": [
+        "help",
+        "trial",
+        "document"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": [
+          "file",
+          "input",
+          "--replace",
+          "--save"
+        ]
+      },
+      "max_bytes": 2500
+    }
+  ]
+}

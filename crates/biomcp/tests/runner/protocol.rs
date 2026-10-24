@@ -317,8 +317,8 @@ fn discovery() -> Check {
         .get("description")
         .and_then(Value::as_str)
         .ok_or("description missing")?;
-    // Measured by j10465; allow fifteen percent for the current generated tree.
-    if text.len() > 1923 {
+    // Keep discovery compact; detailed options live in generated command help.
+    if text.len() > 1500 {
         return Err("command description exceeds budget".into());
     }
     for word in [
@@ -340,6 +340,9 @@ fn discovery() -> Check {
         "article references",
         "article citation-evidence",
         "article recommendations",
+        "search trial",
+        "get trial",
+        "trial document",
     ] {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));
