@@ -121,7 +121,7 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
     )));
     let spec = server.spec(quota, KeyUse::None);
     let endpoint = spec.get("/variant/get").with_segments(&[
-        PathSegment::new("litvar@rs121913530##").unwrap(),
+        PathSegment::new("litvar@rs121913530##/piece").unwrap(),
         PathSegment::new("publications").unwrap(),
     ]);
     let directory = tempfile::tempdir().unwrap();
@@ -141,7 +141,7 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
         let request = server.next();
         assert!(
             request.text.starts_with(
-                "GET /variant/get/litvar%40rs121913530%23%23/publications HTTP/1.1\r\n"
+                "GET /variant/get/litvar%40rs121913530%23%23%2Fpiece/publications HTTP/1.1\r\n"
             )
         );
         request.ok();
@@ -155,7 +155,7 @@ fn raw_segments_encode_identifier_delimiters_once_and_preserve_literal_identity(
         ..Default::default()
     })
     .unwrap();
-    let literal = spec.get("/variant/get/litvar%40rs121913530%23%23/publications");
+    let literal = spec.get("/variant/get/litvar%40rs121913530%23%23%2Fpiece/publications");
     assert!(
         fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))

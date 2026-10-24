@@ -199,9 +199,10 @@ impl PathSegment {
     pub fn new(raw: &str) -> Result<Self, crate::InputError> {
         if raw.is_empty()
             || matches!(raw, "." | "..")
+            || raw.starts_with("//") || raw.contains("://")
             || raw
                 .chars()
-                .any(|c| c.is_control() || matches!(c, '/' | '\\' | '%'))
+                .any(|c| c.is_control() || matches!(c, '\\' | '%'))
         {
             return Err(crate::InputError::Path);
         }
