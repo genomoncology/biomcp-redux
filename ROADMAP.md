@@ -4,6 +4,21 @@ BioMCP 1.0 rebuilds search and get on typed biodata entities. This page lists ev
 
 Source tags: **bundle** is a local data file queried like an API. **keyed** runs only with the user's own key. **optional key** works without a key and runs faster or with higher limits with one. **dropped** is not carried into 1.0, with the reason in the slice design. **investigate** waits for the entity's slice to decide.
 
+## API keys
+
+Each key is read from the config file's `keys` or its environment variable, sent only to its own source, and never printed or recorded. With an optional key, BioMCP uses the source's higher limit; without it, the source runs at its public limit. A keyed source sends nothing without its key and says which key to set. A box is ticked when a landed case proves both the keyless and the keyed behavior.
+
+- [x] `ncbi_api_key` (optional): PubMed search and summaries, NCBI EFetch
+- [ ] `ncbi_api_key` (optional): PMC ID converter, ClinVar, PubTator3
+- [x] `oncokb_api_key` (keyed): OncoKB gene
+- [ ] `oncokb_api_key` (keyed): OncoKB variant
+- [ ] `semantic_scholar_api_key` (optional): Semantic Scholar
+- [ ] NCI Clinical Trials Search key (keyed)
+- [ ] openFDA key (optional)
+- [ ] UMLS key (keyed, investigate)
+- [ ] AlphaGenome key (keyed, investigate)
+- [ ] ORCID credentials (optional)
+
 ## Parity with 0.9
 
 | Measure | Count |
