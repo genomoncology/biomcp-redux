@@ -4,6 +4,7 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::erepo::SPEC,
     &crate::myvariant::SPEC,
     &crate::gwas::SPEC,
     &crate::allele_registry::SPEC,

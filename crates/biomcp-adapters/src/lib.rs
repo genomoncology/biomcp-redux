@@ -53,3 +53,5 @@ pub mod variantvalidator;
 
 /// GWAS Catalog v2 exact rsID associations.
 pub mod gwas;
+mod assertion;
+pub mod erepo;

@@ -73,6 +73,7 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
                 url: None,
             },
             myvariant: None,
+            sections: None,
         });
     }
     Mapped { value, problems }

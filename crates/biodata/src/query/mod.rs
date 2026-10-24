@@ -25,7 +25,7 @@ pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
 
 mod variant;
-pub use variant::{VariantGet, VariantResolver, VariantSection};
+pub use variant::{CivicClaimKind, VariantGet, VariantResolver, VariantSection};
 
 mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};
@@ -38,5 +38,7 @@ pub use trial_get::{TrialGet, TrialSection};
 mod trial_document;
 pub use trial_document::TrialDocumentGet;
 
+mod variant_assertions;
+pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
 mod variant_population;
 pub use variant_population::VariantPopulationQuery;

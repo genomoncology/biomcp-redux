@@ -65,7 +65,11 @@ pub use article::{
 };
 
 mod variant;
-pub use variant::{VariantCard, VariantHeader, VariantResolution};
+pub use variant::{VariantCard, VariantHeader, VariantResolution, VariantSections};
+mod variant_civic;
+pub use variant_civic::{CivicMembership, CivicProfile, VariantCivic};
+mod variant_hotspots;
+pub use variant_hotspots::{HotspotAlternate, HotspotRecord, VariantHotspots};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
 
@@ -93,5 +97,14 @@ pub use variant_population::{
     GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
     VariantPopulation, VariantPopulationDetail,
 };
+
+mod variant_assertions;
+pub use variant_assertions::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};
+
+mod variant_oncokb;
+pub use variant_oncokb::{OncokbVariantRecord, VariantOncokb};
 
 pub use variant_population::VariantPopulationResult;

@@ -39,7 +39,10 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
-    if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
+    if query.sections().is_empty()
+        && spec.source == Source::AlleleRegistry
+        && resolution == VariantResolution::Resolved
+    {
         let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);

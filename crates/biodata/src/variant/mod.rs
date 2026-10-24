@@ -19,3 +19,5 @@ pub use statement::*;
 
 mod population;
 pub use population::PopulationFrequency;
+mod predictor;
+pub use predictor::*;
