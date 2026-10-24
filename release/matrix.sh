@@ -13,6 +13,7 @@ mkdir "$scratch/source"
 git archive HEAD | tar -x -C "$scratch/source"
 python3 release/artifacts.py build --output "$scratch/native"
 python3 release/gate.py --artifacts "$scratch/native" --scratch "$scratch/native-check"
+BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" python3 -m unittest release.test_artifacts
 for arch in amd64 arm64; do
   case "$arch" in amd64) wheel_arch=x86_64;; arm64) wheel_arch=aarch64;; esac
   docker run --rm --label pm.repo=biomcp-redux --label pm.ticket=0058 \

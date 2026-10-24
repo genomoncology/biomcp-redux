@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise the runtime container, including installed process and MCP proofs."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,8 @@ from smoke import mcp_probe
 def main():
     image, arch, proof, version = sys.argv[1:]
     common = ["docker", "run", "--rm", "--label", "pm.repo=biomcp-redux", "--label", "pm.ticket=0058", "--platform", "linux/" + arch]
+    checksum = subprocess.check_output(common + ["--entrypoint", "/usr/bin/sha256sum", image, "/usr/local/bin/biomcp"], text=True).split()[0]
+    assert checksum == hashlib.sha256((Path(proof) / "biomcp").read_bytes()).hexdigest(), "container binary differs from the candidate"
     for args, key in [(["schema", "biodata.problem/1"], "$id"), (["help"], "commands")]:
         result = subprocess.run(common + [image] + args, capture_output=True, text=True, check=True)
         assert not result.stderr and json.loads(result.stdout)[key]

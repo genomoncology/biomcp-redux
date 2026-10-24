@@ -92,6 +92,9 @@ def inspect(path):
         if len(manifests) != 1 or len(binaries) != 1:
             raise ValueError("wheel must contain one producer record and one binary")
         record = json.loads(archive.read(manifests[0]))
+        expected_tag = "py3-none-" + record["platform"]
+        if not path.name.endswith("-" + expected_tag + ".whl") or ("Tag: " + expected_tag + "\n").encode() not in archive.read(manifests[0].replace("release.json", "WHEEL")):
+            raise ValueError("wheel tags differ from the producer platform")
         profile = record["cargo_profile"]
         if record["profile"] != "release" or profile["debug_assertions"] or profile["opt_level"] != "3":
             raise ValueError("release profile required")
