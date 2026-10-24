@@ -8,7 +8,7 @@
       "nci_api_key": "synthetic-nci-replay"
     }
   },
-  "verified": "NCI public-tier source capture from 2026-10-24, one NCIt C3224 search and one exact get. C3224 is the publisher-provided cross-reference for MONDO:0005105 in the clinical-reviewed trial investigation. Frozen source count, not broad-keyword parity. No credential in requests or captures.",
+  "verified": "NCI public-tier source capture from 2026-10-24, one NCIt C3224 search and one exact get. C3224 is the publisher-provided cross-reference for MONDO:0005105 in the clinical-reviewed trial investigation. Frozen source count, not broad-keyword parity. No credential in requests or captures. Compact CLI ceilings are measured bytes plus 15 percent; the released broad keyword result is not a comparable grounded-query baseline.",
   "steps": [
     {
       "run": [
@@ -40,7 +40,8 @@
           "count": 3
         },
         "/query/condition": "C3224"
-      }
+      },
+      "max_bytes": 1711
     },
     {
       "run": [
@@ -59,7 +60,8 @@
         "/page/total": 1203,
         "/page/returned": 0,
         "/result/items": []
-      }
+      },
+      "max_bytes": 854
     }
   ]
 }

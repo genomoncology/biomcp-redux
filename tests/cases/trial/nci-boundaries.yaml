@@ -74,6 +74,54 @@
         "/error/option": "--status"
       },
       "offline": true
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--gene",
+        "BRAF"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--gene",
+        "BRAF"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "nci",
+        "/error/option": "--gene"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--keyword",
+        "melanoma"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--keyword",
+        "melanoma"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "ctgov",
+        "/error/option": "--keyword"
+      }
     }
   ]
 }
