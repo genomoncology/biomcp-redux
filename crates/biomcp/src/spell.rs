@@ -64,7 +64,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::VariantPopulation(_)) {
+        if matches!(request, Request::VariantAssertions(_)) {
+            "assertions"
+        } else if matches!(request, Request::VariantPopulation(_)) {
             "population"
         } else if matches!(request, Request::TrialDocument(_)) {
             "document"
