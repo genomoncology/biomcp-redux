@@ -26,7 +26,42 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/evidence/exact-context-fragments", || {
             exact_context().map_err(|e| e.to_string().into())
         }),
+        Trial::test("article/evidence/citing-doi-fulltext", || {
+            citing_doi().map_err(|e| e.to_string().into())
+        }),
     ]
+}
+fn citing_doi() -> Result<(), Box<dyn std::error::Error>> {
+    for mode in ["joined", "no-join", "no-pmc", "mismatch", "disabled"] {
+        let env = Environment::new()?;
+        let recording = env.root().join("recordings");
+        super::response_cases::copy_capture("article/evidence/source", &recording, |source, record| {
+            if source == "pubmed" && record.pointer("/exchanges/0/body/value/result/uids") == Some(&json!(["33123537"])) {
+                let ids = record["exchanges"][0]["body"]["value"]["result"]["33123537"]["articleids"].as_array_mut().unwrap();
+                if mode == "no-pmc" { ids.retain(|id| id["idtype"] != "pmc"); }
+                if mode == "mismatch" {
+                    for id in ids { if id["idtype"] == "doi" { id["value"] = json!("10.0000/unrelated"); } }
+                }
+            }
+        })?;
+        super::response_cases::copy_capture("article/annotations/synthetic-expanded-doi", &recording, |_, record| {
+            if record["url"].as_str().is_some_and(|url| url.contains("esearch.fcgi")) {
+                record["exchanges"][0]["body"]["value"]["esearchresult"] = if mode == "no-join" {
+                    json!({"count":"0","idlist":[]})
+                } else { json!({"count":"1","idlist":["33123537"]}) };
+            }
+        })?;
+        let args = vec!["article".into(), "citation-evidence".into(), "10.3389/fcell.2020.573599".into(), "10.1038/nature05933".into(), "--fulltext".into(), "--disable-sources".into(), if mode == "disabled" {"semantic-scholar,pubmed".into()} else {"semantic-scholar".into()}];
+        let output = command(&env, &args, &env.globals(Some(&recording), false))?;
+        let state = output.pointer("/result/fulltext/state");
+        let valid = match mode {
+            "joined" => output.pointer("/result/fulltext/data/paragraphs/total") == Some(&json!(7)),
+            "no-pmc" => state == Some(&json!("not_applicable")),
+            _ => state == Some(&json!("unavailable")) && output.pointer("/result/fulltext/reason") == Some(&json!(if mode == "disabled" {"disabled"} else {"no_join_id"})),
+        };
+        if !valid { return Err(format!("citing DOI {mode} outcome is wrong: {output}").into()); }
+    }
+    Ok(())
 }
 fn exact_context() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
