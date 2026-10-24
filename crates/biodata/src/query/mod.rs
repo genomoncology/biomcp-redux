@@ -16,3 +16,8 @@ pub use request::Request;
 
 mod article_edges;
 pub use article_edges::{ArticleEdges, EdgeSource};
+
+mod article_evidence;
+mod article_recommend;
+pub use article_evidence::ArticleEvidence;
+pub use article_recommend::ArticleRecommend;

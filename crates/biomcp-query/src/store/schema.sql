@@ -8,3 +8,7 @@ CREATE TABLE IF NOT EXISTS pool_item (
  item TEXT NOT NULL, checked INTEGER NOT NULL DEFAULT 0, header TEXT, problems TEXT NOT NULL DEFAULT '[]', outcome TEXT,
  PRIMARY KEY(pool,rank), UNIQUE(pool,identity)
 );
+
+CREATE TABLE IF NOT EXISTS citation_evidence (
+ id TEXT PRIMARY KEY, request_key BLOB NOT NULL, expires INTEGER NOT NULL, payload TEXT NOT NULL, outcomes TEXT NOT NULL
+);

@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Citation context evidence.
+    ArticleEvidence(crate::ArticleEvidenceResult),
+    /// Source-native recommendations.
+    ArticleRecommendations(crate::ArticleRecommendations),
     /// Licensed supplement reader.
     ArticleSupplement(crate::ArticleSupplementResult),
     /// A selected source cannot apply the checked filters.

@@ -80,3 +80,9 @@ pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;
 pub use response::{Health, HttpHealth, SourceHealth};
+
+pub use query::{ArticleEvidence, ArticleRecommend};
+pub use response::{
+    ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
+    EvidenceContext, EvidenceNotice, EvidenceParagraph,
+};

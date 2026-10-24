@@ -39,6 +39,10 @@ fn registry() -> Vec<Contract> {
     }
     contracts! {
         HttpHealth => ("http-health", "biomcp.http-health/1"),
+        ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
+        ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
+        Envelope<ArticleEvidenceResult> => ("article-evidence-result", "biomcp.article_evidence/1"),
+        Envelope<ArticleRecommendations> => ("article-recommendations", "biomcp.article_recommendations/1"),
         ArticleSupplement => ("article-supplement", "biodata.article-supplement/1"),
         Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article_supplement/1"),
         Envelope<Health> => ("health", "biomcp.health/1"),
