@@ -61,7 +61,16 @@ fn read_file(override_path: Option<&PathBuf>) -> Result<Option<ConfigFile>, ()> 
         })
         .transpose()?
         .flatten();
-    if file.as_ref().and_then(|f| f.keys.as_ref()).is_some_and(|keys| keys.keys().any(|key| !SecretName::ALL.iter().any(|n| n.config() == key))) { return Err(()); }
+    if file
+        .as_ref()
+        .and_then(|f| f.keys.as_ref())
+        .is_some_and(|keys| {
+            keys.keys()
+                .any(|key| !SecretName::ALL.iter().any(|n| n.config() == key))
+        })
+    {
+        return Err(());
+    }
     Ok(file)
 }
 pub(crate) fn ncbi_email(globals: &Globals) -> Result<Option<Secret>, ()> {
@@ -183,7 +192,13 @@ pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
 }
 
 pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Option<PathBuf> {
-    override_path.cloned().or_else(|| crate::paths::config(variable("XDG_CONFIG_HOME"), variable("HOME"), variable("APPDATA")))
+    override_path.cloned().or_else(|| {
+        crate::paths::config(
+            variable("XDG_CONFIG_HOME"),
+            variable("HOME"),
+            variable("APPDATA"),
+        )
+    })
 }
 pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
     Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
@@ -191,11 +206,19 @@ pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
     let mut secrets = Secrets::default();
     for &name in SecretName::ALL {
-        let value = file.and_then(|file| file.keys.as_ref()).and_then(|keys| keys.get(name.config())).filter(|v| !v.is_empty()).cloned()
-            .or_else(|| variable(name.environment()).map(|v|v.to_string_lossy().into_owned()));
-        if let Some(value)=value { secrets.insert(name, Secret::new(value)); }
+        let value = file
+            .and_then(|file| file.keys.as_ref())
+            .and_then(|keys| keys.get(name.config()))
+            .filter(|v| !v.is_empty())
+            .cloned()
+            .or_else(|| variable(name.environment()).map(|v| v.to_string_lossy().into_owned()));
+        if let Some(value) = value {
+            secrets.insert(name, Secret::new(value));
+        }
     }
     secrets
 }
 
-pub(crate) fn has_environment_key(name: SecretName) -> bool { variable(name.environment()).is_some() }
+pub(crate) fn has_environment_key(name: SecretName) -> bool {
+    variable(name.environment()).is_some()
+}

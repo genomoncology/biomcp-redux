@@ -8,22 +8,51 @@ const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("configuration/key-registration", || registration().map_err(Into::into)),
-        Trial::test("configuration/key-reload-stdio", || super::key_reload::check(false, false).map_err(Into::into)),
-        Trial::test("configuration/key-reload-stdio-environment", || super::key_reload::check(false, true).map_err(Into::into)),
-        Trial::test("configuration/key-reload-http", || super::key_reload::check(true, true).map_err(Into::into)),
+        Trial::test("configuration/key-registration", || {
+            registration().map_err(Into::into)
+        }),
+        Trial::test("configuration/key-reload-stdio", || {
+            super::key_reload::check(false, false).map_err(Into::into)
+        }),
+        Trial::test("configuration/key-reload-stdio-environment", || {
+            super::key_reload::check(false, true).map_err(Into::into)
+        }),
+        Trial::test("configuration/key-reload-http", || {
+            super::key_reload::check(true, true).map_err(Into::into)
+        }),
     ]
 }
-pub(super) fn invoke(env: &Environment, args: &[&str], input: &str, exit: i32) -> Result<Value, String> {
+pub(super) fn invoke(
+    env: &Environment,
+    args: &[&str],
+    input: &str,
+    exit: i32,
+) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
-    let mut child = env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
-        .spawn().map_err(|e| e.to_string())?;
-    child.stdin.take().ok_or("missing stdin")?.write_all(input.as_bytes()).map_err(|e| e.to_string())?;
+    let mut child = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| e.to_string())?;
+    child
+        .stdin
+        .take()
+        .ok_or("missing stdin")?
+        .write_all(input.as_bytes())
+        .map_err(|e| e.to_string())?;
     let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    if output.status.code() != Some(exit) { return Err(format!("wrong exit: {:?}",output.status)); }
+    if output.status.code() != Some(exit) {
+        return Err(format!("wrong exit: {:?}", output.status));
+    }
     for marker in [FIRST, SECOND] {
-        if output.stdout.windows(marker.len()).chain(output.stderr.windows(marker.len())).any(|s| s == marker.as_bytes()) {
+        if output
+            .stdout
+            .windows(marker.len())
+            .chain(output.stderr.windows(marker.len()))
+            .any(|s| s == marker.as_bytes())
+        {
             return Err("credential leaked in process output".into());
         }
     }
@@ -32,27 +61,75 @@ pub(super) fn invoke(env: &Environment, args: &[&str], input: &str, exit: i32) -
 fn registration() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"format":"json","disable_sources":["reactome"],"ncbi_email":"synthetic@example.invalid"})).map_err(|e|e.to_string())?;
-    invoke(&env, &["key","set","semantic-scholar"], &format!("{FIRST}\n"),0)?;
-    let path=env.root().join("config/biomcp/config.json");
-    let stored: Value=serde_json::from_slice(&fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    if stored.pointer("/keys/semantic_scholar_api_key") != Some(&json!(FIRST)) || stored["disable_sources"] != json!(["reactome"]) || stored["ncbi_email"] != "synthetic@example.invalid" { return Err("set lost configuration".into()); }
-    #[cfg(unix)] {
-        use std::os::unix::fs::PermissionsExt;
-        if fs::metadata(&path).map_err(|e|e.to_string())?.permissions().mode() & 0o777 != 0o600 { return Err("config permissions are not owner-only".into()); }
+    invoke(
+        &env,
+        &["key", "set", "semantic-scholar"],
+        &format!("{FIRST}\n"),
+        0,
+    )?;
+    let path = env.root().join("config/biomcp/config.json");
+    let stored: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    if stored.pointer("/keys/semantic_scholar_api_key") != Some(&json!(FIRST))
+        || stored["disable_sources"] != json!(["reactome"])
+        || stored["ncbi_email"] != "synthetic@example.invalid"
+    {
+        return Err("set lost configuration".into());
     }
-    invoke(&env, &["key","set","semantic-scholar"], &format!("{SECOND}\n"),2)?;
-    invoke(&env, &["key","set","semantic-scholar","--replace"], &format!("{SECOND}\n"),0)?;
-    let listed=invoke(&env, &["key","list"], "",0)?;
-    if listed.pointer("/result/entries/1/state") != Some(&json!("stored")) { return Err(format!("stored state missing: {listed}")); }
-    invoke(&env, &["key","remove","semantic-scholar"], "",0)?;
-    let value=invoke(&env, &["key","remove","semantic-scholar"], "",0)?;
-    if value.pointer("/result/entries/0/state") != Some(&json!("none")) { return Err("absent remove did not report none".into()); }
-    invoke(&env, &["key","set","semantic-scholar"], "\n",2)?;
-    invoke(&env, &["key","set","reactome"], "",2)?;
-    invoke(&env, &["key","set","semantic-scholar",FIRST], "",2)?;
-    let override_path=env.root().join("override.json");
-    invoke(&env, &["--config",override_path.to_str().ok_or("path")?,"key","set","ncbi"], &format!("{FIRST}\n"),0)?;
-    let value:Value=serde_json::from_slice(&fs::read(override_path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    if value.pointer("/keys/ncbi_api_key") != Some(&json!(FIRST)) { return Err("override not used".into()); }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if fs::metadata(&path)
+            .map_err(|e| e.to_string())?
+            .permissions()
+            .mode()
+            & 0o777
+            != 0o600
+        {
+            return Err("config permissions are not owner-only".into());
+        }
+    }
+    invoke(
+        &env,
+        &["key", "set", "semantic-scholar"],
+        &format!("{SECOND}\n"),
+        2,
+    )?;
+    invoke(
+        &env,
+        &["key", "set", "semantic-scholar", "--replace"],
+        &format!("{SECOND}\n"),
+        0,
+    )?;
+    let listed = invoke(&env, &["key", "list"], "", 0)?;
+    if listed.pointer("/result/entries/1/state") != Some(&json!("stored")) {
+        return Err(format!("stored state missing: {listed}"));
+    }
+    invoke(&env, &["key", "remove", "semantic-scholar"], "", 0)?;
+    let value = invoke(&env, &["key", "remove", "semantic-scholar"], "", 0)?;
+    if value.pointer("/result/entries/0/state") != Some(&json!("none")) {
+        return Err("absent remove did not report none".into());
+    }
+    invoke(&env, &["key", "set", "semantic-scholar"], "\n", 2)?;
+    invoke(&env, &["key", "set", "reactome"], "", 2)?;
+    invoke(&env, &["key", "set", "semantic-scholar", FIRST], "", 2)?;
+    let override_path = env.root().join("override.json");
+    invoke(
+        &env,
+        &[
+            "--config",
+            override_path.to_str().ok_or("path")?,
+            "key",
+            "set",
+            "ncbi",
+        ],
+        &format!("{FIRST}\n"),
+        0,
+    )?;
+    let value: Value = serde_json::from_slice(&fs::read(override_path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    if value.pointer("/keys/ncbi_api_key") != Some(&json!(FIRST)) {
+        return Err("override not used".into());
+    }
     Ok(())
 }

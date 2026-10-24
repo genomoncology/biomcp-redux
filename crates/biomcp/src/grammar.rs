@@ -181,7 +181,13 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         });
     }
     if verb == "key" {
-        return Ok(Parsed { key: Some(crate::keys::parse(matches)?), http: None, action: None, globals, help: None });
+        return Ok(Parsed {
+            key: Some(crate::keys::parse(matches)?),
+            http: None,
+            action: None,
+            globals,
+            help: None,
+        });
     }
     let help = if verb == "help" {
         match matches.subcommand() {
@@ -205,7 +211,13 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             .subcommand()
             .filter(|(name, _)| *name == "key")
             .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biodata::Source::Oncokb), |s| if s == "ncbi" { Ok(biodata::Source::Pubmed) } else { s.parse() })
+            .map_or(Ok(biodata::Source::Oncokb), |s| {
+                if s == "ncbi" {
+                    Ok(biodata::Source::PubMed)
+                } else {
+                    s.parse()
+                }
+            })
             .map_err(|_| ())?;
         Action::KeyHelp(source)
     } else if verb == "sync" {
@@ -354,7 +366,9 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
 
 impl Globals {
     pub(crate) fn inherit(&mut self, process: &Self) -> Result<(), ()> {
-        if self.config.is_some() { return Err(()); }
+        if self.config.is_some() {
+            return Err(());
+        }
         self.config = process.config.clone();
         self.disable_sources.extend(process.disable_sources.clone());
         self.disable_sources.sort();

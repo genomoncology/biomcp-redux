@@ -244,9 +244,7 @@ impl Leg<'_> {
 
     pub(crate) fn keyed(&self) -> bool {
         match self.spec.key {
-            KeyUse::Optional(c) | KeyUse::Required(c) => {
-                self.fetch.secrets.get(c.secret).is_some()
-            }
+            KeyUse::Optional(c) | KeyUse::Required(c) => self.fetch.secrets.get(c.secret).is_some(),
             KeyUse::None => false,
         }
     }

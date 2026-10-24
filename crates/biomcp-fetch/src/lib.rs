@@ -217,9 +217,7 @@ impl Fetch {
             .unwrap_or(spec.deadline);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
-                KeyUse::Required(credential) => {
-                    self.secrets.get(credential.secret).is_none()
-                }
+                KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),
                 _ => false,
             };
         Leg {

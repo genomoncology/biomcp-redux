@@ -45,7 +45,11 @@ fn dispatch_using(
         return usage(args);
     }
     if let Some(command) = parsed.key {
-        return if shared.is_some() { usage(args) } else { crate::keys::run(command, &parsed.globals) };
+        return if shared.is_some() {
+            usage(args)
+        } else {
+            crate::keys::run(command, &parsed.globals)
+        };
     }
     let Some(action) = parsed.action else {
         return usage(args);
@@ -81,7 +85,9 @@ fn dispatch_using(
                 .map_err(|_| io::Error::other("unchecked source policy"))?;
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
-                Err(()) => return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
+                Err(()) => {
+                    return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
+                }
             };
             owned = fetch.with_secrets(secrets).restrict_sources(disabled);
             &owned
@@ -101,7 +107,11 @@ fn dispatch_using(
     };
     execute(fetch, action, &parsed.globals)
 }
-fn execute(fetch: &biomcp_fetch::Fetch, action: Action, globals: &crate::grammar::Globals) -> io::Result<Outcome> {
+fn execute(
+    fetch: &biomcp_fetch::Fetch,
+    action: Action,
+    globals: &crate::grammar::Globals,
+) -> io::Result<Outcome> {
     match action {
         Action::Health => health(fetch),
         Action::KeyHelp(source) => key_help(source),
@@ -229,11 +239,17 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             word => break word,
         }
     };
-    let error = if matches!(root, Some("get" | "search" | "sync" | "article")) {
+    let mut error = if matches!(root, Some("get" | "search" | "sync" | "article" | "key")) {
         biodata::ErrorEnvelope::arguments()
     } else {
         biodata::ErrorEnvelope::schema_usage()
     };
+    if root == Some("key") {
+        error.next = biomcp_fetch::SecretName::ALL.iter().map(|name| biodata::Step {
+            kind: biodata::StepKind::Configure,
+            args: vec!["help".into(),"key".into(),name.source().into()].into(),
+        }).collect();
+    }
     encode(error, crate::exit::Status::Usage)
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
@@ -300,13 +316,13 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
 fn key_help(source: biodata::Source) -> io::Result<Outcome> {
     let name = match source {
         biodata::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
-        biodata::Source::Pubmed => biomcp_fetch::SecretName::NcbiApiKey,
+        biodata::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biodata::KeyHelp {
-        guidance: Some(biodata::Text::new(format!("Run biomcp key set {} to register a key without echo. The stored key wins over its environment fallback.", name.source())).map_err(io::Error::other)?),
+        guidance: Some(biodata::Text::new(&format!("Run biomcp key set {} to register a key without echo. The stored key wins over its environment fallback.", name.source())).map_err(io::Error::other)?),
         source,
-        config: biodata::Text::new(format!("keys.{}",name.config())).map_err(io::Error::other)?,
+        config: biodata::Text::new(&format!("keys.{}",name.config())).map_err(io::Error::other)?,
         environment: biodata::Text::new(name.environment()).map_err(io::Error::other)?,
     };
     encode(
@@ -314,7 +330,10 @@ fn key_help(source: biodata::Source) -> io::Result<Outcome> {
         crate::exit::Status::Success,
     )
 }
-pub(crate) fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
+pub(crate) fn encode(
+    value: impl serde::Serialize,
+    status: crate::exit::Status,
+) -> io::Result<Outcome> {
     let mut bytes = serde_json::to_vec(&value)?;
     bytes.push(b'\n');
     Ok(Outcome {
