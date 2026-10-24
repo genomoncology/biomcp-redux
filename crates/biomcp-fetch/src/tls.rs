@@ -133,7 +133,7 @@ pub(crate) fn reason(error: &Error) -> biodata::Reason {
     match error {
         Error::ConnectProxyFailed(_) => biodata::Reason::Proxy,
         Error::Tls(_) | Error::Rustls(_) => biodata::Reason::Tls,
-        Error::Timeout(_) => biodata::Reason::DeadlineExceeded,
+        Error::Timeout(_) if !crate::retry::retry_error(error) => biodata::Reason::DeadlineExceeded,
         _ => biodata::Reason::Unavailable,
     }
 }

@@ -1,8 +1,5 @@
 //! A local CONNECT peer terminates TLS with a synthetic private trust anchor.
-use rustls::{
-    ServerConfig, ServerConnection, StreamOwned,
-    pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
-};
+use rustls::{ServerConfig, ServerConnection, StreamOwned, pki_types::PrivatePkcs8KeyDer};
 use serde_json::Value;
 use std::{
     fs,
@@ -15,9 +12,9 @@ use std::{
 
 type Requests = Vec<(String, String)>;
 
-pub(super) const CERT: &str = include_str!("network-fixtures/ca.pem");
 pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
+    pub(super) certificate: String,
     stop: mpsc::Sender<()>,
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
@@ -26,23 +23,8 @@ impl Stub {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
+        let (certificate, config) = identity()?;
         let worker = thread::spawn(move || {
-            let certs =
-                CertificateDer::pem_slice_iter(include_bytes!("network-fixtures/server.pem"))
-                    .collect::<Result<Vec<_>, _>>()
-                    .map_err(|e| e.to_string())?;
-            let key = PrivateKeyDer::from_pem_slice(include_bytes!("network-fixtures/key.pem"))
-                .map_err(|e| e.to_string())?;
-            let config = Arc::new(
-                ServerConfig::builder_with_provider(Arc::new(
-                    rustls::crypto::ring::default_provider(),
-                ))
-                .with_safe_default_protocol_versions()
-                .map_err(|e| e.to_string())?
-                .with_no_client_auth()
-                .with_single_cert(certs, key)
-                .map_err(|e| e.to_string())?,
-            );
             let mut requests = Vec::new();
             for stream in listener.incoming() {
                 if stopping.try_recv().is_ok() {
@@ -77,6 +59,7 @@ impl Stub {
         });
         Ok(Self {
             address,
+            certificate,
             stop,
             worker: Some(worker),
         })
@@ -130,4 +113,39 @@ fn body(withdrawn: bool) -> Result<String, String> {
         }
     }
     Err("missing HGNC fixture".into())
+}
+
+fn identity() -> Result<(String, Arc<ServerConfig>), String> {
+    use rcgen::{
+        BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
+        KeyUsagePurpose,
+    };
+    let now = time::OffsetDateTime::now_utc();
+    let mut ca = CertificateParams::default();
+    ca.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
+    ca.key_usages = vec![KeyUsagePurpose::KeyCertSign, KeyUsagePurpose::CrlSign];
+    ca.not_before = now - time::Duration::days(1);
+    ca.not_after = now + time::Duration::days(2);
+    let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
+    let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
+    let mut leaf =
+        CertificateParams::new(vec!["storage.googleapis.com".into()]).map_err(|e| e.to_string())?;
+    leaf.not_before = now - time::Duration::days(1);
+    leaf.not_after = now + time::Duration::days(1);
+    leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];
+    let key = KeyPair::generate().map_err(|e| e.to_string())?;
+    let cert = leaf
+        .signed_by(&key, &ca, &ca_key)
+        .map_err(|e| e.to_string())?;
+    let config =
+        ServerConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
+            .with_safe_default_protocol_versions()
+            .map_err(|e| e.to_string())?
+            .with_no_client_auth()
+            .with_single_cert(
+                vec![cert.der().clone()],
+                PrivatePkcs8KeyDer::from(key.serialize_der()).into(),
+            )
+            .map_err(|e| e.to_string())?;
+    Ok((ca.pem(), Arc::new(config)))
 }

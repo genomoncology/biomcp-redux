@@ -100,7 +100,7 @@ fn tls() -> Result<(), String> {
         let record = env.root().join("capture");
         if trusted {
             let cert = env.root().join("private-ca.pem");
-            fs::write(&cert, super::network_stub::CERT).map_err(|e| e.to_string())?;
+            fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
             env.config(&json!({"ca_bundle":cert}))
                 .map_err(|e| e.to_string())?;
         }
