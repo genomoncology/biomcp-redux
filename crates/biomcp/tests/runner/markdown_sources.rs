@@ -124,7 +124,7 @@ fn abstract_part() -> Result<(), String> {
         4000,
     )?;
     let parts = value
-        .pointer("/result/items/0/abstract_parts")
+        .pointer("/result/items/0/answer/card/abstract_parts")
         .and_then(Value::as_array)
         .ok_or("missing abstract parts")?;
     if !parts.iter().any(|part| {

@@ -78,7 +78,7 @@ fn citations(xml: &str) -> Result<bool, BadReply> {
             {
                 return Ok(false);
             }
-            Event::Start(_) | Event::Empty(_) | Event::CData(_) => return Ok(false),
+            Event::Start(_) | Event::Empty(_) | Event::CData(_) | Event::GeneralRef(_) => return Ok(false),
             Event::Eof => return Ok(found),
             _ => {}
         }

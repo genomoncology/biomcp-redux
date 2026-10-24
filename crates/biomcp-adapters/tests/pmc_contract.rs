@@ -5,7 +5,10 @@ use biomcp_fetch::{Fetch, FetchConfig, Mode, RequestError};
 use serde_json::Value;
 use std::{fs, path::Path, time::Duration};
 type Error = Box<dyn std::error::Error>;
-#[expect(clippy::disallowed_methods, reason = "Public adapter proof edits response exchanges in an isolated replay directory")]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Public adapter proof edits response exchanges in an isolated replay directory"
+)]
 fn read(
     change: impl FnOnce(&mut Value),
     xml: &str,
@@ -168,5 +171,18 @@ fn source_markup_and_first_citations_survive_without_duplicate_tables() -> Resul
             .iter()
             .any(|row| row.markdown.contains("&lt;sample&gt;"))
     );
+    Ok(())
+}
+
+#[test]
+fn inline_markup_preserves_non_citation_superscripts() -> Result<(), Error> {
+    for (xml, expected) in [
+        ("<p>A<sup>2<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>2[11]</sup>."),
+        ("<p>A<sup>&#945;<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>α[11]</sup>."),
+        ("<p>A<sup><xref ref-type=\"bibr\" rid=\"B1\">11</xref>,<xref ref-type=\"bibr\" rid=\"B2\">12</xref></sup>.</p>", "A[11,12]."),
+    ] {
+        assert_eq!(biomcp_adapters::jats::markdown(xml)?.as_str(), expected);
+    }
+    assert!(biomcp_adapters::jats::markdown("<p>&undefined;</p>").is_err());
     Ok(())
 }

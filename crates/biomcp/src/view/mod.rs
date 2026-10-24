@@ -54,7 +54,7 @@ fn render(value: &Value, node: &Value, root: &Value, depth: usize, out: &mut Str
             for value in items {
                 render(
                     value,
-                    node.get("items").unwrap_or(&Value::Null),
+                    array_items(node, root).unwrap_or(&Value::Null),
                     root,
                     depth,
                     out,
@@ -88,4 +88,13 @@ fn marked(node: &Value, root: &Value) -> bool {
             .filter_map(|k| node.get(k).and_then(Value::as_array))
             .flatten()
             .any(|n| marked(n, root))
+}
+
+fn array_items<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
+    let node = resolve(node, root);
+    node.get("items").or_else(|| {
+        ["anyOf", "oneOf"].into_iter()
+            .filter_map(|kind| node.get(kind).and_then(Value::as_array))
+            .flatten().find_map(|branch| array_items(branch, root))
+    })
 }
