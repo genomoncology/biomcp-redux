@@ -138,6 +138,6 @@ impl Leg<'_> {
                 .failure(Reason::DeadlineExceeded, Some(entry.status))
                 .into());
         }
-        Ok(Some(Checked::Positive(reply, fresh, fetched)))
+        Ok(Some(Checked::Positive(reply, fresh, entry.fetched_at)))
     }
 }

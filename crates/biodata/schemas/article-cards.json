@@ -1,0 +1,832 @@
+{
+  "$defs": {
+    "AbstractPart": {
+      "additionalProperties": false,
+      "description": "One source-labelled abstract paragraph.",
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label, when supplied."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole paragraph text."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "Article": {
+      "additionalProperties": false,
+      "description": "Complete PubMed article facts; card disclosure caps authors without dropping their total.",
+      "properties": {
+        "abstract_parts": {
+          "description": "Whole abstract, preserving labels and source order.",
+          "items": {
+            "$ref": "#/$defs/AbstractPart"
+          },
+          "type": "array"
+        },
+        "authors": {
+          "$ref": "#/$defs/Capped",
+          "description": "Authors in source order."
+        },
+        "corrections": {
+          "description": "Related correction notices or originals.",
+          "items": {
+            "$ref": "#/$defs/Correction"
+          },
+          "type": "array"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publication date at source precision."
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Doi"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "DOI assigned to this article."
+        },
+        "journal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Journal name."
+        },
+        "pmcid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pmcid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "PMC identity assigned to this article."
+        },
+        "pmid": {
+          "$ref": "#/$defs/Pmid",
+          "description": "PubMed identity."
+        },
+        "title": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole title with inline text preserved."
+        },
+        "types": {
+          "description": "Every clinically meaningful source publication type.",
+          "items": {
+            "$ref": "#/$defs/PublicationType"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "pmid",
+        "title",
+        "types",
+        "corrections",
+        "authors",
+        "abstract_parts"
+      ],
+      "type": "object"
+    },
+    "ArticleCardItem": {
+      "additionalProperties": false,
+      "description": "Answer to one input; shared DOIs may expand to several consecutive items.",
+      "properties": {
+        "answer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticleResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent only when a provider failed."
+        },
+        "input": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "Original selector."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "This card's outcome."
+        }
+      },
+      "required": [
+        "input",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ArticleCards": {
+      "additionalProperties": false,
+      "description": "Cards in caller order.",
+      "properties": {
+        "items": {
+          "description": "Per-input answers.",
+          "items": {
+            "$ref": "#/$defs/ArticleCardItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ArticleGet": {
+      "additionalProperties": false,
+      "description": "Get one to twenty article inputs in caller order.",
+      "properties": {
+        "input": {
+          "description": "PubMed, PMC or DOI identifiers in input order.",
+          "items": {
+            "$ref": "#/$defs/ArticleInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
+    "ArticleInput": {
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "type": "string"
+    },
+    "ArticleMatch": {
+      "additionalProperties": false,
+      "description": "Identity evidence for an article card.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/ArticleMatchKind",
+          "description": "Namespace used to resolve the card."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "ArticleMatchKind": {
+      "description": "Identifier used to resolve this article.",
+      "enum": [
+        "pmid",
+        "pmcid",
+        "doi"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " PubMed identifier.",
+        " PMC identifier.",
+        " Digital object identifier."
+      ]
+    },
+    "ArticleResolution": {
+      "description": "Result of resolving an article selector.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "A record whose own identity agrees with the input.",
+          "properties": {
+            "card": {
+              "$ref": "#/$defs/Article",
+              "description": "Source card with capped authors."
+            },
+            "fetched": {
+              "description": "Original fetch time in Unix seconds.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "match": {
+              "$ref": "#/$defs/ArticleMatch",
+              "description": "Identity evidence."
+            },
+            "resolution": {
+              "const": "resolved",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution",
+            "card",
+            "match",
+            "fetched"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source confirmed no matching record.",
+          "properties": {
+            "resolution": {
+              "const": "not_found",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Capped": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Correction": {
+      "additionalProperties": false,
+      "description": "One correction relationship supplied by PubMed.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/CorrectionKind",
+          "description": "Correction category."
+        },
+        "pmid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pmid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Related PMID, when supplied."
+        },
+        "relation": {
+          "$ref": "#/$defs/CorrectionRelation",
+          "description": "Whether the related record is a notice or original."
+        }
+      },
+      "required": [
+        "kind",
+        "relation"
+      ],
+      "type": "object"
+    },
+    "CorrectionKind": {
+      "description": "Source correction relationship kind.",
+      "enum": [
+        "retraction",
+        "erratum",
+        "expression_of_concern"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Retraction relationship.",
+        " Erratum relationship.",
+        " Expression of concern relationship."
+      ]
+    },
+    "CorrectionRelation": {
+      "description": "Direction of a source correction relationship.",
+      "enum": [
+        "notice",
+        "original"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The related record is the notice.",
+        " The related record is the original."
+      ]
+    },
+    "Doi": {
+      "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Pmcid": {
+      "pattern": "^PMC[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "PublicationType": {
+      "description": "Clinically meaningful PubMed publication types.",
+      "enum": [
+        "randomized_controlled_trial",
+        "clinical_trial",
+        "clinical_trial_phase_1",
+        "clinical_trial_phase_2",
+        "clinical_trial_phase_3",
+        "clinical_trial_phase_4",
+        "meta_analysis",
+        "systematic_review",
+        "review",
+        "practice_guideline",
+        "guideline",
+        "case_report",
+        "observational_study",
+        "multicenter_study",
+        "letter",
+        "comment",
+        "editorial",
+        "preprint",
+        "retracted_publication",
+        "retraction_notice",
+        "erratum"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Randomized controlled trial.",
+        " Clinical trial.",
+        " Phase one trial.",
+        " Phase two trial.",
+        " Phase three trial.",
+        " Phase four trial.",
+        " Meta-analysis.",
+        " Systematic review.",
+        " Review.",
+        " Practice guideline.",
+        " Guideline.",
+        " Case report.",
+        " Observational study.",
+        " Multicenter study.",
+        " Letter.",
+        " Comment.",
+        " Editorial.",
+        " Preprint.",
+        " Retracted publication.",
+        " Retraction notice.",
+        " Erratum."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "rate_limited",
+        "unavailable",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.article_cards/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/ArticleGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArticleCards"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.article_cards/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

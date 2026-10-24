@@ -1,5 +1,9 @@
 {
   "$defs": {
+    "ArticleInput": {
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "type": "string"
+    },
     "ArticleSort": {
       "description": "Article ordering supported by this command.",
       "enum": [
@@ -74,6 +78,31 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Retrieve PubMed article cards.",
+      "properties": {
+        "command": {
+          "const": "get_article",
+          "type": "string"
+        },
+        "input": {
+          "description": "PubMed, PMC or DOI identifiers in input order.",
+          "items": {
+            "$ref": "#/$defs/ArticleInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "input"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "anyOf": [
