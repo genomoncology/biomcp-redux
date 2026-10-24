@@ -39,6 +39,9 @@ pub struct VariantComponent {
     /// Component upload timestamp when the source states one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub uploaded: Option<Text>,
+    /// Source-named component upload timestamps when the publisher supplies a map.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub uploads: Box<[ComponentUpload]>,
     /// Whole source snapshot warning.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<Text>,
@@ -48,6 +51,9 @@ pub struct VariantComponent {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantPredictors {
+    /// Original context arrays, without inferred cross-field alignment.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub context: Box<[PredictorContext]>,
     /// Every retained source score in declared field order.
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
@@ -58,6 +64,9 @@ pub struct VariantPredictors {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantConservation {
+    /// Original context arrays, without inferred cross-field alignment.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub context: Box<[PredictorContext]>,
     /// Every retained source measurement in declared field order.
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
@@ -140,4 +149,25 @@ pub struct ComponentTerms {
     pub name: Text,
     /// Publisher terms page.
     pub url: Text,
+}
+
+/// Unchanged native context values associated with a source field path.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PredictorContext {
+    /// Native source field path.
+    pub field: Text,
+    /// Every native value in source array order.
+    pub values: Box<[Text]>,
+}
+/// One source-named component upload timestamp.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ComponentUpload {
+    /// Source subcollection name.
+    pub name: Text,
+    /// Unchanged source timestamp.
+    pub date: Text,
 }

@@ -83,7 +83,7 @@ pub use query::{ArticleEdges, EdgeSource};
 pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;
-pub use response::{Health, HttpHealth, SourceHealth};
+pub use response::{ComponentHealth, Health, HttpHealth, SourceHealth};
 
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use response::{
@@ -174,8 +174,9 @@ pub use response::{
     VariantAssertion, VariantAssertions,
 };
 pub use variant::{
-    ComponentTerms, CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorScore,
-    VariantComponent, VariantConservation, VariantCosmic, VariantPredictors,
+    ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity, CosmicRecord,
+    PredictorContext, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
+    VariantPredictors,
 };
 
 pub use response::{OncokbVariantRecord, VariantOncokb};

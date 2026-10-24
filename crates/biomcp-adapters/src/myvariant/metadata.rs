@@ -1,43 +1,77 @@
 //! Component provenance from the aggregator, without a blanket component license.
-use biodata::{Text, VariantComponent};
+use crate::raw::Field;
+use biodata::{ComponentUpload, Text, VariantComponent};
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use serde::Deserialize;
+use std::collections::BTreeMap;
 const METADATA: Endpoint = super::SPEC.get("/metadata").fresh(Freshness::Days(1));
-/// Read the historical COSMIC snapshot's published metadata.
 pub(super) fn cosmic(leg: &Leg<'_>) -> Result<VariantComponent, RequestError> {
+    components(leg, &[super::components::COSMIC])?
+        .into_iter()
+        .next()
+        .ok_or_else(super::leg_bad)
+}
+pub(super) fn components(
+    leg: &Leg<'_>,
+    selected: &[super::components::Component],
+) -> Result<Vec<VariantComponent>, RequestError> {
     let raw = leg.json::<Metadata>(&METADATA, &[])?;
-    let component = raw.src.cosmic;
-    Ok(VariantComponent {
-        terms: super::components::label(super::components::COSMIC.terms)?,
-        name: Text::new("cosmic").map_err(|_| super::leg_bad())?,
-        version: component.version,
-        license: component.license_url,
-        aggregator_build: raw.build_version,
-        aggregator_built: raw.build_date,
-        uploaded: component.upload_date,
-        note: component.note,
-    })
+    selected
+        .iter()
+        .map(|declaration| {
+            let component = raw.src.get(declaration.name).ok_or_else(super::leg_bad)?;
+            let (uploaded, uploads) = match &component.upload_date {
+                Some(Uploads::One(value)) => (Some(value.clone()), Vec::new()),
+                Some(Uploads::Many(values)) => (
+                    None,
+                    values
+                        .iter()
+                        .map(|(name, date)| {
+                            Ok(ComponentUpload {
+                                name: Text::new(name).map_err(|_| super::leg_bad())?,
+                                date: date.clone(),
+                            })
+                        })
+                        .collect::<Result<Vec<_>, RequestError>>()?,
+                ),
+                None => (None, Vec::new()),
+            };
+            Ok(VariantComponent {
+                terms: super::components::label(declaration.terms)?,
+                name: Text::new(declaration.name).map_err(|_| super::leg_bad())?,
+                version: component.version.clone(),
+                license: component.license_url.clone(),
+                aggregator_build: raw.build_version.clone(),
+                aggregator_built: raw.build_date.clone(),
+                uploaded,
+                uploads: uploads.into(),
+                note: component.note.clone(),
+            })
+        })
+        .collect()
 }
 #[derive(Deserialize)]
 struct Metadata {
     build_version: Text,
     build_date: Text,
-    src: Sources,
-}
-#[derive(Deserialize)]
-struct Sources {
-    cosmic: Component,
+    src: BTreeMap<String, Field<Component>>,
 }
 #[derive(Deserialize)]
 struct Component {
     version: Option<Text>,
     license_url: Text,
-    upload_date: Option<Text>,
+    upload_date: Option<Uploads>,
     note: Option<Text>,
+}
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Uploads {
+    One(Text),
+    Many(BTreeMap<String, Text>),
 }
 impl Reply for Metadata {
     fn check(&self) -> Result<(), BadReply> {
-        if self.src.cosmic.version.is_none() || self.src.cosmic.note.is_none() {
+        if self.src.is_empty() {
             Err(BadReply)
         } else {
             Ok(())
