@@ -87,7 +87,11 @@ pub fn core(leg: &Leg<'_>, id: &EuropePmcId) -> Result<(Article, ReplyMetadata),
         .abstract_text
         .as_ref()
         .filter(|s| !s.trim().is_empty())
-        .map(|xml| fragment(xml).and_then(|xml| jats::markdown(&xml)).map(|text| AbstractPart { label: None, text }))
+        .map(|xml| {
+            fragment(xml)
+                .and_then(|xml| jats::markdown(&xml))
+                .map(|text| AbstractPart { label: None, text })
+        })
         .transpose()
         .map_err(bad)?
         .into_iter()
@@ -143,9 +147,11 @@ fn fragment(mut html: &str) -> Result<String, BadReply> {
     while let Some(start) = html.find('<') {
         xml.push_str(&html[..start]);
         html = &html[start..];
-        if !html.as_bytes().get(1).is_some_and(|c| {
-            c.is_ascii_alphabetic() || matches!(c, b'/' | b'!' | b'?')
-        }) {
+        if !html
+            .as_bytes()
+            .get(1)
+            .is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, b'/' | b'!' | b'?'))
+        {
             xml.push_str("&lt;");
             html = &html[1..];
             continue;
