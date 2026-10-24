@@ -603,6 +603,10 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
         }
         assert_eq!(stub.finish().len(), usize::from(direct));
     }
+}
+
+#[test]
+fn invalid_no_proxy_boundaries_are_configuration_errors() {
     for invalid in [
         "example.org:abc",
         "example.org:",
