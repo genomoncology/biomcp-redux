@@ -1,7 +1,7 @@
 //! Candidate-specific section disclosure under one shared command deadline.
 use crate::Ctx;
 use biodata::{
-    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
+    Problem, Section, SourceOutcome, VariantGet,
     VariantHeader, VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
@@ -11,24 +11,6 @@ pub(super) type Result<T> = (
     Vec<Problem>,
     Option<RequestError>,
 );
-pub(super) fn requested(query: &VariantGet) -> Vec<VariantSection> {
-    use VariantSection as S;
-    [
-        S::Clinvar,
-        S::Erepo,
-        S::Population,
-        S::Gwas,
-        S::Civic,
-        S::Hotspots,
-        S::Predict,
-        S::Conservation,
-        S::Cosmic,
-        S::Oncokb,
-    ]
-    .into_iter()
-    .filter(|s| query.sections().contains(s) || query.sections().contains(&S::All))
-    .collect()
-}
 pub(super) fn apply(
     cx: &Ctx<'_>,
     query: &VariantGet,
@@ -40,44 +22,10 @@ pub(super) fn apply(
     let mut local = None;
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in requested(query) {
+        for section in query.sections() {
             let candidates = std::slice::from_ref(&*candidate);
             use VariantSection as S;
             match section {
-                S::Clinvar => {
-                    sections.clinvar = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Clinvar,
-                        ),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Erepo => {
-                    sections.erepo = Some(retain(
-                        super::assertions::section(
-                            cx,
-                            query,
-                            candidates,
-                            deadline,
-                            AssertionSource::Erepo,
-                        ),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    ))
-                }
-                S::Population => sections.population = Some(pending(Source::Gnomad, &mut sources)),
-                S::Gwas => sections.gwas = Some(pending(Source::Gwas, &mut sources)),
-                S::Civic => sections.civic = Some(pending(Source::Civic, &mut sources)),
-                S::Hotspots => {
-                    sections.hotspots = Some(pending(Source::CancerHotspots, &mut sources))
-                }
                 S::Predict => {
                     sections.predict = Some(retain(
                         super::predict::section(cx, query, candidates, deadline),
@@ -102,8 +50,6 @@ pub(super) fn apply(
                         &mut local,
                     ))
                 }
-                S::Oncokb => sections.oncokb = Some(pending(Source::Oncokb, &mut sources)),
-                S::All => {}
                 _ => {}
             }
         }
@@ -112,18 +58,6 @@ pub(super) fn apply(
         }
     }
     (sources, problems, local)
-}
-fn pending<T>(source: Source, sources: &mut Vec<SourceOutcome>) -> Section<T> {
-    sources.push(SourceOutcome {
-        source,
-        state: SourceState::Failed,
-        reason: Some(Reason::Unavailable),
-        term: None,
-        count: None,
-        fetched: None,
-        notices: Vec::new(),
-    });
-    Section::unavailable(source, Reason::Unavailable)
 }
 pub(super) fn retain<T>(
     value: Result<T>,

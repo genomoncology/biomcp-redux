@@ -77,7 +77,6 @@
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
         "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
-        "renamed; use: get variant <id> predict",
         "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         "the registry cannot bind --facility and radius to one site; choose one filter",
         "retired; use: --criteria for literal registry eligibility text",
@@ -189,10 +188,7 @@
         "reactome",
         "hpa",
         "uniprot",
-        "gwas",
         "gnomad",
-        "clinvar",
-        "erepo",
         "clingen",
         "pubmed",
         "europepmc",
@@ -205,12 +201,12 @@
         "ctgov",
         "nci",
         "civic",
-        "hotspots",
         "oncokb",
         "myvariant",
         "car",
         "mutalyzer",
-        "variantvalidator"
+        "variantvalidator",
+        "cbioportal"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -219,10 +215,7 @@
         " Reactome.",
         " Human Protein Atlas.",
         " UniProt.",
-        " GWAS Catalog v2.",
         " gnomAD.",
-        " ClinVar assertions.",
-        " ClinGen Evidence Repository.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -235,12 +228,12 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
-        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
         " Mutalyzer.",
-        " VariantValidator."
+        " VariantValidator.",
+        " Public cBioPortal with study-specific reuse terms."
       ]
     },
     "Step": {

@@ -4,10 +4,7 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
-    &crate::clinvar::SPEC,
-    &crate::erepo::SPEC,
     &crate::myvariant::SPEC,
-    &crate::gwas::SPEC,
     &crate::allele_registry::SPEC,
     &crate::mutalyzer::SPEC,
     &crate::variantvalidator::SPEC,
@@ -19,7 +16,6 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
     &crate::civic::SPEC,
-    &crate::hotspots::SPEC,
     &crate::clingen::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
@@ -31,40 +27,27 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::icite::SPEC,
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
+    &crate::cbioportal::SPEC,
 ];
-/// Preserve terms groups for component policy after source-name expansion.
+/// Resolve one supported terms group.
+pub fn group(name: &str) -> Option<Use> {
+    match name { "noncommercial" => Some(Use::Noncommercial), "restricted" => Some(Use::Restricted), _ => None }
+}
+/// Preserve group restrictions for independently labeled aggregator components.
 pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
     names.iter().filter_map(|name| group(name)).collect()
 }
-fn group(name: &str) -> Option<Use> {
-    match name {
-        "noncommercial" => Some(Use::Noncommercial),
-        "restricted" => Some(Use::Restricted),
-        _ => None,
-    }
-}
-/// Expand checked source names and the two user-selectable terms groups.
+/// Expand source switches while component declarations keep aggregators available.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
-        if let Some(group) = group(name) {
-            disabled.extend(
-                SOURCES
-                    .iter()
-                    .filter(|s| {
-                        s.terms.usage == group
-                            && !crate::myvariant::components::COMPONENTS
-                                .iter()
-                                .any(|component| component.source == s.source)
-                    })
-                    .map(|s| s.source),
-            );
+        if let Some(usage) = group(name) {
+            disabled.extend(SOURCES.iter().filter(|s| s.terms.usage == usage && !crate::myvariant::components::all().iter().any(|c| c.source == s.source)).map(|s| s.source));
         } else {
-            let source = SOURCES
-                .iter()
-                .find(|s| s.source.to_string() == *name)
+            let source = SOURCES.iter().find(|s| s.source.to_string() == *name).map(|s| s.source)
+                .or_else(|| crate::myvariant::components::all().iter().filter_map(|c| c.native_source).find(|s| s.to_string() == *name))
                 .ok_or(biodata::Error::SourceUnknown)?;
-            disabled.insert(source.source);
+            disabled.insert(source);
         }
     }
     Ok(disabled)
@@ -125,10 +108,7 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
-        Source::Gwas => (
-            "/associations",
-            vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))],
-        ),
+        Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant => ("/metadata", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
         Source::Mutalyzer => ("/normalize/NM_004333.4:c.1799T%3EA", vec![]),
@@ -149,7 +129,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
-        Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
         Source::PubMed => (
             "/einfo.fcgi",

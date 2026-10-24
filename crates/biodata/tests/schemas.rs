@@ -51,7 +51,6 @@ fn common_registry() -> Vec<Contract> {
         Representation => ("representation", "biodata.representation/1"),
         VariantId => ("variant-id", "biodata.variant-id/1"),
         Variant => ("variant", "biodata.variant/1"),
-        Statement => ("statement", "biodata.statement/1"),
     }
 }
 
@@ -129,11 +128,24 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
         Contig => ("contig", "biodata.contig/1"),
     };
-    contracts.extend(variant_contracts());
     contracts.extend(common_registry());
+    contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts
 }
+fn variant_contracts() -> Vec<Contract> {
+    contracts! {
+        VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/1"),
+        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant_recurrence/1"),
+        VariantNormalize => ("variant-normalize", "biodata.variant-normalize/1"),
+        Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/1"),
+        VariantSearch => ("variant-search", "biodata.variant-search/1"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
+        VariantGet => ("variant-get", "biodata.variant-get/1"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
+    }
+}
+
 fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
@@ -253,19 +265,5 @@ fn flat_value(root: &Value, node: &Value) {
         assert!(
             ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
         );
-    }
-}
-
-fn variant_contracts() -> Vec<Contract> {
-    contracts! {
-        VariantSearch => ("variant-search", "biodata.variant-search/1"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/1"),
-        PopulationFrequency => ("population-frequency", "biodata.population-frequency/1"),
-        VariantPopulationQuery => ("variant-population", "biodata.variant-population/1"),
-        Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant_population/1"),
-        VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),
-        Envelope<VariantAssertions> => ("variant-assertions-result", "biomcp.variant_assertions/1"),
-        VariantGet => ("variant-get", "biodata.variant-get/1"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
     }
 }

@@ -84,6 +84,3 @@ fn bad() -> RequestError {
     }
     .into()
 }
-
-/// Exact source-qualified population observations.
-pub mod variant;

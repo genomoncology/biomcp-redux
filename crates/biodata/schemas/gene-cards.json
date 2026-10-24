@@ -1441,7 +1441,6 @@
         "deadline_exceeded",
         "offline",
         "no_key",
-        "restricted_terms",
         "disabled",
         "replay_miss",
         "syncing",
@@ -1463,7 +1462,6 @@
         " The request exhausted its deadline.",
         " Network access was disabled.",
         " A required credential was absent.",
-        " Component terms do not permit this application to offer its values.",
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
@@ -2334,10 +2332,7 @@
         "reactome",
         "hpa",
         "uniprot",
-        "gwas",
         "gnomad",
-        "clinvar",
-        "erepo",
         "clingen",
         "pubmed",
         "europepmc",
@@ -2350,12 +2345,12 @@
         "ctgov",
         "nci",
         "civic",
-        "hotspots",
         "oncokb",
         "myvariant",
         "car",
         "mutalyzer",
-        "variantvalidator"
+        "variantvalidator",
+        "cbioportal"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -2364,10 +2359,7 @@
         " Reactome.",
         " Human Protein Atlas.",
         " UniProt.",
-        " GWAS Catalog v2.",
         " gnomAD.",
-        " ClinVar assertions.",
-        " ClinGen Evidence Repository.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -2380,12 +2372,12 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
-        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
         " Mutalyzer.",
-        " VariantValidator."
+        " VariantValidator.",
+        " Public cBioPortal with study-specific reuse terms."
       ]
     },
     "SourceNotice": {

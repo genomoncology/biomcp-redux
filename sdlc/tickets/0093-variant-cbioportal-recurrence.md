@@ -1,6 +1,7 @@
 # 0093 — Count a variant's recurrence in a named cBioPortal cohort
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 473531a46dd1e942ae5ac785b8836e040f920c64
 
 Milestone: 2
 

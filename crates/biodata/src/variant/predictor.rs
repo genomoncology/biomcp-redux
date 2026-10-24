@@ -183,3 +183,14 @@ crate::macros::wire_enum! {
         AdapterDerivedReference => "adapter_derived_reference",
     }
 }
+
+/// Terms attached to a named carried component on a consumer response.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ComponentLabel {
+    /// Native component name.
+    pub component: crate::Text,
+    /// Canonical publisher terms.
+    pub terms: ComponentTerms,
+}

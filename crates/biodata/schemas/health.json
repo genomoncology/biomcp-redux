@@ -1,53 +1,5 @@
 {
   "$defs": {
-    "ComponentHealth": {
-      "additionalProperties": false,
-      "description": "Policy labels for one carried source component.",
-      "properties": {
-        "disabled": {
-          "description": "Explicit source or component group policy prevents this component.",
-          "type": "boolean"
-        },
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Native component name."
-        },
-        "terms": {
-          "$ref": "#/$defs/ComponentTerms",
-          "description": "Independently reviewed publisher terms."
-        }
-      },
-      "required": [
-        "name",
-        "terms",
-        "disabled"
-      ],
-      "type": "object"
-    },
-    "ComponentTerms": {
-      "additionalProperties": false,
-      "description": "Terms attached to one independently licensed source component.",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/Text",
-          "description": "Publisher terms name."
-        },
-        "url": {
-          "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
-        },
-        "usage": {
-          "$ref": "#/$defs/Use",
-          "description": "Publisher use category."
-        }
-      },
-      "required": [
-        "usage",
-        "name",
-        "url"
-      ],
-      "type": "object"
-    },
     "Health": {
       "additionalProperties": false,
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
@@ -210,7 +162,6 @@
         "deadline_exceeded",
         "offline",
         "no_key",
-        "restricted_terms",
         "disabled",
         "replay_miss",
         "syncing",
@@ -232,7 +183,6 @@
         " The request exhausted its deadline.",
         " Network access was disabled.",
         " A required credential was absent.",
-        " Component terms do not permit this application to offer its values.",
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
@@ -247,10 +197,7 @@
         "reactome",
         "hpa",
         "uniprot",
-        "gwas",
         "gnomad",
-        "clinvar",
-        "erepo",
         "clingen",
         "pubmed",
         "europepmc",
@@ -263,12 +210,12 @@
         "ctgov",
         "nci",
         "civic",
-        "hotspots",
         "oncokb",
         "myvariant",
         "car",
         "mutalyzer",
-        "variantvalidator"
+        "variantvalidator",
+        "cbioportal"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -277,10 +224,7 @@
         " Reactome.",
         " Human Protein Atlas.",
         " UniProt.",
-        " GWAS Catalog v2.",
         " gnomAD.",
-        " ClinVar assertions.",
-        " ClinGen Evidence Repository.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -293,25 +237,18 @@
         " ClinicalTrials.gov.",
         " NCI Clinical Trials Search.",
         " CIViC.",
-        " Cancer Hotspots residue recurrence.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
         " Mutalyzer.",
-        " VariantValidator."
+        " VariantValidator.",
+        " Public cBioPortal with study-specific reuse terms."
       ]
     },
     "SourceHealth": {
       "additionalProperties": false,
       "description": "One bounded source probe, without credentials or provider error text.",
       "properties": {
-        "components": {
-          "description": "Independently licensed carried components, without separate network probes.",
-          "items": {
-            "$ref": "#/$defs/ComponentHealth"
-          },
-          "type": "array"
-        },
         "disabled": {
           "description": "Whether source policy prevents all requests and cached reads.",
           "type": "boolean"

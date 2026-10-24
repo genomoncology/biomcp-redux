@@ -24,19 +24,6 @@ struct Fields {
     /// Source rows to skip independently of identity candidate paging.
     #[serde(default)]
     section_offset: u32,
-    /// Selected CIViC molecular profile for native claim paging.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1)))]
-    civic_profile: Option<u64>,
-    /// Native CIViC claim collection within the selected profile.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    civic_kind: Option<CivicClaimKind>,
-    /// Native CIViC cursor, retained unchanged.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    civic_cursor: Option<crate::Text>,
-    /// Explicit tumor context for keyed OncoKB annotation.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    tumor_type: Option<crate::Text>,
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
@@ -70,27 +57,7 @@ impl TryFrom<Fields> for VariantGet {
         if !(1..=50).contains(&fields.limit) || !(1..=50).contains(&fields.section_limit) {
             return Err(super::gene::QueryInvalid);
         }
-        if fields.civic_profile == Some(0)
-            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
-            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
-            || fields.civic_profile.is_some()
-                && !fields
-                    .section
-                    .iter()
-                    .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
-        {
-            return Err(super::gene::QueryInvalid);
-        }
-        if fields.section.contains(&VariantSection::Oncokb)
-            && (fields.build.is_none() || fields.tumor_type.is_none())
-        {
-            return Err(super::gene::QueryInvalid);
-        }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
-        query.0.tumor_type = fields.tumor_type;
-        query.0.civic_profile = fields.civic_profile;
-        query.0.civic_kind = fields.civic_kind;
-        query.0.civic_cursor = fields.civic_cursor;
         query.0.section_limit = fields.section_limit;
         query.0.section_offset = fields.section_offset;
         query.0.section = fields.section;
@@ -118,10 +85,6 @@ impl VariantGet {
             section: Box::default(),
             section_limit: default_section_limit(),
             section_offset: 0,
-            civic_profile: None,
-            civic_kind: None,
-            civic_cursor: None,
-            tumor_type: None,
             resolver,
             build,
             limit: default_limit(),
@@ -136,42 +99,6 @@ impl VariantGet {
     pub fn with_sections(mut self, sections: Box<[VariantSection]>) -> Self {
         self.0.section = sections;
         self
-    }
-    /// Caller tumor context, never inferred from an allele or gene.
-    pub fn tumor_type(&self) -> Option<&crate::Text> {
-        self.0.tumor_type.as_ref()
-    }
-    /// Selected native CIViC profile.
-    pub fn civic_profile(&self) -> Option<u64> {
-        self.0.civic_profile
-    }
-    /// Selected native CIViC claim collection.
-    pub fn civic_kind(&self) -> Option<CivicClaimKind> {
-        self.0.civic_kind
-    }
-    /// Selected native CIViC cursor.
-    pub fn civic_cursor(&self) -> Option<&crate::Text> {
-        self.0.civic_cursor.as_ref()
-    }
-    /// Continue a native CIViC collection without changing identity page selectors.
-    pub fn with_civic_page(
-        &self,
-        profile: u64,
-        kind: CivicClaimKind,
-        cursor: Option<crate::Text>,
-    ) -> Result<Self, super::gene::QueryInvalid> {
-        let mut fields = self.0.clone();
-        fields.civic_profile = Some(profile);
-        fields.civic_kind = Some(kind);
-        fields.civic_cursor = cursor;
-        fields.try_into()
-    }
-    /// Pin a source candidate without changing section paging or source selectors.
-    pub fn for_candidate(&self, input: VariantInput) -> Result<Self, super::gene::QueryInvalid> {
-        let mut fields = self.0.clone();
-        fields.input = input;
-        fields.offset = 0;
-        fields.try_into()
     }
     /// Named section rows per page.
     pub fn section_limit(&self) -> u32 {
@@ -240,37 +167,11 @@ impl VariantResolver {
 crate::source::canonical_enum! {
     /// Named variant source sections, without automatic expansion of identity cards.
     VariantSection, SourceUnknown {
-        /// ClinVar native assertions.
-        Clinvar => "clinvar",
-        /// ClinGen evidence repository assertions.
-        Erepo => "erepo",
-        /// gnomAD population frequencies.
-        Population => "population",
-        /// GWAS Catalog associations.
-        Gwas => "gwas",
-        /// CIViC molecular-profile evidence.
-        Civic => "civic",
-        /// Cancer Hotspots native residues and counts.
-        Hotspots => "hotspots",
         /// MyVariant source predictor scores.
         Predict => "predict",
         /// MyVariant conservation scores.
         Conservation => "conservation",
         /// Historical COSMIC fields carried by MyVariant.
         Cosmic => "cosmic",
-        /// Keyed OncoKB annotation with explicit tumor context and build.
-        Oncokb=>"oncokb",
-        /// Every implemented variant section.
-        All => "all",
-    }
-}
-
-crate::macros::wire_enum! {
-    /// CIViC native claim collection.
-    CivicClaimKind {
-        /// Accepted evidence items.
-        Evidence=>"evidence",
-        /// Accepted assertions.
-        Assertions=>"assertions",
     }
 }

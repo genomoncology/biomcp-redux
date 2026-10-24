@@ -17,9 +17,6 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/historical-fragment-walk-is-warm", || {
             component_walk().map_err(Into::into)
         }),
-        Trial::test("variant/assertions-source-wire", || {
-            assertions_wire().map_err(Into::into)
-        }),
         Trial::test(
             "variant/component-rights-and-historical-association",
             || components().map_err(Into::into),
@@ -327,44 +324,6 @@ fn component_body(request: &str) -> Result<String, String> {
 }
 fn myvariant_body37(_: &str) -> Result<String, String> {
     Ok(json!({"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
-}
-
-fn assertions_wire() -> Result<(), String> {
-    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", clinvar_body)?;
-    let environment = source_environment(&stub)?;
-    let args = [
-        "variant",
-        "assertions",
-        "clinvar:128042",
-        "--source",
-        "clinvar",
-        "--assertion",
-        "SCV000611258",
-        "--version",
-        "1",
-    ]
-    .iter()
-    .map(|s| (*s).into())
-    .collect::<Vec<_>>();
-    let output = environment
-        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if value.pointer("/result/assertions/0/statement/attribution/record")
-        != Some(&json!("SCV000611258"))
-        || value.pointer("/result/assertions/0/statement/classification/coding/code")
-            != Some(&json!("pathogenic"))
-    {
-        return Err(format!("native assertion lost: {value}"));
-    }
-    let requests = stub.finish()?;
-    if requests.len()!=1 || !requests.first().is_some_and(|(_, request)| request.starts_with("GET /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp HTTP/1.1")) {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
-    Ok(())
-}
-fn clinvar_body(_: &str) -> Result<String, String> {
-    // Explicit synthetic XML uses clinically reviewed public fixture facts; this is not a source capture.
-    Ok(r#"<ClinVarResult-Set><VariationArchive VariationID="128042" Accession="VCV000128042" Version="175"><ClassifiedRecord><Classifications><GermlineClassification><Description>Conflicting classifications of pathogenicity</Description></GermlineClassification></Classifications><ClinicalAssertionList><ClinicalAssertion><ClinVarAccession Accession="SCV000611258" Version="1" SubmitterName="Fulgent Genetics, Fulgent Genetics"/><Classification DateLastEvaluated="2017-05-18"><ReviewStatus>criteria provided, single submitter</ReviewStatus><GermlineClassification>Pathogenic</GermlineClassification></Classification><AttributeSet><Attribute Type="AssertionMethod">ACMG Guidelines, 2015</Attribute><Citation><ID Source="PubMed">25741868</ID></Citation></AttributeSet><ObservedInList><ObservedIn><Sample><Origin>unknown</Origin></Sample></ObservedIn></ObservedInList><TraitSet><Trait><XRef DB="OMIM" ID="114480"/></Trait><Trait><XRef DB="OMIM" ID="176807"/></Trait><Trait><XRef DB="OMIM" ID="259500"/></Trait><Trait><XRef DB="OMIM" ID="609265"/></Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"#.into())
 }
 
 fn missing_component() -> Result<(), String> {

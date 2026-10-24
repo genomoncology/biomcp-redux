@@ -109,9 +109,10 @@ pub(crate) static PUBLISHER_PDF: biomcp_fetch::Quota = Quota::new(
 // Conservative serial NCI policy; no published numeric quota was established.
 pub(crate) static NCI: Quota = Quota::new(SourceKey::declare("nci"), Rate::per_second(1), None, 1);
 
-// Conservative policy within the documented 100 requests/minute quota.
-pub(crate) static GWAS: Quota =
-    Quota::new(SourceKey::declare("gwas"), Rate::per_second(1), None, 1);
-// Conservative serial local policy; no published numeric quota was verified.
-pub(crate) static HOTSPOTS: Quota =
-    Quota::new(SourceKey::declare("hotspots"), Rate::per_second(1), None, 1);
+// Conservative serial public portal policy, not a claimed published provider quota.
+pub(crate) static CBIOPORTAL: Quota = Quota::new(
+    SourceKey::declare("cbioportal"),
+    Rate::per_second(2),
+    None,
+    1,
+);

@@ -165,26 +165,6 @@ fn shared_public_fixture_checks_identity_and_source_alleles() -> Check {
 }
 
 #[test]
-fn statement_keeps_source_labels_and_checks_coding() -> Check {
-    let value = json!({"subject":{"level":"allele","id":"clinvar:128042"},"proposition":"pathogenicity","classification":{"label":"Pathogenic","coding":{"system":"acmg_amp_2015","code":"pathogenic"}},"attribution":{"source":"clinvar","record":"SCV000611258.1","submitter":"Fulgent Genetics, Fulgent Genetics","evaluated":"2017-05-18"}});
-    assert!(serde_json::from_value::<VariantRef>(json!({"level":"allele"})).is_err());
-    assert!(
-        serde_json::from_value::<VariantRef>(json!({"level":"protein","gene":"BRAF"})).is_err()
-    );
-    let statement: Statement = serde_json::from_value(value.clone())?;
-    assert_eq!(serde_json::to_value(statement)?, value);
-    assert!(
-        serde_json::from_value::<Coding>(json!({"system":"acmg_amp_2015","code":"oncogenic"}))
-            .is_err()
-    );
-    assert!(
-        serde_json::from_value::<Concept>(json!({"label":"condition","id":"missing-prefix"}))
-            .is_err()
-    );
-    Ok(())
-}
-
-#[test]
 fn source_predictor_contract_keeps_zero_and_native_labels() {
     let source = json!({"subject":{"level":"allele","hgvs":"NC_000007.13:g.140453136A>T"},"method":"cadd.sift.val","score":0.0,"label":"deleterious","attribution":{"source":"myvariant","record":"chr7:g.140453136A>T"}});
     let score: PredictorScore = serde_json::from_value(source.clone()).expect("valid source score");

@@ -6,6 +6,8 @@ use biomcp_fetch::Terms;
 pub struct Component {
     /// Aggregator that carries this component.
     pub source: Source,
+    /// Explicit native source switch, when this component has one.
+    pub native_source: Option<Source>,
     /// Native component name.
     pub name: &'static str,
     /// Component publisher's terms, independent of public API reachability.
@@ -14,6 +16,7 @@ pub struct Component {
 /// CADD data retain their published noncommercial terms.
 pub const CADD: Component = Component {
     source: Source::MyVariant,
+    native_source: None,
     name: "cadd",
     terms: Terms {
         name: "CADD noncommercial data terms",
@@ -24,6 +27,7 @@ pub const CADD: Component = Component {
 /// The captured dbNSFP academic branch retains its component restrictions.
 pub const DBNSFP: Component = Component {
     source: Source::MyVariant,
+    native_source: None,
     name: "dbnsfp",
     terms: Terms {
         name: "dbNSFP academic branch and individual component terms",
@@ -34,6 +38,7 @@ pub const DBNSFP: Component = Component {
 /// MyVariant's historical COSMIC copy supplies no blanket reuse grant.
 pub const COSMIC: Component = Component {
     source: Source::MyVariant,
+    native_source: None,
     name: "cosmic",
     terms: Terms {
         name: "Historical COSMIC snapshot terms",
@@ -41,18 +46,22 @@ pub const COSMIC: Component = Component {
         usage: Use::Restricted,
     },
 };
+/// ClinVar retains the independently reviewed submission-specific rights label.
+pub const CLINVAR: Component = Component {
+    source: Source::MyVariant,
+    native_source: Some(Source::ClinVar),
+    name: "clinvar",
+    terms: Terms {
+        name: "NCBI policy; submission rights remain source-specific",
+        url: "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/",
+        usage: Use::Restricted,
+    },
+};
 /// Component declarations used consistently by health and named sections.
-pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC];
-/// Reuse the direct source declaration for components that have one.
+pub const COMPONENTS: &[Component] = &[CADD, DBNSFP, COSMIC, CLINVAR];
+/// Resolve component terms from their canonical declaration.
 pub fn terms(name: &str) -> Option<Terms> {
-    if name == "clinvar" {
-        Some(crate::clinvar::SPEC.terms)
-    } else {
-        COMPONENTS
-            .iter()
-            .find(|component| component.name == name)
-            .map(|component| component.terms)
-    }
+    COMPONENTS.iter().find(|c| c.name == name).map(|c| c.terms)
 }
 
 /// Convert a declaration to its public response label without repeating its values.
@@ -65,16 +74,8 @@ pub fn label(terms: Terms) -> Result<biodata::ComponentTerms, biomcp_fetch::Inpu
     })
 }
 
-/// All carried components, reusing a direct source's terms where it has one.
-pub fn all() -> Vec<Component> {
-    let mut components = COMPONENTS.to_vec();
-    components.push(Component {
-        source: Source::MyVariant,
-        name: "clinvar",
-        terms: crate::clinvar::SPEC.terms,
-    });
-    components
-}
+/// All components carried by the aggregator.
+pub fn all() -> &'static [Component] { COMPONENTS }
 /// Whether source or component policy blocks a carried component.
 pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
     policy(
@@ -97,7 +98,7 @@ fn policy(
     use_disabled: impl Fn(Use) -> bool,
 ) -> bool {
     source_disabled(Source::MyVariant)
-        || name == "clinvar" && source_disabled(Source::ClinVar)
+        || COMPONENTS.iter().find(|c| c.name == name).and_then(|c| c.native_source).is_some_and(&source_disabled)
         || terms(name).is_some_and(|terms| use_disabled(terms.usage))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.

@@ -8,10 +8,7 @@
     "reactome",
     "hpa",
     "uniprot",
-    "gwas",
     "gnomad",
-    "clinvar",
-    "erepo",
     "clingen",
     "pubmed",
     "europepmc",
@@ -24,12 +21,12 @@
     "ctgov",
     "nci",
     "civic",
-    "hotspots",
     "oncokb",
     "myvariant",
     "car",
     "mutalyzer",
-    "variantvalidator"
+    "variantvalidator",
+    "cbioportal"
   ],
   "title": "Source",
   "type": "string",
@@ -39,10 +36,7 @@
     " Reactome.",
     " Human Protein Atlas.",
     " UniProt.",
-    " GWAS Catalog v2.",
     " gnomAD.",
-    " ClinVar assertions.",
-    " ClinGen Evidence Repository.",
     " ClinGen.",
     " PubMed.",
     " Europe PMC.",
@@ -55,11 +49,11 @@
     " ClinicalTrials.gov.",
     " NCI Clinical Trials Search.",
     " CIViC.",
-    " Cancer Hotspots residue recurrence.",
     " OncoKB.",
     " MyVariant.info aggregation.",
     " ClinGen Allele Registry.",
     " Mutalyzer.",
-    " VariantValidator."
+    " VariantValidator.",
+    " Public cBioPortal with study-specific reuse terms."
   ]
 }

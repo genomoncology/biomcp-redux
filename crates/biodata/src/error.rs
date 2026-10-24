@@ -2,10 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
-    /// A subject reference has neither its source ID nor notation.
+    /// Empty source subject reference.
     VariantRefInvalid,
-    /// A concept identifier lacks its checked prefix or local part.
-    CurieInvalid,
     /// A published variant identifier was invalid.
     VariantIdInvalid,
     /// The source notation did not match its declared form.
@@ -84,8 +82,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
-            Self::VariantRefInvalid => "variant.reference.invalid",
-            Self::CurieInvalid => "concept.curie.invalid",
+            Self::VariantRefInvalid => "variant_ref.invalid",
             Self::VariantIdInvalid => "id.variant.invalid",
             Self::NotationInvalid => "notation.invalid",
             Self::AccessionInvalid => "sequence.accession.invalid",

@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod variant;
 use biodata::{Envelope, QueryBody, Request, Status};
 use biomcp_query::{Action, Bundle};
 use serde_json::Value;
@@ -82,12 +83,7 @@ fn dispatch_using(
                     return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
-            owned = fetch
-                .with_secrets(secrets)
-                .restrict_sources(disabled)
-                .restrict_uses(biomcp_adapters::registry::disabled_uses(
-                    &parsed.globals.disable_sources,
-                ));
+            owned = fetch.with_secrets(secrets).restrict_sources(disabled).restrict_uses(biomcp_adapters::registry::disabled_uses(&options.disable_sources));
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
@@ -261,21 +257,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
             meta.encode(query, Some(body))
         }
-        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::SearchVariant(query), QueryBody::VariantPage(body)) => {
-            meta.encode(query, Some(body))
-        }
-        (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
-            meta.encode(query, Some(body))
-        }
         (Request::GetGene(query), QueryBody::GeneCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchGene(query), QueryBody::GenePage(body)) => meta.encode(query, Some(body)),
-        _ => Err(io::Error::other("query response mismatch")),
+        (request, body) => variant::response(meta, request, body),
     }
 }
 

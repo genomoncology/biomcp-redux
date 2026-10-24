@@ -27,9 +27,6 @@ impl super::ResponseBody for VariantCard {
 pub struct VariantHeader {
     /// Source-qualified variant entity.
     pub identity: Variant,
-    /// Checked caller ID used by a source-only section, without asserting resolved identity.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub requested: Option<crate::VariantId>,
     /// Source responsible for this identity.
     pub source: Source,
     /// Exact source record, including source keys that are expressions rather than identifiers.
@@ -40,12 +37,13 @@ pub struct VariantHeader {
     /// Explicitly requested source sections for this exact candidate.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sections: Option<Box<VariantSections>>,
+    /// Terms for carried component identifiers on this consumer header.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub component_terms: Box<[crate::ComponentLabel]>,
 }
 crate::macros::wire_enum! {
     /// Identity resolution preserves candidates and source validation outcomes.
     VariantResolution {
-        /// Checked source selector whose allele identity was not requested.
-        Unresolved=>"unresolved",
         /// One checked provider identity.
         Resolved => "resolved",
         /// Several provider identities; none was selected.
@@ -57,43 +55,6 @@ crate::macros::wire_enum! {
         /// Provider could not answer.
         Unavailable => "unavailable",
     }
-}
-
-/// Source-specific sections, absent unless explicitly selected.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
-#[serde(deny_unknown_fields)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct VariantSections {
-    /// Explicit keyed OncoKB source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub oncokb: Option<crate::Section<crate::VariantOncokb>>,
-    /// Explicit clinvar source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub clinvar: Option<crate::Section<crate::VariantAssertions>>,
-    /// Explicit erepo source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub erepo: Option<crate::Section<crate::VariantAssertions>>,
-    /// Explicit population source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub population: Option<crate::Section<crate::VariantPopulation>>,
-    /// Explicit gwas source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub gwas: Option<crate::Section<crate::VariantGwas>>,
-    /// Explicit civic source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub civic: Option<crate::Section<crate::VariantCivic>>,
-    /// Explicit hotspots source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub hotspots: Option<crate::Section<crate::VariantHotspots>>,
-    /// Explicit predict source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub predict: Option<crate::Section<crate::VariantPredictors>>,
-    /// Explicit conservation source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub conservation: Option<crate::Section<crate::VariantConservation>>,
-    /// Explicit cosmic source result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 }
 
 /// One native MyVariant candidate page; its total and offset are in the shared envelope.
@@ -111,4 +72,20 @@ pub struct VariantPage {
 impl super::ResponseBody for VariantPage {
     const SCHEMA: &'static str = "biomcp.variant_page/1";
     type Query = crate::VariantSearch;
+}
+
+/// Source sections are absent unless explicitly selected.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VariantSections {
+    /// Native prediction scores.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub predict: Option<crate::Section<crate::VariantPredictors>>,
+    /// Native conservation scores.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conservation: Option<crate::Section<crate::VariantConservation>>,
+    /// Historical MyVariant-associated COSMIC fragments.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cosmic: Option<crate::Section<crate::VariantCosmic>>,
 }
