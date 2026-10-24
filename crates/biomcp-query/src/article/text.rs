@@ -59,18 +59,16 @@ fn resolve<'a>(
             let started = leg.remaining();
             let result = pubmed::summaries(&leg, &[*id], cx.ncbi_email.as_ref());
             *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
-            out.sources.push(status::source(
-                Source::PubMed,
-                leg.finish(),
-                result.as_ref().err().copied(),
-            ));
+            let source = status::source(Source::PubMed, leg.finish(), result.as_ref().err().copied());
+            if source.state == biodata::SourceState::Stale { out.status = Status::Partial; }
+            out.sources.push(source);
             let mapped = result?;
+            if !mapped.problems.is_empty() { out.status = Status::Partial; }
             status::append(&mut out.problems, mapped.problems);
-            Ok(mapped
-                .value
-                .into_iter()
-                .find(|h| h.pmid == *id)
-                .and_then(|h| h.pmcid))
+            let header = mapped.value.into_iter().find(|h| h.pmid == *id).ok_or(biomcp_fetch::SourceError {
+                source: Source::PubMed, reason: Reason::BadReply, status: None, retry_after: None,
+            })?;
+            Ok(header.pmcid)
         }
         ArticleInput::Doi(_) => Ok(None),
     }
@@ -159,60 +157,64 @@ fn select(
     Some(content)
 }
 
-fn find(query: &ArticleText, document: &pmc_oa::Document, out: &mut Outcome) -> Option<Box<[TextHit]>> {
-        let needle = query.find()?.as_str().to_lowercase();
-        let matching: Vec<_> = document
-            .body
-            .rows
-            .iter()
-            .map(|r| r.to_lowercase().contains(&needle))
-            .collect();
-        let hits: Vec<_> = document
-            .body
-            .parts
-            .iter()
-            .flat_map(|p| {
-                p.rows
-                    .iter()
-                    .filter(|row| matching.get(row.source_row).copied().unwrap_or(false))
-                    .map(|row| (p.meta.number, &row.text))
-            })
-            .collect();
-        let offset = usize::try_from(query.offset()).ok()?;
-        if offset > hits.len() {
-            return None;
+fn find(
+    query: &ArticleText,
+    document: &pmc_oa::Document,
+    out: &mut Outcome,
+) -> Option<Box<[TextHit]>> {
+    let needle = query.find()?.as_str().to_lowercase();
+    let matching: Vec<_> = document
+        .body
+        .rows
+        .iter()
+        .map(|r| r.to_lowercase().contains(&needle))
+        .collect();
+    let hits: Vec<_> = document
+        .body
+        .parts
+        .iter()
+        .flat_map(|p| {
+            p.rows
+                .iter()
+                .filter(|row| matching.get(row.source_row).copied().unwrap_or(false))
+                .map(|row| (p.meta.number, &row.text))
+        })
+        .collect();
+    let offset = usize::try_from(query.offset()).ok()?;
+    if offset > hits.len() {
+        return None;
+    }
+    let mut page = Vec::new();
+    let mut size = 0;
+    for (part, row) in hits.iter().skip(offset).take(25) {
+        let bytes = jats::escaped_bytes(row) + 64;
+        if !page.is_empty() && size + bytes > jats::TEXT_BYTES {
+            break;
         }
-        let mut page = Vec::new();
-        let mut size = 0;
-        for (part, row) in hits.iter().skip(offset).take(25) {
-            let bytes = jats::escaped_bytes(row) + 64;
-            if !page.is_empty() && size + bytes > jats::TEXT_BYTES {
-                break;
-            }
-            size += bytes;
-            page.push(TextHit {
-                part: *part,
-                text: Text::new(row).ok()?,
-            });
-        }
-        let returned = u32::try_from(page.len()).ok()?;
-        let total = u64::try_from(hits.len()).ok()?;
-        let following = query.offset().checked_add(returned)?;
-        if returned > 0 && u64::from(following) < total {
-            out.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::ArticleText(query.page(following)),
-                    fresh: false,
-                },
-            ));
-        }
-        out.page = Some(PageInfo {
-            offset: query.offset(),
-            returned,
-            total,
-            pool: None,
-            truncated: None,
+        size += bytes;
+        page.push(TextHit {
+            part: *part,
+            text: Text::new(row).ok()?,
         });
+    }
+    let returned = u32::try_from(page.len()).ok()?;
+    let total = u64::try_from(hits.len()).ok()?;
+    let following = query.offset().checked_add(returned)?;
+    if returned > 0 && u64::from(following) < total {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::ArticleText(query.page(following)),
+                fresh: false,
+            },
+        ));
+    }
+    out.page = Some(PageInfo {
+        offset: query.offset(),
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
     Some(page.into())
 }

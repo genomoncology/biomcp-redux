@@ -109,7 +109,10 @@ pub(super) fn body_nodes(xml: &str) -> Result<Vec<(String, Element<'_>)>, BadRep
             Event::Start(tag) => {
                 let name = tag.name().as_ref().to_owned();
                 reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
-                out.push((name, Element(&xml[begin..reader.buffer_position() as usize])));
+                out.push((
+                    name,
+                    Element(&xml[begin..reader.buffer_position() as usize]),
+                ));
             }
             Event::Eof => return Ok(out),
             _ => {}

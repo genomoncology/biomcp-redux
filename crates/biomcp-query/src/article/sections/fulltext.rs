@@ -13,7 +13,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut error = None;
-    let mut loaded: Vec<(Pmcid, Section<FullText>)> = Vec::new();
+    let mut loaded: Vec<((Pmcid, Option<biodata::Pmid>), Section<FullText>)> = Vec::new();
     for item in &mut cards.items {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
@@ -27,7 +27,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         let Some(id) = card.pmcid else {
             continue;
         };
-        let section = if let Some((_, section)) = loaded.iter().find(|(found, _)| *found == id) {
+        let section = if let Some((_, section)) = loaded.iter().find(|(found, _)| *found == (id, card.pmid)) {
             section.clone()
         } else {
             let section = match pmc_oa::read(&leg, id, card.pmid) {
@@ -45,7 +45,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                     })
                 }
             };
-            loaded.push((id, section.clone()));
+            loaded.push(((id, card.pmid), section.clone()));
             section
         };
         if matches!(section, Section::Unavailable { .. }) {

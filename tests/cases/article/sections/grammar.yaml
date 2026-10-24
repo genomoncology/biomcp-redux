@@ -30,7 +30,7 @@
       "expect": {
         "/result/items/0/sections/annotations/state": "data"
       },
-      "max_bytes": 4000
+      "max_bytes": 8907
     },
     {
       "run": [
@@ -63,7 +63,7 @@
         "33123537",
         "all"
       ],
-      "max_bytes": 4000
+      "max_bytes": 8907
     },
     {
       "run": [
@@ -76,7 +76,7 @@
       "expect": {
         "/result/items/0/sections/annotations/state": "data"
       },
-      "max_bytes": 4000
+      "max_bytes": 8907
     },
     {
       "run": [

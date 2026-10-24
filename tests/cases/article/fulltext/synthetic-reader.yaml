@@ -164,6 +164,45 @@
         ]
       },
       "max_tokens": 4000
+    },
+    {
+      "run": [
+        "article",
+        "text",
+        "PMC5606870",
+        "--find",
+        "Large cell"
+      ],
+      "expect": {
+        "/page/total": 3,
+        "/page/returned": 1,
+        "/next/0/args": [
+          "article",
+          "text",
+          "PMC5606870",
+          "--find",
+          "Large cell",
+          "--offset",
+          "1"
+        ]
+      },
+      "max_tokens": 4000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/page/offset": 1,
+        "/page/returned": 1
+      },
+      "max_tokens": 4000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/page/offset": 2,
+        "/page/returned": 1
+      },
+      "max_tokens": 4000
     }
   ]
 }
