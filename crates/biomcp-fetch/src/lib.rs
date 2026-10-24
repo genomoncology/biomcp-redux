@@ -11,6 +11,9 @@ mod record;
 mod request;
 mod retry;
 mod secret;
+pub mod xml;
+#[cfg(test)]
+mod xml_tests;
 
 pub use cache::VERSION;
 pub use deadline::Deadline;

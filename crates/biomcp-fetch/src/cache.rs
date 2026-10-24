@@ -25,17 +25,19 @@ pub(crate) struct Cache(Mutex<Connection>);
 pub(crate) struct Entry {
     pub(crate) status: u16,
     pub(crate) body: Vec<u8>,
+    pub(crate) content_type: Option<String>,
     pub(crate) fresh_until: i64,
     pub(crate) fetched_at: i64,
 }
 
 impl Entry {
-    pub(crate) fn new(status: u16, body: Vec<u8>, seconds: u64) -> Self {
+    pub(crate) fn new(status: u16, body: Vec<u8>, seconds: u64, content_type: &str) -> Self {
         let fetched_at = now();
         let fresh_until = fetched_at.saturating_add(i64::try_from(seconds).unwrap_or(i64::MAX));
         Self {
             status,
             body,
+            content_type: (status != 404).then(|| content_type.to_owned()),
             fetched_at,
             fresh_until,
         }
@@ -145,12 +147,12 @@ impl Cache {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         self.sql(deadline, |connection| {
             let entry = connection.query_row(
-                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at FROM reply WHERE key=?1",
-                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?)),
+                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type FROM reply WHERE key=?1",
+                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?)),
             ).optional().map_err(db_error)?;
             match entry {
-                Some((status, Some(body), fresh_until, fetched_at)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
-                    Ok(Some(Entry {status, body, fresh_until, fetched_at}))
+                Some((status, Some(body), fresh_until, fetched_at, content_type)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type}))
                 }
                 Some(_) => { Self::delete(connection, key)?; Ok(None) }
                 None => Ok(None),
@@ -181,7 +183,7 @@ impl Cache {
             connection.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until) VALUES (?1,?2,?3,?4,?5,?6,?7,?8)
                 ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until",
-                params![key, source.to_string(), url, entry.status, if entry.status == 404 {None} else {Some("application/json")}, entry.body, entry.fetched_at, entry.fresh_until],
+                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until],
             ).map_err(db_error)?;
             Ok(())
         })

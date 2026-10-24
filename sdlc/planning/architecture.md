@@ -68,7 +68,7 @@ winnow = { version = "1", default-features = false, features = ["ascii", "alloc"
 thiserror = "2"
 ureq = { version = "3", default-features = false, features = ["rustls", "platform-verifier", "gzip", "json"] }
 rusqlite = { version = "0.37", features = ["bundled"] }
-quick-xml = { version = "0.38", features = ["serialize"] }
+quick-xml = { version = "0.42", default-features = false, features = ["serialize"] }
 sha2 = { version = "0.10", default-features = false }
 clap = { version = "4", default-features = false, features = ["std", "help", "usage", "error-context", "suggestions", "string"] }
 
@@ -1084,7 +1084,7 @@ pub(super) struct ArticleSet { #[serde(rename = "PubmedArticle")] pub articles: 
 #[derive(Deserialize)]
 pub(super) struct AbstractText {
     #[serde(rename = "@Label")] pub label: Option<String>,
-    #[serde(rename = "$value")] pub text: MixedText,     // keeps BRAF<sup>V600E</sup> as BRAFV600E
+    #[serde(rename = "$value", default)] pub text: MixedText,     // keeps BRAF<sup>V600E</sup> as BRAFV600E
 }
 ```
 
@@ -1747,7 +1747,7 @@ The ratchet test holds the list. Each entry names a file and its reason.
 - `crates/biomcp-fetch/tests/`: the transport contract through the crate's public API against a local stub server with no network: source-key rate limits, deadlines, retries, keyed-source skips, reply checks, the cache and record, replay and offline. These are outside-in for the library, so the transport lands before any command. When a runner case later proves the same behavior through the binary, the duplicate library test is removed.
 - `crates/biomcp-query/src/article/rank.rs`: the ranker's tie-break table, because a ranking rule is easier to state as rows than as recorded pools.
 - `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
-- `crates/biomcp-fetch/src/xml.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
+- `crates/biomcp-fetch/src/xml_tests.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
 
 Everything else goes through the runner.
 
