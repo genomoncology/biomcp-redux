@@ -255,7 +255,8 @@
     "kind": "allele",
     "build": "GRCh38",
     "sources": [
-      "https://api.ncbi.nlm.nih.gov/variation/v0/spdi/NC_000017.11:43057065::G/vcf_fields"
+      "https://api.ncbi.nlm.nih.gov/variation/v0/spdi/NC_000017.11:43057065::G/vcf_fields",
+      "https://reg.genome.network/allele?hgvs=NM_007294.4%3Ac.5266dup"
     ],
     "hgvs": [],
     "identifiers": [
@@ -492,7 +493,7 @@
     ]
   },
   {
-    "name": "tert-car-rejection",
+    "name": "tert-car-source-error",
     "kind": "identity",
     "input": "NM_198253.3:c.-124C>T",
     "sources": [
@@ -501,8 +502,8 @@
     "hgvs": [
       "NM_198253.3:c.-124C>T"
     ],
-    "expected_resolution": "rejected",
-    "http_status": 400
+    "http_status": 400,
+    "note": "Only HTTP400 was retained. Its cause is unknown; no semantic identity rejection is established."
   },
   {
     "name": "mitochondrial-grch37",
@@ -626,7 +627,8 @@
     "method_citation": "25741868",
     "evaluated": "2017-05-18",
     "review_status": "criteria provided, single submitter",
-    "allele_origin": "unknown"
+    "allele_origin": "unknown",
+    "submitter": "Fulgent Genetics, Fulgent Genetics"
   },
   {
     "name": "civic-tier-level-statement",
