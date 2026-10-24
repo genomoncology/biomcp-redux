@@ -226,3 +226,43 @@ fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
         assert!(successor.join().unwrap().unwrap().answer);
     });
 }
+
+#[test]
+fn shared_queue_applies_each_arriving_sources_credential_rate() {
+    let server = Server::new();
+    let shared = quota("mixed", Rate::per_second(5), Some(Rate::per_second(100)), 1);
+    let keyed = server.spec(
+        shared,
+        KeyUse::Optional(Credential {
+            secret: SecretName::NcbiApiKey,
+            place: KeyPlace::Header("x-api-key"),
+        }),
+    );
+    let unkeyed = server.spec(shared, KeyUse::None);
+    let mut config = FetchConfig::default();
+    config
+        .secrets
+        .insert(SecretName::NcbiApiKey, Secret::new("placeholder"));
+    let fetch = Fetch::open(config).unwrap();
+    thread::scope(|scope| {
+        let first = scope.spawn(|| {
+            fetch
+                .leg(keyed, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&keyed.get("/keyed"), &[])
+        });
+        let request = server.next();
+        let started = request.started;
+        request.ok();
+        assert!(first.join().unwrap().unwrap().answer);
+        let second = scope.spawn(|| {
+            fetch
+                .leg(unkeyed, fetch.deadline(Duration::from_secs(5)))
+                .json::<Answer>(&unkeyed.get("/unkeyed"), &[])
+        });
+        let request = server.next();
+        let spacing = request.started.duration_since(started);
+        request.ok();
+        assert!(second.join().unwrap().unwrap().answer);
+        assert!(spacing >= Duration::from_millis(195), "{spacing:?}");
+    });
+}
