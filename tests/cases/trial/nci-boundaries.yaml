@@ -48,6 +48,31 @@
       "expect": {
         "/error/message": "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text"
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--status",
+        "RECRUITING"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--status",
+        "RECRUITING"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "nci",
+        "/error/option": "--status"
+      }
     }
   ]
 }

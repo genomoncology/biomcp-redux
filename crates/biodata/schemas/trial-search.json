@@ -100,7 +100,7 @@
     },
     "condition": {
       "$ref": "#/$defs/Text",
-      "description": "Condition-only source text."
+      "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
     },
     "count_only": {
       "default": false,
@@ -146,7 +146,7 @@
     },
     "limit": {
       "default": 10,
-      "description": "Headers per page; default ten, maximum one hundred.",
+      "description": "Headers per page; NCI applies its own lower publisher limit.",
       "format": "uint32",
       "maximum": 100,
       "minimum": 1,

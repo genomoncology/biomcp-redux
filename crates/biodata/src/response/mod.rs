@@ -78,5 +78,5 @@ pub use nci_trial::{NciDisease, NciTrial, NciTrialCards, NciTrialItem, NciTrialP
 mod nci_detail;
 pub use nci_detail::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
-    NciEligibilityStructured, NciIntervention, NciOutcome, NciTrialSections,
+    NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };

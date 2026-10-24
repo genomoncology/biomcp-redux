@@ -6,9 +6,7 @@ use biodata::{
 };
 use biomcp_adapters::nci;
 use biomcp_fetch::{CacheError, RequestError, SecretName};
-use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-#[derive(Serialize, Deserialize)]
 pub(super) struct Snapshot {
     pub(super) detail: nci::Detail,
     pub(super) fetched: u64,
@@ -68,7 +66,7 @@ fn fetch(
                 let pool = if let Some(store) = store.as_mut() {
                     Some(store.save_trial_snapshot(
                         &key(*id),
-                        &serde_json::to_string(&snapshot).map_err(|_| CacheError::Database)?,
+                        &snapshot.encode()?,
                         &snapshot.sources,
                     )?)
                 } else {
@@ -120,7 +118,7 @@ fn restore(
         ));
         return Ok(());
     };
-    let snapshot: Snapshot = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+    let snapshot = Snapshot::decode(&payload)?;
     if snapshot.detail.card.nct_id != id {
         return Err(CacheError::Database.into());
     }
@@ -138,4 +136,20 @@ fn restore(
 }
 fn absent(e: RequestError) -> bool {
     matches!(e,RequestError::Source(s) if s.reason==Reason::NotFound)
+}
+
+impl Snapshot {
+    fn encode(&self) -> Result<String, CacheError> {
+        serde_json::to_string(&(&self.detail, self.fetched, &self.sources))
+            .map_err(|_| CacheError::Database)
+    }
+    fn decode(payload: &str) -> Result<Self, CacheError> {
+        let (detail, fetched, sources) =
+            serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
+        Ok(Self {
+            detail,
+            fetched,
+            sources,
+        })
+    }
 }

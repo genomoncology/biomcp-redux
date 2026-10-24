@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialSections {
+    /// Complete native summary with character continuations.
+    pub summary: Option<Section<NciTextPage>>,
     /// Source criteria and structured eligibility.
     pub eligibility: Option<Section<NciEligibilityPage>>,
     /// Source outcomes without registry type coercion.
@@ -142,4 +144,17 @@ pub enum NciArmRecord {
         /// Source intervention fields.
         data: NciIntervention,
     },
+}
+
+/// Exact source text fragment with an honest original character count.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct NciTextPage {
+    /// Original source fragment, including whitespace.
+    pub text: Box<str>,
+    /// Original Unicode scalar position.
+    pub offset: u32,
+    /// Complete source length in Unicode scalar values.
+    pub total_characters: u32,
 }

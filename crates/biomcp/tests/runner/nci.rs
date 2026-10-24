@@ -78,7 +78,7 @@ fn wire() -> Check {
         return Err("native NCI status or count changed".into());
     }
     let card = invoke(&env, &globals(&get, "--record", &get_dir), 0)?;
-    if card.pointer("/result/items/0/card/brief_summary")
+    if card.pointer("/result/items/0/card/brief_summary/text")
         != Some(&json!("Original source summary Ω"))
     {
         return Err("native exact card missing".into());

@@ -6,11 +6,12 @@ use biodata::{
     Text, TrialGet, TrialSection, TrialSource,
 };
 use biomcp_fetch::RequestError;
-const SECTIONS: [TrialSection; 4] = [
+const SECTIONS: [TrialSection; 5] = [
     TrialSection::Eligibility,
     TrialSection::Outcomes,
     TrialSection::Arms,
     TrialSection::Diseases,
+    TrialSection::Summary,
 ];
 const SECTION_BYTES: usize = 6000;
 pub(super) fn valid(q: &TrialGet, s: &Snapshot) -> bool {
@@ -23,6 +24,7 @@ pub(super) fn valid(q: &TrialGet, s: &Snapshot) -> bool {
         Some(TrialSection::Outcomes) => s.detail.outcomes.len(),
         Some(TrialSection::Arms) => s.detail.arms.len(),
         Some(TrialSection::Diseases) => s.detail.diseases.len(),
+        Some(TrialSection::Summary) => s.detail.summary.as_ref().map_or(0, |s| s.chars().count()),
         _ => 0,
     };
     q.offset() as usize <= n
@@ -36,12 +38,16 @@ pub(super) fn render(
     let requested =
         |section| q.sections().contains(&section) || q.sections().contains(&TrialSection::All);
     let mut sections = NciTrialSections {
+        summary: None,
         eligibility: None,
         outcomes: None,
         arms: None,
         diseases: None,
     };
     let id = s.detail.card.nct_id;
+    if requested(TrialSection::Summary) {
+        sections.summary = Some(summary(q, &s, pool.as_ref(), out));
+    }
     if requested(TrialSection::Eligibility) {
         sections.eligibility = Some(if let Some(e) = &s.detail.eligibility {
             let records = records(
@@ -51,6 +57,7 @@ pub(super) fn render(
                 id,
                 pool.as_ref(),
                 out,
+                serde_json::to_vec,
             )?;
             Section::Data {
                 source: Source::Nci,
@@ -74,6 +81,7 @@ pub(super) fn render(
             id,
             pool.as_ref(),
             out,
+            serde_json::to_vec,
         )?));
     }
     if requested(TrialSection::Arms) {
@@ -84,6 +92,7 @@ pub(super) fn render(
             id,
             pool.as_ref(),
             out,
+            serde_json::to_vec,
         )?));
     }
     if requested(TrialSection::Diseases) {
@@ -94,6 +103,7 @@ pub(super) fn render(
             id,
             pool.as_ref(),
             out,
+            serde_json::to_vec,
         )?));
     }
     let more: Box<[_]> = SECTIONS.into_iter().filter(|s| !requested(*s)).collect();
@@ -135,15 +145,16 @@ pub(super) fn render(
         unsupported_sections: unsupported,
     })
 }
-fn records<T: Clone + serde::Serialize>(
+fn records<T: Clone>(
     q: &TrialGet,
     rows: &[T],
     section: TrialSection,
     id: biodata::NctId,
     pool: Option<&Text>,
     out: &mut Outcome,
+    size: impl Fn(&T) -> Result<Vec<u8>, serde_json::Error>,
 ) -> Result<biodata::TrialRecords<T>, RequestError> {
-    let page = crate::trial::get::page::records(q, rows, SECTION_BYTES, serde_json::to_vec)?;
+    let page = crate::trial::get::page::records(q, rows, SECTION_BYTES, size)?;
     crate::trial::get::page::advance(
         q,
         id,
@@ -166,5 +177,47 @@ fn section<T>(page: biodata::TrialRecords<T>) -> Section<biodata::TrialRecords<T
             source: Source::Nci,
             data: page,
         }
+    }
+}
+
+fn summary(
+    q: &TrialGet,
+    s: &Snapshot,
+    pool: Option<&Text>,
+    out: &mut Outcome,
+) -> Section<biodata::NciTextPage> {
+    let Some(text) = s.detail.summary.as_ref() else {
+        return Section::Empty {
+            source: Source::Nci,
+            record: None,
+        };
+    };
+    let mut fragment = String::new();
+    let mut bytes = 0;
+    for ch in text.chars().skip(q.offset() as usize) {
+        let size = biomcp_adapters::jats::escaped_bytes(&ch.to_string());
+        if bytes + size > SECTION_BYTES {
+            break;
+        }
+        bytes += size;
+        fragment.push(ch);
+    }
+    let total = text.chars().count() as u32;
+    crate::trial::get::page::advance(
+        q,
+        s.detail.card.nct_id,
+        TrialSection::Summary,
+        pool,
+        q.offset() + fragment.chars().count() as u32,
+        total,
+        out,
+    );
+    Section::Data {
+        source: Source::Nci,
+        data: biodata::NciTextPage {
+            text: fragment.into(),
+            offset: q.offset(),
+            total_characters: total,
+        },
     }
 }

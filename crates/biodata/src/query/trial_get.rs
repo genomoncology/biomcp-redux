@@ -43,7 +43,10 @@ fn default_limit() -> u32 {
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if v.source == TrialSource::Ctgov && v.section.contains(&TrialSection::Diseases)
+        if v.source == TrialSource::Ctgov
+            && v.section
+                .iter()
+                .any(|s| matches!(s, TrialSection::Diseases | TrialSection::Summary))
             || !(1..=20).contains(&v.input.len())
             || !(1..=50).contains(&v.limit)
             || (v.pool.is_some() || v.offset != 0)
@@ -128,5 +131,7 @@ crate::macros::wire_enum! {
         All => "all",
         /// Native NCI disease concepts, including source enrichment metadata.
         Diseases => "diseases",
+        /// Complete NCI summary, paged by original character offsets.
+        Summary => "summary",
     }
 }

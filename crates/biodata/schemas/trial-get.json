@@ -15,7 +15,8 @@
         "eligibility",
         "outcomes",
         "arms",
-        "all"
+        "all",
+        "diseases"
       ],
       "type": "string"
     },

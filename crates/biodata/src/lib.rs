@@ -115,5 +115,5 @@ pub use response::{NciDisease, NciTrial, NciTrialCards, NciTrialItem, NciTrialPa
 
 pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
-    NciEligibilityStructured, NciIntervention, NciOutcome, NciTrialSections,
+    NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };

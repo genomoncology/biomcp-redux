@@ -18,7 +18,7 @@ pub struct NciTrial {
     pub phase: Option<Text>,
     /// Native short summary, only on exact retrieval.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub brief_summary: Option<Box<str>>,
+    pub brief_summary: Option<crate::NciTextPage>,
     /// Publisher-provided disease concepts in source order.
     pub diseases: crate::TrialRecords<NciDisease>,
 }

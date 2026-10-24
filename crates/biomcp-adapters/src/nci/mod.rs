@@ -26,6 +26,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 pub const PAGE_LIMIT: u32 = 50;
 /// Compact card sample; the diseases section returns every original concept.
 pub const CARD_DISEASES: usize = 3;
+/// Card summary preview; complete text remains in the summary section.
+pub const CARD_SUMMARY_CHARACTERS: usize = 500;
 /// Native endpoint with shared transport policy.
 pub const SEARCH: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 const DETAIL: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
@@ -75,6 +77,8 @@ struct Arm {
 pub struct Detail {
     /// Compact source-native card.
     pub card: NciTrial,
+    /// Complete source summary, without trimming or rewriting.
+    pub summary: Option<Box<str>>,
     /// Original disease concepts, without deduplication or inferred ranking.
     pub diseases: Box<[NciDisease]>,
     /// Original criteria and native structured fields.
@@ -102,7 +106,11 @@ impl Trial {
             current_trial_status: self.current_trial_status.clone(),
             phase: self.phase.clone(),
             brief_summary: if summary {
-                self.brief_summary.clone()
+                self.brief_summary.as_ref().map(|s| biodata::NciTextPage {
+                    text: s.chars().take(CARD_SUMMARY_CHARACTERS).collect(),
+                    offset: 0,
+                    total_characters: s.chars().count() as u32,
+                })
             } else {
                 None
             },
@@ -138,6 +146,7 @@ impl Trial {
         }
         Detail {
             card,
+            summary: self.brief_summary,
             diseases: self.diseases.into(),
             eligibility: self.eligibility,
             outcomes: self.outcome_measures.into(),
