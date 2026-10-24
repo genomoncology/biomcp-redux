@@ -291,6 +291,7 @@ fn comparison() -> Result<(), Box<dyn std::error::Error>> {
         return Err("real HTTP status drift hidden".into());
     }
     cache_after_transport(&after)?;
+    bounded_command_drift(&after)?;
     report_context(&after)?;
     cache_reuse(&env, &original, &after)?;
     Ok(())
@@ -432,6 +433,24 @@ fn cache_after_transport(observed: &[Observation]) -> Result<(), Box<dyn std::er
         .any(|item| item.contains("bundle header changed"))
     {
         return Err("later cache reuse hid a real transport contract change".into());
+    }
+    Ok(())
+}
+
+fn bounded_command_drift(observed: &[Observation]) -> Result<(), Box<dyn std::error::Error>> {
+    let first = observed.first().ok_or("missing observation")?;
+    let before: Vec<_> = (0..40).map(|index| {
+        let mut item = first.clone();
+        item.identity = format!("request-{index}");
+        item
+    }).collect();
+    let mut changes = Vec::new();
+    for _ in 0..2 {
+        let evidence = live::compare(&before, &[], &mut changes, &mut BTreeMap::new());
+        if evidence.get("drift_omitted") != Some(&json!(24))
+            || evidence.get("drift").and_then(Value::as_array).map(Vec::len) != Some(16) {
+            return Err("per-command drift evidence or exact omission count missing".into());
+        }
     }
     Ok(())
 }
