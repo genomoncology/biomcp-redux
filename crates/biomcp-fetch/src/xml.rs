@@ -131,11 +131,21 @@ fn validate(text: &str) -> Option<()> {
                     return None;
                 }
                 declaration = true;
-                decl.version().ok()?;
-                if let Some(encoding) = decl.encoding()
-                    && !encoding.ok()?.eq_ignore_ascii_case("utf-8")
-                {
-                    return None;
+                decl.xml_version().ok()?;
+                let attributes = quick_xml::events::BytesStart::from_content(decl.as_ref(), 3);
+                let mut previous = 0;
+                for attribute in attributes.attributes() {
+                    let attribute = attribute.ok()?;
+                    let order = match attribute.key.as_ref() {
+                        "version" => 1,
+                        "encoding" if attribute.value.eq_ignore_ascii_case("utf-8") => 2,
+                        "standalone" if matches!(attribute.value.as_ref(), "yes" | "no") => 3,
+                        _ => return None,
+                    };
+                    if order <= previous {
+                        return None;
+                    }
+                    previous = order;
                 }
             }
             Event::DocType(_) => {
