@@ -86,10 +86,10 @@ impl Server {
         let method = value.get("method").and_then(Value::as_str).unwrap_or_default();
         let params = value.get("params").cloned().unwrap_or_else(|| json!({}));
         let Some(id) = value.get("id") else {
-            if method == "notifications/cancelled" {
-                if let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id)) {
-                    if let Some(call) = self.active.get_mut(&id.to_string()) { call.cancelled = true; }
-                }
+            if method == "notifications/cancelled"
+                && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
+                && let Some(call) = self.active.get_mut(&id.to_string()) {
+                call.cancelled = true;
             }
             return Ok(None);
         };

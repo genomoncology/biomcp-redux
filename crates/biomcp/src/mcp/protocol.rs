@@ -38,9 +38,9 @@ pub(super) fn args(params: &Value) -> Option<Vec<std::ffi::OsString>> {
 }
 
 pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
-    if modern {
-        value["resultType"] = json!("complete");
-        value["_meta"] = json!({"io.modelcontextprotocol/serverInfo":info()});
+    if modern && let Some(object) = value.as_object_mut() {
+        object.insert("resultType".into(), json!("complete"));
+        object.insert("_meta".into(), json!({"io.modelcontextprotocol/serverInfo":info()}));
     }
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }

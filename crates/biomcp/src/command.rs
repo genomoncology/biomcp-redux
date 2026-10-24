@@ -5,7 +5,7 @@ use serde_json::Value;
 pub(crate) struct Outcome {
     pub(crate) value: Value,
     pub(crate) status: crate::exit::Status,
-    pub(crate) schema_text: Option<&'static str>,
+    pub(crate) cli_bytes: Vec<u8>,
 }
 
 pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Outcome> {
@@ -15,8 +15,12 @@ pub(crate) fn dispatch(args: &[OsString]) -> io::Result<Outcome> {
     };
     match text {
         Some(text) => Ok(Outcome { value: serde_json::from_str(text)?,
-            status: crate::exit::Status::Success, schema_text: Some(text) }),
-        None => Ok(Outcome { value: serde_json::to_value(biodata::ErrorEnvelope::schema_usage())?,
-            status: crate::exit::Status::Usage, schema_text: None }),
+            status: crate::exit::Status::Success, cli_bytes: text.as_bytes().to_vec() }),
+        None => {
+            let mut bytes = serde_json::to_vec(&biodata::ErrorEnvelope::schema_usage())?;
+            bytes.push(b'\n');
+            Ok(Outcome { value: serde_json::from_slice(&bytes)?,
+                status: crate::exit::Status::Usage, cli_bytes: bytes })
+        }
     }
 }

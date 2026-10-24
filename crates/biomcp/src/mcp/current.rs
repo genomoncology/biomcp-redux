@@ -9,9 +9,9 @@ pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
         return Err(protocol::error(id.clone(), -32602, "Invalid params"));
     }
     if version != REVISIONS.first().copied() {
-        let mut error = protocol::error(id.clone(), -32022, "Unsupported protocol version");
-        error["error"]["data"] = json!({"supported":REVISIONS,"requested":version});
-        return Err(error);
+        return Err(json!({"jsonrpc":"2.0", "id":id, "error":{
+            "code":-32022,"message":"Unsupported protocol version",
+            "data":{"supported":REVISIONS,"requested":version}}}));
     }
     Ok(())
 }

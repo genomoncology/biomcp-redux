@@ -1,2 +1,152 @@
+use super::{launch::Environment, mcp::{exchange, request}, process::Process};
 use libtest_mimic::Trial;
-pub(super) fn trials() -> Vec<Trial> { Vec::new() }
+use serde_json::{Value, json};
+use std::{fs, io::Write, path::Path, process::Stdio};
+
+type Check = Result<(), String>;
+
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        Trial::test("mcp/versions-and-validation", || validation().map_err(Into::into)),
+        Trial::test("mcp/correlated-calls-drain-on-eof", || concurrent().map_err(Into::into)),
+        Trial::test("mcp/bounded-framing", || framing().map_err(Into::into)),
+        Trial::test("mcp/broken-output-with-open-input", || broken_output().map_err(Into::into)),
+        Trial::test("mcp/discovers-artifact-command-tree", || discovery().map_err(Into::into)),
+    ]
+}
+
+fn environment() -> Result<Environment, String> { Environment::new().map_err(|e| e.to_string()) }
+
+fn reply<'a>(replies: &'a [Value], id: &Value) -> Result<&'a Value, String> {
+    let mut found = replies.iter().filter(|r| r.get("id") == Some(id));
+    let result = found.next().ok_or_else(|| format!("missing reply {id}: {replies:?}"))?;
+    if found.next().is_some() { return Err(format!("duplicate reply {id}")); }
+    Ok(result)
+}
+
+fn validation() -> Check {
+    let mut unsupported = request(json!(2), "ping", json!({}));
+    unsupported.pointer_mut("/params/_meta/io.modelcontextprotocol~1protocolVersion")
+        .ok_or("metadata missing")?.clone_from(&json!("1900-01-01"));
+    let frames = vec![
+        request(json!(1), "server/discover", json!({})), unsupported,
+        json!({"jsonrpc":"2.0","id":3,"method":"ping"}),
+        request(json!(4), "unknown", json!({})),
+        request(json!(5), "tools/call", json!({"name":"other","arguments":{"args":[]}})),
+        request(json!(6), "tools/call", json!({"name":"biomcp","arguments":{"args":[1]}})),
+        request(json!(7), "tools/call", json!({"name":"biomcp","arguments":{"args":[],"extra":true}})),
+        json!({"jsonrpc":"2.0","id":8,"method":"initialize","params":{
+            "protocolVersion":"2026-07-28","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}),
+        json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
+        json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"unknown","reason":"SENSITIVE-cancel"}}),
+        json!({"jsonrpc":"2.0","method":"unknown"}),
+        json!({"jsonrpc":"2.0","id":9,"method":"ping"}),
+        request(json!(10), "ping", json!({})),
+        json!({"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":[]}}}),
+        json!({"jsonrpc":"2.0","id":null,"method":"ping"}),
+        json!({"jsonrpc":"2.0","id":1.5,"method":"ping"}), json!([]),
+    ];
+    let replies = exchange(&environment()?, &frames)?;
+    if replies.len() != frames.len() - 3 { return Err(format!("notification response: {replies:?}")); }
+    for (id, code) in [(2,-32022),(3,-32602),(4,-32601),(5,-32602),(6,-32602),(7,-32602)] {
+        if reply(&replies,&json!(id))?.pointer("/error/code") != Some(&json!(code)) {
+            return Err(format!("wrong validation code for {id}: {replies:?}"));
+        }
+    }
+    if reply(&replies,&json!(8))?.pointer("/result/protocolVersion") != Some(&json!("2025-11-25"))
+        || reply(&replies,&json!(10))?.pointer("/result/resultType") != Some(&json!("complete"))
+        || reply(&replies,&json!(11))?.pointer("/result/isError") != Some(&json!(true)) {
+        return Err(format!("era adapters: {replies:?}"));
+    }
+    let versions = json!(["2026-07-28","2025-11-25"]);
+    if reply(&replies,&json!(1))?.pointer("/result/supportedVersions") != Some(&versions)
+        || reply(&replies,&json!(2))?.pointer("/error/data/supported") != Some(&versions) {
+        return Err("supported version lists differ".into());
+    }
+    if replies.iter().filter(|r| r.pointer("/error/code") == Some(&json!(-32600))).count() != 3 {
+        return Err("invalid IDs and batch must be refused".into());
+    }
+    if serde_json::to_string(&replies).map_err(|e| e.to_string())?.contains("SENSITIVE") { return Err("notification leaked".into()); }
+    Ok(())
+}
+
+fn concurrent() -> Check {
+    let ids = [json!("one"), json!(2), json!("three"), json!(4)];
+    let frames: Vec<_> = ids.iter().map(|id| request(id.clone(), "tools/call",
+        json!({"name":"biomcp","arguments":{"args":["schema","biodata.problem/1"]}}))).collect();
+    let replies = exchange(&environment()?, &frames)?;
+    if replies.len() != ids.len() { return Err("EOF failed to drain accepted calls".into()); }
+    for id in ids {
+        let result = reply(&replies, &id)?.get("result").ok_or("missing result")?;
+        if result.pointer("/structuredContent/$id") != Some(&json!("biodata.problem/1")) {
+            return Err(format!("incomplete response {result}"));
+        }
+        let text = result.pointer("/content/0/text").and_then(Value::as_str).ok_or("text missing")?;
+        if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != result.get("structuredContent").cloned().ok_or("structured missing")? {
+            return Err("concurrent content differs".into());
+        }
+    }
+    Ok(())
+}
+
+fn raw(bytes: &[u8]) -> Result<(std::process::ExitStatus, Vec<u8>, Vec<u8>), String> {
+    let child = environment()?.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+        .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
+    let mut process = Process::new(child)?;
+    let mut stdin = process.child.stdin.take().ok_or("stdin missing")?;
+    let _ = stdin.write_all(bytes);
+    drop(stdin);
+    process.finish()
+}
+
+fn framing() -> Check {
+    for (bytes, code) in [
+        (b"{SENSITIVE-malformed\n".to_vec(), -32700),
+        (b"{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\"}".to_vec(), -32700),
+        (format!("SENSITIVE-oversize{}\\n", "x".repeat(128 * 1024)).into_bytes(), -32600),
+    ] {
+        let (status, stdout, stderr) = raw(&bytes)?;
+        let response: Value = serde_json::from_slice(&stdout).map_err(|e| e.to_string())?;
+        if !status.success() || !stderr.is_empty() || response.pointer("/error/code") != Some(&json!(code))
+            || String::from_utf8_lossy(&stdout).contains("SENSITIVE") {
+            return Err(format!("fixed framing error expected: {response}, {status}"));
+        }
+    }
+    Ok(())
+}
+
+fn broken_output() -> Check {
+    let (reader, writer) = std::io::pipe().map_err(|e| e.to_string())?;
+    drop(reader);
+    let child = environment()?.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+        .stdin(Stdio::piped()).stdout(writer).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
+    let mut child = child;
+    let mut stdin = child.stdin.take().ok_or("stdin missing")?;
+    let mut bytes = serde_json::to_vec(&request(json!(1),"ping",json!({}))).map_err(|e| e.to_string())?;
+    bytes.push(b'\n');
+    stdin.write_all(&bytes).map_err(|e| e.to_string())?;
+    let (status, _, stderr) = Process::new(child)?.finish()?;
+    drop(stdin);
+    if status.code() != Some(5) || stderr != b"biomcp: output failed\n" { return Err("broken stdout must exit 5 with fixed diagnostic while stdin stays open".into()); }
+    Ok(())
+}
+
+fn discovery() -> Check {
+    let replies = exchange(&environment()?, &[request(json!(1),"tools/list",json!({}))])?;
+    let tools = reply(&replies,&json!(1))?.pointer("/result/tools").and_then(Value::as_array).ok_or("tools missing")?;
+    let tool = tools.first().filter(|_| tools.len()==1).ok_or("expected one tool")?;
+    if tool.get("name") != Some(&json!("biomcp")) || tool.get("outputSchema") != Some(&json!({"type":"object"}))
+        || tool.get("inputSchema") != Some(&json!({"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},"required":["args"],"additionalProperties":false})) { return Err("tool contract differs".into()); }
+    let text = tool.get("description").and_then(Value::as_str).ok_or("description missing")?;
+    if text.len() > 1500 { return Err("command description exceeds budget".into()); }
+    let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join("../biodata/schemas");
+    for entry in fs::read_dir(directory).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path.extension().is_some_and(|e| e=="json") {
+            let value: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+            let id = value.get("$id").and_then(Value::as_str).ok_or("artifact ID missing")?;
+            if !text.contains(id) { return Err(format!("description misses artifact {id}")); }
+        }
+    }
+    Ok(())
+}

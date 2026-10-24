@@ -8,25 +8,26 @@ pub(super) fn metadata() -> Value {
 }
 
 pub(super) fn request(id: Value, method: &str, mut params: Value) -> Value {
-    params["_meta"] = metadata();
+    if let Some(params) = params.as_object_mut() { params.insert("_meta".into(), metadata()); }
     json!({"jsonrpc":"2.0","id":id,"method":method,"params":params})
 }
 
 pub(super) fn exchange(environment: &Environment, frames: &[Value]) -> Result<Vec<Value>, String> {
-    let mut child = environment.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+    let child = environment.command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
         .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
         .spawn().map_err(|e| e.to_string())?;
-    let mut stdin = child.stdin.take().ok_or("stdin missing")?;
+    let mut process = super::process::Process::new(child)?;
+    let mut stdin = process.child.stdin.take().ok_or("stdin missing")?;
     for frame in frames {
         serde_json::to_writer(&mut stdin, frame).map_err(|e| e.to_string())?;
         stdin.write_all(b"\n").map_err(|e| e.to_string())?;
     }
     drop(stdin);
-    let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    if !output.status.success() || !output.stderr.is_empty() {
-        return Err(format!("MCP process: {:?}; {}", output.status.code(), String::from_utf8_lossy(&output.stderr)));
+    let (status, stdout, stderr) = process.finish()?;
+    if !status.success() || !stderr.is_empty() {
+        return Err(format!("MCP process: {:?}; {}", status.code(), String::from_utf8_lossy(&stderr)));
     }
-    output.stdout.split(|b| *b == b'\n').filter(|line| !line.is_empty())
+    stdout.split(|b| *b == b'\n').filter(|line| !line.is_empty())
         .map(|line| serde_json::from_slice(line).map_err(|e| e.to_string())).collect()
 }
 

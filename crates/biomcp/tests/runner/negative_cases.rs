@@ -1,5 +1,12 @@
 pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
+        ("mcp-wrong-value", "  - mcp: [schema, biodata.source/1]\n    expect: {'/type': integer}", "/type: expected"),
+        ("mcp-bytes", "  - mcp: [schema, biodata.source/1]\n    max_bytes: 0", "max_bytes: expected <= 0"),
+        ("mcp-tokens", "  - mcp: [schema, biodata.source/1]\n    max_tokens: 0", "max_tokens: expected <= 0"),
+        ("mcp-pointer", "  - mcp: [schema, biodata.source/1]\n    expect: {'/enum': {count: 0}}", "count: expected 0"),
+        ("mcp-is-error", "  - mcp: []", "MCP is_error mismatch"),
+        ("unequal-success", "    mcp: [schema, biomcp.error/1]", "CLI/MCP parity: unequal results"),
+        ("no-command", "  - expect: {}", "step requires run or mcp"),
         (
             "unknown",
             "    expect: {'/type': {equal: string}}",

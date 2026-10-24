@@ -2,6 +2,7 @@ mod assertions;
 mod launch;
 mod mcp;
 mod protocol;
+mod process;
 mod negative_cases;
 pub(super) mod proof;
 
