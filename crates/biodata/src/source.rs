@@ -61,6 +61,8 @@ canonical_enum! {
         UniProt => "uniprot",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinVar component source policy.
+        ClinVar => "clinvar",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.
