@@ -146,6 +146,7 @@ fn refusals() -> Check {
 fn boundaries() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     for args in [
+        vec!["sync", "hgnc-withdrawn"],
         vec!["get", "gene"],
         vec!["search", "gene"],
         vec!["search", "gene", "BRAF", "--limit", "0"],
