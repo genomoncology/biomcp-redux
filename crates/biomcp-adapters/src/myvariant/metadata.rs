@@ -19,7 +19,10 @@ pub(super) fn components(
     selected
         .iter()
         .map(|declaration| {
-            let component = raw.src.get(declaration.name).ok_or_else(super::leg_bad)?;
+            let component = match raw.src.get(declaration.name) {
+                Some(Field::Value(component)) => component,
+                _ => return Err(super::leg_bad()),
+            };
             let (uploaded, uploads) = match &component.upload_date {
                 Some(Uploads::One(value)) => (Some(value.clone()), Vec::new()),
                 Some(Uploads::Many(values)) => (
