@@ -1,6 +1,6 @@
 //! Public iCite metadata; no abstracts or provider-specific scoring blend.
-use crate::{quotas,raw::Field};
-use biodata::{Citations, FiniteNumber, Pmid, Source, Problem, ProblemCode, Text};
+use crate::{quotas, raw::Field};
+use biodata::{Citations, FiniteNumber, Pmid, Problem, ProblemCode, Source, Text};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
 };
@@ -105,22 +105,25 @@ fn distinct(ids: Vec<Id>) -> Vec<Pmid> {
 }
 impl Row {
     fn map(self) -> Publication {
-        let mut problems=Vec::new();
-        let id=self.pmid.0;
-        let count=field(self.cited_by_pmid_count,id,"cited_by",&mut problems);
-        let citing=field(self.cited_by_pmids,id,"cited_by",&mut problems).map(distinct);
-        let references=field(self.cited_pmids,id,"references",&mut problems).map(distinct);
-        let clinical=field(self.citing_clinical_pmids,id,"cited_by_clinical",&mut problems).map(distinct);
-        let rcr=field(self.rcr,id,"rcr",&mut problems);
-        let provisional=field(self.rcr_is_provisional,id,"rcr",&mut problems);
+        let mut problems = Vec::new();
+        let id = self.pmid.0;
+        let count = field(self.cited_by_pmid_count, id, "cited_by", &mut problems);
+        let citing = field(self.cited_by_pmids, id, "cited_by", &mut problems).map(distinct);
+        let references = field(self.cited_pmids, id, "references", &mut problems).map(distinct);
+        let clinical = field(
+            self.citing_clinical_pmids,
+            id,
+            "cited_by_clinical",
+            &mut problems,
+        )
+        .map(distinct);
+        let rcr = field(self.rcr, id, "rcr", &mut problems);
+        let provisional = field(self.rcr_is_provisional, id, "rcr", &mut problems);
         Publication {
             pmid: id,
             problems,
             counts: Citations {
-                cited_by: citing
-                    .as_ref()
-                    .map(|ids| ids.len() as u64)
-                    .or(count),
+                cited_by: citing.as_ref().map(|ids| ids.len() as u64).or(count),
                 cited_by_clinical: clinical.map(|ids| ids.len() as u64),
                 references: references.as_ref().map(|ids| ids.len() as u64),
                 rcr: rcr.filter(|_| provisional == Some(false)),
@@ -131,14 +134,26 @@ impl Row {
     }
 }
 
-fn field<T>(value:Option<Field<T>>,id:Pmid,name:&str,problems:&mut Vec<Problem>)->Option<T> {
+fn field<T>(
+    value: Option<Field<T>>,
+    id: Pmid,
+    name: &str,
+    problems: &mut Vec<Problem>,
+) -> Option<T> {
     match value {
-        Some(Field::Value(value))=>Some(value),
-        Some(Field::Invalid(_))=> {
-            let problem=Problem {source:Source::Icite,record:Text::new(&id.to_string()).ok(),field:name.into(),code:ProblemCode::ValueUnknown};
-            if !problems.contains(&problem) {problems.push(problem);}
+        Some(Field::Value(value)) => Some(value),
+        Some(Field::Invalid(_)) => {
+            let problem = Problem {
+                source: Source::Icite,
+                record: Text::new(&id.to_string()).ok(),
+                field: name.into(),
+                code: ProblemCode::ValueUnknown,
+            };
+            if !problems.contains(&problem) {
+                problems.push(problem);
+            }
             None
         }
-        None=>None,
+        None => None,
     }
 }

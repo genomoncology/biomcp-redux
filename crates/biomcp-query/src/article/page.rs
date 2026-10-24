@@ -108,7 +108,11 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .iter()
         .any(|s| s.state == biodata::SourceState::Stale);
     let failed = sources::failed(&out.sources);
-    let partial = stale || failed || rows.iter().any(|r| r.item.header.is_none() || r.problems.iter().any(|p|p.source==Source::Icite));
+    let partial = stale
+        || failed
+        || rows.iter().any(|r| {
+            r.item.header.is_none() || r.problems.iter().any(|p| p.source == Source::Icite)
+        });
     for row in &rows {
         status::append(&mut out.problems, row.problems.clone());
     }

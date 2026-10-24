@@ -9,7 +9,7 @@ pub(super) struct Counts {
     pub source: SourceOutcome,
     pub local: Option<RequestError>,
     pub error: Option<RequestError>,
-    pub failures: Vec<(Pmid,RequestError)>,
+    pub failures: Vec<(Pmid, RequestError)>,
 }
 pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -> Counts {
     let leg = cx.fetch.leg(&icite::SPEC, *deadline).fresh(cx.fresh);
@@ -17,15 +17,18 @@ pub(super) fn fetch<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid])
     let mut rows = Vec::new();
     let mut error = None;
     let mut local = None;
-    let mut failures=Vec::new();
+    let mut failures = Vec::new();
     let chunks: Vec<_> = ids.chunks(icite::BATCH_LIMIT).collect();
     // A wave bounds transport callbacks to four, without a second thread policy.
     for wave in chunks.chunks(4) {
-        for (ids,result) in wave.iter().zip(leg.batch(wave, |child, ids| icite::publications(child, ids))) {
+        for (ids, result) in wave
+            .iter()
+            .zip(leg.batch(wave, |child, ids| icite::publications(child, ids)))
+        {
             match result {
                 Ok(values) => rows.extend(values),
                 Err(e) => {
-                    failures.extend(ids.iter().map(|id|(*id,e)));
+                    failures.extend(ids.iter().map(|id| (*id, e)));
                     error.get_or_insert(e);
                     local = local.or(status::local(e));
                 }
@@ -69,7 +72,9 @@ pub(super) fn apply<'a>(
         out.status = Status::Failed;
         return Ok(false);
     }
-    for row in &result.rows {status::append(&mut out.problems,row.problems.clone());}
+    for row in &result.rows {
+        status::append(&mut out.problems, row.problems.clone());
+    }
     for item in items.iter_mut() {
         item.cited_by = result
             .rows
