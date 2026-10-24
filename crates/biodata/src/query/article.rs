@@ -130,6 +130,12 @@ impl ArticleSearch {
     pub fn gene(&self) -> Option<&GeneInput> {
         self.0.gene.as_ref()
     }
+    /// Replace only the checked gene selector.
+    pub fn with_gene(&self, gene: GeneInput) -> Self {
+        let mut v = self.clone();
+        v.0.gene = Some(gene);
+        v
+    }
     /// Page length.
     pub fn limit(&self) -> u32 {
         self.0.limit
