@@ -36,6 +36,7 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/disabled-before-warm-cache-and-sync", || { disabled().map_err(Into::into) }),
         Trial::test("article/concurrent-process-pool-publication", || {
             article_processes().map_err(Into::into)
         }),
@@ -459,5 +460,22 @@ fn article_processes() -> Check {
             return Err("published snapshot changed".into());
         }
     }
+    Ok(())
+}
+
+fn disabled() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("disabled-case");
+    invoke(&env, cached(&["get", "gene", "BRAF"], &case, Some(&root())), 0)?;
+    env.config(&json!({"disable_sources":["hgnc"]})).map_err(|e| e.to_string())?;
+    let result = invoke(&env, cached(&["get", "gene", "BRAF"], &case, None), 4)?;
+    if result.pointer("/sources/0/state") != Some(&json!("skipped"))
+        || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        || result.pointer("/result/items/0/answer").is_some()
+    { return Err("disabled HGNC restored a cached gene".into()); }
+    let result = invoke(&env, cached(&["sync", "hgnc"], &case, None), 4)?;
+    if result.pointer("/sources/0/state") != Some(&json!("skipped"))
+        || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+    { return Err("sync ignored disabled source".into()); }
     Ok(())
 }
