@@ -31,7 +31,7 @@ pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
     changes
 }
 
-pub(crate) fn run() -> Result<Value, String> {
+pub(crate) fn run(list: bool) -> Result<Value, String> {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases");
     let mut paths = Vec::new();
     collect(&root, &mut paths).map_err(|e| e.to_string())?;
@@ -61,14 +61,31 @@ pub(crate) fn run() -> Result<Value, String> {
             results.push(json!({"case": name, "skipped": "run budget exhausted"}));
             continue;
         }
-        let result = check(&case, &registry, &mut sources);
+        if list {
+            results.push(json!({"case": name, "eligible": true}));
+            continue;
+        }
+        let result = check(&case, &registry, &mut sources, started);
         results.push(match result {
             Ok(changes) => json!({"case": name, "drift": changes}),
             Err(error) => json!({"case": name, "error": error}),
         });
     }
+    if list {
+        return Ok(json!({"mode": "live-check-plan", "cases": results}));
+    }
+    let mut skipped = BTreeMap::<String, usize>::new();
+    for result in &results {
+        if let Some(reason) = result.get("skipped").and_then(Value::as_str) {
+            *skipped.entry(reason.into()).or_default() += 1;
+        }
+    }
+    let checked: Vec<_> = results
+        .iter()
+        .filter(|r| r.get("skipped").is_none())
+        .collect();
     Ok(
-        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "cases": results}),
+        json!({"mode": "live-check", "elapsed_ms": started.elapsed().as_millis(), "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(20).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(20)}),
     )
 }
 fn eligibility(case: &Case) -> Option<&str> {
@@ -92,6 +109,7 @@ fn check(
     case: &Case,
     registry: &schema::Registry,
     sources: &mut BTreeMap<String, Value>,
+    started: Instant,
 ) -> Result<Vec<String>, String> {
     let replay = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies")
@@ -111,6 +129,9 @@ fn check(
             .as_ref()
             .map_or(1, |walk| walk.max_pages.min(1000));
         for page in 0..pages {
+            if started.elapsed() >= RUN_BUDGET {
+                return Err("run budget exhausted".into());
+            }
             ordinal += 1;
             if ordinal > 128 {
                 return Err("case command budget exhausted".into());

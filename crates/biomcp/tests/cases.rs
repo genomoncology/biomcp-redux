@@ -10,7 +10,11 @@ use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
     if env::args().nth(1).as_deref() == Some("--live-check") {
-        return match runner::live::run() {
+        let list = env::args().nth(2).as_deref() == Some("--list");
+        if env::args().len() > if list { 3 } else { 2 } {
+            return ExitCode::FAILURE;
+        }
+        return match runner::live::run(list) {
             Ok(report) => {
                 use std::io::Write;
                 let _ = writeln!(std::io::stdout(), "{report}");
