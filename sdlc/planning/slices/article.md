@@ -1,18 +1,20 @@
 # Article slice
 
-This file holds the article slice's investigation and design, as `planning/slices.md` says. Retrieval strategy is its centre: which sources an agent can search, what each one is built to find, how BioMCP folds several sources into one answer without pretending to rank them, and how pages stay stable. It also covers the 0.9 accounting, the harvested examples, the get layers for abstract, full text and supplementary material, the token budget, the cases and the open questions for Ian.
+This file holds the article slice's investigation and design, as `planning/slices.md` says. Retrieval strategy is its centre: which sources an agent can search, what each one is built to find, how BioMCP folds several sources into one answer without pretending to rank them, and how pages stay stable. It also covers the 0.9 accounting, the harvested examples, the get layers for abstract, full text and supplementary material, the token budget, the cases and Ian's answers to the design's questions.
 
-Every fact below was observed live on 2026-10-23 unless it says otherwise. NCBI calls ran without an API key, at the 3 per second limit. Semantic Scholar was measured with a key, through the 0.9.3 binary.
+Every fact below was observed live on 2026-10-23 unless it says otherwise. NCBI calls ran without an API key, at the 3 per second limit. Semantic Scholar was measured with a key, through the 0.9.3 binary. Section 7 records keyless Semantic Scholar calls made on 2026-10-24, and sections 5 and 8 record the other facts checked that day.
 
-## The ruling this design follows
+## The rulings this design follows
 
 Ian ruled that BioMCP must not pretend it can merge many sources and search methods into one best order. Each source keeps its own order and meaning. A search over several sources is a fold: BioMCP removes duplicates by identifier, shows which sources found each paper and at what rank, and lays the results out by a plain mechanical rule. The agent picks the sources and the order. BioMCP states what each source is built to do and never claims a best ordering or a best strategy.
+
+Ian also ruled, in `decisions/2026-10-24-article-keeps-every-source-one-option-away.md`, that 1.0 keeps every article source and capability that 0.9 had. Plain PubMed relevance stays the default, and every other source or method sits one option or subcommand away, so an agent working a hard question can walk from one strategy to the next. Help describes each source's job and its known failure modes and never ranks sources against each other.
 
 The slice's bar is the PubMed floor. A plain PubMed search by relevance must never beat BioMCP by BioMCP dropping papers. The default search is that PubMed search, for the exact term BioMCP echoes, so it meets the bar exactly. Any fold that names PubMed holds PubMed's whole result window, and PubMed's own order stays visible.
 
 ## Evidence and assumptions in brief
 
-- **The measurements illustrate; they do not rank strategies.** Section 3 counts how many of 20 accepted papers each source puts in its first 10 and first 50. The set is small, picked by one investigator, and favors well-cited papers, which helps citation sorts and Semantic Scholar. This design therefore recommends no strategy and no recipe beyond the honest default. Claims about which strategy finds more wait for two checks run from outside the repo with `--cases DIR`: a 20-question evaluation set, and floor-only checks on rare variants (CHEK2 G167R, ABCC8 R1437Q, CDKN2A A57V and BRCA1 P1749R) that assert every plain PubMed PMID appears in the walk.
+- **The measurements illustrate; they do not rank strategies.** Section 3 counts how many of 20 accepted papers each source puts in its first 10 and first 50. The set is small, picked by one investigator, and favors well-cited papers, which helps citation sorts and Semantic Scholar. Each source does a different job, so a low count on this set says only that the set did not ask for that job. This design therefore recommends no strategy and no recipe beyond the honest default. Claims about which strategy finds more wait for two checks run from outside the repo with `--cases DIR`: a 20-question evaluation set, and floor-only checks on rare variants (CHEK2 G167R, ABCC8 R1437Q, CDKN2A A57V and BRCA1 P1749R) that assert every plain PubMed PMID appears in the walk.
 - **Depth.** Each source was read to its first 50 results. Citation sorts read each source's whole list. A paper beyond a source's first 50 counts as missed for that source.
 - **Instability.** PubMed's relevance order for the full window moved between runs on the same day: the HER2-low trial 35665782 ranked 1st, then 3rd, then 12th. A later check of "larotrectinib TRK fusion" with windows of 10, 20, 100 and 9,999, twelve calls in all, returned the same top five each time, so the window size did not reorder the top in that check. Counts at 10 carry about one paper of noise per run.
 - **0.9.** 0.9 was run with `--limit 50` for the strategy table and with its default `--limit 10` for page one. Its first ten change with `--limit`, as section 1 shows.
@@ -84,8 +86,8 @@ Each finding names the exact command and the observed result.
 11. **Search hides retracted papers by default.** `--exclude-retracted` is the default, so an agent never learns that a paper it already holds was retracted.
 12. **Full text is a file path.** `get article 34096690 fulltext` writes the text to a cache file and returns the path. An agent over MCP cannot read that path.
 13. **The asset manifest is huge and JSON only.** `get article 30209399 assets` printed 50.7 KB for 25 of 31 files, 15 of them figure images. Markdown refuses with exit 2. `all` leaves assets out.
-14. **Semantic Scholar fails without a key.** 0.9's card and its citation, reference, recommendation and author commands call Semantic Scholar. Unkeyed calls from this investigation got HTTP 429 on 22 of 27 tries, which is public issue 225's subject.
-15. **`article recommendations 17611497` returns nothing.** The seed is a paper with 1,045 citing PubMed papers.
+14. **0.9 does not pace keyless Semantic Scholar calls.** 0.9's card and its citation, reference, recommendation and author commands call Semantic Scholar, and a keyless 429 reaches the agent as a failure. Keyless calls from this investigation got HTTP 429 on 22 of 27 tries on 2026-10-23, which is public issue 225's subject. Section 7 shows that keyless calls work through Semantic Scholar's shared pool, and that search and paper lookups meet 429 more often than citation and recommendation calls.
+15. **`article recommendations 17611497` returns nothing.** The seed is a paper with 1,045 citing PubMed papers. Semantic Scholar recommends from a pool of recent papers. On 2026-10-24 it returned no papers for 17611497 and five 2026 KRAS papers for 34096690, so an empty answer is a real state of the source and needs its own status.
 16. **Citations come newest first with no total.** `article citations 17611497` lists 2026 papers first and says the endpoint reports no total.
 17. **PubTator autocomplete can pick another species.** 0.9 takes the first autocomplete ID with the right type. PubTator3's first variant match for "IDH1 R132H" is `@VARIANT_p.R132H_idh1.L_African_clawed_frog`.
 18. **`drug articles --help` calls MyChem.info.** It failed with "API request to MyChem.info failed" instead of printing help.
@@ -169,8 +171,8 @@ Gaps no free source fills: papers that name a variant only in a figure, and conf
 | PubTator3 search | `entity/autocomplete`, `search/?text=@VARIANT_…&page&size=100` | 0.2 s autocomplete; 1 to 2 s per page of 100 | Variant-normalized PMIDs | First variant match can be another species (frog idh1.L for IDH1 R132H). Over LitVar2 it added 0 to 3 unique papers per example and took 5 to 10 s for five pages | As above |
 | LitVar2 | `variant/autocomplete/?query=`, `variant/get/<id>/publications` | 0.2 s each; 0.5 s and 642 KB for BRAF V600E | Every PMID that mentions a variant, keyed by rsID or gene and HGVS | The `#` in IDs must be percent-encoded. Lists can be huge: 32,239 PMIDs for BRAF V600E. The list order carries no stated meaning | Public NCBI data |
 | iCite | `icite.od.nih.gov/api/pubs?pmids=…` | 0.1 s for one; 0.14 to 0.56 s per 200 with `fl=` | Citing PMIDs, reference PMIDs, citation count, clinical citations, relative citation ratio, year, title | One of 192 recent PMIDs was missing. With `legacy=false&fl=` the count field is `citedByPmidCount`. A GET with 1,000 PMIDs got HTTP 413, so batches stay at 200 | Public domain, NIH Open Citation Collection |
-| Semantic Scholar | `graph/v1/paper/search`, `paper/PMID:…`, `…/citations` | 0.1 to 0.8 s unkeyed; 0.5 to 1.4 s through 0.9 with a key | Relevance search, TLDR, citation contexts and intents | Unkeyed calls got HTTP 429 on 22 of 27 tries, even 12 s apart. 228 of 751 search rows through 0.9 had no PMID | API license agreement |
-| LitSense2 | `litsense2-api/api/sentences/?query=…&rerank=true` | 0.4 to 3.5 s; 2 of 17 calls took 21 s | 100 sentences ranked by similarity, each with PMID, section and entity annotations; about 50 distinct papers | One reply with no paging. Returns results for any words, including nonsense | Public NCBI data |
+| Semantic Scholar | `graph/v1/paper/search`, `paper/PMID:…`, `…/citations` | 0.1 to 0.8 s unkeyed; 0.5 to 1.4 s through 0.9 with a key | Relevance search, TLDR, citation contexts and intents | Keyless calls on 2026-10-23 got HTTP 429 on 22 of 27 tries, even 12 s apart. Keyless calls on 2026-10-24 succeeded on 1 of 19 search tries, 6 of 40 paper lookups and 0 of 5 batch lookups, and on 10 of 10 citation, reference and recommendation calls (section 7). 228 of 751 search rows through 0.9 had no PMID | API license agreement |
+| LitSense2 | `litsense2-api/api/sentences/?query=…&rerank=true` | 0.4 to 3.5 s; 2 of 17 calls took 21 s | 100 sentences ranked by similarity, each with PMID, section and entity annotations; about 50 distinct papers | One reply with no paging. Returned 50 papers for a nonsense query on 2026-10-23. On 2026-10-24 the same nonsense query answered HTTP 502 after 30 s, and "AKT1 E17K capivasertib breast cancer" returned 100 sentences from 65 papers in 3.0 s, each with `pmid`, `pmcid`, `section`, `text`, `score` and `annotations` | Public NCBI data |
 | OpenCitations | `index/v2/citation-count/pmid:…` | 0.5 to 3.3 s | Citation counts by DOI or PMID | 37879444 showed 1 citation where iCite showed 405 | CC0 |
 
 ### Search legs on the examples
@@ -227,7 +229,7 @@ What the table shows, as observations on this set:
 
 - **No source wins everywhere.** PubMed by relevance and Semantic Scholar each found about half the answers in their first ten, and they found different halves. Semantic Scholar found the AURA3 trial 27959700 first, where PubMed ranked it 543rd. PubMed found the KRAS phase 1 paper 32955176 fourth, where Semantic Scholar's first 50 missed it.
 - **Entity sources found papers PubMed never returns.** LitVar2 and PubTator3 entity search returned such papers, and their native order put no answer in the first 50. LitVar2 lists PMIDs in an order it does not explain. Sorted by citation count, LitVar2 put the IDH1 glioma paper 19228619 first, the TP53 R337H paper 11481490 18th and the AKT1 discovery paper 22nd for the rsID query. No words-based source returned any of these three in its first 50.
-- **Europe PMC and LitSense2 returned the most papers outside the floor,** 58% and 63%, and almost none of the accepted answers in the first 50. LitSense2 returned 50 papers for the nonsense query "xqzvw zzyzxq kinase", because similarity always finds something.
+- **Europe PMC and LitSense2 reach furthest beyond the floor.** 58% and 63% of their first 50 were papers that the plain PubMed search does not return. That is their job: Europe PMC reads open full text, and LitSense2 matches sentences. The accepted answers on this set are mostly landmark trials that PubMed already finds, so few of them appeared in those first 50. LitSense2 returned 50 papers for the nonsense query "xqzvw zzyzxq kinase", because a similarity search always finds a nearest sentence.
 - **Most cited first favors old papers.** Sorting PubMed's floor by citation count found 13 answers in the first ten, on a set that favors landmark papers. It buries new ones: the 2020 AKT1 review 33123537 fell from PubMed's 2nd to 46th.
 - **Folding costs depth.** A round-robin of two sources gives each about half the page. PubMed alone found 12 answers in its first 50; PubMed in a round-robin with Europe PMC found 10, because PubMed's results 26 to 50 moved past position 50.
 - **Fold layouts.** The round-robin fold of all sources found 11 and 14. Showing each source's first ten side by side found 9, in pages of 36 to 67 papers, which costs 3.6 to 6.7 times the tokens. Listing PubMed's results first and appending the others found 9 and 12. Putting papers found by more sources first found only 4 in the first ten, because broad reviews that every source returns crowd out trials. Sorting the whole fold by citation count found 13 and 13.
@@ -315,13 +317,15 @@ The agent chooses the strategy. BioMCP runs only the sources the agent named, ke
 | `--source` value | What it is built to find | How it reads the request | Native order | Cold time | What to know |
 | --- | --- | --- | --- | --- | --- |
 | `pubmed` | Keyword matches in MEDLINE and PubMed records, with PubMed's own mapping of words to MeSH terms and gene concepts | The term BioMCP builds and echoes, with filters as PubMed field tags | Best Match relevance, or most recently added with `--sort date` | 0.2 to 1.0 s | The floor. It misses papers that spell a variant another way or name it only in full text. Its top order can move between runs |
-| `europepmc` | Words anywhere in the full text of open articles, and preprints | The words, with Europe PMC field filters | Europe PMC relevance, or newest first with `--sort date` | 0.5 to 2.2 s | 58% of its first 50 on the examples were outside PubMed's results |
-| `pubtator` | Papers whose text names a normalized gene, variant, disease or chemical | The words, or `@GENE_`, `@DISEASE_` and `@CHEMICAL_` entity IDs from `--gene`, `--disease` and `--drug` | PubTator3's own order | 0.3 to 1.7 s | Catches other spellings of an entity |
-| `litvar` | Every paper that names a variant, in any spelling, including rsIDs | `--variant`, required: an rsID alone, or a protein change with `--gene` | The order LitVar2 returns, which it does not explain | 0.2 to 0.5 s for the whole list | 82% of its first 50 were outside PubMed's results. Its native order carries no stated meaning |
-| `litsense` | Sentences that resemble the words, from abstracts and open full text | The words as a sentence | Sentence similarity | 0.4 to 3.5 s; 2 of 17 calls took 21 s | Always returns about 50 papers, even for nonsense, so a hit is a resemblance, not a match |
-| `semantic-scholar` | Relevance ranking over a large multidisciplinary index | The words, with year filters | Semantic Scholar relevance, or newest first with `--sort date` | 0.5 to 1.4 s with a key | Needs the user's key. 39% of rows carry no PMID until resolved |
+| `europepmc` | Words anywhere in the full text of open articles, and preprints | The words, with Europe PMC field filters | Europe PMC relevance, or newest first with `--sort date` | 0.5 to 2.2 s | Reads open full text, so it finds papers that name a term only in the body. Its counts run 3 to 6 times PubMed's, and many hits mention the words in passing |
+| `pubtator` | Papers whose text names a normalized gene, variant, disease or chemical | The words, or `@GENE_`, `@DISEASE_` and `@CHEMICAL_` entity IDs from `--gene`, `--disease` and `--drug` | PubTator3's own order | 0.3 to 1.7 s | Catches other spellings of an entity. Its autocomplete can pick another species: on 2026-10-24 its first gene match for AKT1 was the rat gene 24185. BioMCP therefore sends the Entrez ID that HGNC resolution gives, such as `@GENE_207` for AKT1 |
+| `litvar` | Every paper that names a variant, in any spelling, including rsIDs | `--variant`, required: an rsID alone, or a protein change with `--gene` | The order LitVar2 returns, which it does not explain | 0.2 to 0.5 s for the whole list | Lists can be very long: 32,239 PMIDs for BRAF V600E. Its native order carries no stated meaning, so `--sort citations` is the usual companion |
+| `litsense` | Sentences that resemble the words, from abstracts and open full text | The words as a sentence | Sentence similarity | 0.4 to 3.5 s; 2 of 17 calls took 21 s | A hit is a resembling sentence, not a match: it returned 50 papers for a nonsense query on 2026-10-23. Some calls stall: a nonsense query answered HTTP 502 after 30 s on 2026-10-24. Each item carries the sentence that matched |
+| `semantic-scholar` | Relevance ranking over a large multidisciplinary index | The words, with year filters | Semantic Scholar relevance | 0.1 to 0.9 s per call, plus any wait for the shared pool | Runs without a key through a shared pool that often answers 429 for search; the user's optional key raises the limit. 39% of rows carry no PMID until resolved |
 
-There is no `all` value. The agent lists the sources it wants. iCite is not a search source; it supplies citation counts for `--sort citations`, the `citations` section and the citation graph. Whether LitSense2 and PubTator3 search stay in 1.0 is open question B.
+There is no `all` value. The agent lists the sources it wants. iCite is not a search source; it supplies citation counts for `--sort citations`, the `citations` section and the citation graph. LitSense2, PubTator3 and Semantic Scholar stay as named sources by Ian's ruling, and none of them is ever part of the default.
+
+A LitSense2 item carries `sentence`, the best-scoring sentence LitSense2 returned for that paper, with its section, because the sentence is what LitSense2 found. Other sources' items carry no sentence.
 
 #### The default
 
@@ -355,7 +359,7 @@ Milestone 1 has no local protein-change parser; the variant slice brings one. Wh
 | `--sort` | Rule | Applies to |
 | --- | --- | --- |
 | `rank` (default) | Each source's own order. With one source, that order. With several, round-robin by native rank in the order the agent listed the sources; a paper already shown is skipped | Every source |
-| `date` | Each named source's own newest-first order, as the source applies it. With several, the same round-robin over those orders, so the page is newest first within each source, not across sources. PubMed's order is most recently added to PubMed | PubMed, Europe PMC and Semantic Scholar. Naming another source with `--sort date` is a usage error |
+| `date` | Each named source's own newest-first order, as the source applies it. With several, the same round-robin over those orders, so the page is newest first within each source, not across sources. PubMed's order is most recently added to PubMed | PubMed and Europe PMC. Naming another source with `--sort date` is a usage error |
 | `citations` | Most cited first, by iCite's count of citing PubMed papers, over every item the pool holds. Ties keep the `rank` order. Items with no PMID, or missing from iCite, come last with no `cited_by` | Every source |
 
 Round-robin bound: when n sources are listed, the k-th result of the i-th listed source sits at position n(k−1)+i or earlier, because skipped duplicates only move items up.
@@ -378,9 +382,28 @@ A source applies a filter itself or not at all. BioMCP never filters a source's 
 | `--variant` | as words | as words | as words | required | as words | as words |
 | `--disease`, `--drug` | as words | as words | entity IDs | no | as words | as words |
 | `--author`, `--journal` | `[au]`, `[ta]` | `AUTH:`, `JOURNAL:` | no | no | no | no |
-| `--since`, `--until` | `[dp]` | `FIRST_PDATE` | no | no | no | year range |
-| `--type` | `[pt]` | `PUB_TYPE:` | no | no | no | publication types |
-| `--sort date` | most recently added | newest first | no | no | no | newest first |
+| `--since`, `--until` | `[dp]` | `FIRST_PDATE` | no | no | no | `year=A-B` |
+| `--type` | `[pt]` | `PUB_TYPE:` | no | no | no | no |
+| `--sort date` | most recently added | newest first | no | no | no | no |
+| `--open-access` | `"pubmed pmc open access"[filter]` | `OPEN_ACCESS:y` | no | no | no | `openAccessPdf`, which means a public PDF |
+| `--no-preprints` | `NOT preprint[pt]` | `NOT SRC:PPR` | no | no | no | no |
+| `--exclude-retracted` (default) | `NOT retracted publication[pt]` | `NOT PUB_TYPE:"retracted publication"` | no | no | no | no |
+| `--include-retracted` | no clause | no clause | yes | yes | yes | yes |
+
+Semantic Scholar documents `publicationTypes`, `venue` and `publicationDateOrYear` filters. Ticket 0042 maps only the year range and refuses the rest until a recorded reply shows each one's behavior.
+
+#### Access, preprint and retraction filters
+
+1.0 keeps 0.9's four filters under their 0.9 spellings, as Ian's ruling keeps every capability. Each one runs only where a source applies it natively, and BioMCP never removes rows after retrieval. 0.9 removed them locally from rows that carried a flag.
+
+- `--open-access` keeps papers that a source marks open. PubMed's filter `"pubmed pmc open access"[filter]` keeps papers in the PMC open access subset: "AKT1 E17K" gave 66 of 192 on 2026-10-24, where `free full text[sb]` gave 123. Europe PMC's field is `OPEN_ACCESS:y`. Semantic Scholar's `openAccessPdf` keeps papers with a public PDF, and help says so.
+- `--no-preprints` drops preprints. PubMed types them `preprint[pt]`: "AKT1 E17K" gave 189 with `NOT preprint[pt]`, leaving out 41415395, 40585122 and 38328122. Europe PMC marks preprints with source `PPR`.
+- `--exclude-retracted` is the default, as it was in 0.9 (0.9 `src/cli/article/dispatch.rs:187` sets `exclude_retracted` unless `--include-retracted` is given). PubMed types a retracted paper `retracted publication[pt]`: "AKT1 E17K" gave 190 with `NOT retracted publication[pt]`, leaving out 22505016 and 20068047. A retraction notice carries another type and stays.
+- `--include-retracted` sends no clause, so the term is the plain words.
+
+The default exclusion changes the default term. A default search sends `<words> NOT retracted publication[pt]`, echoes that term, and its floor is PubMed's relevance list for that echoed term. So that the agent still learns what was left out, PubMed's outcome carries a notice `retracted_excluded` with the count of retracted papers that match the words, from one ESearch with `retmax=0` of about 0.2 s, and `next` holds the same search with `--include-retracted` when that count is above zero. A card still flags a retracted paper and names its notice.
+
+An explicit filter that a named source cannot apply is `unsupported_filter`, as for every filter. The default exclusion is not an explicit filter: a named source that cannot apply it runs unfiltered, and its outcome carries the notice `retracted_not_excluded`. Europe PMC's fields were not checked live on 2026-10-24, because its search answered 503 all day; ticket 0052 checks them before landing.
 
 #### Pools and pages
 
@@ -410,13 +433,21 @@ The query echo holds the ordered sources, the sort and the exact term each sourc
                 litvar            every paper naming a variant; needs --variant (an rsID,
                                   or --gene with a protein change);
                                   its own order has no stated meaning
-                litsense          sentences similar to the words; always returns results
-                semantic-scholar  relevance ranking; needs your key; some rows lack a PMID
+                litsense          sentences that resemble the words; a hit is a resemblance,
+                                  not a match, and it answers even nonsense; slow calls happen
+                semantic-scholar  relevance ranking over a large multidisciplinary index; runs
+                                  without a key through a shared pool that often answers 429;
+                                  your optional key raises the limit; some rows lack a PMID
 --sort RULE     rank (default): each source's own order; several sources take turns
                 date: newest first within each source; pubmed means date added to PubMed;
-                      pubmed, europepmc and semantic-scholar only
+                      pubmed and europepmc only
                 citations: most cited first by iCite counts; about 1 s per 1,000 PMIDs;
                       refuses above 10,000 PMIDs
+--open-access   only papers a source marks open; pubmed: PMC open access subset;
+                europepmc: OPEN_ACCESS; semantic-scholar: has a public PDF
+--no-preprints  leave out preprints; pubmed and europepmc only
+--exclude-retracted  the default; leave out retracted papers where the source can
+--include-retracted  keep retracted papers; cards still flag them
 ```
 
 #### How the design prevents each 0.9 retrieval failure
@@ -440,6 +471,7 @@ The query echo holds the ordered sources, the sort and the exact term each sourc
 | A variant named only in a supplementary table (31) | `article supplement --find` and `article text --find` search the open full text and its supplementary files |
 | PubTator autocomplete picks another species (17), LitVar2's first hit is another change | LitVar2 hits must match gene and protein change; PubTator3 entity IDs come from human gene resolution |
 | A source failure looks empty (20) | Every named source reports its own state, and the status is partial or failed |
+| Search hides retracted papers by default (11) | The default still leaves them out, as 0.9 did, but through each source's own filter. PubMed's outcome counts what it left out, and `next` names the same search with `--include-retracted` |
 
 ### biodata types
 
@@ -518,6 +550,7 @@ New dependencies, added to `architecture.md` section 2.2 by the stage that build
 | `--disease TEXT`, `--drug TEXT` | Words, or PubTator3 entity IDs | PubMed maps words to MeSH itself |
 | `--author TEXT`, `--journal TEXT` | Native field filters | Usage error for a named source that cannot apply them |
 | `--since DATE`, `--until DATE` | Native date filters | PubMed, Europe PMC and Semantic Scholar only |
+| `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted` | Native access, preprint and retraction filters | Retracted papers are excluded by default where the source can apply it |
 | `--type TYPE` | Native publication type filters | `trial`, `randomized`, `review`, `systematic_review`, `meta_analysis`, `guideline`, `case_report` |
 | `--limit N`, `--offset N`, `--pool ID` | The shared cursor | Limit 1 to 50, default 10 |
 | `biomcp get article <INPUT>... [SECTION]...` | One card per input, in input order | PMIDs, PMCIDs, DOIs and Europe PMC IDs, up to 20. Sections `fulltext`, `supplements`, `annotations`, `citations`, `all` |
