@@ -79,6 +79,9 @@ pub struct ArticleHeader {
     /// Publication date at source precision.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<PartialDate>,
+    /// Electronic publication date when different from the publication date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub electronic_date: Option<PartialDate>,
     /// Clinical publication types.
     pub types: Box<[PublicationType]>,
     /// The provider does not supply checked publication types.

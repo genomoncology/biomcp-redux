@@ -169,11 +169,15 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Run BioMCP commands. Queries return one card or page by default; request sections for details.".into()];
+    let mut lines = vec!["Run BioMCP commands. Queries return one card or page; use help COMMAND for options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
-        for argument in command.arguments {
-            line.push_str(&format!(" [{}]", argument.name));
+        // Detailed options belong to help COMMAND; retain the gene facets
+        // required for discovering checked gene searches.
+        if command.command == ["search", "gene"] {
+            for argument in command.arguments {
+                line.push_str(&format!(" [{}]", argument.name));
+            }
         }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");

@@ -103,6 +103,11 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
     match positional {
         ["gene", word] => find(GENE, word),
+        ["batch", "trial", ..] => Some(ErrorMessage::TrialBatch),
+        ["variant", "trials", ..] => Some(ErrorMessage::VariantTrials),
+        ["disease", "trials", ..] => Some(ErrorMessage::DiseaseTrials),
+        ["drug", "trials", ..] => Some(ErrorMessage::DrugTrials),
+        ["get", "trial", _, "document", ..] => Some(ErrorMessage::TrialDocument),
         ["article", "supplement-search", ..] => Some(ErrorMessage::SupplementFind),
         ["article", "entities", ..] => Some(ErrorMessage::Annotations),
         ["article", "batch" | "authors", ..] | ["batch", "article", ..] => {

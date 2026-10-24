@@ -1,6 +1,7 @@
 # 0102 — Offer one-term-wider steps when an article search finds few papers, and show the electronic date
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a39d6ed9f973a2885578335d71beeecacfcdfbf
 
 Milestone: 1
 

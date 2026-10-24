@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=NF2%20AND%20words%20K322%20drug%20words%20meningioma%20AND%20author%20words%5Bau%5D%20AND%20journal%20words%5Bta%5D%20AND%202000%3A2020%5Bdp%5D%20AND%20review%5Bpt%5D&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1792868772,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"esearchresult": {"count": "1", "idlist": ["33123537"]}}
+      }
+    }
+  ]
+}

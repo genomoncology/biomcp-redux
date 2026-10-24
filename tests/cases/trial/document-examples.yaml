@@ -1,0 +1,61 @@
+{
+  "feature": "trial-publications",
+  "live_check": "local-only synthetic PDF save example",
+  "story": "Document help examples save explicitly named files from an exact manifest entry; PDF bytes are synthetic and never read as text.",
+  "replay": "trial/documents/synthetic",
+  "steps": [
+    {
+      "run": [
+        "trial",
+        "document",
+        "NCT04303780",
+        "SAP_001.pdf",
+        "--save",
+        "protocol.pdf",
+        "--replace"
+      ],
+      "mcp": [
+        "trial",
+        "document",
+        "NCT04303780",
+        "SAP_001.pdf",
+        "--save",
+        "protocol.pdf",
+        "--replace"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/file/data/bytes": 67,
+        "/result/file/data/document/filename": "SAP_001.pdf"
+      },
+      "max_bytes": 807
+    },
+    {
+      "run": [
+        "trial",
+        "document",
+        "NCT04303780",
+        "SAP_001.pdf",
+        "--save",
+        "analysis.pdf",
+        "--replace"
+      ],
+      "mcp": [
+        "trial",
+        "document",
+        "NCT04303780",
+        "SAP_001.pdf",
+        "--save",
+        "analysis.pdf",
+        "--replace"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/file/data/bytes": 67,
+        "/result/file/data/document/filename": "SAP_001.pdf"
+      },
+      "max_bytes": 807
+    }
+  ],
+  "verified": "j10693 measured each isolated synthetic PDF save reply at 701 bytes; ceiling is ceil(actual*1.15). No matching released download-only save receipt baseline exists. Saved files stay in each case environment and disappear on cleanup."
+}

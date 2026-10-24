@@ -139,7 +139,7 @@ The projecting crate's normalized view extends this with `AlleleKey` and its pro
 
 ### 3.6 Annotations as statements
 
-Every variant assertion from any source becomes one `Statement`. A statement never merges two sources and never maps one framework onto another.
+Every variant assertion whose source classification belongs to a proposition this model defines becomes one `Statement`. A statement never merges two sources and never maps one framework onto another. A source classification outside those propositions, such as ClinVar's drug response, risk factor, protective, affects, association, association not found, confers sensitivity, other or not provided, stays in the consumer's native source record with its label, IDs, domain, condition, review status, dates and provenance, and carries `statement_unmapped: true` instead of a `Statement`. A new proposition for such labels needs both PMs' agreement before either crate builds it.
 
 ```text
 Statement {
