@@ -41,6 +41,9 @@ pub struct ArticleItem {
     /// iCite citing-paper count, only under citation ordering.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_by: Option<u64>,
+    /// First matching sentence in LitSense2 provider order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sentence: Option<ArticleSentence>,
     /// Citation intents in provider order; absent means not reported.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub intents: Option<Box<[CitationIntent]>>,
@@ -111,4 +114,16 @@ pub struct LitVarCandidate {
     pub name: crate::Text,
     /// Number of associated publications reported by LitVar2.
     pub count: u64,
+}
+
+/// Source-provided sentence resemblance, without a claim of clinical relevance.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ArticleSentence {
+    /// Source section, when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<crate::Text>,
+    /// Source sentence text.
+    pub text: crate::Text,
 }

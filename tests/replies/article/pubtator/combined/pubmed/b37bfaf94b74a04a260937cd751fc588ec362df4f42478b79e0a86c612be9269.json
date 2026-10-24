@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=next-generation%20sequencing%20recommendations%20advanced%20cancer%20ESMO&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1792856257,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 267,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"24","retmax":"24","retstart":"0","idlist":["38834388","37683526","32853681","39984357","39909182","36183443","42223536","34154333","38473737","41272559","37304496","40112698","41060610","42428050","37188177","25287912","41167086","37713929","42157737","42543673","36709039","41646477","39305545","39874900"],"translationset":[{"from":"next-generation sequencing","to":"\"high-throughput nucleotide sequencing\"[MeSH Terms] OR (\"high-throughput\"[All Fields] AND \"nucleotide\"[All Fields] AND \"sequencing\"[All Fields]) OR \"high-throughput nucleotide sequencing\"[All Fields] OR (\"next\"[All Fields] AND \"generation\"[All Fields] AND \"sequencing\"[All Fields]) OR \"next generation sequencing\"[All Fields]"},{"from":"recommendations","to":"\"recommend\"[All Fields] OR \"recommendable\"[All Fields] OR \"recommendation\"[All Fields] OR \"recommendation's\"[All Fields] OR \"recommendations\"[All Fields] OR \"recommended\"[All Fields] OR \"recommending\"[All Fields] OR \"recommends\"[All Fields]"},{"from":"advanced","to":"\"advance\"[All Fields] OR \"advanced\"[All Fields] OR \"advancement\"[All Fields] OR \"advancements\"[All Fields] OR \"advances\"[All Fields] OR \"advancing\"[All Fields]"},{"from":"cancer","to":"\"cancer's\"[All Fields] OR \"cancerated\"[All Fields] OR \"canceration\"[All Fields] OR \"cancerization\"[All Fields] OR \"cancerized\"[All Fields] OR \"cancerous\"[All Fields] OR \"neoplasms\"[MeSH Terms] OR \"neoplasms\"[All Fields] OR \"cancer\"[All Fields] OR \"cancers\"[All Fields]"}],"querytranslation":"(\"high throughput nucleotide sequencing\"[MeSH Terms] OR (\"high throughput\"[All Fields] AND \"nucleotide\"[All Fields] AND \"sequencing\"[All Fields]) OR \"high throughput nucleotide sequencing\"[All Fields] OR (\"next\"[All Fields] AND \"generation\"[All Fields] AND \"sequencing\"[All Fields]) OR \"next generation sequencing\"[All Fields]) AND (\"recommend\"[All Fields] OR \"recommendable\"[All Fields] OR \"recommendation\"[All Fields] OR \"recommendation s\"[All Fields] OR \"recommendations\"[All Fields] OR \"recommended\"[All Fields] OR \"recommending\"[All Fields] OR \"recommends\"[All Fields]) AND (\"advance\"[All Fields] OR \"advanced\"[All Fields] OR \"advancement\"[All Fields] OR \"advancements\"[All Fields] OR \"advances\"[All Fields] OR \"advancing\"[All Fields]) AND (\"cancer s\"[All Fields] OR \"cancerated\"[All Fields] OR \"canceration\"[All Fields] OR \"cancerization\"[All Fields] OR \"cancerized\"[All Fields] OR \"cancerous\"[All Fields] OR \"neoplasms\"[MeSH Terms] OR \"neoplasms\"[All Fields] OR \"cancer\"[All Fields] OR \"cancers\"[All Fields]) AND \"ESMO\"[All Fields]"}}
+      }
+    }
+  ]
+}

@@ -32,3 +32,14 @@ impl<T> Field<T> {
         }
     }
 }
+
+/// Numeric upstream PMID checked once before entering shared response identities.
+#[derive(Debug, Deserialize)]
+#[serde(try_from = "u32")]
+pub(crate) struct NumericPmid(pub biodata::Pmid);
+impl TryFrom<u32> for NumericPmid {
+    type Error = biodata::Error;
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        biodata::Pmid::new(value).map(Self)
+    }
+}
