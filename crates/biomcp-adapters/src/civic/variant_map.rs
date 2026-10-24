@@ -149,24 +149,33 @@ fn claim_page<T>(
 }
 fn member(raw: &raw::Member) -> Result<CivicMember, RequestError> {
     let gene = raw.feature.name.as_str().parse::<GeneSymbol>().ok();
-    let protein = raw.hgvs_descriptions.as_ref().is_some_and(|forms| {
-        forms.iter().any(|form| {
-            form.as_str().parse::<HgvsText>().is_ok()
-                && form
-                    .as_str()
-                    .split_once(':')
-                    .is_some_and(|(_, body)| body.starts_with("p."))
+    let proteins = raw
+        .hgvs_descriptions
+        .iter()
+        .flatten()
+        .filter_map(|form| {
+            (form
+                .as_str()
+                .split_once(':')
+                .is_some_and(|(_, body)| body.starts_with("p.")))
+            .then(|| form.as_str().parse::<HgvsText>().ok())
+            .flatten()
         })
+        .collect::<Vec<_>>();
+    let subject = gene.and_then(|gene| match proteins.as_slice() {
+        [] => None,
+        [protein] => Some(VariantRef::protein_hgvs(
+            gene,
+            protein.clone(),
+            Some(raw.name.clone()),
+        )),
+        _ => Some(VariantRef::protein(gene, raw.name.clone())),
     });
-    let subject = if protein {
-        gene.map(|gene| VariantRef::protein(gene, raw.name.clone()))
-    } else {
-        None
-    };
     Ok(CivicMember {
         record: record(raw.id, &raw.link)?,
         label: raw.name.clone(),
         feature: raw.feature.name.clone(),
+        hgvs_descriptions: raw.hgvs_descriptions.clone().unwrap_or_default().into(),
         subject,
     })
 }

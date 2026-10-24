@@ -51,6 +51,9 @@ pub struct CivicMember {
     pub label: Text,
     /// Native feature label, including fusion features.
     pub feature: Text,
+    /// Every native notation, without selecting a transcript or repairing a spelling.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub hgvs_descriptions: Box<[Text]>,
     /// Source-qualified subject when supported by the common model.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subject: Option<VariantRef>,
