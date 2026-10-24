@@ -326,7 +326,7 @@ fn assertions_wire() -> Result<(), String> {
         return Err(format!("native assertion lost: {value}"));
     }
     let requests = stub.finish()?;
-    if requests.len()!=1 || !requests[0].1.starts_with("GET /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp HTTP/1.1") {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
+    if requests.len()!=1 || !requests.first().is_some_and(|(_, request)| request.starts_with("GET /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp HTTP/1.1")) {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
     Ok(())
 }
 fn clinvar_body(_: &str) -> Result<String, String> {
