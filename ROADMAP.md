@@ -64,7 +64,7 @@ Each entity below repeats these steps.
 Sources:
 - [x] HGNC (bundle, identity and names)
 - [x] MyGene.info
-- [ ] UniProt
+- [x] UniProt
 - [ ] Reactome
 - [ ] CIViC
 - [ ] ClinGen
