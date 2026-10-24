@@ -833,7 +833,7 @@ Sync rules:
 - `biomcp sync` with no name syncs every bundle the enabled sources use. The install guide recommends running it once after install.
 - A query that needs an absent or stale bundle syncs it on first use only when the bundle's last known size is below `auto_sync_max_bytes`, 32 MB by default. A larger bundle answers `syncing` with a `sync` next step. Offline mode never syncs.
 - A sync takes a lock row in `bundle_sync`. Another process that finds the lock held answers `syncing` with a retry step, and a lock older than the sync budget is taken over.
-- A sync runs under `sync_budget`, separate from the command budget. The download writes to a part file in the cache folder and resumes with a range request when the server supports one. A sync that runs out of budget leaves the part file, answers `syncing` with a retry step, and the next sync resumes it.
+- An explicit `biomcp sync` runs under `sync_budget`, separate from the command budget. An automatic sync on first use runs inside the remaining budget of the leg that needs the rows, so a command never outlives its deadline; a first download that does not finish answers `syncing` with a retry step and resumes on the next call. The download writes to a part file in the cache folder and resumes with a range request when the server supports one. A sync that runs out of budget leaves the part file, answers `syncing` with a retry step, and the next sync resumes it.
 - A stale bundle that cannot sync answers from its stale rows with `stale` and a `sync` next step.
 
 ### 4.12 Errors
