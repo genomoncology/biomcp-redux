@@ -3,9 +3,11 @@ mod current;
 mod framing;
 mod legacy;
 mod protocol;
+mod rpc;
+pub(crate) mod http;
 
 use framing::Frame;
-use serde_json::{Value, json};
+use serde_json::Value;
 use std::{
     collections::BTreeMap,
     io::{self, Write},
@@ -109,62 +111,19 @@ fn start_input(sender: mpsc::SyncSender<Event>) -> io::Result<()> {
 
 impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
-        let Ok(value) = serde_json::from_slice::<Value>(frame) else {
-            return Ok(Some(protocol::error(Value::Null, -32700, "Parse error")));
-        };
-        if !protocol::validate(&value) {
-            let id = value
-                .get("id")
-                .filter(|id| protocol::valid_id(id))
-                .cloned()
-                .unwrap_or(Value::Null);
-            return Ok(Some(protocol::error(id, -32600, "Invalid Request")));
-        }
-        let method = value
-            .get("method")
-            .and_then(Value::as_str)
-            .unwrap_or_default();
-        let params = value.get("params").cloned().unwrap_or_else(|| json!({}));
-        let Some(id) = value.get("id") else {
-            if method == "notifications/cancelled"
-                && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
-                && let Some(call) = self.active.get_mut(&id.to_string())
-            {
-                call.cancelled = true;
+        match rpc::message(frame, &mut self.legacy) {
+            rpc::Message::Reply(reply) => Ok(Some(reply)),
+            rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
+            rpc::Message::Notification { method, params } => {
+                if method == "notifications/cancelled"
+                    && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
+                    && let Some(call) = self.active.get_mut(&id.to_string())
+                {
+                    call.cancelled = true;
+                }
+                Ok(None)
             }
-            return Ok(None);
-        };
-        if !protocol::valid_params(method, &params) {
-            return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
         }
-        let modern = current::identified(&params)
-            || method == "server/discover"
-            || !self.legacy && method != "initialize";
-        if modern {
-            if let Err(error) = current::validate(id, &params) {
-                return Ok(Some(error));
-            }
-        } else if method == "initialize" {
-            let Some(result) = legacy::initialize(&params) else {
-                return Ok(Some(protocol::error(id.clone(), -32602, "Invalid params")));
-            };
-            self.legacy = true;
-            return Ok(Some(protocol::result(id.clone(), result, false)));
-        }
-        let result = match method {
-            "ping" => json!({}),
-            "server/discover" => current::discover(),
-            "tools/list" => json!({"tools":[protocol::tool()]}),
-            "tools/call" => return self.admit(id.clone(), &params, modern),
-            _ => {
-                return Ok(Some(protocol::error(
-                    id.clone(),
-                    -32601,
-                    "Method not found",
-                )));
-            }
-        };
-        Ok(Some(protocol::result(id.clone(), result, modern)))
     }
 
     #[expect(

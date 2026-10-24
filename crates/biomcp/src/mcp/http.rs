@@ -1,0 +1,1 @@
+//! Bounded HTTP socket transport.
