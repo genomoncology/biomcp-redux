@@ -9,6 +9,7 @@ pub(crate) const ARGUMENT: &str = biomcp_fetch::PdfWorker::ARGUMENT;
 #[global_allocator]
 static HEAP: cap::Cap<std::alloc::System> = cap::Cap::new(std::alloc::System, usize::MAX);
 const MEMORY: u64 = biomcp_fetch::PdfWorker::MEMORY;
+#[cfg(unix)]
 const CPU_SECONDS: u64 = biomcp_fetch::PdfWorker::CPU_SECONDS;
 
 pub(crate) fn run() -> ExitCode {

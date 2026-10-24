@@ -90,9 +90,8 @@ fn copy(source: &Path, target: &Path) -> Result<(), String> {
     Ok(())
 }
 
-pub(super) fn doi_reader() -> Result<(), String> {
+fn record_doi(environment: &Environment) -> Result<std::path::PathBuf, String> {
     use super::network_stub::Stub;
-    let environment = Environment::new().map_err(|error| error.to_string())?;
     let stub = Stub::for_source("api.semanticscholar.org", "application/json", |_| {
         Ok(
             serde_json::json!({"openAccessPdf":{"url":"","status":"CLOSED","license":null}})
@@ -131,6 +130,12 @@ pub(super) fn doi_reader() -> Result<(), String> {
         return Err("DOI recording made unexpected source requests".into());
     }
     complete_doi_fixture(&record)?;
+    Ok(record)
+}
+
+pub(super) fn doi_reader() -> Result<(), String> {
+    let environment = Environment::new().map_err(|error| error.to_string())?;
+    let record = record_doi(&environment)?;
     let mut args = environment.globals(Some(&record), false);
     args.extend(
         [
@@ -190,8 +195,9 @@ fn complete_doi_fixture(record: &Path) -> Result<(), String> {
             let value: Value =
                 serde_json::from_slice(&fs::read(&path).map_err(|error| error.to_string())?)
                     .map_err(|error| error.to_string())?;
-            if value["url"]
-                .as_str()
+            if value
+                .get("url")
+                .and_then(Value::as_str)
                 .is_some_and(|url| url.contains("api.semanticscholar.org"))
             {
                 body = value.pointer("/exchanges/0/body").cloned();
@@ -212,8 +218,9 @@ fn complete_doi_fixture(record: &Path) -> Result<(), String> {
         let mut value: Value =
             serde_json::from_slice(&fs::read(&path).map_err(|error| error.to_string())?)
                 .map_err(|error| error.to_string())?;
-        if value["url"]
-            .as_str()
+        if value
+            .get("url")
+            .and_then(Value::as_str)
             .is_some_and(|url| url.contains("api.semanticscholar.org"))
         {
             *value

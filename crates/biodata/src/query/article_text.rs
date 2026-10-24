@@ -87,11 +87,6 @@ impl ArticleText {
         }
         .try_into()
     }
-    /// Select publisher PDF text, retaining the original reader selector.
-    pub fn with_pdf(mut self) -> Self {
-        self.0.pdf = true;
-        self
-    }
     /// Whether the explicit PDF reader was selected.
     pub fn pdf(&self) -> bool {
         self.0.pdf

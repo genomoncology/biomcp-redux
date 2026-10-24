@@ -25,7 +25,7 @@ impl PdfWorker {
     pub const MAX_TEXT: usize = 4 * 1024 * 1024;
     /// Maximum serialized response, allowing worst-case JSON escaping.
     pub const MAX_RESULT: u64 = (Self::MAX_TEXT as u64) * 6 + 16 * 1024;
-    /// Maximum worker address space in bytes.
+    /// Maximum child Rust heap bytes; also the optional OS address-space limit.
     pub const MEMORY: u64 = 512 * 1024 * 1024;
     /// Maximum worker CPU seconds.
     pub const CPU_SECONDS: u64 = 15;
