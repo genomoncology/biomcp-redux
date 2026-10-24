@@ -1,7 +1,8 @@
 //! PubMed native search order and citation metadata, without abstracts.
 mod efetch;
+mod indexing;
 mod map;
-pub use efetch::{fetch_articles, resolve_ids};
+pub use efetch::{FetchedArticle, fetch_articles, resolve_ids};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};

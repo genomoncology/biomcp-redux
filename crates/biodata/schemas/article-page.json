@@ -412,6 +412,10 @@
           "minimum": 1,
           "type": "integer"
         },
+        "no_preprints": {
+          "description": "Exclude preprints using the source's native filter.",
+          "type": "boolean"
+        },
         "offset": {
           "default": 0,
           "description": "Number of pool items to skip.",
@@ -419,9 +423,21 @@
           "minimum": 0,
           "type": "integer"
         },
+        "open_access": {
+          "description": "Require the source's native open-access filter; Semantic Scholar means a public PDF.",
+          "type": "boolean"
+        },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Stable snapshot from an earlier response."
+        },
+        "retracted": {
+          "$ref": "#/$defs/RetractionFilter",
+          "description": "Include retracted papers by default, or exclude them using a native filter.",
+          "x-cli-flags": {
+            "exclude-retracted": "exclude",
+            "include-retracted": "include"
+          }
         },
         "since": {
           "$ref": "#/$defs/PartialDate",
@@ -838,6 +854,14 @@
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source."
       ]
+    },
+    "RetractionFilter": {
+      "description": "Native retraction inclusion policy.",
+      "enum": [
+        "include",
+        "exclude"
+      ],
+      "type": "string"
     },
     "SemanticScholarId": {
       "pattern": "^[a-f0-9]{40}$",

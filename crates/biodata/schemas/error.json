@@ -13,7 +13,10 @@
         "--since",
         "--until",
         "--type",
-        "--sort date"
+        "--sort date",
+        "--open-access",
+        "--no-preprints",
+        "--exclude-retracted"
       ],
       "type": "string"
     },

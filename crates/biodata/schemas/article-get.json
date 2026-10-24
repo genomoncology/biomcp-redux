@@ -12,6 +12,7 @@
         "supplements",
         "tldr",
         "citations",
+        "indexing",
         "all"
       ],
       "type": "string",
@@ -21,6 +22,7 @@
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
+        " MeSH, keywords and author indexing from the citation.",
         " Every landed article section."
       ]
     }

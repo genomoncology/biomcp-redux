@@ -28,7 +28,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .ok_or_else(|| io::Error::other("missing properties"))?;
         let arguments = properties
             .iter()
-            .map(|(name, node)| argument(name, node, &schema))
+            .flat_map(|(name, node)| arguments(name, node, &schema))
             .collect();
         let sections = section_words(&schema);
         commands.push(HelpCommand {
@@ -84,6 +84,20 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
         });
     }
     Ok(commands)
+}
+fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
+    if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
+        return flags
+            .keys()
+            .map(|flag| {
+                let mut value = argument(flag, node, root);
+                value.value_type = "boolean".into();
+                value.choices.clear();
+                value
+            })
+            .collect();
+    }
+    vec![argument(name, node, root)]
 }
 fn argument(name: &str, node: &Value, root: &Value) -> HelpArgument {
     let position = field(node, "x-positional").as_u64();

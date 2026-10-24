@@ -1,0 +1,52 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "Explicit retraction inclusion preserves the default native PubMed pool and typed source flags",
+  "replay": "article/search/live",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--include-retracted"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--include-retracted"
+      ],
+      "expect": {
+        "/sources/0/term": "AKT1 E17K",
+        "/page/total": 192
+      },
+      "max_bytes": 4771
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--include-retracted"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 32
+      },
+      "expect": {
+        "/result/items/*/pmid": {
+          "includes_all_of": [
+            "22505016",
+            "20068047"
+          ],
+          "unique": true
+        },
+        "/result/items/*/header/types/*": {
+          "includes": "retracted_publication"
+        }
+      },
+      "max_bytes": 5228
+    }
+  ]
+}
