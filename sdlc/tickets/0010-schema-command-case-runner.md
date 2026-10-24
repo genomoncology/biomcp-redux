@@ -1,6 +1,7 @@
 # 0010 — Run outside-in YAML cases through the schema command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9f2f7af97abebe9fe5d4f21981f78bf3c3ebc7b8
 
 Milestone: 1
 

@@ -1,6 +1,7 @@
 # 0008 — Enforce shared source quotas and deadline-bound retries
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 17f302273b89eb9744c4fb74ed0bc8aa5193e3f3
 
 Milestone: 1
 

@@ -1,6 +1,7 @@
 # 0009 — Add checked identifier, date and coordinate conventions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 838d6ad6db976b1ef36ce07372baab0e91ababcf
 
 Milestone: 1
 
