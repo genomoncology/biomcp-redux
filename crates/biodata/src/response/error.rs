@@ -5,13 +5,22 @@ use serde::{Deserialize, Serialize};
 macro_rules! singleton {
     ($(#[$doc:meta])* $visibility:vis $name:ident { $variant:ident => $literal:literal }) => {
         $(#[$doc])*
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$literal])))]
         $visibility enum $name {
             $(#[$doc])*
             #[serde(rename = $literal)]
             $variant,
+        }
+
+        impl<'de> Deserialize<'de> for $name {
+            fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                match String::deserialize(deserializer)?.as_str() {
+                    $literal => Ok(Self::$variant),
+                    value => Err(serde::de::Error::unknown_variant(value, &[$literal])),
+                }
+            }
         }
     };
 }
