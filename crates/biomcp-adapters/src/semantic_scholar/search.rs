@@ -17,7 +17,7 @@ pub struct Search {
 #[serde(rename_all = "camelCase")]
 pub struct Paper {
     /// Stable source identity, never a title-derived fallback.
-    pub paper_id: SemanticScholarId,
+    pub paper_id: Option<SemanticScholarId>,
     /// Identifiers explicitly reported by the source.
     pub external_ids: Option<ExternalIds>,
     /// Whole title when supplied.
@@ -96,13 +96,13 @@ impl Paper {
         let pmcid = ids.as_ref().and_then(|v| v.pmc);
         let doi = ids.and_then(|v| v.doi);
         let key = if let Some(id) = pmid {
-            ArticleKey::Pubmed(id)
+            Some(ArticleKey::Pubmed(id))
         } else if let Some(id) = pmcid {
-            ArticleKey::Pmc(id)
+            Some(ArticleKey::Pmc(id))
         } else if let Some(id) = doi.clone() {
-            ArticleKey::Doi(id)
+            Some(ArticleKey::Doi(id))
         } else {
-            ArticleKey::SemanticScholar(self.paper_id)
+            self.paper_id.map(ArticleKey::SemanticScholar)
         };
         let header = self.title.map(|title| ArticleHeader {
             pmid,
@@ -124,7 +124,7 @@ impl Paper {
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
         ArticleItem {
-            key: Some(key),
+            key,
             pmid,
             header,
             cited_by: None,
