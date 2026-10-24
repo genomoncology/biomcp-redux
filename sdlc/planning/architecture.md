@@ -386,6 +386,10 @@ pub enum Source {
     #[serde(rename = "pubtator")] PubTator,
     #[serde(rename = "ctgov")] ClinicalTrialsGov,
     #[serde(rename = "civic")] Civic,
+    #[serde(rename = "litvar")] LitVar,
+    #[serde(rename = "semantic-scholar")] SemanticScholar,   // the one spelling everywhere
+    #[serde(rename = "icite")] Icite,
+    #[serde(rename = "pmc-oa")] PmcOa,
     // one variant per source
 }
 ```
@@ -394,12 +398,13 @@ Provenance appears at three levels, each as small as its question needs:
 
 - The envelope lists every source asked in `sources`.
 - Each section names its one source in its state.
-- A pooled search item lists every source that found it, with the native rank:
+- A pooled search item lists every source that found it, with the native rank. `found_by` prints as a map from source to rank, such as `{"pubmed": 2, "europepmc": 13}`, and appears only on pages built from several sources, because on a one-source page an item's rank is its position:
 
 ```rust
-pub struct FoundBy { pub source: Source, pub rank: NonZeroU32 }
-pub struct ArticleItem { pub header: ArticleHeader, pub found_by: Box<[FoundBy]> }
+pub struct ArticleItem { pub header: ArticleHeader, pub found_by: BTreeMap<Source, NonZeroU32>, pub cited_by: Option<u32> }
 ```
+
+`cited_by` comes from iCite and appears only under `--sort citations`. Both fields sit on the item and never on the biodata header, because they come from other sources.
 
 No field is merged from two sources (section 6.5), so field-level provenance needs no type.
 
@@ -506,7 +511,13 @@ pub enum Status { Complete, Partial, Absent, Failed }
 pub enum ItemStatus { Complete, Partial, Absent, Failed }
 pub struct PageInfo { pub offset: u32, pub returned: u32, pub total: u64 } // HGNC totals are known; pool metadata waits for a pooled source
 pub struct PoolInfo { pub id: PoolId, pub size: u32, pub created: Timestamp, pub expires: Timestamp }
-pub struct SourceOutcome { pub source: Source, pub state: SourceState, pub reason: Option<Reason>, pub count: Option<u64> }
+pub struct SourceOutcome {
+    pub source: Source, pub state: SourceState, pub reason: Option<Reason>,
+    pub term: Option<Text>,            // the exact query this source was sent
+    pub count: Option<u64>,            // the source's own total
+    pub fetched: Option<u32>,          // the depth the pool holds from this source
+    pub notices: Box<[Notice]>,        // such as PubMed's dropped words
+}
 pub enum SourceState { Ok, Stale, Syncing, Failed }
 
 /// One next command, with what it does.
@@ -515,8 +526,10 @@ pub struct Step { pub kind: StepKind, pub args: Box<[Box<str>]> }
 pub enum StepKind { Page, Fresh, Disambiguate, Sync, Section }
 
 #[non_exhaustive]
-pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing }
+pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, DeadlineExceeded, Offline, NoKey, Disabled, ReplayMiss, Syncing, NoJoinId, NotOpen }
 ```
+
+`NotOpen` marks a PMC article outside the PMC OA bucket or a preprint without full text. A filter or sort that a named source cannot apply is a usage error, code `usage.unsupported_filter`, naming the source and the filter before any request. A notice on a source outcome never changes its state: PubMed answered the words it kept.
 
 `Step` holds an argument list because the CLI and MCP print the same JSON. The binary spells each typed `Action` into a `Step` through the grammar (section 8.3). `Action::Run { request, fresh }` retains request policy; `Action::Sync { bundle }` names source-level housekeeping without inventing an entity request. The view prints a `Step` as a quoted shell command. An error prints the separate envelope in section 8.5.
 
@@ -549,7 +562,7 @@ Progressive disclosure is a rule about where each fact sits in the types, so eve
 **Where a fact goes.** A slice applies these rules in order to every fact it keeps:
 
 1. A scalar or small fixed subobject that the identity source returns and the common question needs goes on the card, such as the gene's band or its MANE Select pair.
-2. A fact from another source, or one that needs another request, goes in a section. One section has one source and one request, so asking for more data and paying for more data are the same act.
+2. A fact from another source, or one that needs another request, goes in a section. One section has one source and one request, so asking for more data and paying for more data are the same act. An article's `fulltext` and `supplements` sections each have one source, the PMC OA bucket, with Europe PMC full text for a preprint's `fulltext`. Reading a part of the body or rows of a supplementary file is a step, `article text` or `article supplement`, never a section.
 3. Bulky prose goes in a section unless the common question needs it. The gene's RefSeq summary is on the card by Ian's ruling, and UniProt function text is behind `protein`.
 4. A short list that cannot grow far, such as previous symbols, sits inline whole.
 5. A list that can grow, such as CIViC variants or Reactome pathways, sits in a section as `Capped<T> { items, total }` with a `next` step to the rest. A header holds only capped lists. A list is never cut without its total.
@@ -733,6 +746,7 @@ Limiters are keyed by a source key and never by a URL, a host name or an endpoin
 - Each limiter applies the keyed rate when the leg's source has its key configured, and the unkeyed rate otherwise.
 - Permits are served in arrival order. A waiter takes a ticket under a `Mutex`, and a `Condvar` wakes tickets in order. A caller sleeps for its rate slot outside the lock.
 - Each leg runs on its own thread, and only sources on the same quota wait for each other. A slow or rate-limited source therefore delays only the legs that share its provider.
+- The article slice declares `ncbi-eutils` (3 per second, 10 with a key), `europepmc` (assumed 10 per second), `pubtator` (3 per second), `litvar` (assumed 3 per second), `semantic-scholar` (1 per second with a key), `icite` (assumed 5 per second) and `pmc-oa` (assumed 10 per second). Each assumed rate is confirmed against the provider before its adapter lands.
 - A recorded case sends eight parallel calls to one E-utilities quota without a key and asserts from `--explain` that their start times keep the quota's rate. 0.9 drew seven 429 replies from the same pattern.
 - The limiter is per process. Several BioMCP processes sharing a key can exceed a provider's limit together. The provider then answers 429, and step 7 retries within the deadline.
 
@@ -1130,6 +1144,8 @@ Adapters have no tests of their own. Cases drive the binary over recordings, and
 | Bundle source | 150 to 400 |
 | The transport | 1,800 to 2,800 |
 
+The article slice estimates PubMed at 400 lines, Europe PMC 350, LitVar2 150, Semantic Scholar 200, iCite 150, the PMC OA bucket 200, the JATS reader 300 and the supplement readers 250, plus PubTator3 export for annotations. LitSense2 and PubTator3 search wait for Ian's ruling on whether they stay as named sources.
+
 These are estimates. The article slice measures its adapters first. If they average over 300 lines, this section is revised. Each file in an adapter folder stays under 300 lines.
 
 ## 6. The query layer
@@ -1212,6 +1228,8 @@ Rejected: a worker pool, a channel-based scheduler and an async executor. A doze
 
 Merge is a pure union. Records are keyed by their canonical identifier. Equal keys merge and distinct keys never do, even when two records share a DOI. Each merged item keeps every source that found it in `found_by`.
 
+For articles, the pool resolves DOI-only rows to PMIDs at build, by the source's own PubMed ID or by ESearch `[doi]`, and keeps a resolved PMID only when its record carries the same DOI. The key is the PMID, then the PMCID, then the DOI, then the Europe PMC ID. Duplicates within one source keep that source's first rank. Articles run only the sources the agent named.
+
 ```rust
 pub(crate) fn union<K: Ord + Clone, T>(legs: Vec<(Source, SourcePage<T>)>, key: impl Fn(&T) -> K) -> Vec<Merged<K, T>>;
 pub(crate) struct Merged<K, T> { pub key: K, pub value: T, pub found_by: Vec<FoundBy> }
@@ -1228,31 +1246,32 @@ pub(crate) struct Features { pub in_title: bool, pub in_abstract: bool, pub cura
 pub(crate) fn rank(items: &mut [PoolItem], q: &RankQuery);   // stable lexicographic sort, then best native rank, then ID
 ```
 
-One ranker serves every article command. The article slice chooses the features and their order against its question kernel. Gene search ranks by match kind, then locus group, as `planning/slices/gene.md` says. The ranker's tie-break table is one of the listed unit test exceptions.
+Articles have no ranker. Their order is the closed enum `Order`: `rank` keeps each source's own order and, with several sources, takes them in turns in the order the agent listed them, skipping a paper already shown; `date` takes each named source's own newest-first order the same way; `citations` sorts the whole pool by iCite's count of citing PubMed papers, ties in `rank` order, items with no count last. `Features` shrinks to the iCite count, filled only for `citations`. BioMCP never blends sources into one score, as `planning/slices/article.md` records. Gene search ranks by match kind, then locus group, as `planning/slices/gene.md` says. The ranker's tie-break table is one of the listed unit test exceptions.
 
 ### 6.7 Pools and paging
 
 A search whose answer comes from several sources builds a pool once and pages over it.
 
-1. **Key.** The request key is SHA-256 over the schema version, the normalized request without `limit`, `offset` and `pool`, and the set of enabled sources.
+1. **Key.** The request key is SHA-256 over the schema version, the normalized request without `limit`, `offset` and `pool`, and the set of enabled sources. For articles the normalized request holds the ordered source list and the sort, because the turn order depends on them.
 2. **Pick.** With `--pool ID`, read that pool. Without it, read the request key's current pool when it is fresh.
 3. **Build.** Otherwise build a new pool (section 6.8), give it a new ID, store it and make it the request key's current pool. A replaced pool stays readable by ID until its own expiry.
 4. **Page.** Slice the stored order by `offset` and `limit`. The page carries the pool's ID, size, creation and expiry times and the stored source outcomes.
 
 Every next-page step carries `--pool <id>`, so an agent's walk reads one snapshot from start to end even if a `--fresh` rerun replaces the current pool midway. A `--pool` ID that no longer exists returns the error `pool.expired` with a `restart` step: the same search at offset zero without `--pool`. A pool built while a source failed is partial, and its next steps include a `fresh` rerun.
 
-A pool holds every item's header and features, so a warm page is a store read with no request.
+A pool holds every item's header and features, so a warm page is a store read with no request. A pool never grows after build: each source is fetched to a fixed depth then. Article headers come from one ESummary call per page when the page is first read, and are stored with the pool, so a page read twice makes no second call.
 
 A pool's size is capped per entity. A capped pool whose sources all answered is complete, with `page.truncated` set and `page.total` giving the sources' total. Truncation is a fact about the answer's size, and the status stays complete.
 
 ### 6.8 Building an article pool
 
-The article pool has two stages, each with its own budget inside the command budget.
+The article pool runs only the sources the agent named. With no `--source`, it names PubMed alone, and the page is PubMed's own relevance order for the exact term echoed in the query.
 
-1. **Acquire.** Fan out to every article source for IDs and native ranks. One leg is mandatory: it sends PubMed the plain words of the query, such as `AKT1 E17K`, with relevance sort, in one window of up to 10,000 PMIDs. Other legs send their own typed queries. Union the results.
-2. **Enrich.** Fetch headers and abstracts for the pool in batches and compute features. Headers come from PubMed ESummary. Abstracts come from Europe PMC's core JSON for items its legs returned, and from PubMed EFetch XML through `MixedText` for the rest. Enrich runs under its own budget, so a slow acquire cannot leave no time for headers.
+1. **Acquire.** Run each named source in parallel with its own deadline. PubMed sends one ESearch for its whole window of up to 9,999 PMIDs. LitVar2 returns its whole list, capped at 9,999 with `page.truncated`. Europe PMC and Semantic Scholar return their first 100. Resolve DOI-only rows and fold as section 6.5 says, in the order section 6.6 names.
+2. **Headers.** Each page's headers come from PubMed ESummary for its PMIDs, or from the first source that found an item with no PMID, and are stored with the pool.
+3. **Citations.** Only `--sort citations` calls iCite, for every PMID the pool holds, in batches of 200, four at a time. Above 10,000 PMIDs the search refuses with a usage error that names the count.
 
-The pool cap never drops an item the mandatory leg returned. When the cap binds, other legs' items are cut first, by their best native rank. Items that enrich could not describe within its budget stay in the pool with the fields acquire gave them and rank after described items, and the pool is partial with reason `deadline_exceeded` on the enrich stage. The article slice's bar that every plain PubMed hit appears in the full walk therefore holds by construction, or the response says which source was partial and why.
+The pool never drops an item PubMed returned. A named source that fails leaves the pool partial with that source named and a `fresh` step. When PubMed is named and fails, the status is failed, because the plain PubMed floor cannot be met. The article slice's bar that every plain PubMed hit appears in the full walk therefore holds by construction, or the response says why.
 
 ### 6.9 Links across entities
 
@@ -1422,10 +1441,14 @@ biomcp get gene <INPUT>... --section SECTION...
     inputs: symbols, previous symbols, aliases, HGNC:N, Entrez IDs, Ensembl IDs; up to 20
     sections: protein, civic, clingen, constraint, expression, pathways, oncokb, all
 
-biomcp search article [TEXT] [--gene INPUT] [--variant TEXT] [--disease TEXT] [--drug TEXT]
-                      [--author TEXT] [--since DATE] [--until DATE] [--type TYPE]
+biomcp search article [TEXT] [--source LIST] [--sort RULE] [--gene INPUT] [--variant TEXT]
+                      [--disease TEXT] [--drug TEXT] [--author TEXT] [--journal TEXT]
+                      [--since DATE] [--until DATE] [--type TYPE]
                       [--limit N] [--offset N] [--pool ID]
-biomcp get article <PMID | PMCID | DOI>... [SECTION]...
+biomcp get article <PMID | PMCID | DOI | Europe PMC ID>... [SECTION]...
+    sections: fulltext, supplements, annotations, citations, all
+biomcp article text <ID> (--part N | --find TEXT)
+biomcp article supplement <ID> <FILE> [--rows A-B | --find TEXT]
 biomcp article citations <PMID> [--limit N] [--offset N] [--pool ID]
 biomcp article references <PMID> [--limit N] [--offset N] [--pool ID]
 
@@ -1440,7 +1463,7 @@ global: --format md  --fresh  --offline  --explain  --disable-sources LIST  --co
 housekeeping: help, schema, sync, store, serve, mcp-config, health, version, skill
 ```
 
-The gene tree follows `planning/slices/gene.md`. The article and trial flags are placeholders for what their slices name.
+The gene tree follows `planning/slices/gene.md` and the article tree follows `planning/slices/article.md`. The trial flags are placeholders for what its slice names.
 
 Sections are a closed enum per entity. Without `--section`, the trailing positional words that exactly name a section are sections, and the words before them are inputs. With `--section`, every positional word is an input. An input that is also a section name therefore needs `--section`, and help says so.
 
