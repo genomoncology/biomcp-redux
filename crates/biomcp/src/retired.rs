@@ -1,5 +1,5 @@
 //! Fixed migration guidance matched at command and section boundaries.
-use biodata::{ArticleSectionWord, ErrorMessage, GeneSectionWord};
+use biodata::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
 
 const GENE: &[(&str, ErrorMessage)] = &[
@@ -76,6 +76,15 @@ const ARTICLE_SECTIONS: &[(&str, ErrorMessage)] = &[
     ("assets", ErrorMessage::Supplements),
     ("asset", ErrorMessage::Supplement),
 ];
+const VARIANT_SECTIONS: &[(&str, ErrorMessage)] = &[
+    ("predictions", ErrorMessage::VariantPredict),
+    ("population-details", ErrorMessage::VariantPopulation),
+    ("cbioportal", ErrorMessage::VariantRecurrence),
+    ("cgi", ErrorMessage::VariantCgi),
+];
+const VARIANT_SEARCH: &[(&str, ErrorMessage)] = &[("--hgvsp", ErrorMessage::VariantProtein)];
+const VARIANT_GET: &[(&str, ErrorMessage)] = &[("--assembly", ErrorMessage::VariantBuild)];
+const VARIANT_NORMALIZE: &[(&str, ErrorMessage)] = &[("--input", ErrorMessage::VariantNormalize)];
 fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
     table
         .iter()
@@ -93,7 +102,12 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         }
         ["search", "gene", ..] | ["search", "trial", ..] => words.retired_option,
         ["get", "gene", input @ ..] => trailing(&words, input, SECTIONS, false),
-        ["search", "article", ..] => words.retired_option,
+        ["search", "article", ..] | ["search", "variant", ..] | ["variant", "normalize", ..] => {
+            words.retired_option
+        }
+        ["get", "variant", input @ ..] => words
+            .retired_option
+            .or_else(|| variant_section(&words, input)),
         ["get", "article", input @ ..] => words
             .retired_option
             .or_else(|| trailing(&words, input, ARTICLE_SECTIONS, true)),
@@ -102,6 +116,16 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
 }
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
     match positional {
+        ["variant", "structure", ..] => Some(ErrorMessage::VariantStructure),
+        ["variant", "oncokb", ..] => Some(ErrorMessage::VariantOncokb),
+        ["variant", "erepo", ..] => Some(ErrorMessage::VariantErepo),
+        ["variant", "cspec", ..] => Some(ErrorMessage::VariantCspec),
+        [
+            "variant",
+            "normalize",
+            "car" | "mutalyzer" | "variantvalidator" | "all",
+            ..,
+        ] => Some(ErrorMessage::VariantNormalize),
         ["gene", word] => find(GENE, word),
         ["batch", "trial", ..] => Some(ErrorMessage::TrialBatch),
         ["variant", "trials", ..] => Some(ErrorMessage::VariantTrials),
@@ -153,6 +177,30 @@ fn trailing(
         })
         .find_map(|word| find(table, word))
 }
+fn variant_section(words: &Words<'_>, input: &[&str]) -> Option<ErrorMessage> {
+    if !words.sections.is_empty() {
+        return words
+            .sections
+            .iter()
+            .find_map(|word| find(VARIANT_SECTIONS, word));
+    }
+    if words.literal {
+        return None;
+    }
+    input
+        .get(1..)
+        .unwrap_or_default()
+        .iter()
+        .rev()
+        .take_while(|word| {
+            find(VARIANT_SECTIONS, word).is_some()
+                || serde_json::from_value::<VariantSection>(serde_json::Value::String(
+                    (**word).into(),
+                ))
+                .is_ok()
+        })
+        .find_map(|word| find(VARIANT_SECTIONS, word))
+}
 struct Words<'a> {
     positional: Vec<&'a str>,
     literal: bool,
@@ -197,6 +245,9 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             Some(["search", "trial"]) => TRIAL_SEARCH,
             Some(["get", "article"]) => ARTICLE_GET,
             Some(["search", "gene"]) => SEARCH,
+            Some(["get", "variant"]) => VARIANT_GET,
+            Some(["search", "variant"]) => VARIANT_SEARCH,
+            Some(["variant", "normalize"]) => VARIANT_NORMALIZE,
             _ => &[],
         };
         let retired = find(table, flag);

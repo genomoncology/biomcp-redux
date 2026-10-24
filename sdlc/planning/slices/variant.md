@@ -134,7 +134,7 @@ One identity representation owns build and counting rules. One request definitio
 
 ## 6. Historical surface accounting
 
-The historical baseline has 112 leaf commands and 375 command-specific option slots. Global flags, aliases, positional section values and options on non-leaf parents are outside that denominator. The authoritative generator is [scripts/parity.py](../../../scripts/parity.py); it remains unchanged. The [accepted rulings](../../decisions/2026-10-24-variant-slice-rulings.md) define the target behavior. Ledger outcomes remain `Not yet decided` until implementation proves the corresponding capability. Advanced filters require known-positive source cases. Design approval does not increment shipped parity.
+The historical baseline has 112 leaf commands and 375 command-specific option slots. Global flags, aliases, positional section values and options on non-leaf parents are outside that denominator. The authoritative generator is [scripts/parity.py](../../../scripts/parity.py); it remains unchanged. The [accepted rulings](../../decisions/2026-10-24-variant-slice-rulings.md) define the target behavior. Ledger outcomes mark implemented command behavior separately from the live source-proof boundaries below. Unproved filter mappings remain `Not yet decided`. Advanced filters require known-positive source cases. Design approval does not increment shipped parity.
 
 | Historical capability | Proposed treatment | Reason and unresolved proof |
 | --- | --- | --- |
@@ -149,9 +149,9 @@ The historical baseline has 112 leaf commands and 375 command-specific option sl
 | `civic` | Keep exact variant/molecular-profile evidence. | Name matches alone include compound profiles and need exact membership checks. |
 | `cbioportal` | Keep explicit cohort recurrence. | Historical hidden cohort is not an accepted default. |
 | `gwas` and `search gwas` | The variant `gwas` section stays here; `search gwas` belongs to the GWAS slice. | Historical v1 has retired; no outage masquerades as empty. |
-| `all` | Keep bounded composition of available sections. | It cannot enable disabled/keyed sources or silently suppress errors. |
+| `all` | Select every implemented named section with bounded pages. | It preserves source skips and problems. It cannot supply a missing key; keyed annotation still needs explicit build and tumor context. |
 | `variant structure` | Defer; return a retirement message naming `get gene <SYMBOL> protein`. | No accepted answer requires structure/domain/PDB/AlphaFold aggregation. UniProt/InterPro remain gene/protein context, not new variant clinical evidence. |
-| `variant oncokb` | Keep as keyed section, migration action for old spelling. | No execution without user's key; current tier proof waits for user-provided configuration. |
+| `variant oncokb` | Keep as keyed section, migration action for old spelling. | No execution without user's key; actual licensed-tier proof stays open independently of local configured-key cases. |
 | `variant normalize` | Keep explicit service passthrough and independent source results. | No local full parser, correction or transcript selection. |
 | `variant erepo` | Keep CAid assertions and version detail; gene search explicit if retained. | No implicit gene-wide scan on missing allele assertions. |
 | `variant trials` | Move to trial slice's declared variant filter. | Trial wording and identity behavior belong to trial investigation. |
@@ -162,15 +162,41 @@ The historical baseline has 112 leaf commands and 375 command-specific option sl
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search variant` | Not yet decided | `--review-status`, `--condition`, `--has` | — | `--gene`, `--hgvsp`, `--significance`, `--missing`, `--max-frequency`, `--min-cadd`, `--consequence`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--impact`, `--lof`, `--therapy`, `--limit`, `--offset` | Literal ClinVar filters intersect declared protein or region selectors. The presence filter offers only the proven `clinvar` field selector. Other advanced mappings remain undecided without their own known-positive proof. |
-| `get variant` | Not yet decided | — | — | `--assembly` | Accepted published-grammar identity, CAR default and explicit chromosome build; implementation proof remains. |
-| `variant structure` | Not yet decided | — | — | — | Accepted deferral and retirement message to gene protein; implementation proof remains. |
-| `variant oncokb` | Not yet decided | — | — | — | Accepted keyed section; no executed-tier proof. |
-| `variant erepo` | Not yet decided | — | — | `--input`, `--gene`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | Accepted CAid assertions and selected version; implementation proof remains. |
-| `variant normalize` | Not yet decided | — | — | `--input` | Accepted explicit service passthrough; no parser implementation. |
+| `search variant` | Ported or renamed | `--gene`, `--hgvsp`, `--review-status`, `--condition`, `--has`, `--limit`, `--offset` | — | `--significance`, `--missing`, `--max-frequency`, `--min-cadd`, `--consequence`, `--population`, `--revel-min`, `--gerp-min`, `--tumor-site`, `--impact`, `--lof`, `--therapy` | Use declared gene plus --protein, explicit region/build, or unchanged --query with --source myvariant. --hgvsp names --protein in its retirement message. Only the three captured ClinVar filters are offered; the other mappings remain undecided. Native candidate pages retain selectors and source order. |
+| `get variant` | Ported or renamed | `--assembly` | — | — | Use published-grammar rsID, CAid, ClinVar Variation ID or reference-qualified HGVS. --assembly names --build; chromosome notation needs it. CAR is the default HGVS resolver. Shorthand names search variant --gene BRAF --protein V600E. Every candidate stays available. |
+| `variant structure` | Dropped by ruling | — | — | — | Deferred by ruling 6. Its retirement message names get gene <SYMBOL> protein; no structure or clinical equivalence is inferred. |
+| `variant oncokb` | Ported or renamed | — | — | — | Use get variant <ID> oncokb with explicit --build and --tumor-type. Missing keys skip before source access; synthetic keyed cases cover annotation and credential containment. Actual licensed-tier drug-response proof remains separate and does not follow from a configured key. |
+| `variant erepo` | Ported or renamed | `--input`, `--limit`, `--offset`, `--detail`, `--assertion`, `--version` | — | `--gene` | Use variant assertions <CAid> --source erepo; the input becomes positional. --assertion <PCERid> with optional --version selects details. Limit and offset page native assertions. The old leaf names this route. No gene-wide scan replaces missing allele assertions; the legacy --gene slot remains undecided pending an explicit product ruling. |
+| `variant normalize` | Ported or renamed | `--input` | — | — | Use variant normalize --source car, mutalyzer, variantvalidator or all with --hgvs TEXT. The old positional service and --input name this form. VariantValidator and all require --build. Results and mappings remain independent; there is no local repair or consensus. |
 <!-- /parity-accounting -->
 
-The 28 option slots above account for the six variant-owned leaves. Trial and GWAS slices own `variant trials` and `search gwas`, including their three and five option slots. The generated ledger supplies counts; do not copy a new total into ROADMAP by hand. `variant articles` remains the article accounting owner's responsibility. Unclosed cross-slice decisions stay undecided, even when migration behavior is proposed.
+The 28 option slots above account for the six variant-owned leaves. Trial and GWAS slices own `variant trials` and `search gwas`, including their three and five option slots. The generated ledger supplies counts; do not copy a new total into ROADMAP by hand. `variant articles` remains the article accounting owner's responsibility. Unclosed cross-slice decisions stay undecided. Undecided advanced filters do not prevent accounting for their owning command.
+
+### Implemented section answers and executable follow-ups
+
+The default card holds source identity and compact MyVariant facts. Named sections call their named source. Source-local empty results describe only that request. Section rows use `--section-limit` and `--section-offset`; identity candidates use `--limit` and `--offset`. Returned next actions carry argument arrays with the original identity, selectors and policy settings. Run those arrays as CLI arguments or the MCP tool's `args`; never reconstruct commands from publisher prose.
+
+| 0.9 section or helper | 1.0 answer and migration | Proof boundary |
+| --- | --- | --- |
+| `clinvar` | `get variant clinvar:13961 clinvar`; `variant assertions clinvar:13961 --source clinvar` selects native VCV, RCV or SCV records and versions. | Germline, somatic clinical impact and oncogenicity keep separate source domains and labels. Unmapped claims remain native. |
+| `erepo` | `get variant CA000434 erepo`; `variant assertions CA000434 --source erepo --assertion PCER000001171 --version 1.0.0` selects a historical document. | Native framework, source version and assessments survive. A disagreement flag does not silently repair a source label or identifier. |
+| `civic` | `get variant ID civic`; returned actions select native profile, collection and cursor. | Local cases enforce membership and preserve compound profile context. A name match remains a candidate. An actual positive joined source capture remains open. |
+| `population` | `get variant CA123643 population`; `variant population CA123643 --detail` pages native ancestry rows. | A source-given GRCh38 SNV is required. Missing dataset release keeps counts native; typed frequency needs matching release and counts in the same response. Missing values differ from zero. |
+| `population-details` | Retired with `variant population <ID> --detail`. | No inferred frequency or sum across overlapping groups. |
+| `gwas` | `get variant rs113488022 gwas` uses GWAS Catalog v2 and native pages. | Valid zero means no associations returned for that request. Search belongs to the GWAS slice. |
+| `oncokb` / old `variant oncokb` | `get variant ID oncokb --build GRCh38 --tumor-type TEXT`; the old leaf names this route. | Requires the user's key. Source-native rows keep contexts the common Statement cannot represent. No demo call, inferred treatment sensitivity or licensed-tier proof is claimed. |
+| `predict` / `predictions` | `get variant ID predict`; `predictions` returns the canonical replacement. | Native scores retain their component terms and versions. Scores are not a BioMCP classification or blended severity. |
+| `conservation` | `get variant ID conservation`. | Source scores and context arrays retain their own labels. |
+| `cosmic` | `get variant ID cosmic` reads MyVariant's historical snapshot. | Each fragment names its parent record and marks identity unverified. Snapshot age and terms remain visible. No exact allele join is established. |
+| `cbioportal` | Retired with `variant recurrence <ID> --source cbioportal --gene SYMBOL --study ID --profile ID --sample-set ID`. | An explicit cohort is mandatory. Distinct matched samples are page-local. Selected sample count is not an assayed denominator. |
+| `hotspots` | `get variant ID hotspots` preserves native transcript, residue and alternate counts as candidates. | The clinical review found no established transcript/consequence join. These are not exact allele frequencies or clinical actionability. Reuse terms remain unverified. |
+| `cgi` | Retired with an explicit deferral. | No proved current field mapping or speculative section. |
+| `all` | Select all implemented bounded sections. | Source restrictions and missing keys still apply. Each source keeps its own outcomes and failures. |
+| `variant cspec` | Retired with an explicit deferral. | No additional clinical interpretation or document route is offered. |
+
+Every source and component starts on with its publisher terms. Commercial users should configure both `noncommercial` and `restricted` groups. A group switches off matching fields inside MyVariant while unrelated fields remain available; explicitly naming `myvariant` switches off the whole service. These rules apply before requests, caches and replay. Named filters obey ClinVar component policy, and gene/protein selectors obey dbNSFP policy. Opaque raw queries are refused when component restrictions apply. No parser rewrites them or switches fields to evade a restriction.
+
+The complete CLI and MCP cases cover executable behavior and output caps. They do not close the remaining actual CIViC positive, same-response gnomAD release or licensed drug-response source proofs. The Cancer Hotspots candidate limitation remains explicit instead of claiming a join that the source does not establish.
 
 ### Named search filter contract
 

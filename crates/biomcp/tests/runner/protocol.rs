@@ -343,6 +343,17 @@ fn discovery() -> Check {
         "search trial",
         "get trial",
         "trial document",
+        "get variant",
+        "search variant",
+        "variant assertions",
+        "variant population",
+        "variant normalize",
+        "variant recurrence",
+        "predict",
+        "conservation",
+        "cosmic",
+        "gwas",
+        "hotspots",
     ] {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));
