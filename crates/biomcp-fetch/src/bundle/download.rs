@@ -230,7 +230,7 @@ impl Leg<'_> {
                                 if self.budget().expired() {
                                     Reason::Syncing
                                 } else {
-                                    Reason::Unavailable
+                                    crate::tls::reason(&error)
                                 },
                                 None,
                             )

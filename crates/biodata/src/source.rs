@@ -93,6 +93,10 @@ canonical_enum! {
         RateLimited => "rate_limited",
         /// The source was unavailable.
         Unavailable => "unavailable",
+        /// Platform or configured certificate verification failed.
+        Tls => "tls",
+        /// Connecting to or negotiating the configured proxy failed.
+        Proxy => "proxy",
         /// The source rejected the request.
         Rejected => "rejected",
         /// The reply could not be used.
