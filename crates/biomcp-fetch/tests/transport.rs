@@ -295,6 +295,10 @@ fn configured_credentials_are_sent_and_all_public_formatting_redacts_them() {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Thread-local fixture passes this test thread’s leg deadline to its Reply check"
+)]
 fn deadline_exhausted_during_reply_check_returns_deadline_exceeded() {
     // A per-thread timer lets the reply check finish only once its leg expires.
     thread_local! {
