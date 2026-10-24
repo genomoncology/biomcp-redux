@@ -39,6 +39,91 @@ E01 separately tests an actual successful zero-result request. F01 uses an actua
 
 The request plan uses twelve generic names, each shared by two clinical questions, plus Gleevec, Herceptin and Enhertu as brand identity controls. Each applicable source receives its own declared query; sources do not share an invented universal search language. A source that supplies no join identifier stays unjoinable. Source request identities, retrieval dates, bodies, byte counts, hashes and timings remain in the external evidence manifest. Reused bodies are local delivery of those original captures, not fresh provider responses.
 
+### Direct measurements
+
+Jobs `j11377`, `j11386` and `j11394` captured 120 small API/metadata requests and 17 bundle downloads on the M5. These were serial, uncached source reads on a shared machine. The manifest records the host/load and exact elapsed time per request. The numbers below describe those particular requests, not a quiet-machine speed benchmark, quota promise, warm-cache result or complete provider walk. Each bounded page preserves its native total and returned IDs. No clinical relevance score is computed.
+
+| Source surface | Actual requests | Observed result bytes, minimum–maximum | Elapsed seconds, minimum / median / maximum | What the public tier proved |
+| --- | ---: | ---: | --- | --- |
+| MyChem | 17 | 47–1,845,233 | 0.245 / 0.414 / 1.087 | Twelve generic and three brand candidate searches, metadata and E01. Mixed molecule, package, ontology and other native IDs; the first hit is not a universal drug identity. |
+| openFDA label, original name selectors | 15 | 80–371,896 | 0.322 / 0.347 / 0.989 | Twelve literal generic-name exact selectors returned native NOT_FOUND; Gleevec, Herceptin and Enhertu brand selectors returned labels. This does not establish generic-name label absence. |
+| openFDA label, additional brand | 1 | 80 | 0.381 / 0.381 / 0.381 | Tagrisso exact-brand selector returned NOT_FOUND. Eight planned brand queries were not executed after a research-script classification error. |
+| openFDA label, explicit native ID | 8 | 80–1,052,770 | 0.357 / 0.869 / 1.507 | Six SPL-set queries returned labels; NDA208065 and NDA215310 selectors returned native NOT_FOUND. No altered-query fallback followed those zeros. |
+| Drugs@FDA via openFDA | 12 | 80–132,993 | 0.321 / 0.376 / 0.810 | Eleven active-ingredient phrase searches returned application/product rows; axicabtagene returned NOT_FOUND. Product identity still needs checking. |
+| ChEMBL | 15 | 107–17,186 | 0.412 / 0.442 / 1.785 | Exact preferred-name and explicit brand-synonym queries return native molecule IDs and fields. The literal US fam-trastuzumab deruxtecan spelling returned zero; the explicit Enhertu synonym query returned a candidate. |
+| CIViC | 12 | 95–1,569 | 0.258 / 0.279 / 0.286 | Accepted therapy-filtered molecular profiles, disease, evidence, assertions, source citations and native IDs; each collection has its own total. Three rows per collection were requested. |
+| FDA orphan | 12 | 1,355–30,959 | 0.367 / 0.408 / 5.925 | Official form returns separate designation, approval, indication, dates and native record links. Search matches remain candidates until identity is checked. |
+| Open Targets search | 12 | 41–371 | 0.209 / 0.227 / 0.294 | Literal drug search returns native IDs/names and source totals. No product selection or clinical ranking follows from the hit order. |
+| Open Targets exact detail | 3 | 1,115–10,223 | 0.215 / 0.217 / 0.226 | Unique captured ChEMBL IDs for imatinib, trastuzumab and axi-cel return source indications, targets and mechanisms. These are three exact-ID probes, not all twelve detail records. |
+| DGIdb | 12 plus one schema read | 705–14,674 for drug queries | 0.287 / 0.314 / 0.410 | Actual introspection established the drug selector. Drug queries return concept IDs, candidate counts, native approval flags, gene interactions, interaction types and underlying source names. Approval flags are not jurisdiction/date-specific regulator events. |
+
+The twelve rows below cover both clinical questions for that drug. Cells are provider-reported candidate totals, not clinically confirmed identities or accepted-answer counts. `E/A` means independent CIViC evidence/assertion totals. The response pages remain bounded, so a total exceeding the returned page never implies that every candidate was inspected.
+
+| Cases | MyChem | ChEMBL preferred name | CIViC E/A | DGIdb | Open Targets | Drugs@FDA |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| D01–D02 imatinib | 18 | 1 | 242 / 1 | 2 | 3 | 19 |
+| D03–D04 trastuzumab | 100 | 1 | 115 / 1 | 5 | 14 | 11 |
+| D05–D06 osimertinib | 7 | 1 | 28 / 1 | 2 | 3 | 2 |
+| D07–D08 pembrolizumab | 14 | 1 | 24 / 0 | 1 | 4 | 2 |
+| D09–D10 olaparib | 3 | 1 | 67 / 0 | 1 | 2 | 6 |
+| D11–D12 venetoclax | 2 | 1 | 6 / 0 | 1 | 1 | 2 |
+| D13–D14 tamoxifen | 51 | 1 | 15 / 0 | 3 | 2 | 14 |
+| D15–D16 capecitabine | 20 | 1 | 12 / 0 | 1 | 3 | 15 |
+| D17–D18 ivosidenib | 2 | 1 | 6 / 1 | 2 | 1 | 1 |
+| D19–D20 fam-trastuzumab deruxtecan | 5 | 0 | 0 / 0 | 1 | 0 | 1 |
+| D21–D22 axicabtagene ciloleucel | 6 | 1 | 0 / 0 | 3 | 1 | Source NOT_FOUND |
+| D23–D24 mobocertinib | 3 | 1 | 1 / 0 | 2 | 2 | 1 |
+
+**Measured limits matter.** The trastuzumab Drugs@FDA phrase query returned BLA761139/Enhertu alongside trastuzumab products. Clinical D04 rejects merging these products. MyChem imatinib candidates include both distinct structure IDs and NDC packages. Thus neither a first hit nor a matching phrase can resolve ingredient/product equivalence. The EMA medicines capture contains two Tibsovo application records with different IDs/statuses, and its Exkivity row explicitly says application withdrawn. A bare current/ever-approved Boolean loses those distinctions.
+
+OpenFDA explicit-set captures supply dosing, warnings, interactions and indications for the six successful ID queries. Boxed-warning fields are present for captured Soltamox, Xeloda and Tibsovo, and the separate Herceptin/Enhertu brand captures. Absence of `boxed_warning` on another record means that field is absent on that record. It does not establish that the medicine has no serious warnings. Captured Xeloda SPL effective time is 20260205, version 32; the reviewer's accepted October 2025 FDA PDF is a separate document. Both revisions remain explicit. Generic-name and application-number zeros leave Tagrisso and Exkivity label coverage unproved by this API capture, even though official regulatory documents support the clinical answers.
+
+E01 returned HTTP 200 with `total: 0` for the exact quoted nonexistent-name control. No actual provider outage occurred in the authorized source reads. F01 therefore remains unmeasured; an implementation may test a clearly synthetic outage contract, but this investigation does not invent an actual failure. The research script initially misclassified Tagrisso's native NOT_FOUND as an endpoint error because it omitted the added source label from its empty-response set. The untouched original manifest and an offline correction identify the eight unexecuted requests. This is an experiment defect, not provider evidence.
+
+### Source choices and terms
+
+Every kept source starts enabled under the accepted policy. User configuration can disable individual sources or the existing restricted/noncommercial groups. Source outcomes carry the one registry's use category, publisher terms name and terms URL, including empty, skipped and failed outcomes. Source access does not grant an umbrella license over aggregated components. None of these kept read-only surfaces required a user key in this investigation; openFDA's optional key changes quota. A future account-required surface follows the existing no-key/no-request rule, without credential discovery.
+
+| ROADMAP candidate | Proposed disposition and evidence | Terms and limits |
+| --- | --- | --- |
+| MyChem.info | Keep candidate identity and explicit source cross-references; avoid default full-record overfetch. Preserve native ambiguity and component provenance. | [Source documentation](https://docs.mychem.info/en/latest/doc/data_source.html) and the captured metadata disagree in time: current captures contain limited DrugBank Open identity records, version 5-1-19, metadata-labeled CC0, whereas the older docs describe removal in 2021. These identity objects contain no interaction table. Metadata separately labels DrugCentral CC BY-SA 4.0, GtoPdb CC BY-SA 4.0 and UNII/NDC public domain. Carry each component's own terms; do not infer full DrugBank rights. |
+| openFDA labels and approvals | Keep explicit label/application/product retrieval and native section fields. Phrase/name search returns candidates. Do not infer current authorization from an old positive application row; D23 needs the authoritative withdrawal event. | [openFDA terms](https://open.fda.gov/terms/) and original label rights apply. Optional key only raises quota. Exact label identity, SPL set/version and effective time remain in output. Clinical data is source text, not a local interpretation. |
+| EMA | Keep the medicines bundle for named EU application/authorization context. Preserve the other captured feeds as candidates for explicit regulatory/safety/shortage layers; require a harvested matching-row question before adding their runtime sections. | [EMA legal notice](https://www.ema.europa.eu/en/about-us/about-website/legal-notice) permits commercial and noncommercial reproduction of EMA-owned information with attribution; third-party material has separate rights. No logo reuse. Preserve every feed's source timestamp. |
+| WHO prequalified medicines | Keep finished pharmaceutical products as a separate prequalification section. The captured FPP export includes trastuzumab records such as BT-ON001; this is not US/EU marketing authorization or a claim that every trastuzumab product is prequalified. Drop API and vaccine exports from the initial drug runtime because no harvested question needs them. | [WHO copyright policy](https://www.who.int/about/policies/publishing/copyright) identifies CC BY-NC-SA 3.0 IGO for qualifying publications, with exceptions and different database-material terms. The specific CSV grant remains unverified; retain raw files externally and label those terms honestly. This uncertainty grants no commercial right and does not disable the source by default. |
+| FDA orphan designations | Keep explicit designation records with native indication, status and distinct approval/date fields. | [Official FDA service](https://www.accessdata.fda.gov/scripts/opdlisting/oopd/). Government-service access is public; preserve source attribution and any third-party material conditions. A designation is not a marketing authorization. |
+| ChEMBL | Keep exact IDs, source synonym candidates, molecule type, source target/mechanism and indication relations needed by the clinical bank. Drop assay/structure screening surfaces from this slice. | [Publisher licensing](https://chembl.github.io/chembl-licensing/): CC BY-SA 3.0 with attribution and release. MyChem metadata names ChEMBL_37 for its intermediary snapshot; a direct reply without a release must not borrow that intermediary release. |
+| Open Targets | Keep explicit drug target/indication detail using checked source ChEMBL IDs. Search remains candidate discovery. No native stage becomes regulatory authorization. | [Publisher licence](https://platform-docs.opentargets.org/licence): Platform data marked CC0, with stated upstream context. No local target-based treatment recommendation. |
+| DGIdb | Keep explicit source-native drug–gene interaction rows and component sources; omit arbitrary scores from default identity output. | [Publisher](https://dgidb.org/). This investigation did not establish a blanket data redistribution grant from its JavaScript-only about page. Preserve underlying source terms; code licensing does not relicense the data. |
+| CIViC | Keep explicit therapy evidence/assertion sections with molecular-profile and combination context, source citations and separate pagination. | [API](https://docs.civicdb.org/en/latest/api.html), [CC0 licensing](https://civicdb.org/releases/licensing). The public anonymous limit is documented; no editorial actions or account/key acquisition. A therapy-name match is not a universal drug-equivalence ruling. |
+| DDInter, investigate | Keep the captured eight-file bundle for explicit structured interaction pages. The native rows include Warfarin–Capecitabine and Tamoxifen–Paroxetine, each labeled Major. First pair occurs in B and L; deduplicate by source pair IDs while preserving provenance. The CSV only supplies pair IDs, names and level, not management prose. | [DDInter terms](https://ddinter.scbdd.com/terms/): CC BY-NC-SA 4.0. The source warns that a missing interaction is not proof of safety. Keep severity as a native claim; it does not settle D13's uncertain efficacy effect. |
+| PharmacoDB, investigate | Drop from this cancer-care drug slice. Published cell-line screen metrics do not answer these clinical authorization/label/identity questions. Do not fetch full experiment data. | [Publisher](https://pharmacodb.ca/), reviewed 0.9 adapter/docs. A code or paper license is not a verified data grant. No API response, byte size or cadence is claimed. |
+| CVX vaccine codes, investigate | Drop the automatic vaccine alias bridge from this slice. No accepted question requires a vaccine product/code join. Do not download its files. A future cancer-vaccine question can name its own consumer and source identity requirement. | [CDC code-set publisher](https://www.cdc.gov/iis/code-sets/index.html). Candidate files are `cvx.txt`, `TRADENAME.txt`, `mvx.txt`; sizes/cadence and file-specific license were not measured here. No chemical-name bridge replaces explicit product identity. |
+
+### Bundle inventory
+
+Sizes below are actual captured bytes, not the 0.9 size hints. Each row points to its original URL in the external request plan. EMA source metadata supplies separate UTC timestamps; its [publisher download description](https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format) states twice-daily publication. Source publication cadence and a client's proposed freshness window are different facts. WHO and DDInter publication cadence were not established. DDInter HTTP Last-Modified values date to 2021-06-26; fetching today does not make those data current to today.
+
+| Bundle file(s) | Captured bytes | Proposed runtime use | Source cadence and rights |
+| --- | ---: | --- | --- |
+| EMA `medicines.json` | 6,795,832 | Keep; 2,754 native records | Twice daily; source timestamp retained; EMA attribution/third-party exceptions |
+| EMA `post_authorisation.json` | 216,809 | Defer runtime until a matching question; 152 records | Same publisher cadence and terms |
+| EMA `referrals.json` | 729,081 | Defer runtime until a matching question; 592 records | Same publisher cadence and terms |
+| EMA `psusas.json` | 1,416,093 | Defer runtime until a matching question; 2,738 records | Same publisher cadence and terms |
+| EMA `dhpcs.json` | 143,367 | Defer runtime until a matching question; 175 records | Same publisher cadence and terms |
+| EMA `shortages.json` | 71,404 | Defer runtime until a matching question; 85 records | Same publisher cadence and terms |
+| WHO `who_pq.csv` | 129,709 | Keep FPP; 658 records | Cadence unverified; CSV grant unverified, WHO policy as above |
+| WHO `who_api.csv` | 23,028 | Drop initial runtime; 196 records | Cadence/CSV grant unverified; no accepted clinical question |
+| WHO `who_vaccines.csv` | 48,504 | Drop initial runtime; 288 records | Cadence/CSV grant unverified; no accepted vaccine question |
+| DDInter `ddinter_downloads_code_A.csv` | 3,343,434 | Keep complete replacement set | Cadence unverified; CC BY-NC-SA 4.0 |
+| DDInter `ddinter_downloads_code_B.csv` | 867,726 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_D.csv` | 1,520,704 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_H.csv` | 705,088 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_L.csv` | 3,885,702 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_P.csv` | 317,460 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_R.csv` | 1,793,766 | Keep complete replacement set | Same terms/cadence qualification |
+| DDInter `ddinter_downloads_code_V.csv` | 700,777 | Keep complete replacement set | Same terms/cadence qualification |
+| CVX `cvx.txt`, `TRADENAME.txt`, `mvx.txt` | Unmeasured; not downloaded | Drop initial runtime | Cadence and file-specific terms unverified |
+
 ### Identity contract
 
 The clinical reviewer distinguishes ingredient, precise ingredient/salt, clinical drug/formulation, branded product, label SPL set/version, NDC package, FDA NDA/BLA, EU product/authorization and orphan designation. Preserve all those source-qualified levels. An explicit source identifier relation can connect them; a substring, antibody component, suffix removal, inferred salt equivalence or first search hit cannot.
@@ -90,3 +175,89 @@ The main risks are restated identifier mappings, inferred product merges, stale 
 | Should bench-oriented PharmacoDB and CVX remain in this slice? | Expands 0.9 surface without an accepted cancer-care question; omission may lose an old helper. | Drop PharmacoDB cell-line screens and the vaccine alias bridge here, with fixed migration guidance and named PM ruling. Do not erase another slice's possible consumer. |
 
 This design files no downstream tickets. The PM owns final command/product rulings and implementation order. No live source outage authorizes refresh loops, altered queries or inferred clinical facts.
+
+## Progressive disclosure and measured budget basis
+
+Scratch design projections of the twelve actual ChEMBL preferred-name replies produce identity-only search envelopes of 328–487 compact JSON bytes and candidate-card envelopes of 327–494 bytes. These projections include query, schema, source outcome, terms, native total/candidate IDs and typed-command sketches. They are not shipped schemas, exact-ID get acceptance, complete clinical answers or a comparator for the other eleven sources. The fam-trastuzumab spelling retains its actual empty result. Each projection preserves its source capture reference in the external manifest.
+
+Complete native JSON field arrays from the nine successful label captures measure as follows. These are field-only sizes, not full envelopes. They show why a full label cannot hide inside a default card.
+
+| Native field | Captured records carrying it | Compact JSON bytes, minimum–maximum | Disclosure |
+| --- | ---: | ---: | --- |
+| `boxed_warning` | 5 | 910–2,435 | Named warning section with revision and source identity; no clinical summarization |
+| `dosage_and_administration` | 9 | 991–20,728 | Named dosing section; complete text through explicit continuation |
+| `drug_interactions` | 7 | 407–3,061 | Label interaction text separate from DDInter pair rows |
+| `indications_and_usage` | 9 | 938–24,532 | Named source indications, preserving combinations and populations |
+| `warnings_and_cautions` | 9 | 6,316–19,716 | Named full warning section through continuation |
+
+The following numbers are proposed initial full-envelope allocations, not measured product ceilings. Implementation measures actual CLI and MCP envelopes on every harvested case and records enforcing `max_bytes` values with the existing headroom rule. A smaller comparable 0.9 output remains the bound unless added required provenance has an accepted exception. The approved absence of a valid 0.9 comparator here prevents a claim that these allocations meet parity. Bytes divided by four below is an estimate only; no tokenizer count was measured.
+
+| Default output or section | Proposed allocation in bytes | Estimated tokens at bytes / 4 | Measurement qualification |
+| --- | ---: | ---: | --- |
+| Five source candidate headers | 4,096 | 1,024 | One-source ChEMBL identity projection measured above; other sources/full search not yet implemented |
+| Exact identity card | 3,072 | 768 | Candidate identity projection measured; exact selection and optional authorization facts still need implementation |
+| Approvals or regulatory page | 6,144 | 1,536 | Native source rows captured; full-envelope projection unmeasured |
+| Boxed warning | 6,144 | 1,536 | Native complete arrays measured above; metadata overhead still needs implementation measurement |
+| Dosing, indications or full warnings page | 8,192 | 2,048 | Native arrays exceed a page; mechanical text continuation preserves every byte/character without choosing clinical sentences |
+| Target/mechanism page | 6,144 | 1,536 | Three Open Targets details and DGIdb native rows captured; full envelope unmeasured |
+| CIViC evidence/assertion page | 6,144 | 1,536 | Bounded native evidence/assertions captured; full envelope unmeasured |
+| Structured interaction page | 6,144 | 1,536 | Native DDInter pairs/levels captured; full envelope unmeasured |
+| Explicit synchronization receipt | 2,048 | 512 | File manifests captured; synchronization command unimplemented |
+
+No default `all` request can silently fetch or print complete labels, every interaction or all source evidence. If retained as an explicit convenience, `all` returns independently bounded section pages with exact next actions and source outcomes. A text continuation is a mechanical slice of the original source section with offsets and total, not a selected clinical summary. Unknown total, source truncation and unsupported fields remain visible. Output growth fails the actual cases; these design allocations do not create another runtime configuration table.
+
+## 0.9 static accounting and comparison limit
+
+The official v0.9.4 release tag returned HTTP 404. The acquired published v0.9.3 archive matched its official checksum; observed executable version was `biomcp 0.9.3`. The archive SHA-256 is `e637062c18c6692f3ec49c5847e69b29f6feee7f7909345970bd504d72174994`; executable SHA-256 is `54f66769d9193c569d1b65756ad766eafd1a2c5e92d08f8c855cc8964e9a7145`. This design does not silently use the machine's installed 0.9.1 binary.
+
+**The valid 0.9 comparison is unmeasured.** Job `j11400` attempted local delivery through the existing CA/leaf proxy recipe, but its local proxy received zero requests while 26 old commands returned output. The job was cancelled, owned descendants were verified absent, and its outputs remain quarantined with unknown network provenance. They are excluded from every byte, fact, timing and completeness comparison here. This does not establish that every source fact was false or quantify the unknown provider traffic. PM ruling m4677 permits reviewing this design from the verified 120 API and 17 bundle captures, with the 0.9 comparator deferred to a separate ticket behind verified network containment. No additional provider or old-binary execution is authorized by this design.
+
+The following table accounts for every drug-owned leaf and option from static released v0.9.3 declarations. Outcomes are proposals for PM review. They do not close the generated parity ledger before the PM's ruling. Global `--json`, `--no-cache`, `--disable-sources`, short aliases and positional values are outside the historical option denominator. The generic `batch` leaf belongs to the existing shared accounting; its drug choice is mapped below without inventing another historical command.
+
+| 0.9 command | Every command-specific option | Proposed mapping and reason |
+| --- | --- | --- |
+| `search drug` | `--query`, `--target`, `--indication`, `--mechanism`, `--type`, `--atc`, `--pharm-class`, `--interactions`, `--limit`, `--offset`, `--region`, `--product-type` | Keep literal query and bounded source paging. Keep target/indication only with a documented native selector and a known-positive harvested case; native relation captures are not selector-parity proof. Type/ATC/pharmacologic-class filters remain undecided until positive native-field cases. Retire semantic mechanism token expansion. Retire unsupported partner-search with guidance to explicit interactions. Replace implicit regions with explicit regulator/source selection by PM ruling. Keep WHO FPP scope; propose dropping API/vaccine product types absent a cancer-care consumer. |
+| `get drug` | `--name`, `--region`, `--raw` | Name becomes candidate search or requires an explicitly selected source ID. Region maps to explicit source. Complete native label text stays reachable through named sections/continuations; replace the ambiguous raw-rendering switch with that contract. PM rules on exact migration spelling. |
+| `drug interactions` | `--limit`, `--offset` | Keep source-native pair pages with exact anchor/partner IDs and bundle freshness; use source-local continuation. No label text or empty bundle implies a complete clinical interaction assessment. |
+| `drug cell-lines` | `--cell-line`, `--dataset`, `--limit`, `--offset` | Propose drop from the cancer-care drug slice; unscoped experiments and cell-line screen interpretation do not answer this bank. No new screening consumer is invented. |
+| `ema sync` | No command-specific options | Map to explicit `drug sync --source ema` or retain existing source maintenance spelling by PM ruling. Preserve atomic complete-file replacement. |
+| `who sync` | No command-specific options | Map explicit FPP bundle maintenance. API/vaccine scope proposed dropped; never auto-download during a read. |
+| `ddinter sync` | No command-specific options | Map explicit complete eight-file replacement; a failed validation preserves the previous usable set. |
+| `cvx sync` | No command-specific options | Propose drop from this slice with the vaccine bridge; no harvested cancer-care consumer. |
+| `gene drugs` | `--limit`, `--offset` | Gene design explicitly transferred ownership here. Propose `search drug --target` using a checked source-native gene selector, without name inference or arbitrary score ranking. The existing gene ledger stays untouched until coordinated final accounting. |
+| `disease drugs` | `--limit`, `--offset` | Propose explicit native indication search after disease identity selection. The disease slice owns its input and final shared ledger placement. No free-text synonym expansion. |
+| `pathway drugs` | `--limit`, `--offset` | Leave with the pathway slice. A pathway's gene list is not a locally computed treatment indication or drug relevance ranking. |
+| `drug trials` | `--limit`, `--offset`, `--source`, `--no-alias-expand` | Already owned by the accepted trial accounting: literal `search trial --intervention`, explicit source and continuation; alias expansion retires. Do not duplicate its ledger row here. |
+| `drug adverse-events` | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset`; date aliases `--since`, `--until` | Transfer to adverse-event investigation. Preserve that owner for report shares, denominator/source meaning and fallback rulings. Drug identity must remain exact; no FAERS zero becomes safety. |
+| Generic `batch` with drug | Shared `--sections`; `--source` is trial-only, `--mode` and `--pdf` are article-only | Propose multiple checked drug IDs through ordinary get with the same explicit sections. Do not claim unsupported drug options or add a duplicate generic leaf. |
+
+Static source inspection finds `--target` constructed against `gtopdb.interaction_targets.symbol`, followed by local hit checks; indication uses `drugcentral.drug_use.indication.concept_name`. These declarations alone do not prove source-filter correctness. The old mechanism option adds local token clauses and ATC expansions, which conflicts with the accepted no-text-heuristics rule. The drug search declaration has no approval-year flag. This investigation makes no claim to have reproduced or corrected another entity's FDA year bug. Every retained drug filter needs an explicit captured source field and a known-positive case before implementation accepts it.
+
+| 0.9 section or behavior | Proposed outcome |
+| --- | --- |
+| Default identity, mechanisms and targets | Keep concise attributed identity; targets/mechanisms are explicit relations and sections. No arbitrary default cross-source target list. |
+| `label` and `--raw` | Keep source-native text, source heading, version and complete continuation; do not silently cap JSON text or synthesize a medical summary. |
+| `approvals` | Keep native US application/product/history records with identity checks; an approval-bearing historical row does not establish current status. |
+| `regulatory` | Keep explicit jurisdiction and source, distinct authorization/prequalification/orphan events. No universal region/date Boolean. |
+| `safety` | Keep explicit source warning sections. EMA communications/assessments are not the same as an FDA boxed warning; their content is a separate attributed layer. |
+| `shortage` | Native shortage sections are proposed optional followups only when a harvested question and actual matching row establish fields. Do not promise a current shortage from static source capability alone. |
+| `targets` | Keep source-native drug–gene relations and mechanism context. A target is not an approved biomarker indication. |
+| `indications` | Keep source-native populations, combinations and dates; clinical scope remains literal. |
+| `interactions` | Keep DDInter structured rows separately from label interaction prose, with explicit terms and completeness limits. |
+| `civic` | Keep native therapy/profile/evidence/assertion context and separate pages. |
+| `cell_lines` | Propose drop with PharmacoDB bench screens. |
+| `all` | If retained, explicitly request only implemented bounded sections and preserve each continuation; no automatic remote refresh or hidden screens. |
+| Cross-entity article/trial/safety next commands | Keep typed next commands to their owning entities; their own selector/ranking rules remain authoritative. |
+| Brand aliases and local vaccine bridge | Use explicit source-supplied candidate relations. Drop local phrase/chemical heuristics and the unneeded CVX bridge. |
+
+## Evidence and review limits
+
+The evidence store is Yellow at `/home/ian/workspace/data/biomcp-redux/0116-drug-investigation/2289-drug-slice-investigation/`. Its archive `evidence.tar.gz` is 36,447,511 bytes with SHA-256 `4c5273ff98ecf541906ad5205893aa2e385e8a90f84c0d3317c10a734ac53dca`; all 247 files in `SHA256SUMS.json` were independently verified after transfer. The three capture manifests separate original requests, the bounded followup and explicit label-ID queries. `followup-classification-correction.json` and `classification-offline-verification.json` preserve the false-stop correction without changing the original evidence. `design-projections/` holds the measured identity sketches. `offline/QUARANTINE.json` marks the cancelled comparison and unknown network provenance. No quarantined output supplies a number in this design.
+
+The verified external evidence consists of exact request plans, per-response request/date/status/body hashes, source bodies, original and corrected research classification records, source metadata and bundle bytes. Raw unknown-license payloads remain outside Git. Neither licensed answer passages nor provider raw bodies are part of this branch. Clinical accepted answers are short attributed facts from the fresh reviewer; no curation-team material was used.
+
+The source investigation is bounded rather than complete: three Open Targets details, bounded candidate/evidence pages, nine positive labels, no exact full provider walks, no warm-cache measurements, no actual provider-failure witness, no verified direct CVX/PharmacoDB payload, and no valid 0.9 comparison. No current status is inferred from a stale positive row. The shared released executable remains owned for the disease lane's existing dependency; cleanup must preserve it until that owner finishes. A later benchmark needs verified network containment before its first binary invocation.
+
+The initial proposed local runtime keeps ten files totaling 20,060,198 captured source bytes: EMA medicines, WHO finished products and all eight DDInter partitions. Index size, sync CPU and storage overhead remain unmeasured. Default source-specific searches need one request; explicitly requesting another live source adds that source's declared request, rather than implicit fan-out. This is the measured resource cost behind the recommendation, not a hosting or paid-service commitment.
+
+The PM must decide whether to accept the proposed source/command choices and the measured source basis now, then file the separate contained 0.9 comparison and implementation work. The recommendation is to proceed with the reviewed identity boundaries and retrieval design, keep unsupported filters explicitly undecided, and obtain exact command budgets during implementation. No action or clinical/configuration question is assigned to Ian by this design.
