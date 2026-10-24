@@ -50,6 +50,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::VariantNormalize(query) => crate::variant::normalize::normalize(cx, query),
         Request::SearchVariant(query) => crate::variant::search::search(cx, query),
         Request::VariantRecurrence(query) => crate::variant::recurrence::run(cx, query),
         Request::GetVariant(query) => crate::variant::get(cx, query),

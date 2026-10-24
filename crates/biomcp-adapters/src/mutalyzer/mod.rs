@@ -3,6 +3,7 @@ use crate::quotas;
 use biodata::{Representation, Source, SourceRecord, Text, Variant, VariantHeader};
 use biomcp_fetch::{BadReply, Endpoint, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec};
 use serde::Deserialize;
+mod normalization;
 use std::time::Duration;
 /// Service rights remain distinct from the software license.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -17,7 +18,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::MUTALYZER,
     deadline: Duration::from_secs(15),
 };
-const NORMALIZE: Endpoint = SPEC.get("/normalize").json_rejections();
+const NORMALIZE: Endpoint = SPEC
+    .get("/normalize")
+    .json_rejections()
+    .fresh(biomcp_fetch::Freshness::Days(1));
 /// A source's exact outcome, never a local normalization.
 #[derive(Debug)]
 pub enum Resolution {
@@ -28,17 +32,35 @@ pub enum Resolution {
 }
 #[derive(Deserialize)]
 struct Normalized {
-    input_description: Option<Text>,
-    normalized_description: Option<Text>,
+    #[serde(default)]
+    custom: Option<Box<Normalized>>,
+    corrected_description: Option<String>,
+    protein: Option<Description>,
+    rna: Option<Description>,
+    equivalent_descriptions: Option<std::collections::BTreeMap<String, Vec<Description>>>,
+    back_translated_descriptions: Option<Vec<String>>,
+    infos: Option<Vec<Message>>,
+    warnings: Option<Vec<Message>>,
+    version: Option<String>,
+    input_description: Option<String>,
+    normalized_description: Option<String>,
     errors: Option<Vec<Message>>,
 }
 #[derive(Deserialize)]
 struct Message {
     code: Text,
+    details: Option<String>,
+}
+#[derive(Deserialize)]
+struct Description {
+    description: String,
 }
 impl Normalized {
+    fn payload(&self) -> &Self {
+        self.custom.as_deref().unwrap_or(self)
+    }
     fn errors(&self) -> &[Message] {
-        self.errors.as_deref().unwrap_or(&[])
+        self.payload().errors.as_deref().unwrap_or(&[])
     }
 }
 impl Reply for Normalized {
@@ -69,23 +91,42 @@ impl Reply for Normalized {
     }
 }
 /// Route only the explicitly selected service, preserving the supplied description.
-pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
+fn fetch(leg: &Leg<'_>, input: &str) -> Result<Normalized, RequestError> {
     let endpoint = NORMALIZE.clone().with_segments(&[PathSegment::new(input)?]);
-    let (raw, _) = leg.json_received_checked::<Normalized>(&endpoint, &[], |reply| {
-        if !reply.errors().is_empty()
-            || reply.input_description.as_ref().map(Text::as_str) == Some(input)
-        {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    })?;
+    let mut raw = leg.json_checked_admission::<Normalized>(
+        &endpoint,
+        &[],
+        |reply| {
+            if (!reply.errors().is_empty()
+                && reply
+                    .payload()
+                    .input_description
+                    .as_ref()
+                    .is_none_or(|description| description.as_str() == input))
+                || reply.payload().input_description.as_deref() == Some(input)
+            {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
+        |reply| reply.errors().is_empty(),
+    )?;
+    Ok(if let Some(custom) = raw.custom.take() {
+        *custom
+    } else {
+        raw
+    })
+}
+/// Route only the explicitly selected service, preserving the supplied description.
+pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
+    let raw = fetch(leg, input)?;
     if !raw.errors().is_empty() {
         return Ok(Resolution::Rejected(
             raw.errors.into_iter().flatten().map(|e| e.code).collect(),
         ));
     }
-    let notation = raw.normalized_description.ok_or_else(bad)?;
+    let notation = Text::new(&raw.normalized_description.ok_or_else(bad)?).map_err(|_| bad())?;
     let expression = biodata::Expression::hgvs(notation.clone()).map_err(|_| bad())?;
     Ok(Resolution::Found(VariantHeader {
         identity: Variant {
@@ -117,3 +158,6 @@ fn bad() -> RequestError {
     }
     .into()
 }
+
+/// Source normalization descriptions, mappings and native messages.
+pub use normalization::normalize;

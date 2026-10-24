@@ -33,48 +33,10 @@ pub enum Resolution {
 }
 /// Resolve unchanged HGVS through the declared GET endpoint.
 pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
-    read(leg, input, false)
+    map::allele(read(leg, input, false)?).map_err(|_| bad())
 }
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
-    read(leg, input, true)
+    map::allele(read(leg, input, true)?).map_err(|_| bad())
 }
-fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<Resolution, RequestError> {
-    let endpoint = if by_id {
-        ALLELE.clone().with_segments(&[PathSegment::new(input)?])
-    } else {
-        ALLELE.clone()
-    };
-    let mut params = vec![("fields", Arg::Text(FIELDS))];
-    if !by_id {
-        params.insert(0, ("hgvs", Arg::Text(input)));
-    }
-    let reply = leg.json_checked_admission::<raw::Allele>(
-        &endpoint,
-        &params,
-        |r| {
-            if !by_id
-                || r.error_type.is_some()
-                || r.id
-                    .as_ref()
-                    .is_some_and(|url| url.as_str().rsplit('/').next() == Some(input))
-            {
-                Ok(())
-            } else {
-                Err(biomcp_fetch::BadReply)
-            }
-        },
-        |r| r.error_type.is_none(),
-    )?;
-    map::allele(reply).map_err(|_| bad())
-}
-
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::AlleleRegistry,
-        reason: biodata::Reason::BadReply,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestError> {

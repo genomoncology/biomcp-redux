@@ -27,7 +27,9 @@ pub use article_recommend::ArticleRecommend;
 mod recurrence;
 pub use recurrence::{RecurrenceSource, VariantRecurrenceQuery};
 mod variant;
+mod variant_normalize;
 pub use variant::{VariantGet, VariantResolver};
+pub use variant_normalize::{NormalizationSource, VariantNormalize};
 
 mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};

@@ -51,3 +51,4 @@ variant-search: Search explicit gene/protein, assembly-qualified regions or raw 
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
+variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions. Cases: `tests/cases/variant/normalization.yaml`, `crates/biomcp/tests/runner/normalization.rs`.
