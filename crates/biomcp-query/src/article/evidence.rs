@@ -1,5 +1,6 @@
 //! Independent citation graph and explicit JATS reference evidence with stored continuations.
 mod graph;
+mod locator;
 mod page;
 mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};

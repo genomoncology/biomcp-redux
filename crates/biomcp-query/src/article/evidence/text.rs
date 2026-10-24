@@ -1,7 +1,7 @@
 use super::{Snapshot, source};
 use crate::{Ctx, Outcome, status};
 use biodata::{
-    ArticleEvidence, ArticleInput, Capped, CitationParagraphs, EvidenceParagraph, Section, Source,
+    ArticleEvidence, Capped, CitationParagraphs, EvidenceParagraph, Section, Source,
 };
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
@@ -13,7 +13,7 @@ pub(super) fn read<'a>(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     // The text source remains independent even if the graph leg failed.
-    let Some(id) = (match crate::article::text::resolve(cx, query.citing(), deadline, out) {
+    let Some((id, pmid)) = (match super::locator::resolve(cx, query.citing(), snapshot, deadline, out) {
         Ok(id) => id,
         Err(error) => {
             snapshot.fulltext = Some(Section::unavailable(
@@ -38,11 +38,6 @@ pub(super) fn read<'a>(
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let pmid = if let ArticleInput::Pmid(id) = query.citing() {
-        Some(*id)
-    } else {
-        None
-    };
     let result = pmc_oa::read(&leg, id, pmid);
     *deadline = crate::article::consume(*deadline, started, leg.remaining());
     source(
