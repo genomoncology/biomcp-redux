@@ -6,9 +6,9 @@ pub use article::{
     CorrectionRelation,
 };
 pub use article::{ArticleHeader, PublicationType};
-pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
+pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
-pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
+pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
 mod response;

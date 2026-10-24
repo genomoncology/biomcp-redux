@@ -14,7 +14,7 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
-        Action::KeyHelp => Ok(vec!["help".into(), "key".into(), "oncokb".into()]),
+        Action::KeyHelp(source) => Ok(vec!["help".into(), "key".into(), source.to_string()]),
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {

@@ -24,3 +24,6 @@ pub mod europepmc;
 pub mod pubtator;
 
 pub mod icite;
+
+/// Semantic Scholar graph metadata under one shared optional-key quota.
+pub mod semantic_scholar;

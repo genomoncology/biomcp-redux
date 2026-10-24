@@ -61,3 +61,11 @@ pub(crate) static PUBTATOR: Quota =
 // Conservative local iCite policy; no published numeric provider limit verified.
 pub(crate) static ICITE: Quota =
     Quota::new(SourceKey::declare("icite"), Rate::per_second(5), None, 4);
+
+// Conservative shared-pool keyless policy; keyed introductory provider limit.
+pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
+    SourceKey::declare("semantic-scholar"),
+    Rate::every_seconds(2),
+    Some(Rate::per_second(1)),
+    1,
+);

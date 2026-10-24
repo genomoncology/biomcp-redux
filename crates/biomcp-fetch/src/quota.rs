@@ -39,6 +39,7 @@ impl SourceKey {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rate {
     per_second: u16,
+    seconds: u16,
     burst: u16,
 }
 
@@ -51,13 +52,22 @@ impl Rate {
         Self::new(per_second, 1)
     }
 
+    /// Declare one request per whole-second interval, without a burst.
+    ///
+    /// # Panics
+    /// A zero interval fails during construction, including constant evaluation.
+    pub const fn every_seconds(seconds: u16) -> Self {
+        assert!(seconds > 0, "zero rate interval");
+        Self { per_second: 1, seconds, burst: 1 }
+    }
+
     /// Declare a rate and burst allowance.
     ///
     /// # Panics
     /// Zero rates or bursts fail during construction, including constant evaluation.
     pub const fn new(per_second: u16, burst: u16) -> Self {
         assert!(per_second > 0 && burst > 0, "zero rate or burst");
-        Self { per_second, burst }
+        Self { per_second, seconds: 1, burst }
     }
 }
 
@@ -155,7 +165,8 @@ impl State {
                     .saturating_add(
                         now.duration_since(last)
                             .as_nanos()
-                            .saturating_mul(u128::from(rate.per_second)),
+                            .saturating_mul(u128::from(rate.per_second))
+                            / u128::from(rate.seconds),
                     )
                     .min(capacity)
             })
@@ -202,6 +213,7 @@ impl Limiter {
             // Missing credit is at most one token, so this fits in a u64.
             let nanos = TOKEN
                 .saturating_sub(available)
+                .saturating_mul(u128::from(rate.seconds))
                 .div_ceil(u128::from(rate.per_second));
             let delay = Duration::from_nanos(nanos as u64);
             let head = state.queue.front().is_some_and(|v| Arc::ptr_eq(v, &ticket));

@@ -1,0 +1,88 @@
+use biodata::{ArticleHeader, ArticleItem, ArticleKey, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
+use serde::Deserialize;
+const SEARCH: Endpoint = super::SPEC.get("/paper/search").fresh(Freshness::Days(1));
+/// A native search window, before duplicate suppression or DOI resolution.
+#[derive(Debug, Deserialize)]
+pub struct Search {
+    /// Whole source-reported result count.
+    pub total: u64,
+    /// Native result order.
+    pub data: Vec<Paper>,
+}
+/// Common paper metadata shared by search and graph expansion.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Paper {
+    /// Stable source identity, never a title-derived fallback.
+    pub paper_id: SemanticScholarId,
+    /// Identifiers explicitly reported by the source.
+    pub external_ids: Option<ExternalIds>,
+    /// Whole title when supplied.
+    pub title: Option<Text>,
+    /// Source venue.
+    pub venue: Option<Text>,
+    /// Publication year when full date is absent.
+    pub year: Option<u16>,
+    /// Publication date at source precision.
+    pub publication_date: Option<PartialDate>,
+    /// Authors in source order.
+    pub authors: Option<Vec<Author>>,
+}
+/// External identities, preserving absence independently of paper identity.
+#[derive(Debug, Deserialize)]
+pub struct ExternalIds {
+    /// PubMed identity.
+    #[serde(rename = "PubMed")]
+    pub pubmed: Option<Pmid>,
+    /// PMC identity.
+    #[serde(rename = "PubMedCentral")]
+    pub pmc: Option<Pmcid>,
+    /// DOI spelling reported by the source.
+    #[serde(rename = "DOI")]
+    pub doi: Option<Doi>,
+}
+/// One source author.
+#[derive(Debug, Deserialize)]
+pub struct Author {
+    /// Source display name.
+    pub name: Text,
+}
+impl Reply for Search {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.data.len() > 100 || self.data.len() as u64 > self.total { return Err(BadReply); }
+        Ok(())
+    }
+}
+/// Fetch the first relevance-ordered page using only checked mappings.
+pub fn search(leg: &Leg<'_>, term: &str, year: Option<&str>) -> Result<Search, RequestError> {
+    let mut args = vec![
+        ("query", Arg::Text(term)),
+        ("limit", Arg::Num(100)),
+        ("fields", Arg::Text("externalIds,title,venue,year,publicationDate,authors")),
+    ];
+    if let Some(year) = year { args.push(("year", Arg::Text(year))); }
+    leg.json(&SEARCH, &args)
+}
+impl Paper {
+    /// Map identifiers and source metadata without joining another provider.
+    pub fn item(self) -> ArticleItem {
+        let ids = self.external_ids;
+        let pmid = ids.as_ref().and_then(|v| v.pubmed);
+        let pmcid = ids.as_ref().and_then(|v| v.pmc);
+        let doi = ids.and_then(|v| v.doi);
+        let key = if let Some(id) = pmid { ArticleKey::Pubmed(id) }
+            else if let Some(id) = pmcid { ArticleKey::Pmc(id) }
+            else if let Some(id) = doi.clone() { ArticleKey::Doi(id) }
+            else { ArticleKey::SemanticScholar(self.paper_id) };
+        let header = self.title.map(|title| ArticleHeader {
+            pmid, pmcid, doi, europepmc_id: None, title,
+            journal: self.venue,
+            date: self.publication_date.or_else(|| self.year.and_then(|v| v.to_string().parse().ok())),
+            types: Box::default(), types_unknown: true,
+            first_author: self.authors.as_ref().and_then(|a| a.first()).map(|a| a.name.clone()),
+            author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
+        });
+        ArticleItem { key, pmid, header, cited_by: None, found_by: Default::default() }
+    }
+}

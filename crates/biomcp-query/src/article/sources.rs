@@ -6,12 +6,12 @@ use biodata::{
 use biomcp_adapters::{europepmc, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use std::time::Duration;
-struct ResultLeg {
-    source: ArticleSource,
-    outcome: SourceOutcome,
-    items: Vec<ArticleItem>,
-    elapsed: Duration,
-    error: Option<RequestError>,
+pub(super) struct ResultLeg {
+    pub(super) source: ArticleSource,
+    pub(super) outcome: SourceOutcome,
+    pub(super) items: Vec<ArticleItem>,
+    pub(super) elapsed: Duration,
+    pub(super) error: Option<RequestError>,
 }
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
@@ -31,6 +31,7 @@ pub(super) fn search<'a>(
                 Box::new(move || match selector {
                     ArticleSource::Pubmed => pubmed_search(cx, query, pubmed_term, start),
                     ArticleSource::Europepmc => europe_search(cx, query, epmc_term, start),
+                    ArticleSource::SemanticScholar => super::semantic_scholar::search(cx, query, start),
                 }) as Box<dyn FnOnce() -> ResultLeg + Send>
             })
             .collect(),

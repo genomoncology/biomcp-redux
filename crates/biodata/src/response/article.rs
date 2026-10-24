@@ -14,6 +14,8 @@ pub enum ArticleKey {
     Doi(Doi),
     /// Europe PMC local source identity.
     Europepmc(EuropePmcId),
+    /// Semantic Scholar local identity when no indexed identifier exists.
+    SemanticScholar(crate::SemanticScholarId),
 }
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

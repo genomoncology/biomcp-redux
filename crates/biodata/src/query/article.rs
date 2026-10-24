@@ -5,12 +5,15 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "semantic-scholar"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
     /// Europe PMC native relevance or publication-date order.
     Europepmc,
+    /// Semantic Scholar native relevance order.
+    #[serde(rename = "semantic-scholar")]
+    SemanticScholar,
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -68,8 +71,9 @@ struct Fields {
     /// Several sources take turns, remove duplicates and show every native rank.
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
+    /// semantic-scholar: broad discovery; an optional free key raises the limit.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2), extend("x-comma-separated"=true)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 3), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
@@ -180,8 +184,8 @@ impl TryFrom<Fields> for ArticleSearch {
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
-            || v.source.len() > 2
-            || (v.source.len() == 2 && v.source.first() == v.source.get(1))
+            || v.source.len() > 3
+            || v.source.iter().enumerate().any(|(i, s)| v.source[..i].contains(s))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -283,5 +287,62 @@ impl ArticleSearch {
         let mut v = self.page(0, None);
         v.0.limit = limit();
         v
+    }
+}
+
+/// Source capability selectors checked before any lookup or transport request.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum ArticleFilter {
+    /// Free text.
+    #[serde(rename = "TEXT")]
+    Text,
+    /// Gene selector.
+    #[serde(rename = "--gene")]
+    Gene,
+    /// Variant selector.
+    #[serde(rename = "--variant")]
+    Variant,
+    /// Disease selector.
+    #[serde(rename = "--disease")]
+    Disease,
+    /// Drug selector.
+    #[serde(rename = "--drug")]
+    Drug,
+    /// Author selector.
+    #[serde(rename = "--author")]
+    Author,
+    /// Journal selector.
+    #[serde(rename = "--journal")]
+    Journal,
+    /// Lower publication date bound.
+    #[serde(rename = "--since")]
+    Since,
+    /// Upper publication date bound.
+    #[serde(rename = "--until")]
+    Until,
+    /// Publication type selector.
+    #[serde(rename = "--type")]
+    Type,
+    /// Native date ordering.
+    #[serde(rename = "--sort date")]
+    DateSort,
+}
+impl ArticleSearch {
+    /// Whether any named unsupported capability is requested.
+    pub fn rejects(&self, filters: &[ArticleFilter]) -> Option<ArticleFilter> {
+        filters.iter().copied().find(|filter| match filter {
+            ArticleFilter::Text => self.0.text.is_some(),
+            ArticleFilter::Gene => self.0.gene.is_some(),
+            ArticleFilter::Variant => self.0.variant.is_some(),
+            ArticleFilter::Disease => self.0.disease.is_some(),
+            ArticleFilter::Drug => self.0.drug.is_some(),
+            ArticleFilter::Author => self.0.author.is_some(),
+            ArticleFilter::Journal => self.0.journal.is_some(),
+            ArticleFilter::Since => self.0.since.is_some(),
+            ArticleFilter::Until => self.0.until.is_some(),
+            ArticleFilter::Type => self.0.kind.is_some(),
+            ArticleFilter::DateSort => self.0.sort == ArticleSort::Date,
+        })
     }
 }

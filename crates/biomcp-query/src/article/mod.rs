@@ -7,6 +7,7 @@ mod order;
 mod page;
 mod sections;
 mod sources;
+pub mod semantic_scholar;
 mod term;
 use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::{ArticlePage, ArticleSearch, QueryBody, Request, Status, StepKind, Text};
@@ -15,6 +16,10 @@ use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty();
+    if let Some((source, option)) = unsupported(query) {
+        out.body = QueryBody::UnsupportedFilter { source, option };
+        return out;
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let result = execute(cx, query, &mut deadline, &mut out);
@@ -124,4 +129,14 @@ pub(super) fn consume<'a>(
 /// Page one citation graph direction.
 pub fn edges(cx: &Ctx<'_>, query: &biodata::ArticleEdges, references: bool) -> Outcome {
     edges::run(cx, query, references)
+}
+
+/// Check named source capabilities before resolving inputs or opening a store.
+pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::ArticleFilter)> {
+    use biodata::{ArticleFilter as F, ArticleSource as S};
+    if query.sources().contains(&S::SemanticScholar) {
+        return query.rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
+            .map(|filter| (biodata::Source::SemanticScholar, filter));
+    }
+    None
 }

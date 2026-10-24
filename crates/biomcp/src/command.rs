@@ -57,8 +57,13 @@ fn dispatch_using(
             crate::exit::Status::Success,
         );
     }
-    if action == Action::KeyHelp {
-        return key_help();
+    if let Action::KeyHelp(source) = action {
+        return key_help(source);
+    }
+    if let Action::Run { request: Request::SearchArticle(query), .. } = &action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return encode(biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage);
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
@@ -80,7 +85,7 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
-        Action::KeyHelp => key_help(),
+        Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = biomcp_query::run(
@@ -109,6 +114,8 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
     match (request, result.body) {
+        (_, QueryBody::UnsupportedFilter { source, option }) => encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option), crate::exit::Status::Usage),
         (_, QueryBody::TooManyPmids { count }) => encode(
             biodata::ErrorEnvelope::too_many_pmids(count),
             crate::exit::Status::Usage,
@@ -280,11 +287,15 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
     )
 }
-fn key_help() -> io::Result<Outcome> {
+fn key_help(source: biodata::Source) -> io::Result<Outcome> {
+    let (config, environment) = match source {
+        biodata::Source::SemanticScholar => ("keys.semantic_scholar_api_key", "SEMANTIC_SCHOLAR_API_KEY"),
+        _ => ("keys.oncokb_api_key", "ONCOKB_API_KEY"),
+    };
     let data = biodata::KeyHelp {
-        source: biodata::Source::Oncokb,
-        config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?,
-        environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)?,
+        source,
+        config: biodata::Text::new(config).map_err(io::Error::other)?,
+        environment: biodata::Text::new(environment).map_err(io::Error::other)?,
     };
     encode(
         Envelope::new(Status::Complete, (), Some(data)),
