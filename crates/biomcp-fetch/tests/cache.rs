@@ -14,8 +14,7 @@ mod support;
 use biodata::Reason;
 use biomcp_fetch::{
     Arg, BadReply, CacheError, Credential, Endpoint, Fetch, FetchConfig, FetchError, Freshness,
-    KeyPlace, KeyUse, Mode, Quota, Rate, Reply, RequestError, Secret, SecretName, SourceKey,
-    SourceSpec,
+    KeyPlace, KeyUse, Mode, Quota, Rate, Reply, RequestError, Secret, SecretName, SourceKey, SourceSpec,
 };
 use rusqlite::Connection;
 use std::{path::Path, thread, time::Duration};
