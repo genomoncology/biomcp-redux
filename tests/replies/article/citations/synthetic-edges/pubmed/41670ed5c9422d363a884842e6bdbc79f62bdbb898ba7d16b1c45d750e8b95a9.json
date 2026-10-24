@@ -1,0 +1,35 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "result": {
+            "uids": [
+              "3333"
+            ],
+            "3333": {
+              "uid": "3333",
+              "title": "Synthetic paper 3333",
+              "pubdate": "2024",
+              "authors": [],
+              "pubtype": [],
+              "articleids": []
+            }
+          }
+        }
+      }
+    }
+  ],
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "ff29a31aee258d84af8cf48cfb4119ca82793459a860e320d0a0b36d48aea59f"
+  }
+}

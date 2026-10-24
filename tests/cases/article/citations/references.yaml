@@ -1,0 +1,37 @@
+{
+  "feature": "article-citations",
+  "story": "The recorded37-paper reference pool walks without duplicates and includes32955176.",
+  "replay": "article/citations/live",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "references",
+        "34096690"
+      ],
+      "expect": {
+        "/page/total": 37,
+        "/result/items/*/pmid": {
+          "includes": "32955176",
+          "unique": true,
+          "count": 37
+        },
+        "/result/items/*/cited_by": {
+          "nonincreasing": true
+        }
+      },
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 5
+      },
+      "mcp": [
+        "article",
+        "references",
+        "34096690"
+      ],
+      "max_bytes": 5722,
+      "max_tokens": 1431
+    }
+  ],
+  "verified": "Walk maximum4975bytes/1244tokens. Bounds add15percent; no comparable0.9 reference-page baseline is recorded."
+}

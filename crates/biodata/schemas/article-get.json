@@ -9,12 +9,14 @@
       "enum": [
         "annotations",
         "fulltext",
+        "citations",
         "all"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
     }

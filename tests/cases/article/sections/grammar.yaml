@@ -12,7 +12,8 @@
       "expect": {
         "/result/items/0/more": [
           "annotations",
-          "fulltext"
+          "fulltext",
+          "citations"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
@@ -20,7 +21,8 @@
           "article",
           "33123537",
           "annotations",
-          "fulltext"
+          "fulltext",
+          "citations"
         ]
       },
       "max_bytes": 2900
@@ -29,9 +31,10 @@
       "follow": "section",
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 8907
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -57,7 +60,8 @@
       ],
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
       "mcp": [
         "get",
@@ -65,7 +69,7 @@
         "33123537",
         "all"
       ],
-      "max_bytes": 8907
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -77,9 +81,10 @@
       ],
       "expect": {
         "/result/items/0/sections/annotations/state": "data",
-        "/result/items/0/sections/fulltext/state": "data"
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/citations/state": "data"
       },
-      "max_bytes": 8907
+      "max_bytes": 10315
     },
     {
       "run": [
@@ -118,5 +123,5 @@
       "exit": 2
     }
   ],
-  "verified": "2026-10-24: amended Markdown outline plus annotations measures 8698 bytes and fits the approved 8907-byte ceiling. No comparable 0.9 text baseline exists because its fulltext command returned a file path; dedicated component ceilings remain unchanged."
+  "verified": "2026-10-24 combined reader/citation measurement j9656: all sections response 8969 bytes. Ceiling 10315 is measured plus 15 percent; no comparable 0.9 baseline exists because fulltext returned a file path. Dedicated component ceilings remain unchanged."
 }

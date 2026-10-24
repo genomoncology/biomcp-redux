@@ -1,0 +1,159 @@
+//! Public iCite metadata; no abstracts or provider-specific scoring blend.
+use crate::{quotas, raw::Field};
+use biodata::{Citations, FiniteNumber, Pmid, Problem, ProblemCode, Source, Text};
+use biomcp_fetch::{
+    Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,
+};
+use serde::Deserialize;
+use std::{collections::BTreeSet, time::Duration};
+/// Maximum documented PMID request size.
+pub const BATCH_LIMIT: usize = 200;
+/// Conservative application quota; no provider rate is claimed.
+pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::Icite,
+    base: "https://icite.od.nih.gov/api",
+    key: KeyUse::None,
+    quota: &quotas::ICITE,
+    deadline: Duration::from_secs(15),
+};
+const PUBS: Endpoint = SPEC.get("/pubs").fresh(Freshness::Days(1));
+const FIELDS: &str = "pmid,pubYear,citedByPmidCount,citedByPmids,citedPmids,citedByClinicalArticle,citingClinicalPmids,rcr,rcrIsProvisional";
+/// One checked, independently identified iCite record.
+#[derive(Debug)]
+pub struct Publication {
+    /// Native PubMed identity.
+    pub pmid: Pmid,
+    /// Optional fields rejected independently of the retained paper.
+    pub problems: Vec<Problem>,
+    /// Counts with absent lists distinguished from confirmed empty lists.
+    pub counts: Citations,
+    /// Distinct citing paper IDs when the source supplied the list.
+    pub citing: Option<Vec<Pmid>>,
+    /// Distinct referenced paper IDs when the source supplied the list.
+    pub references: Option<Vec<Pmid>>,
+}
+/// Request one documented metadata batch, joining only requested identities.
+pub fn publications(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Vec<Publication>, RequestError> {
+    if ids.is_empty() || ids.len() > BATCH_LIMIT {
+        return Err(bad());
+    }
+    let names: Vec<_> = ids
+        .iter()
+        .map(|id| id.to_string().into_boxed_str())
+        .collect();
+    let raw = leg.json::<Raw>(
+        &PUBS,
+        &[
+            ("pmids", Arg::Ids(&names)),
+            ("legacy", Arg::Text("false")),
+            ("fl", Arg::Text(FIELDS)),
+        ],
+    )?;
+    if raw.data.iter().any(|r| !ids.contains(&r.pmid.0)) {
+        return Err(bad());
+    }
+    Ok(raw.data.into_iter().map(Row::map).collect())
+}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::Icite,
+        reason: biodata::Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
+}
+#[derive(Deserialize)]
+#[serde(try_from = "u32")]
+struct Id(Pmid);
+impl TryFrom<u32> for Id {
+    type Error = biodata::Error;
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Pmid::new(value).map(Self)
+    }
+}
+#[derive(Deserialize)]
+struct Raw {
+    data: Vec<Row>,
+}
+impl Reply for Raw {
+    fn check(&self) -> Result<(), BadReply> {
+        let ids: BTreeSet<_> = self.data.iter().map(|r| r.pmid.0).collect();
+        if self.data.len() > BATCH_LIMIT || ids.len() != self.data.len() {
+            return Err(BadReply);
+        }
+        Ok(())
+    }
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Row {
+    pmid: Id,
+    cited_by_pmid_count: Option<Field<u64>>,
+    cited_by_pmids: Option<Field<Vec<Id>>>,
+    cited_pmids: Option<Field<Vec<Id>>>,
+    citing_clinical_pmids: Option<Field<Vec<Id>>>,
+    rcr: Option<Field<FiniteNumber>>,
+    rcr_is_provisional: Option<Field<bool>>,
+}
+fn distinct(ids: Vec<Id>) -> Vec<Pmid> {
+    let mut seen = BTreeSet::new();
+    ids.into_iter()
+        .map(|id| id.0)
+        .filter(|id| seen.insert(*id))
+        .collect()
+}
+impl Row {
+    fn map(self) -> Publication {
+        let mut problems = Vec::new();
+        let id = self.pmid.0;
+        let count = field(self.cited_by_pmid_count, id, "cited_by", &mut problems);
+        let citing = field(self.cited_by_pmids, id, "cited_by", &mut problems).map(distinct);
+        let references = field(self.cited_pmids, id, "references", &mut problems).map(distinct);
+        let clinical = field(
+            self.citing_clinical_pmids,
+            id,
+            "cited_by_clinical",
+            &mut problems,
+        )
+        .map(distinct);
+        let rcr = field(self.rcr, id, "rcr", &mut problems);
+        let provisional = field(self.rcr_is_provisional, id, "rcr", &mut problems);
+        Publication {
+            pmid: id,
+            problems,
+            counts: Citations {
+                cited_by: citing.as_ref().map(|ids| ids.len() as u64).or(count),
+                cited_by_clinical: clinical.map(|ids| ids.len() as u64),
+                references: references.as_ref().map(|ids| ids.len() as u64),
+                rcr: rcr.filter(|_| provisional == Some(false)),
+            },
+            citing,
+            references,
+        }
+    }
+}
+
+fn field<T>(
+    value: Option<Field<T>>,
+    id: Pmid,
+    name: &str,
+    problems: &mut Vec<Problem>,
+) -> Option<T> {
+    match value {
+        Some(Field::Value(value)) => Some(value),
+        Some(Field::Invalid(_)) => {
+            let problem = Problem {
+                source: Source::Icite,
+                record: Text::new(&id.to_string()).ok(),
+                field: name.into(),
+                code: ProblemCode::ValueUnknown,
+            };
+            if !problems.contains(&problem) {
+                problems.push(problem);
+            }
+            None
+        }
+        None => None,
+    }
+}
