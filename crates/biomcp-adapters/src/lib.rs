@@ -45,8 +45,8 @@ pub mod allele_registry;
 /// ClinicalTrials.gov native search.
 pub mod ctgov;
 
-/// Explicit keyed NCI native trials.
-pub mod nci;
 pub mod mutalyzer;
 pub mod myvariant;
+/// Explicit keyed NCI native trials.
+pub mod nci;
 pub mod variantvalidator;
