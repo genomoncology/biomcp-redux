@@ -334,7 +334,7 @@ fn walk_section(name: &str, first: &Value, env: &Environment) -> Check {
         let out: Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(
             out,
-            super::mcp::call_with_globals(&env, &args, false, &offline)?
+            super::mcp::call_with_globals(env, &args, false, &offline)?
         );
         super::schema::Registry::embedded()?.validate(&out, &args, true)?;
         data = out["result"]["items"][0]["sections"][name]["data"].clone();
