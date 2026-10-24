@@ -1,7 +1,7 @@
 mod article;
 mod article_cards;
+pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, LitVarCandidate};
 mod article_text;
-pub use article::{ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage};
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use article_text::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
@@ -47,3 +47,6 @@ mod article_sections;
 pub use article_sections::{
     AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Citations,
 };
+
+mod health;
+pub use health::{Health, SourceHealth};

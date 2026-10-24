@@ -52,6 +52,28 @@ pub(super) fn read<'a>(
     pool: &Pool,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    if pool
+        .sources
+        .iter()
+        .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biodata::Reason::Disabled))
+    {
+        out.sources = pool
+            .sources
+            .iter()
+            .cloned()
+            .map(|mut s| {
+                if cx.fetch.disabled(s.source) {
+                    s.state = biodata::SourceState::Skipped;
+                    s.reason = Some(biodata::Reason::Disabled);
+                    s.count = None;
+                    s.fetched = None;
+                }
+                s
+            })
+            .collect();
+        out.status = Status::Failed;
+        return Ok(());
+    }
     let id = pool.info.id.as_str();
     let mut rows = store.page(id, query.offset(), query.limit())?;
     let missing: Vec<_> = rows
@@ -85,9 +107,12 @@ pub(super) fn read<'a>(
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
                 out.sources.push(source);
-                out.status = Status::Failed;
-                query.retry(Some(pool.info.id.clone()), out);
-                return Err(error);
+                if !matches!(error, RequestError::Source(e) if e.reason == biodata::Reason::Disabled)
+                {
+                    out.status = Status::Failed;
+                    query.retry(Some(pool.info.id.clone()), out);
+                    return Err(error);
+                }
             }
         }
     }
@@ -139,10 +164,16 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     });
     let items = rows.into_iter().map(|r| r.item).collect();
     out.body = match query {
-        Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage { items }),
+        Cursor::Search(_) => QueryBody::ArticlePage(ArticlePage {
+            items,
+            candidates: Vec::new(),
+        }),
         Cursor::Edges(_, _) => QueryBody::ArticleEdges(ArticleEdgePage { items }),
     };
     actions(query, pool, returned, total, out);
+    if let Cursor::Search(search) = query {
+        variant_step(search, out);
+    }
     if partial {
         query.retry(
             if stale || failed || missing_external {
@@ -193,6 +224,21 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             StepKind::Disambiguate,
             Action::Run {
                 request: Request::GetArticle(query),
+                fresh: false,
+            },
+        ));
+    }
+}
+
+fn variant_step(search: &ArticleSearch, out: &mut Outcome) {
+    if search.sources() == [biodata::ArticleSource::Pubmed]
+        && search.gene().is_some()
+        && search.variant().is_some()
+    {
+        out.next.push((
+            StepKind::Disambiguate,
+            crate::Action::Run {
+                request: Request::SearchArticle(search.with_litvar()),
                 fresh: false,
             },
         ));

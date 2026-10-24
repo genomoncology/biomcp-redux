@@ -5,8 +5,11 @@ use biomcp_adapters::oncokb;
 use biomcp_fetch::{Deadline, RequestError, SecretName};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
+    if cx.fetch.disabled(Source::Oncokb) {
+        return skipped(genes, Reason::Disabled);
+    }
     if !cx.fetch.has_key(SecretName::OncokbApiKey) {
-        return skipped(genes);
+        return skipped(genes, Reason::NoKey);
     }
     let leg = cx.fetch.leg(&oncokb::SPEC, deadline).fresh(cx.fresh);
     let mut error = None;
@@ -27,10 +30,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 error = Some(failure);
                 local = local.or(status::local(failure));
                 (
-                    Section::Unavailable {
-                        source: Source::Oncokb,
-                        reason: reason(failure),
-                    },
+                    Section::unavailable(Source::Oncokb, reason(failure)),
                     None,
                     true,
                 )
@@ -87,7 +87,7 @@ fn reason(error: RequestError) -> Reason {
     }
 }
 
-fn skipped(genes: &[(HgncId, Gene)]) -> SectionResult {
+fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
     SectionResult {
         values: genes
             .iter()
@@ -97,7 +97,7 @@ fn skipped(genes: &[(HgncId, Gene)]) -> SectionResult {
                     SectionValue::Oncokb(
                         Section::Skipped {
                             source: Source::Oncokb,
-                            reason: Reason::NoKey,
+                            reason,
                         },
                         None,
                         false,
@@ -112,7 +112,7 @@ fn skipped(genes: &[(HgncId, Gene)]) -> SectionResult {
             notices: Vec::new(),
             source: Source::Oncokb,
             state: SourceState::Skipped,
-            reason: Some(Reason::NoKey),
+            reason: Some(reason),
         },
         problems: Vec::new(),
         local: None,
@@ -132,10 +132,7 @@ fn mapped_value(
             partial,
         ),
         None if partial => (
-            Section::Unavailable {
-                source: Source::Oncokb,
-                reason: Reason::BadReply,
-            },
+            Section::unavailable(Source::Oncokb, Reason::BadReply),
             None,
             true,
         ),

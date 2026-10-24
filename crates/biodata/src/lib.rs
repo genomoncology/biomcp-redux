@@ -8,10 +8,10 @@ pub use article::{
 pub use article::{ArticleHeader, PublicationType};
 pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
 pub use query::ArticleText;
+pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
-pub use query::{ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleItem, ArticleKey, ArticlePage, PoolInfo, SourceNotice};
+pub use response::{ArticleItem, ArticleKey, ArticlePage, LitVarCandidate, PoolInfo, SourceNotice};
 pub use response::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,
@@ -21,7 +21,7 @@ mod source;
 mod text;
 
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
-pub use source::{Reason, Source};
+pub use source::{Reason, Source, Use};
 pub use text::Text;
 
 mod coord;
@@ -71,3 +71,5 @@ mod markdown;
 pub use markdown::Markdown;
 pub use query::ArticleEdges;
 pub use response::{ArticleEdgePage, Citations};
+
+pub use response::{Health, SourceHealth};

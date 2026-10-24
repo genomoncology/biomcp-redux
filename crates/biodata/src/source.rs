@@ -67,6 +67,10 @@ canonical_enum! {
         PubMed => "pubmed",
         /// Europe PMC.
         EuropePmc => "europepmc",
+        /// NCBI LitVar2.
+        LitVar => "litvar",
+        /// Semantic Scholar.
+        SemanticScholar => "semantic-scholar",
         /// PMC Open Access bucket.
         PmcOa => "pmc-oa",
         /// NIH iCite.
@@ -115,5 +119,19 @@ canonical_enum! {
         Syncing => "syncing",
         /// Identity lacks the identifier required to join this source.
         NoJoinId => "no_join_id",
+    }
+}
+
+crate::macros::wire_enum! {
+    /// Reviewed source-use category, without inferring rights in individual records.
+    Use {
+        /// Public-domain or unrestricted source data.
+        Open => "open",
+        /// Attribution is required.
+        Attribution => "attribution",
+        /// Commercial use requires separate permission.
+        Noncommercial => "noncommercial",
+        /// Source-specific or mixed rights require checking the publisher's terms.
+        Restricted => "restricted",
     }
 }

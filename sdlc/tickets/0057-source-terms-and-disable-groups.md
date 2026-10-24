@@ -1,6 +1,7 @@
 # 0057 — Carry each source's terms and switch sources off by group
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1c19718b3da289e906c415f2cc4e68f84ff85d4c
 
 Milestone: 1
 

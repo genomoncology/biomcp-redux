@@ -60,9 +60,25 @@ fn dispatch_using(
     if action == Action::KeyHelp {
         return key_help();
     }
+    if let Action::Run {
+        request: Request::SearchArticle(query),
+        ..
+    } = &action
+        && let Some((source, option)) = biomcp_query::article::unsupported(query)
+    {
+        return encode(
+            biodata::ErrorEnvelope::unsupported_filter(source, option),
+            crate::exit::Status::Usage,
+        );
+    }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch)) if !parsed.globals.offline => fetch.as_ref(),
+        Some(Ok(fetch)) if !parsed.globals.offline => {
+            let disabled = biomcp_adapters::registry::disabled(&parsed.globals.disable_sources)
+                .map_err(|_| io::Error::other("unchecked source policy"))?;
+            owned = fetch.restrict_sources(disabled);
+            &owned
+        }
         Some(Err(())) if !parsed.globals.offline => {
             return encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local);
         }
@@ -80,31 +96,29 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
+        Action::Health => health(fetch),
         Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh)?;
-            response(request, result)
+            response(fetch, request, result)
         }
     }
 }
-fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outcome> {
-    let status = if result.local.is_some() {
-        crate::exit::Status::Local
-    } else {
-        crate::exit::Status::from(result.status)
-    };
-    let mut steps = result
-        .next
-        .iter()
-        .map(|(kind, action)| crate::spell::step(*kind, action))
-        .collect::<Result<Vec<_>, _>>()?;
-    network_steps(&mut steps, &result.sources);
+fn response(
+    fetch: &biomcp_fetch::Fetch,
+    request: Request,
+    result: biomcp_query::Outcome,
+) -> io::Result<Outcome> {
+    let status = response_status(&result);
+    let steps = next_steps(fetch, &result)?;
     match (request, result.body) {
-        (Request::ArticleText(_), QueryBody::TextPositionError) => encode(
-            biodata::ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::UnsupportedFilter { source, option }) => {
+            usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
+        }
+        (Request::ArticleText(_), QueryBody::TextPositionError) => {
+            usage_envelope(biodata::ErrorEnvelope::arguments())
+        }
         (Request::ArticleText(query), QueryBody::ArticleText(body)) => {
             let mut envelope = Envelope::new(result.status, query, Some(body));
             envelope.sources = result.sources;
@@ -114,10 +128,9 @@ fn response(request: Request, result: biomcp_query::Outcome) -> io::Result<Outco
             encode(envelope, status)
         }
 
-        (_, QueryBody::TooManyPmids { count }) => encode(
-            biodata::ErrorEnvelope::too_many_pmids(count),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::TooManyPmids { count }) => {
+            usage_envelope(biodata::ErrorEnvelope::too_many_pmids(count))
+        }
         (_, QueryBody::PoolError { mismatch }) => pool_error(mismatch, steps),
         (
             Request::ArticleCitations(query) | Request::ArticleReferences(query),
@@ -196,7 +209,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = args.iter().filter_map(|arg| arg.to_str());
     let root = loop {
         match words.next() {
-            Some("--replay" | "--record" | "--case-cache") => {
+            Some("--replay" | "--record" | "--case-cache" | "--disable-sources") => {
                 words.next();
             }
             Some("--fresh" | "--offline") => {}
@@ -256,7 +269,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         fetched: None,
         notices: Vec::new(),
         source,
-        state: if status == Status::Complete {
+        state: if reason == Some(biodata::Reason::Disabled) {
+            biodata::SourceState::Skipped
+        } else if status == Status::Complete {
             biodata::SourceState::Ok
         } else {
             biodata::SourceState::Failed
@@ -326,6 +341,60 @@ fn pool_error(mismatch: bool, steps: Vec<biodata::Step>) -> io::Result<Outcome> 
     )
 }
 
+fn usage_envelope(error: biodata::ErrorEnvelope) -> io::Result<Outcome> {
+    encode(error, crate::exit::Status::Usage)
+}
+
+fn next_steps(
+    fetch: &biomcp_fetch::Fetch,
+    result: &biomcp_query::Outcome,
+) -> io::Result<Vec<biodata::Step>> {
+    let mut steps = result
+        .next
+        .iter()
+        .map(|(kind, action)| crate::spell::step(*kind, action))
+        .collect::<Result<Vec<_>, _>>()?;
+    network_steps(&mut steps, &result.sources);
+    Ok(source_steps(fetch, steps))
+}
+
+fn source_steps(fetch: &biomcp_fetch::Fetch, steps: Vec<biodata::Step>) -> Vec<biodata::Step> {
+    let disabled = biomcp_adapters::registry::SOURCES
+        .iter()
+        .filter(|s| fetch.disabled(s.source))
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    if disabled.is_empty() {
+        return steps;
+    }
+    steps
+        .into_iter()
+        .map(|mut step| {
+            let mut args = step.args.into_vec();
+            args.splice(
+                0..0,
+                [
+                    "--disable-sources".into(),
+                    disabled.clone().into_boxed_str(),
+                ],
+            );
+            step.args = args.into();
+            step
+        })
+        .collect()
+}
+
+fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
+    match biomcp_query::health::run(fetch, crate::config::BUDGET) {
+        Ok(result) => encode(
+            Envelope::new(Status::Complete, (), Some(result)),
+            crate::exit::Status::Success,
+        ),
+        Err(_) => encode(biodata::ErrorEnvelope::local(), crate::exit::Status::Local),
+    }
+}
+
 fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutcome]) {
     for (reason, setting) in [
         (biodata::Reason::Tls, "ca_bundle"),
@@ -342,4 +411,12 @@ fn network_steps(steps: &mut Vec<biodata::Step>, sources: &[biodata::SourceOutco
         }
     }
     steps.truncate(5);
+}
+
+fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
+    if result.local.is_some() {
+        crate::exit::Status::Local
+    } else {
+        crate::exit::Status::from(result.status)
+    }
 }

@@ -114,7 +114,7 @@ Three tools carry every boundary rule, and `make landing-gate` runs all three.
 3. **The ratchet test.** `crates/biomcp/tests/ratchets.rs` is an ordinary integration test. It reads the workspace files and fails on any breach of a rule a compiler cannot see:
    - Each crate's direct dependencies are a subset of its allowed list, which the test holds as one table that mirrors section 2.1.
    - `rusqlite` appears in `biomcp-query` only under `src/store/`.
-   - No product file exceeds 600 lines. No file in an adapter folder exceeds 300.
+   - No product or test file exceeds 600 lines. No file in an adapter folder exceeds 300.
    - `#[test]` appears in product crates only in the listed exception files.
    - `#[serde(default)]` never appears in an adapter's `raw.rs` (section 5.1).
    - `#[expect(` appears only in the listed files.
@@ -230,14 +230,16 @@ The visitor accepts borrowed and owned strings. Error messages carry the stable 
 
 ### 3.2 Closed sets, dates, text and coordinates
 
-A closed set is an enum with snake_case names. A set that may grow is `#[non_exhaustive]`.
+A checked string enum uses [`wire_enum!`](../../crates/biodata/src/macros.rs). Each variant declares its wire value once. The helper derives checked serde conversion and a string schema with an `enum` list. A plain schema derive can emit unit-enum `oneOf` branches that the compatibility checker rejects. A set that may grow is `#[non_exhaustive]`.
 
 ```rust
-#[non_exhaustive]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(rename_all = "snake_case")]
-pub enum LocusGroup { ProteinCoding, NonCodingRna, Pseudogene, Phenotype, Other }
+crate::macros::wire_enum! {
+    /// A closed set of checked choices.
+    Choice {
+        /// The canonical choice.
+        Canonical => "canonical",
+    }
+}
 ```
 
 The enum parses only its own canonical names. Each provider's spelling, such as HGNC's `protein-coding gene` or ClinicalTrials.gov's `PHASE1`, maps to the enum in that adapter's `map.rs`. A provider value outside the set becomes a problem on the record and leaves the field absent. No enum carries an `Other(String)` escape.
@@ -539,10 +541,11 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - The binary depends on `biodata` with the `schema` feature on. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
 - The generated files sit in `crates/biodata/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
 - `crates/biodata/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
+- Generation must stay inside the compatibility checker's [supported subset](../../crates/biodata/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
 - The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
-- `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
+- The public contract tests in `crates/biodata/tests/` check JSON round trips, and `crates/biodata/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
 
@@ -669,6 +672,7 @@ pub struct Quota {
 }
 
 pub struct SourceSpec {
+    pub terms: Terms, // publisher name, terms page and reviewed Use category
     pub source: Source,
     pub base: &'static str,
     pub key: KeyUse,
@@ -1711,7 +1715,7 @@ The runner's YAML reader is a test dependency. The original `serde_yaml` is arch
 
 ### 10.3 Coverage
 
-`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the report merges them.
+`make coverage` runs the case suite under `cargo llvm-cov`. The runner spawns the binary as a subprocess, so the target uses `cargo llvm-cov show-env` to build an instrumented binary and sets a profile file pattern per process. Every spawned binary then writes its own profile, and the cases report merges them. Permitted library tests run in a separate profile collection and have a separate report. Their profiles never count toward the floor. Both reports use the same product-source denominator; test targets, internal test modules, generated output and build scripts are excluded.
 
 The landing gate fails when line coverage falls more than 0.2 points below the floor in `coverage.floor`. The tolerance absorbs counting noise between runs. Only the lander raises the floor, after a landing whose coverage exceeds it. `make unreached` lists the lines no case runs, for the reviewer. Each listed line is either deleted or given a case.
 
@@ -1738,7 +1742,12 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/freshness.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache/storage.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -1747,6 +1756,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/transport/network.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
@@ -1865,3 +1875,11 @@ Ian ruled on 2026-10-24, and this file applies each ruling:
 None. Section 8.7 settles the pinned MCP revisions.
 
 EFetch provenance uses `LegReport.replies`, keyed by the canonical credential-free request identity. `Leg::xml_received` returns the selected reply metadata alongside its checked value. Capture stores Unix seconds per exchange; replay restores them, and cached replies retain their original row fetch time. Legacy recordings without this field report zero. Replay cache freshness starts at import while provenance retains the captured time.
+
+### Source terms and switches
+
+Each implemented adapter owns its publisher terms in `SourceSpec::terms`. `biomcp-adapters::registry` references those declarations and owns the bounded health endpoints. The structural check refuses missing terms and omitted source declarations. Terms metadata was checked against publisher pages on 2026-10-24. HGNC, CIViC and ClinGen explicitly publish CC0 data. gnomAD's publisher-owned [terms source](https://github.com/broadinstitute/gnomad-browser/blob/main/browser/about/policies/terms.md) names CC0 for primary data and separate conditions for some annotations; this adapter requests constraint data and does not request those restricted annotations. [Reactome's current agreement](https://reactome.org/license) dedicates database data and derived files to CC0; its graphics and software use separate licenses. [iCite's publisher support page](https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview) explicitly identifies its citation database as public domain. The UniProt and HPA declarations link their attribution terms; HPA retains its separate third-party conditions. MyGene's terms retain upstream rights. PubMed, Europe PMC, PubTator export text and PMC preserve publisher-specific text rights under the restricted category. OncoKB requires the user's license and key. These source categories do not authorize individual uses or replace a record's license. Per-section categories remain deferred.
+
+The configuration's `disable_sources` and CLI `--disable-sources` combine by union. Expansion uses implemented source declarations and source identities, never quota keys. The transport checks disabled before credentials, quota, replay, reply caches and bundle synchronization. Stored article pools refuse disabled source rows before paging or hydration. Source and section skips retain reason `disabled` and never become confirmed absence. MCP process policy cannot be weakened by a tool call. `Fetch::restrict_sources` creates an immutable command view that unions disabled identities while sharing connection pools, quotas, replay cursors and clocks, checked settings, caches and bundle reservations. A disabled search leg does not hide rows supplied by an enabled leg; disabled header hydration leaves those rows partial.
+
+CLI health uses these same declarations and transport policies. Its probes bypass the checked data cache and do not synchronize bundles. `PROBE_BUDGET` caps each source leg within the command budget. A skipped source has no latency; each attempted probe reports bounded elapsed time and a typed state. Local recording or cache failures remain local errors. HTTP service health separately checks owned local storage.

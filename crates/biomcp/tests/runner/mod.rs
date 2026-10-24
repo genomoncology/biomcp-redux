@@ -4,6 +4,7 @@ mod corporate;
 mod gene_tables;
 mod held_proxy;
 mod launch;
+mod litvar_tables;
 pub(crate) mod live;
 mod live_proof;
 mod markdown;
@@ -21,6 +22,7 @@ mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod source_controls;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -226,6 +228,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(live_proof::trials());
     trials.extend(gene_tables::trials());
+    trials.extend(litvar_tables::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
@@ -233,6 +236,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(source_controls::trials());
+
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());

@@ -9,6 +9,11 @@ use biomcp_fetch::{
 use std::time::Duration;
 /// Required-key source policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms {
+        name: "OncoKB license",
+        url: "https://faq.oncokb.org/licensing",
+        usage: biodata::Use::Restricted,
+    },
     source: Source::Oncokb,
     base: "https://www.oncokb.org",
     key: KeyUse::Required(Credential {
@@ -21,7 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 const GENES: Endpoint = SPEC
     .get("/api/v1/utils/allCuratedGenes")
     .fresh(Freshness::Days(1));
-const INFO: Endpoint = SPEC.get("/api/v1/info").fresh(Freshness::Days(1));
+pub(crate) const INFO: Endpoint = SPEC.get("/api/v1/info").fresh(Freshness::Days(1));
 /// One accepted gene reply, shared by its card and section.
 #[derive(Debug)]
 pub struct GeneData {
