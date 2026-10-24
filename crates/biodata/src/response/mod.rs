@@ -66,3 +66,8 @@ pub use article::{
 
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
+
+mod trial_get;
+pub use trial_get::{
+    TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
+};

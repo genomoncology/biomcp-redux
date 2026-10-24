@@ -95,6 +95,16 @@ impl Leg<'_> {
         self.parameters(ep, params, Decoder::json())
     }
 
+    /// Apply a request-bound JSON check before cache admission and on cache or replay reads.
+    pub fn json_received_checked<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.parameters(ep, params, Decoder::checked_json(&check))
+    }
+
     /// Send checked XML from a GET or form POST.
     pub fn xml<T: XmlReply>(
         &self,

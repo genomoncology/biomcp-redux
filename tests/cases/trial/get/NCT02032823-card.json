@@ -1,0 +1,35 @@
+{
+  "nct_id": "NCT02032823",
+  "title": "Olaparib as Adjuvant Treatment in Patients With Germline BRCA Mutated High Risk HER2 Negative Primary Breast Cancer",
+  "status": "ACTIVE_NOT_RECRUITING",
+  "phases": [
+    "PHASE3"
+  ],
+  "study_type": "INTERVENTIONAL",
+  "conditions": [
+    "Breast Cancer"
+  ],
+  "interventions": [
+    "Olaparib",
+    "Placebo"
+  ],
+  "sponsor": "AstraZeneca",
+  "start": {
+    "date": "2014-04-22",
+    "kind": "ACTUAL"
+  },
+  "primary_completion": {
+    "date": "2020-03-27",
+    "kind": "ACTUAL"
+  },
+  "completion": {
+    "date": "2029-05-28",
+    "kind": "ESTIMATED"
+  },
+  "updated": {
+    "date": "2026-07-14",
+    "kind": "ACTUAL"
+  },
+  "brief_summary": "Olaparib treatment in patients with germline BRCA1/2 mutations and high risk HER2 negative primary breast cancer who have completed definitive local treatment and neoadjuvant or adjuvant chemotherapy",
+  "url": "https://clinicaltrials.gov/study/NCT02032823"
+}

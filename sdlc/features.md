@@ -40,3 +40,4 @@ article-pdf: Inspect publisher PDF links and download only to an explicit destin
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
 trial-search: Search the registry with explicit native filters, exact totals and opaque pages. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`.
+trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`.

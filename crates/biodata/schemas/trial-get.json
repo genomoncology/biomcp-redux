@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "TrialSection": {
+      "description": "Available source protocol sections.",
+      "enum": [
+        "eligibility",
+        "outcomes",
+        "arms",
+        "all"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biodata.trial-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Retrieve exact trial cards and bounded source sections in input order.",
+  "properties": {
+    "input": {
+      "description": "One to twenty exact NCT identifiers, in caller order.",
+      "items": {
+        "$ref": "#/$defs/NctId"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "type": "array",
+      "x-positional": 0
+    },
+    "limit": {
+      "default": 10,
+      "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Checked stored source record, supplied by a continuation."
+    },
+    "section": {
+      "description": "Optional intact source sections. The default returns cards only.",
+      "items": {
+        "$ref": "#/$defs/TrialSection"
+      },
+      "type": "array",
+      "x-trailing-section": true
+    }
+  },
+  "required": [
+    "input"
+  ],
+  "title": "TrialGet",
+  "type": "object"
+}
