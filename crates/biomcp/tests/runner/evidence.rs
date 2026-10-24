@@ -22,7 +22,46 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/evidence/resolver-policy-before-stored-text", || {
             resolver_policy().map_err(|e| e.to_string().into())
         }),
+        Trial::test("article/evidence/exact-context-fragments", || {
+            exact_context().map_err(|e| e.to_string().into())
+        }),
     ]
+}
+fn exact_context() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let recording = env.root().join("recordings");
+    let original = format!("a{}b", " ".repeat(7000));
+    super::response_cases::copy_capture("article/evidence/source", &recording, |source, record| {
+        if source == "semantic-scholar" {
+            for row in record["exchanges"][0]["body"]["value"]["data"].as_array_mut().unwrap() {
+                if row.pointer("/citedPaper/externalIds/PubMed") == Some(&json!("17611497")) {
+                    row["contexts"] = json!([original]);
+                }
+            }
+        }
+    })?;
+    let globals = env.globals(Some(&recording), false);
+    let mut args = vec!["article".into(), "citation-evidence".into(), "33123537".into(), "17611497".into()];
+    let mut joined = String::new();
+    for _ in 0..4 {
+        let output = command(&env, &args, &globals)?;
+        let items = output.pointer("/result/semantic_scholar/data/contexts/items")
+            .and_then(Value::as_array).ok_or("source context was lost")?;
+        for item in items {
+            if item["character_offset"] != json!(joined.chars().count()) {
+                return Err("context fragment skipped or repeated characters".into());
+            }
+            joined.push_str(item["text"].as_str().ok_or("missing fragment text")?);
+        }
+        match super::action(&output, "page") {
+            Ok(next) => args = next,
+            Err(_) => break,
+        }
+    }
+    if joined != original {
+        return Err("context fragments did not preserve every source character".into());
+    }
+    Ok(())
 }
 fn resolver_policy() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
