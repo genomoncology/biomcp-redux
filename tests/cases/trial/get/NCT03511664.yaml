@@ -3,7 +3,7 @@
   "feature": "trial-get",
   "story": "Exact NCT03511664 card retains the clinically reviewed study identity and whole registry summary",
   "replay": "trial/get/NCT03511664",
-  "verified": "Source collected 2026-10-24 in trial investigation; unchanged reply delivered through local TLS to actual CLI --record. Fetch timestamp is local delivery. Ceiling is measured compact CLI bytes plus 15 percent. No eligibility inference. Section ceilings use the largest measured page plus 15 percent; FLAURA eligibility/outcomes, CodeBreaK eligibility, OlympiA outcomes, VISION eligibility and DESTINY arms stay below their comparable released 0.9 outputs. The section walker checks every character and whole record against the original response, including later pages.",
+  "verified": "Source collected 2026-10-24 in trial investigation; unchanged reply delivered through local TLS to actual CLI --record. Fetch timestamp is local delivery. Ceiling is measured compact CLI bytes plus 15 percent. No eligibility inference. Section ceilings use the largest measured page plus 15 percent; FLAURA eligibility/outcomes, CodeBreaK eligibility, OlympiA outcomes, VISION eligibility and DESTINY arms stay below their comparable released 0.9 outputs. The section walker checks every character and whole record against the original response, including later pages. Card ceilings retain the stricter original bound after adding native date qualifiers; final card bytes remain below it.",
   "steps": [
     {
       "run": [
@@ -53,7 +53,7 @@
           }
         }
       },
-      "max_bytes": 9104
+      "max_bytes": 9219
     },
     {
       "run": [
@@ -75,7 +75,7 @@
         "/result/items/0/sections/outcomes/data/items/0/measure": "Radiographic Progression-free Survival (rPFS)",
         "/result/items/0/sections/outcomes/data/items/0/time_frame": "From date of randomization until date of radiographic progression or date of death from any cause, whichever comes first, assessed up to 32 months (Primary Analysis cut-off date = 27-Jan-2021)"
       },
-      "max_bytes": 10582
+      "max_bytes": 10697
     },
     {
       "run": [
@@ -100,7 +100,7 @@
           "Other: Best supportive/best standard of care"
         ]
       },
-      "max_bytes": 3739
+      "max_bytes": 3854
     },
     {
       "run": [
@@ -122,7 +122,7 @@
         "/result/items/0/sections/outcomes/state": "data",
         "/result/items/0/sections/arms/state": "data"
       },
-      "max_bytes": 19717
+      "max_bytes": 19832
     }
   ],
   "harvest": "Reviewed question bank: T19, T20"

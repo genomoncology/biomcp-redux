@@ -132,7 +132,7 @@ crate::macros::wire_enum! {
 /// A registry date retains its actual or estimated qualifier.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialDate {
     /// Checked source date at its original precision.
     pub date: PartialDate,

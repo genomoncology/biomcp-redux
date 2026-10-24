@@ -939,7 +939,7 @@
         "completion": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/TrialDate"
             },
             {
               "type": "null"
@@ -975,7 +975,7 @@
         "primary_completion": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/TrialDate"
             },
             {
               "type": "null"
@@ -993,7 +993,7 @@
         "start": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PartialDate"
+              "$ref": "#/$defs/TrialDate"
             },
             {
               "type": "null"
@@ -1014,7 +1014,7 @@
           "type": "string"
         },
         "updated": {
-          "$ref": "#/$defs/PartialDate",
+          "$ref": "#/$defs/TrialDate",
           "description": "Last posted registry update."
         },
         "url": {
@@ -1124,6 +1124,39 @@
         "attribution"
       ],
       "type": "object"
+    },
+    "TrialDate": {
+      "additionalProperties": false,
+      "description": "A registry date retains its actual or estimated qualifier.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Checked source date at its original precision."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialDateKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source qualifier, absent only if the registry omitted it."
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "type": "object"
+    },
+    "TrialDateKind": {
+      "description": "Registry date qualifier, without local interpretation.",
+      "enum": [
+        "ACTUAL",
+        "ESTIMATED"
+      ],
+      "type": "string"
     },
     "TrialEligibilityPage": {
       "additionalProperties": false,

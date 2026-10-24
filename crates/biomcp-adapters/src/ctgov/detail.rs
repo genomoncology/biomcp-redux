@@ -1,6 +1,6 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 use biodata::{
-    Markdown, NctId, TrialDate, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
+    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialDate, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
@@ -79,11 +79,16 @@ struct Status {
 #[derive(Deserialize)]
 struct RawDate {
     date: biodata::PartialDate,
-    #[serde(rename="type")]
+    #[serde(rename = "type")]
     kind: Option<biodata::TrialDateKind>,
 }
 impl RawDate {
-    fn mapped(self)->TrialDate {TrialDate{date:self.date,kind:self.kind}}
+    fn mapped(self) -> TrialDate {
+        TrialDate {
+            date: self.date,
+            kind: self.kind,
+        }
+    }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -195,7 +200,10 @@ impl Protocol {
                 .status_module
                 .primary_completion_date_struct
                 .map(RawDate::mapped),
-            completion: self.status_module.completion_date_struct.map(RawDate::mapped),
+            completion: self
+                .status_module
+                .completion_date_struct
+                .map(RawDate::mapped),
             updated: self.status_module.last_update_post_date_struct.mapped(),
             brief_summary: self.description_module.and_then(|d| d.brief_summary),
         };
