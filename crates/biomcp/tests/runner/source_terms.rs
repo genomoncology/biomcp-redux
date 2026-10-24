@@ -4,6 +4,9 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("source-controls/stored-outcomes-use-current-registry-terms", || {
+            stored_terms().map_err(Into::into)
+        }),
         Trial::test("source-controls/outcomes-retain-registry-terms", || {
             envelopes().map_err(Into::into)
         }),
@@ -201,5 +204,29 @@ fn markdown_subtraction() -> Result<(), String> {
     for changed in [text.replace("CC0 1.0", "wrong terms"), text.replace(" Terms ", " Missing ")] {
         if markdown_bytes(&changed, &value).is_ok() { return Err("invalid Markdown terms earned a deduction".into()); }
     }
+    Ok(())
+}
+
+fn stored_terms() -> Result<(), String> {
+    use super::{configuration::{cached, invoke}, launch::{Environment, fixtures}};
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("stored-terms");
+    let fixture = fixtures().join("replies/article/search/synthetic-small");
+    let args = ["search", "article", "AKT1 E17K", "--limit", "2"];
+    let first = invoke(&env, cached(&args, &case, Some(&fixture)), 0)?;
+    let connection = rusqlite::Connection::open(case.join("replay.sqlite")).map_err(|e| e.to_string())?;
+    let saved: String = connection.query_row("SELECT outcomes FROM pool LIMIT 1", [], |r| r.get(0)).map_err(|e| e.to_string())?;
+    let mut stale: Value = serde_json::from_str(&saved).map_err(|e| e.to_string())?;
+    for row in stale.as_array_mut().ok_or("missing saved outcomes")? {
+        let row = row.as_object_mut().ok_or("invalid saved outcome")?;
+        row.insert("use".into(), json!("noncommercial"));
+        row.insert("terms".into(), json!("obsolete source terms"));
+        row.insert("terms_url".into(), json!("https://invalid.example/obsolete"));
+    }
+    connection.execute("UPDATE pool SET outcomes=?1", [serde_json::to_string(&stale).map_err(|e| e.to_string())?]).map_err(|e| e.to_string())?;
+    drop(connection);
+    let warm = invoke(&env, cached(&args, &case, None), 0)?;
+    if first.pointer("/page/pool/id") != warm.pointer("/page/pool/id") { return Err("stored source pool was not reused".into()); }
+    comparable(&warm, "")?;
     Ok(())
 }

@@ -133,7 +133,14 @@ fn shapes() -> Result<(), String> {
         }
         let terms_bytes = super::source_terms::markdown_bytes(&text, &value)?;
         use std::io::Write;
-        writeln!(std::io::stdout(), "{:?}: Markdown actual={}, new_terms={terms_bytes}, comparable={}", shape.args, text.len(), text.len() - terms_bytes).map_err(|e| e.to_string())?;
+        writeln!(
+            std::io::stdout(),
+            "{:?}: Markdown actual={}, new_terms={terms_bytes}, comparable={}",
+            shape.args,
+            text.len(),
+            text.len() - terms_bytes
+        )
+        .map_err(|e| e.to_string())?;
         if text.len() - terms_bytes > shape.max_bytes {
             return Err(format!(
                 "{:?}: {} Markdown bytes exceed {}",
