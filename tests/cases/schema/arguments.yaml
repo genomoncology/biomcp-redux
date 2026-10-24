@@ -1,0 +1,18 @@
+feature: schema
+story: Invalid schema requests fail without JSON output
+steps:
+  - run: []
+    exit: 2
+    max_bytes: 0
+  - run: [schema]
+    exit: 2
+    max_bytes: 0
+  - run: [schema, missing-private-input]
+    exit: 2
+    max_bytes: 0
+  - run: [schema, biodata.source/1, extra]
+    exit: 2
+    max_bytes: 0
+  - run: [unknown]
+    exit: 2
+    max_bytes: 0

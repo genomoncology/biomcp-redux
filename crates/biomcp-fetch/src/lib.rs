@@ -3,12 +3,15 @@
 mod deadline;
 mod declaration;
 mod error;
+mod quota;
 mod request;
+mod retry;
 mod secret;
 
 pub use deadline::Deadline;
 pub use declaration::{Arg, Credential, Endpoint, KeyPlace, KeyUse, SecretName, SourceSpec};
 pub use error::{BadReply, FetchError, SourceError};
+pub use quota::{Quota, Rate, SourceKey};
 pub use secret::{Secret, Secrets};
 use std::{collections::BTreeMap, fmt, time::Duration};
 
@@ -46,6 +49,7 @@ impl Default for FetchConfig {
 pub struct Fetch {
     agent: ureq::Agent,
     config: FetchConfig,
+    limiters: quota::Limiters,
 }
 
 impl fmt::Debug for Fetch {
@@ -79,7 +83,11 @@ impl Fetch {
             )
             .build()
             .new_agent();
-        Ok(Self { agent, config })
+        Ok(Self {
+            agent,
+            config,
+            limiters: quota::Limiters::default(),
+        })
     }
 
     /// Start an absolute monotonic deadline.

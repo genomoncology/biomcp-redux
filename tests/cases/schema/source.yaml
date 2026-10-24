@@ -1,0 +1,17 @@
+feature: schema
+covers: [schema]
+story: A caller inspects the source identifier schema
+steps:
+  - run: [schema, biodata.source/1]
+    max_bytes: 4096
+    max_tokens: 1024
+    expect:
+      /$id: biodata.source/1
+      /type: string
+      /enum/0: hgnc
+      /enum:
+        max_bytes: 256
+        max_tokens: 64
+  - run: [schema, biodata.problem/1]
+    expect:
+      /$id: biodata.problem/1

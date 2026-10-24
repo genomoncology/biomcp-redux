@@ -10,6 +10,7 @@ const LAYERS: &[(&str, &[&str])] = &[
         &[
             "biodata",
             "ureq",
+            "httpdate",
             "rusqlite",
             "serde",
             "serde_json",

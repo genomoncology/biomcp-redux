@@ -7,7 +7,16 @@ const INLINE_TESTS: &[&str] = &[
     "crates/biomcp-fetch/src/xml.rs",
 ];
 // New exceptions require a reviewed path and reason here.
-const EXCEPTIONS: &[(&str, &str)] = &[];
+const EXCEPTIONS: &[(&str, &str)] = &[
+    (
+        "crates/biomcp/src/config.rs",
+        "Read process arguments at the command boundary",
+    ),
+    (
+        "crates/biomcp-fetch/src/quota.rs",
+        "Shared transport quota state and FIFO waits",
+    ),
+];
 const FILE_LIMIT: usize = 600;
 const ADAPTER_LIMIT: usize = 300;
 
@@ -137,6 +146,9 @@ fn references(
         let declaration = source_keys.contains(token)
             && tail.starts_with(&[":".into(), ":".into(), "declare".into(), "(".into()]);
         let quota = token == "static"
+            && i.checked_sub(1)
+                .and_then(|i| tokens.get(i))
+                .is_none_or(|v| v != "\'")
             && tail
                 .iter()
                 .take_while(|v| v.as_str() != "=")
