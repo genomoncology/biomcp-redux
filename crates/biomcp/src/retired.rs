@@ -38,13 +38,13 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let words = words(args)?;
     match words.positional.as_slice() {
-        ["gene", rest @ ..] if !rest.is_empty() => find(GENE, rest[0]).or(Some(ErrorMessage::Gene)),
+        ["gene", rest @ ..] if !rest.is_empty() => find(GENE, rest.first()?).or(Some(ErrorMessage::Gene)),
         ["search", "gene", ..] => words.retired_option,
         ["get", "gene", input @ ..] if !input.is_empty() => {
             if !words.sections.is_empty() {
                 return words.sections.iter().find_map(|word| find(SECTIONS, word));
             }
-            input[1..]
+            input.get(1..).unwrap_or_default()
                 .iter()
                 .rev()
                 .take_while(|word| section(word))

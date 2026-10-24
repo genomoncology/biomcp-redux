@@ -597,6 +597,57 @@
         "gene",
         "--band=--go"
       ]
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "HPA"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "BRAF",
+        "HPA"
+      ],
+      "expect": {
+        "/result/items/*/answer/resolution": [
+          "resolved",
+          "resolved"
+        ],
+        "/result/items/*/answer/gene/symbol": [
+          "BRAF",
+          "HPSE"
+        ],
+        "/query/input": [
+          "BRAF",
+          "HPA"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "hpa"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "hpa"
+      ],
+      "expect": {
+        "/result/items/*/answer/resolution": [
+          "resolved"
+        ],
+        "/result/items/*/answer/gene/symbol": [
+          "HPSE"
+        ],
+        "/query/input": [
+          "hpa"
+        ]
+      }
     }
   ]
 }

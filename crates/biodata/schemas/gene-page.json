@@ -105,6 +105,10 @@
           "minimum": 1,
           "type": "integer"
         },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "Optional HGNC locus group intersected with the selector."
+        },
         "offset": {
           "default": 0,
           "description": "Number of results to skip.",
