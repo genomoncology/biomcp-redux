@@ -8,7 +8,7 @@ version = 2
 # https://rustsec.org/advisories/RUSTSEC-2026-0192.html
 # https://github.com/harfbuzz/ttf-parser/issues/217
 ignore = [
-    { id = "RUSTSEC-2026-0192", allow = ["lopdf@=0.42.0"], reason = "The exact reviewed PDF chain runs only in the capped child with parent termination and available OS CPU limits; the upstream CPU-exhaustion risk remains." },
+    { id = "RUSTSEC-2026-0192", reason = "The exact reviewed PDF chain runs only in the capped child with parent termination and available OS CPU limits; the upstream CPU-exhaustion risk remains." },
 ]
 
 [licenses]

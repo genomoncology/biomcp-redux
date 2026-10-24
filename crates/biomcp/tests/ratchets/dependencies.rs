@@ -189,15 +189,29 @@ fn pdf_chain(root: &Path) -> Check {
         .get("package")
         .and_then(Value::as_array)
         .ok_or("missing packages")?;
-    for (name, version) in [
-        ("pdf-extract", "0.12.1"),
-        ("lopdf", "0.42.0"),
-        ("ttf-parser", "0.25.1"),
+    for (name, version, parent) in [
+        ("pdf-extract", "0.12.1", "biomcp-adapters"),
+        ("lopdf", "0.42.0", "pdf-extract"),
+        ("ttf-parser", "0.25.1", "lopdf"),
     ] {
         let found: Vec<_> = packages
             .iter()
             .filter(|p| p.get("name").and_then(Value::as_str) == Some(name))
             .collect();
+        for package in packages {
+            let depends = package
+                .get("dependencies")
+                .and_then(Value::as_array)
+                .is_some_and(|dependencies| {
+                    dependencies
+                        .iter()
+                        .filter_map(Value::as_str)
+                        .any(|dependency| dependency.split_whitespace().next() == Some(name))
+                });
+            if depends && package.get("name").and_then(Value::as_str) != Some(parent) {
+                return Err(format!("PDF advisory approval permits {name} only through {parent}; obtain a new ruling for another edge").into());
+            }
+        }
         if found.len() != 1
             || found
                 .iter()
