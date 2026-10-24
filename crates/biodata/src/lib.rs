@@ -26,6 +26,7 @@ pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
 };
+pub use response::{CivicClaimPage, CivicMember};
 mod response;
 mod source;
 mod text;
