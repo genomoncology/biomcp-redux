@@ -84,17 +84,17 @@ Response types hold cards, page metadata, section states and typed next steps. P
 
 An outcome's time frame stays attached to that outcome. An arm's intervention relationship stays attached to the source arm label or source identifier. A site contact stays attached to its source site. No derived clinical classification enters these types. Site geographic coordinates use an explicit latitude/longitude pair, not a genomic assembly type.
 
-The adapter owns provider raw shapes and maps them once. The query layer owns commands and explicit source capabilities. Fetch owns deadlines, retries, pacing, decoding, cache admission, source policy, record/replay and binary limits. Store owns continuation state only where necessary. Views render the same envelope for CLI and MCP. There is no trial-only transport, retry loop, cache or global state.
+The adapter owns provider raw shapes and maps them once. The query layer owns commands and explicit source capabilities. Search `--id` binds a checked NCT ID in the advanced field expression when another filter is present. An explicitly supplied raw registry query remains literal; a sole NCT ID combined with narrowing options is either represented with that checked field conjunction or refused before a request. It never relies on the source's query-ID shortcut. Fetch owns deadlines, retries, pacing, decoding, cache admission, source policy, record/replay and binary limits. Store owns continuation state only where necessary. Views render the same envelope for CLI and MCP. There is no trial-only transport, retry loop, cache or global state.
 
 ### The agent's next questions
 
 1. **What does the agent ask first?** “Find trials for this condition with this exact intervention or text.” A single `search trial` answers it with source totals and one page.
-2. **What is the smallest useful header?** Exact NCT ID, complete brief title, overall status, phases, study type, conditions, intervention names, last registry update and a source URL. A header never claims that the trial accepts a patient's biomarker or location.
+2. **What is the smallest useful header?** Exact NCT ID, complete brief title, overall status, phases, conditions, intervention names, last registry update and a source URL. A header never claims that the trial accepts a patient's biomarker or location.
 3. **Which drill-down comes next?** Eligibility, sites, arms and outcomes. The response names those sections as typed next steps and states whether data is present, absent or not established for this source.
 4. **Which identities must survive?** NCT IDs, registry reference PMIDs, exact document filenames, arm labels and stable section offsets. Aliases never replace the returned canonical NCT ID.
 5. **How are disagreements shown?** Keep source, timestamp and source-native field values. NCI and ClinicalTrials.gov statuses do not become an invented universal “active” state. Publication endpoints and later registered endpoints remain attributed separately.
 6. **How does empty differ from failure?** A successful search with `totalCount: 0` is complete and empty. A 400, timeout, 429, 500, invalid body or unsupported filter has a source problem and no asserted count. A key-required NCI source is skipped before any request when its key is absent.
-7. **What sets cost?** A search and a detail each need one projected registry request. Eligibility inspection is an explicit detail request, not an invisible per-result verification loop. Warm calls use the shared cache. Timings below describe the captured machine and cache state.
+7. **What sets cost?** A search and a detail each need one projected registry request. Eligibility inspection is an explicit detail request, not an invisible per-result verification loop. Warm calls use the shared cache. Warm command timings were not measured in this investigation, so no warm latency claim is made. Timings below describe source calls and the released no-cache command on the captured machine.
 8. **What does 0.9 carry that these questions do not need?** Duplicate entity-specific pivots, chemical alias guessing, treatment-line phrase lists and post-retrieval inclusion/exclusion classification. Keep their useful retrieval questions through explicit source text and intact sections.
 9. **When can an agent stop?** The search header answers identity/status discovery; the source's complete count answers a count question; an exact get plus one section answers a specific protocol question. More detail is never loaded merely because it exists.
 10. **What supports trust?** An exact source query, registration update date, retrieval date, source URL, field provenance, current source state and an explicit warning that text matches are discovery only.
@@ -118,3 +118,201 @@ These are product choices for PM review. None authorizes implementation before t
 The main risks are duplicated field mappings, hidden post-filter state, excessive requests and tests that prove a fake count. Define each source field mapping once; derive schema and help; capture the exact direct query beside every filter's known-positive case; compare the product total with that same captured `totalCount`. Keep source order and total before rendering. Use shared isolation for CLI/MCP cases and source record/replay. Cap sections and body sizes in enforcing code, with truthful continuations. Do not turn this design's illustrative budgets into a second configuration system.
 
 The implementation sequence is types/schema, one source adapter, search/count, exact get, sections and document retrieval, optional NCI, then accounting/help and installed-command proof. Each stage gets outside-in cases from the bank; the PM chooses tickets after reviewing this design.
+
+
+## Dated source measurements
+
+Captures were made on 2026-10-24 on the M5, without a whole-machine hold. Other jobs ran concurrently. Source probes were serial, keyless and paced at one second between requests. Every source request used a bounded read and a timeout. The request manifests preserve exact URLs, status, bytes, elapsed milliseconds and returned identifiers. There was no load-controlled speed benchmark. Source responses may also benefit from the publisher's own cache.
+
+Jobs `j10332`, `j10339` and `j10344` captured registry metadata, filter positives, exact records and primary publisher documentation. Job `j10362` ran the released executable and the eight question-specific discovery queries. Job `j10371` captured the official OpenAPI documents and exercised one local failure. Setup and execution used `sh -ec`; the scripts recorded expected nonzero product exits explicitly. The failure job asserted a nonzero product exit. No shell pipeline hid a failed command.
+
+### Known-positive filter witnesses
+
+Each row is a successful direct registry request with `countTotal=true`, one page of ten headers and a retained exact parameter map. These captured counts define replay assertions; they are not permanent live expectations. Rows with different fields or expressions are different questions and must not be compared as if they were interchangeable.
+
+| Filter or explicit field | Native request beyond the common condition | Captured total | First NCT ID | Source ms | Reply bytes |
+| --- | --- | ---: | --- | ---: | ---: |
+| Condition | `query.cond=melanoma` | 3780 | NCT04631731 | 148 | 5668 |
+| Explicit discovery text | `query.term=BRAF V600E` | 78 | NCT02968303 | 142 | 5467 |
+| Intervention | `query.intr=pembrolizumab` | 399 | NCT04631731 | 147 | 6409 |
+| Overall status | `filter.overallStatus=RECRUITING` | 483 | NCT06952400 | 137 | 5697 |
+| Phase | `filter.advanced=AREA[Phase]PHASE3` | 222 | NCT07381972 | 147 | 5788 |
+| Combined phase | `AREA[Phase]PHASE1 AND AREA[Phase]PHASE2` | 480 | NCT04631731 | 143 | 5857 |
+| Study type | `AREA[StudyType]INTERVENTIONAL` | 3143 | NCT04631731 | 140 | 6221 |
+| Sex, breast cancer condition | `aggFilters=sex:f` | 16889 | NCT00089973 | 168 | 6704 |
+| Age, finite bounds only | `AREA[MinimumAge]RANGE[MIN,18 years] AND AREA[MaximumAge]RANGE[18 years,MAX]` | 619 | NCT01874119 | 138 | 6097 |
+| Age, including unstated/no-limit bounds | Each bound uses the preceding range OR its own `MISSING` term | 3647 | NCT04631731 | 161 | 5668 |
+| Location text | `query.locn=Boston` | 397 | NCT05355701 | 137 | 6274 |
+| Radius | `filter.geo=distance(42.3601,-71.0589,50mi)` | 424 | NCT05355701 | 156 | 6274 |
+| Exact facility field | `AREA[LocationFacility]"Dana-Farber Cancer Institute"` | 201 | NCT05355701 | 146 | 6191 |
+| Site city and recruitment together | `SEARCH[Location](AREA[LocationCity]Boston AND AREA[LocationStatus]RECRUITING)` | 34 | NCT02896335 | 158 | 6199 |
+| Eligibility text | `AREA[EligibilityCriteria]"BRAF V600E"` | 95 | NCT05355701 | 137 | 5506 |
+| Lead sponsor | `AREA[LeadSponsorName]"National Cancer Institute"` | 229 | NCT00924001 | 144 | 5960 |
+| Sponsor category | `aggFilters=funderType:nih` | 629 | NCT00521001 | 138 | 6040 |
+| Updated since | `AREA[LastUpdatePostDate]RANGE[2025-01-01,MAX]` | 1306 | NCT05355701 | 140 | 5731 |
+| Updated until | `AREA[LastUpdatePostDate]RANGE[MIN,2025-12-31]` | 2908 | NCT04631731 | 140 | 5514 |
+| Posted results | `AREA[ResultsFirstPostDate]RANGE[MIN,MAX]` | 806 | NCT00847522 | 147 | 5478 |
+
+The exact advanced conjunction `AREA[NCTId]NCT02563002 AND AREA[Phase]PHASE1` returned HTTP 200 with zero studies. A deliberately invalid status `OPEN` returned HTTP 400. The two outcomes remain distinct. A numeric all-zero NCT ID was refused with HTTP 400; the syntactically shaped but absent `NCT01811710` returned HTTP 404. Do not assume every eight-digit suffix is an accepted registry identity.
+
+The age expressions are materially different: the finite-bounds expression returns 619 studies, while the expression that admits a missing minimum or maximum returns 3,647. The official API specification provides the finite-range syntax. Source metadata says N/A means no limit. The clinical reviewer confirmed, with high confidence, that an absent bound in a conforming registration means no registered limit for that bound, following the [minimum-age](https://clinicaltrials.gov/policy/protocol-definitions#EligibilityMinAge) and [maximum-age](https://clinicaltrials.gov/policy/protocol-definitions#EligibilityMaxAge) definitions. Admit the documented missing-bound state alongside each finite comparison, preserve absence without inventing numeric limits, and never convert a parsing failure or an unexpectedly omitted required field into no limit. An age-bound match proves only that structured filter, never full eligibility or precedence over the complete text.
+
+A facility query plus a separate trial-wide radius may match different sites. The same-location city/status grouping succeeded with 34 trials. The attempted nested `LocationGeoPoint` `DISTANCE` expression returned HTTP 400. This investigation therefore does not claim that a facility plus radius can be bound to one site by a proved source expression. Recommendation: refuse that combined same-site promise until the source can express it; expose trial-wide radius and intact site coordinates separately. There is no local geographic or clinical post-filter in the proposed product.
+
+For T09, the exact NCT03734029 record plus the New York center `(40.7128,-74.006)` and 50-mile radius returned one trial. That establishes a trial-level geographic match. It does not establish a source-returned subset of sites. The complete record lists 208 sites. The proposed site page preserves coordinates and statuses and makes this distinction explicit.
+
+### The harvested discovery queries
+
+A paper names a known trial; a broad contemporary search need not put that historical trial in its first page. Exact retrieval is independently proved for all eight IDs. These discovery counts preserve the source's meaning and order without asserting clinical relevance for each returned row.
+
+| Cases | Direct source query | Count | First returned ID | ms | Bytes |
+| --- | --- | ---: | --- | ---: | ---: |
+| T01 and its followups | See exact URL in `question-query-manifest.json` | 66 | NCT05498428 | 146 | 4834 |
+| T04 and its followups | See exact URL in `question-query-manifest.json` | 682 | NCT04631731 | 164 | 4807 |
+| T07 and its followups | See exact URL in `question-query-manifest.json` | 491 | NCT03923166 | 393 | 4788 |
+| T10 and its followups | See exact URL in `question-query-manifest.json` | 141 | NCT04933695 | 167 | 5280 |
+| T13 and its followups | See exact URL in `question-query-manifest.json` | 127 | NCT05238831 | 146 | 7941 |
+| T16 and its followups | See exact URL in `question-query-manifest.json` | 65 | NCT05238831 | 159 | 6635 |
+| T19 and its followups | See exact URL in `question-query-manifest.json` | 201 | NCT06855277 | 146 | 4330 |
+| T22 and its followups | See exact URL in `question-query-manifest.json` | 228 | NCT03724851 | 157 | 6119 |
+
+T01/T02/T03 use NCT02296125; T04/T05/T06 use NCT02578680; T07/T08/T09 use NCT03734029; T10/T11/T12 use NCT04303780; T13/T14/T15 use NCT02032823; T16/T17/T18 use NCT02987543; T19/T20/T21 use NCT03511664; T22/T23/T24 use NCT02563002. Each exact source record was captured once and supplies all its mechanical followups. T23 has its own successful empty conjunction; T24 has a separate, explicitly synthetic local HTTP 500 witness.
+
+### Fields proved on the public tier
+
+The eight exact records returned identity, status, design, conditions, intervention/arm relationships, outcome definitions, eligibility text and reference modules. NCT03734029 includes primary, secondary and other outcomes. Its eligibility record supplies minimum age and omits maximum age. The source does not require fabricated null strings or an inferred upper bound. NCT02578680 and NCT02563002 have no locations in these captures; absence does not mean the API lacks site support.
+
+| Registry field path below `protocolSection` | Response ownership |
+| --- | --- |
+| `identificationModule.nctId`, `briefTitle`, `officialTitle` | Exact identity and title; retain source acronym only when present |
+| `statusModule.overallStatus`, `lastUpdatePostDateStruct`, `startDateStruct`, `completionDateStruct` | Card and header provenance; preserve date precision and actual/estimated type |
+| `conditionsModule.conditions` | Source condition array, without semantic classification |
+| `designModule.studyType`, `phases`, `designInfo`, `enrollmentInfo` | Study design and source enrollment; enrollment is not the number of current openings |
+| `eligibilityModule.eligibilityCriteria`, `minimumAge`, `maximumAge`, `sex`, `healthyVolunteers` | Eligibility section; raw criteria stay intact |
+| `contactsLocationsModule.locations`, `centralContacts`, `overallOfficials` | Sites, contacts and officials have distinct roles; optional fields stay optional |
+| `armsInterventionsModule.armGroups`, `interventions` | Preserve label relationships and source intervention type/other names |
+| `outcomesModule.primaryOutcomes`, `secondaryOutcomes`, `otherOutcomes` | Each measure retains description and time frame |
+| `referencesModule.references` | Preserve PMID, reference type and citation; do not infer that all are results papers |
+
+NCT02987543 is `COMPLETED`, updated 2023-10-06. NCT03734029 is `COMPLETED`, updated 2026-09-28. NCT02032823 is `ACTIVE_NOT_RECRUITING`. These dated facts answer T18 and illustrate why “active” cannot be translated to “recruiting.”
+
+### MyDisease resolution
+
+[MyDisease's query documentation](https://docs.mydisease.info/en/latest/doc/disease_query_service.html) and its captured metadata support MONDO identities and cross-references. A literal `melanoma` query returned 126 hits; exact label `melanoma`, MONDO:0005105, appeared fourth in the first five, with NCIt C3224. Source rank is therefore not an exact-label identity guarantee. `MF` returned two source candidates, MONDO:0020481 and MONDO:0009691. The program returns those identities and labels as candidates; it does not choose a disease by the context of a trial question.
+
+The metadata uses `mondo.synonym`, not `mondo.synonyms`; the final exact annotation request used the actual singular field. An unrecognized projection must not be treated as evidence that synonyms do not exist. Resolve an explicit MONDO ID once; use only publisher-provided cross-references. For NCI, require an unambiguous NCIt identifier or an explicitly chosen literal keyword path. Do not silently switch an intended disease filter into unrestricted keyword search.
+
+### NCI source boundary
+
+[NCI's current public OpenAPI document](https://clinicaltrialsapi.cancer.gov/api/v2/docs) declares API version 2.2, an `X-API-KEY` header, search, exact get and disease/intervention/organization/biomarker vocabularies. Its [trial field document](https://clinicaltrialsapi.cancer.gov/api/v2/docs/trial.json) names sites, eligibility, arms, outcome measures, disease concepts, biomarker fields and native status. The older [NCI overview](https://www.cancer.gov/syndication/api), updated 2025-03-25, says publicly available information excludes biomarker data. Documentation therefore does not establish a public biomarker payload. A named NCI section remains unsupported or unproved until a public-tier keyed capture supplies its fields; its mere appearance in a schema is insufficient.
+
+One released-product smoke inherited `NCI_API_KEY`, ran one `search trial --source nci --condition melanoma --limit 1`, and exited zero. No credential was printed, logged, hashed, stored or searched for. The product returned total 2,149 and NCT05929768, a breast-cancer trial, with an explicit note that disease grounding carried no NCIt ID and the product used a broad keyword instead. This is evidence of a degraded keyword path, not evidence that the NCI disease filter works or that NCI has 2,149 melanoma trials. No second keyed smoke or unkeyed trial request was made.
+
+The proposed source keeps native NCI statuses and coverage, accepts only explicitly supported filters, and returns unsupported sections distinctly. It never falls back to NCI after a ClinicalTrials.gov failure or calls any keyed source before configuration supplies its key. NCI's documentation describes `keyword` as an OR across the configured text fields and repeated values, so it is not interchangeable with a grounded disease-concept conjunction.
+
+### Terms and source selection
+
+[ClinicalTrials.gov terms](https://clinicaltrials.gov/about-site/terms-conditions) permit access without charge and require attribution, current data, the source processing date and a description of modifications when distributing data. They prohibit asserting proprietary rights and promotional use of extracted email addresses, and warn about international and third-party copyrights. Classify this as publisher terms, not a blanket CC0 grant. Record registry dates and distinguish frozen replay evidence from current live data. Contacts appear only for the requested trial and never feed a marketing list.
+
+NCI's OpenAPI points to its [publisher terms page](https://www.cancer.gov/syndication/api). Preserve that source reference and the user's key boundary. MyDisease aggregates separately licensed sources; retrieve only the ontology fields the resolution needs. The captured [MONDO license](https://github.com/monarch-initiative/mondo/blob/master/LICENSE) is CC BY 4.0. Carry its source attribution and do not turn the whole MyDisease aggregate into one inferred license.
+
+Keep ClinicalTrials.gov, explicit keyed NCI and explicit MyDisease resolution. Drop automatic cross-provider fallback, local clinical ranking, inferred eligibility, phrase-list treatment lines and chemical alias guessing. Source outage proof remains a followup if a provider cannot be measured; it never becomes a fabricated zero. No published hard request quota was established for these sources in the captured primary documents. Start with serial requests at one second between admissions as a stated conservative assumption, then use the shared transport to honor source Retry-After and configured limits.
+
+## Released-product comparison
+
+The official v0.9.3 archive was downloaded from `https://github.com/genomoncology/biomcp/releases/download/v0.9.3/biomcp-darwin-arm64.tar.gz`. SHA-256 `e637062c18c6692f3ec49c5847e69b29f6feee7f7909345970bd504d72174994` matches the publisher's adjacent `.sha256`. The extracted executable reports `biomcp 0.9.3` and hashes to `54f66769d9193c569d1b65756ad766eafd1a2c5e92d08f8c855cc8964e9a7145`. Tag v0.9.3 resolves to `5641de7d7b79b53872f8599dbb4dba22e611dcaf`. It was not built from the current source tree. The M5's installed executable reports 0.9.1 and was used only for initial help discovery, never mislabeled as this baseline.
+
+Thirty-two ordinary baseline calls used `--json --no-cache`, a 25-second process limit and serial execution. Their median was 158.5 ms and range 131–2,292 ms. These are elapsed command measurements on a loaded machine, not quiet-machine speed claims. The baseline is keyless except for the single explicitly separated NCI smoke. The later local T24 failure is synthetic: HTTP 500 produced four bounded attempts, exit 1, 220 output bytes and 5,152 ms. It correctly stated source failure and `not_found: false`.
+
+| Question | v0.9.3 result | Consequence for the design |
+| --- | --- | --- |
+| Recruiting melanoma | 483, matching the direct source | Preserve native status filtering and total |
+| Phase-3 melanoma | 222, matching the direct source | Preserve native phase filtering |
+| 50-mile Boston melanoma radius | 424, matching the direct source | Keep a trial-wide radius promise distinct from a selected site subset |
+| Female breast-cancer count | 16,889, matching the direct source facet | Keep the source's exact facet semantics |
+| Age-18 melanoma count | 3,780, marked approximate; direct finite-bound expression 619 or explicit missing-bound expression 3,647 | Replace client post-filter/count mismatch with a reviewed native expression |
+| Eligibility text BRAF V600E | Ten returned rows, total unknown; the direct eligibility-field query counted 95 | Drop local inclusion/exclusion verification and retain the source total |
+| EGFR exon-19 deletion discovery | Ten rows, total unknown; direct broad source text counted 66 | Keep the exact source field scope visible; do not imply molecular eligibility |
+| KRAS G12C discovery | Ten rows, total unknown; direct broad source text counted 141 | Preserve source order/count and full criteria access |
+| HER2-low biomarker | 75 from keyword/intervention/condition fields, versus 491 from broad source text | These are different field scopes. Rename the operation honestly; never claim these counts are equivalent |
+| NCI melanoma | A degraded keyword path returned a breast-cancer first hit and note, with 2,149 total | Require explicit condition identity or explicit keyword mode; no silent grounding fallback |
+
+The v0.9.3 source audit confirms that `--biomarker` maps only Keyword, InterventionName and Condition, while `--criteria` maps EligibilityCriteria and `--mutation` maps a fixed union of eligibility/title/summary/keyword fields. Prior-therapy, progression and treatment-line options add hand-written phrase lists. Age is applied after discovery, and count-only can skip it. These are explicit legacy mappings and correctness gaps to decide, not clinical interpretations. The decisive wrong-filter witness is T23: `search trial NCT02563002 --phase 1 --limit 1` returned one PHASE3 study with exit zero in 129 ms and 716 bytes, recorded in `j10375`. The official OpenAPI says a query parameter containing only NCT IDs causes filters to be ignored. The successful exact advanced conjunction returned zero. Preserve both raw outputs and reject or explicitly construct that conjunction in the new command. The earlier absent-ID get in the ordinary baseline batch is a separate absence witness, not a substitute for this same-question comparison. No additional wrong-field claim is made merely because a broad query returned an unexpected row.
+
+### Output budgets
+
+The comparison uses actual 0.9 JSON bytes. Proposed 1.0 bytes come from a scratch projection of the already captured source replies into the stated card/section/page shapes. No product code or shipped schema exists for this slice yet. The projection includes source/state/query/next metadata and complete source text for the selected section. Bytes divided by four is only a token estimate; exact enforcing ceilings are measured on the eventual command, then stored in its cases. The proposed payloads and size manifest are retained with the raw evidence.
+
+| Case/section | Actual 0.9 bytes | Actual 0.9 ms | Projected 1.0 bytes | Facts preserved |
+| --- | ---: | ---: | ---: | --- |
+| card: card | 7276 | 158 | 1262 | Exact identity, title, status, phase, conditions, intervention names, dates, sponsor and whole brief summary |
+| T02: eligibility | 11091 | 578 | 3841 | Whole criteria and source age/sex/healthy-volunteer fields |
+| T03: outcomes | 15767 | 172 | 8677 | All source outcome entries with their measure, description and time frame |
+| T08: arms | 5991 | 131 | 2354 | Arm labels, source intervention names and relationships |
+| T09: locations | 7411 | 443 | 2220 | Ten sites with coordinates/status and their full source contact rows |
+| T11: eligibility | 4207 | 156 | 1056 | Whole eligibility text and structured source bounds |
+| T15: outcomes | 8128 | 157 | 5122 | Every registered outcome and time frame |
+| T19: eligibility | 10606 | 132 | 7056 | Whole imaging and treatment criteria text without classification |
+| T21: references | 11658 | 191 | 5991 | All registry citations, IDs and source types |
+
+The projection's complete VISION outcome section is 20,836 bytes. It must page by whole outcome records, with a named continuation. The default card projection is 1,035–2,437 bytes across the eight trials; the smallest useful card still preserves the complete brief summary. The illustrative search pages span 3,589–4,540 bytes for ten nonempty rows in the filter bank. Status rows project to 3,920 bytes against 0.9's 4,639, and phase rows to 3,826 against 4,135. At four bytes per token these are about 980 and 957 tokens. Additional source update dates and intervention names explain any individual page that exceeds a narrower legacy row.
+
+Proposed initial case budgets are the measured projection plus headroom for the real envelope: a search page of ten headers 6,000 bytes, card 3,200, eligibility page 8,400, locations page of ten 3,600, outcome page 10,800, arm page 6,000, reference page 10,400, contacts page 4,000 and document manifest page 2,000. Count-only and empty/error envelopes target 1,200 bytes. Explicit `all` uses each section's cap rather than an unbounded full record; section continuations preserve the omitted records or characters. These are design targets; implementation cases replace them with exact measured output plus 15 percent, bounded by comparable 0.9 output unless the responsible added facts justify an exception.
+
+Keep complete eligibility text recoverable when it exceeds one page. Preserve character offsets and source identity across continuation; never split or classify a criterion by recognizing English headings. A zero-location record is an empty section, not a false unavailable source. A source that has never proved a section is unsupported/unproved, not empty.
+
+## 0.9 command, option and section accounting
+
+This is a proposed disposition for PM review. The machine-readable table deliberately leaves units undecided until a ruling accepts them. It does not claim that trial commands are implemented. Global flags and aliases are not command-specific option slots. Positional section values are accounted below separately. The existing gene design owns the `gene trials` ledger row; this design accounts for its destination without duplicating that row.
+
+| Legacy surface | Proposed disposition | Reason |
+| --- | --- | --- |
+| `search trial` | Keep | Direct source search with echoed parameters and native total |
+| `get trial` | Keep, bounded sections | Exact NCT identity with progressive disclosure |
+| `batch trial` | Rename to multiple inputs on `get trial` | One retrieval path, independent per-input state |
+| `gene trials` | Rename to `search trial --gene` | Gene resolution is explicit discovery text; the gene ledger retains ownership of this row |
+| `variant trials` | Rename to `search trial --variant` | Shared checked variant input when explicitly requested; no free-text guessing |
+| `disease trials` | Rename to `search trial --condition` | Explicit source condition or explicitly resolved disease ID |
+| `drug trials` | Rename to `search trial --intervention` | Literal source intervention; no guessed chemical alias fanout |
+| `--condition`, positional query | Keep with explicit scope | Positional text becomes general registry text; `--condition` remains condition-only. This change needs clear migration help |
+| `--intervention` | Keep literal | Source-owned matching; no chemical-name heuristics |
+| `--no-alias-expand` | Drop as unnecessary | The new default never invents an alias expansion |
+| `--facility` | Keep as exact facility-field restriction | Separate it from general `--location` text and from trial-wide radius |
+| `--phase`, `--study-type`, `--status`, `--sex` | Keep source-native checked enums | Derive choices from reviewed provider fields, retain distinctions |
+| `--age` | Keep only with native source expression after review | No post-filtering and no count mismatch; no full eligibility claim |
+| `--mutation`, `--biomarker` | Rename to explicit discovery `--variant` or text input | Preserve the question without hiding a field-scope difference or local clinical decision |
+| `--criteria` | Keep literal eligibility-field search | No inclusion/exclusion verification after the source answers |
+| `--prior-therapies`, `--progression-on`, `--line-of-therapy` | Drop semantic filters | Literal criteria search preserves discovery without phrase lists |
+| `--sponsor`, `--sponsor-type` | Keep native field/facet | Exact source totals, no local classification |
+| `--date-from`, `--date-to` | Keep, named as registry update range | Do not confuse with study start or publication date; `--since`/`--until` are aliases |
+| `--lat`, `--lon`, `--distance` | Keep trial-wide native radius | Explicit units and no same-site promise without source proof |
+| `--has-results` | Keep | Posted results flag, not proof that registered outcomes have been measured; `--results-available` is an alias |
+| `--count-only` | Keep exact source count | No detail fetches or local screening |
+| `--source` | Keep explicit named source | Default CTGov; NCI requires the user's key; no silent provider fallback |
+| `--limit`, `--next-page` | Keep bounded opaque paging | Echo unchanged query parameters across pages |
+| `--offset` | Rename where a native cursor exists | Avoid rescanning prior pages; section offsets remain mechanical within one captured record |
+| Get `--source`, `--offset`, `--limit` | Keep with declared section capability | Reject unsupported source/section combinations before calls |
+| Batch `--sections`, `--source` | Preserve on multi-input get | No duplicate implementation |
+| Batch `--mode`, `--pdf` | Reject for trials as before | These generic batch flags are article-only and are not trial capabilities |
+
+Every legacy ordinary section is kept: `eligibility`, `contacts`, `locations`, `outcomes`, `arms`, `references` and explicit `all`. Keep `documents` as a bounded manifest and rename `document FILE` to an explicit save command. Do not drop source intervention aliases in a returned record; dropping guessed search expansion does not remove source-provided other names. MCP uses the same request and schema as the CLI, including section capabilities; it no longer has a smaller, independently maintained trial filter subset.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search trial` | Not yet decided | — | — | `--condition`, `--intervention`, `--no-alias-expand`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--prior-therapies`, `--progression-on`, `--line-of-therapy`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | Proposed dispositions above; PM review required |
+| `get trial` | Not yet decided | — | — | `--source`, `--offset`, `--limit` | Proposed dispositions above; PM review required |
+| `batch trial` | Not yet decided | — | — | `--mode`, `--sections`, `--source`, `--pdf` | Proposed dispositions above; PM review required |
+| `variant trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Proposed dispositions above; PM review required |
+| `disease trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source` | Proposed dispositions above; PM review required |
+| `drug trials` | Not yet decided | — | — | `--limit`, `--offset`, `--source`, `--no-alias-expand` | Proposed dispositions above; PM review required |
+<!-- /parity-accounting -->
+
+
+## Evidence location and review boundary
+
+Raw responses, exact request manifests, released-product outputs, official specification documents, baseline archive/checksum/provenance, proposed JSON projections and the size analysis script live on Yellow at `data/biomcp-redux/0079-trial-investigation/`. `SHA256SUMS` covers the retained files. The local failure is labeled synthetic and remains separate from actual provider replies. The source question bank and design are the only new Git content; raw captures and executables stay outside Git.
+
+The clinical review covered all 24 questions and the bounded age-metadata clarification. It confirmed publication facts and the no-limit convention, kept recruitment and count claims tied to captured registry data, and rejected clinical eligibility conclusions from text search or a structured age match. The investigator read both results before using them.
+
+The source and baseline jobs are complete. No product compilation, release artifact build, production change, scheduled source refresh, new implementation ticket or landing belongs to this investigation. The PM reviews this branch, settles the proposed user-visible choices, and files implementation tickets. In particular, NCI disease-filter/detail/section parity, same-site facility-plus-radius semantics, exact shipped token ceilings and warm installed-command measurements remain implementation proof obligations rather than claims of completed runtime support.
