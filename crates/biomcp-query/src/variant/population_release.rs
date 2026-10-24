@@ -33,7 +33,7 @@ pub(super) fn frequency(
     let dataset = Text::new(Source::Gnomad.into()).ok()?;
     PopulationFrequency::new(
         subject.clone(),
-        Build::Grch38,
+        Build::GRCh38,
         dataset,
         version.clone(),
         Attribution {
