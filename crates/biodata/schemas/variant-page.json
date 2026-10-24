@@ -724,9 +724,224 @@
         " Source-preserved cytogenetic notation."
       ]
     },
+    "FiniteNumber": {
+      "description": "A finite decimal that JSON can represent without losing its value to null.",
+      "format": "double",
+      "type": "number"
+    },
     "GeneSymbol": {
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
+    },
+    "GnomadCounts": {
+      "additionalProperties": false,
+      "description": "Native gnomAD counts retained when a dataset release cannot be established.",
+      "properties": {
+        "ac": {
+          "description": "Native allele count, including reported zero.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "an": {
+          "description": "Native allele denominator.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ancestry_group": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source ancestry code decoded only by the documented source grammar."
+        },
+        "data_type": {
+          "$ref": "#/$defs/PopulationDataType",
+          "description": "Source sequencing sample set."
+        },
+        "filters": {
+          "description": "Native source filters, never converted to a classification.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "group_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native group ID, including its source sex suffix when present."
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PopulationSex"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source sex stratum decoded only by the documented source grammar."
+        }
+      },
+      "required": [
+        "data_type",
+        "ac",
+        "an"
+      ],
+      "type": "object"
+    },
+    "GwasAssociation": {
+      "additionalProperties": false,
+      "description": "Source association with unchanged trait and effect labels.",
+      "properties": {
+        "alleles": {
+          "description": "Every source effect allele paired with its rsID.",
+          "items": {
+            "$ref": "#/$defs/GwasEffectAllele"
+          },
+          "type": "array"
+        },
+        "beta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source beta text, including units and direction."
+        },
+        "id": {
+          "description": "Native association identity.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source effect interval."
+        },
+        "odds_ratio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source odds ratio."
+        },
+        "ontology_traits": {
+          "description": "Source mapped trait identifiers and whole labels, without clinical inference.",
+          "items": {
+            "$ref": "#/$defs/GwasTrait"
+          },
+          "type": "array"
+        },
+        "p_value": {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "Reported p value."
+        },
+        "publication": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source publication identifier."
+        },
+        "risk_frequency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source allele frequency text, without interpreting NR."
+        },
+        "study": {
+          "$ref": "#/$defs/Text",
+          "description": "Study accession."
+        },
+        "traits": {
+          "description": "Source reported traits.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "study",
+        "traits",
+        "alleles",
+        "p_value"
+      ],
+      "type": "object"
+    },
+    "GwasEffectAllele": {
+      "additionalProperties": false,
+      "description": "Catalog effect allele paired with its exact rsID.",
+      "properties": {
+        "allele": {
+          "$ref": "#/$defs/Text",
+          "description": "Source allele text."
+        },
+        "rs_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source rsID."
+        }
+      },
+      "required": [
+        "rs_id",
+        "allele"
+      ],
+      "type": "object"
+    },
+    "GwasTrait": {
+      "additionalProperties": false,
+      "description": "Source ontology mapping as supplied by GWAS Catalog.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source ontology identifier spelling."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source trait label."
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "type": "object"
     },
     "HgvsText": {
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\\.[\\x20-\\x7e]+$",
@@ -1290,6 +1505,23 @@
       ],
       "type": "object"
     },
+    "PopulationDataType": {
+      "description": "Dataset sequencing sample set.",
+      "enum": [
+        "exomes",
+        "genomes",
+        "joint"
+      ],
+      "type": "string"
+    },
+    "PopulationSex": {
+      "description": "Sex stratum stated by a population source.",
+      "enum": [
+        "xx",
+        "xy"
+      ],
+      "type": "string"
+    },
     "Predicate": {
       "description": "VA-Spec 1.1 proposition relationships in native snake_case.",
       "enum": [
@@ -1461,7 +1693,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantOncokb",
+              "$ref": "#/$defs/VariantPopulation",
               "description": "Whole section data."
             },
             "source": {
@@ -1582,7 +1814,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantCivic",
+              "$ref": "#/$defs/VariantGwas",
               "description": "Whole section data."
             },
             "source": {
@@ -1696,6 +1928,248 @@
       ]
     },
     "Section3": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantOncokb",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section4": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantCivic",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
@@ -1848,6 +2322,7 @@
         "hpa",
         "uniprot",
         "gnomad",
+        "gwas",
         "clingen",
         "pubmed",
         "europepmc",
@@ -1876,6 +2351,7 @@
         " Human Protein Atlas.",
         " UniProt.",
         " gnomAD.",
+        " GWAS Catalog v2.",
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
@@ -2434,6 +2910,44 @@
       ],
       "type": "object"
     },
+    "VariantGwas": {
+      "additionalProperties": false,
+      "description": "One page of exact rsID catalog associations.",
+      "properties": {
+        "associations": {
+          "description": "Native source associations, without inferred clinical meaning.",
+          "items": {
+            "$ref": "#/$defs/GwasAssociation"
+          },
+          "type": "array"
+        },
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continue this section using the same rsID and source selectors."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Exact source page bounds and total."
+        },
+        "rs_id": {
+          "$ref": "#/$defs/VariantId",
+          "description": "Exact source rsID."
+        }
+      },
+      "required": [
+        "rs_id",
+        "associations",
+        "page"
+      ],
+      "type": "object"
+    },
     "VariantHeader": {
       "additionalProperties": false,
       "description": "Consumer identity header with an exact source selection and compact annotation entity.",
@@ -2679,6 +3193,52 @@
       ],
       "type": "object"
     },
+    "VariantPopulation": {
+      "additionalProperties": false,
+      "description": "Bounded population summary with independent optional sequencing datasets.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source dataset assembly."
+        },
+        "dataset": {
+          "$ref": "#/$defs/Text",
+          "description": "Source dataset selector."
+        },
+        "exome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GnomadCounts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exome observation; omitted when the source dataset is null."
+        },
+        "genome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GnomadCounts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Genome observation; omitted when the source dataset is null."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Source allele identifier."
+        }
+      },
+      "required": [
+        "variant",
+        "dataset",
+        "build"
+      ],
+      "type": "object"
+    },
     "VariantRef": {
       "description": "Checked source subject reference; at least one source identity or label is required.",
       "oneOf": [
@@ -2882,6 +3442,8 @@
     "VariantSection": {
       "description": "Named variant source sections, without automatic expansion of identity cards.",
       "enum": [
+        "population",
+        "gwas",
         "civic",
         "oncokb",
         "hotspots",
@@ -2889,6 +3451,8 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " gnomAD population observations.",
+        " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",
@@ -2902,7 +3466,7 @@
         "civic": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section2"
+              "$ref": "#/$defs/Section4"
             },
             {
               "type": "null"
@@ -2910,10 +3474,21 @@
           ],
           "description": "Explicit civic source result."
         },
+        "gwas": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit GWAS Catalog source result."
+        },
         "hotspots": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section3"
+              "$ref": "#/$defs/Section5"
             },
             {
               "type": "null"
@@ -2924,13 +3499,24 @@
         "oncokb": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section"
+              "$ref": "#/$defs/Section3"
             },
             {
               "type": "null"
             }
           ],
           "description": "Explicit keyed OncoKB source result."
+        },
+        "population": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit population source result."
         }
       },
       "type": "object"
