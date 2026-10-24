@@ -30,7 +30,7 @@
         "/result/items/0/sections/pathways/data/items": {
           "count": 25
         },
-        "/result/items/0/sections/pathways/data/items/*/stId": [
+        "/result/items/0/sections/pathways/data/items/*/id": [
           "R-HSA-111448",
           "R-HSA-139915",
           "R-HSA-1912408",

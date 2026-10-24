@@ -20,7 +20,7 @@
         "/status": "complete",
         "/result/items/0/sections/pathways/state": "data",
         "/result/items/0/sections/pathways/data/total": 16,
-        "/result/items/0/sections/pathways/data/items/*/stId": {
+        "/result/items/0/sections/pathways/data/items/*/id": {
           "includes": "R-HSA-1295596"
         },
         "/result/items/0/sections/pathways": {

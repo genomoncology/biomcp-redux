@@ -58,10 +58,7 @@ pub fn pathways(
             && row.schema_class == "Pathway"
             && let Some((st_id, display_name)) = mapped
         {
-            value.push(PathwayRef {
-                st_id,
-                display_name,
-            });
+            value.push(PathwayRef { id: st_id, name: display_name });
         } else {
             problems.push(Problem {
                 source: Source::Reactome,

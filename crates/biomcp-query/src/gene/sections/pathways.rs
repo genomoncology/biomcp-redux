@@ -43,7 +43,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     for pathway in &mapped.value {
                         if !pathways
                             .iter()
-                            .any(|item: &biodata::PathwayRef| item.st_id == pathway.st_id)
+                            .any(|item: &biodata::PathwayRef| item.id == pathway.id)
                         {
                             pathways.push(pathway.clone());
                         }

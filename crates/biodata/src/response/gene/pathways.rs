@@ -47,11 +47,9 @@ impl std::error::Error for ReactomeIdInvalid {}
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayRef {
     /// Human stable identifier.
-    #[serde(rename = "stId")]
-    pub st_id: ReactomeId,
+    pub id: ReactomeId,
     /// Whole source pathway name.
-    #[serde(rename = "displayName")]
-    pub display_name: Text,
+    pub name: Text,
 }
 /// A bounded list with the total before its cap was applied.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
