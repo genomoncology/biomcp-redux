@@ -1,0 +1,135 @@
+{
+  "feature": "article-search",
+  "story": "Resolved gene names use approved symbols, the typed input and all previous symbols.",
+  "replay": "article/search/live",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "low trastuzumab deruxtecan",
+        "--gene",
+        "HER2"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/sources/1/term": "(ERBB2 OR HER2 OR NGL) AND low trastuzumab deruxtecan",
+        "/result/items/*/pmid": {
+          "includes": "35665782"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "low trastuzumab deruxtecan",
+        "--gene",
+        "HER2"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 64
+      },
+      "max_bytes": 6600,
+      "expect": {
+        "/result/items/*/pmid": {
+          "unique": true,
+          "equals_file": "her2-floor.json"
+        },
+        "/next": {
+          "count": 0
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "R1437Q",
+        "--gene",
+        "SUR1"
+      ],
+      "max_bytes": 850,
+      "expect": {
+        "/page/total": 0,
+        "/sources/1/term": "(ABCC8 OR SUR1 OR SUR OR HRINS) AND R1437Q",
+        "/sources/1/notices/0/words": {
+          "includes_all_of": [
+            "HRINS",
+            "R1437Q"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "AKT1",
+        "--variant",
+        "E17K"
+      ],
+      "max_bytes": 5200,
+      "expect": {
+        "/page/total": 192,
+        "/sources/1/term": "AKT1 AND E17K"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--gene",
+        "KRAS",
+        "--variant",
+        "G12C",
+        "--drug",
+        "sotorasib",
+        "--disease",
+        "lung"
+      ],
+      "max_bytes": 5100,
+      "expect": {
+        "/sources/1/term": "(KRAS OR KRAS2) AND G12C sotorasib lung"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "kinase",
+        "--gene",
+        "MLL2"
+      ],
+      "max_bytes": 1500,
+      "expect": {
+        "/next/*/kind": {
+          "includes": "disambiguate",
+          "excludes": "page"
+        },
+        "/sources/*/source": [
+          "hgnc"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "x",
+        "--gene",
+        "NOTAGENE"
+      ],
+      "exit": 1,
+      "max_bytes": 500,
+      "expect": {
+        "/status": "absent",
+        "/sources/*/source": [
+          "hgnc"
+        ]
+      }
+    }
+  ]
+}

@@ -4,6 +4,8 @@ use serde_json::Value;
 #[derive(Debug)]
 pub(super) enum Assertion<'a> {
     Equals(&'a Value),
+    Unique,
+    IncludesAllOf(&'a Value),
     Includes(&'a Value),
     Excludes(&'a Value),
     Count(u64),
@@ -28,7 +30,14 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
             let mut assertions = Vec::new();
             for (operator, expected) in options {
                 match operator.as_str() {
-                    "equals" => assertions.push(Assertion::Equals(expected)),
+                    "equals" | "equals_file" => assertions.push(Assertion::Equals(expected)),
+                    "includes_all_of" => {
+                        array(pointer, operator, expected)?;
+                        assertions.push(Assertion::IncludesAllOf(expected));
+                    }
+                    "unique" if expected == &Value::Bool(true) => {
+                        assertions.push(Assertion::Unique)
+                    }
                     "includes" => assertions.push(Assertion::Includes(expected)),
                     "excludes" => assertions.push(Assertion::Excludes(expected)),
                     "count" => {
@@ -148,6 +157,24 @@ impl Assertion<'_> {
     pub(super) fn check(&self, pointer: &str, actual: &Value) -> Result<(), String> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
+            Self::Unique => {
+                let values = array(pointer, "unique", actual)?;
+                for (index, value) in values.iter().enumerate() {
+                    if values.iter().take(index).any(|v| v == value) {
+                        return Err(format!("{pointer} unique: duplicate member {value}"));
+                    }
+                }
+                Ok(())
+            }
+            Self::IncludesAllOf(expected) => {
+                let values = array(pointer, "includes_all_of", actual)?;
+                for value in array(pointer, "includes_all_of", expected)? {
+                    if !values.contains(value) {
+                        return Err(format!("{pointer} includes_all_of: missing member {value}"));
+                    }
+                }
+                Ok(())
+            }
             Self::Excludes(expected) => {
                 if !array(pointer, "excludes", actual)?.contains(expected) {
                     Ok(())
