@@ -45,7 +45,7 @@ fn reply<'a>(replies: &'a [Value], id: &Value) -> Result<&'a Value, String> {
     Ok(result)
 }
 
-fn validation() -> Check {
+fn validation_frames() -> Result<Vec<Value>, String> {
     let mut unsupported = request(json!(2), "ping", json!({}));
     unsupported
         .pointer_mut("/params/_meta/io.modelcontextprotocol~1protocolVersion")
@@ -105,6 +105,11 @@ fn validation() -> Check {
         json!({"name":"biomcp","arguments":{"args":null}}),
     ));
     frames.push(json!({"jsonrpc":"2.0","id":16,"method":"ping","params":[]}));
+    Ok(frames)
+}
+
+fn validation() -> Check {
+    let frames = validation_frames()?;
     let replies = exchange(&environment()?, &frames)?;
     if replies.len() != frames.len() - 3 {
         return Err(format!("notification response: {replies:?}"));

@@ -48,6 +48,7 @@ pub(crate) fn serve() -> io::Result<()> {
         let event = receiver
             .recv()
             .map_err(|_| io::Error::other("MCP input stopped"))?;
+        let oversized = matches!(&event, Event::Input(Frame::Oversized));
         let reply = match event {
             Event::Input(Frame::Eof) => {
                 eof = true;
@@ -69,6 +70,9 @@ pub(crate) fn serve() -> io::Result<()> {
             bytes.push(b'\n');
             output.write_all(&bytes)?;
             output.flush()?;
+        }
+        if oversized {
+            return Ok(());
         }
     }
     // The input thread may still be in a blocking stdin read after output breaks.
