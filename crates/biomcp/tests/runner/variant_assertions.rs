@@ -147,10 +147,11 @@ fn history(wrong: bool) -> Result<(), String> {
             if request.starts_with("GET /evrepo/api/summary/classifications?") {
                 let mut summary: Value =
                     serde_json::from_str(&body("CA000434")).map_err(|e| e.to_string())?;
-                *summary
-                    .pointer_mut("/data/0/uuid")
-                    .ok_or("synthetic summary row")? =
-                    json!("8d32df42-16ac-41f2-9bf1-e2b9ce206190");
+                summary
+                    .pointer_mut("/data/0")
+                    .and_then(Value::as_object_mut)
+                    .ok_or("synthetic summary row")?
+                    .insert("uuid".into(), json!("8d32df42-16ac-41f2-9bf1-e2b9ce206190"));
                 return Ok(summary.to_string());
             }
             if !request.starts_with("GET /evrepo/api/summary/classification/8d32df42-16ac-41f2-9bf1-e2b9ce206190/doc/sepio/version/1.0.0 HTTP/1.1") {
