@@ -125,8 +125,7 @@ fn mappings() -> Check {
     )?;
     for flags in [Value::Null, json!({"unexpected":"value"})] {
         let mut expect = json!({
-            "/result/items/0/sections/constraint/data/transcript": "ENST00000269305",
-            "/result/items/0/sections/constraint/data/flags": []});
+            "/result/items/0/sections/constraint/data/transcript": "ENST00000269305"});
         if !flags.is_null() {
             expect["/problems/*/field"] = json!(["flags"]);
         }
@@ -138,13 +137,7 @@ fn mappings() -> Check {
             },
             expect,
         )?;
-        if flags.is_null()
-            && answer
-                .get("problems")
-                .is_some_and(|v| !v.as_array().is_some_and(Vec::is_empty))
-        {
-            return Err("absent source flags produced a mapping problem".into());
-        }
+        empty_flags(&answer, flags.is_null())?;
     }
     for mode in 0..2 {
         graphql(
@@ -161,6 +154,21 @@ fn mappings() -> Check {
         )?;
     }
     // Existing mapping-wrong-identity.yaml owns the mismatched identity claim.
+    Ok(())
+}
+
+fn empty_flags(answer: &Value, no_problem: bool) -> Check {
+    for pointer in ["/result/items/0/sections/constraint/data/flags"]
+        .into_iter()
+        .chain(no_problem.then_some("/problems"))
+    {
+        if answer
+            .pointer(pointer)
+            .is_some_and(|v| !v.as_array().is_some_and(Vec::is_empty))
+        {
+            return Err(format!("unexpected values at {pointer}").into());
+        }
+    }
     Ok(())
 }
 
