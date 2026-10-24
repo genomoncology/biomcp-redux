@@ -167,10 +167,25 @@ fn raw_and_region() -> Result<(), String> {
 }
 fn restricted_regions(env: &Environment) -> Result<(), String> {
     for group in ["restricted", "noncommercial"] {
-        let allowed = command(&env, &["search", "variant", "--region", "chr7:140753336-140753336", "--build", "GRCh38", "--disable-sources", group])?;
+        let allowed = command(
+            &env,
+            &[
+                "search",
+                "variant",
+                "--region",
+                "chr7:140753336-140753336",
+                "--build",
+                "GRCh38",
+                "--disable-sources",
+                group,
+            ],
+        )?;
         if allowed.pointer("/status") != Some(&json!("complete"))
-            || allowed.pointer("/page/returned") != Some(&json!(2)) {
-            return Err(format!("unrelated component restriction blocked region selector: {allowed}"));
+            || allowed.pointer("/page/returned") != Some(&json!(2))
+        {
+            return Err(format!(
+                "unrelated component restriction blocked region selector: {allowed}"
+            ));
         }
     }
     Ok(())
