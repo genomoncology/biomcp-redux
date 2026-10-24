@@ -1,6 +1,7 @@
 # 0076 — Save an article's Markdown text and supplement files to a named path
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3201516457ebe79021e1477e641711373a57843a
 
 Milestone: 1
 

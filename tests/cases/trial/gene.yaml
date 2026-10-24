@@ -37,7 +37,9 @@
             "ctgov"
           ]
         }
-      }
+      },
+      "max_bytes": 5714,
+      "max_tokens": 1429
     },
     {
       "run": [
@@ -54,7 +56,9 @@
             "hgnc"
           ]
         }
-      }
+      },
+      "max_bytes": 402,
+      "max_tokens": 101
     }
   ]
 }

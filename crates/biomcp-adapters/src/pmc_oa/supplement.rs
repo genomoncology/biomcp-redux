@@ -89,18 +89,7 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
     if !file.file.kind.readable() {
         return Err(super::bad(BadReply));
     }
-    let ep = super::FILE
-        .clone()
-        .with_path(file.location.path.clone())
-        .map_err(super::bad)?
-        .bytes(50 * 1024 * 1024);
-    let params: Vec<_> = file
-        .location
-        .md5
-        .as_ref()
-        .map(|v| ("md5", Arg::Text(v)))
-        .into_iter()
-        .collect();
+    let (ep, params) = request(file)?;
     let local_end = leg.local_deadline();
     let parsed = std::cell::RefCell::new(None);
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
@@ -115,4 +104,29 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
         sheets,
         deadline,
     })
+}
+
+/// Download original bytes from the same checked JATS/record intersection without parsing.
+/// Used only by explicit saves, including formats the row reader cannot parse.
+pub fn download_bytes(leg: &Leg<'_>, file: &Supplement) -> Result<Vec<u8>, RequestError> {
+    let (ep, params) = request(file)?;
+    // Explicit raw saves never read or admit source file bodies in the reply cache.
+    let ep = ep.fresh(biomcp_fetch::Freshness::Never);
+    leg.bytes(&ep, &params)
+}
+type RequestParts<'a> = (biomcp_fetch::Endpoint, Vec<(&'static str, Arg<'a>)>);
+fn request(file: &Supplement) -> Result<RequestParts<'_>, RequestError> {
+    let ep = super::FILE
+        .clone()
+        .with_path(file.location.path.clone())
+        .map_err(super::bad)?
+        .bytes(50 * 1024 * 1024);
+    let params: Vec<_> = file
+        .location
+        .md5
+        .as_ref()
+        .map(|v| ("md5", Arg::Text(v)))
+        .into_iter()
+        .collect();
+    Ok((ep, params))
 }

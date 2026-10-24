@@ -35,7 +35,9 @@
           ]
         },
         "/result/source_updated": "2026-10-23T09:00:04"
-      }
+      },
+      "max_bytes": 5501,
+      "max_tokens": 1376
     },
     {
       "run": [
@@ -48,7 +50,9 @@
       "expect": {
         "/status": "complete",
         "/page/total": 3780
-      }
+      },
+      "max_bytes": 5501,
+      "max_tokens": 1376
     }
   ]
 }

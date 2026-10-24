@@ -7,3 +7,5 @@ A local TLS server accepted only the exact captured method, host, path and param
 The exact-conjunction, count-only and continuation requests were missing from the original investigation identities. The actual CLI recorded each once from the public source on 2026-10-24. The continuation response omits `totalCount`; the separate native count-only response supplies the total. The walk directory combines these unchanged transport recordings with the first-page snapshot.
 
 ClinicalTrials.gov data are public registry data subject to the publisher's attribution and source-date terms. Text matching and structured filters support discovery. These cases make no clinical eligibility claim.
+
+The gene query adds one actual public-source recording for `query.term=BRAF`. The CLI generated it with explicit discovery text. The gene case reuses the identical native request after the shared HGNC resolver returns the approved BRAF symbol. The existing checked HGNC fixture subset is copied unchanged; no new HGNC download was performed.

@@ -239,7 +239,7 @@ impl ErrorEnvelope {
 
 impl ErrorEnvelope {
     /// Refuse a save while retaining the source URL for the caller.
-    pub fn pdf_save_refused(url: crate::Text) -> Self {
+    pub fn save_refused(url: crate::Text) -> Self {
         let mut out = Self::arguments();
         out.error.url = Some(url);
         out

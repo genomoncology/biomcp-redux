@@ -71,6 +71,8 @@ pub enum QueryBody {
     ArticlePdf(crate::ArticlePdfResult),
     /// Invalid destination or unavailable save surface, retaining the source link.
     PdfSaveRefused(crate::PdfLink),
+    /// An explicit article save was refused, retaining its source URL.
+    ArticleSaveRefused(crate::Text),
     /// Citation context evidence.
     ArticleEvidence(crate::ArticleEvidenceResult),
     /// Source-native recommendations.

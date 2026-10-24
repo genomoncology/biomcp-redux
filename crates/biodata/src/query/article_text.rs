@@ -1,11 +1,11 @@
 use super::gene::{QueryInvalid, present};
 use crate::{ArticleInput, Text};
 use serde::{Deserialize, Serialize};
-/// Read one bounded body part or a page of matching paragraphs and table rows.
+/// Read one bounded body part, find matching rows, or save the complete Markdown document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="Fields", extend("anyOf"=[{"required":["part"]},{"required":["find"]},{"required":["variant"]}])))]
+#[cfg_attr(feature="schema", schemars(with="Fields", extend("anyOf"=[{"required":["part"]},{"required":["find"]},{"required":["variant"]},{"required":["save"]}])))]
 pub struct ArticleText(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -38,6 +38,17 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
+    /// Save the whole original document to an explicit file or existing folder.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    save: Option<Text>,
+    /// Replace an existing destination only when explicitly requested with save.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    replace: bool,
     /// Number of matching rows already returned.
     #[serde(default)]
     offset: u32,
@@ -46,13 +57,19 @@ impl TryFrom<Fields> for ArticleText {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if matches!(v.input, ArticleInput::Doi(_))
-            || [v.part.is_some(), v.find.is_some(), v.variant.is_some()]
-                .into_iter()
-                .filter(|v| *v)
-                .count()
+            || [
+                v.part.is_some(),
+                v.find.is_some(),
+                v.variant.is_some(),
+                v.save.is_some(),
+            ]
+            .into_iter()
+            .filter(|v| *v)
+            .count()
                 != 1
             || v.part == Some(0)
-            || v.part.is_some() && v.offset != 0
+            || (v.part.is_some() || v.save.is_some()) && v.offset != 0
+            || v.replace && v.save.is_none()
         {
             return Err(QueryInvalid);
         }
@@ -68,8 +85,18 @@ impl ArticleText {
             find: None,
             variant: None,
             offset: 0,
+            save: None,
+            replace: false,
         }
         .try_into()
+    }
+    /// Explicit save destination, absent for ordinary reader views.
+    pub fn save(&self) -> Option<&Text> {
+        self.0.save.as_ref()
+    }
+    /// Whether replacement was explicitly requested.
+    pub fn replace(&self) -> bool {
+        self.0.replace
     }
     /// Original checked identity.
     pub fn input(&self) -> &ArticleInput {

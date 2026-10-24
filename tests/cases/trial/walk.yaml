@@ -13,7 +13,9 @@
       ],
       "expect": {
         "/page/total": 3780
-      }
+      },
+      "max_bytes": 5501,
+      "max_tokens": 1376
     },
     {
       "follow": "page",
@@ -37,7 +39,9 @@
         "/result/count_request": {
           "count": 4
         }
-      }
+      },
+      "max_bytes": 5790,
+      "max_tokens": 1448
     },
     {
       "mcp": [
@@ -65,7 +69,9 @@
             "NCT02431572"
           ]
         }
-      }
+      },
+      "max_bytes": 5790,
+      "max_tokens": 1448
     }
   ]
 }
