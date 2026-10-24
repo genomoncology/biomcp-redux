@@ -117,7 +117,7 @@ Sources:
 - [x] Open PDF links and PDF download, with no PDF text extraction
 - [x] Save article Markdown, supplements and PDFs to a named path
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
-- [ ] Token budget
+- [x] Token budget
 - [x] Plain PubMed search MCP parity
 - [x] Docs for landed article commands, with generated help and executable examples
 - [x] 0.9 capability mapping; pathway identifiers remain with the pathway slice
