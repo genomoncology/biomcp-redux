@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-get",
   "story": "live-capture",
   "replay": "article/get/live",

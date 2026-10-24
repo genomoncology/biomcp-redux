@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-fulltext",
   "story": "synthetic-foreign-id",
   "replay": "article/fulltext/synthetic-foreign-id",

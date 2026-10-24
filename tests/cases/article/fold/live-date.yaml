@@ -1,4 +1,5 @@
 {
+  "live_check": "public",
   "feature": "article-search",
   "story": "Recorded native date orders take turns and retain headers for papers without a PMID",
   "replay": "article/fold/live",

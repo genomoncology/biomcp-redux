@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-fulltext",
   "story": "synthetic-truncated-listing",
   "replay": "article/fulltext/synthetic-truncated-listing",

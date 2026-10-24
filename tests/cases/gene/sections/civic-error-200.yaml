@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "gene-sections",
   "story": "A synthetic CIViC error-200 reply preserves the independent card",
   "replay": "gene/civic/synthetic-error-200",

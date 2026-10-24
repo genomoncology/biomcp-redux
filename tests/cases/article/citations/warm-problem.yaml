@@ -1,4 +1,5 @@
 {
+  "live_check": "synthetic response case",
   "feature": "article-citations",
   "story": "A malformed optional citation count leaves the paper intact and its field problem survives header hydration and a warm page.",
   "replay": "article/citations/synthetic-count-problem",

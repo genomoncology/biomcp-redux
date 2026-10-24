@@ -1,5 +1,7 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+mod observe;
+pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 mod batch;
 mod bundle;
 mod cache;
@@ -44,6 +46,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// Explicit bounded wire summaries, disabled by default.
+    pub observations: Option<std::sync::Arc<Observations>>,
     /// Other schema owners checked before any cache mutation.
     pub cache_owners: Vec<SchemaOwner>,
     /// Configured credentials.
@@ -71,6 +75,7 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            observations: None,
             cache_owners: Vec::new(),
             secrets: Secrets::default(),
             cache: None,
