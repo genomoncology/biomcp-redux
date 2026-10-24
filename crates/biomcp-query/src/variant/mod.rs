@@ -1,11 +1,11 @@
 //! Published-identifier resolution with source-owned allele identity checks.
-pub mod normalize;
-pub mod recurrence;
-pub mod search;
 mod components;
-mod predict;
 mod conservation;
 mod cosmic;
+pub mod normalize;
+mod predict;
+pub mod recurrence;
+pub mod search;
 mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{

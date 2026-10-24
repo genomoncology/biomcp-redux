@@ -57,7 +57,7 @@ pub use article_sections::{
 };
 
 mod health;
-pub use health::{Health, HttpHealth, SourceHealth};
+pub use health::{ComponentHealth, Health, HttpHealth, SourceHealth};
 
 pub use article::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,

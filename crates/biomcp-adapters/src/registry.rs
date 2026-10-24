@@ -31,7 +31,11 @@ pub const SOURCES: &[&SourceSpec] = &[
 ];
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
-    match name { "noncommercial" => Some(Use::Noncommercial), "restricted" => Some(Use::Restricted), _ => None }
+    match name {
+        "noncommercial" => Some(Use::Noncommercial),
+        "restricted" => Some(Use::Restricted),
+        _ => None,
+    }
 }
 /// Preserve group restrictions for independently labeled aggregator components.
 pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
@@ -42,10 +46,28 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
         if let Some(usage) = group(name) {
-            disabled.extend(SOURCES.iter().filter(|s| s.terms.usage == usage && !crate::myvariant::components::all().iter().any(|c| c.source == s.source)).map(|s| s.source));
+            disabled.extend(
+                SOURCES
+                    .iter()
+                    .filter(|s| {
+                        s.terms.usage == usage
+                            && !crate::myvariant::components::all()
+                                .iter()
+                                .any(|c| c.source == s.source)
+                    })
+                    .map(|s| s.source),
+            );
         } else {
-            let source = SOURCES.iter().find(|s| s.source.to_string() == *name).map(|s| s.source)
-                .or_else(|| crate::myvariant::components::all().iter().filter_map(|c| c.native_source).find(|s| s.to_string() == *name))
+            let source = SOURCES
+                .iter()
+                .find(|s| s.source.to_string() == *name)
+                .map(|s| s.source)
+                .or_else(|| {
+                    crate::myvariant::components::all()
+                        .iter()
+                        .filter_map(|c| c.native_source)
+                        .find(|s| s.to_string() == *name)
+                })
                 .ok_or(biodata::Error::SourceUnknown)?;
             disabled.insert(source);
         }

@@ -75,7 +75,9 @@ pub fn label(terms: Terms) -> Result<biodata::ComponentTerms, biomcp_fetch::Inpu
 }
 
 /// All components carried by the aggregator.
-pub fn all() -> &'static [Component] { COMPONENTS }
+pub fn all() -> &'static [Component] {
+    COMPONENTS
+}
 /// Whether source or component policy blocks a carried component.
 pub fn disabled(fetch: &biomcp_fetch::Fetch, name: &str) -> bool {
     policy(
@@ -98,7 +100,11 @@ fn policy(
     use_disabled: impl Fn(Use) -> bool,
 ) -> bool {
     source_disabled(Source::MyVariant)
-        || COMPONENTS.iter().find(|c| c.name == name).and_then(|c| c.native_source).is_some_and(&source_disabled)
+        || COMPONENTS
+            .iter()
+            .find(|c| c.name == name)
+            .and_then(|c| c.native_source)
+            .is_some_and(&source_disabled)
         || terms(name).is_some_and(|terms| use_disabled(terms.usage))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.

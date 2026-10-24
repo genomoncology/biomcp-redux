@@ -154,5 +154,11 @@ pub use trial_publications::{TrialDocument, TrialReference};
 pub use query::{MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchSource};
 pub use response::VariantPage;
 
-pub use variant::{Attribution, VariantRef, ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates, CosmicIdentity, CosmicRecord, PredictorContext, PredictorScore, SubjectQualification, VariantComponent, VariantConservation, VariantCosmic, VariantPredictors};
-pub use response::{VariantSections, ComponentHealth};
+pub use response::{ComponentHealth, VariantSections};
+pub use variant::{
+    Attribution, ComponentLabel, ComponentTerms, ComponentUpload, CosmicCoordinates,
+    CosmicIdentity, CosmicRecord, PredictorContext, PredictorScore, SubjectQualification,
+    VariantComponent, VariantConservation, VariantCosmic, VariantPredictors, VariantRef,
+};
+
+pub use query::VariantSection;

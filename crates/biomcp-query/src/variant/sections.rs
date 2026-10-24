@@ -1,8 +1,7 @@
 //! Candidate-specific section disclosure under one shared command deadline.
 use crate::Ctx;
 use biodata::{
-    Problem, Section, SourceOutcome, VariantGet,
-    VariantHeader, VariantSection, VariantSections,
+    Problem, Section, SourceOutcome, VariantGet, VariantHeader, VariantSection, VariantSections,
 };
 use biomcp_fetch::{Deadline, RequestError};
 pub(super) type Result<T> = (

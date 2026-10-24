@@ -39,9 +39,19 @@ pub(super) fn candidates(
         {
             ids.push(VariantId::ClinVarVariation(cv.variant_id));
         }
-        let component_terms = if ids.iter().any(|id| matches!(id, VariantId::ClinVarVariation(_))) {
-            Text::new("clinvar").ok().zip(super::components::label(super::components::CLINVAR.terms).ok()).map(|(component, terms)| biodata::ComponentLabel { component, terms }).into_iter().collect()
-        } else { Box::default() };
+        let component_terms = if ids
+            .iter()
+            .any(|id| matches!(id, VariantId::ClinVarVariation(_)))
+        {
+            Text::new("clinvar")
+                .ok()
+                .zip(super::components::label(super::components::CLINVAR.terms).ok())
+                .map(|(component, terms)| biodata::ComponentLabel { component, terms })
+                .into_iter()
+                .collect()
+        } else {
+            Box::default()
+        };
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
             let source_genes = match source_genes {
