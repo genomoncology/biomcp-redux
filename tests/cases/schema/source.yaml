@@ -10,8 +10,20 @@ steps:
       /type: string
       /enum/0: hgnc
       /enum:
+        equals: [hgnc, mygene, pubmed, europepmc, pubtator, ctgov, civic]
+        includes: pubmed
+        count: 7
+        rank_of: {hgnc: 1, pubmed: 3, civic: 7}
         max_bytes: 256
         max_tokens: 64
+      /enum/*: [hgnc, mygene, pubmed, europepmc, pubtator, ctgov, civic]
   - run: [schema, biodata.problem/1]
     expect:
       /$id: biodata.problem/1
+      /properties/field:
+        equals: {description: The biodata field name., type: string}
+      /properties/record/anyOf/*:
+        includes: {type: 'null'}
+        count: 2
+      /properties/record/anyOf/0:
+        equals: {$ref: '#/$defs/Text'}
