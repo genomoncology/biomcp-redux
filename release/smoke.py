@@ -12,10 +12,14 @@ def environment(root):
     root = Path(root).resolve()
     temporary = root / "tmp"
     temporary.mkdir(exist_ok=True)
-    return {"HOME": str(root / "home"), "USERPROFILE": str(root / "home"),
+    env = {"HOME": str(root / "home"), "USERPROFILE": str(root / "home"),
             "XDG_CONFIG_HOME": str(root / "config"), "XDG_CACHE_HOME": str(root / "cache"),
             "APPDATA": str(root / "config"), "LOCALAPPDATA": str(root / "cache"),
             "TMPDIR": str(temporary), "TMP": str(temporary), "TEMP": str(temporary)}
+    # Winsock needs the operating system directory, even without a console.
+    if os.name == "nt" and "SystemRoot" in os.environ:
+        env["SystemRoot"] = os.environ["SystemRoot"]
+    return env
 
 
 def smoke(binary, runner, fixtures, version, server_args=("serve",)):

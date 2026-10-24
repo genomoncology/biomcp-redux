@@ -1,6 +1,7 @@
 # 0099 — Keep Windows SystemRoot in isolated installed and case-runner environments
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f4a53d8e63b91b9e6b1debfa130e4431fec28afc
 
 Milestone: 1
 
