@@ -209,3 +209,7 @@ impl MixedText {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "xml_tests.rs"]
+mod tests;

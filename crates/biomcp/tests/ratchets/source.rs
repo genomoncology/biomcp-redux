@@ -5,6 +5,7 @@ const INLINE_TESTS: &[&str] = &[
     "crates/biomcp-query/src/article/rank.rs",
     "crates/biomcp-fetch/src/retry.rs",
     "crates/biomcp-fetch/src/retry_tests.rs",
+    "crates/biomcp-fetch/src/xml.rs",
     "crates/biomcp-fetch/src/xml_tests.rs",
 ];
 // New exceptions require a reviewed path and reason here.
