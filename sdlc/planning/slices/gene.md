@@ -401,7 +401,7 @@ Cases: keyed-source recordings hold licensed content, so they never enter the re
 
 | Source | Key | Serves | Ruling sought |
 | --- | --- | --- | --- |
-| COSMIC Cancer Gene Census | COSMIC account token | Role in cancer, tier, hallmark, and translocation partner genes, which fill the fusion-partner gap in examples 4 and 15 | Recommended as the second keyed source, after OncoKB lands and only if Ian wants fusion partners from a gene call |
+| COSMIC Cancer Gene Census | COSMIC account token | Role in cancer, tier, hallmark, and translocation partner genes, which fill the fusion-partner gap in examples 4 and 15 | Dropped by Ian: BioMCP uses free gene sources, and its only COSMIC data is the old pre-license copy in MyVariant.info |
 | NCBI E-utilities | `ncbi_api_key`, optional | Raises the limit from 3 to 10 requests per second for the replaced-ID check | Not a keyed-only source: it runs without a key at the lower limit |
 | DisGeNET | API key | Scored gene-disease pairs | Stays dropped by Ian's ruling; ClinGen covers validated links |
 | OMIM | API key | Gene-phenotype map | Not needed: no example asks for it beyond what ClinGen and the RefSeq summary give |

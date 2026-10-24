@@ -71,16 +71,15 @@ Sources:
 - [x] gnomAD (constraint)
 - [x] Human Protein Atlas
 - [x] OncoKB (keyed)
-- [ ] COSMIC Cancer Gene Census (keyed; awaits a ruling)
 - Moved to the drug slice: DGIdb and Open Targets druggability
 - Moved to the cell-line slice: Cellosaurus
 - Deferred: GenCC (bundle)
-- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG, GTEx
+- Dropped: QuickGO, STRING, Enrichr, DisGeNET, NIH RePORTER, KEGG, GTEx, COSMIC Cancer Gene Census
 
 ### Article
 
-- [ ] Investigation
-- [ ] Questions answered by Ian
+- [x] Investigation
+- [x] Questions answered by Ian
 - [x] Plain PubMed search types and schema
 - [x] Plain PubMed search with stable stored pages
 - [x] PubMed author, journal, date and publication-type filters and date order
