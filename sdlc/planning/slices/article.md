@@ -461,7 +461,7 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 - `pmid: Option<Pmid>`, `pmcid: Option<Pmcid>`, `doi: Option<Doi>`, `europepmc_id: Option<EuropePmcId>`; at least one is present
 - `title: Text`, `journal: Option<Text>`, `date: Option<PartialDate>`
 - `types: Box<[PublicationType]>`
-- `corrections: Box<[Correction]>`, each `{ kind: CorrectionKind, pmid: Option<Pmid> }`
+- `corrections: Box<[Correction]>`, each `{ kind: CorrectionKind, relation: CorrectionRelation, pmid: Option<Pmid> }`, where `relation` is `notice` when the PMID names the correction notice and `original` when it names the corrected paper
 - `published_as: Option<ArticleRef>`, for a preprint whose Europe PMC record links its published version
 - `authors: Box<[Text]>`, whole
 - `abstract_parts: Box<[AbstractPart]>`, each `{ label: Option<Text>, text: Text }`, with inline tags reduced to text through `MixedText`
