@@ -4,7 +4,7 @@ use biodata::{
     ArticleItem, ArticleKey, ArticleSearch, ArticleSource, EntrezGeneId, Reason, Source, Text,
 };
 use biomcp_adapters::{litsense, pubtator};
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 /// Literal gene input and words remain separate from HGNC's resolved entity join.
 pub(super) fn litsense<'a>(
     cx: &Ctx<'a>,
