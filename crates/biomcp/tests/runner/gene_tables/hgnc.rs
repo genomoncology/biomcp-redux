@@ -216,7 +216,7 @@ fn vocabulary() -> Check {
                 );
             }
         },
-        json!({"/result/items/0/answer/gene/mane_select/refseq": "NR_186305.1"}),
+        json!({"/result/items/0/answer/gene/mane/0/refseq": "NR_186305.1"}),
         0,
     )
 }

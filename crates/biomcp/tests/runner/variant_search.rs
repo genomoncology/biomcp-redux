@@ -276,16 +276,16 @@ fn literal_gene() -> Result<(), String> {
             "search",
             "variant",
             "--gene",
-            "EGFR:foo\"*",
+            "HER-2/neu",
             "--protein",
             "W24*",
         ],
     )?;
     if value.pointer("/result/source_query")
         != Some(&json!(
-            r#"dbnsfp.genename:EGFR\:foo\"\* AND dbnsfp.hgvsp:"p.W24\*""#
+            r#"dbnsfp.genename:HER\-2\/neu AND dbnsfp.hgvsp:"p.W24\*""#
         ))
-        || value.pointer("/query/gene") != Some(&json!("EGFR:foo\"*"))
+        || value.pointer("/query/gene") != Some(&json!("HER-2/neu"))
         || value.pointer("/status") != Some(&json!("absent"))
         || stub.finish()?.len() != 1
     {
@@ -296,7 +296,7 @@ fn literal_gene() -> Result<(), String> {
     Ok(())
 }
 fn literal_body(request: &str) -> Result<String, String> {
-    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AEGFR%5C%3Afoo%5C%22%5C%2A%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {return Err(format!("source query metacharacter was not escaped: {request}"));}
+    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AHER%5C-2%5C%2Fneu%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {return Err(format!("source query metacharacter was not escaped: {request}"));}
     Ok(json!({"total":0,"hits":[]}).to_string())
 }
 

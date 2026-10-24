@@ -70,7 +70,7 @@ fn civic() -> Check {
 }
 
 fn constraint() -> Check {
-    for mode in 0..13 {
+    for mode in 0..16 {
         graphql(
             "gnomad",
             |body| {
@@ -98,6 +98,18 @@ fn constraint() -> Check {
                     10 => value["data"]["g0"]["gnomad_constraint"]["pli"] = json!("NaN"),
                     11 => {
                         value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] = json!("bad")
+                    }
+                    12 => {
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                            json!("ENST00000269305.01")
+                    }
+                    13 => {
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                            json!("ENST00000269305.bad")
+                    }
+                    14 => {
+                        value["data"]["g0"]["mane_select_transcript"]["ensembl_id"] =
+                            json!("NM_004333.4")
                     }
                     _ => {
                         *body = json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null},\"errors\":[{\"message\":\"Gene not found\"},{\"message\":\"Gene not found\"}]}"})
