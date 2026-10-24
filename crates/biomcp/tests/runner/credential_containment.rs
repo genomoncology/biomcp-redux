@@ -41,7 +41,7 @@ fn reply(request: &str) -> Result<String, String> {
     } else if request.contains("keyword=error") {
         Ok(KEY.into())
     } else {
-        Ok(json!({"total":0,"data":[]}).to_string())
+        Ok(json!({"total":0,"data":[],"ignored":"synthetic-unrelated-config-key"}).to_string())
     }
 }
 fn setup() -> Result<(Environment, Stub), String> {
@@ -67,7 +67,7 @@ fn setup() -> Result<(Environment, Stub), String> {
     )?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY}})).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY,"semantic_scholar_api_key":"synthetic-unrelated-config-key"}})).map_err(|e|e.to_string())?;
     Ok((env, stub))
 }
 fn invoke(env: &Environment, args: Vec<String>, bad: bool) -> Result<Value, String> {
@@ -99,9 +99,16 @@ fn invoke(env: &Environment, args: Vec<String>, bad: bool) -> Result<Value, Stri
     Ok(out)
 }
 fn args(query: &str, flag: &str, path: &Path) -> Vec<String> {
-    let mut args = SEARCH.iter().map(|s| (*s).into()).collect::<Vec<String>>();
-    *args.last_mut().expect("search keyword") = query.into();
-    args.extend([flag.into(), path.to_string_lossy().into_owned()]);
+    let mut args = SEARCH
+        .iter()
+        .take(SEARCH.len() - 1)
+        .map(|s| (*s).into())
+        .collect::<Vec<String>>();
+    args.extend([
+        query.into(),
+        flag.into(),
+        path.to_string_lossy().into_owned(),
+    ]);
     args
 }
 fn clean(bytes: &[u8]) -> Check {
