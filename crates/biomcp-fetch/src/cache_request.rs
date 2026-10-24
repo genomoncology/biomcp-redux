@@ -59,6 +59,8 @@ impl Leg<'_> {
                 entry.fetched_at = fetched;
                 if (200..300).contains(&status) && codec.cacheable(&reply) {
                     cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                } else if codec.json_absence && status == 404 {
+                    cache.remove(key, self.budget())?;
                 }
                 Ok((reply, fetched))
             }
