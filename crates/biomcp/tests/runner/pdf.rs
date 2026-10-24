@@ -167,10 +167,9 @@ fn boundaries() -> Check {
                 && record["url"]
                     .as_str()
                     .is_some_and(|s| s.contains("api.semanticscholar.org"))
+                && let Some(body) = record.pointer_mut("/exchanges/0/body")
             {
-                if let Some(body) = record.pointer_mut("/exchanges/0/body") {
-                    *body = json!({"kind":"text","value":"{\"openAccessPdf\":"});
-                }
+                *body = json!({"kind":"text","value":"{\"openAccessPdf\":"});
             }
         })?;
         let publisher = replay.join("semantic-scholar/0e4c6627e9a47ffe7aa8ad4caee7846838977da402ca279d1d34fbe2b02efcaf.json");
@@ -289,7 +288,8 @@ fn record_metadata() -> Check {
         if entry.path().extension().is_some_and(|v| v == "json") {
             let record: Value = serde_json::from_slice(&fs::read(entry.path())?)?;
             use std::io::Write;
-            writeln!(std::io::stdout(),
+            writeln!(
+                std::io::stdout(),
                 "PDF_CANONICAL_RECORD {} {}",
                 entry.file_name().to_string_lossy(),
                 record

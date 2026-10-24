@@ -98,7 +98,9 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| bytes(&fetch, spec));
         server.next().raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
-        assert!(matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply));
+        assert!(
+            matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biodata::Reason::BadReply)
+        );
     });
     assert!(server.requests.try_recv().is_err());
 }
