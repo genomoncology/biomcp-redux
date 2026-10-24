@@ -37,9 +37,9 @@ pub(super) fn create<'a>(
     if truncated {
         source.notices.push(biodata::SourceNotice::GraphTruncated {
             fallback: if references {
-                "article references"
+                "article references <PMID> --source icite"
             } else {
-                "article citations"
+                "article citations <PMID> --source icite"
             }
             .parse()
             .map_err(|_| biomcp_fetch::CacheError::Database)?,
