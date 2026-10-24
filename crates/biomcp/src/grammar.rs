@@ -24,6 +24,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
+pub(crate) const QUERIES: &[(&str, &str)] = &[("get", "biodata.gene-get/1"), ("search", "biodata.gene-search/1")];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
@@ -48,10 +49,7 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for (verb, id) in [
-        ("get", "biodata.gene-get/1"),
-        ("search", "biodata.gene-search/1"),
-    ] {
+    for &(verb, id) in QUERIES {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         root = root.subcommand(

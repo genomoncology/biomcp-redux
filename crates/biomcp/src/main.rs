@@ -3,6 +3,7 @@ mod command;
 mod config;
 mod exit;
 mod grammar;
+mod help;
 mod mcp;
 mod output;
 mod paths;

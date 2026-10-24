@@ -19,6 +19,9 @@ fn dispatch_using(
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
     )>,
 ) -> io::Result<Outcome> {
+    if let Some(help) = crate::help::dispatch(args)? {
+        return encode(Envelope::new(Status::Complete, args.iter().skip(1).map(|s| s.to_string_lossy().into_owned()).collect(), Some(help)), crate::exit::Status::Success);
+    }
     if let [command, name] = args
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)

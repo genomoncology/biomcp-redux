@@ -341,6 +341,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "default",
             "minItems",
             "maxItems",
+            "x-enum-descriptions",
             "x-positional",
             "x-trailing-section",
         ]
@@ -369,7 +370,8 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
                         "$defs",
                         "title",
                         "description",
-                        "x-positional",
+                        "x-enum-descriptions",
+            "x-positional",
                         "x-trailing-section",
                         "default",
                     ]
