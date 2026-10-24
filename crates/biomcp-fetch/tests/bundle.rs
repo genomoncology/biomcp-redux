@@ -777,3 +777,28 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
         assert_eq!(call.join().unwrap().unwrap().len(), 1);
     });
 }
+
+#[test]
+fn banner_csv_records_are_checked_before_atomic_publication() {
+    let server = support::Server::new();
+    let mut bundle = declared(&server);
+    bundle.format = RowFormat::Csv { banner_lines: 2 };
+    let dir = tempfile::tempdir().unwrap();
+    let fetch = cached(&dir.path().join("cache.sqlite"));
+    let good = "banner\r\ncreated today\r\n\"symbol\",\"band\",\"name\"\r\n+++,+++,+++\r\nBRAF,9p,\"B, raf \"\"kinase\"\"\nwhole\"\r\n";
+    assert_eq!(sync_reply(&fetch, &bundle, &server, 200, "", good).unwrap().rows, 1);
+    for bad in [
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,\"open",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,bad\"quote\n",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,\"closed\"x\n",
+        "banner\ncreated\nsymbol,,name\nBRAF,9p,a\n",
+        "banner\ncreated\nsymbol,symbol,name\nBRAF,9p,a\n",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p\n",
+    ] {
+        assert!(sync_reply(&fetch, &bundle, &server, 200, "", bad).is_err());
+        let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(2)));
+        let rows = leg.rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF")).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].name, "B, raf \"kinase\"\nwhole");
+    }
+}
