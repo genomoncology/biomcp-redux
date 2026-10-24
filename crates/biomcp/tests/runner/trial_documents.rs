@@ -292,64 +292,70 @@ fn continuations() -> Check {
         "references",
         "documents",
     ] {
-        let mut data = first["result"]["items"][0]["sections"][name]["data"].clone();
-        assert!(
-            data.get("continuation").is_some(),
-            "{name} did not truncate in the witness"
-        );
-        let mut count = if name == "eligibility" {
-            data["criteria"].as_str().ok_or("criteria")?.chars().count()
-        } else {
-            data["items"].as_array().ok_or("items")?.len()
+        walk_section(name, &first, &env)?;
+    }
+    Ok(())
+}
+
+fn walk_section(name: &str, first: &Value, env: &Environment) -> Check {
+    let mut data = first["result"]["items"][0]["sections"][name]["data"].clone();
+    assert!(
+        data.get("continuation").is_some(),
+        "{name} did not truncate in the witness"
+    );
+    let mut count = if name == "eligibility" {
+        data["criteria"].as_str().ok_or("criteria")?.chars().count()
+    } else {
+        data["items"].as_array().ok_or("items")?.len()
+    };
+    let mut text = data["criteria"].as_str().unwrap_or_default().to_owned();
+    let mut recovered = data["items"].as_array().cloned().unwrap_or_default();
+    let total = data[if name == "eligibility" {
+        "total_characters"
+    } else {
+        "total"
+    }]
+    .as_u64()
+    .ok_or("total")? as usize;
+    for _ in 0..20 {
+        let Some(next) = data.get("continuation") else {
+            break;
         };
-        let mut text = data["criteria"].as_str().unwrap_or_default().to_owned();
-        let mut recovered = data["items"].as_array().cloned().unwrap_or_default();
-        let total = data[if name == "eligibility" {
-            "total_characters"
-        } else {
-            "total"
-        }]
-        .as_u64()
-        .ok_or("total")? as usize;
-        for _ in 0..20 {
-            let Some(next) = data.get("continuation") else {
-                break;
-            };
-            let args = continuation_args(next)?;
-            let offline = env.globals(None, true);
-            let mut full = offline.clone();
-            full.extend_from_slice(&args);
-            let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &full).output()?;
-            assert!(
-                output.status.success(),
-                "{}",
-                String::from_utf8_lossy(&output.stdout)
-            );
-            let out: Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(
-                out,
-                super::mcp::call_with_globals(&env, &args, false, &offline)?
-            );
-            super::schema::Registry::embedded()?.validate(&out, &args, true)?;
-            data = out["result"]["items"][0]["sections"][name]["data"].clone();
-            assert_eq!(data["offset"], json!(count));
-            if name == "eligibility" {
-                let s = data["criteria"].as_str().ok_or("criteria")?;
-                count += s.chars().count();
-                text.push_str(s);
-            } else {
-                let rows = data["items"].as_array().ok_or("items")?;
-                count += rows.len();
-                recovered.extend_from_slice(rows);
-            }
-        }
-        assert_eq!(count, total, "{name} stranded source content");
+        let args = continuation_args(next)?;
+        let offline = env.globals(None, true);
+        let mut full = offline.clone();
+        full.extend_from_slice(&args);
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &full).output()?;
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stdout)
+        );
+        let out: Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(
+            out,
+            super::mcp::call_with_globals(&env, &args, false, &offline)?
+        );
+        super::schema::Registry::embedded()?.validate(&out, &args, true)?;
+        data = out["result"]["items"][0]["sections"][name]["data"].clone();
+        assert_eq!(data["offset"], json!(count));
         if name == "eligibility" {
-            assert_eq!(text, " Ω source whitespace \n".repeat(800));
+            let s = data["criteria"].as_str().ok_or("criteria")?;
+            count += s.chars().count();
+            text.push_str(s);
         } else {
-            ordered_records(name, &recovered)?;
+            let rows = data["items"].as_array().ok_or("items")?;
+            count += rows.len();
+            recovered.extend_from_slice(rows);
         }
     }
+    assert_eq!(count, total, "{name} stranded source content");
+    if name == "eligibility" {
+        assert_eq!(text, " Ω source whitespace \n".repeat(800));
+    } else {
+        ordered_records(name, &recovered)?;
+    }
+
     Ok(())
 }
 
