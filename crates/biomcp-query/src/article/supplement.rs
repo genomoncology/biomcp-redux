@@ -97,11 +97,10 @@ fn execute<'a>(
             content.url = Some(file.url.clone());
             content.reason = Some(Reason::Unsupported);
         } else {
-            let local_end = leg.local_deadline();
-            let (bytes, sheets) = pmc_oa::download(&leg, file)?;
+            let downloaded = pmc_oa::download(&leg, file)?;
             content.sha256 = Some(
                 Text::new(
-                    &Sha256::digest(&bytes)
+                    &Sha256::digest(&downloaded.bytes)
                         .iter()
                         .map(|v| format!("{v:02x}"))
                         .collect::<String>(),
@@ -110,11 +109,11 @@ fn execute<'a>(
             );
             if !page::select(
                 query,
-                &sheets,
+                &downloaded.sheets,
                 &mut content,
                 out,
                 &selection.needles,
-                local_end,
+                downloaded.deadline,
             )
             .map_err(failure)?
             {

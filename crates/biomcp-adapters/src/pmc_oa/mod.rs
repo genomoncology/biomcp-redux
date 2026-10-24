@@ -8,7 +8,7 @@ use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceError, SourceSpec,
 };
 use std::time::Duration;
-pub use supplement::{Supplement, download};
+pub use supplement::{Download, Supplement, download};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::PmcOa,

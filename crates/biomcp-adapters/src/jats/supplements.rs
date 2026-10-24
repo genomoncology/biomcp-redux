@@ -19,29 +19,49 @@ pub(super) fn read(xml: &str) -> Result<Vec<Supplement>, BadReply> {
         let caption = caption(item)?;
         let kind = mime(item)?;
         if let Some(href) = item.attr("xlink:href")? {
-            out.push(Supplement { href,kind,label:label.clone(),caption:caption.clone() });
+            out.push(Supplement {
+                href,
+                kind,
+                label: label.clone(),
+                caption: caption.clone(),
+            });
         }
         for media in super::blocks::descendants(item.0, "media")? {
             if let Some(href) = media.attr("xlink:href")? {
-                out.push(Supplement { href,kind:mime(media)?.or(kind),
-                    label:label.clone().or(self::label(media)?),caption:caption.clone().or(self::caption(media)?) });
+                out.push(Supplement {
+                    href,
+                    kind: mime(media)?.or(kind),
+                    label: label.clone().or(self::label(media)?),
+                    caption: caption.clone().or(self::caption(media)?),
+                });
             }
         }
     }
     Ok(out)
 }
-fn label(item: crate::xml_element::Element<'_>) -> Result<Option<Text>,BadReply> {
-    item.value(&["label"])?.filter(|v|!v.trim().is_empty()).map(|v|Text::new(&v).map_err(|_|BadReply)).transpose()
+fn label(item: crate::xml_element::Element<'_>) -> Result<Option<Text>, BadReply> {
+    item.value(&["label"])?
+        .filter(|v| !v.trim().is_empty())
+        .map(|v| Text::new(&v).map_err(|_| BadReply))
+        .transpose()
 }
-fn caption(item: crate::xml_element::Element<'_>) -> Result<Option<Markdown>,BadReply> {
-    let Some(caption)=item.child("caption")? else{return Ok(None);};
-    if caption.text()?.trim().is_empty() {return Ok(None);}
+fn caption(item: crate::xml_element::Element<'_>) -> Result<Option<Markdown>, BadReply> {
+    let Some(caption) = item.child("caption")? else {
+        return Ok(None);
+    };
+    if caption.text()?.trim().is_empty() {
+        return Ok(None);
+    }
     super::markdown(caption.0).map(Some)
 }
 fn mime(item: crate::xml_element::Element<'_>) -> Result<Option<biodata::FileKind>, BadReply> {
     use biodata::FileKind;
-    let Some(top) = item.attr("mimetype")? else { return Ok(None); };
-    let Some(sub) = item.attr("mime-subtype")? else { return Ok(Some(FileKind::Other)); };
+    let Some(top) = item.attr("mimetype")? else {
+        return Ok(None);
+    };
+    let Some(sub) = item.attr("mime-subtype")? else {
+        return Ok(Some(FileKind::Other));
+    };
     let kind = match format!("{top}/{sub}").to_ascii_lowercase().as_str() {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => FileKind::Xlsx,
         "text/csv" => FileKind::Csv,

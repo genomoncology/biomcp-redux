@@ -70,6 +70,16 @@ pub(super) fn select(
     }
     Ok(out)
 }
+/// Original bytes and one checked parse share the same remaining local budget.
+#[derive(Debug)]
+pub struct Download {
+    /// Original source bytes for hashing.
+    pub bytes: Vec<u8>,
+    /// Parsed original sheets.
+    pub sheets: Vec<crate::sheet::Sheet>,
+    /// Deadline retained through row selection after parsing.
+    pub deadline: biomcp_fetch::LocalDeadline,
+}
 /// Download only a previously intersected readable bucket file.
 #[expect(
     clippy::disallowed_types,
@@ -78,7 +88,7 @@ pub(super) fn select(
 pub fn download(
     leg: &Leg<'_>,
     file: &Supplement,
-) -> Result<(Vec<u8>, Vec<crate::sheet::Sheet>), RequestError> {
+) -> Result<Download, RequestError> {
     if !file.file.kind.readable() {
         return Err(super::bad(BadReply));
     }
@@ -97,12 +107,11 @@ pub fn download(
     let local_end = leg.local_deadline();
     let parsed = std::cell::RefCell::new(None);
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
-        let sheets = crate::sheet::read(bytes, file.file.kind, local_end)?;
-        *parsed.borrow_mut() = Some(sheets);
+        let end = local_end.earlier(leg.local_deadline());
+        let sheets = crate::sheet::read(bytes, file.file.kind, end)?;
+        *parsed.borrow_mut() = Some((sheets,end));
         Ok(())
     })?;
-    Ok((
-        bytes,
-        parsed.into_inner().ok_or_else(|| super::bad(BadReply))?,
-    ))
+    let (sheets,deadline)=parsed.into_inner().ok_or_else(|| super::bad(BadReply))?;
+    Ok(Download {bytes,sheets,deadline})
 }

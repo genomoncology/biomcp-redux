@@ -152,6 +152,8 @@ impl<'a> CommandDeadline<'a> {
 #[derive(Clone, Copy, Debug)]
 pub struct LocalDeadline(Instant);
 impl LocalDeadline {
+    /// Retain the stricter bound as a source budget advances in real or replay time.
+    pub fn earlier(self, other: Self) -> Self { Self(self.0.min(other.0)) }
     /// Whether the parsing budget has been exhausted.
     pub fn expired(self) -> bool {
         Instant::now() >= self.0
