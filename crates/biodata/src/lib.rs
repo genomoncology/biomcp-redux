@@ -14,7 +14,9 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
 pub use response::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CivicMembership, CivicProfile,
+    HotspotAlternate, HotspotRecord, LitVarCandidate, PoolInfo, SourceNotice, VariantCivic,
+    VariantHotspots,
 };
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit,
@@ -90,9 +92,9 @@ pub use response::{
 mod variant;
 pub use variant::{Representation, Variant};
 
-pub use query::{VariantGet, VariantResolver};
+pub use query::{VariantGet, VariantResolver, VariantSection};
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
-pub use response::{VariantCard, VariantHeader, VariantResolution};
+pub use response::{VariantCard, VariantHeader, VariantResolution, VariantSections};
 
 pub use coord::Chromosome;
 
@@ -145,3 +147,31 @@ mod trial_publications;
 pub use query::TrialDocumentGet;
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
+
+pub use variant::{
+    Attribution, Coding, Concept, Curie, Direction, Predicate, Proposition, Statement, Term,
+    VariantRef,
+};
+
+pub use variant::{
+    AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, ClingenCgcVicc2022Code,
+    ClingenLowPenetrance2024Code,
+};
+
+pub use response::{
+    GwasAssociation, GwasEffectAllele, PopulationGroup, PopulationSubset, VariantGwas,
+    VariantPopulation, VariantPopulationDetail,
+};
+
+pub use variant::CivicEvidenceLevelCode;
+
+pub use query::VariantPopulationQuery;
+pub use query::{AssertionSource, VariantAssertionsGet};
+pub use response::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
+};
+pub use variant::{
+    CosmicRecord, PredictorScore, VariantComponent, VariantConservation, VariantCosmic,
+    VariantPredictors,
+};

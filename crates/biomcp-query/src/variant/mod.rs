@@ -39,7 +39,10 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     }
     let mut sources = vec![main_source];
     let mut local = error.and_then(status::local);
-    if spec.source == Source::AlleleRegistry && resolution == VariantResolution::Resolved {
+    if query.sections().is_empty()
+        && spec.source == Source::AlleleRegistry
+        && resolution == VariantResolution::Resolved
+    {
         let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems);
         sources.push(source);
         local = local.or(error);
@@ -89,7 +92,7 @@ fn classify(len: usize) -> VariantResolution {
         _ => VariantResolution::Candidates,
     }
 }
-fn resolve(
+pub(super) fn resolve(
     query: &VariantGet,
     leg: &Leg<'_>,
     problems: &mut Vec<biodata::Problem>,
@@ -166,7 +169,7 @@ fn join_id(row: &VariantHeader) -> Option<String> {
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
 }
-fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
+pub(super) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
     let direct = matches!(
         query.input().namespace(),
         Ok(VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome)

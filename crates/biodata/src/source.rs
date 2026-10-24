@@ -61,6 +61,10 @@ canonical_enum! {
         UniProt => "uniprot",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinVar assertions.
+        ClinVar => "clinvar",
+        /// ClinGen Evidence Repository.
+        Erepo => "erepo",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.
