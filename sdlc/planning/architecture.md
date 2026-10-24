@@ -401,7 +401,7 @@ Provenance appears at three levels, each as small as its question needs:
 - A pooled search item lists every source that found it, with the native rank. `found_by` prints as a map from source to rank, such as `{"pubmed": 2, "europepmc": 13}`, and appears only on pages built from several sources, because on a one-source page an item's rank is its position:
 
 ```rust
-pub struct ArticleItem { pub header: ArticleHeader, pub found_by: BTreeMap<Source, NonZeroU32>, pub cited_by: Option<u32> }
+pub struct ArticleItem { pub pmid: Option<Pmid>, pub header: Option<ArticleHeader>, pub found_by: BTreeMap<Source, NonZeroU32>, pub cited_by: Option<u32> }
 ```
 
 `cited_by` comes from iCite and appears only under `--sort citations`. Both fields sit on the item and never on the biodata header, because they come from other sources.
@@ -803,7 +803,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 }
 ```
 
-- A JSON body is embedded as JSON under `json`, so a diff shows the changed field. An XML or text body sits under `text`. A binary body sits beside the file as `<key>.bin`.
+- A JSON body is embedded as JSON under `json`, so a diff shows the changed field. An XML or text body sits under `text`. A binary body sits in a bounded relative per-exchange `.bin` sidecar, published atomically; repeated exchanges never overwrite earlier bytes, and replay refuses missing, linked or escaping sidecars.
 - `replies` serves in order within one run, so a retry sequence is one file.
 - A failure case is an ordinary file: a status, a large `delay_ms` for a timeout, a cut `text` for a broken body, or a 200 whose `json` carries the provider's error field.
 - Recorded URLs never hold a credential, because step 2 removes it before the key and the file exist. Batch ID lists are sorted before keying, so a recording matches whatever order the caller asked in.
@@ -1257,9 +1257,9 @@ A search whose answer comes from several sources builds a pool once and pages ov
 3. **Build.** Otherwise build a new pool (section 6.8), give it a new ID, store it and make it the request key's current pool. A replaced pool stays readable by ID until its own expiry.
 4. **Page.** Slice the stored order by `offset` and `limit`. The page carries the pool's ID, size, creation and expiry times and the stored source outcomes.
 
-Every next-page step carries `--pool <id>`, so an agent's walk reads one snapshot from start to end even if a `--fresh` rerun replaces the current pool midway. A `--pool` ID that no longer exists returns the error `pool.expired` with a `restart` step: the same search at offset zero without `--pool`. A pool built while a source failed is partial, and its next steps include a `fresh` rerun.
+Every next-page step carries `--pool <id>`, so an agent's walk reads one snapshot from start to end even if a `--fresh` rerun replaces the current pool midway. A `--pool` ID that no longer exists returns the error `pool.expired` with a `restart` step: the same search at offset zero without `--pool`. A pool built while a source failed is partial, and its next steps include a `fresh` rerun. A pool whose stored request differs from supplied selectors returns usage.pool_mismatch with a restart for the supplied checked request without that pool; it is not pool.expired. Pool expiry is fixed at 24 hours from publication, not renewed by reads.
 
-A pool holds every item's header and features, so a warm page is a store read with no request. A pool never grows after build: each source is fetched to a fixed depth then. Article headers come from one ESummary call per page when the page is first read, and are stored with the pool, so a page read twice makes no second call.
+A pool retains every item identity and its header hydration state (unattempted, checked missing or present), so a warm hydrated page is a store read with no request. A PubMed item with no valid summary keeps its PMID and omits the header, with a named problem, partial page and fresh step; ESummary request failure fails the page. Headers never determine the floor order or size. A pool never grows after build: each source is fetched to a fixed depth then. Article headers come from one ESummary call per page when the page is first read, and are stored with the pool, so a page read twice makes no second call.
 
 A pool's size is capped per entity. A capped pool whose sources all answered is complete, with `page.truncated` set and `page.total` giving the sources' total. Truncation is a fact about the answer's size, and the status stays complete.
 
@@ -1327,7 +1327,7 @@ pub(crate) fn search_status(sources: &[SourceOutcome]) -> Status;            // 
 
 The cache is one SQLite file, as `decisions/2026-10-23-the-cache-is-a-local-sqlite-database.md` says. Its folder is `$XDG_CACHE_HOME/biomcp`, then `~/.cache/biomcp`, and on Windows `%LOCALAPPDATA%\biomcp\cache`. The transport owns the reply and bundle tables. The store module of `biomcp-query` owns the pool tables. Both open the file in WAL mode with a busy timeout.
 
-The file name carries both owners' schema versions, such as `cache-f1-s1.sqlite`. Each owner exports its version as a constant, and the binary builds the name from them. A BioMCP release that changes either schema opens a new file and never touches the old one, so two releases can run side by side. Each owner also checks its row in `meta` on open and refuses a mismatch with `fetch.cache_version` or `store.version`. Nothing ever drops a table. `biomcp store clean` deletes cache files from other versions.
+The file name carries both owners' schema versions, such as `cache-f1-s1.sqlite`. Each owner exports its version as a constant, and the binary builds the name from them. A BioMCP release that changes either schema opens a new file and never touches the old one, so two releases can run side by side. The query store obtains the active file through a Fetch capability that retains the replay owner; it never reconstructs a path. Each command owns its connection, while MCP shares Fetch. Each owner also checks its row in `meta` on open and refuses a mismatch with `fetch.cache_version` or `store.version`. Nothing ever drops a table. `biomcp store clean` deletes cache files from other versions.
 
 ```sql
 -- owner: biomcp-fetch

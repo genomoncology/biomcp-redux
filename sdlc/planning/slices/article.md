@@ -680,7 +680,7 @@ The citations facts are the total and the count source. 0.9 states neither total
 
 ### Budget
 
-The cases in section 8 enforce a byte ceiling on each output, at about 1.5 times the measured size. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80.
+Article page cases use the recorded real output plus 15 percent, capped by the recorded 0.9 JSON tokens for the same question (PM m4341). The 1,300-token page figure is a design target. Provisional page maxima in the investigation table are replaced with exact measured case ceilings before handoff; exceptions explain the responsible facts on the owning ticket. Other command ceilings remain as ruled. Per-command budgets: a search item 130 tokens and a page of ten 1,300; a card 900; `citations` 60; `supplements` 40 per file; `annotations` 350; `fulltext` 500; a supplement find 250 per hit and 25 hits per call; a citations or references page 1,100; an `article text` reply 4,000; a not-found item 80.
 
 ## 7. Keyed and optional-key sources
 
@@ -713,8 +713,8 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 11 | Annotation-only paper (PMID 11481490) | `search article --gene TP53 --variant R337H --source litvar --sort citations` | 11481490 in the first 25 | 7,500 bytes per page |
 | 12 | rsID input (PMID 17611497) | `search article --variant rs121434592 --source litvar --sort citations` | 17611497 in the first 30 | 7,500 bytes per page |
 | 13 | Most cited first (PMID 9145676) | `search article "BRCA1 185delAG Ashkenazi" --sort citations` | 9145676 in the first 3; counts never increase down the walk; items missing from iCite come last with no `cited_by` | 7,500 bytes |
-| 14 | Citation sort above its cap | `search article "BRAF V600E" --gene BRAF --variant V600E --source pubmed,litvar --sort citations` | usage error naming the PMID count above 10,000 and asking to narrow; no iCite request | 600 bytes |
-| 15 | Round-robin rule (PMID 33123537) | `search article "AKT1 E17K" --source pubmed,europepmc`, walked | the k-th result of the i-th listed source sits at position 2(k−1)+i or earlier; no PMID appears twice; each item's `found_by` holds its recorded native ranks; Europe PMC's outcome shows 100 fetched of 1,204 | 8,000 bytes per page |
+| 14 | Citation sort above its cap | `search article --gene BRAF --variant V600E --source pubmed,litvar --sort citations` | usage error naming the PMID count above 10,000 and asking to narrow; no iCite request | 600 bytes |
+| 15 | Round-robin rule (PMID 33123537) | `search article "AKT1 E17K" --source pubmed,europepmc`, walked | the k-th result of the i-th listed source sits at position 2(k−1)+i or earlier; no PMID appears twice; each item's `found_by` holds its recorded native ranks; Europe PMC's outcome shows the actual captured depth (at most 100) and its recorded total | 8,000 bytes per page |
 | 16 | DOI-only rows (PMID 27959700) | `search article "EGFR T790M osimertinib" --source pubmed,semantic-scholar` with a recorded key reply | rows with only a DOI resolve to their PMIDs where a record with the same DOI exists; 27959700 appears once, with both sources in `found_by` | 8,000 bytes |
 | 17 | A source repeats a paper | a recorded Europe PMC reply that lists one PMID twice | the item appears once, at the source's first rank | none |
 | 18 | The pool is fixed | case 15's walk run twice, then a page read with the network disabled | identical order; the last page has no page step; the offline page makes no request | none |
@@ -736,7 +736,7 @@ Each case was checked on 2026-10-23 against live PubMed, LitVar2, LitSense2, Eur
 | 34 | Card by PMCID (PMID 30209399) | `get article PMC6181777` | `pmid` 30209399; `match.kind` pmcid; `next` names `fulltext` and `supplements` | 2,900 bytes |
 | 35 | Retracted paper (PMID 17057710) | `get article 17057710` | types include retracted_publication; `corrections` holds retraction with pmid 21217686; `fetched` present | 2,800 bytes |
 | 36 | Not found | `get article 99999999` | resolution not_found; status absent; the input never appears in an error message | 400 bytes |
-| 37 | Preprint (Europe PMC PPR1064174) | `get article PPR1064174` | `doi` 10.21203/rs.3.rs-7293078/v1; types include preprint; no `pmid`; `fulltext` unavailable with reason not_open | 2,500 bytes |
+| 37 | Preprint (Europe PMC PPR1064174) | `get article PPR1064174` | `doi` 10.21203/rs.3.rs-7293078/v1; types include preprint; no `pmid`; `fulltext` unavailable with the retained source-failure reason | 2,500 bytes |
 | 38 | Preprint full text (Europe PMC PPR1295425, CC BY) | `get article PPR1295425 fulltext` | `fulltext` state data with license cc_by and an outline of parts | 4,500 bytes |
 | 39 | Several inputs (replaces `article batch`) | `get article 17611497 34096690 21639808` | three cards in input order | 9,000 bytes |
 | 40 | Supplements listed (PMID 28944238, CC BY) | `get article 28944238 supplements` | license cc_by; files exactly {MGG3-5-553-s001.pdf, MGG3-5-553-s002.xlsx} | 3,800 bytes |
