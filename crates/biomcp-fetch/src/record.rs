@@ -137,6 +137,7 @@ pub(crate) struct Capture {
 #[derive(Debug)]
 pub(crate) struct Cursor {
     recording: Recording,
+    file_bytes: u64,
     next: usize,
 }
 impl Drop for Capture {
@@ -223,10 +224,18 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let recording = read(&path(dir, source, key), source, url, post, file_limit)?;
-                entry.insert(Cursor { recording, next: 0 })
+                let (recording, file_bytes) =
+                    read(&path(dir, source, key), source, url, post, file_limit)?;
+                entry.insert(Cursor {
+                    recording,
+                    file_bytes,
+                    next: 0,
+                })
             }
         };
+        if cursor.file_bytes > file_limit {
+            return Err(RecordError::Limit);
+        }
         let value = cursor
             .recording
             .exchanges
@@ -303,7 +312,7 @@ fn read(
     url: &str,
     post: Option<&crate::prepared::PostMetadata>,
     limit: u64,
-) -> Result<Recording, RecordError> {
+) -> Result<(Recording, u64), RecordError> {
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
@@ -330,7 +339,7 @@ fn read(
     {
         return Err(RecordError::Malformed);
     }
-    Ok(value)
+    Ok((value, bytes.len() as u64))
 }
 fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError> {
     let bytes = serde_json::to_vec_pretty(value).map_err(|_| RecordError::Malformed)?;
