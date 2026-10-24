@@ -23,7 +23,8 @@ pub(super) struct SampleList {
     pub study_id: Text,
     pub sample_count: Option<u64>,
 }
-#[derive(Deserialize)]
+/// Native source mutation identity and sample, without inferred equivalence.
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Mutation {
     /// Source profile; checked before cache admission.

@@ -4,51 +4,120 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant-recurrence/exact-page-wire-and-warm-cache", || wire().map_err(Into::into))]
+    vec![Trial::test(
+        "variant-recurrence/exact-page-wire-and-warm-cache",
+        || wire().map_err(Into::into),
+    )]
 }
 fn args() -> Vec<String> {
-    ["variant", "recurrence", "CA123643", "--source", "cbioportal", "--gene", "BRAF", "--study", "msk_impact_2017", "--profile", "msk_impact_2017_mutations", "--sample-set", "msk_impact_2017_all", "--limit", "3"].into_iter().map(Into::into).collect()
+    [
+        "variant",
+        "recurrence",
+        "CA123643",
+        "--source",
+        "cbioportal",
+        "--gene",
+        "BRAF",
+        "--study",
+        "msk_impact_2017",
+        "--profile",
+        "msk_impact_2017_mutations",
+        "--sample-set",
+        "msk_impact_2017_all",
+        "--limit",
+        "3",
+    ]
+    .into_iter()
+    .map(Into::into)
+    .collect()
 }
 fn config(env: &Environment, stub: &Stub) -> Result<(), String> {
     let ca = env.root().join("synthetic.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca})).map_err(|e|e.to_string())
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
+        .map_err(|e| e.to_string())
 }
 fn invoke(env: &Environment, args: &[String]) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
-    if !output.status.success() { return Err(format!("command failed: {} {}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr))); }
-    serde_json::from_slice(&output.stdout).map_err(|e|e.to_string())
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err(format!(
+            "command failed: {} {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
 fn warm(env: &Environment) -> Result<(), String> {
     let stub = Stub::for_source("reg.genome.network", "application/json", car)?;
     config(env, &stub)?;
-    invoke(env, &["get","variant","CA123643","--disable-sources","myvariant"].map(Into::into))?;
-    if stub.finish()?.len() != 1 { return Err("CAR warmup was not one request".into()); }
+    invoke(
+        env,
+        &[
+            "get",
+            "variant",
+            "CA123643",
+            "--disable-sources",
+            "myvariant",
+        ]
+        .map(Into::into),
+    )?;
+    if stub.finish()?.len() != 1 {
+        return Err("CAR warmup was not one request".into());
+    }
     let stub = Stub::for_source("storage.googleapis.com", "text/tab-separated-values", hgnc)?;
     config(env, &stub)?;
-    invoke(env, &["search","gene","BRAF"].map(Into::into))?;
-    if stub.finish()?.len() != 1 { return Err("HGNC warmup was not one bundle".into()); }
+    invoke(env, &["search", "gene", "BRAF"].map(Into::into))?;
+    if stub.finish()?.len() != 1 {
+        return Err("HGNC warmup was not one bundle".into());
+    }
     Ok(())
 }
 fn wire() -> Result<(), String> {
-    let env = Environment::new().map_err(|e|e.to_string())?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
     warm(&env)?;
     let stub = Stub::for_source("www.cbioportal.org", "application/json", cbio)?;
     config(&env, &stub)?;
     let first = invoke(&env, &args())?;
-    if first.pointer("/result/observed_sample_count") != Some(&json!(1)) || first.pointer("/result/selected_sample_count") != Some(&json!(100)) || first.pointer("/result/more") != Some(&json!(true)) || first.pointer("/result/all_pages_read") != Some(&json!(false)) || first.pointer("/result/denominator").is_some() || first.pointer("/result/terms/unverified") != Some(&json!(true)) {
+    if first.pointer("/result/observed_sample_count") != Some(&json!(1))
+        || first.pointer("/result/selected_sample_count") != Some(&json!(100))
+        || first.pointer("/result/more") != Some(&json!(true))
+        || first.pointer("/result/all_pages_read") != Some(&json!(false))
+        || first.pointer("/result/denominator").is_some()
+        || first.pointer("/result/terms/unverified") != Some(&json!(true))
+    {
         return Err(format!("wrong page counts or rights: {first}"));
     }
-    let next: Vec<String> = serde_json::from_value(first.pointer("/next/0/args").cloned().ok_or("continuation missing")?).map_err(|e|e.to_string())?;
+    let next: Vec<String> = serde_json::from_value(
+        first
+            .pointer("/next/0/args")
+            .cloned()
+            .ok_or("continuation missing")?,
+    )
+    .map_err(|e| e.to_string())?;
     let second = invoke(&env, &next)?;
-    if second.pointer("/result/observed_sample_count") != Some(&json!(1)) || second.pointer("/result/more") != Some(&json!(false)) || second.pointer("/result/all_pages_read") != Some(&json!(false)) {
-        return Err(format!("continuation incorrectly became cohort total: {second}"));
+    if second.pointer("/result/observed_sample_count") != Some(&json!(1))
+        || second.pointer("/result/more") != Some(&json!(false))
+        || second.pointer("/result/all_pages_read") != Some(&json!(false))
+    {
+        return Err(format!(
+            "continuation incorrectly became cohort total: {second}"
+        ));
     }
-    let mut offline = args(); offline.push("--offline".into());
+    let mut offline = args();
+    offline.push("--offline".into());
     invoke(&env, &offline)?;
     let requests = stub.finish()?;
-    if requests.len() != 5 { return Err(format!("warm pages repeated metadata or source reads: {}", requests.len())); }
-    for (_, request) in requests.iter().filter(|(_,r)| r.contains("/mutations?")) {
+    if requests.len() != 5 {
+        return Err(format!(
+            "warm pages repeated metadata or source reads: {}",
+            requests.len()
+        ));
+    }
+    for (_, request) in requests.iter().filter(|(_, r)| r.contains("/mutations?")) {
         if !request.contains("sampleListId=msk_impact_2017_all&entrezGeneId=673&projection=SUMMARY&pageSize=3&pageNumber=") { return Err(format!("lost explicit cohort or HGNC bound: {request}")); }
     }
     Ok(())

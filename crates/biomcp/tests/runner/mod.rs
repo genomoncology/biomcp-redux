@@ -31,6 +31,7 @@ mod process;
 pub(super) mod proof;
 mod protocol;
 mod publication;
+mod recurrence;
 mod response_cases;
 mod schema;
 mod schema_proof;
@@ -43,7 +44,6 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
-mod recurrence;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
