@@ -104,7 +104,10 @@ pub(super) fn xml(bytes: &[u8], end: LocalDeadline) -> Result<(), Reason> {
     for index in 0..zip.len() {
         check(end)?;
         let mut entry = zip.by_index(index).map_err(|_| Reason::BadReply)?;
-        let name = entry.name().map_err(|_| Reason::BadReply)?.to_ascii_lowercase();
+        let name = entry
+            .name()
+            .map_err(|_| Reason::BadReply)?
+            .to_ascii_lowercase();
         if !name.ends_with(".xml") && !name.ends_with(".rels") {
             continue;
         }
@@ -141,7 +144,9 @@ fn validate_xml(bytes: &[u8], end: LocalDeadline) -> Result<(), Reason> {
                 if depth >= 64 {
                     return Err(Reason::TooLarge);
                 }
-                if tag.local_name().as_ref() == "Relationship" { worksheet_layout(&tag)?; }
+                if tag.local_name().as_ref() == "Relationship" {
+                    worksheet_layout(&tag)?;
+                }
                 match tag.local_name().as_ref() {
                     "si" => {
                         strings += 1;
@@ -224,11 +229,20 @@ fn coordinate(s: &str) -> Result<(), Reason> {
 }
 
 fn worksheet_layout(tag: &quick_xml::events::BytesStart<'_>) -> Result<(), Reason> {
-    let attribute = |name: &str| tag.try_get_attribute(name).map_err(|_| Reason::BadReply)?
-        .map(|a| a.normalized_value(quick_xml::XmlVersion::Implicit1_0).map(|v|v.into_owned()).map_err(|_| Reason::BadReply)).transpose();
-    if attribute("Type")?.is_some_and(|v|v.ends_with("/worksheet"))
-        && (attribute("TargetMode")?.is_some_and(|v|v.eq_ignore_ascii_case("External"))
-            || attribute("Target")?.is_none_or(|v|!v.to_ascii_lowercase().ends_with(".xml"))) {
+    let attribute = |name: &str| {
+        tag.try_get_attribute(name)
+            .map_err(|_| Reason::BadReply)?
+            .map(|a| {
+                a.normalized_value(quick_xml::XmlVersion::Implicit1_0)
+                    .map(|v| v.into_owned())
+                    .map_err(|_| Reason::BadReply)
+            })
+            .transpose()
+    };
+    if attribute("Type")?.is_some_and(|v| v.ends_with("/worksheet"))
+        && (attribute("TargetMode")?.is_some_and(|v| v.eq_ignore_ascii_case("External"))
+            || attribute("Target")?.is_none_or(|v| !v.to_ascii_lowercase().ends_with(".xml")))
+    {
         return Err(Reason::Unsupported);
     }
     Ok(())
