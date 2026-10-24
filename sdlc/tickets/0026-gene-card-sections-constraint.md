@@ -1,6 +1,7 @@
 # 0026 — Add gene card sections with constraint as the first
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 439220082ecbc9896115f0972ec8fec13a205a50
 
 Milestone: 1
 
