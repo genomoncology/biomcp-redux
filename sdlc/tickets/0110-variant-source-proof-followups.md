@@ -15,4 +15,5 @@ Three bounded captures from landed main close the variant source-proof gaps that
 - Cancer Hotspots: an exact join between the variant's residue and alternate and a hotspot row, recorded and replayed. Today hotspot rows stay candidates.
 - gnomAD: release evidence captured with the same request as its counts, so `PopulationFrequency.dataset_version` can be typed. `gnomad_r4` is a moving selector, not a release, so landed counts stay native without a typed frequency.
 
+- ClinVar: a real SCV whose classification is drug response, such as a public pharmacogene variant, recorded and replayed to show the label kept native with `statement_unmapped: true`. 0089 lands on a synthetic row.
 - Proof: one pm job per source from landed main, keyless, with existing retries only; each success becomes a replay case (from outside the repo where terms bar storage) and ticks its roadmap box; each failure is recorded through pm progress with the box left unchecked. No refresh loops.
