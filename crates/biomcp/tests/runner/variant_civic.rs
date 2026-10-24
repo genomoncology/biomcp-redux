@@ -64,6 +64,35 @@ fn exact() -> Result<(), String> {
     {
         return Err(format!("exact source profile not retained: {value}"));
     }
+    let base = "/result/candidates/0/sections/civic/data/profiles/0";
+    for (path, expected) in [
+        ("/statements/0/statement/subject/level", json!("protein")),
+        (
+            "/statements/0/statement/proposition",
+            json!("therapeutic_response"),
+        ),
+        (
+            "/statements/0/statement/predicate",
+            json!("predicts_resistance_to"),
+        ),
+        ("/statements/0/statement/direction", json!("disputes")),
+        ("/statements/0/direction", json!("DOES_NOT_SUPPORT")),
+        (
+            "/statements/1/statement/classification/coding/code",
+            json!("tier_i"),
+        ),
+        (
+            "/statements/1/statement/strength/coding/code",
+            json!("level_a"),
+        ),
+        ("/evidence_page/next/civic_profile", json!(12)),
+        ("/evidence_page/next/civic_kind", json!("evidence")),
+        ("/assertion_page/next/civic_kind", json!("assertions")),
+    ] {
+        if value.pointer(&format!("{base}{path}")) != Some(&expected) {
+            return Err(format!("source claim changed at {path}: {value}"));
+        }
+    }
     let requests = civic.finish()?;
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one native CIViC request".into());
@@ -87,7 +116,7 @@ fn car_body(_: &str) -> Result<String, String> {
     Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string())
 }
 fn civic_body(_: &str) -> Result<String, String> {
-    let empty =
-        json!({"totalCount":0,"nodes":[],"pageInfo":{"hasNextPage":false,"endCursor":null}});
-    Ok(json!({"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":12,"name":"BRAF V600E","link":"/molecular-profiles/12","isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643","hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":empty,"assertions":empty}],"pageInfo":{"hasNextPage":false,"endCursor":null}}}}).to_string())
+    let evidence = json!({"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-e1"}});
+    let assertions = json!({"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},"therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,"endCursor":"synthetic-a1"}});
+    Ok(json!({"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":12,"name":"BRAF V600E","link":"/molecular-profiles/12","isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643","hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":evidence,"assertions":assertions}],"pageInfo":{"hasNextPage":false,"endCursor":null}}}}).to_string())
 }
