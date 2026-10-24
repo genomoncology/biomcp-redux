@@ -56,6 +56,11 @@ fn isolated_trees_reject_structural_violations() -> Check {
             "inline test",
         ),
         (
+            "crates/biomcp-adapters/tests/unlisted/hidden.rs",
+            "#[test]\nfn hidden() {}",
+            "test outside listed locations",
+        ),
+        (
             "crates/biodata/src/lib.rs",
             "#[expect(dead_code, reason=\"unused\")]\nfn unused() {}",
             "suppressions forbidden",

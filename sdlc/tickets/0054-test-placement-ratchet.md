@@ -13,3 +13,9 @@ Every Rust test outside the runner sits in a file that architecture section 10.4
 - Keeps: the coverage floor, which may not drop; every behavior those tests prove.
 - Proof: the ratchet test lists allowed test files under `crates/*/tests/` and `crates/*/src/`, each with a reason, and fails on any other file holding `#[test]`. One negative ratchet case plants a test file in an unlisted folder and is refused. Architecture 10.4 matches the list. The stale `rank.rs` entry is gone. make landing-gate runs through pm job, and coverage stays at or above the floor.
 - Defers: nothing.
+
+## Changes
+
+- `crates/biomcp/tests/ratchets/`: enforce one reasoned file list across source and integration tests, compare architecture, and refuse an unlisted test folder.
+- `crates/biomcp/tests/runner/`, adapter/query integration tests and command cases: remove duplicate proofs and move reachable response-boundary tables through the command runner; retain documented inaccessible store/concurrency and API-boundary checks.
+- `sdlc/planning/architecture.md`: match the enforced test-file reasons and remove the stale rank exception.
