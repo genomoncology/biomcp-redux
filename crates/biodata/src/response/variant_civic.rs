@@ -24,6 +24,8 @@ pub struct CivicProfile {
     pub record: SourceRecord,
     /// Whole source profile label, including its logical expression.
     pub label: Text,
+    /// Native complex-profile flag; a member match does not satisfy the whole profile.
+    pub compound: bool,
     /// Whether a source member was joined to the requested exact identity.
     pub membership: CivicMembership,
     /// Every source member reference, without collapsing compound profiles.

@@ -99,6 +99,7 @@ fn map(
     Ok(CivicProfile {
         record,
         label: raw.name,
+        compound: raw.is_complex,
         membership: if exact {
             CivicMembership::Exact
         } else {
