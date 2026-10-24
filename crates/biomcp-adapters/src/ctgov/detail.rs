@@ -5,9 +5,10 @@ use biodata::{
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 /// Whole source protocol projection; query owns section paging.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Detail {
     /// Whole sites with attached contacts.
     pub locations: Box<[biodata::TrialLocation]>,
