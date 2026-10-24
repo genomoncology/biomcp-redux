@@ -152,28 +152,6 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
         json!({"proxy":format!("http://{}",stub.address),"ca_bundle":certificate,"disable_sources":["reactome"]}),
         variable,
     )?;
-    let query = |index: usize| {
-        if nci {
-            vec![
-                "search".into(),
-                "trial".into(),
-                "--source".into(),
-                source.into(),
-                "--keyword".into(),
-                format!("synthetic {index}"),
-                "--fresh".into(),
-            ]
-        } else {
-            vec![
-                "search".into(),
-                "article".into(),
-                format!("synthetic EGFR {index}"),
-                "--source".into(),
-                source.into(),
-                "--fresh".into(),
-            ]
-        }
-    };
     let mut expected = Vec::new();
     for (index, key) in [None, Some(FIRST), Some(SECOND), None]
         .into_iter()
@@ -202,7 +180,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
             _ => {}
         }
         let selected = key.or(fallback.then_some(ENV));
-        let args = query(index);
+        let args = query(index, nci, source);
         let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
         let result = client.call(index, &refs)?;
         if result.pointer("/sources/0/reason") == Some(&json!("no_key")) {
@@ -239,4 +217,12 @@ fn check_wire(stub: Stub, expected: Vec<Option<&str>>) -> Check {
         }
     }
     Ok(())
+}
+
+fn query(index: usize, nci: bool, source: &str) -> Vec<String> {
+    if nci {
+        vec!["search".into(), "trial".into(), "--source".into(), source.into(), "--keyword".into(), format!("synthetic {index}"), "--fresh".into()]
+    } else {
+        vec!["search".into(), "article".into(), format!("synthetic EGFR {index}"), "--source".into(), source.into(), "--fresh".into()]
+    }
 }
