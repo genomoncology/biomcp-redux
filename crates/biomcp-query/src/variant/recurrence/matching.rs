@@ -32,8 +32,8 @@ pub(super) fn supported(r: &Representation) -> bool {
 
 fn matches(identity: &Variant, row: &Mutation) -> Option<bool> {
     let build = match row.ncbi_build.as_ref()?.as_str() {
-        "GRCh37" | "37" => Build::Grch37,
-        "GRCh38" | "38" => Build::Grch38,
+        "GRCh37" | "37" => Build::GRCh37,
+        "GRCh38" | "38" => Build::GRCh38,
         _ => return None,
     };
     let chromosome = row.chr.as_ref()?.as_str().parse::<Chromosome>().ok()?;

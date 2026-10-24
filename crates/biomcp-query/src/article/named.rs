@@ -1,7 +1,7 @@
 use super::sources::ResultLeg;
 use crate::{Ctx, status};
 use biodata::{
-    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, EntrezGeneId, Reason, Source, Text,
+    ArticleItem, ArticleKey, ArticleSearch, ArticleSource, NcbiGeneId, Reason, Source, Text,
 };
 use biomcp_adapters::{litsense, pubtator};
 use biomcp_fetch::Deadline;
@@ -43,7 +43,7 @@ pub(super) fn litsense<'a>(
 pub(super) fn pubtator<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
-    entrez: Option<EntrezGeneId>,
+    entrez: Option<NcbiGeneId>,
     deadline: Deadline<'a>,
 ) -> ResultLeg {
     let leg = cx.fetch.leg(&pubtator::SPEC, deadline).fresh(cx.fresh);

@@ -7,7 +7,7 @@ use biomcp_fetch::{Deadline, RequestError};
 pub(super) struct Resolved {
     pub term: String,
     pub symbol: Option<String>,
-    pub entrez: Option<biodata::EntrezGeneId>,
+    pub entrez: Option<biodata::NcbiGeneId>,
 }
 pub(super) fn resolve<'a>(
     cx: &Ctx<'a>,

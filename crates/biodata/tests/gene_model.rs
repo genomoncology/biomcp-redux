@@ -37,7 +37,7 @@ fn gene() -> Result<Gene, Error> {
         aliases: Box::new([]),
         uniprot: Box::new([]),
         omim: Box::new([]),
-        mane_select: None,
+        mane: Box::default(),
         spans: Box::new([]),
         summary: None,
     })
@@ -49,17 +49,18 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         text: Text::new("BRAF")?,
     };
     let mut entity = gene()?;
-    entity.entrez_id = Some(EntrezGeneId::new(673)?);
+    entity.entrez_id = Some(NcbiGeneId::new(673)?);
     entity.ensembl_id = Some("ENSG00000157764.12".parse()?);
     entity.locus_type = Some(LocusType::GeneWithProteinProduct);
     entity.previous_symbols = vec![GeneSymbol::new("BRAF1")?].into_boxed_slice();
     entity.aliases = vec![Text::new("alias with spaces / symbols")?].into_boxed_slice();
     entity.uniprot = vec!["P15056".parse()?].into_boxed_slice();
     entity.omim = vec!["164757".parse()?].into_boxed_slice();
-    entity.mane_select = Some(ManeSelect::new(
+    entity.mane = vec![Mane::new(
+        ManeStatus::Select,
         "NM_004333.6".parse()?,
         "ENST00000646891.2".parse()?,
-    )?);
+    )?].into();
     let prose = "Complete source summary. ".repeat(1000);
     entity.summary = Some(Summary {
         text: Text::new(&prose)?,
@@ -67,10 +68,10 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         dated: Some("2026-10".parse()?),
     });
     entity.spans = vec![GenomicInterval {
-        build: Some(Build::Grch38),
+        build: Some(Build::GRCh38),
         chromosome: "7".parse()?,
         span: Span0::new(140719327, 140924929)?,
-        strand: Some(Strand::Reverse),
+        strand: Some(Strand::Minus),
     }]
     .into_boxed_slice();
     let value = serde_json::to_value(&entity)?;
@@ -100,7 +101,7 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
         "location",
         "entrez_id",
         "ensembl_id",
-        "mane_select",
+        "mane",
         "summary",
     ] {
         assert!(absent.get(field).is_none());
@@ -119,29 +120,14 @@ fn gene_resolutions_preserve_every_candidate_and_withdrawn_identity() -> Check {
 }
 #[test]
 fn mane_requires_curated_versioned_transcripts_at_its_boundary() -> Check {
-    let valid = ManeSelect::new("NM_004333.6".parse()?, "ENST00000646891.2".parse()?)?;
-    assert_eq!(valid.refseq().version(), Some(6));
-    assert_eq!(valid.ensembl().version(), Some(2));
+    let valid = Mane::new(ManeStatus::Select, "NM_004333.6".parse()?, "ENST00000646891.2".parse()?)?;
+    assert_eq!(valid.refseq().to_string(), "NM_004333.6");
     round_trip(&valid)?;
-    for (refseq, ensembl) in [
-        ("NM_004333", "ENST00000646891.2"),
-        ("NM_004333.6", "ENST00000646891"),
-        ("XM_004333.6", "ENST00000646891.2"),
-        ("XR_004333.6", "ENST00000646891.2"),
-    ] {
-        assert!(ManeSelect::new(refseq.parse()?, ensembl.parse()?).is_err());
-        assert!(
-            serde_json::from_value::<ManeSelect>(json!({"refseq":refseq,"ensembl":ensembl}))
-                .is_err()
-        );
+    for (refseq, ensembl) in [("NM_004333", "ENST00000646891.2"), ("NM_004333.6", "ENST00000646891"), ("XM_004333.6", "ENST00000646891.2")] {
+        assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":refseq,"ensembl":ensembl})).is_err());
     }
-    assert!(ManeSelect::new("NR_123456.1".parse()?, "ENST00000646891.2".parse()?).is_ok());
-    assert!(
-        serde_json::from_value::<ManeSelect>(
-            json!({"refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})
-        )
-        .is_err()
-    );
+    assert!(serde_json::from_value::<Mane>(json!({"status":"plus_clinical", "refseq":"NR_123456.1","ensembl":"ENST00000646891.2"})).is_ok());
+    assert!(serde_json::from_value::<Mane>(json!({"status":"select", "refseq":"NM_004333.6","ensembl":"ENST00000646891.2","extra":true})).is_err());
     Ok(())
 }
 #[test]
@@ -156,8 +142,8 @@ fn genomic_intervals_preserve_assembly_strand_and_scaffold_names() -> Check {
     }
     assert!(Contig::new(&"x".repeat(Contig::MAX_LEN)).is_ok());
     assert!(Contig::new(&"x".repeat(Contig::MAX_LEN + 1)).is_err());
-    for build in [Some(Build::Grch37), Some(Build::Grch38), None] {
-        for strand in [None, Some(Strand::Forward), Some(Strand::Reverse)] {
+    for build in [Some(Build::GRCh37), Some(Build::GRCh38), None] {
+        for strand in [None, Some(Strand::Plus), Some(Strand::Minus)] {
             let interval = GenomicInterval {
                 build,
                 strand,

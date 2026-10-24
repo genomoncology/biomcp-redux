@@ -49,13 +49,3 @@ versioned! {
     /// A human Ensembl gene stable identifier with a separately retained version.
     EnsemblGeneId, EnsemblGeneIdInvalid, "EnsemblGeneId", "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$", |value| ensembl(value, "ENSG")
 }
-versioned! {
-    /// A human Ensembl transcript stable identifier with an optional version.
-    EnsemblTranscript, EnsemblTranscriptInvalid, "EnsemblTranscript", "^ENST[0-9]{11}(\\.[1-9][0-9]*)?$", |value| ensembl(value, "ENST")
-}
-versioned! {
-    /// A RefSeq transcript accession with an optional positive version.
-    RefSeqTranscript, RefSeqTranscriptInvalid, "RefSeqTranscript", "^(NM_|NR_|XM_|XR_)[0-9]{6,}(\\.[1-9][0-9]*)?$", |value: &str| {
-        ["NM_", "NR_", "XM_", "XR_"].iter().any(|prefix| value.strip_prefix(prefix).is_some_and(|number| number.len() >= 6 && number.bytes().all(|ch| ch.is_ascii_digit())))
-    }
-}

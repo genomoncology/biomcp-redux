@@ -58,7 +58,7 @@ impl VariantGet {
     ) -> Result<Self, super::gene::QueryInvalid> {
         if input.namespace().ok() == Some(VariantNamespace::Unsupported)
             || resolver == VariantResolver::Variantvalidator && build.is_none()
-            || build.is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38))
+            || build.is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))
             || input.namespace().ok() == Some(VariantNamespace::Chromosome) && build.is_none()
         {
             return Err(super::gene::QueryInvalid);

@@ -23,7 +23,7 @@ fn copied_reference_values_keep_canonical_spellings() -> Check {
     }
     for text in ["1", "X", "Y", "MT"] {
         let chromosome: Chromosome = text.parse()?;
-        for build in [Build::Grch37, Build::Grch38] {
+        for build in [Build::GRCh37, Build::GRCh38] {
             assert_eq!(
                 Chromosome::from_accession(chromosome.accession(build), build)?,
                 chromosome
@@ -66,10 +66,7 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
         "CA003404",
         "CA000434",
         "clinvar:13961",
-        "clinvar.allele:15041",
         "VCV000013961.98",
-        "RCV000014992",
-        "SCV000001234.1",
         "ga4gh:VA.abcdefghijklmnopqrstuvwxyz012345",
     ] {
         let id: VariantId = text.parse()?;
@@ -80,6 +77,9 @@ fn published_variant_identifiers_round_trip_without_text_inference() -> Check {
         "rs0",
         "rs01",
         "CA0",
+        "RCV000014992",
+        "SCV000001234.1",
+        "clinvar.allele:15041",
         "clinvar:0",
         "clinvar:013961",
         "VCV1234",

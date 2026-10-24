@@ -8,34 +8,34 @@ use std::{
 
 /// A positive NCBI Gene identifier in canonical decimal text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct EntrezGeneId(NonZeroU32);
-impl EntrezGeneId {
+pub struct NcbiGeneId(NonZeroU32);
+impl NcbiGeneId {
     /// Check a namespace-local positive number.
     pub fn new(value: u32) -> Result<Self, Error> {
         NonZeroU32::new(value)
             .map(Self)
-            .ok_or(Error::EntrezGeneIdInvalid)
+            .ok_or(Error::NcbiGeneIdInvalid)
     }
     /// Return the namespace-local number.
     pub fn get(self) -> u32 {
         self.0.get()
     }
 }
-impl FromStr for EntrezGeneId {
+impl FromStr for NcbiGeneId {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {
         if value.starts_with('0') || !value.bytes().all(|ch| ch.is_ascii_digit()) {
-            return Err(Error::EntrezGeneIdInvalid);
+            return Err(Error::NcbiGeneIdInvalid);
         }
-        Self::new(value.parse().map_err(|_| Error::EntrezGeneIdInvalid)?)
+        Self::new(value.parse().map_err(|_| Error::NcbiGeneIdInvalid)?)
     }
 }
-impl fmt::Display for EntrezGeneId {
+impl fmt::Display for NcbiGeneId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.get().fmt(f)
     }
 }
-text_value!(EntrezGeneId, "EntrezGeneId", "^[1-9][0-9]*$");
+text_value!(NcbiGeneId, "NcbiGeneId", "^[1-9][0-9]*$");
 
 /// Source spelling of a gene symbol, with ASCII case-insensitive identity.
 #[derive(Clone, Debug)]

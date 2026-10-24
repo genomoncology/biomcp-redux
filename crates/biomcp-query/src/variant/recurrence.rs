@@ -164,7 +164,7 @@ fn gene(
     query: &VariantRecurrenceQuery,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<biodata::EntrezGeneId, RequestError> {
+) -> Result<biodata::NcbiGeneId, RequestError> {
     let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let result = hgnc::lookup(&leg, Find::Exact(KeyKind::Symbol, query.gene().as_str()));
     out.sources.push(status::source(

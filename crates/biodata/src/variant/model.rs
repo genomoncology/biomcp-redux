@@ -1,4 +1,4 @@
-use crate::{Allele, Build, Expression, GeneSymbol, Source, VariantId};
+use crate::{Allele, Build, Expression, GeneRef, Source, VariantId};
 use serde::{Deserialize, Serialize};
 /// One source's own expression, assembly and optional source-stated interbase allele.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -29,5 +29,5 @@ pub struct Variant {
     pub representations: Box<[Representation]>,
     /// Genes stated by the sources.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub genes: Box<[GeneSymbol]>,
+    pub genes: Box<[GeneRef]>,
 }

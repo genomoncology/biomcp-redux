@@ -1,6 +1,6 @@
 //! Bounded, explicit-cohort mutation observations; no inferred recurrence denominator.
 mod raw;
-use biodata::{EntrezGeneId, RecurrenceStudy, Source, VariantRecurrenceQuery};
+use biodata::{NcbiGeneId, RecurrenceStudy, Source, VariantRecurrenceQuery};
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 pub use raw::Mutation;
 use std::time::Duration;
@@ -69,7 +69,7 @@ pub fn cohort(leg: &Leg<'_>, query: &VariantRecurrenceQuery) -> Result<Cohort, R
 pub fn mutations(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
-    gene: EntrezGeneId,
+    gene: NcbiGeneId,
 ) -> Result<Vec<Mutation>, RequestError> {
     let endpoint = SPEC
         .get("/molecular-profiles")

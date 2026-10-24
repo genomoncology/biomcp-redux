@@ -1,7 +1,6 @@
 //! Caller-visible checked gene identifier contracts.
 use biodata::{
-    Cytoband, EnsemblGeneId, EnsemblTranscript, EntrezGeneId, GeneInput, GeneSymbol, OmimId,
-    RefSeqTranscript, UniProtAcc,
+    Cytoband, EnsemblGeneId, Accession, AccessionBase, NcbiGeneId, GeneInput, GeneSymbol, OmimId, UniProtAcc,
 };
 use serde::{Serialize, de::DeserializeOwned};
 use std::{collections::HashSet, fmt::Debug, str::FromStr};
@@ -32,7 +31,7 @@ where
 }
 #[test]
 fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Check {
-    values::<EntrezGeneId>(
+    values::<NcbiGeneId>(
         &["1", "673", "4294967295"],
         &["", "0", "01", "-1", "4294967296", " 673"],
     )?;
@@ -52,21 +51,8 @@ fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Che
             "ENSG00000157764.x",
         ],
     )?;
-    values::<EnsemblTranscript>(
-        &["ENST00000646891", "ENST00000646891.2"],
-        &["ENSG00000646891", "ENST00000646891.0", "ENST0000064689"],
-    )?;
-    values::<RefSeqTranscript>(
-        &["NM_004333", "NR_123456.1", "XM_123456789.12", "XR_123456.2"],
-        &[
-            "NP_004333.6",
-            "NM_12345.1",
-            "NM_004333.0",
-            "NM_004333.01",
-            "NM_004333.x",
-            "NM_004333.1.2",
-        ],
-    )?;
+    values::<AccessionBase>(&["NM_004333", "ENST00000646891", "XM_123456789"], &["NM_004333.6", "NM_1234567", "ENST0000064689"])?;
+    values::<Accession>(&["NM_004333.6", "ENST00000646891.2"], &["NM_004333", "NM_004333.04", "NM_1234567.1"])?;
     values::<UniProtAcc>(
         &["P15056", "Q9Y6K9", "A0A024RBG1", "A1B2C3"],
         &[
@@ -96,9 +82,9 @@ fn identifiers_keep_canonical_source_spelling_and_refuse_bad_boundaries() -> Che
     let gene: EnsemblGeneId = "ENSG00000157764.12".parse()?;
     assert_eq!(gene.base(), "ENSG00000157764");
     assert_eq!(gene.version(), Some(12));
-    assert_eq!("NM_004333".parse::<RefSeqTranscript>()?.version(), None);
-    assert_eq!(EntrezGeneId::new(673)?.get(), 673);
-    assert!(EntrezGeneId::new(0).is_err());
+    assert_eq!("NM_004333".parse::<AccessionBase>()?.as_str(), "NM_004333");
+    assert_eq!(NcbiGeneId::new(673)?.get(), 673);
+    assert!(NcbiGeneId::new(0).is_err());
     Ok(())
 }
 #[test]

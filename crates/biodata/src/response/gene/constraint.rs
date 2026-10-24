@@ -1,4 +1,4 @@
-use crate::{EnsemblTranscript, Text};
+use crate::{AccessionBase, Text};
 use serde::{Deserialize, Serialize};
 /// A finite decimal that JSON can represent without losing its value to null.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -40,7 +40,7 @@ pub struct Constraint {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub flags: Box<[Text]>,
     /// Source MANE Select transcript, otherwise the source canonical transcript.
-    pub transcript: EnsemblTranscript,
+    pub transcript: AccessionBase,
     /// Source dataset family, not a minor release identifier.
     pub version: Text,
 }

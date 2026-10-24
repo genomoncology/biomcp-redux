@@ -118,7 +118,9 @@ fn lrg(input: &mut &str) -> ModalResult<Accession> {
 }
 
 fn version(input: &mut &str) -> ModalResult<u16> {
-    preceded('.', decimal).parse_next(input)
+    preceded('.', digit1.verify_map(|text: &str| {
+        (!text.starts_with('0')).then(|| text.parse().ok()).flatten()
+    })).parse_next(input)
 }
 
 /// Digits read as a number, written in exactly the width the number renders at.
@@ -190,5 +192,27 @@ impl FromStr for Accession {
 text_value!(
     Accession,
     "Accession",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$"
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[1-9][0-9]*|ENS[GTP][0-9]{11}\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$"
 );
+
+/// An accession whose source states no version; never used for an allele location.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AccessionBase(Box<str>);
+impl AccessionBase {
+    /// Borrow the canonical unversioned accession.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+impl FromStr for AccessionBase {
+    type Err = Error;
+    fn from_str(text: &str) -> Result<Self, Error> {
+        if text.contains('.') { return Err(Error::AccessionVersionPresent); }
+        if text.starts_with("LRG_") {
+            text.parse::<Accession>()?;
+        } else { format!("{text}.1").parse::<Accession>()?; }
+        Ok(Self(text.into()))
+    }
+}
+impl fmt::Display for AccessionBase {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+}
+text_value!(AccessionBase, "AccessionBase", r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$");

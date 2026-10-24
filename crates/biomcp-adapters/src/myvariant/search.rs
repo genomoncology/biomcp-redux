@@ -45,7 +45,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
             ("fields", Arg::Text(super::FIELDS)),
             (
                 "assembly",
-                Arg::Text(if query.build() == Build::Grch38 {
+                Arg::Text(if query.build() == Build::GRCh38 {
                     "hg38"
                 } else {
                     "hg19"

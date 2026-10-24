@@ -32,8 +32,8 @@ pub(super) fn interval(value: Pos, build: Build) -> Option<GenomicInterval> {
     let strand = match value.strand {
         None => None,
         Some(field) => Some(match field.value()? {
-            1 => Strand::Forward,
-            -1 => Strand::Reverse,
+            1 => Strand::Plus,
+            -1 => Strand::Minus,
             _ => return None,
         }),
     };
@@ -57,10 +57,10 @@ use crate::{
     Mapped,
     raw::{Field, OneOrMany},
 };
-use biodata::{EntrezGeneId, HgncId, Problem, ProblemCode, Source};
+use biodata::{NcbiGeneId, HgncId, Problem, ProblemCode, Source};
 use std::collections::BTreeMap;
 
-fn problem(id: Option<EntrezGeneId>, field: &str) -> Problem {
+fn problem(id: Option<NcbiGeneId>, field: &str) -> Problem {
     Problem {
         source: Source::MyGene,
         record: id.and_then(|id| Text::new(&id.to_string()).ok()),
@@ -71,12 +71,12 @@ fn problem(id: Option<EntrezGeneId>, field: &str) -> Problem {
 
 pub(super) fn extras(
     reply: Genes,
-    ids: &[EntrezGeneId],
+    ids: &[NcbiGeneId],
     problems: &mut Vec<Problem>,
 ) -> Vec<Mapped<GeneExtras>> {
-    let mut hits: BTreeMap<EntrezGeneId, Vec<Hit>> = BTreeMap::new();
+    let mut hits: BTreeMap<NcbiGeneId, Vec<Hit>> = BTreeMap::new();
     for hit in reply.0 {
-        match hit.query.parse::<EntrezGeneId>() {
+        match hit.query.parse::<NcbiGeneId>() {
             Ok(id) if ids.contains(&id) => hits.entry(id).or_default().push(hit),
             _ => problems.push(problem(None, "query")),
         }
@@ -97,14 +97,14 @@ pub(super) fn extras(
         .collect()
 }
 
-fn map_hit(hit: Hit, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Option<Mapped<GeneExtras>> {
+fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapped<GeneExtras>> {
     if hit.notfound == Some(true) {
         return None;
     }
     let returned = hit
         .entrezgene
         .and_then(Field::value)
-        .and_then(|value| value.parse::<EntrezGeneId>().ok());
+        .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
         problems.push(problem(Some(id), "entrez_id"));
         return None;
@@ -136,14 +136,14 @@ fn map_hit(hit: Hit, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Option<Ma
     let mut spans = Vec::new();
     positions(
         hit.genomic_pos,
-        Build::Grch38,
+        Build::GRCh38,
         id,
         &mut spans,
         &mut mapped.problems,
     );
     positions(
         hit.genomic_pos_hg19,
-        Build::Grch37,
+        Build::GRCh37,
         id,
         &mut spans,
         &mut mapped.problems,
@@ -155,7 +155,7 @@ fn map_hit(hit: Hit, id: EntrezGeneId, problems: &mut Vec<Problem>) -> Option<Ma
 fn positions(
     field: Option<Field<OneOrMany<Field<Pos>>>>,
     build: Build,
-    id: EntrezGeneId,
+    id: NcbiGeneId,
     spans: &mut Vec<GenomicInterval>,
     problems: &mut Vec<Problem>,
 ) {
@@ -163,7 +163,7 @@ fn positions(
         return;
     };
     let name = match build {
-        Build::Grch38 => "genomic_pos",
+        Build::GRCh38 => "genomic_pos",
         _ => "genomic_pos_hg19",
     };
     match field.value() {

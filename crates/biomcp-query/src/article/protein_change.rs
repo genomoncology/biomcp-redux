@@ -1,5 +1,5 @@
 //! Reader-only literal matching over the shared checked substitution value.
-use biodata::{ProteinChange, Text};
+use biodata::Text;
 #[derive(Debug)]
 pub(super) struct Selection {
     pub(super) forms: Option<[String; 4]>,
@@ -9,9 +9,7 @@ impl Selection {
     pub(super) fn new(find: Option<&Text>, variant: Option<&Text>) -> Result<Self, ()> {
         let forms = variant
             .map(|v| {
-                v.as_str()
-                    .parse::<ProteinChange>()
-                    .map(|p| p.forms())
+                biodata::protein_query_forms(v.as_str())
                     .map_err(|_| ())
             })
             .transpose()?;

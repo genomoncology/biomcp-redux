@@ -81,7 +81,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
 fn join(
     item: &mut GeneItem,
     extras: &[biomcp_adapters::Mapped<mygene::GeneExtras>],
-    ids: &[biodata::EntrezGeneId],
+    ids: &[biodata::NcbiGeneId],
     problems: &mut Vec<Problem>,
 ) {
     let Some(GeneResolution::Resolved { gene, .. }) = &mut item.answer else {

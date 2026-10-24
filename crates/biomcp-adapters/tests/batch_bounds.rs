@@ -50,7 +50,7 @@ fn synthetic_chunk_failure_does_not_hide_a_successful_chunk() {
     let leg = fetch.leg(&mygene::SPEC, fetch.deadline(Duration::from_secs(20)));
     assert!(mygene::genes(&leg, &[]).is_empty());
     let ids: Vec<_> = (1..=201)
-        .map(|id| biodata::EntrezGeneId::new(id).unwrap())
+        .map(|id| biodata::NcbiGeneId::new(id).unwrap())
         .collect();
     let batches = mygene::genes(&leg, &ids);
     assert_eq!(batches.len(), 2);
@@ -58,13 +58,13 @@ fn synthetic_chunk_failure_does_not_hide_a_successful_chunk() {
     assert!(batches[0].result.is_err());
     assert_eq!(
         batches[1].ids.as_ref(),
-        &[biodata::EntrezGeneId::new(201).unwrap()]
+        &[biodata::NcbiGeneId::new(201).unwrap()]
     );
     let values = batches[1].result.as_ref().unwrap();
     assert_eq!(values.len(), 1);
     assert_eq!(
         values[0].value.query_id,
-        biodata::EntrezGeneId::new(201).unwrap()
+        biodata::NcbiGeneId::new(201).unwrap()
     );
 }
 

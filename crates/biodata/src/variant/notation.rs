@@ -15,23 +15,31 @@ impl HgvsText {
             .split_once(':')
             .ok_or(Error::NotationInvalid)?
             .0
+            .split('(').next().ok_or(Error::HgvsReferenceInvalid)?
             .parse()
     }
 }
 impl FromStr for HgvsText {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {
-        let (reference, body) = value.split_once(':').ok_or(Error::NotationInvalid)?;
-        let _: Accession = reference.parse()?;
-        if body.len() < 3
-            || !matches!(
-                body.as_bytes().first(),
-                Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o')
-            )
-            || body.as_bytes().get(1) != Some(&b'.')
-            || !body.bytes().all(|b| b.is_ascii() && !b.is_ascii_control())
-        {
-            return Err(Error::NotationInvalid);
+        if value.is_empty() { return Err(Error::HgvsTextEmpty); }
+        let (reference, body) = value.split_once(':').ok_or(Error::HgvsReferenceMissing)?;
+        let outer = match reference.split_once('(') {
+            Some((outer, inner)) => {
+                let inner = inner.strip_suffix(')').ok_or(Error::HgvsInnerReferenceInvalid)?;
+                if inner.parse::<Accession>().is_err() && inner.parse::<crate::GeneSymbol>().is_err() {
+                    return Err(Error::HgvsInnerReferenceInvalid);
+                }
+                outer
+            },
+            None => reference,
+        };
+        outer.parse::<Accession>().map_err(|_| Error::HgvsReferenceInvalid)?;
+        if !matches!(body.as_bytes().first(), Some(b'g' | b'c' | b'n' | b'r' | b'p' | b'm' | b'o'))
+            || body.as_bytes().get(1) != Some(&b'.') { return Err(Error::HgvsSyntaxUnknown); }
+        if body.len() < 3 { return Err(Error::HgvsBodyEmpty); }
+        if !body.bytes().all(|b| b.is_ascii() && !b.is_ascii_control()) {
+            return Err(Error::HgvsBodyUnprintable);
         }
         Ok(Self(value.into()))
     }
@@ -44,7 +52,7 @@ impl fmt::Display for HgvsText {
 text_value!(
     HgvsText,
     "HgvsText",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?):[gcnrpmo]\.[\x20-\x7e]+$"
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\))?:[gcnrpmo]\.[\x20-\x7e]+$"
 );
 crate::source::canonical_enum! {
     /// Published syntax label for a source-preserved expression.

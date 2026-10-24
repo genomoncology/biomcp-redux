@@ -50,7 +50,7 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
         locus_group,
         status,
         locus_type,
-        mane_select,
+        mane: mane_select.into_iter().collect(),
         location: Cytoband::new(raw::cell(&row.location)).ok(),
         entrez_id: f.optional("entrez_id", raw::cell(&row.entrez_id)),
         ensembl_id: f.optional("ensembl_id", raw::cell(&row.ensembl_gene_id)),
@@ -73,7 +73,7 @@ pub(super) fn withdrawn(rows: Vec<raw::Withdrawn>) -> Mapped<Vec<Withdrawn>> {
             };
             let id = f.required("hgnc_id", f.id);
             let symbol = f.required("symbol", GeneSymbol::new(raw::cell(&row.symbol)).ok());
-            let hgnc_status = f.required("hgnc_status", raw::cell(&row.status).parse().ok());
+            let hgnc_status = f.required("hgnc_status", match raw::cell(&row.status) { "Entry Withdrawn" => Some(biodata::HgncStatus::EntryWithdrawn), "Merged/Split" => Some(biodata::HgncStatus::MergedSplit), _ => None });
             let merged_into = if raw::cell(&row.merged).is_empty() {
                 Vec::new()
             } else {

@@ -1,5 +1,6 @@
 use super::gene::{QueryInvalid, present};
-use crate::{Build, Chromosome, GeneSymbol, ProteinChange, macros::text_value};
+use super::ProteinQuery;
+use crate::{Build, Chromosome, GeneSymbol, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 crate::macros::wire_enum! {
@@ -91,8 +92,8 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "ProteinChange"))]
-    protein: Option<ProteinChange>,
+    #[cfg_attr(feature = "schema", schemars(with = "ProteinQuery"))]
+    protein: Option<ProteinQuery>,
     /// Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
     #[serde(
         default,
@@ -183,7 +184,7 @@ impl VariantSearch {
     }
     /// Assembly declared in the request, including the documented default policy.
     pub fn build(&self) -> Build {
-        self.0.build.unwrap_or(Build::Grch37)
+        self.0.build.unwrap_or(Build::GRCh37)
     }
     /// Native page size, clipped at this command's result-window boundary.
     pub fn limit(&self) -> u32 {

@@ -1,51 +1,44 @@
 use super::SummarySource;
-use crate::{EnsemblTranscript, Error, PartialDate, RefSeqTranscript, Text};
+use crate::{Accession, Error, PartialDate, Text};
 use serde::{Deserialize, Serialize};
-
-/// A MANE Select pair whose two accessions both state their versions.
+crate::source::canonical_enum! {
+    /// The source-stated MANE transcript status.
+    ManeStatus, ManeStatusUnknown {
+        /// MANE Select transcript pair.
+        Select => "select",
+        /// MANE Plus Clinical transcript pair.
+        PlusClinical => "plus_clinical",
+    }
+}
+/// A source-stated MANE pair with versioned sequence accessions.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(try_from = "ManePair")]
+#[serde(try_from = "ManeFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(!try_from, deny_unknown_fields))]
-pub struct ManeSelect {
+pub struct Mane {
+    /// Source-stated transcript status.
+    pub status: ManeStatus,
+    /// Versioned RefSeq accession.
     #[cfg_attr(feature = "schema", schemars(schema_with = "mane_refseq_schema"))]
-    refseq: RefSeqTranscript,
+    pub refseq: Accession,
+    /// Versioned Ensembl accession.
     #[cfg_attr(feature = "schema", schemars(schema_with = "mane_ensembl_schema"))]
-    ensembl: EnsemblTranscript,
+    pub ensembl: Accession,
 }
-impl ManeSelect {
-    /// Require both transcript versions at the MANE boundary.
-    pub fn new(refseq: RefSeqTranscript, ensembl: EnsemblTranscript) -> Result<Self, Error> {
-        if refseq.version().is_none()
-            || ensembl.version().is_none()
-            || !(refseq.base().starts_with("NM_") || refseq.base().starts_with("NR_"))
-        {
+impl Mane {
+    /// Preserve a source-stated transcript pair and its status.
+    pub fn new(status: ManeStatus, refseq: Accession, ensembl: Accession) -> Result<Self, Error> {
+        if !matches!(refseq, Accession::RefSeq { prefix: crate::RefSeqPrefix::Nm | crate::RefSeqPrefix::Nr, .. })
+            || !matches!(ensembl, Accession::Ensembl { feature: crate::EnsemblFeature::Transcript, .. }) {
             return Err(Error::ManeVersionRequired);
         }
-        Ok(Self { refseq, ensembl })
+        Ok(Self { status, refseq, ensembl })
     }
-    /// Borrow the versioned RefSeq transcript.
-    pub fn refseq(&self) -> &RefSeqTranscript {
-        &self.refseq
-    }
-    /// Borrow the versioned Ensembl transcript.
-    pub fn ensembl(&self) -> &EnsemblTranscript {
-        &self.ensembl
-    }
+    /// Borrow the versioned RefSeq accession.
+    pub fn refseq(&self) -> &Accession { &self.refseq }
+    /// Borrow the versioned Ensembl accession.
+    pub fn ensembl(&self) -> &Accession { &self.ensembl }
 }
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct ManePair {
-    refseq: RefSeqTranscript,
-    ensembl: EnsemblTranscript,
-}
-impl TryFrom<ManePair> for ManeSelect {
-    type Error = Error;
-    fn try_from(value: ManePair) -> Result<Self, Error> {
-        Self::new(value.refseq, value.ensembl)
-    }
-}
-
 /// A whole source-provided summary with attribution and stated date precision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -60,11 +53,17 @@ pub struct Summary {
     pub dated: Option<PartialDate>,
 }
 
-// General transcript schemas allow unversioned accessions; MANE requires
-// curated, versioned members at this boundary.
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ManeFields { status: ManeStatus, refseq: Accession, ensembl: Accession }
+impl TryFrom<ManeFields> for Mane {
+    type Error = Error;
+    fn try_from(f: ManeFields) -> Result<Self, Error> { Self::new(f.status, f.refseq, f.ensembl) }
+}
 #[cfg(feature = "schema")]
 fn mane_refseq_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-    schemars::json_schema!({"type":"string", "pattern":r"^(NM_|NR_)[0-9]{6,}\.[1-9][0-9]*$"})
+    schemars::json_schema!({"type":"string", "pattern":r"^(NM_|NR_)([0-9]{6}|[0-9]{9})\.[1-9][0-9]*$"})
 }
 #[cfg(feature = "schema")]
 fn mane_ensembl_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {

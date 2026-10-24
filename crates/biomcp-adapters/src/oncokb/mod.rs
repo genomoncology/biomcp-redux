@@ -1,7 +1,7 @@
 //! Keyed gene annotations, joined only by checked HGNC Entrez identity.
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EntrezGeneId, GeneSymbol, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
+use biodata::{NcbiGeneId, GeneSymbol, Oncokb, OncokbCard, Problem, ProblemCode, Source, Text};
 use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
@@ -39,7 +39,7 @@ pub struct GeneData {
 pub fn gene(
     leg: &Leg<'_>,
     symbol: &GeneSymbol,
-    id: EntrezGeneId,
+    id: NcbiGeneId,
 ) -> Result<Mapped<Option<GeneData>>, RequestError> {
     let reply = leg.json_opt::<raw::Genes>(
         &GENES,
@@ -73,7 +73,7 @@ pub fn version(leg: &Leg<'_>) -> Result<Text, RequestError> {
     leg.json::<raw::Info>(&INFO, &[])
         .map(|info| info.data_version.version)
 }
-fn problem(problems: &mut Vec<Problem>, id: EntrezGeneId, field: &str) {
+fn problem(problems: &mut Vec<Problem>, id: NcbiGeneId, field: &str) {
     problems.push(Problem {
         source: Source::Oncokb,
         record: Text::new(&id.to_string()).ok(),

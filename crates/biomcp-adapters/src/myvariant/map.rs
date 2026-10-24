@@ -29,9 +29,9 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
             }
         }
         if let Some(cv) = hit.clinvar
-            && cv.variant_id > 0
+            && let Ok(id) = biodata::ClinVarVariationId::new(cv.variant_id)
         {
-            ids.push(VariantId::ClinVarVariation(cv.variant_id));
+            ids.push(VariantId::ClinVarVariation(id));
         }
         let mut genes = Vec::new();
         if let Some(source_genes) = hit.dbsnp.and_then(|d| d.gene) {
@@ -41,7 +41,7 @@ pub(super) fn candidates(hits: Vec<Hit>, query: &str, build: Build) -> Mapped<Ve
             };
             for gene in source_genes {
                 if let Some(symbol) = gene.symbol {
-                    match symbol.as_str().parse() {
+                    match biodata::GeneRef::new(symbol, None, None, None) {
                         Ok(g) => genes.push(g),
                         Err(_) => problems.push(problem(hit.id.clone(), "genes")),
                     }

@@ -1,4 +1,4 @@
-use biodata::{Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, HgncId};
+use biodata::{Cytoband, EnsemblGeneId, NcbiGeneId, GeneSymbol, HgncId};
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
 
@@ -36,7 +36,7 @@ impl Row for Gene {
             keys.exact.extend(parts(values).map(|v| (kind, v.into())));
             keys.words.extend(parts(values).map(Into::into));
         }
-        if let Ok(id) = cell(&self.entrez_id).parse::<EntrezGeneId>() {
+        if let Ok(id) = cell(&self.entrez_id).parse::<NcbiGeneId>() {
             keys.exact
                 .push((KeyKind::Xref, format!("entrez:{id}").into()));
         }

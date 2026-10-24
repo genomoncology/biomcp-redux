@@ -130,7 +130,7 @@ fn entity(
                 return None;
             }
             value.entrez_id = match &raw.gene_id {
-                Some(Field::Value(n)) => biodata::EntrezGeneId::new(*n).ok(),
+                Some(Field::Value(n)) => biodata::NcbiGeneId::new(*n).ok(),
                 _ => None,
             };
             if raw.gene_id.is_some() && value.entrez_id.is_none() {

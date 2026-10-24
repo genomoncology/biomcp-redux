@@ -28,13 +28,13 @@ const AMINO: &[(&str, &str)] = &[
 ];
 /// Explicit protein substitution with checked residue codes and a positive position.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ProteinChange {
+pub(crate) struct ProteinQuery {
     original: Box<str>,
     from: usize,
     position: u32,
     to: usize,
 }
-impl FromStr for ProteinChange {
+impl FromStr for ProteinQuery {
     type Err = super::gene::QueryInvalid;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         let original = value;
@@ -65,7 +65,7 @@ impl FromStr for ProteinChange {
         })
     }
 }
-impl ProteinChange {
+impl ProteinQuery {
     /// Literal spellings searched by readers, in stable order.
     pub fn forms(&self) -> [String; 4] {
         let (from, from_three) = AMINO.get(self.from).copied().unwrap_or(("", ""));
@@ -81,18 +81,18 @@ impl ProteinChange {
     }
 }
 
-impl std::fmt::Display for ProteinChange {
+impl std::fmt::Display for ProteinQuery {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.original)
     }
 }
-impl ProteinChange {
+impl ProteinQuery {
     /// Exact caller spelling, without converting amino-acid notation.
     pub fn as_str(&self) -> &str {
         &self.original
     }
 }
-text_value!(ProteinChange, "ProteinChange", {
+text_value!(ProteinQuery, "ProteinQuery", {
     let residues = AMINO
         .iter()
         .flat_map(|(one, three)| [regex_escape(one), (*three).to_owned()])
@@ -107,4 +107,9 @@ fn regex_escape(value: &str) -> String {
     } else {
         value.into()
     }
+}
+
+/// Check a consumer search substitution and return its literal source spellings.
+pub fn protein_query_forms(text: &str) -> Result<[String; 4], super::gene::QueryInvalid> {
+    text.parse::<ProteinQuery>().map(|p| p.forms())
 }

@@ -26,7 +26,7 @@
       "max_bytes": 758,
       "max_tokens": 190,
       "expect": {
-        "/schema": "biomcp.variant_page/1",
+        "/schema": "biomcp.variant_page/2",
         "/status": "complete",
         "/query": {
           "equals": {

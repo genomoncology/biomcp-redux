@@ -74,8 +74,8 @@ fn enum_schemas_validate_canonical_public_values() {
     enum_values(&[MatchKind::Symbol]);
     enum_values(&[SummarySource::RefSeq]);
     enum_values(&[HgncStatus::EntryWithdrawn]);
-    enum_values(&[Build::Grch37, Build::Grch38]);
-    enum_values(&[Strand::Forward]);
+    enum_values(&[Build::GRCh37, Build::GRCh38]);
+    enum_values(&[Strand::Plus]);
 }
 
 #[test]
@@ -233,7 +233,7 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
 
 #[test]
 fn mane_schema_enforces_its_curated_versioned_transcript_boundary() {
-    let schema = validator::<ManeSelect>();
+    let schema = validator::<Mane>();
     for (refseq, ensembl, valid) in [
         ("NM_004333.6", "ENST00000646891.2", true),
         ("NR_123456.1", "ENST00000646891.2", true),
@@ -242,9 +242,9 @@ fn mane_schema_enforces_its_curated_versioned_transcript_boundary() {
         ("XM_004333.6", "ENST00000646891.2", false),
         ("XR_004333.6", "ENST00000646891.2", false),
     ] {
-        let value = json!({"refseq":refseq,"ensembl":ensembl});
+        let value = json!({"status":"select", "refseq":refseq,"ensembl":ensembl});
         assert_eq!(schema.is_valid(&value), valid, "{value}");
-        assert_eq!(serde_json::from_value::<ManeSelect>(value).is_ok(), valid);
+        assert_eq!(serde_json::from_value::<Mane>(value).is_ok(), valid);
     }
 }
 

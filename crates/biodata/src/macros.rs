@@ -1,6 +1,6 @@
 // JSON strings use the public parser, so serde cannot bypass validation.
 macro_rules! text_value {
-    ($ty:ty, $schema_name:literal, $pattern:expr) => {
+    ($ty:ty, $schema_name:expr, $pattern:expr) => {
         impl serde::Serialize for $ty {
             fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
                 serializer.collect_str(self)

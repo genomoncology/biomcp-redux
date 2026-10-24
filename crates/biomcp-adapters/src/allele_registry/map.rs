@@ -25,12 +25,12 @@ pub(super) fn allele(raw: RawAllele) -> Result<Resolution, biomcp_fetch::BadRepl
     if let Some(external) = raw.external {
         for rs in external.rs.into_iter().flatten() {
             if rs.rs > 0 {
-                ids.push(VariantId::Rs(rs.rs));
+                ids.push(VariantId::Rs(biodata::RsId::new(rs.rs).map_err(|_| biomcp_fetch::BadReply)?));
             }
         }
         for cv in external.clinvar.into_iter().flatten() {
             if cv.id > 0 {
-                ids.push(VariantId::ClinVarVariation(cv.id));
+                ids.push(VariantId::ClinVarVariation(biodata::ClinVarVariationId::new(cv.id).map_err(|_| biomcp_fetch::BadReply)?));
             }
         }
     }

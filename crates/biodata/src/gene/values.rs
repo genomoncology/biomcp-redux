@@ -55,9 +55,9 @@ canonical_enum! {
     /// HGNC's stated withdrawn-file status.
     HgncStatus, HgncStatusUnknown {
         /// Entry withdrawn.
-        EntryWithdrawn => "Entry Withdrawn",
+        EntryWithdrawn => "entry_withdrawn",
         /// Entry merged or split.
-        MergedSplit => "Merged/Split",
+        MergedSplit => "merged_split",
     }
 }
 

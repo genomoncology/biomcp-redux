@@ -135,8 +135,8 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
             let expression =
                 biodata::Expression::hgvs(locus.hgvs_genomic_description).map_err(|_| bad())?;
             let source_build = match assembly.as_str() {
-                "grch37" | "hg19" => Some(Build::Grch37),
-                "grch38" | "hg38" => Some(Build::Grch38),
+                "grch37" | "hg19" => Some(Build::GRCh37),
+                "grch38" | "hg38" => Some(Build::GRCh38),
                 _ => None,
             };
             representations.push(Representation {
