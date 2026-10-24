@@ -12,6 +12,9 @@ pub(super) fn response(
         (Request::VariantAssertions(query), QueryBody::VariantAssertions(body)) => {
             meta.encode(query, Some(body))
         }
+        (Request::VariantPopulation(query), QueryBody::VariantPopulation(body)) => {
+            meta.encode(query, Some(body))
+        }
         (Request::VariantNormalize(query), QueryBody::VariantNormalization(body)) => {
             meta.encode(query, Some(body))
         }

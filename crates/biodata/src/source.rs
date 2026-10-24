@@ -65,6 +65,8 @@ canonical_enum! {
         ClinVar=>"clinvar",
         /// ClinGen Evidence Repository.
         Erepo=>"erepo",
+        /// GWAS Catalog v2.
+        Gwas => "gwas",
         /// ClinGen.
         ClinGen => "clingen",
         /// PubMed.

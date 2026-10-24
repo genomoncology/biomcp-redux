@@ -58,3 +58,6 @@ mod assertion;
 pub mod clinvar;
 pub mod erepo;
 pub mod hotspots;
+
+/// GWAS Catalog v2 exact rsID associations.
+pub mod gwas;

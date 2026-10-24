@@ -17,6 +17,9 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 );
             }
         }
+        if let Some(query) = data(&sections.gwas).and_then(|gwas| gwas.continuation.as_ref()) {
+            push(next, StepKind::Page, Request::GetVariant(query.clone()));
+        }
         for query in [
             data(&sections.civic).and_then(|d| d.next.as_ref()),
             data(&sections.hotspots).and_then(|d| d.next.as_ref()),
@@ -28,17 +31,6 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
         }
         if let Some(civic) = data(&sections.civic) {
             for profile in &civic.profiles {
-                for section in [&sections.clinvar, &sections.erepo].into_iter().flatten() {
-                    if let Section::Data { data, .. } = section
-                        && let Some(query) = &data.next
-                    {
-                        push(
-                            next,
-                            StepKind::Page,
-                            Request::VariantAssertions(query.clone()),
-                        );
-                    }
-                }
                 for query in [&profile.evidence_page.next, &profile.assertion_page.next]
                     .into_iter()
                     .flatten()

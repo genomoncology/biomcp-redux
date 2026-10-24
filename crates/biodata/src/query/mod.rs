@@ -49,3 +49,5 @@ pub use variant_search::{MyVariantQuery, VariantRegion, VariantSearch, VariantSe
 
 mod variant_assertions;
 pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
+mod variant_population;
+pub use variant_population::VariantPopulationQuery;

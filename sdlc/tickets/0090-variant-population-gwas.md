@@ -1,6 +1,7 @@
 # 0090 — Show gnomAD population counts and GWAS Catalog associations for a variant
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ec9d6a4b57c21422d552a36696b43a614ddb63b5
 
 Milestone: 2
 

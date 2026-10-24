@@ -246,6 +246,10 @@ crate::source::canonical_enum! {
         Clinvar => "clinvar",
         /// ClinGen native assertions.
         Erepo => "erepo",
+        /// gnomAD population observations.
+        Population => "population",
+        /// GWAS Catalog associations.
+        Gwas => "gwas",
         /// CIViC molecular-profile evidence.
         Civic => "civic",
         /// Keyed OncoKB annotation with explicit tumor context and build.

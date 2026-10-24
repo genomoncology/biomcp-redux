@@ -314,3 +314,7 @@ pub(crate) fn overall(
         Status::Complete
     }
 }
+
+mod gwas;
+mod population;
+pub(crate) mod population_detail;

@@ -4,6 +4,7 @@ use biomcp_fetch::SourceSpec;
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::gwas::SPEC,
     &crate::myvariant::SPEC,
     &crate::allele_registry::SPEC,
     &crate::mutalyzer::SPEC,
@@ -127,6 +128,10 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("pgSize", Arg::Num(1)),
                 ("pg", Arg::Num(1)),
             ],
+        ),
+        Source::Gwas => (
+            "/associations",
+            vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))],
         ),
         Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),

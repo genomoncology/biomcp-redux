@@ -62,14 +62,6 @@
       ],
       "type": "string"
     },
-    "AssertionSource": {
-      "description": "Native assertion provider.",
-      "enum": [
-        "clinvar",
-        "erepo"
-      ],
-      "type": "string"
-    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -330,8 +322,8 @@
     "VariantSection": {
       "description": "Named variant source sections, without automatic expansion of identity cards.",
       "enum": [
-        "clinvar",
-        "erepo",
+        "population",
+        "gwas",
         "civic",
         "oncokb",
         "hotspots",
@@ -339,8 +331,8 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " ClinVar native assertions.",
-        " ClinGen native assertions.",
+        " gnomAD population observations.",
+        " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots native residues and counts.",
@@ -354,31 +346,36 @@
   "oneOf": [
     {
       "additionalProperties": false,
-      "description": "Read source-native variant assertions.",
+      "description": "Read source ancestry observations.",
       "properties": {
-        "assertion": {
+        "build": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/Build"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Native assertion accession or document ID."
+          "description": "Explicit source assembly when required by identity input."
         },
         "command": {
-          "const": "variant_assertions",
+          "const": "variant_population",
           "type": "string"
+        },
+        "detail": {
+          "default": false,
+          "description": "Read source ancestry groups, preserving overlapping groups individually.",
+          "type": "boolean"
         },
         "input": {
           "$ref": "#/$defs/VariantInput",
-          "description": "Checked Variation ID for ClinVar, or CAid for ERepo.",
+          "description": "Exact published allele identity; ambiguous candidates must first be selected.",
           "x-positional": 0
         },
         "limit": {
-          "default": 3,
-          "description": "Assertions per page.",
+          "default": 10,
+          "description": "Maximum rows per page.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -386,31 +383,20 @@
         },
         "offset": {
           "default": 0,
-          "description": "Assertions to skip in source order.",
+          "description": "Native rows to skip.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
-        "source": {
-          "$ref": "#/$defs/AssertionSource",
-          "description": "One native source; no fallback or text search."
-        },
-        "version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "VCV archive or ERepo document version; RCV/SCV selectors match a returned native version."
+        "resolver": {
+          "$ref": "#/$defs/VariantResolver",
+          "default": "car",
+          "description": "Resolver for reference-qualified input."
         }
       },
       "required": [
         "command",
-        "input",
-        "source"
+        "input"
       ],
       "type": "object"
     },

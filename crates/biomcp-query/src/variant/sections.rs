@@ -17,23 +17,10 @@ pub(super) fn apply(
     candidates: &mut [VariantHeader],
     deadline: Deadline<'_>,
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>) {
-    let mut sources = Vec::new();
-    let mut problems = Vec::new();
-    let mut local = None;
+    let (mut sources, mut problems, mut local) = (Vec::new(), Vec::new(), None);
     for candidate in candidates {
         let mut sections = VariantSections::default();
-        for section in [
-            VariantSection::Clinvar,
-            VariantSection::Erepo,
-            VariantSection::Civic,
-            VariantSection::Hotspots,
-            VariantSection::Oncokb,
-        ] {
-            if !query.sections().contains(&section)
-                && !query.sections().contains(&VariantSection::All)
-            {
-                continue;
-            }
+        for section in selected(query) {
             let candidates = std::slice::from_ref(&*candidate);
             macro_rules! attach {
                 ($field:ident, $read:expr) => {
@@ -42,48 +29,49 @@ pub(super) fn apply(
                         &mut sources,
                         &mut problems,
                         &mut local,
-                    ));
+                    ))
                 };
             }
             match section {
-                VariantSection::Clinvar | VariantSection::Erepo => {
-                    let source = if section == VariantSection::Clinvar {
+                VariantSection::Clinvar => attach!(
+                    clinvar,
+                    super::assertions::section(
+                        cx,
+                        query,
+                        candidates,
+                        deadline,
                         AssertionSource::Clinvar
-                    } else {
+                    )
+                ),
+                VariantSection::Erepo => attach!(
+                    erepo,
+                    super::assertions::section(
+                        cx,
+                        query,
+                        candidates,
+                        deadline,
                         AssertionSource::Erepo
-                    };
-                    let value = retain(
-                        permitted(cx, section, || {
-                            super::assertions::section(cx, query, candidates, deadline, source)
-                        }),
-                        &mut sources,
-                        &mut problems,
-                        &mut local,
-                    );
-                    if section == VariantSection::Clinvar {
-                        sections.clinvar = Some(value);
-                    } else {
-                        sections.erepo = Some(value);
-                    }
+                    )
+                ),
+                VariantSection::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Gwas => {
+                    attach!(gwas, super::gwas::section(cx, query, candidates, deadline))
                 }
-                VariantSection::Civic => {
-                    attach!(
-                        civic,
-                        super::civic::section(cx, query, candidates, deadline)
-                    );
-                }
-                VariantSection::Hotspots => {
-                    attach!(
-                        hotspots,
-                        super::hotspots::section(cx, query, candidates, deadline)
-                    );
-                }
-                VariantSection::Oncokb => {
-                    attach!(
-                        oncokb,
-                        super::oncokb::section(cx, query, candidates, deadline)
-                    );
-                }
+                VariantSection::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, deadline)
+                ),
                 _ => {}
             }
         }
@@ -93,8 +81,25 @@ pub(super) fn apply(
     }
     (sources, problems, local)
 }
+fn selected(query: &VariantGet) -> impl Iterator<Item = VariantSection> + '_ {
+    [
+        VariantSection::Population,
+        VariantSection::Gwas,
+        VariantSection::Clinvar,
+        VariantSection::Erepo,
+        VariantSection::Civic,
+        VariantSection::Hotspots,
+        VariantSection::Oncokb,
+    ]
+    .into_iter()
+    .filter(|section| {
+        query.sections().contains(section) || query.sections().contains(&VariantSection::All)
+    })
+}
 pub(super) fn source(section: VariantSection) -> Option<Source> {
     match section {
+        VariantSection::Population => Some(Source::Gnomad),
+        VariantSection::Gwas => Some(Source::Gwas),
         VariantSection::Clinvar => Some(Source::ClinVar),
         VariantSection::Erepo => Some(Source::Erepo),
         VariantSection::Civic => Some(Source::Civic),
