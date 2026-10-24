@@ -121,9 +121,9 @@
   "required": [
     "hgnc_id",
     "symbol",
-    "name",
     "locus_group",
-    "status"
+    "status",
+    "name"
   ],
   "title": "GeneHeader",
   "type": "object"

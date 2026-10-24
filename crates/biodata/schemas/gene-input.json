@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.gene-input/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "\\S",
+  "title": "GeneInput",
+  "type": "string"
+}

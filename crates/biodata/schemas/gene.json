@@ -359,14 +359,14 @@
   "required": [
     "hgnc_id",
     "symbol",
-    "name",
     "status",
     "locus_group",
     "previous_symbols",
     "aliases",
     "uniprot",
     "omim",
-    "spans"
+    "spans",
+    "name"
   ],
   "title": "Gene",
   "type": "object"

@@ -1,5 +1,5 @@
-use crate::{EnsemblGeneId, EntrezGeneId, Error, HgncId, Text};
 use crate::macros::text_value;
+use crate::{EnsemblGeneId, EntrezGeneId, Error, HgncId, Text};
 use std::{fmt, str::FromStr};
 
 /// An input classified before source resolution; aliases remain free text.

@@ -158,14 +158,14 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "name",
         "status",
         "locus_group",
         "previous_symbols",
         "aliases",
         "uniprot",
         "omim",
-        "spans"
+        "spans",
+        "name"
       ],
       "type": "object"
     },
@@ -219,9 +219,9 @@
       "required": [
         "hgnc_id",
         "symbol",
-        "name",
         "locus_group",
-        "status"
+        "status",
+        "name"
       ],
       "type": "object"
     },

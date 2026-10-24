@@ -131,7 +131,14 @@ fn gene_inputs_classify_explicit_identifiers_and_keep_alias_text() -> Check {
         GeneInput::EntrezId(_)
     ));
     values::<GeneInput>(
-        &["HGNC:1097", "ENSG00000157764.2", "673", "HER-2/neu", "MLN 19", "BRAF"],
+        &[
+            "HGNC:1097",
+            "ENSG00000157764.2",
+            "673",
+            "HER-2/neu",
+            "MLN 19",
+            "BRAF",
+        ],
         &["", " ", "HGNC:x", "ENSGwrong", "0"],
     )?;
     assert_eq!(" HGNC:1097 ".parse::<GeneInput>()?.to_string(), "HGNC:1097");
