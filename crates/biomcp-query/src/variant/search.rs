@@ -7,8 +7,10 @@ use biodata::{
 use biomcp_adapters::myvariant;
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
-    if query.raw_query() && !cx.fetch.disabled(Source::MyVariant)
-        && myvariant::components::restricted(cx.fetch) {
+    if query.raw_query()
+        && !cx.fetch.disabled(Source::MyVariant)
+        && myvariant::components::restricted(cx.fetch)
+    {
         return policy_error();
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -74,22 +76,33 @@ pub fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn fetch_page(cx: &Ctx<'_>, leg: &biomcp_fetch::Leg<'_>, query: &VariantSearch) -> Result<myvariant::SearchPage, biomcp_fetch::RequestError> {
+fn fetch_page(
+    cx: &Ctx<'_>,
+    leg: &biomcp_fetch::Leg<'_>,
+    query: &VariantSearch,
+) -> Result<myvariant::SearchPage, biomcp_fetch::RequestError> {
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
-        || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, "dbnsfp")) {
+        || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, "dbnsfp"))
+    {
         return Err(biomcp_fetch::SourceError {
             source: Source::MyVariant,
             reason: biodata::Reason::Disabled,
             status: None,
             retry_after: None,
-        }.into());
+        }
+        .into());
     }
     myvariant::search(leg, query)
 }
-fn component_terms(name: &str, selected: bool) -> Result<Option<biodata::ComponentTerms>, biomcp_fetch::RequestError> {
-    if !selected { return Ok(None); }
-    let terms = myvariant::components::terms(name)
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
+fn component_terms(
+    name: &str,
+    selected: bool,
+) -> Result<Option<biodata::ComponentTerms>, biomcp_fetch::RequestError> {
+    if !selected {
+        return Ok(None);
+    }
+    let terms =
+        myvariant::components::terms(name).ok_or(biomcp_fetch::InputError::Serialization)?;
     Ok(Some(myvariant::components::label(terms)?))
 }
 fn policy_error() -> Outcome {

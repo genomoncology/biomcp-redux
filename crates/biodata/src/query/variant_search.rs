@@ -85,7 +85,7 @@ pub struct VariantSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Exact checked gene symbol for the fixed MyVariant gene/protein field query.
+    /// Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
     #[serde(
         default,
         deserialize_with = "present",
@@ -109,7 +109,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantRegion"))]
     region: Option<VariantRegion>,
-    /// Raw MyVariant query, passed and echoed unchanged; requires --source myvariant.
+    /// Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
     #[serde(
         default,
         deserialize_with = "present",
@@ -191,7 +191,10 @@ impl TryFrom<Fields> for VariantSearch {
             || [&f.review_status, &f.condition]
                 .into_iter()
                 .flatten()
-                .any(|v| v.as_str().chars().count() > MAX_FILTER_CHARS || v.as_str().chars().any(char::is_control))
+                .any(|v| {
+                    v.as_str().chars().count() > MAX_FILTER_CHARS
+                        || v.as_str().chars().any(char::is_control)
+                })
         {
             return Err(QueryInvalid);
         }
