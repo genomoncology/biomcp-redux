@@ -254,3 +254,15 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         error,
     }
 }
+
+// Structured selectors are literal field values, not additional query syntax.
+fn field(value: &str) -> String {
+    if value
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'.' | b'_'))
+    {
+        value.to_owned()
+    } else {
+        format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+    }
+}
