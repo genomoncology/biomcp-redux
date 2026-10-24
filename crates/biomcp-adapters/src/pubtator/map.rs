@@ -129,9 +129,11 @@ fn entity(
                 problem(id, "variant", problems);
                 return None;
             }
-            let gene = optional(id, "gene_id", &raw.gene_id, problems);
-            value.entrez_id = gene.as_ref().and_then(|s| s.as_str().parse().ok());
-            if gene.is_some() && value.entrez_id.is_none() {
+            value.entrez_id = match &raw.gene_id {
+                Some(Field::Value(n)) => biodata::EntrezGeneId::new(*n).ok(),
+                _ => None,
+            };
+            if raw.gene_id.is_some() && value.entrez_id.is_none() {
                 problem(id, "gene_id", problems);
             }
         }

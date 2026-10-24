@@ -35,7 +35,7 @@ pub(super) struct Infons {
     #[serde(default)]
     pub rsid: Option<Field<String>>,
     #[serde(default)]
-    pub gene_id: Option<Field<String>>,
+    pub gene_id: Option<Field<u32>>,
 }
 impl biomcp_fetch::Reply for Export {
     fn check(&self) -> Result<(), biomcp_fetch::BadReply> {

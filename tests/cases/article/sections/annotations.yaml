@@ -16,7 +16,14 @@
         "/result/items/0/sections/annotations/data/items/0/rsid": "rs121434592",
         "/result/items/0/sections/annotations": {
           "max_tokens": 350
-        }
+        },
+        "/status": "partial",
+        "/result/items/0/sections/annotations/data/items/0/count": 8,
+        "/result/items/0/sections/annotations/data/items/0/entrez_id": "207",
+        "/result/items/0/sections/annotations/data/items/2/entrez_id": "207",
+        "/result/items/0/sections/annotations/data/items/2/count": 2,
+        "/problems/0/field": "variant",
+        "/result/items/0/sections/annotations/data/total": 6
       },
       "mcp": [
         "get",
