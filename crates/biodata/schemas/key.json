@@ -12,6 +12,17 @@
           "$ref": "#/$defs/Text",
           "description": "Environment variable name."
         },
+        "guidance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional source-specific key guidance."
+        },
         "source": {
           "$ref": "#/$defs/Source",
           "description": "Source name."

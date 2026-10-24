@@ -122,8 +122,7 @@ pub(super) fn read<'a>(
 fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
     for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
-            original.state = source.state;
-            original.reason = source.reason;
+            status::retain_source_state(original, source);
         } else {
             out.sources.push(source.clone());
         }

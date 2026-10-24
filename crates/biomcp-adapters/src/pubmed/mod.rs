@@ -27,6 +27,13 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
+// https://www.ncbi.nlm.nih.gov/books/NBK25499/ recommends POST for long ESearch terms.
+// Keep conservative GET headroom without reimplementing request percent encoding.
+const MAX_GET_TERM_BYTES: usize = 1000;
+const SEARCH_POST: Endpoint = SPEC
+    .post_form("/esearch.fcgi")
+    .idempotent()
+    .fresh(Freshness::Days(1));
 const SUMMARY: Endpoint = SPEC
     .post_form("/esummary.fcgi")
     .idempotent()
@@ -61,7 +68,12 @@ pub fn search_ids(
     if let Some(email) = email {
         params.push(("email", Arg::Contact(email)));
     }
-    let raw = leg.json::<raw::Search>(&SEARCH, &params)?.esearchresult;
+    let endpoint = if term.len() > MAX_GET_TERM_BYTES {
+        &SEARCH_POST
+    } else {
+        &SEARCH
+    };
+    let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
     let notices = raw
         .errorlist
         .and_then(|e| e.phrasesnotfound)

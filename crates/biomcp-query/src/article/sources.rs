@@ -6,12 +6,13 @@ use biodata::{
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use std::time::Duration;
-struct ResultLeg {
-    source: ArticleSource,
-    outcome: SourceOutcome,
-    items: Vec<ArticleItem>,
-    elapsed: Duration,
-    error: Option<RequestError>,
+pub(super) struct ResultLeg {
+    pub(super) source: ArticleSource,
+    pub(super) outcome: SourceOutcome,
+    pub(super) items: Vec<ArticleItem>,
+    pub(super) dois: Vec<Option<biodata::Doi>>,
+    pub(super) elapsed: Duration,
+    pub(super) error: Option<RequestError>,
 }
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
@@ -39,6 +40,9 @@ pub(super) fn search<'a>(
                     let term = &epmc_term;
                     Box::new(move || europe_search(cx, query, term, start))
                 }
+                ArticleSource::SemanticScholar => {
+                    Box::new(move || super::semantic_scholar::search(cx, query, start))
+                }
                 ArticleSource::Litvar => {
                     let prepared = prepared.take()?;
                     Box::new(move || litvar_search(prepared))
@@ -47,9 +51,10 @@ pub(super) fn search<'a>(
             Some(job)
         })
         .collect();
-    let results = fan_out::run(jobs);
+    let mut results = fan_out::run(jobs);
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
+    resolve_rows(cx, query, &mut results, deadline, out)?;
     let failed_pubmed = results.iter().any(|r| {
         r.source == ArticleSource::Pubmed
             && r.error.is_some()
@@ -75,6 +80,56 @@ pub(super) fn search<'a>(
         query.sources().len() > 1,
     )))
 }
+fn resolve_rows<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    results: &mut [ResultLeg],
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let mut join_failures = Vec::new();
+    for result in results.iter_mut() {
+        if result.source == ArticleSource::SemanticScholar
+            && (result
+                .dois
+                .iter()
+                .zip(&result.items)
+                .any(|(doi, item)| item.pmid.is_none() && doi.is_some())
+                || result.items.iter().any(|item| {
+                    item.pmid.is_none() && super::semantic_scholar::doi(item).is_some()
+                }))
+        {
+            let resolved = super::semantic_scholar::resolve_dois_with(
+                cx,
+                &mut result.items,
+                deadline,
+                &result.dois,
+            );
+            status::append(&mut out.problems, resolved.problems);
+            if let Some(error) = resolved.error {
+                if status::local(error).is_some() {
+                    return Err(error);
+                }
+                join_failures.push(resolved.source);
+            } else if resolved.source.state != SourceState::Ok {
+                join_failures.push(resolved.source);
+            } else if !results_have_pubmed(query) {
+                out.sources.push(resolved.source);
+            }
+        }
+    }
+    for failure in join_failures {
+        if let Some(existing) = results
+            .iter_mut()
+            .find(|r| r.outcome.source == failure.source)
+        {
+            status::retain_source_state(&mut existing.outcome, &failure);
+        } else {
+            out.sources.push(failure);
+        }
+    }
+    Ok(())
+}
 fn pubmed_search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
@@ -96,7 +151,7 @@ fn pubmed_search<'a>(
             ids.ids
                 .into_iter()
                 .map(|id| ArticleItem {
-                    key: ArticleKey::Pubmed(id),
+                    key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     header: None,
                     cited_by: None,
@@ -110,6 +165,7 @@ fn pubmed_search<'a>(
         source: ArticleSource::Pubmed,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
@@ -139,6 +195,7 @@ fn europe_search<'a>(
         source: ArticleSource::Europepmc,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
@@ -243,7 +300,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
             outcome.fetched = Some(ids.len() as u32);
             ids.into_iter()
                 .map(|id| ArticleItem {
-                    key: ArticleKey::Pubmed(id),
+                    key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     header: None,
                     cited_by: None,
@@ -257,11 +314,15 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
         source: ArticleSource::Litvar,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
 }
 
+fn results_have_pubmed(query: &ArticleSearch) -> bool {
+    query.sources().contains(&ArticleSource::Pubmed)
+}
 // Structured selectors are literal field values, not additional query syntax.
 fn field(value: &str) -> String {
     if value

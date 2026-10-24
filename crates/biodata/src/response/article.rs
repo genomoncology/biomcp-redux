@@ -14,6 +14,8 @@ pub enum ArticleKey {
     Doi(Doi),
     /// Europe PMC local source identity.
     Europepmc(EuropePmcId),
+    /// Semantic Scholar local identity when no indexed identifier exists.
+    SemanticScholar(crate::SemanticScholarId),
 }
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -21,7 +23,9 @@ pub enum ArticleKey {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleItem {
     /// Stable checked pool key.
-    pub key: ArticleKey,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "ArticleKey"))]
+    pub key: Option<ArticleKey>,
     /// The selected PMID, retained when summary mapping fails.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
