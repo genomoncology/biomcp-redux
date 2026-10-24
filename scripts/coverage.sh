@@ -40,8 +40,10 @@ trap cleanup EXIT HUP INT TERM
 report() {
     label=$1
     shift
-    cargo llvm-cov report --locked --ignore-filename-regex "$ignore" "$@" >"$summary" || return $?
+    report_result=0
+    cargo llvm-cov report --locked --ignore-filename-regex "$ignore" "$@" >"$summary" || report_result=$?
     awk -v label="$label" '/^TOTAL/ { print "coverage (" label "; product source): " $0 }' "$summary"
+    return "$report_result"
 }
 
 case "${1:-run}" in
