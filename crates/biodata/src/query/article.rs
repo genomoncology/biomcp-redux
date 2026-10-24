@@ -64,7 +64,7 @@ struct Fields {
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 1)))]
     source: Box<[ArticleSource]>,
-    /// Native relevance order.
+    /// Native provider order.
     #[serde(default = "sort")]
     sort: ArticleSort,
     /// Gene input resolved through HGNC.
