@@ -277,6 +277,32 @@ fn sequential_replay_commands_receive_new_budgets_after_provider_quota_waits() {
     }
 }
 #[test]
+fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
+    let directory = tempfile::tempdir().unwrap();
+    let pubmed = directory.path().join("pubmed");
+    std::fs::create_dir(&pubmed).unwrap();
+    for entry in std::fs::read_dir(recordings("synthetic-small").join("pubmed")).unwrap() {
+        let entry = entry.unwrap();
+        let mut value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(entry.path()).unwrap()).unwrap();
+        let delay = if value["method"] == "GET" { 200 } else { 0 };
+        for exchange in value["exchanges"].as_array_mut().unwrap() {
+            exchange["delay_ms"] = delay.into();
+        }
+        std::fs::write(pubmed.join(entry.file_name()), serde_json::to_vec(&value).unwrap()).unwrap();
+    }
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: directory.path().to_owned() },
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..Default::default()
+    }).unwrap();
+    let out = biomcp_query::run(
+        &Ctx { fetch: &fetch, budget: Duration::from_millis(400), fresh: true, ncbi_email: None },
+        &Request::SearchArticle(query(None, 0)),
+    );
+    page(out);
+}
+#[test]
 fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
     let cache = ReplayCache::temporary().unwrap();
     let fetch = fetch("synthetic-small", cache);
