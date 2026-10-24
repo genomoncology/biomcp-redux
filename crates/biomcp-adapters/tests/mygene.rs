@@ -1,6 +1,9 @@
 //! Temporary adapter contracts until gene command cases own these behaviors.
-#![expect(clippy::unwrap_used, clippy::indexing_slicing,
-    reason = "Checked case fixtures fail immediately if their setup shape changes")]
+#![expect(
+    clippy::unwrap_used,
+    clippy::indexing_slicing,
+    reason = "Checked case fixtures fail immediately if their setup shape changes"
+)]
 use biodata::{Build, EntrezGeneId, HgncId, Strand};
 use biomcp_adapters::mygene;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
@@ -35,7 +38,12 @@ fn recorded_gene_extras_preserve_whole_summary_and_source_coordinates() {
     let summary = braf.value.summary.as_ref().unwrap();
     assert!(summary.text.as_str().contains("V600E"));
     assert_eq!(summary.text.as_str().len(), 777);
-    assert!(summary.text.as_str().ends_with("A pseudogene of this gene has been identified on the X chromosome."));
+    assert!(
+        summary
+            .text
+            .as_str()
+            .ends_with("A pseudogene of this gene has been identified on the X chromosome.")
+    );
     assert!(!summary.text.as_str().contains("[provided by"));
     assert_eq!(summary.dated.unwrap().to_string(), "2017-08");
     let intervals = &braf.value.spans;
