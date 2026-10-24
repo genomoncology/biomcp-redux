@@ -8,6 +8,7 @@ struct Shape {
     types: BTreeSet<String>,
     values: Option<BTreeSet<String>>,
     required: BTreeSet<String>,
+    selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
     minimum_items: u64,
     maximum_items: Option<u64>,
@@ -39,6 +40,11 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || new
                 .maximum
                 .is_some_and(|bound| old.maximum.is_none_or(|old| bound < old))
+            || new.selectors.as_ref().is_some_and(|new| {
+                old.selectors.as_ref().is_none_or(|old| {
+                    old.iter().any(|old| !new.iter().any(|new| new.is_subset(old)))
+                })
+            })
             || old.types != new.types
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
@@ -101,7 +107,9 @@ fn visit(
         )?;
         refs.remove(reference);
     }
-    if let Some(branches) = node.get("anyOf") {
+    if let Some(branches) = node.get("anyOf")
+        && selectors(node)?.is_none()
+    {
         for branch in optional_branches(branches)? {
             visit(root, branch, path, shapes, refs)?;
         }
@@ -126,6 +134,7 @@ fn visit(
 
 fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Check<()> {
     let shape = shapes.entry(path.into()).or_default();
+    shape.selectors = selectors(node)?;
     if let Some(kind) = node.get("type") {
         let kinds = kind
             .as_array()
@@ -192,6 +201,38 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .ok_or("unsupported additionalProperties")?;
     }
     Ok(())
+}
+
+// The only object-level union permits at least one named selector.
+pub(super) fn selectors(node: &Value) -> Check<Option<Vec<BTreeSet<String>>>> {
+    if node["type"] != "object" || node.get("anyOf").is_none() {
+        return Ok(None);
+    }
+    let properties = node["properties"].as_object().ok_or("missing selector properties")?;
+    let branches = node["anyOf"].as_array().ok_or("invalid selector anyOf")?;
+    if branches.is_empty() {
+        return Err("empty selector anyOf".into());
+    }
+    let mut result = Vec::new();
+    for branch in branches {
+        let object = branch.as_object().ok_or("invalid selector branch")?;
+        if object.len() != 1 {
+            return Err("selector branches contain only required".into());
+        }
+        let names = branch["required"].as_array().ok_or("missing selector required")?;
+        let mut required = BTreeSet::new();
+        for name in names {
+            let name = name.as_str().ok_or("invalid selector name")?;
+            if !properties.contains_key(name) || !required.insert(name.to_owned()) {
+                return Err("unknown or repeated selector".into());
+            }
+        }
+        if required.is_empty() || result.contains(&required) {
+            return Err("empty or repeated selector branch".into());
+        }
+        result.push(required);
+    }
+    Ok(Some(result))
 }
 
 // Nullable generated references and strings remain distinct from tagged unions.
@@ -301,6 +342,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
     // one constraint at each path; refuse them instead of merging incorrectly.
     for composition in ["$ref", "anyOf", "oneOf"] {
         if object.contains_key(composition)
+            && !(composition == "anyOf" && selectors(&Value::Object(object.clone()))?.is_some())
             && object.keys().any(|key| {
                 key != composition
                     && ![

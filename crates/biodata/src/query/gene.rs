@@ -52,18 +52,19 @@ impl GeneGet {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["query"]},{"required":["band"]}])))]
 pub struct GeneSearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Words matched against symbols, previous symbols, aliases and names.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
     /// A cytoband prefix.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Cytoband"))]
     band: Option<Cytoband>,
     /// Number of results per page.
     #[serde(default = "default_limit")]
@@ -122,4 +123,10 @@ impl GeneSearch {
         page.0.offset = offset;
         page
     }
+}
+
+fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error> {
+    T::deserialize(deserializer).map(Some)
 }

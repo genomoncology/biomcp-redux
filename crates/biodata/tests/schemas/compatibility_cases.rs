@@ -165,3 +165,18 @@ fn compatibility_preserves_consumed_boolean_and_array_bounds() {
     relaxed["maxItems"] = json!(21);
     assert!(check(&old, &relaxed).is_ok());
 }
+
+#[test]
+fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
+    let base = json!({"$id":"biodata.example/1","type":"object", "properties":{"query":{"type":"string"},"band":{"type":"string"}}, "anyOf":[{"required":["query"]},{"required":["band"]}]});
+    assert!(check(&base, &base).is_ok());
+    let mut narrow = base.clone();
+    narrow["anyOf"] = json!([{"required":["query"]}]);
+    assert!(check(&base, &narrow).is_err());
+    assert!(check(&narrow, &base).is_ok());
+    for branches in [json!([]), json!([{"required":[]}]), json!([{"required":["missing"]}]), json!([{"required":["query"], "type":"object"}]), json!([{"properties":{}}])] {
+        let mut invalid = base.clone();
+        invalid["anyOf"] = branches;
+        assert!(check(&invalid, &invalid).is_err());
+    }
+}

@@ -137,6 +137,9 @@ fn consumed_queries_stay_inside_the_flat_command_grammar() {
     for schema in [generate::<GeneGet>(), generate::<GeneSearch>()] {
         assert_eq!(schema["type"], "object");
         assert!(schema.get("oneOf").is_none());
+        if schema.get("anyOf").is_some() {
+            assert!(compatibility::selectors(&schema).expect("selector union").is_some());
+        }
         for property in schema["properties"]
             .as_object()
             .expect("query properties")
