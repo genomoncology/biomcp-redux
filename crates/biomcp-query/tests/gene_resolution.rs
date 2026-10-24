@@ -216,3 +216,73 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     assert_eq!(outcome.sources[1].source, Source::MyGene);
     assert_eq!(outcome.sources[1].state, SourceState::Stale);
 }
+
+#[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Mutate isolated public recordings"
+)]
+fn clingen_local_failure_survives_later_source_deadline() {
+    use biodata::{GeneGet, GeneSectionWord, Request};
+    use biomcp_fetch::RequestError;
+    use biomcp_query::{Ctx, run};
+    let directory = tempfile::tempdir().unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/clingen");
+    for source in ["hgnc", "clingen"] {
+        std::fs::create_dir(directory.path().join(source)).unwrap();
+        for entry in std::fs::read_dir(root.join(source)).unwrap() {
+            let path = entry.unwrap().path();
+            let mut record: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            if record["url"].as_str().unwrap().contains("dosage") {
+                continue;
+            }
+            record["exchanges"][0]["delay_ms"] = 0.into();
+            // Remove annotation IDs so this isolates the ClinGen local/source boundary.
+            if source == "hgnc" {
+                let body = record["exchanges"][0]["body"]["value"].as_str().unwrap();
+                let mut lines = body.lines();
+                let header = lines.next().unwrap();
+                if let Some(index) = header.split('\t').position(|v| v == "entrez_id") {
+                    let mut output = format!("{header}\n");
+                    for line in lines {
+                        let mut cells: Vec<_> = line.split('\t').collect();
+                        cells[index] = "";
+                        output.push_str(&cells.join("\t"));
+                        output.push('\n');
+                    }
+                    record["exchanges"][0]["body"]["value"] = output.into();
+                }
+            }
+            std::fs::write(
+                directory
+                    .path()
+                    .join(source)
+                    .join(path.file_name().unwrap()),
+                serde_json::to_vec(&record).unwrap(),
+            )
+            .unwrap();
+        }
+    }
+    let fetch = replay(directory.path().to_owned());
+    let query = Request::GetGene(
+        GeneGet::with_sections(
+            vec!["TP53".parse().unwrap(), "MLH1".parse().unwrap()].into(),
+            vec![GeneSectionWord::ClinGen].into(),
+        )
+        .unwrap(),
+    );
+    let outcome = run(
+        &Ctx {
+            fetch: &fetch,
+            budget: Duration::from_millis(1500),
+            fresh: false,
+        },
+        &query,
+    );
+    assert!(
+        matches!(outcome.local, Some(RequestError::Recording(_))),
+        "a later source failure must retain the earlier local error: {:?}",
+        outcome.local
+    );
+}
