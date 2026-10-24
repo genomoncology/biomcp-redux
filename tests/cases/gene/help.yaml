@@ -51,7 +51,7 @@
           ]
         ],
         "/result/commands/0/section_rule": {
-          "equals": "Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs."
+          "equals": "Requested section words, preserving caller order and repetitions.\nTrailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs."
         },
         "/result/commands/0/arguments/0/minimum": 1,
         "/result/commands/0/arguments/0/maximum": 20
