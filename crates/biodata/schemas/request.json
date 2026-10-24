@@ -310,6 +310,18 @@
         "myvariant"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Named variant source sections, without automatic expansion of identity cards.",
+      "enum": [
+        "oncokb",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Keyed OncoKB annotation with explicit tumor context and build.",
+        " Every implemented variant section."
+      ]
     }
   },
   "$id": "biodata.request/2",
@@ -469,6 +481,40 @@
           "$ref": "#/$defs/VariantResolver",
           "default": "car",
           "description": "Resolver for reference-qualified notation; never repairs the input locally."
+        },
+        "section": {
+          "description": "Named source sections; omitted by default.",
+          "items": {
+            "$ref": "#/$defs/VariantSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Rows per named source section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Source rows to skip independently of identity candidate paging.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tumor_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [

@@ -12,6 +12,11 @@
         " Genome Reference Consortium human build 38."
       ]
     },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
     "VariantInput": {
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|(clinvar:)?[1-9][0-9]*|(((N[CGMPRTW]|X[MPR])_[0-9]+|ENS[GTP][0-9]+)\\.[1-9][0-9]*|LRG_[1-9][0-9]*([tp][1-9][0-9]*)?|chr([1-9][0-9]*|X|Y|M|MT)):[cgnprmo]\\.[\\x21-\\x7e]+)$",
       "type": "string"
@@ -24,6 +29,18 @@
         "variantvalidator"
       ],
       "type": "string"
+    },
+    "VariantSection": {
+      "description": "Named variant source sections, without automatic expansion of identity cards.",
+      "enum": [
+        "oncokb",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Keyed OncoKB annotation with explicit tumor context and build.",
+        " Every implemented variant section."
+      ]
     }
   },
   "$id": "biodata.variant-get/1",
@@ -66,6 +83,40 @@
       "$ref": "#/$defs/VariantResolver",
       "default": "car",
       "description": "Resolver for reference-qualified notation; never repairs the input locally."
+    },
+    "section": {
+      "description": "Named source sections; omitted by default.",
+      "items": {
+        "$ref": "#/$defs/VariantSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "default": 3,
+      "description": "Rows per named source section page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Source rows to skip independently of identity candidate paging.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "tumor_type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Explicit tumor context for keyed OncoKB annotation."
     }
   },
   "required": [

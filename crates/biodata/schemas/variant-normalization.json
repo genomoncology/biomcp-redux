@@ -610,6 +610,7 @@
     "VariantResolution": {
       "description": "Identity resolution preserves candidates and source validation outcomes.",
       "enum": [
+        "unresolved",
         "resolved",
         "candidates",
         "absent",
