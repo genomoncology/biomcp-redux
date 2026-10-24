@@ -51,16 +51,17 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let term = if query.sources().contains(&biodata::ArticleSource::Pubmed) {
+            let (term, gene) = if query.sources().contains(&biodata::ArticleSource::Pubmed)
+                || query.sources().contains(&biodata::ArticleSource::Litvar) {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
                     return Ok(());
                 };
                 term
             } else {
-                String::new()
+                (String::new(), None)
             };
-            let Some(mut items) = sources::search(cx, query, &term, deadline, out)? else {
-                retry(query, None, out);
+            let Some(mut items) = sources::search(cx, query, &term, gene.as_deref(), deadline, out)? else {
+                if out.status != Status::Absent { retry(query, None, out); }
                 return Ok(());
             };
             if query.sort() == biodata::ArticleSort::Citations
@@ -102,6 +103,7 @@ fn empty() -> Outcome {
         status: Status::Complete,
         body: QueryBody::ArticlePage(ArticlePage {
             items: Box::default(),
+            candidates: Vec::new(),
         }),
         page: None,
         sources: Vec::new(),

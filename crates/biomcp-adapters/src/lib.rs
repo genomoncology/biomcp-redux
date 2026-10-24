@@ -24,3 +24,6 @@ pub mod europepmc;
 pub mod pubtator;
 
 pub mod icite;
+
+/// Exact variant publication lookup.
+pub mod litvar;

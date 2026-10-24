@@ -5,12 +5,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc"])))]
+#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "litvar"])))]
 pub enum ArticleSource {
     /// PubMed's own result order.
     Pubmed,
     /// Europe PMC native relevance or publication-date order.
     Europepmc,
+    /// Exact variant publications in LitVar2 native order.
+    Litvar,
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -68,8 +70,9 @@ struct Fields {
     /// Several sources take turns, remove duplicates and show every native rank.
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
+    /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
     #[serde(default = "sources")]
-    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2), extend("x-comma-separated"=true)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 3), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
     /// rank (default): native provider order; several sources take turns.
     /// date: newest first in each source; PubMed means date added to PubMed.
@@ -180,8 +183,8 @@ impl TryFrom<Fields> for ArticleSearch {
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if !(1..=50).contains(&v.limit)
             || v.source.is_empty()
-            || v.source.len() > 2
-            || (v.source.len() == 2 && v.source.first() == v.source.get(1))
+            || v.source.len() > 3
+            || v.source.iter().enumerate().any(|(i, source)| v.source[..i].contains(source))
             || [
                 &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
             ]
@@ -283,5 +286,22 @@ impl ArticleSearch {
         let mut v = self.page(0, None);
         v.0.limit = limit();
         v
+    }
+}
+
+impl ArticleSearch {
+    /// Exact variant selector, kept distinct from ordinary word search.
+    pub fn variant(&self) -> Option<&Text> { self.0.variant.as_ref() }
+    /// Restart with an exact candidate rsID, retaining source and order choices.
+    pub fn with_variant(&self, variant: Text) -> Self {
+        let mut value = self.page(0, None);
+        value.0.variant = Some(variant);
+        value
+    }
+    /// Restart on a checked source set.
+    pub fn with_sources(&self, sources: Box<[ArticleSource]>) -> Self {
+        let mut value = self.page(0, None);
+        value.0.source = sources;
+        value
     }
 }

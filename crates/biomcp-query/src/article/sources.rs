@@ -3,7 +3,7 @@ use biodata::{
     ArticleItem, ArticleKey, ArticleSearch, ArticleSource, ArticleType, Source, SourceOutcome,
     SourceState, Status, Text,
 };
-use biomcp_adapters::{europepmc, pubmed};
+use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use std::time::Duration;
 struct ResultLeg {
@@ -12,11 +12,13 @@ struct ResultLeg {
     items: Vec<ArticleItem>,
     elapsed: Duration,
     error: Option<RequestError>,
+    candidates: Vec<biodata::LitVarCandidate>,
 }
 pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     pubmed_term: &str,
+    gene: Option<&str>,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
@@ -31,6 +33,7 @@ pub(super) fn search<'a>(
                 Box::new(move || match selector {
                     ArticleSource::Pubmed => pubmed_search(cx, query, pubmed_term, start),
                     ArticleSource::Europepmc => europe_search(cx, query, epmc_term, start),
+                    ArticleSource::Litvar => litvar_search(cx, query, gene, start),
                 }) as Box<dyn FnOnce() -> ResultLeg + Send>
             })
             .collect(),
@@ -53,6 +56,15 @@ pub(super) fn search<'a>(
     }
     if failed_pubmed || !answered {
         out.status = Status::Failed;
+        return Ok(None);
+    }
+    if query.sources().len() == 1 && results.iter().any(|r| !r.candidates.is_empty() || (r.source == ArticleSource::Litvar && r.outcome.term.is_none())) {
+        out.status = Status::Absent;
+        let candidates: Vec<_> = results.into_iter().flat_map(|r| r.candidates).collect();
+        for candidate in &candidates {
+            out.next.push((biodata::StepKind::Disambiguate, crate::Action::Run { request: biodata::Request::SearchArticle(query.with_variant(candidate.rsid.clone())), fresh: cx.fresh }));
+        }
+        out.body = biodata::QueryBody::ArticlePage(biodata::ArticlePage { items: Box::default(), candidates });
         return Ok(None);
     }
     Ok(Some(super::fold::fold(
@@ -97,6 +109,7 @@ fn pubmed_search<'a>(
         items,
         elapsed,
         error,
+        candidates: Vec::new(),
     }
 }
 fn europe_search<'a>(
@@ -126,6 +139,7 @@ fn europe_search<'a>(
         items,
         elapsed,
         error,
+        candidates: Vec::new(),
     }
 }
 pub(super) fn failed(sources: &[SourceOutcome]) -> bool {
@@ -167,4 +181,25 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
     parts.join(" AND ")
+}
+
+fn litvar_search<'a>(cx: &Ctx<'a>, query: &ArticleSearch, gene: Option<&str>, deadline: Deadline<'a>) -> ResultLeg {
+    let leg = cx.fetch.leg(&litvar::SPEC, deadline).fresh(cx.fresh);
+    let start = leg.remaining();
+    let result = litvar::search(&leg, gene, query.variant().map_or("", Text::as_str));
+    let elapsed = start.saturating_sub(leg.remaining());
+    let error = result.as_ref().err().copied();
+    let mut outcome = status::source(Source::LitVar, leg.finish(), error);
+    let mut candidates = Vec::new();
+    let items = match result {
+        Ok(litvar::Search::Selected { rsid, count, ids }) => {
+            outcome.term = Some(rsid);
+            outcome.count = Some(count);
+            outcome.fetched = Some(ids.len() as u32);
+            ids.into_iter().map(|id| ArticleItem { key: ArticleKey::Pubmed(id), pmid: Some(id), header: None, cited_by: None, found_by: Default::default() }).collect()
+        }
+        Ok(litvar::Search::Candidates(nearby)) => { candidates = nearby; Vec::new() }
+        Err(_) => Vec::new(),
+    };
+    ResultLeg { source: ArticleSource::Litvar, outcome, items, elapsed, error, candidates }
 }
