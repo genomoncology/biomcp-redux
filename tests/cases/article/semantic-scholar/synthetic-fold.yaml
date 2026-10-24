@@ -95,5 +95,6 @@
       },
       "max_tokens": 516
     }
-  ]
+  ],
+  "live_check": "synthetic or recorded failure proof; no live refresh"
 }

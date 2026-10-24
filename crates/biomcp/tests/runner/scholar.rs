@@ -91,12 +91,11 @@ fn outgoing() -> Result<(), String> {
         return Err(format!("the declared source did not send its configured key: {value}"));
     }
     if value.to_string().contains("placeholder-scholar-key") { return Err("the key entered the envelope".into()); }
-    for file in std::fs::read_dir(capture.join("semantic-scholar")).map_err(|e| e.to_string())? {
-        let text = std::fs::read_to_string(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
-        if text.contains("placeholder-scholar-key") || text.to_ascii_lowercase().contains("x-api-key") {
-            return Err("the key entered a recording".into());
-        }
-    }
+    check_recordings(&capture)?;
+    replay_keyless(&capture, args)
+}
+
+fn replay_keyless(capture: &std::path::Path, mut args: Vec<String>) -> Result<(), String> {
     args.truncate(5);
     args.extend(["--replay".into(),capture.to_string_lossy().into()]);
     let keyless = Environment::new().map_err(|e| e.to_string())?;
@@ -104,6 +103,16 @@ fn outgoing() -> Result<(), String> {
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if !output.status.success() || !output.stderr.is_empty() || value.pointer("/result/items") != Some(&json!([])) {
         return Err("credential presence changed the canonical request identity".into());
+    }
+    Ok(())
+}
+
+fn check_recordings(capture: &std::path::Path) -> Result<(), String> {
+    for file in std::fs::read_dir(capture.join("semantic-scholar")).map_err(|e| e.to_string())? {
+        let text = std::fs::read_to_string(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
+        if text.contains("placeholder-scholar-key") || text.to_ascii_lowercase().contains("x-api-key") {
+            return Err("the key entered a recording".into());
+        }
     }
     Ok(())
 }
