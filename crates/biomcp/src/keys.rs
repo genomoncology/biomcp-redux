@@ -2,7 +2,7 @@
 use biomcp_fetch::SecretName;
 use clap::{Arg, ArgAction};
 use serde_json::{Value, json};
-use std::io::{self, BufRead, IsTerminal, Write};
+use std::io::{self, BufRead, IsTerminal};
 
 #[derive(Debug)]
 pub(crate) enum Command {
@@ -79,7 +79,7 @@ fn run_inner(
     // Validate the same config contract used by ordinary commands before preserving it.
     crate::config::secrets(globals).map_err(|()| Failure::Local)?;
     if matches!(command, Command::List) {
-        let value = read(&path)?;
+        let value = crate::config::key_file::read(&path)?;
         return Ok(biodata::RegisteredKeys {
             entries: SecretName::ALL
                 .iter()
@@ -87,22 +87,8 @@ fn run_inner(
                 .collect::<Result<_, _>>()?,
         });
     }
-    let parent = path.parent().ok_or(Failure::Local)?;
-    let mut directory = std::fs::DirBuilder::new();
-    directory.recursive(true);
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::DirBuilderExt;
-        directory.mode(0o700);
-    }
-    directory.create(parent)?;
-    let lock = std::fs::OpenOptions::new()
-        .create(true)
-        .truncate(false)
-        .write(true)
-        .open(parent.join(".config.lock"))?;
-    lock.lock()?;
-    let mut value = read(&path)?;
+    let _lock = crate::config::key_file::lock(&path)?;
+    let mut value = crate::config::key_file::read(&path)?;
     let (name, status) = match command {
         Command::Set(name, replace) => {
             if stored(&value, name).is_some() && !replace {
@@ -127,17 +113,10 @@ fn run_inner(
         }
         Command::List => return Err(Failure::Local),
     };
-    write(&path, &value)?;
+    crate::config::key_file::write(&path, &value)?;
     Ok(biodata::RegisteredKeys {
         entries: vec![entry(name, status)?],
     })
-}
-fn read(path: &std::path::Path) -> Result<Value, Failure> {
-    match std::fs::read(path) {
-        Ok(bytes) => serde_json::from_slice(&bytes).map_err(|_| Failure::Local),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(json!({})),
-        Err(_) => Err(Failure::Local),
-    }
 }
 fn stored(value: &Value, name: SecretName) -> Option<&str> {
     value
@@ -184,22 +163,4 @@ fn input() -> Result<String, Failure> {
         return Err(Failure::Usage);
     }
     Ok(value)
-}
-fn write(path: &std::path::Path, value: &Value) -> io::Result<()> {
-    let mut temporary = tempfile::NamedTempFile::new_in(
-        path.parent()
-            .ok_or_else(|| io::Error::other("config path"))?,
-    )?;
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        temporary
-            .as_file()
-            .set_permissions(std::fs::Permissions::from_mode(0o600))?;
-    }
-    serde_json::to_writer_pretty(&mut temporary, value)?;
-    temporary.write_all(b"\n")?;
-    temporary.as_file().sync_all()?;
-    temporary.persist(path).map_err(|e| e.error)?;
-    Ok(())
 }

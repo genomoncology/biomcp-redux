@@ -34,7 +34,7 @@ Five crates. Each exists because a rule needs a crate boundary to enforce it.
 | `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2` | `biomcp-adapters`, `biomcp-query`, `clap` |
 | `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
 | `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
-| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc` | `ureq`, `rusqlite` |
+| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
@@ -47,6 +47,8 @@ Why each crate is its own:
 The store is the `store` module of `biomcp-query`. The ratchet test confines `rusqlite` inside `biomcp-query` to `src/store/`. The Markdown view is the `view` module of the binary. It takes the serialized `serde_json::Value` of a response and returns text, so it cannot fetch, read a file or show content the JSON lacks.
 
 Rejected: a crate per entity, a crate per source family, a separate store crate, a separate render crate, a `biomcp-types` crate beside `biodata`, and a separate MCP crate. Each adds a manifest and a public surface without enforcing a rule the five crates miss.
+
+`rpassword` owns the terminal no-echo credential prompt. Its maintained prompt function replaces platform-specific terminal control code.
 
 ### 2.2 The workspace manifest
 

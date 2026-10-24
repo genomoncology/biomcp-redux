@@ -131,7 +131,7 @@ fn registration() -> Check {
 fn override_config(env: &Environment) -> Check {
     let override_path = env.root().join("override.json");
     invoke(
-        &env,
+        env,
         &[
             "--config",
             override_path.to_str().ok_or("path")?,
