@@ -14,8 +14,8 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 
 fn strip_row(row: &mut Value) -> Result<(), String> {
-    let source = serde_json::from_value::<biomcp_types::Source>(row.get("source").ok_or("missing outcome source")?.clone())
-        .map_err(|e| e.to_string())?;
+    let outcome: biomcp_types::SourceOutcome = serde_json::from_value(row.clone()).map_err(|e| e.to_string())?;
+    let source = outcome.source;
     let spec = biomcp_adapters::registry::SOURCES.iter()
         .find(|spec| spec.source == source).ok_or("unregistered outcome source")?;
     let object = row.as_object_mut().ok_or("source outcome is not an object")?;

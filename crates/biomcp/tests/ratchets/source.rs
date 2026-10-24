@@ -3,7 +3,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
-    ("crates/biomcp-adapters/src/registry.rs", "Require every source outcome to use its unique publisher declaration"),
+    (
+        "crates/biomcp-adapters/src/registry.rs",
+        "Require every source outcome to use its unique publisher declaration",
+    ),
     (
         "crates/biomcp-types/src/source.rs",
         "Convert closed nonempty source spellings into neutral provenance text",

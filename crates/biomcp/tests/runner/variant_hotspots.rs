@@ -95,7 +95,10 @@ fn body(request: &str) -> Result<String, String> {
 fn envelope(value: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let mut comparable = super::source_terms::comparable(value, "")?;
-    let source_terms = full - serde_json::to_vec(&comparable).map_err(|e| e.to_string())?.len();
+    let source_terms = full
+        - serde_json::to_vec(&comparable)
+            .map_err(|e| e.to_string())?
+            .len();
     let header = comparable
         .pointer_mut("/result/candidates/0")
         .and_then(Value::as_object_mut)

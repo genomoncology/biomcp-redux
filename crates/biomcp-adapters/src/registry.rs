@@ -229,13 +229,18 @@ fn assertion_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
 }
 
 /// Construct every outcome with the same publisher declaration used by health.
-#[expect(clippy::expect_used, reason = "Every Source has one declaration; registry coverage is checked outside-in")]
+#[expect(
+    clippy::expect_used,
+    reason = "Every Source has one declaration; registry coverage is checked outside-in"
+)]
 pub fn outcome(
     source: Source,
     state: biomcp_types::SourceState,
     reason: Option<biomcp_types::Reason>,
 ) -> biomcp_types::SourceOutcome {
-    let spec = SOURCES.iter().find(|spec| spec.source == source)
+    let spec = SOURCES
+        .iter()
+        .find(|spec| spec.source == source)
         .expect("source has a registered publisher declaration");
     biomcp_types::SourceOutcome {
         source,

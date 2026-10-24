@@ -484,7 +484,10 @@ fn terms_budget() -> Result<(), String> {
             }
         }
         let payload = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
-        if labeled == 0 || full - payload != labeled * 205 + selector_bytes + source_terms || payload > cap {
+        if labeled == 0
+            || full - payload != labeled * 205 + selector_bytes + source_terms
+            || payload > cap
+        {
             return Err(format!(
                 "{name}: full={full}, metadata={}, payload={payload}, comparable cap={cap}",
                 full - payload

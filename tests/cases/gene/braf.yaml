@@ -61,7 +61,12 @@
         }
       },
       "max_bytes": 2800,
-      "max_tokens": 650
+      "max_tokens": 650,
+      "mcp": [
+        "get",
+        "gene",
+        "BRAF"
+      ]
     },
     {
       "run": [

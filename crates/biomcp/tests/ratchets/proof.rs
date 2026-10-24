@@ -209,9 +209,18 @@ fn test_files_obey_the_file_line_limit() -> Check {
 #[test]
 fn source_outcomes_require_registry_terms() -> Check {
     let tree = tree()?;
-    put(tree.path(), "crates/biomcp-query/src/example.rs",
-        "fn response() { SourceOutcome { source: Source::Hgnc } }")?;
-    let error = check(tree.path()).err().ok_or("unlabeled source outcome accepted")?;
-    assert!(error.to_string().contains("source outcomes require registry terms"));
+    put(
+        tree.path(),
+        "crates/biomcp-query/src/example.rs",
+        "fn response() { SourceOutcome { source: Source::Hgnc } }",
+    )?;
+    let error = check(tree.path())
+        .err()
+        .ok_or("unlabeled source outcome accepted")?;
+    assert!(
+        error
+            .to_string()
+            .contains("source outcomes require registry terms")
+    );
     Ok(())
 }

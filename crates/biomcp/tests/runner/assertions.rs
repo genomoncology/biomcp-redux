@@ -103,7 +103,9 @@ pub(super) fn check(
     let terms_bytes = if let Ok(value) = &parsed {
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len()
             - super::source_terms::size(value, "")?
-    } else { 0 };
+    } else {
+        0
+    };
     ceiling(
         "stdout",
         "max_bytes",
@@ -224,7 +226,12 @@ impl Assertion<'_> {
                     )),
                 }
             }
-            Self::MaxBytes(limit) => ceiling(pointer, "max_bytes", super::source_terms::size(actual, pointer)?, Some(*limit)),
+            Self::MaxBytes(limit) => ceiling(
+                pointer,
+                "max_bytes",
+                super::source_terms::size(actual, pointer)?,
+                Some(*limit),
+            ),
             Self::MaxTokens(limit) => ceiling(
                 pointer,
                 "max_tokens",
@@ -240,8 +247,6 @@ fn array<'a>(pointer: &str, operator: &str, actual: &'a Value) -> Result<&'a Vec
         .as_array()
         .ok_or_else(|| format!("{pointer} {operator}: expected an array, actual {actual}"))
 }
-
-
 
 fn equal(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> {
     if expected == actual {
