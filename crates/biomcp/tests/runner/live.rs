@@ -173,17 +173,11 @@ fn check(
     let mut changes = Vec::new();
     let mut ordinal = 0;
     let mut skipped = Vec::new();
-<<<<<<< HEAD
+    let mut commands = Vec::new();
     for (index, (step, skip)) in case.steps.iter().zip(step_skips(case)).enumerate() {
         if let Some(reason) = skip {
             previous = (None, None);
             skipped.push(json!({"step": index + 1, "reason": reason}));
-=======
-    let mut commands = Vec::new();
-    for (index, step) in case.steps.iter().enumerate() {
-        if !eligible_step(step) {
-            skipped.push(json!({"step": index + 1, "reason": "local validation or offline step"}));
->>>>>>> 851ee809446e3ed145d49b9c911e3728a1fc6589
             continue;
         }
         let mut args = (
