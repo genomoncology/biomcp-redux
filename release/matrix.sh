@@ -1,0 +1,63 @@
+#!/bin/sh
+# Run through pm job. Docker executes both architectures at the declared floor.
+set -eu
+scratch=$(mktemp -d)
+cleanup() {
+  docker image rm biomcp-local-0058:amd64 biomcp-local-0058:arm64 >/dev/null 2>&1 || true
+  rm -rf "$scratch"
+}
+trap cleanup EXIT HUP INT TERM
+revision=$(git rev-parse HEAD)
+version=$(cargo metadata --locked --no-deps --format-version 1 | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "biomcp"))')
+mkdir "$scratch/source"
+git archive HEAD | tar -x -C "$scratch/source"
+python3 release/artifacts.py build --output "$scratch/native"
+python3 release/gate.py --artifacts "$scratch/native" --scratch "$scratch/native-check"
+BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" python3 -m unittest release.test_artifacts
+for arch in amd64 arm64; do
+  case "$arch" in amd64) wheel_arch=x86_64;; arm64) wheel_arch=aarch64;; esac
+  image="quay.io/pypa/manylinux_2_28_$wheel_arch"
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+    --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
+    -e "BIOMCP_BUILD_REVISION=$revision" -e "BIOMCP_BUILD_ARCH=$arch" \
+    "$image" /bin/bash -c '
+      set -euo pipefail
+      cp -a /source /tmp/build
+      cd /tmp/build
+      export HOME=/tmp/build-home CARGO_HOME=/tmp/cargo RUSTUP_HOME=/tmp/rustup CARGO_BUILD_JOBS=2
+      mkdir -p "$HOME"
+      curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup.sh
+      sh /tmp/rustup.sh -y --no-modify-path --profile minimal --default-toolchain 1.95.0
+      export PATH=/tmp/cargo/bin:/opt/python/cp311-cp311/bin:$PATH
+      python release/artifacts.py build --manylinux --revision "$BIOMCP_BUILD_REVISION" --output "/output/linux-$BIOMCP_BUILD_ARCH"
+      python release/gate.py --prepare-only --artifacts "/output/linux-$BIOMCP_BUILD_ARCH" --scratch /tmp/proof
+      cp -a /tmp/proof "/output/proof-$BIOMCP_BUILD_ARCH"
+    '
+  # The installation container has only artifacts, a runner and public fixtures.
+  # It has no checkout, build tree, host configuration or credential mount.
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+    --platform "linux/$arch" -v "$scratch/linux-$arch:/artifacts:ro" \
+    -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
+      set -euo pipefail
+      cp -a /proof /tmp/check
+      /opt/python/cp311-cp311/bin/python /tmp/check/tools/release/gate.py --prepared \
+        --python /opt/python/cp311-cp311/bin/python --artifacts /artifacts --scratch /tmp/check
+    '
+  mkdir "$scratch/container-$arch"
+  tar -xzf "$scratch/linux-$arch/biomcp-$version-manylinux_2_28_$wheel_arch.tar.gz" -C "$scratch/container-$arch"
+  cp "$scratch/proof-$arch/case-runner" "$scratch/container-$arch/case-runner"
+  cp -R "$scratch/proof-$arch/fixtures" "$scratch/container-$arch/fixtures"
+  cp release/Dockerfile "$scratch/container-$arch/Dockerfile"
+  docker build --platform "linux/$arch" -t "biomcp-local-0058:$arch" "$scratch/container-$arch"
+  python3 release/container_check.py "biomcp-local-0058:$arch" "$arch" "$scratch/container-$arch" "$version"
+  docker image rm "biomcp-local-0058:$arch"
+done
+
+python3 - <<'PYTHON'
+import json
+import platform
+for native in ["macOS arm64", "macOS x86_64", "Windows x86_64"]:
+    if native == "macOS " + platform.machine() and platform.system() == "Darwin":
+        continue
+    print(json.dumps({"platform": native, "result": "deferred", "reason": "Native platform execution requires its release rehearsal machine"}))
+PYTHON

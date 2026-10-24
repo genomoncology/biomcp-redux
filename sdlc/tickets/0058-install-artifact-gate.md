@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 1
 
+Changes: crates/, tests/, scripts/, release/, Makefile, README.md, manifest.json, server.json, sdlc/
+
 ## Outcome
 
 A pm job builds each release artifact that 0.9 ships (the PyPI wheel, the install script's binary, the Homebrew formula's binary, the Docker image, the desktop extension bundle from `manifest.json`, and the MCP registry entry's metadata) without publishing anything. It installs each one in a clean container or on a clean machine, and runs the MCP handshake, `tools/list` and one replay case. It checks that the build is a release build, that the version matches, that the embedded schemas and help are present, and that the claimed platform tags match the real glibc floor. 0.9 shipped a debug wheel that overflowed its stack and lost its assets (issues 282 and 287), Docker images that were missing, private or amd64 only, wheels that claimed manylinux 2_28 but needed glibc 2.39, and an install script that broke on stock macOS bash. The 0.9.3 release took eight rehearsals.
@@ -14,3 +16,7 @@ A pm job builds each release artifact that 0.9 ships (the PyPI wheel, the instal
 - Defers: publishing, which needs Ian.
 
 - Reviewed reliability boundary, 2026-10-24: Port minimal local packaging producers because this repo has no wheel/installer/formula/Docker producers yet; do not reuse old project paths blindly. Add one installed-executable selection boundary in the existing launcher for CLI/MCP/process proofs, with no build-tree fallback. Run from empty cwd with isolated HOME/config/cache, cleared credentials/proxy and no checkout mounted; embedded help/schema must work. Use only local release artifacts for installer/formula and offline wheel install. Bind release provenance to producer configuration and candidate bytes, not speed/name/size; planted debug wheel uses the same inspection/install path. Check ELF symbol requirements and execute at the declared manylinux floor. Execute each container architecture, not just manifest inspection. Exercise stdout throughout MCP lifecycle. Reuse existing two-process publication proof with installed processes, shared ordinary cache and event overlap, not fixed sleeps. Report unavailable platform execution as deferred. No publishing or remote registry/formula changes.
+
+## Changes
+
+`manifest.json`, `server.json`, `release/**`, `Makefile`, `README.md`, `crates/biomcp/tests/cases.rs`, `crates/biomcp/tests/runner/launch.rs`, `crates/biomcp/tests/runner/mod.rs`, `crates/biomcp/tests/runner/configuration.rs`, `crates/biomcp/tests/runner/publication.rs`, `crates/biomcp/tests/runner/README.md`.

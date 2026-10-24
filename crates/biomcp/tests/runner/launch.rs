@@ -3,6 +3,8 @@ use std::{fs, io, path::Path, process::Command};
 pub(super) const ENV_PATHS: &[(&str, &str)] = &[
     ("HOME", "home"),
     ("USERPROFILE", "home"),
+    ("APPDATA", "config"),
+    ("LOCALAPPDATA", "cache"),
     ("XDG_CONFIG_HOME", "config"),
     ("XDG_CACHE_HOME", "cache"),
 ];
@@ -49,8 +51,16 @@ impl Environment {
     }
 
     // All case steps and launch-boundary proofs use this child-only boundary.
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "The launcher alone selects an explicitly installed artifact"
+    )]
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
-        let mut command = Command::new(program.as_ref());
+        let installed = std::env::var_os("BIOMCP_TEST_EXECUTABLE");
+        let selected = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
+            .then_some(installed.as_deref())
+            .flatten();
+        let mut command = Command::new(selected.unwrap_or(program.as_ref().as_os_str()));
         command
             .args(args)
             .env_clear()
@@ -60,6 +70,15 @@ impl Environment {
                     .map(|(key, path)| (key, self.root.path().join(path))),
             )
             .current_dir(self.root.path());
+        if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
+            // Nested runner proofs must retain the selection, never falling
+            // back to Cargo's binary merely because a helper cleared its env.
+            for key in ["BIOMCP_TEST_EXECUTABLE", "BIOMCP_TEST_FIXTURES"] {
+                if let Some(value) = std::env::var_os(key) {
+                    command.env(key, value);
+                }
+            }
+        }
         if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
             command.env("LLVM_PROFILE_FILE", profile);
         }

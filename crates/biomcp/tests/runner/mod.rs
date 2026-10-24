@@ -16,6 +16,7 @@ mod pool_tables;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
@@ -142,11 +143,10 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             .config(config)
             .map_err(|error| error.to_string())?;
     }
-    let replay = case.replay.as_ref().map(|name| {
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/replies")
-            .join(name)
-    });
+    let replay = case
+        .replay
+        .as_ref()
+        .map(|name| launch::fixtures().join("replies").join(name));
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         previous = Some(
@@ -364,4 +364,8 @@ fn run_sequence(
         }
     }
     Err("walk exceeded max_pages".into())
+}
+
+pub(super) fn installed_process_proof() -> Result<(), String> {
+    configuration::article_processes()
 }

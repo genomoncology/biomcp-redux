@@ -82,3 +82,4 @@ structure. It contains no URL, response text or scalar values. Truncated samples
 can miss optional-field changes; schema failures and status transitions remain
 reported separately. Live counts compare only positive to zero, never historical
 exact totals. Drift is diagnostic and does not fail the landing gate.
+The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process proofs, including nested runner checks, and never falls back after a failed installed launch. `BIOMCP_TEST_FIXTURES` selects copied public fixtures outside the checkout. `--installed-process-proof` runs the existing ordinary-cache publication proof without discovering cases from the source checkout.
