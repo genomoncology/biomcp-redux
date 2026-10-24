@@ -7,6 +7,9 @@ pub(super) struct Allele {
     pub id: Option<Text>,
     #[serde(rename = "errorType")]
     pub error_type: Option<Text>,
+    #[serde(rename = "description")]
+    pub error_description: Option<String>,
+    pub message: Option<String>,
     #[serde(rename = "genomicAlleles")]
     pub genomic: Option<Vec<Genomic>>,
     #[serde(rename = "transcriptAlleles")]

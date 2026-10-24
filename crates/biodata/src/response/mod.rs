@@ -64,8 +64,14 @@ pub use article::{
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
 
+mod recurrence;
+pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
+mod variant_normalize;
 pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution};
+pub use variant_normalize::{
+    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+};
 mod trial;
 pub use trial::{TrialPage, TrialParameter};
 

@@ -205,7 +205,8 @@
         "myvariant",
         "car",
         "mutalyzer",
-        "variantvalidator"
+        "variantvalidator",
+        "cbioportal"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -231,7 +232,8 @@
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
         " Mutalyzer.",
-        " VariantValidator."
+        " VariantValidator.",
+        " Public cBioPortal with study-specific reuse terms."
       ]
     },
     "Step": {

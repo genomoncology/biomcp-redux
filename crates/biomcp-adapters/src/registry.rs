@@ -27,6 +27,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::icite::SPEC,
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
+    &crate::cbioportal::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
@@ -110,6 +111,7 @@ type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant => ("/metadata", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
         Source::Mutalyzer => ("/normalize/NM_004333.4:c.1799T%3EA", vec![]),

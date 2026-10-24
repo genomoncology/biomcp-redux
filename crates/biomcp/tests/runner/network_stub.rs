@@ -48,10 +48,27 @@ impl Stub {
         length: fn(&str, usize) -> usize,
         status: fn(&str) -> u16,
     ) -> Result<Self, String> {
+        Self::with_hosts(&[host], content_type, reply, length, status)
+    }
+    pub(super) fn for_sources(
+        hosts: &[&str],
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        reply: fn(&str) -> Result<String, String>,
+    ) -> Result<Self, String> {
+        Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
+    }
+    fn with_hosts(
+        hosts: &[&str],
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        reply: fn(&str) -> Result<String, String>,
+        length: fn(&str, usize) -> usize,
+        status: fn(&str) -> u16,
+    ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
-        let (certificate, config) = identity(host)?;
+        let (certificate, config) = identity(hosts)?;
+        let hosts = hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
             for stream in listener.incoming() {
@@ -66,7 +83,10 @@ impl Stub {
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
                 let connect = header(&mut socket)?;
-                if !connect.starts_with(&format!("CONNECT {host}:443 ")) {
+                if !hosts
+                    .iter()
+                    .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
+                {
                     return Err("wrong CONNECT destination".into());
                 }
                 socket
@@ -145,7 +165,7 @@ fn body(withdrawn: bool) -> Result<String, String> {
     Err("missing HGNC fixture".into())
 }
 
-fn identity(host: &str) -> Result<(String, Arc<ServerConfig>), String> {
+fn identity(hosts: &[&str]) -> Result<(String, Arc<ServerConfig>), String> {
     use rcgen::{
         BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair,
         KeyUsagePurpose,
@@ -161,7 +181,8 @@ fn identity(host: &str) -> Result<(String, Arc<ServerConfig>), String> {
     ca.not_after = now + time::Duration::days(2);
     let ca_key = KeyPair::generate().map_err(|e| e.to_string())?;
     let ca = ca.self_signed(&ca_key).map_err(|e| e.to_string())?;
-    let mut leaf = CertificateParams::new(vec![host.into()]).map_err(|e| e.to_string())?;
+    let mut leaf = CertificateParams::new(hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>())
+        .map_err(|e| e.to_string())?;
     leaf.not_before = now - time::Duration::days(1);
     leaf.not_after = now + time::Duration::days(1);
     leaf.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];
