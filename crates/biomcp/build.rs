@@ -1,3 +1,4 @@
+//! Embed the checked-in schema artifacts by their canonical identities.
 #![expect(
     clippy::disallowed_methods,
     clippy::print_stdout,

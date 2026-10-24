@@ -103,7 +103,11 @@ fn negatives() -> Check {
         let output = invoke(directory.path(), &[&filename, "--exact"])?;
         let stdout = String::from_utf8_lossy(&output.stdout);
         if output.status.success()
-            || !stdout.contains(&format!("test {filename} ... FAILED"))
+            || !stdout
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .contains(&format!("test {filename} ... FAILED"))
             || !stdout.contains(diagnostic)
             || !stdout.contains("1 failed")
         {
