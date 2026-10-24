@@ -1712,12 +1712,39 @@ The landing gate fails when line coverage falls more than 0.2 points below the f
 
 ### 10.4 Where unit tests are allowed
 
-The ratchet test holds the list. Each entry names a file and its reason.
+The ratchet owns the authoritative file and reason list below and checks this table against it. Every other test of reachable command behavior runs through the runner. Public library contracts remain only where the binary cannot construct the state without a test hook.
 
-- `crates/biodata/tests/`: identifier, date and notation tables through the public API, the schema drift, compatibility and subset test, and the JSON round trip. These are outside-in for the library.
-- `crates/biomcp-fetch/tests/`: the transport contract through the crate's public API against a local stub server with no network: source-key rate limits, deadlines, retries, keyed-source skips, reply checks, the cache and record, replay and offline. These are outside-in for the library, so the transport lands before any command. When a runner case later proves the same behavior through the binary, the duplicate library test is removed.
-- `crates/biomcp-fetch/src/retry.rs`: the `Retry-After` parse table and the backoff schedule, because the forms are many and each case would need its own recording.
-- `crates/biomcp-fetch/src/xml_tests.rs`: the `MixedText` table of inline markup, because each form would otherwise need a recorded abstract.
+| File | Reason |
+| --- | --- |
+| `crates/biodata/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/gene_model.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biodata/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise empty and oversized adapter batches and chunk isolation that command input limits cannot construct. |
+| `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
+| `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
+| `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/quotas.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/record.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/retries.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/support/cache_process.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/transport.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
+| `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
+| `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
+| `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
+| `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 
 Everything else goes through the runner.
 

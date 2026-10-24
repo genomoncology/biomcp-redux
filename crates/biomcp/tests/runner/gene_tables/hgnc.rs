@@ -1,0 +1,78 @@
+use super::{Check, case, tsv};
+use serde_json::json;
+
+pub(super) fn check() -> Check {
+    optional()?;
+    required()?;
+    withdrawn()?;
+    case("gene/main", &["search", "gene", "MLL2"], |source, record| {
+        if source == "hgnc" {
+            tsv(record, "KMT2D", &[("alias_symbol", "MLL2")]);
+            tsv(record, "H3P10", &[("alias_symbol", "MLL2")]);
+        }
+    }, json!({"/result/items/*/hgnc_id": ["HGNC:7133", "HGNC:15840", "HGNC:43802"],
+        "/result/items/0/match/kind": "previous_symbol"}), 0)?;
+    case("gene/main", &["get", "gene", "100874204"], |_, _| {},
+        json!({"/result/items/0/answer/candidates/*/hgnc_id": ["HGNC:40244", "HGNC:55559"],
+            "/result/items/0/answer/candidates/*/match/kind": ["entrez_id", "entrez_id"]}), 0)?;
+    case("gene/main", &["search", "gene", "--band", "9p21", "--limit", "50"], |_, _| {},
+        json!({"/page/total": 132, "/result/items/*/symbol": {"includes": "CDKN2A"}}), 0)?;
+    case("gene/main", &["search", "gene", "BRAF proto oncogene"], |_, _| {},
+        json!({"/result/items/*/symbol": {"includes": "BRAF"}}), 0)
+}
+
+fn optional() -> Check {
+    for (field, value, problem) in [
+        ("locus_type", "new provider locus", "locus_type"),
+        ("entrez_id", "0", "entrez_id"),
+        ("ensembl_gene_id", "bad", "ensembl_id"),
+        ("uniprot_ids", "bad", "uniprot"),
+        ("omim_id", "bad", "omim"),
+        ("prev_symbol", "bad symbol", "previous_symbols"),
+        ("alias_symbol", " ", "aliases"),
+        ("mane_select", "ENST00000646891|NM_004333.6", "mane_select"),
+    ] {
+        case("gene/main", &["get", "gene", "BRAF"], |source, record| {
+            if source == "hgnc" { tsv(record, "BRAF", &[(field, value)]); }
+        }, json!({"/result/items/0/answer/gene/hgnc_id": "HGNC:1097",
+            "/problems/*/field": {"includes": problem},
+            "/problems/*/record": {"includes": "HGNC:1097"}}), 0)?;
+    }
+    Ok(())
+}
+
+fn required() -> Check {
+    for (field, value, input) in [
+        ("hgnc_id", "HGNC:0", "BRAF"),
+        ("symbol", "bad symbol", "HGNC:1097"),
+        ("locus_group", "new group", "HGNC:1097"),
+        ("status", "new status", "HGNC:1097"),
+        ("name", " ", "HGNC:1097"),
+    ] {
+        case("gene/main", &["get", "gene", input], |source, record| {
+            if source == "hgnc" { tsv(record, "BRAF", &[(field, value)]); }
+        }, json!({"/result/items/0/answer/resolution": "not_found",
+            "/problems/*/field": {"includes": field}}), 1)?;
+    }
+    Ok(())
+}
+
+fn withdrawn() -> Check {
+    for (input, targets) in [("A2MR", vec!["HGNC:6692"]), ("HGNC:9", vec!["HGNC:6692"]),
+        ("CBBM", vec!["HGNC:4206", "HGNC:9936"]), ("ADCR", vec!["HGNC:12797"])] {
+        case("gene/main", &["get", "gene", input], |_, _| {},
+            json!({"/result/items/0/answer/resolution": "withdrawn",
+                "/result/items/0/answer/merged_into": targets}), 0)?;
+    }
+    for (field, value, input) in [("STATUS", "new status", "A2MR"),
+        ("HGNC_ID", "bad", "A2MR"), ("WITHDRAWN_SYMBOL", "bad symbol", "HGNC:9")] {
+        case("gene/main", &["get", "gene", input], |source, record| {
+            if source == "hgnc" { tsv(record, "A2MR", &[(field, value)]); }
+        }, json!({"/result/items/0/answer/resolution": "not_found",
+            "/problems/*/field": {"includes": field}}), 1)?;
+    }
+    case("gene/main", &["get", "gene", "A2MR"], |source, record| {
+        if source == "hgnc" { tsv(record, "A2MR", &[("MERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)",
+            "HGNC:6692|LRP1|Approved, bad|bad|Approved")]); }
+    }, json!({"/result/items/0/answer/merged_into": ["HGNC:6692"], "/problems": {"count": 1}}), 0)
+}

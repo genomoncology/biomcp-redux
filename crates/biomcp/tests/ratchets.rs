@@ -3,6 +3,8 @@
 mod dependencies;
 #[path = "ratchets/proof.rs"]
 mod proof;
+#[path = "ratchets/placement.rs"]
+mod placement;
 #[path = "ratchets/source.rs"]
 mod source;
 
