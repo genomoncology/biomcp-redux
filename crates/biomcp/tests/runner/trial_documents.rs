@@ -49,7 +49,11 @@ fn command(
     assert!(output.stderr.is_empty());
     let value: Value = serde_json::from_slice(&output.stdout)?;
     super::schema::Registry::embedded()?.validate(&value, args, exit == 0)?;
-    let ceiling=if args.get(3).is_some_and(|s|s=="references") {7808}else{6500};
+    let ceiling = if args.get(3).is_some_and(|s| s == "references") {
+        7808
+    } else {
+        6500
+    };
     assert!(
         output.stdout.len() <= ceiling,
         "bounded document reply: {}",
@@ -192,10 +196,9 @@ fn expanded(record: &mut Value) {
         "/contactsLocationsModule/locations",
         "/referencesModule/references",
     ] {
-        if let Some(rows) = protocol.pointer_mut(pointer).and_then(Value::as_array_mut) {
-            if let Some(row) = rows.first().cloned() {
+        if let Some(rows) = protocol.pointer_mut(pointer).and_then(Value::as_array_mut)
+            && let Some(row) = rows.first().cloned() {
                 *rows = vec![row; 3];
-            }
         }
     }
     protocol["outcomesModule"]["secondaryOutcomes"] = json!([]);
@@ -212,10 +215,9 @@ fn expanded(record: &mut Value) {
     if let Some(rows) = body
         .pointer_mut("/documentSection/largeDocumentModule/largeDocs")
         .and_then(Value::as_array_mut)
+        && let Some(row) = rows.first().cloned()
     {
-        if let Some(row) = rows.first().cloned() {
-            *rows = vec![row; 3];
-        }
+        *rows = vec![row; 3];
     }
 }
 fn continuation_args(q: &Value) -> Result<Vec<String>, Box<dyn std::error::Error>> {
