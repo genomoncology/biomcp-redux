@@ -14,3 +14,7 @@ A pm job builds each release artifact that 0.9 ships (the PyPI wheel, the instal
 - Defers: publishing, which needs Ian.
 
 - Reviewed reliability boundary, 2026-10-24: Port minimal local packaging producers because this repo has no wheel/installer/formula/Docker producers yet; do not reuse old project paths blindly. Add one installed-executable selection boundary in the existing launcher for CLI/MCP/process proofs, with no build-tree fallback. Run from empty cwd with isolated HOME/config/cache, cleared credentials/proxy and no checkout mounted; embedded help/schema must work. Use only local release artifacts for installer/formula and offline wheel install. Bind release provenance to producer configuration and candidate bytes, not speed/name/size; planted debug wheel uses the same inspection/install path. Check ELF symbol requirements and execute at the declared manylinux floor. Execute each container architecture, not just manifest inspection. Exercise stdout throughout MCP lifecycle. Reuse existing two-process publication proof with installed processes, shared ordinary cache and event overlap, not fixed sleeps. Report unavailable platform execution as deferred. No publishing or remote registry/formula changes.
+
+## Changes
+
+`release/**`, `Makefile`, `README.md`, `crates/biomcp/tests/cases.rs`, `crates/biomcp/tests/runner/launch.rs`, `crates/biomcp/tests/runner/mod.rs`, `crates/biomcp/tests/runner/configuration.rs`, `crates/biomcp/tests/runner/publication.rs`.
