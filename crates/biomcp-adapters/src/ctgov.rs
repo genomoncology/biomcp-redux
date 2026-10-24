@@ -1,4 +1,5 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
+pub mod detail;
 use biodata::{NctId, PartialDate, Text, TrialHeader, TrialPhase, TrialSearch, TrialStatus};
 use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec,

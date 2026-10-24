@@ -5,6 +5,7 @@
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
 mod evidence;
+mod trial;
 pub(crate) use evidence::EvidenceState;
 mod pool;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
@@ -12,12 +13,12 @@ pub(crate) use pool::{Pool, StoredItem};
 use rusqlite::{Connection, params};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 /// Query schema version used in the binary's shared cache filename.
-pub const VERSION: u32 = 3;
+pub const VERSION: u32 = 4;
 /// Query-owned metadata checked by transport before any journal or schema mutation.
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
-    tables: &["pool", "pool_current", "pool_item", "citation_evidence"],
+    tables: &["pool", "pool_current", "pool_item", "citation_evidence", "trial_snapshot"],
 };
 /// One command's owned connection, retaining the replay directory capability.
 #[derive(Debug)]

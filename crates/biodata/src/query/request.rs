@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Retrieve exact trial cards and source protocol sections.
+    GetTrial(crate::TrialGet),
     /// Search ClinicalTrials.gov without local screening.
     SearchTrial(crate::TrialSearch),
     /// Save a publisher PDF to an explicit destination.

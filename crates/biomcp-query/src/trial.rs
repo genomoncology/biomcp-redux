@@ -1,4 +1,5 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
+pub(crate) mod get;
 use crate::{Action, Ctx, Outcome, status};
 use biodata::{
     GeneResolution, QueryBody, Request, Source, SourceState, Status, StepKind, TrialPage,

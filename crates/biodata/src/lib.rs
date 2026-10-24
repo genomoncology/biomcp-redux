@@ -95,3 +95,9 @@ pub use response::TrialPage;
 pub use response::TrialParameter;
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use trial::{NctId, StudyType, TrialHeader, TrialPhase, TrialSex, TrialStatus};
+
+mod trial_detail;
+pub use trial_detail::{TrialCard, TrialAgeBound, TrialEligibility, TrialOutcome, TrialOutcomeKind, TrialArm, TrialIntervention};
+
+pub use query::{TrialGet,TrialSection};
+pub use response::{TrialCards,TrialCardItem,TrialSections,TrialEligibilityPage,TrialRecords,TrialArmRecord};

@@ -167,6 +167,7 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (Request::GetTrial(query),QueryBody::TrialCards(body)) => meta.encode(query,Some(body)),
         (_, QueryBody::ArticleSaveRefused(url)) => {
             usage_envelope(biodata::ErrorEnvelope::save_refused(url))
         }

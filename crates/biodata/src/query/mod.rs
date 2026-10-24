@@ -26,3 +26,6 @@ pub use article_recommend::ArticleRecommend;
 
 mod trial;
 pub use trial::{PhaseFilter, SponsorType, TrialSearch};
+
+mod trial_get;
+pub use trial_get::{TrialGet,TrialSection};

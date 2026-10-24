@@ -1,5 +1,5 @@
 //! Source-preserving registry protocol records; no clinical interpretation.
-use crate::{NctId, PartialDate, StudyType, TrialPhase, TrialSex, TrialStatus};
+use crate::{Markdown, NctId, PartialDate, StudyType, TrialPhase, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
 /// Complete default registry card.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -31,7 +31,7 @@ pub struct TrialCard {
     /// Last posted registry update.
     pub updated: PartialDate,
     /// Whole brief summary, preserving whitespace.
-    pub brief_summary: Option<Box<str>>,
+    pub brief_summary: Option<Markdown>,
     /// Canonical publisher record URL.
     pub url: Box<str>,
 }
@@ -62,7 +62,7 @@ pub struct TrialEligibility {
     /// Registry healthy volunteer flag.
     pub healthy_volunteers: Option<bool>,
     /// Original criteria text without heading interpretation.
-    pub criteria: Box<str>,
+    pub criteria: Option<Markdown>,
 }
 crate::macros::wire_enum! {
     /// Registry outcome collection.
@@ -85,7 +85,7 @@ pub struct TrialOutcome {
     /// Original measure text.
     pub measure: Box<str>,
     /// Original description.
-    pub description: Option<Box<str>>,
+    pub description: Option<Markdown>,
     /// Original time frame.
     pub time_frame: Option<Box<str>>,
 }
@@ -99,7 +99,7 @@ pub struct TrialArm {
     /// Native arm type.
     pub kind: Option<Box<str>>,
     /// Original arm description.
-    pub description: Option<Box<str>>,
+    pub description: Option<Markdown>,
     /// Source intervention names, including their native prefixes.
     pub intervention_names: Box<[Box<str>]>,
 }
@@ -113,7 +113,7 @@ pub struct TrialIntervention {
     /// Native intervention type.
     pub kind: Option<Box<str>>,
     /// Original description.
-    pub description: Option<Box<str>>,
+    pub description: Option<Markdown>,
     /// Source arm relationships.
     pub arm_group_labels: Box<[Box<str>]>,
     /// Source aliases, without invented expansion.
