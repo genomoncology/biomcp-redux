@@ -106,7 +106,7 @@ fn visit(
         refs.remove(reference);
     }
     if let Some(branches) = node.get("anyOf") {
-        for branch in branches.as_array().ok_or("invalid anyOf")? {
+        for branch in optional_branches(branches)? {
             visit(root, branch, path, shapes, refs)?;
         }
     }
@@ -161,4 +161,26 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             .ok_or("unsupported additionalProperties")?;
     }
     Ok(())
+}
+
+// Core Option<Text> is the only union these types currently generate.
+fn optional_branches(branches: &Value) -> Check<&[Value]> {
+    let branches = branches.as_array().ok_or("invalid anyOf")?;
+    if branches.len() != 2
+        || branches
+            .iter()
+            .filter(|branch| **branch == serde_json::json!({"type":"null"}))
+            .count()
+            != 1
+    {
+        return Err("unsupported anyOf: expected one value and null".into());
+    }
+    let value = branches
+        .iter()
+        .find(|branch| branch["type"] != "null")
+        .ok_or("missing optional value")?;
+    if value.get("$ref").is_none() && value["type"] != "string" {
+        return Err("unsupported anyOf value".into());
+    }
+    Ok(branches)
 }

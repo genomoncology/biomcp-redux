@@ -58,6 +58,10 @@ fn registry() -> [Contract; 5] {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Schema contract tests own file and environment I/O outside the pure library"
+)]
 fn checked_in_schemas_match_types() {
     let update = std::env::var_os("UPDATE_SCHEMAS").is_some_and(|value| value == "1");
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
