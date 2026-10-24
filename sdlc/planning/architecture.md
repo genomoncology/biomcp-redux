@@ -1583,14 +1583,14 @@ The description embeds a compact command tree of about 300 tokens, generated at 
 `biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 
 - Messages are newline-delimited JSON-RPC 2.0 objects. A JSON array is refused with an Invalid Request error, because batching is not part of the pinned revisions.
-- `initialize` negotiates the protocol version. The server holds a list of pinned revisions, such as 2025-06-18. It answers with the client's requested version when pinned, and otherwise with its newest pinned version.
+- The server supports two pinned revisions: 2026-07-28, the current one, and 2025-11-25, the last one with an `initialize` handshake. A small adapter at the protocol edge handles each era, and both feed one dispatcher. Current clients use `server/discover` and send the version in each request's metadata. Legacy clients send `initialize`, and the server answers with 2025-11-25. A request for any other revision gets the error the current specification names. A revision is added or dropped only with its cases.
 - Every notification is accepted silently, including `notifications/initialized` and `notifications/cancelled`.
 - `ping`, `tools/list` and `tools/call` are answered. Every other request gets a Method Not Found error.
 - `tools/call` parses `args` with `grammar::parse` and runs `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
 - The result carries the envelope as `structuredContent` and the same compact JSON as one text content block. `isError` is false for `complete`, `partial` and `absent`, which are answers. It is true for `usage`, `expired`, `failed` and `local`, whose envelope is the error envelope or a failed result. A malformed `tools/call`, such as a missing `args` or an unknown tool name, is a JSON-RPC Invalid Params error.
 - Each `tools/call` runs on its own thread with its own `Store`. All threads share one `Fetch`. Responses go out through one locked writer.
 
-`biomcp serve --replay DIR` runs the same server over recordings, which the runner uses. Cases cover each pinned revision's `initialize`, a notification, an array, an unknown method and each `isError` value.
+`biomcp serve --replay DIR` runs the same server over recordings, which the runner uses. Cases cover discovery and per-request versions on 2026-07-28, `initialize` on 2025-11-25, an unsupported revision, a notification, an array, an unknown method and each `isError` value.
 
 Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and one tool needs five methods.
 
@@ -1858,4 +1858,4 @@ Ian ruled on 2026-10-24, and this file applies each ruling:
 
 ## 14. Open questions
 
-1. **The pinned MCP revisions.** The MCP stage pins the revisions `mcp.rs` supports when it starts, and adds a revision only with its cases.
+None. Section 8.7 settles the pinned MCP revisions.
