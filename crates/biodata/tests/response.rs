@@ -41,7 +41,12 @@ fn every_section_state_round_trips_without_conflating_data_and_failure() {
 #[test]
 fn constraint_numbers_refuse_non_finite_values_and_empty_sections_omit_record() {
     for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-        assert_eq!(biodata::FiniteNumber::try_from(value).unwrap_err().to_string(), "number.non_finite");
+        assert_eq!(
+            biodata::FiniteNumber::try_from(value)
+                .unwrap_err()
+                .to_string(),
+            "number.non_finite"
+        );
     }
     for value in [0.0, -2.5, f64::MAX] {
         let checked = biodata::FiniteNumber::try_from(value).unwrap();

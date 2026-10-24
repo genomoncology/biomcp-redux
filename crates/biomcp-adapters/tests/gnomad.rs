@@ -120,9 +120,18 @@ fn source_preferred_transcript_fallback_and_mapping_problems_remain_independent(
         "ENST00000269305"
     );
     for flags in [Value::Null, json!({"unexpected":"value"})] {
-        let mut changed = body.clone(); changed["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
+        let mut changed = body.clone();
+        changed["data"]["g0"]["gnomad_constraint"]["flags"] = flags.clone();
         let values = call(recording.clone(), changed).unwrap();
-        assert!(values[0].constraint.value.as_ref().unwrap().flags.is_empty());
+        assert!(
+            values[0]
+                .constraint
+                .value
+                .as_ref()
+                .unwrap()
+                .flags
+                .is_empty()
+        );
         assert_eq!(values[0].constraint.problems.is_empty(), flags.is_null());
     }
     body["data"]["g0"]["gnomad_constraint"] = Value::Null;
@@ -148,10 +157,20 @@ fn source_preferred_transcript_fallback_and_mapping_problems_remain_independent(
 #[test]
 fn the_public_constraint_batch_refuses_empty_and_oversized_distinct_queries_before_io() {
     let directory = tempfile::tempdir().unwrap();
-    let fetch = Fetch::open(FetchConfig { mode: Mode::Replay { dir: directory.path().into() }, ..Default::default() }).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().into(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
     let leg = fetch.leg(&gnomad::SPEC, fetch.deadline(Duration::from_secs(20)));
     for count in [0, 21] {
-        let ids: Vec<_> = (0..count).map(|id| format!("ENSG{id:011}").parse().unwrap()).collect();
-        assert!(matches!(gnomad::constraints(&leg, &ids), Err(RequestError::Source(error)) if error.reason == Reason::BadReply));
+        let ids: Vec<_> = (0..count)
+            .map(|id| format!("ENSG{id:011}").parse().unwrap())
+            .collect();
+        assert!(
+            matches!(gnomad::constraints(&leg, &ids), Err(RequestError::Source(error)) if error.reason == Reason::BadReply)
+        );
     }
 }
