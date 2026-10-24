@@ -168,7 +168,10 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         },
     })
 }
-fn electronic_date(row: Element<'_>, print: Option<PartialDate>) -> Result<Option<PartialDate>, BadReply> {
+fn electronic_date(
+    row: Element<'_>,
+    print: Option<PartialDate>,
+) -> Result<Option<PartialDate>, BadReply> {
     for date in row.children("ArticleDate")? {
         if date.attr("DateType")?.as_deref() == Some("Electronic") {
             return Ok(pubdate(Some(date))?.filter(|electronic| Some(*electronic) != print));

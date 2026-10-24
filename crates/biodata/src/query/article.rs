@@ -356,17 +356,21 @@ impl ArticleSearch {
         if present.iter().filter(|term| term.is_some()).count() < 2 {
             return Vec::new();
         }
-        present.iter().enumerate().filter_map(|(index, term)| {
-            term.as_ref()?;
-            let mut next = self.page(0, None);
-            match index {
-                0 => next.0.text = None,
-                1 => next.0.variant = None,
-                2 => next.0.disease = None,
-                _ => next.0.drug = None,
-            }
-            Some(next)
-        }).collect()
+        present
+            .iter()
+            .enumerate()
+            .filter_map(|(index, term)| {
+                term.as_ref()?;
+                let mut next = self.page(0, None);
+                match index {
+                    0 => next.0.text = None,
+                    1 => next.0.variant = None,
+                    2 => next.0.disease = None,
+                    _ => next.0.drug = None,
+                }
+                Some(next)
+            })
+            .collect()
     }
     /// Exact variant selector, kept distinct from ordinary word search.
     pub fn variant(&self) -> Option<&Text> {
