@@ -20,6 +20,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::pubtator::SPEC,
     &crate::pmc_oa::SPEC,
     &crate::icite::SPEC,
+    &crate::semantic_scholar::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
@@ -134,6 +135,14 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("list-type", Arg::Num(2)),
                 ("prefix", Arg::Text("PMC5606870.")),
                 ("max-keys", Arg::Num(1)),
+            ],
+        ),
+        Source::SemanticScholar => (
+            "/paper/search",
+            vec![
+                ("query", Arg::Text("EGFR")),
+                ("limit", Arg::Num(1)),
+                ("fields", Arg::Text("externalIds,title,year")),
             ],
         ),
         Source::Icite => (

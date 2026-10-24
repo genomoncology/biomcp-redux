@@ -32,10 +32,13 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestErro
             continue;
         }
         items.push(ArticleItem {
-            key: ArticleKey::Pubmed(sentence.pmid.0),
+            key: Some(ArticleKey::Pubmed(sentence.pmid.0)),
             pmid: Some(sentence.pmid.0),
             found_by: [(ArticleSource::Litsense, (index + 1) as u32)].into(),
             cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
             header: None,
             sentence: Some(ArticleSentence {
                 section: sentence.section.and_then(crate::raw::Field::value),

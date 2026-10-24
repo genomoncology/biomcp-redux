@@ -280,6 +280,7 @@ fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
     for (field, id) in [
         ("pmid", "33123537"),
         ("pmcid", "PMC7573235"),
+        ("europepmc_id", "PPR1064174"),
         ("doi", "10.3389/fcell.2020.573599"),
     ] {
         let mut value = base.clone();
@@ -290,12 +291,32 @@ fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
     }
     for value in [base.clone(), {
         let mut value = base;
-        for field in ["pmid", "pmcid", "doi"] {
+        for field in ["pmid", "pmcid", "doi", "europepmc_id"] {
             value[field] = Value::Null;
         }
         value
     }] {
         assert!(!schema.is_valid(&value));
         assert!(serde_json::from_value::<Article>(value).is_err());
+    }
+}
+
+#[test]
+fn article_input_schema_preserves_preprint_local_identifiers() {
+    let schema = validator::<ArticleInput>();
+    for (id, valid) in [
+        ("PPR1295425", true),
+        ("PPR0001", true),
+        ("PPR0000", false),
+        ("PPR", false),
+        ("PPR1/other", false),
+    ] {
+        let value = json!(id);
+        assert_eq!(schema.is_valid(&value), valid, "{id}");
+        assert_eq!(
+            serde_json::from_value::<ArticleInput>(value).is_ok(),
+            valid,
+            "{id}"
+        );
     }
 }

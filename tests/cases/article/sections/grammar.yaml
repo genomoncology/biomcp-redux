@@ -14,7 +14,9 @@
         "/result/items/0/more": [
           "annotations",
           "fulltext",
-          "citations"
+          "supplements",
+          "citations",
+          "tldr"
         ],
         "/next/0/kind": "section",
         "/next/0/args": [
@@ -23,7 +25,9 @@
           "33123537",
           "annotations",
           "fulltext",
-          "citations"
+          "supplements",
+          "citations",
+          "tldr"
         ]
       },
       "max_bytes": 2900

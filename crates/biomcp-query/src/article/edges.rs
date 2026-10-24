@@ -47,7 +47,7 @@ fn execute<'a>(
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&request(query.identity(), references))
         .map_err(|_| CacheError::Database)?;
-    let key = Sha256::digest([b"biomcp.article_edges/1\0".as_slice(), &identity].concat());
+    let key = Sha256::digest([b"biomcp.article_edges/2\0".as_slice(), &identity].concat());
     let explicit = query.pool().map(Text::as_str);
     let pool = if cx.fresh && explicit.is_none() {
         None
@@ -93,7 +93,13 @@ fn create<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<Option<Vec<ArticleItem>>, RequestError> {
-    let parent = order::fetch(cx, deadline, &[query.pmid()]);
+    if query.source() == biodata::EdgeSource::SemanticScholar {
+        return super::semantic_edges::create(cx, query, references, deadline, out);
+    }
+    let Some(pmid) = query.pmid() else {
+        return Ok(None);
+    };
+    let parent = order::fetch(cx, deadline, &[pmid]);
     out.sources.push(parent.source);
     if let Some(error) = parent.local {
         return Err(error);
@@ -106,7 +112,7 @@ fn create<'a>(
     let ids = parent
         .rows
         .into_iter()
-        .find(|row| row.pmid == query.pmid())
+        .find(|row| row.pmid == pmid)
         .and_then(|row| {
             if references {
                 row.references
@@ -129,10 +135,13 @@ fn create<'a>(
     let mut items: Vec<_> = ids
         .into_iter()
         .map(|id| ArticleItem {
-            key: ArticleKey::Pubmed(id),
+            key: Some(ArticleKey::Pubmed(id)),
             pmid: Some(id),
             header: None,
             cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
             found_by: Default::default(),
             sentence: None,
         })

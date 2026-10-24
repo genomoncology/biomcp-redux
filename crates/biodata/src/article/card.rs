@@ -1,4 +1,4 @@
-use crate::{Capped, Doi, PartialDate, Pmcid, Pmid, PublicationType, Text};
+use crate::{Capped, Doi, EuropePmcId, PartialDate, Pmcid, Pmid, PublicationType, Text};
 use serde::{Deserialize, Serialize};
 // Keep the wire fields and checked entity in one declaration.
 macro_rules! article {
@@ -11,7 +11,8 @@ macro_rules! article {
             extend("anyOf" = [
                 {"required":["pmid"]},
                 {"required":["pmcid"]},
-                {"required":["doi"]}
+                {"required":["doi"]},
+                {"required":["europepmc_id"]}
             ])))]
         pub struct Article<A = Box<[Text]>> {
             $( $(#[$attribute])* pub $field: $ty, )*
@@ -25,7 +26,7 @@ macro_rules! article {
         impl<A> TryFrom<ArticleFields<A>> for Article<A> {
             type Error = &'static str;
             fn try_from(value: ArticleFields<A>) -> Result<Self, Self::Error> {
-                if value.pmid.is_none() && value.pmcid.is_none() && value.doi.is_none() {
+                if value.pmid.is_none() && value.pmcid.is_none() && value.doi.is_none() && value.europepmc_id.is_none() {
                     return Err("article identity required");
                 }
                 Ok(Self { $( $field: value.$field, )* })
@@ -34,6 +35,10 @@ macro_rules! article {
     };
 }
 article! {
+    /// Europe PMC identity when this card comes from its core record.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "EuropePmcId"))]
+    pub europepmc_id: Option<EuropePmcId>,
     /// PubMed identity.
     #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
@@ -67,6 +72,7 @@ impl Article {
     /// Disclose the first ten authors and retain the whole count.
     pub fn card(self) -> Article<Capped<Text>> {
         Article {
+            europepmc_id: self.europepmc_id,
             pmid: self.pmid,
             doi: self.doi,
             pmcid: self.pmcid,

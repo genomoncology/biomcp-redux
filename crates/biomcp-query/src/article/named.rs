@@ -35,6 +35,7 @@ pub(super) fn litsense<'a>(
         source: ArticleSource::Litsense,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }
@@ -82,10 +83,13 @@ pub(super) fn pubtator<'a>(
                 .ids
                 .into_iter()
                 .map(|id| ArticleItem {
-                    key: ArticleKey::Pubmed(id),
+                    key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     found_by: Default::default(),
                     cited_by: None,
+            intents: None,
+            influential: None,
+            contexts: None,
                     header: None,
                     sentence: None,
                 })
@@ -97,6 +101,7 @@ pub(super) fn pubtator<'a>(
         source: ArticleSource::Pubtator,
         outcome,
         items,
+        dois: Vec::new(),
         elapsed,
         error,
     }

@@ -42,7 +42,7 @@ fn bounded_parts_preserve_original_unicode_rows_and_escapes()
     assert!(reconstructed.contains(&"| AXIN2 row | Value |".to_owned()));
     assert!(reconstructed.contains(&format!("| Large cell | {} |", "β".repeat(13000))));
     assert!(reconstructed.contains(&"Trailing body text.".to_owned()));
-    assert_eq!(document.version, 12);
+    assert_eq!(document.version, Some(12));
     assert!(
         document
             .body

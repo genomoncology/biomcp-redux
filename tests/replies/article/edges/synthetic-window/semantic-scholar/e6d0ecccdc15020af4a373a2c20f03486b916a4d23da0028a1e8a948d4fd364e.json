@@ -1,0 +1,33 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A23000897/citations?limit=1000&fields=contexts%2Cintents%2CisInfluential%2CexternalIds%2Ctitle%2Cyear&offset=4000",
+  "exchanges": [
+    {
+      "fetched": 1792853305,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "next": 5000,
+          "data": [
+            {
+              "citingPaper": {
+                "paperId": "0000000000000000000000000000000000000005",
+                "externalIds": {},
+                "title": "Synthetic source page5.",
+                "year": 2020
+              },
+              "contexts": [],
+              "intents": [],
+              "isInfluential": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

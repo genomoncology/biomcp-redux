@@ -1,5 +1,7 @@
 //! Source-specific JATS body mapping after the transport's bounded XML check.
 mod blocks;
+mod supplements;
+pub use supplements::Supplement;
 mod body;
 mod parts;
 mod references;
@@ -31,6 +33,8 @@ pub struct Body {
     pub references: Vec<Reference>,
     /// Figure captions in source order.
     pub figures: Vec<FigureCaption>,
+    /// Explicit source supplementary-material declarations.
+    pub supplements: Vec<Supplement>,
 }
 impl<'de> Deserialize<'de> for Body {
     fn deserialize<D: Deserializer<'de>>(_: D) -> Result<Self, D::Error> {
@@ -68,6 +72,7 @@ impl XmlReply for Body {
         }
         Ok(Self {
             pmcid,
+            supplements: supplements::read(root.0)?,
             parts,
             rows,
             references: references::rows(root.0)?,

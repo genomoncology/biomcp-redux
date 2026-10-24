@@ -1,7 +1,7 @@
 {
   "$defs": {
     "ArticleInput": {
-      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
+      "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
     "ArticleSectionWord": {
@@ -9,6 +9,8 @@
       "enum": [
         "annotations",
         "fulltext",
+        "supplements",
+        "tldr",
         "citations",
         "all"
       ],
@@ -16,6 +18,8 @@
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
         " Licensed PMC body outline.",
+        " Supplementary files confirmed by PMC metadata.",
+        " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " Every landed article section."
       ]
@@ -35,6 +39,7 @@
         "pubmed",
         "europepmc",
         "litvar",
+        "semantic-scholar",
         "litsense",
         "pubtator"
       ],
@@ -55,6 +60,14 @@
     },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "EdgeSource": {
+      "description": "Graph edge provider, independent of article search providers.",
+      "enum": [
+        "icite",
+        "semantic-scholar"
+      ],
       "type": "string"
     },
     "GeneInput": {
@@ -107,8 +120,8 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
-    "Pmid": {
-      "pattern": "^[1-9][0-9]*$",
+    "SheetRows": {
+      "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
     "Text": {
@@ -117,10 +130,59 @@
       "type": "string"
     }
   },
-  "$id": "biodata.request/1",
+  "$id": "biodata.request/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Read a licensed supplementary file.",
+      "properties": {
+        "command": {
+          "const": "article_supplement",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact file name from the supplements section.",
+          "x-positional": 1
+        },
+        "find": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal case-insensitive needle."
+        },
+        "input": {
+          "$ref": "#/$defs/ArticleInput",
+          "description": "PubMed or PMC identity.",
+          "x-positional": 0
+        },
+        "offset": {
+          "default": 0,
+          "description": "Matching-row or text-fragment offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rows": {
+          "$ref": "#/$defs/SheetRows",
+          "description": "Inclusive original row range."
+        },
+        "sheet": {
+          "$ref": "#/$defs/Text",
+          "description": "Sheet name for row selection."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit protein substitution."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "file"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "anyOf": [
@@ -132,6 +194,11 @@
         {
           "required": [
             "find"
+          ]
+        },
+        {
+          "required": [
+            "variant"
           ]
         }
       ],
@@ -162,6 +229,10 @@
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Explicit checked protein substitution."
         }
       },
       "required": [
@@ -194,13 +265,18 @@
           "type": "integer"
         },
         "pmid": {
-          "$ref": "#/$defs/Pmid",
-          "description": "PMID whose graph edges to read.",
+          "$ref": "#/$defs/ArticleInput",
+          "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
           "x-positional": 0
         },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Fixed snapshot from an earlier page."
+        },
+        "source": {
+          "$ref": "#/$defs/EdgeSource",
+          "default": "icite",
+          "description": "Graph provider; iCite remains the default."
         }
       },
       "required": [
@@ -233,13 +309,18 @@
           "type": "integer"
         },
         "pmid": {
-          "$ref": "#/$defs/Pmid",
-          "description": "PMID whose graph edges to read.",
+          "$ref": "#/$defs/ArticleInput",
+          "description": "PMID, PMC or DOI; iCite accepts only a PMID.",
           "x-positional": 0
         },
         "pool": {
           "$ref": "#/$defs/Text",
           "description": "Fixed snapshot from an earlier page."
+        },
+        "source": {
+          "$ref": "#/$defs/EdgeSource",
+          "default": "icite",
+          "description": "Graph provider; iCite remains the default."
         }
       },
       "required": [
@@ -393,7 +474,7 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nlitsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.\npubtator: entity and relation search; needs the right entity ID, and uses full text where available.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.\nsemantic-scholar: broad discovery; an optional free key raises the limit.\nlitsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.\npubtator: entity and relation search; needs the right entity ID, and uses full text where available.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },

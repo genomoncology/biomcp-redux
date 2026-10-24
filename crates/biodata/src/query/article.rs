@@ -10,6 +10,8 @@ crate::macros::wire_enum! {
         Europepmc => "europepmc",
         /// Exact variant publications in LitVar2 native order.
         Litvar => "litvar",
+        /// Semantic Scholar native relevance order.
+        SemanticScholar => "semantic-scholar",
         /// Sentence resemblance in LitSense2 native order.
         Litsense => "litsense",
         /// PubTator3 entity and word search in native order.
@@ -84,6 +86,7 @@ struct Fields {
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
     /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
+    /// semantic-scholar: broad discovery; an optional free key raises the limit.
     /// litsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.
     /// pubtator: entity and relation search; needs the right entity ID, and uses full text where available.
     #[serde(default = "sources")]
