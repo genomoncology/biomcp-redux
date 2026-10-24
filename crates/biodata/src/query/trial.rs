@@ -19,7 +19,7 @@ crate::macros::wire_enum! {
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields"))]
-pub struct TrialSearch(Fields);
+pub struct TrialSearch(Box<Fields>);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -254,7 +254,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid);
             }
         }
-        Ok(Self(f))
+        Ok(Self(Box::new(f)))
     }
 }
 impl TrialSearch {

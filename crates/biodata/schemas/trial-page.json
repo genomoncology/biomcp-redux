@@ -1,0 +1,1403 @@
+{
+  "$defs": {
+    "Build": {
+      "description": "The assembly stated by the source; no default is inferred.",
+      "enum": [
+        "GRCh37",
+        "GRCh38",
+        "unstated"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Genome Reference Consortium human build 37.",
+        " Genome Reference Consortium human build 38.",
+        " Source did not state an assembly."
+      ]
+    },
+    "Contig": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "Cytoband": {
+      "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "EntrezGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Gene": {
+      "additionalProperties": false,
+      "description": "Human gene identity and whole source annotations, independent of response cards.",
+      "properties": {
+        "aliases": {
+          "description": "All stated HGNC aliases.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "ensembl_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Ensembl gene identifier, if stated."
+        },
+        "entrez_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EntrezGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "NCBI Gene identifier, if stated."
+        },
+        "hgnc_id": {
+          "$ref": "#/$defs/HgncId",
+          "description": "HGNC identifier."
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cytoband"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Single stated band, if available."
+        },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "HGNC locus group."
+        },
+        "locus_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocusType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "HGNC locus type, if stated and recognized."
+        },
+        "mane_select": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManeSelect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Versioned MANE Select transcript pair, if stated."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Gene name."
+        },
+        "omim": {
+          "description": "All stated OMIM identifiers.",
+          "items": {
+            "$ref": "#/$defs/OmimId"
+          },
+          "type": "array"
+        },
+        "previous_symbols": {
+          "description": "All stated previous symbols.",
+          "items": {
+            "$ref": "#/$defs/GeneSymbol"
+          },
+          "type": "array"
+        },
+        "spans": {
+          "description": "Source intervals with explicit assembly and counting rule.",
+          "items": {
+            "$ref": "#/$defs/GenomicInterval"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/GeneStatus",
+          "description": "HGNC record status."
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Summary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole attributed summary, if stated."
+        },
+        "symbol": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Source-preserved symbol."
+        },
+        "uniprot": {
+          "description": "All stated UniProt base accessions.",
+          "items": {
+            "$ref": "#/$defs/UniProtAcc"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol",
+        "status",
+        "locus_group",
+        "previous_symbols",
+        "aliases",
+        "uniprot",
+        "omim",
+        "spans",
+        "name"
+      ],
+      "type": "object"
+    },
+    "GeneHeader": {
+      "additionalProperties": false,
+      "description": "Enough gene identity to choose a search result.",
+      "properties": {
+        "hgnc_id": {
+          "$ref": "#/$defs/HgncId",
+          "description": "HGNC identifier."
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cytoband"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A single stated band, if available."
+        },
+        "locus_group": {
+          "$ref": "#/$defs/LocusGroup",
+          "description": "HGNC locus group."
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Match"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Match information when this header answers an input."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Gene name."
+        },
+        "status": {
+          "$ref": "#/$defs/GeneStatus",
+          "description": "HGNC record status."
+        },
+        "symbol": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Source-preserved symbol."
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol",
+        "locus_group",
+        "status",
+        "name"
+      ],
+      "type": "object"
+    },
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "GeneResolution": {
+      "description": "Resolution outcomes preserve ambiguity and withdrawn identity.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "One resolved identity and its source match.",
+          "properties": {
+            "gene": {
+              "$ref": "#/$defs/Gene",
+              "description": "The whole gene entity."
+            },
+            "match": {
+              "$ref": "#/$defs/Match",
+              "description": "How the source matched the input."
+            },
+            "resolution": {
+              "const": "resolved",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution",
+            "gene",
+            "match"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Every candidate, with no silent selection.",
+          "properties": {
+            "candidates": {
+              "description": "Ordered candidates supplied by the resolver.",
+              "items": {
+                "$ref": "#/$defs/GeneHeader"
+              },
+              "type": "array"
+            },
+            "resolution": {
+              "const": "ambiguous",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution",
+            "candidates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The original withdrawn identity and stated successors.",
+          "properties": {
+            "hgnc_id": {
+              "$ref": "#/$defs/HgncId",
+              "description": "Original HGNC identifier."
+            },
+            "hgnc_status": {
+              "$ref": "#/$defs/HgncStatus",
+              "description": "Stated HGNC withdrawn-file status."
+            },
+            "merged_into": {
+              "description": "All stated merge destinations.",
+              "items": {
+                "$ref": "#/$defs/HgncId"
+              },
+              "type": "array"
+            },
+            "resolution": {
+              "const": "withdrawn",
+              "type": "string"
+            },
+            "symbol": {
+              "$ref": "#/$defs/GeneSymbol",
+              "description": "Original symbol."
+            }
+          },
+          "required": [
+            "resolution",
+            "hgnc_id",
+            "symbol",
+            "hgnc_status",
+            "merged_into"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "No source identity matched.",
+          "properties": {
+            "resolution": {
+              "const": "not_found",
+              "type": "string"
+            }
+          },
+          "required": [
+            "resolution"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "GeneStatus": {
+      "description": "HGNC approval status.",
+      "enum": [
+        "approved",
+        "withdrawn"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " An HGNC approved record.",
+        " An HGNC withdrawn record."
+      ]
+    },
+    "GeneSymbol": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
+    },
+    "GenomicInterval": {
+      "additionalProperties": false,
+      "description": "An assembly-qualified zero-based half-open source interval.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source-stated assembly, explicitly unstated when absent."
+        },
+        "contig": {
+          "$ref": "#/$defs/Contig",
+          "description": "Source chromosome or scaffold name."
+        },
+        "span": {
+          "$ref": "#/$defs/Span0",
+          "description": "Checked zero-based half-open bounds; an empty span remains valid."
+        },
+        "strand": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Strand"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated strand, if available."
+        }
+      },
+      "required": [
+        "build",
+        "contig",
+        "span"
+      ],
+      "type": "object"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "HgncStatus": {
+      "description": "HGNC's stated withdrawn-file status.",
+      "enum": [
+        "Entry Withdrawn",
+        "Merged/Split"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Entry withdrawn.",
+        " Entry merged or split."
+      ]
+    },
+    "LocusGroup": {
+      "description": "HGNC locus group, separate from a missing source value.",
+      "enum": [
+        "protein_coding",
+        "non_coding_rna",
+        "pseudogene",
+        "phenotype",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Protein coding.",
+        " Non-coding RNA.",
+        " Pseudogene.",
+        " Phenotype.",
+        " HGNC's stated other group."
+      ]
+    },
+    "LocusType": {
+      "description": "HGNC locus type; Unknown is a source-stated value, distinct from absence.",
+      "enum": [
+        "gene_with_protein_product",
+        "rna_cluster",
+        "long_non_coding_rna",
+        "micro_rna",
+        "misc_rna",
+        "ribosomal_rna",
+        "small_nuclear_rna",
+        "small_nucleolar_rna",
+        "transfer_rna",
+        "vault_rna",
+        "y_rna",
+        "phenotype_only",
+        "pseudogene",
+        "complex_locus_constituent",
+        "endogenous_retrovirus",
+        "fragile_site",
+        "immunoglobulin_gene",
+        "immunoglobulin_pseudogene",
+        "readthrough",
+        "region",
+        "t_cell_receptor_gene",
+        "t_cell_receptor_pseudogene",
+        "transposable_element",
+        "unknown",
+        "virus_integration_site"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC gene with protein product.",
+        " HGNC rna cluster.",
+        " HGNC long non coding rna.",
+        " HGNC micro rna.",
+        " HGNC misc rna.",
+        " HGNC ribosomal rna.",
+        " HGNC small nuclear rna.",
+        " HGNC small nucleolar rna.",
+        " HGNC transfer rna.",
+        " HGNC vault rna.",
+        " HGNC y rna.",
+        " HGNC phenotype only.",
+        " HGNC pseudogene.",
+        " HGNC complex locus constituent.",
+        " HGNC endogenous retrovirus.",
+        " HGNC fragile site.",
+        " HGNC immunoglobulin gene.",
+        " HGNC immunoglobulin pseudogene.",
+        " HGNC readthrough.",
+        " HGNC region.",
+        " HGNC t cell receptor gene.",
+        " HGNC t cell receptor pseudogene.",
+        " HGNC transposable element.",
+        " HGNC unknown.",
+        " HGNC virus integration site."
+      ]
+    },
+    "ManeSelect": {
+      "additionalProperties": false,
+      "description": "A MANE Select pair whose two accessions both state their versions.",
+      "properties": {
+        "ensembl": {
+          "pattern": "^ENST[0-9]{11}\\.[1-9][0-9]*$",
+          "type": "string"
+        },
+        "refseq": {
+          "pattern": "^(NM_|NR_)[0-9]{6,}\\.[1-9][0-9]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "refseq",
+        "ensembl"
+      ],
+      "type": "object"
+    },
+    "Match": {
+      "additionalProperties": false,
+      "description": "A source-stated match, preserving the text that matched.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/MatchKind",
+          "description": "The match category."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "The source text that matched the input."
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "MatchKind": {
+      "description": "How a source matched a gene input.",
+      "enum": [
+        "symbol",
+        "previous_symbol",
+        "alias",
+        "ncbi_alias",
+        "hgnc_id",
+        "entrez_id",
+        "ensembl_id",
+        "band"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Current symbol.",
+        " Previous symbol.",
+        " HGNC alias.",
+        " NCBI-only alias.",
+        " HGNC identifier.",
+        " NCBI Gene identifier.",
+        " Ensembl gene identifier.",
+        " Cytogenetic band."
+      ]
+    },
+    "NctId": {
+      "pattern": "^NCT(?!00000000)[0-9]{8}$",
+      "type": "string"
+    },
+    "OmimId": {
+      "pattern": "^[0-9]{6}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PhaseFilter": {
+      "description": "Explicit source phase selection, including the registry's combined phases.",
+      "enum": [
+        "early-1",
+        "1",
+        "2",
+        "3",
+        "4",
+        "not-applicable",
+        "1/2",
+        "2/3"
+      ],
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "civic",
+        "oncokb"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " CIViC.",
+        " OncoKB."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        }
+      },
+      "required": [
+        "source",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Span0": {
+      "additionalProperties": false,
+      "description": "A zero-based half-open span with ordered bounds; empty spans are valid.",
+      "properties": {
+        "end": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start": {
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "SponsorType": {
+      "description": "Registry funding category facet.",
+      "enum": [
+        "nih",
+        "fed",
+        "industry",
+        "other"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Strand": {
+      "description": "Source-stated forward or reverse strand.",
+      "enum": [
+        "+",
+        "-"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Forward strand.",
+        " Reverse strand."
+      ]
+    },
+    "StudyType": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "INTERVENTIONAL",
+        "OBSERVATIONAL",
+        "EXPANDED_ACCESS"
+      ],
+      "type": "string"
+    },
+    "Summary": {
+      "additionalProperties": false,
+      "description": "A whole source-provided summary with attribution and stated date precision.",
+      "properties": {
+        "dated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Date stated by the source, if any."
+        },
+        "source": {
+          "$ref": "#/$defs/SummarySource",
+          "description": "The summary's attribution, independent of the fetching provider."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Entire summary text."
+        }
+      },
+      "required": [
+        "text",
+        "source"
+      ],
+      "type": "object"
+    },
+    "SummarySource": {
+      "description": "The attribution on a source-provided summary, independent of fetch providers.",
+      "enum": [
+        "refseq"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " RefSeq attribution."
+      ]
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "TrialHeader": {
+      "additionalProperties": false,
+      "description": "Small source-attributed trial discovery record.",
+      "properties": {
+        "conditions": {
+          "description": "Source condition names.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "interventions": {
+          "description": "Source intervention names.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "nct_id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact registry identity."
+        },
+        "phases": {
+          "description": "Source phases; absent phases remain absent.",
+          "items": {
+            "$ref": "#/$defs/TrialPhase"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/TrialStatus",
+          "description": "Registry's overall status, independent of site status."
+        },
+        "title": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete brief title."
+        },
+        "updated": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Last posted registry update."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher's canonical record URL."
+        }
+      },
+      "required": [
+        "nct_id",
+        "title",
+        "status",
+        "phases",
+        "conditions",
+        "interventions",
+        "updated",
+        "url"
+      ],
+      "type": "object"
+    },
+    "TrialPage": {
+      "additionalProperties": false,
+      "description": "Registry page preserving source order and exact request parameters.",
+      "properties": {
+        "attribution": {
+          "description": "Publisher attribution.",
+          "type": "string"
+        },
+        "gene_resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unresolved gene identity, without a registry request."
+        },
+        "items": {
+          "description": "Native study headers in registry order.",
+          "items": {
+            "$ref": "#/$defs/TrialHeader"
+          },
+          "type": "array"
+        },
+        "request": {
+          "description": "Exact parameters sent to the study search endpoint.",
+          "items": {
+            "$ref": "#/$defs/TrialParameter"
+          },
+          "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Registry's source processing timestamp, independently of retrieval time."
+        }
+      },
+      "required": [
+        "items",
+        "request",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "TrialParameter": {
+      "additionalProperties": false,
+      "description": "One exact source request parameter, in canonical name order.",
+      "properties": {
+        "name": {
+          "description": "Native parameter name.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Exact unencoded parameter value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "TrialPhase": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "EARLY_PHASE1",
+        "PHASE1",
+        "PHASE2",
+        "PHASE3",
+        "PHASE4",
+        "NA"
+      ],
+      "type": "string"
+    },
+    "TrialSearch": {
+      "additionalProperties": false,
+      "description": "Checked registry search with source-native filters.",
+      "properties": {
+        "age": {
+          "description": "Age in years; unstated source bounds count as no limit.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "condition": {
+          "$ref": "#/$defs/Text",
+          "description": "Condition-only source text."
+        },
+        "count_only": {
+          "default": false,
+          "description": "Source total only; no returned study rows.",
+          "type": "boolean"
+        },
+        "criteria": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal eligibility-field discovery text."
+        },
+        "distance": {
+          "$ref": "#/$defs/Text",
+          "description": "Source distance with explicit mi or km units."
+        },
+        "facility": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact registry facility field; cannot combine with radius."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Resolve one checked gene before registry discovery."
+        },
+        "has_results": {
+          "default": false,
+          "description": "Require posted source results.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/NctId",
+          "description": "Exact NCT identity in a conjunction with other filters."
+        },
+        "intervention": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source intervention text."
+        },
+        "lat": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center latitude in degrees."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Headers per page; default ten, maximum one hundred.",
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "lon": {
+          "$ref": "#/$defs/Text",
+          "description": "Radius center longitude in degrees."
+        },
+        "next_page": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque registry continuation; keep filters unchanged."
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseFilter",
+          "description": "Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3."
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "General registry discovery text.",
+          "x-positional": 0
+        },
+        "sex": {
+          "$ref": "#/$defs/TrialSex",
+          "description": "Registry sex facet."
+        },
+        "sponsor": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact lead sponsor field."
+        },
+        "sponsor_type": {
+          "$ref": "#/$defs/SponsorType",
+          "description": "Registry sponsor funding facet."
+        },
+        "status": {
+          "$ref": "#/$defs/TrialStatus",
+          "description": "Exact registry overall status."
+        },
+        "study_type": {
+          "$ref": "#/$defs/StudyType",
+          "description": "Exact registry study type."
+        },
+        "updated_since": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "First included registry update date."
+        },
+        "updated_until": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Last included registry update date."
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Caller-supplied variant discovery text; no eligibility inference."
+        }
+      },
+      "type": "object"
+    },
+    "TrialSex": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ALL",
+        "FEMALE",
+        "MALE"
+      ],
+      "type": "string"
+    },
+    "TrialStatus": {
+      "description": "Source-native registry value.",
+      "enum": [
+        "ACTIVE_NOT_RECRUITING",
+        "COMPLETED",
+        "ENROLLING_BY_INVITATION",
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "WITHDRAWN",
+        "AVAILABLE",
+        "NO_LONGER_AVAILABLE",
+        "APPROVED_FOR_MARKETING",
+        "WITHHELD",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "UniProtAcc": {
+      "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.trial_page/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/TrialSearch",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TrialPage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.trial_page/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}
