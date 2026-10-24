@@ -50,7 +50,7 @@ impl Reply for Rows {
 /// Read native gene rows as candidates until a transcript/consequence join is established.
 pub fn gene(leg: &Leg<'_>, gene: &GeneSymbol) -> Result<Mapped<Vec<HotspotRecord>>, RequestError> {
     let segment = PathSegment::new(gene.as_str()).map_err(RequestError::Input)?;
-    let endpoint = GENE.child(&segment).map_err(RequestError::Input)?;
+    let endpoint = GENE.clone().with_segments(&[segment]);
     let raw: Rows = leg.json_checked_cache(&endpoint, &[], |rows: &Rows| {
         rows.0.iter().all(|r| &r.hugo_symbol == gene)
     })?;

@@ -20,7 +20,15 @@ pub(super) fn page(
     for profile in raw.nodes {
         profiles.push(map(profile, query, allele, &mut problems)?);
     }
-    let page = bounds(query.section_offset(), profiles.len(), raw.total_count);
+    let page = bounds(
+        if query.civic_profile().is_some() {
+            0
+        } else {
+            query.section_offset()
+        },
+        profiles.len(),
+        raw.total_count,
+    );
     let next = if query.civic_profile().is_none() && raw.page_info.has_next_page {
         Some(
             query.at_section_offset(
