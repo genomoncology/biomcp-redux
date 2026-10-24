@@ -1,0 +1,37 @@
+{
+  "feature": "gene-sections",
+  "story": "A missing user key skips OncoKB without changing gene status",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "oncokb"
+      ],
+      "mcp": [
+        "get",
+        "gene",
+        "TP53",
+        "oncokb"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/oncokb/state": "skipped",
+        "/result/items/0/sections/oncokb/reason": "no_key",
+        "/sources": {
+          "includes": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no_key"
+          }
+        },
+        "/next/*/kind": {
+          "includes": "key"
+        }
+      },
+      "max_bytes": 3000
+    }
+  ]
+}
