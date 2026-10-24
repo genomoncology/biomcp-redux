@@ -76,7 +76,7 @@ fn walk() -> Result<(), String> {
 }
 fn body(request: &str) -> Result<String, String> {
     if !request.starts_with(
-        "GET /v1/query?q=dbnsfp.genename%3AEGFR+AND+dbnsfp.hgvsp%3A%22p.L858R%22&size=1&from=",
+        "GET /v1/query?q=dbnsfp.genename%3AEGFR%20AND%20dbnsfp.hgvsp%3A%22p.L858R%22&size=1&from=",
     ) || !request.contains("&assembly=hg19 HTTP/1.1")
     {
         return Err(format!("incorrect query request: {request}"));

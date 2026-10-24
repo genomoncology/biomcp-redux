@@ -1,5 +1,5 @@
 use super::gene::{QueryInvalid, present};
-use crate::{Build, Chromosome, GeneSymbol, ProteinChange, Text, macros::text_value};
+use crate::{Build, Chromosome, GeneSymbol, ProteinChange, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 crate::macros::wire_enum! {
@@ -44,6 +44,21 @@ text_value!(
     "VariantRegion",
     r"^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$"
 );
+
+/// Explicit MyVariant query text, preserving surrounding whitespace and source syntax.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MyVariantQuery(Box<str>);
+impl FromStr for MyVariantQuery {
+    type Err = QueryInvalid;
+    fn from_str(value: &str) -> Result<Self,Self::Err> {
+        if value.trim().is_empty() || value.len()>2048 || value.chars().any(char::is_control) { return Err(QueryInvalid); }
+        Ok(Self(value.into()))
+    }
+}
+impl fmt::Display for MyVariantQuery {
+    fn fmt(&self,f:&mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+}
+text_value!(MyVariantQuery,"MyVariantQuery",r"\S");
 /// Discover source candidates using one declared selector, without interpreting free text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -88,8 +103,8 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    query: Option<Text>,
+    #[cfg_attr(feature = "schema", schemars(with = "MyVariantQuery"))]
+    query: Option<MyVariantQuery>,
     /// Assembly sent to MyVariant. Protein and raw queries default to GRCh37; regions require it explicitly.
     #[serde(
         default,
@@ -136,9 +151,8 @@ impl TryFrom<Fields> for VariantSearch {
         if !(protein || region || raw)
             || !(1..=50).contains(&f.limit)
             || f.offset >= 10_000
-            || f.query.as_ref().is_some_and(|q| {
-                q.as_str().len() > 2048 || q.as_str().chars().any(char::is_control)
-            })
+            || f.gene.as_ref().is_some_and(|g| !g.as_str().bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b,b'-'|b'_'|b'.')))
+
         {
             return Err(QueryInvalid);
         }
@@ -149,7 +163,7 @@ impl VariantSearch {
     /// Exact declared source query; no alternative notation or free-text guessing.
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
-            return q.as_str().to_owned();
+            return q.to_string();
         }
         if let Some(region) = &self.0.region {
             return region.to_string();
