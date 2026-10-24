@@ -191,6 +191,7 @@ pub enum Mode {
     },
     /// Serve only checked cache entries, including stale positive replies.
     Offline,
+    /// Request a provider using the checked cache policy.
     Live {
         /// Skip cached reads and stale fallback.
         fresh: bool,
