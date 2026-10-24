@@ -40,8 +40,36 @@ pub(super) fn search<'a>(
     );
     let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
     *deadline = deadline.after_stage(elapsed);
+    resolve_rows(cx, query, &mut results, deadline, out)?;
+    let failed_pubmed = results
+        .iter()
+        .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some());
+    let answered = results.iter().any(|r| r.error.is_none());
+    let error = results
+        .iter()
+        .filter_map(|r| r.error)
+        .find(|e| status::local(*e).is_some());
+    for result in &results {
+        out.sources.push(result.outcome.clone());
+    }
+    if let Some(error) = error {
+        return Err(error);
+    }
+    if failed_pubmed || !answered {
+        out.status = Status::Failed;
+        return Ok(None);
+    }
+    Ok(Some(super::fold::fold(
+        results.into_iter().map(|r| (r.source, r.items)).collect(),
+        query.sources().len() > 1,
+    )))
+}
+fn resolve_rows<'a>(
+    cx: &Ctx<'a>, query: &ArticleSearch, results: &mut [ResultLeg],
+    deadline: &mut Deadline<'a>, out: &mut Outcome,
+) -> Result<(), RequestError> {
     let mut join_failures = Vec::new();
-    for result in &mut results {
+    for result in results.iter_mut() {
         if result.source == ArticleSource::SemanticScholar
             && result.items.iter().any(|item| {
                 item.pmid.is_none() && item.header.as_ref().is_some_and(|h| h.doi.is_some())
@@ -66,34 +94,12 @@ pub(super) fn search<'a>(
             .iter_mut()
             .find(|r| r.outcome.source == failure.source)
         {
-            existing.outcome.state = failure.state;
-            existing.outcome.reason = failure.reason;
+            status::retain_source_state(&mut existing.outcome, &failure);
         } else {
             out.sources.push(failure);
         }
     }
-    let failed_pubmed = results
-        .iter()
-        .any(|r| r.source == ArticleSource::Pubmed && r.error.is_some());
-    let answered = results.iter().any(|r| r.error.is_none());
-    let error = results
-        .iter()
-        .filter_map(|r| r.error)
-        .find(|e| status::local(*e).is_some());
-    for result in &results {
-        out.sources.push(result.outcome.clone());
-    }
-    if let Some(error) = error {
-        return Err(error);
-    }
-    if failed_pubmed || !answered {
-        out.status = Status::Failed;
-        return Ok(None);
-    }
-    Ok(Some(super::fold::fold(
-        results.into_iter().map(|r| (r.source, r.items)).collect(),
-        query.sources().len() > 1,
-    )))
+    Ok(())
 }
 fn pubmed_search<'a>(
     cx: &Ctx<'a>,

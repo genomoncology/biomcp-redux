@@ -56,3 +56,13 @@ pub(crate) fn append(
         }
     }
 }
+
+/// Preserve a failed or stale source leg when later metadata from it succeeds.
+pub(crate) fn retain_source_state(target: &mut SourceOutcome, incoming: &SourceOutcome) {
+    if target.state != SourceState::Failed
+        && (target.state != SourceState::Stale || incoming.state == SourceState::Failed)
+    {
+        target.state = incoming.state;
+        target.reason = incoming.reason;
+    }
+}
