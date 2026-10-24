@@ -1,0 +1,1 @@
+Identity and MyGene replies reuse the existing public gene captures. HGNC is trimmed to BRAF, TP53 and MIR21. Reactome replies are recorded through the shared transport. Subdirectories named synthetic contain explicitly edited failure exchanges.
