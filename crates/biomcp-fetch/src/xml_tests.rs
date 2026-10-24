@@ -20,6 +20,6 @@ fn inline_markup_preserves_variant_text_order_and_whitespace() -> Result<(), cra
         assert_eq!(text.as_str(), expected, "{xml}");
     }
     let deep = format!("<raw>{}text{}</raw>", "<i>".repeat(64), "</i>".repeat(64));
-    assert_eq!(MixedText::from_xml(&deep), Err(crate::BadReply));
+    assert!(matches!(MixedText::from_xml(&deep), Err(crate::BadReply)));
     Ok(())
 }

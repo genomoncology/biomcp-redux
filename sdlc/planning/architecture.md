@@ -1085,6 +1085,7 @@ pub(super) struct ArticleSet { #[serde(rename = "PubmedArticle")] pub articles: 
 pub(super) struct AbstractLabel {
     #[serde(rename = "@Label")] pub label: Option<String>,
 }
+#[derive(Deserialize)]
 pub(super) struct AbstractText { pub label: Option<String>, pub text: MixedText }
 impl AbstractText {
     fn decode_element(xml: &str) -> Result<Self, BadReply> {
