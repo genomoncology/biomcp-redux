@@ -79,7 +79,7 @@
   "$id": "biodata.article_header/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Citation metadata owned by PubMed.",
+  "description": "Citation metadata from PubMed or Europe PMC.",
   "properties": {
     "author_count": {
       "description": "Whole source author count.",

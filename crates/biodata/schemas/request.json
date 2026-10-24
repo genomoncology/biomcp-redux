@@ -21,7 +21,7 @@
       "type": "string"
     },
     "ArticleType": {
-      "description": "Publication-type selectors sent to PubMed.",
+      "description": "Publication-type selectors sent to the named sources.",
       "enum": [
         "trial",
         "randomized",
@@ -196,7 +196,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Gene input resolved through HGNC."
+          "description": "Gene input; PubMed resolves it through HGNC."
         },
         "journal": {
           "$ref": "#/$defs/Text",
@@ -245,7 +245,7 @@
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Words sent to PubMed in its default fields.",
+          "description": "Words sent to each named source in its default fields.",
           "x-positional": 0
         },
         "type": {
