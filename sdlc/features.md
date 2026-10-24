@@ -11,7 +11,7 @@ gene-clingen: A caller sees ClinGen validity and dosage records from a synchroni
 gene-constraint: A caller sees population constraint metrics with the source version. Cases: `tests/cases/gene/sections/constraint.yaml`.
 gene-oncokb: A caller sees OncoKB gene roles with their own key or a skipped-source explanation without one. Cases: `tests/cases/gene/sections/oncokb-*.yaml`.
 gene-retired: A caller using a retired gene spelling receives its fixed replacement or removal explanation. Cases: `tests/cases/gene/retired.yaml`.
-article-search: A caller walks a stable PubMed relevance window with totals, checked gene terms and explicit failures. Cases: `tests/cases/article/search/*.yaml`.
+article-search: A caller walks stable native source windows with totals, checked selectors, optional source keys and explicit failures. Cases: `tests/cases/article/search/*.yaml`, `tests/cases/article/fold/*.yaml`, `tests/cases/article/semantic-scholar/*.yaml`, `crates/biomcp/tests/runner/scholar.rs`.
 article-filters: A caller narrows article results by author, journal, dates and publication type before paging. Cases: `tests/cases/article/filters/*.yaml`.
 article-fold: A caller combines PubMed and Europe PMC results while retaining each source's native rank and missing-source outcomes. Cases: `tests/cases/article/fold/*.yaml`.
 article-litvar: A caller selects an exact variant, receives source candidates for ambiguity and combines its publications with other article sources in a stable pool. Cases: `tests/cases/article/litvar/*.yaml`, `crates/biomcp/tests/runner/litvar_tables.rs`.
@@ -23,7 +23,11 @@ article-retired: A caller using a retired article spelling receives its fixed re
 mcp-parity: A caller sends the CLI argument array through the MCP tool and receives the same command result. Cases: `tests/cases/mcp/*.yaml`.
 schema-discovery: A caller retrieves versioned schemas and receives a fixed usage envelope for invalid requests. Cases: `tests/cases/schema/*.yaml`.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures. Cases: `crates/biomcp/tests/runner/corporate.rs`.
+markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
+article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.
 source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests. Cases: `crates/biomcp/tests/runner/source_controls.rs`.
-live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`.
-
+live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`, `crates/biomcp/tests/runner/live_follow_proof.rs`.
+article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters. Cases: `tests/cases/article/litsense/*.yaml`, `tests/cases/article/pubtator/*.yaml`, `crates/biomcp/tests/runner/named_search.rs`.
+article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
+article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID. Cases: `tests/cases/article/preprint/*.yaml`.
 mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health. Cases: `crates/biomcp/tests/runner/http.rs`, `crates/biomcp/tests/runner/http_limits.rs`.

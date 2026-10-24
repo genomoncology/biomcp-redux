@@ -16,9 +16,11 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::pubmed::SPEC,
     &crate::europepmc::SPEC,
     &crate::litvar::SPEC,
+    &crate::litsense::SPEC,
     &crate::pubtator::SPEC,
     &crate::pmc_oa::SPEC,
     &crate::icite::SPEC,
+    &crate::semantic_scholar::SPEC,
 ];
 /// Expand checked source names and the two user-selectable terms groups.
 pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
@@ -57,6 +59,18 @@ pub fn probe(
         return leg.probe(
             &crate::litvar::AUTOCOMPLETE,
             &[("query", biomcp_fetch::Arg::Text("rs121434592"))],
+        );
+    }
+    if spec.source == Source::LitSense {
+        return leg.probe(
+            &crate::litsense::SENTENCES,
+            &[
+                (
+                    "query",
+                    biomcp_fetch::Arg::Text("AKT1 E17K capivasertib breast cancer"),
+                ),
+                ("rerank", biomcp_fetch::Arg::Text("true")),
+            ],
         );
     }
     if spec.source == Source::Oncokb {
@@ -121,6 +135,14 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("list-type", Arg::Num(2)),
                 ("prefix", Arg::Text("PMC5606870.")),
                 ("max-keys", Arg::Num(1)),
+            ],
+        ),
+        Source::SemanticScholar => (
+            "/paper/search",
+            vec![
+                ("query", Arg::Text("EGFR")),
+                ("limit", Arg::Num(1)),
+                ("fields", Arg::Text("externalIds,title,year")),
             ],
         ),
         Source::Icite => (

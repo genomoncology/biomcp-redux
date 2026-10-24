@@ -1,6 +1,7 @@
 # 0064 — Print the Markdown view for every gene and article command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ba4536c4142bc8974556ed228b87a3b34ac9f70c
 
 Milestone: 1
 

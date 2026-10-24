@@ -8,10 +8,13 @@ mod http_limits;
 mod launch;
 mod litvar_tables;
 pub(crate) mod live;
+mod live_follow_proof;
 mod live_proof;
 mod markdown;
+mod markdown_shapes;
 mod markdown_sources;
 mod mcp;
+mod named_search;
 mod negative_cases;
 mod network_stub;
 mod pmc_tables;
@@ -23,7 +26,10 @@ mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
+mod scholar;
+mod semantic_tables;
 mod source_controls;
+mod supplement_tables;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -227,9 +233,15 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.push(Trial::test(
+        "article-supplements/ping-after-bounded-refusal",
+        || supplement_tables::ping_after_refusal().map_err(Into::into),
+    ));
     trials.extend(live_proof::trials());
+    trials.extend(live_follow_proof::trials());
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
+    trials.extend(named_search::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
@@ -237,11 +249,13 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(scholar::trials());
     trials.extend(source_controls::trials());
 
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(markdown::trials());
+    trials.extend(markdown_shapes::trials());
     trials.extend(markdown_sources::trials());
     trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
         held_proxy::check().map_err(Into::into)

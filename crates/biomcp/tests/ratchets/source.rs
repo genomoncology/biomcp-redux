@@ -8,6 +8,10 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Own bounded HTTP connection workers and join completed handles",
     ),
     (
+        "crates/biomcp-adapters/src/pmc_oa/supplement.rs",
+        "Retain one parsed binary reply across its checked cache admission callback",
+    ),
+    (
         "crates/biomcp-fetch/src/observe.rs",
         "Serialize bounded opt-in attempt summaries across transport workers",
     ),

@@ -120,15 +120,20 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
         let spec = server.spec(
             shared,
             KeyUse::Optional(Credential {
-                secret: SecretName::NcbiApiKey,
+                secret: SecretName::SemanticScholarApiKey,
                 place: KeyPlace::Header("x-api-key"),
             }),
         );
+        assert_eq!(
+            shared.interval(configured),
+            Duration::from_secs(if configured { 1 } else { 2 })
+        );
         let mut config = FetchConfig::default();
         if configured {
-            config
-                .secrets
-                .insert(SecretName::NcbiApiKey, Secret::new("placeholder"));
+            config.secrets.insert(
+                SecretName::SemanticScholarApiKey,
+                Secret::new("placeholder"),
+            );
         }
         let fetch = Fetch::open(config).unwrap();
         let (sent, receive) = mpsc::channel();
@@ -143,7 +148,13 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             });
             let first = server.next();
             let started = first.started;
-            assert_eq!(first.text.contains("placeholder"), configured);
+            assert_eq!(
+                first
+                    .text
+                    .to_ascii_lowercase()
+                    .contains("x-api-key: placeholder"),
+                configured
+            );
             first.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
             let second = server.next();
@@ -152,6 +163,7 @@ fn configured_optional_key_selects_keyed_rate_without_bypassing_shared_queue() {
             second.ok();
             assert!(receive.recv().unwrap().unwrap().answer);
         });
+        assert!(server.requests.try_recv().is_err());
     }
 }
 

@@ -68,3 +68,14 @@ pub(crate) static ICITE: Quota =
 // Conservative local LitVar2 policy; no published numeric rate verified.
 pub(crate) static LITVAR: Quota =
     Quota::new(SourceKey::declare("litvar"), Rate::per_second(3), None, 3);
+
+// Conservative local LitSense2 policy; no published numeric rate verified.
+pub(crate) static LITSENSE: Quota =
+    Quota::new(SourceKey::declare("litsense"), Rate::per_second(3), None, 3);
+// Conservative shared-pool keyless policy; keyed introductory provider limit.
+pub(crate) static SEMANTIC_SCHOLAR: Quota = Quota::new(
+    SourceKey::declare("semantic-scholar"),
+    Rate::every_seconds(2),
+    Some(Rate::per_second(1)),
+    1,
+);

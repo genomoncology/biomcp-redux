@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Licensed supplement reader.
+    ArticleSupplement(crate::ArticleSupplementResult),
     /// A selected source cannot apply the checked filters.
     UnsupportedFilter {
         /// Selected source that cannot apply the filter.

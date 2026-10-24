@@ -1,18 +1,33 @@
 use super::gene::{QueryInvalid, present};
 use crate::{GeneInput, PartialDate, Text};
 use serde::{Deserialize, Serialize};
-/// Source selectors supported by article search.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["pubmed", "europepmc", "litvar"])))]
-pub enum ArticleSource {
-    /// PubMed's own result order.
-    Pubmed,
-    /// Europe PMC native relevance or publication-date order.
-    Europepmc,
-    /// Exact variant publications in LitVar2 native order.
-    Litvar,
+crate::macros::wire_enum! {
+    /// Source selectors supported by article search.
+    ArticleSource {
+        /// PubMed's own result order.
+        Pubmed => "pubmed",
+        /// Europe PMC native relevance or publication-date order.
+        Europepmc => "europepmc",
+        /// Exact variant publications in LitVar2 native order.
+        Litvar => "litvar",
+        /// Semantic Scholar native relevance order.
+        SemanticScholar => "semantic-scholar",
+        /// Sentence resemblance in LitSense2 native order.
+        Litsense => "litsense",
+        /// PubTator3 entity and word search in native order.
+        Pubtator => "pubtator",
+    }
+}
+// Preserve the original declaration order for source provenance keys.
+impl Ord for ArticleSource {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (*self as u8).cmp(&(*other as u8))
+    }
+}
+impl PartialOrd for ArticleSource {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
 }
 /// Article ordering supported by this command.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -71,6 +86,9 @@ struct Fields {
     /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
     /// europepmc: words in open full text, and preprints.
     /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
+    /// semantic-scholar: broad discovery; an optional free key raises the limit.
+    /// litsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.
+    /// pubtator: entity and relation search; needs the right entity ID, and uses full text where available.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,

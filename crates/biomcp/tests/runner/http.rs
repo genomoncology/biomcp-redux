@@ -240,7 +240,12 @@ fn protocols() -> Check {
     for result in [results.0, results.1] {
         let (status, value) = result?;
         if status != 200 || value.pointer("/result/structuredContent") != Some(&expected) {
-            return Err("concurrent equal IDs lost stdio parity".into());
+            let actual = value.pointer("/result/structuredContent").unwrap_or(&value);
+            let changed = expected.as_object().into_iter().flatten().filter(|(key, old)| actual.get(*key) != Some(*old))
+                .map(|(key, old)| format!("{key}: expected={} actual={}", old.to_string().chars().take(400).collect::<String>(),
+                    actual.get(key).unwrap_or(&Value::Null).to_string().chars().take(400).collect::<String>()))
+                .collect::<Vec<_>>().join("; ");
+            return Err(format!("concurrent equal IDs lost stdio parity: status={status}; {changed}"));
         }
     }
     Ok(())

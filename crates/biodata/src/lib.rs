@@ -6,12 +6,18 @@ pub use article::{
     CorrectionRelation,
 };
 pub use article::{ArticleHeader, PublicationType};
-pub use id::{Doi, EuropePmcId, Pmcid, Pmid};
-pub use query::ArticleText;
+pub use id::{Doi, EuropePmcId, Pmcid, Pmid, SemanticScholarId};
 pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType};
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
+pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleItem, ArticleKey, ArticlePage, LitVarCandidate, PoolInfo, SourceNotice};
+pub use response::{
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+};
+pub use response::{
+    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    SupplementFile, Supplements,
+};
 pub use response::{
     ArticleTextResult, FigureCaption, FullText, License, TextContent, TextHit, TextPart,
     TextPartKind,
@@ -65,11 +71,10 @@ pub use response::{
     ReactomeId, ReactomeIdInvalid, RnaAbundance, TissueNtpm,
 };
 
-pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections};
+pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 
+pub use query::{ArticleEdges, EdgeSource};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
 mod markdown;
 pub use markdown::Markdown;
-pub use query::ArticleEdges;
-pub use response::{ArticleEdgePage, Citations};
-
 pub use response::{Health, HttpHealth, SourceHealth};

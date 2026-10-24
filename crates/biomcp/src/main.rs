@@ -34,7 +34,7 @@ fn main() -> ExitCode {
         return exit::finish(mcp::serve(globals, fetch), exit::Status::Success);
     }
     match command::dispatch(&args) {
-        Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),
+        Ok(outcome) => exit::finish(output::command(&outcome, &args), outcome.status),
         Err(error) => exit::finish(Err(error), exit::Status::Success),
     }
 }

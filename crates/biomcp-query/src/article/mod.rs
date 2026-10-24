@@ -2,11 +2,17 @@
 mod edges;
 mod fold;
 pub mod get;
+mod named;
 mod next;
 mod order;
 mod page;
+mod preprint;
+mod protein_change;
 mod sections;
+mod semantic_edges;
+pub mod semantic_scholar;
 mod sources;
+pub mod supplement;
 mod term;
 pub mod text;
 use crate::{Action, Ctx, Outcome, status, store::Store};
@@ -27,6 +33,18 @@ pub fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     if let Err(error) = result {
         out.local = status::local(error);
         out.status = Status::Failed;
+    }
+    if out.sources.iter().any(|source| {
+        source.source == biodata::Source::SemanticScholar
+            && source.reason == Some(biodata::Reason::RateLimited)
+    }) {
+        out.next.insert(
+            0,
+            (
+                StepKind::Key,
+                Action::KeyHelp(biodata::Source::SemanticScholar),
+            ),
+        );
     }
     out
 }
@@ -56,19 +74,23 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let (term, gene) = if query.sources().contains(&biodata::ArticleSource::Pubmed)
+            let resolved = if query.sources().contains(&biodata::ArticleSource::Pubmed)
                 || query.sources().contains(&biodata::ArticleSource::Litvar)
+                || query.sources().contains(&biodata::ArticleSource::Pubtator)
+                    && !cx.fetch.disabled(biodata::Source::PubTator)
             {
                 let Some(term) = term::resolve(cx, query, deadline, out)? else {
                     return Ok(());
                 };
                 term
             } else {
-                (String::new(), None)
+                term::Resolved {
+                    term: String::new(),
+                    symbol: None,
+                    entrez: None,
+                }
             };
-            let Some(mut items) =
-                sources::search(cx, query, &term, gene.as_deref(), deadline, out)?
-            else {
+            let Some(mut items) = sources::search(cx, query, &resolved, deadline, out)? else {
                 if out.status != Status::Absent {
                     retry(query, None, out);
                 }
@@ -160,6 +182,28 @@ pub fn unsupported(query: &ArticleSearch) -> Option<(biodata::Source, biodata::A
         ]) {
             return Some((biodata::Source::LitVar, option));
         }
+    }
+    for (selector, source) in [
+        (S::Litsense, biodata::Source::LitSense),
+        (S::Pubtator, biodata::Source::PubTator),
+    ] {
+        if query.sources().contains(&selector)
+            && let Some(option) = query.rejects(&[
+                F::Author,
+                F::Journal,
+                F::Since,
+                F::Until,
+                F::Type,
+                F::DateSort,
+            ])
+        {
+            return Some((source, option));
+        }
+    }
+    if query.sources().contains(&S::SemanticScholar) {
+        return query
+            .rejects(&[F::Author, F::Journal, F::Type, F::DateSort])
+            .map(|filter| (biodata::Source::SemanticScholar, filter));
     }
     None
 }
