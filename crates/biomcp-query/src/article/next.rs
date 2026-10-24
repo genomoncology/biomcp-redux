@@ -17,20 +17,26 @@ pub(super) fn get(query: &ArticleGet, out: &mut Outcome) {
         let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
             continue;
         };
-        let input = card.pmid.map(ArticleInput::Pmid).or_else(|| card.europepmc_id.clone().map(ArticleInput::EuropePmc));
-        let Some(input) = input else { continue; };
+        let input = card
+            .pmid
+            .map(ArticleInput::Pmid)
+            .or_else(|| card.europepmc_id.clone().map(ArticleInput::EuropePmc));
+        let Some(input) = input else {
+            continue;
+        };
         if !item.more.is_empty() {
             let words = item
                 .more
                 .iter()
                 .filter_map(|s| s.to_string().parse().ok())
                 .collect();
-            if let Ok(query) = ArticleGet::with_sections(vec![input].into(), words)
-            {
+            if let Ok(query) = ArticleGet::with_sections(vec![input].into(), words) {
                 push(&mut out.next, StepKind::Section, Request::GetArticle(query));
             }
         }
-        let Some(id) = card.pmid else { continue; };
+        let Some(id) = card.pmid else {
+            continue;
+        };
         push(
             &mut out.next,
             StepKind::Disambiguate,
