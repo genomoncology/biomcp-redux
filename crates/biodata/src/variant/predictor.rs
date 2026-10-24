@@ -76,17 +76,48 @@ pub struct VariantCosmic {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CosmicRecord {
-    /// Exact source-qualified subject.
-    pub subject: VariantRef,
+    /// MyVariant parent record association; this does not establish allele equivalence.
+    pub myvariant_record: Text,
+    /// Fragment identity has not been independently verified.
+    pub identity: CosmicIdentity,
     /// Native COSMIC record identifier.
     pub cosmic_id: Text,
+    /// Unmodified source reference spelling.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference: Option<Text>,
+    /// Unmodified source alternate spelling.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alternate: Option<Text>,
+    /// Source chromosome label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chromosome: Option<Text>,
+    /// Source hg19 coordinates, without allele construction.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hg19: Option<CosmicCoordinates>,
     /// Source nucleotide text, without repair or normalization.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mut_nt: Option<Text>,
-    /// Source frequency; never recomputed.
+    /// Source frequency; units and denominator are not inferred.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mut_freq: Option<FiniteNumber>,
     /// Every source tumor-site label in native order.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub tumor_site: Box<[Text]>,
+}
+crate::macros::wire_enum! {
+    /// Relationship between a carried historical fragment and its aggregator record.
+    CosmicIdentity {
+        /// The fragment's exact allele equivalence has not been established.
+        Unverified => "unverified",
+    }
+}
+/// Historical coordinates exactly as carried by the component.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CosmicCoordinates {
+    /// Source start value, without coordinate conversion.
+    pub start: u64,
+    /// Source end value, without coordinate conversion.
+    pub end: u64,
 }
