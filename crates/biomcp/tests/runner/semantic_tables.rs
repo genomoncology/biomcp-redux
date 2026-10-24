@@ -2,7 +2,7 @@
 use super::response_cases::{case, checked_case};
 use serde_json::json;
 type Check = Result<(), Box<dyn std::error::Error>>;
-const CAPTURE: &str = "article/edges/live-references";
+const CAPTURE: &str = "article/edges/live";
 const ARGS: &[&str] = &[
     "article",
     "references",
