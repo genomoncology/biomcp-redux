@@ -79,7 +79,14 @@ fn invoke(env: &Environment, args: Vec<String>, bad: bool) -> Result<Value, Stri
         clean(bytes)?;
     }
     if output.status.code() != Some(if bad { 4 } else { 0 }) || !output.stderr.is_empty() {
-        return Err("credential containment returned the wrong command outcome".into());
+        let parsed: Value = serde_json::from_slice(&output.stdout).unwrap_or(Value::Null);
+        return Err(format!(
+            "containment command exit {:?}, expected {}; status {:?}, source reason {:?}",
+            output.status.code(),
+            if bad { 4 } else { 0 },
+            parsed.get("status"),
+            parsed.pointer("/sources/0/reason")
+        ));
     }
     let out: Value =
         serde_json::from_slice(&output.stdout).map_err(|_| "invalid containment output")?;
