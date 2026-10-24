@@ -102,11 +102,19 @@ fn execute<'a>(
         } else {
             let bytes = pmc_oa::download(&leg, file)?;
             content.sha256 = Some(
-                Text::new(&format!("{:x}", Sha256::digest(&bytes)))
+                Text::new(&Sha256::digest(&bytes).iter().map(|v| format!("{v:02x}")).collect::<String>())
                     .map_err(|_| failure(Reason::BadReply))?,
             );
             let sheets = sheet::read(&bytes, file.file.kind, leg.remaining()).map_err(failure)?;
-            if !page::select(query, &sheets, &mut content, out, std::time::Instant::now() + leg.remaining()).map_err(failure)? {
+            if !page::select(
+                query,
+                &sheets,
+                &mut content,
+                out,
+                std::time::Instant::now() + leg.remaining(),
+            )
+            .map_err(failure)?
+            {
                 out.body = QueryBody::TextPositionError;
                 return Ok(Section::NotApplicable);
             }
