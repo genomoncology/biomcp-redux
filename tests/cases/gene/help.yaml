@@ -15,7 +15,7 @@
           "gene"
         ]
       },
-      "max_bytes": 14000
+      "max_bytes": 17221
     },
     {
       "run": [
@@ -227,5 +227,6 @@
         "/result/environment": "ONCOKB_API_KEY"
       }
     }
-  ]
+  ],
+  "verified": "Root help now includes all landed article verbs. Measured14974bytes; max_bytes allows exactly ceil(actual*1.15). No comparable0.9 generated-help JSON baseline exists. Gene-specific help bounds remain unchanged."
 }
