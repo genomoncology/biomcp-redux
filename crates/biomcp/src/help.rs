@@ -62,7 +62,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print a checked-in schema artifact.",
         ),
         (
-            vec!["help", "[get gene|get article|search gene|search article]"],
+            vec!["help", "[COMMAND...]"],
             "Print generated command help.",
         ),
         (
@@ -146,7 +146,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Run BioMCP commands. Human gene queries return one card or page by default; use sections for details.".into()];
+    let mut lines = vec!["Run BioMCP commands. Queries return one card or page by default; request sections for details.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
         for argument in command.arguments {

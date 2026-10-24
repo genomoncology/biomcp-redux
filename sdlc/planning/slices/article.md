@@ -25,30 +25,54 @@ The slice's bar is the PubMed floor. A plain PubMed search by relevance must nev
 
 ### Commands and options
 
-| 0.9 command | Options | Sources it calls | What it returns |
-| --- | --- | --- | --- |
-| `search article [QUERY]` | `-g`, `-d`, `--drug`, `-a`, `-k`/`-q`/`--query`, `--date-from`/`--since`, `--date-to`/`--until`, `--year-min`, `--year-max`, `--type`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, `--ranking-mode`, four `--weight-*` flags, `--source`, `--max-per-source`, `--session`, `--limit` 1-50, `--offset`, `--debug-plan`, `--full` | PubTator3, Europe PMC, PubMed and Semantic Scholar by default; LitSense2 only with `--source litsense2`; Semantic Scholar, PubTator3 and Europe PMC enrich rows | Rows of PMID, PMCID, DOI, title, journal, date, citation count, source and retraction flag; no total |
-| `get article <ID> [SECTIONS]` | sections `annotations`, `indexing`, `fulltext`, `tldr`, `assets`, `asset <key>`, `all`; `--pdf`, `--outline`, `--lines`, `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | PubTator3 export, Europe PMC, PubMed EFetch and Semantic Scholar for the default card | Card with title, authors, journal, date, one publication type, citations, abstract and a Semantic Scholar block |
-| section `annotations` | | PubTator3 | Entity mentions |
-| section `indexing` | | PubMed EFetch | Authors, affiliations, ORCID, MeSH |
-| section `fulltext` | `--pdf`, `--outline`, `--lines`, `--out` | Europe PMC XML, NCBI EFetch PMC, PMC OA, preprint XML, PMC HTML, then Semantic Scholar PDF with `--pdf` | Writes the text to a cache file and returns its path and coverage |
-| section `tldr` | | Semantic Scholar | One-sentence summary and influence counts |
-| section `assets` | `--asset-view`, `--asset-limit`, `--asset-offset` | PMC OA, Europe PMC supplementary files, JATS links, PMC HTML links, Figshare | JSON-only manifest of figures and supplementary files |
-| section `asset <key>` | `--output`, `--out` | Same as `assets` | Raw bytes of one file |
-| `article authors <ID>` | | Semantic Scholar | Authors as Semantic Scholar lists them |
-| `article entities <PMID>` | `--limit`, `--full` | PubTator3 | Annotated entities as suggested commands |
-| `article batch <IDS>...` | | PubTator3, Europe PMC, Semantic Scholar | Compact cards for up to 20 IDs |
-| `batch article <IDS>` | `--mode`, `--sections`, `--pdf` | Same as `get article` | Same, in parallel |
-| `article citations <ID>` | `--limit` 1-100, `--offset` | Semantic Scholar | Citing papers with citation contexts and intents |
-| `article references <ID>` | `--limit` 1-100, `--offset` | Semantic Scholar | Cited papers with contexts and intents |
-| `article citation-evidence <CITING> <CITED>` | `--fulltext` | Semantic Scholar, Europe PMC XML, OpenCitations | The passage that cites the second paper |
-| `article supplement-search <ID> <NEEDLE>` | `--asset` | Same as `assets` | Supplement rows that contain the text, with sheet, row and checksum |
-| `article recommendations <IDS>...` | `--negative`, `--limit` | Semantic Scholar | Related papers |
-| `variant articles [ID]` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy`, `--limit`, `--offset` | PubMed, Europe PMC, PubTator3, Semantic Scholar, LitVar2, MyVariant citations | Article rows for one to ten variants |
-| `gene articles`, `disease articles`, `drug articles`, `pathway articles` | `--limit`, `--offset` | Same as `search article` | Article rows for one entity name |
-| MCP | the shared `search` and `get` tools and a separate `variant_articles` tool | | |
+| 0.9 command | Options | Sources it calls | What it returns | 1.0 |
+| --- | --- | --- | --- | --- |
+| `search article [QUERY]` | `-g`, `-d`, `--drug`, `-a`, `-k`/`--keyword`/`-q`/`--query`, `--date-from`/`--since`, `--date-to`/`--until`, `--year-min`, `--year-max`, `--type`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, `--ranking-mode`, four `--weight-*` flags, `--source`, `--max-per-source`, `--session`, `--limit` 1-50, `--offset`, `--debug-plan`, `--full` | PubTator3, Europe PMC, PubMed and Semantic Scholar by default; LitSense2 only with `--source litsense2`; Semantic Scholar, PubTator3 and Europe PMC enrich rows | Rows of PMID, PMCID, DOI, title, journal, date, citation count, source and retraction flag; no total | `search article [TEXT]`; the option decisions below give every renamed or retired flag. `--source` defaults to PubMed; native source orders replace blends. |
+| `get article <ID> [SECTIONS]` | sections `annotations`, `indexing`, `fulltext`, `tldr`, `assets`, `asset <key>`, `all`; `--pdf`, `--outline`, `--lines`, `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | PubTator3 export, Europe PMC, PubMed EFetch and Semantic Scholar for the default card | Card with title, authors, journal, date, one publication type, citations, abstract and a Semantic Scholar block | `get article <INPUT>... [SECTION]...`; `--section WORD` disambiguates section-shaped inputs. PDF uses the `pdf` section; file and line flags move to the readers below. |
+| section `annotations` | | PubTator3 | Entity mentions | `get article <ID> annotations`. |
+| section `indexing` | | PubMed EFetch | Authors, affiliations, ORCID, MeSH | `get article <ID> indexing`; no extra source request. |
+| section `fulltext` | `--pdf`, `--outline`, `--lines`, `--out` | Europe PMC XML, NCBI EFetch PMC, PMC OA, preprint XML, PMC HTML, then Semantic Scholar PDF with `--pdf` | Writes the text to a cache file and returns its path and coverage | `get article <ID> fulltext` gives the outline; `article text <ID> --part N` reads bounded Markdown. `get article <ID> pdf` and `article text <ID> --pdf` select PDF explicitly. No file writes. |
+| section `tldr` | | Semantic Scholar | One-sentence summary and influence counts | `get article <ID> tldr`; source failures leave the card intact. |
+| section `assets` | `--asset-view`, `--asset-limit`, `--asset-offset` | PMC OA, Europe PMC supplementary files, JATS links, PMC HTML links, Figshare | JSON-only manifest of figures and supplementary files | `get article <ID> supplements`; lists source-confirmed supplementary files, excludes figure images, and returns license and availability. |
+| section `asset <key>` | `--output`, `--out` | Same as `assets` | Raw bytes of one file | `article supplement <ID> <FILE>` reads supported rows; unsupported formats retain the source URL. No raw-byte export. |
+| `article authors <ID>` | | Semantic Scholar | Authors as Semantic Scholar lists them | Retired: `use: get article <id>...`; the card carries authors. |
+| `article entities <PMID>` | `--limit`, `--full` | PubTator3 | Annotated entities as suggested commands | Retired: `use: get article <id> annotations`; the section carries normalized entities. |
+| `article batch <IDS>...` | | PubTator3, Europe PMC, Semantic Scholar | Compact cards for up to 20 IDs | Retired: `use: get article <id>...`; up to 20 inputs preserve input order. |
+| `batch article <IDS>` | `--mode`, `--sections`, `--pdf` | Same as `get article` | Same, in parallel | Retired: `use: get article <id>...`; `--mode` is dropped, `--sections` becomes trailing sections and `--pdf` becomes the explicit `pdf` section. |
+| `article citations <ID>` | `--limit` 1-100, `--offset` | Semantic Scholar | Citing papers with citation contexts and intents | `article citations <ID> --source semantic-scholar` keeps contexts and intents; default `icite` gives the PubMed graph ordered by count. Paging uses `--limit`, `--offset`, `--pool`. |
+| `article references <ID>` | `--limit` 1-100, `--offset` | Semantic Scholar | Cited papers with contexts and intents | `article references <ID> --source semantic-scholar`; default `icite` gives the PubMed graph. Paging uses the same cursor fields. |
+| `article citation-evidence <CITING> <CITED>` | `--fulltext` | Semantic Scholar, Europe PMC XML, OpenCitations | The passage that cites the second paper | `article citation-evidence <CITING> <CITED> [--fulltext]` keeps source contexts and optional citing paragraphs. |
+| `article supplement-search <ID> <NEEDLE>` | `--asset` | Same as `assets` | Supplement rows that contain the text, with sheet, row and checksum | Retired: `use: article supplement <id> <file> --find <text>`; `--variant CHANGE` explicitly expands protein-change forms. `--asset` becomes the positional exact file name. |
+| `article recommendations <IDS>...` | `--negative`, `--limit` | Semantic Scholar | Related papers | `article recommendations <IDS>... [--negative IDS] [--limit N]`; native recent-paper recommendations, including an explicit empty result. |
+| `variant articles [ID]` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy`, `--limit`, `--offset` | PubMed, Europe PMC, PubTator3, Semantic Scholar, LitVar2, MyVariant citations | Article rows for one to ten variants | Retired: `use: search article --variant <variant>`; `--gene` supplies a protein change's gene. No hidden strategy, verification score, request-file input or local filtering. Paging uses the shared pool. |
+| `gene articles`, `disease articles`, `drug articles`, `pathway articles` | `--limit`, `--offset` | Same as `search article` | Article rows for one entity name | `gene articles`: `search article --gene`; `disease articles`: `search article --disease`; `drug articles`: fixed guidance to `search article --drug`; `pathway articles`: moved to the pathway slice. |
+| MCP | the shared `search` and `get` tools and a separate `variant_articles` tool | | | One `biomcp` MCP tool accepts the CLI argument array; the old tool names retire. |
+PDF extraction and its proposed 1.0 spellings await the PM ruling requested on 2026-10-24. Their entries below describe the pending design, not shipped help or behavior.
 
 The article family holds 16 commands and 88 arguments, options and section names, not counting the three global flags.
+
+
+### Leaf-command parity accounting
+
+The historical denominator counts leaves and command-specific long option spellings; short aliases share their option's slot. Long aliases such as `--since` are distinct historical spellings. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` remains undecided until the pathway slice chooses its inputs.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search article` | Ported or renamed | `--gene`, `--disease`, `--drug`, `--author`, `--keyword`, `--query`, `--date-from`, `--since`, `--date-to`, `--until`, `--year-min`, `--year-max`, `--type`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, `--source`, `--limit`, `--offset` | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | — | Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling. |
+| `get article` | Ported or renamed | `--pdf`, `--outline`, `--lines` | `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | — | Section 5 moves explicit PDF and parts into sections and readers; standard output replaces local file export. |
+| `article authors` | Ported or renamed | — | — | — | Section 1 maps author disclosure to the article card. |
+| `article entities` | Ported or renamed | — | `--limit`, `--full` | — | Section 5 maps normalized entities to the annotations section with one bounded shape. |
+| `article batch` | Ported or renamed | — | — | — | Section 1 maps repeated inputs to get article. |
+| `article citations` | Ported or renamed | `--limit`, `--offset` | — | — | Section 5 keeps the Semantic Scholar graph one source option away and adds iCite as the default. |
+| `article references` | Ported or renamed | `--limit`, `--offset` | — | — | Section 5 keeps contexts and intents through the explicit graph source. |
+| `article citation-evidence` | Ported or renamed | `--fulltext` | — | — | Section 5 preserves the pair reader and optional citing paragraphs. |
+| `article supplement-search` | Ported or renamed | `--asset` | — | — | Section 5 replaces the asset selector with the exact file positional input of article supplement. |
+| `article recommendations` | Ported or renamed | `--negative`, `--limit` | — | — | Section 5 preserves native positive and negative seed recommendations. |
+| `variant articles` | Ported or renamed | `--limit`, `--offset` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | — | The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice. |
+| `disease articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 moves the capability to search article --disease. |
+| `pathway articles` | Not yet decided | — | — | `--limit`, `--offset` | Section 5 moves pathway identifiers and paging to the pathway slice; the retired spelling names that move. |
+<!-- /parity-accounting -->
 
 ### Speed and size
 
@@ -329,7 +353,7 @@ The agent chooses the strategy. BioMCP runs only the sources the agent named, ke
 
 There is no `all` value. The agent lists the sources it wants. iCite is not a search source; it supplies citation counts for `--sort citations`, the `citations` section and the citation graph. LitSense2, PubTator3 and Semantic Scholar stay as named sources by Ian's ruling, and none of them is ever part of the default.
 
-A LitSense2 item carries `sentence`, the best-scoring sentence LitSense2 returned for that paper, with its section, because the sentence is what LitSense2 found. Other sources' items carry no sentence.
+A LitSense2 item carries `sentence`, the first sentence LitSense2 returned for that paper in native order, with its section, because the sentence is what LitSense2 found. Other sources' items carry no sentence.
 
 #### The default
 
@@ -355,9 +379,9 @@ The article reader holds a private `ProteinChange`, until the shared variant not
 
 `--source pubmed,litvar` runs each named source in parallel with its own deadline, then folds the results at build:
 
-1. **Resolve identifiers.** Rows with a DOI and no PMID are resolved to PMIDs, by Semantic Scholar's own PubMed ID when it gives one, or by one ESearch per 100 DOIs with `[doi]`. A resolved PMID's record must carry the same DOI, or the row keeps its DOI alone.
-2. **Deduplicate, within each source and across sources.** The key is the PMID, then the PMCID, then the DOI, then the Europe PMC ID. Distinct PMIDs never merge. A source that returns one paper twice keeps its first rank.
-3. **Show who found it.** Each item carries `found_by`, a map from source to that source's native rank, such as `{"pubmed": 2, "semantic-scholar": 13}`.
+1. **Resolve identifiers.** Rows with a DOI and no PMID retain their raw DOI until they are resolved to PMIDs, by Semantic Scholar's own PubMed ID when it gives one, or by one ESearch per 100 DOIs with `[doi]`. A resolved PMID's record must carry the same DOI, or the row keeps its DOI alone.
+2. **Deduplicate, within each source and across sources.** The key is the PMID, then the PMCID, then the DOI, then the Europe PMC ID. Distinct PMIDs never merge. A source that returns one paper twice keeps its first rank. A citation edge with no usable identifier has no key, is never deduplicated against another anonymous edge, and has no fabricated get action. Such rows still count and keep their source contexts.
+3. **Show who found it.** Each item keeps its source identity and may omit its header when hydration fails. A missing title never discards a DOI needed for a join. Each item carries `found_by`, a map from source to that source's native rank, such as `{"pubmed": 2, "semantic-scholar": 13}`.
 4. **Lay it out by a stated rule.**
 
 | `--sort` | Rule | Applies to |
@@ -525,7 +549,7 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 
 **Abstract.** The abstract is the card's main content, 60 to 75% of its tokens.
 
-**Full text and supplements come from one source each.** For a PMC article, `fulltext` and `supplements` come only from the PMC OA bucket. Its JSON record gives the license, `xml_url` for the JATS full text and `media_urls` for every supplementary file, in one call of about 0.15 s; the JATS file for PMC9116274 downloaded in 0.2 s. A PMCID does not mean open full text: PMC13020499 and PMC13020505 have no body and no OA files. A PMCID that the bucket does not hold gives both sections `unavailable` with reason `not_open`. A paper with no PMCID gives `not_applicable`. For a preprint, `fulltext` comes from Europe PMC `fullTextXML` through the same JATS reader: PPR1295425 returned 92 KB of JATS under CC BY in 0.7 s, and PPR1064174 answered 500, which gives `unavailable` with reason `not_open`. NCBI EFetch for PMC and Europe PMC's supplement files are not used, so each section has one source, as rule 2 of section 3.10 asks.
+**Full text and supplements come from one source each.** For a PMC article, `fulltext` and `supplements` come only from the PMC OA bucket. Its JSON record gives the license, `xml_url` for the JATS full text and `media_urls` for every supplementary file, in one call of about 0.15 s; the JATS file for PMC9116274 downloaded in 0.2 s. A PMCID does not mean open full text: PMC13020499 and PMC13020505 have no body and no OA files. A PMCID that the bucket does not hold gives both sections `unavailable` with reason `not_open`. A paper with no PMCID gives `not_applicable`. For a preprint, `fulltext` comes from Europe PMC `fullTextXML` through the same JATS reader: PPR1295425 returned 92 KB of JATS under CC BY in 0.7 s, and PPR1064174 answered 500, which gives `unavailable` with the retained source-failure reason. NCBI EFetch for PMC and Europe PMC's supplement files are not used, so each section has one source, as rule 2 of section 3.10 asks.
 
 **Licenses.** Text under a text-mining license or a non-commercial license is served only by the local CLI and MCP, for the user's own use, and never by a later web mode. Each section and reader reply names the license.
 
@@ -540,10 +564,10 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 - **Confinement.** The URL comes from a third party, so BioMCP accepts only `https` or `http`, a DNS host name and no IP literal, follows at most three redirects and checks each one by the same rules, and sends no credential. The body must start with `%PDF-`, or the section is `unavailable` with reason `not_pdf`.
 - **Limits.** Downloads stop at 25 MB. The reader extracts at most the first 100 pages and marks `truncated` with the page count when there are more. Extraction runs on the leg's thread under the leg's deadline. An encrypted PDF gives `unsupported`. A PDF with no text layer, such as a scan, gives `empty`. A panic or a parse error inside the extractor gives `unavailable` with reason `bad_reply`.
 - **Output.** The section holds `origin: pdf`, the URL, Semantic Scholar's open access status and license, the page count, and parts of at most 4,000 tokens, each with its first and last page. Every PDF reply carries `origin: pdf` and the notice `pdf_text`: the text was extracted from a PDF, so headings, tables, symbols and reading order may be wrong. PDF text is plain text, not Markdown. The extracted parts are stored with the pool store for a week. The PDF bytes are not stored.
-- **States.** On 2026-10-24, 41351423 (Front Biosci 2025, CC BY, no PMCID) named `storage.imrpress.com`, which returned a 4.8 MB, 16-page PDF; the extractor read 79,744 characters in 45 ms, and "E17K" appears 9 times. 17611497 is `closed` with an empty URL, which gives `unavailable` with reason `not_open`. 22663011 names a publisher PDF that answered HTTP 403 with an HTML page, which gives `unavailable` with reason `rejected`. 33377972 names a PMC page that answered HTTP 200 with HTML, not a PDF, which gives `unavailable` with reason `not_pdf`.
+- **States.** On 2026-10-24, 41351423 (Front Biosci 2025, CC BY, no PMCID) named `storage.imrpress.com`, which returned a 4.8 MB, 16-page PDF; the extractor read 79,744 characters in 45 ms, and "E17K" appears 9 times. 17611497 is `closed` with an empty URL, which gives `unavailable` with the retained source-failure reason. 22663011 names a publisher PDF that answered HTTP 403 with an HTML page, which gives `unavailable` with reason `rejected`. 33377972 names a PMC page that answered HTTP 200 with HTML, not a PDF, which gives `unavailable` with reason `not_pdf`.
 - **Crate.** `pdf-extract` 0.12.1 (MIT, released 2026-09-16, pure Rust on `lopdf`) reads the text page by page. With the repo's `deny.toml` its 75 crates pass `cargo deny` except `unicode-normalization` 0.1.26 under `Unicode-3.0`, which needs a license exception like the one `unicode-ident` already has. `pdf_oxide` 0.3.78 pulls 170 crates and five more licenses outside the allowlist.
 
-`next` on a card names only sections that can have data behind them: `fulltext` and `supplements` only when the paper has a PMCID or is a preprint with full text. A `fulltext` section that is `not_applicable` or `unavailable` with reason `not_open` names `get article <ID> pdf`. A card always names `tldr` as a choice, because whether Semantic Scholar holds a summary is unknown until asked.
+`next` on a card names only sections that can have data behind them: `fulltext` when the paper has a PMCID or is a preprint with full text, and `supplements` only when it has a PMCID. A `fulltext` section that is `not_applicable` or `unavailable` with reason `not_open` names `get article <ID> pdf`. A card always names `tldr` as a choice, because whether Semantic Scholar holds a summary is unknown until asked.
 
 ### Readers for full text and supplementary files
 
@@ -555,6 +579,8 @@ Closed sets: `PublicationType` (non-exhaustive: `randomized_controlled_trial`, `
 | `article supplement <ID> <FILE>` | Without `--find`, returns the file's sheet list with each sheet's row count, and pages of rows by range with `--rows A-B` | 200 rows per page |
 | `article supplement <ID> <FILE> --find TEXT` | Returns matching rows with the sheet, row number, header row and the file's SHA-256. The header row is the sheet's first row | 25 hits per call. The match is literal and ignores case |
 | `article supplement <ID> <FILE> --variant CHANGE`, `article text <ID> --variant CHANGE` | The same hits for any form of a protein change | `ProteinChange` parses the change, and the reply prints the forms it searched: for P245S, `P245S`, `Pro245Ser`, `p.P245S` and `p.Pro245Ser`. Each form matches literally, ignoring case |
+
+Binary reply recordings use ordered per-exchange `.bin` sidecars. Each path stays inside its recording directory; replay rejects escapes and symlinks and consumes exchanges in order. Disabled sources are refused before replay or cache reads. Workbook validation precedes cache admission. CSV, TSV, TXT and XLSX readers share bounded row output, preserve original row and column positions, and treat only original row one as a header. PDF, DOCX and image supplements remain unsupported and expose the source URL.
 
 #### Body text as Markdown
 
@@ -617,13 +643,12 @@ On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 
 | 0.9 feature | Ruling | Reason |
 | --- | --- | --- |
 | `search article [QUERY]` | Keep, change | One positional `TEXT`. Default is plain PubMed relevance |
-| `-k` | Drop | The positional `TEXT` carries the words |
-| `-q` | Drop | Same |
-| `--query` | Drop | Same |
-| `-g`/`--gene` | Keep, change | Resolved through HGNC and sent as the approved symbol and the input as typed. Example 26 |
-| `-d`/`--disease` | Keep | Words for PubMed's MeSH mapping |
+| `-k`/`--keyword` | Rename to positional `TEXT` | `-k` returns fixed migration guidance; `--keyword` is refused by checked grammar. The words remain available as TEXT |
+| `-q`/`--query` | Rename to positional `TEXT` | Both return `use: search article <text>` |
+| `-g`/`--gene` | `--gene`; short flag retired | Resolved through HGNC and sent as the approved symbol and the input as typed. Example 26 |
+| `-d`/`--disease` | `--disease`; short flag retired | Words for PubMed's MeSH mapping |
 | `--drug` | Keep | Same |
-| `-a`/`--author` | Keep | Example 18 |
+| `-a`/`--author` | `--author`; short flag retired | Example 18 |
 | `--journal` | Keep | Native field filter |
 | `--date-from`/`--since` | Rename `--since` | One spelling per idea. Example 19 |
 | `--date-to`/`--until` | Rename `--until` | Same |
@@ -635,15 +660,15 @@ On 2026-10-24, the first call for 17611497 returned 1,000 rows in 0.6 s and 559 
 | `--exclude-retracted` | Keep, change | No longer the default. An explicit filter, applied natively, and `unsupported_filter` where a source cannot apply it |
 | `--include-retracted` | Keep, change | The default. Accepted and does nothing |
 | `--sort` | Keep, change | `rank`, `date` and `citations`. Issue 69 |
-| `--ranking-mode` | Retired usage error | It maps to no blend: 1.0 has no score blends, as `decisions/2026-10-24-no-text-heuristics.md` rules. Each source keeps its own order |
-| `--weight-semantic` | Retired usage error | Maps to no blend. The weight was always zero |
-| `--weight-lexical` | Retired usage error | Maps to no blend |
-| `--weight-citations` | Retired usage error | Maps to no blend. The message names `--sort citations`, a sort the agent asks for |
-| `--weight-position` | Retired usage error | Maps to no blend |
+| `--ranking-mode` | Retired; maps to no blend | Fixed usage error: 1.0 has no score blends, as `decisions/2026-10-24-no-text-heuristics.md` rules. Each source keeps its own order |
+| `--weight-semantic` | Retired; maps to no blend | Maps to no blend. The weight was always zero |
+| `--weight-lexical` | Retired; maps to no blend | Maps to no blend |
+| `--weight-citations` | Retired; maps to no blend | Maps to no blend. The message names `--sort citations`, a sort the agent asks for |
+| `--weight-position` | Retired; maps to no blend | Maps to no blend |
 | `--source` | Keep, change | The agent's strategy choice: one source or several, in round-robin order. No `all` |
 | `--max-per-source` | Drop | It dropped rows before ranking |
 | `--session` | Drop | No example. Next steps replace loop-breaker suggestions |
-| `--debug-plan` | Drop | The global `--explain` |
+| `--debug-plan` | Drop | Retired as `dropped in 1.0`; the command has no hidden planner |
 | `--full` | Drop | One header shape. The abstract lives on the card |
 | `--limit`, `--offset` | Change | The shared cursor with `--pool` |
 | `get article <ID>` | Keep, change | Many inputs at once. All publication types and corrections. The default card makes no Semantic Scholar call; `tldr` and `pdf` are sections |

@@ -9,6 +9,18 @@ The generated table below lists decided leaf commands and their dropped options 
 <!-- upgrade-commands -->
 | 0.9 command | Outcome | Dropped options | Migration ruling |
 | --- | --- | --- | --- |
+| `search article` | Ported or renamed | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | [Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling.](slices/article.md) |
+| `get article` | Ported or renamed | `--output`, `--out`, `--asset-view`, `--asset-limit`, `--asset-offset` | [Section 5 moves explicit PDF and parts into sections and readers; standard output replaces local file export.](slices/article.md) |
+| `article authors` | Ported or renamed | — | [Section 1 maps author disclosure to the article card.](slices/article.md) |
+| `article entities` | Ported or renamed | `--limit`, `--full` | [Section 5 maps normalized entities to the annotations section with one bounded shape.](slices/article.md) |
+| `article batch` | Ported or renamed | — | [Section 1 maps repeated inputs to get article.](slices/article.md) |
+| `article citations` | Ported or renamed | — | [Section 5 keeps the Semantic Scholar graph one source option away and adds iCite as the default.](slices/article.md) |
+| `article references` | Ported or renamed | — | [Section 5 keeps contexts and intents through the explicit graph source.](slices/article.md) |
+| `article citation-evidence` | Ported or renamed | — | [Section 5 preserves the pair reader and optional citing paragraphs.](slices/article.md) |
+| `article supplement-search` | Ported or renamed | — | [Section 5 replaces the asset selector with the exact file positional input of article supplement.](slices/article.md) |
+| `article recommendations` | Ported or renamed | — | [Section 5 preserves native positive and negative seed recommendations.](slices/article.md) |
+| `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | [The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice.](slices/article.md) |
+| `disease articles` | Ported or renamed | — | [Section 1 moves the capability to search article --disease.](slices/article.md) |
 | `search gene` | Ported or renamed | `--query`, `--region`, `--pathway`, `--go` | [Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters.](slices/gene.md) |
 | `get gene` | Ported or renamed | — | [Section 1 preserves the gene card; section values do not count as option slots.](slices/gene.md) |
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |
