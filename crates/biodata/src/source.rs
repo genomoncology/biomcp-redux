@@ -67,6 +67,10 @@ canonical_enum! {
         PubMed => "pubmed",
         /// Europe PMC.
         EuropePmc => "europepmc",
+        /// NCBI LitVar2.
+        LitVar => "litvar",
+        /// Semantic Scholar.
+        SemanticScholar => "semantic-scholar",
         /// PMC Open Access bucket.
         PmcOa => "pmc-oa",
         /// NIH iCite.
@@ -122,7 +126,7 @@ canonical_enum! {
     }
 }
 
-crate::response::wire_enum! {
+crate::macros::wire_enum! {
     /// Reviewed source-use category, without inferring rights in individual records.
     Use {
         /// Public-domain or unrestricted source data.

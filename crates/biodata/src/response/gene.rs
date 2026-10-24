@@ -67,6 +67,13 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Licensed supplement reader.
     ArticleSupplement(crate::ArticleSupplementResult),
+    /// A selected source cannot apply the checked filters.
+    UnsupportedFilter {
+        /// Selected source that cannot apply the filter.
+        source: crate::Source,
+        /// Exact unsupported selector, without caller text.
+        option: crate::ArticleFilter,
+    },
     /// Bounded licensed body reader.
     ArticleText(crate::ArticleTextResult),
     /// Invalid body reader position.

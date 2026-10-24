@@ -35,7 +35,8 @@
       "description": "Source selectors supported by article search.",
       "enum": [
         "pubmed",
-        "europepmc"
+        "europepmc",
+        "litvar"
       ],
       "type": "string"
     },
@@ -454,11 +455,10 @@
           "default": [
             "pubmed"
           ],
-          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.",
+          "description": "Sources to search in caller order, comma separated. Default: pubmed.\nSeveral sources take turns, remove duplicates and show every native rank.\npubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.\neuropepmc: words in open full text, and preprints.\nlitvar: exact variant publications; needs --variant, and --gene for a protein change.",
           "items": {
             "$ref": "#/$defs/ArticleSource"
           },
-          "maxItems": 2,
           "minItems": 1,
           "type": "array",
           "x-comma-separated": true

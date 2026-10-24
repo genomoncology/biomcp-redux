@@ -176,6 +176,11 @@
               "minimum": 0,
               "type": "integer"
             },
+            "litvar": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
             "pubmed": {
               "format": "uint32",
               "minimum": 0,
@@ -534,6 +539,8 @@
         "clingen",
         "pubmed",
         "europepmc",
+        "litvar",
+        "semantic-scholar",
         "pmc-oa",
         "icite",
         "pubtator",
@@ -552,6 +559,8 @@
         " ClinGen.",
         " PubMed.",
         " Europe PMC.",
+        " NCBI LitVar2.",
+        " Semantic Scholar.",
         " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",

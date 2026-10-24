@@ -230,14 +230,16 @@ The visitor accepts borrowed and owned strings. Error messages carry the stable 
 
 ### 3.2 Closed sets, dates, text and coordinates
 
-A closed set is an enum with snake_case names. A set that may grow is `#[non_exhaustive]`.
+A checked string enum uses [`wire_enum!`](../../crates/biodata/src/macros.rs). Each variant declares its wire value once. The helper derives checked serde conversion and a string schema with an `enum` list. A plain schema derive can emit unit-enum `oneOf` branches that the compatibility checker rejects. A set that may grow is `#[non_exhaustive]`.
 
 ```rust
-#[non_exhaustive]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(rename_all = "snake_case")]
-pub enum LocusGroup { ProteinCoding, NonCodingRna, Pseudogene, Phenotype, Other }
+crate::macros::wire_enum! {
+    /// A closed set of checked choices.
+    Choice {
+        /// The canonical choice.
+        Canonical => "canonical",
+    }
+}
 ```
 
 The enum parses only its own canonical names. Each provider's spelling, such as HGNC's `protein-coding gene` or ClinicalTrials.gov's `PHASE1`, maps to the enum in that adapter's `map.rs`. A provider value outside the set becomes a problem on the record and leaves the field absent. No enum carries an `Other(String)` escape.
@@ -539,10 +541,11 @@ pub enum Reason { NotFound, RateLimited, Unavailable, Rejected, BadReply, Deadli
 - The binary depends on `biodata` with the `schema` feature on. The gate's tests and the shipped binary therefore build the same feature set. The feature stays optional for other users of `biodata`.
 - The generated files sit in `crates/biodata/schemas/`, one per response type, per query type and for `Request`. Names follow `biodata.<entity>/<major>` for core types and `biomcp.<response>/<major>` for responses.
 - `crates/biodata/tests/schemas.rs` regenerates every schema and fails on any difference from the checked-in copy. Run with `UPDATE_SCHEMAS=1`, it writes the new copies instead.
+- Generation must stay inside the compatibility checker's [supported subset](../../crates/biodata/tests/schemas/compatibility.rs). Use `wire_enum!` for checked string enums. Optional unions contain one value and null; `oneOf` supports internally tagged object branches, not unit-enum branches. Unsupported keywords such as `uniqueItems` fail even when generating an initial schema. Enforce source uniqueness at runtime and keep its existing proof. Do not expand the checker to accommodate a new derive form or keyword.
 - The same test runs a compatibility check. It resolves every `$ref` through `$defs` and lists each schema as JSON pointer paths with their types. Every path and type in the checked-in schema must still exist in the new one unless the major version rose. Adding an optional field keeps the version. Removing, renaming or retyping a field raises it.
 - The same test checks that every query schema stays inside the grammar's subset: a flat object whose properties are strings, integers, booleans, string enums, or arrays of those, with no nested objects, `oneOf` or `anyOf` other than an optional value, and one allowed exception: a root `anyOf` of `required` lists that says at least one selector must be present, such as `query` or `band` on a gene search. A query type outside the subset fails here, before the grammar sees it.
 - The binary embeds the checked-in schema files with `include_str!`. `biomcp schema <name>` prints one, the grammar reads them, and the MCP tool list cites them. The checked-in files are the one authority, and the drift test keeps them equal to the types.
-- `crates/biodata/tests/roundtrip.rs` round-trips each case value through JSON. BioMCP writes and reads only JSON, so other formats wait for a consumer.
+- The public contract tests in `crates/biodata/tests/` check JSON round trips, and `crates/biodata/tests/schemas/values.rs` checks canonical enum spellings against their schemas. BioMCP writes and reads only JSON, so other formats wait for a consumer.
 
 ### 3.10 How types carry progressive disclosure
 

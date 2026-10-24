@@ -9,10 +9,10 @@ pub(super) fn resolve<'a>(
     query: &ArticleSearch,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Option<String>, RequestError> {
+) -> Result<Option<(String, Option<String>)>, RequestError> {
     let words = query.words();
     let Some(input) = query.gene() else {
-        return Ok(Some(filters(query, words)));
+        return Ok(Some((filters(query, words), None)));
     };
     let leg = cx.fetch.leg(&hgnc::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -42,13 +42,17 @@ pub(super) fn resolve<'a>(
             } else {
                 names.join("")
             };
-            Ok(Some(filters(
-                query,
-                if words.is_empty() {
-                    group
-                } else {
-                    format!("{group} AND {words}")
-                },
+            let symbol = gene.symbol.to_string();
+            Ok(Some((
+                filters(
+                    query,
+                    if words.is_empty() {
+                        group
+                    } else {
+                        format!("{group} AND {words}")
+                    },
+                ),
+                Some(symbol),
             )))
         }
         GeneResolution::Ambiguous { candidates } => {
