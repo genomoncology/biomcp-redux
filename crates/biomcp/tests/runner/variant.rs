@@ -280,6 +280,7 @@ fn components() -> Result<(), String> {
             .and_then(Value::as_f64)
             != Some(0.0)
         || cosmic.pointer("/components/0/version") != Some(&json!("synthetic-68"))
+        || value.pointer(&format!("{base}/predict/data/components/0/version")) != Some(&Value::Null)
         || requests.len() != 5
     {
         return Err(format!(

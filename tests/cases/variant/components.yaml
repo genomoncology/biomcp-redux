@@ -33,7 +33,7 @@
         "/result/candidates/0/sections/conservation/state": "data",
         "/result/candidates/0/sections/cosmic/data/records/0/identity": "unverified",
         "/result/candidates/0/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>G",
-        "/result/candidates/0/sections/cosmic/data/records/0/mut_freq": 0,
+        "/result/candidates/0/sections/cosmic/data/records/0/mut_freq": 0.0,
         "/result/candidates/0/component_terms/0/terms/usage": "restricted"
       }
     },
