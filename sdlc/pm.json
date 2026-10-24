@@ -5,7 +5,8 @@
     "sdlc/planning/*.md",
     "sdlc/tickets/*.md",
     "sdlc/decisions/*.md",
-    "sdlc/records/*.md"
+    "sdlc/records/*.md",
+    "ROADMAP.md"
   ],
   "mailroom": {
     "repo": "agents",
