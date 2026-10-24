@@ -256,9 +256,10 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (Request::GetArticle(query), QueryBody::ArticleCards(body)) => {
             meta.encode(query, Some(body))
         }
-        (Request::VariantRecurrence(query), QueryBody::VariantRecurrence(body)) => {
+        (Request::SearchVariant(query), QueryBody::VariantPage(body)) => {
             meta.encode(query, Some(body))
         }
+        (Request::VariantRecurrence(query), QueryBody::VariantRecurrence(body)) => meta.encode(query, Some(body)),
         (Request::GetVariant(query), QueryBody::VariantCard(body)) => {
             meta.encode(query, Some(body))
         }

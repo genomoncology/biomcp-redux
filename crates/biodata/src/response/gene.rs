@@ -83,6 +83,8 @@ pub enum QueryBody {
     VariantCard(crate::VariantCard),
     /// Bounded cohort sample observations.
     VariantRecurrence(crate::VariantRecurrence),
+    /// Native MyVariant candidate page.
+    VariantPage(crate::VariantPage),
     /// Source trial document receipt.
     TrialDocument(crate::TrialDocumentResult),
     /// Exact trial cards and source protocol sections.

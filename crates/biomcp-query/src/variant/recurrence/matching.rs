@@ -51,6 +51,9 @@ fn matches(identity: &Variant, row: &Mutation) -> Option<bool> {
     {
         return None;
     }
+    if !identity.representations.iter().any(|r| {
+        r.build == Some(build) && r.allele.as_ref().is_some_and(|allele| Chromosome::from_accession(allele.location().sequence, build).is_ok())
+    }) { return None; }
     Some(identity.representations.iter().any(|r| {
         let Some(allele) = r.allele.as_ref() else {
             return false;

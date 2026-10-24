@@ -274,6 +274,13 @@
         " Identity lacks the identifier required to join this source."
       ]
     },
+    "RecurrenceGranularity": {
+      "description": "Source fields required for a recurrence observation.",
+      "enum": [
+        "exact_genomic_allele"
+      ],
+      "type": "string"
+    },
     "RecurrenceSource": {
       "description": "Source requiring explicit study, profile and sample set.",
       "enum": [
@@ -730,6 +737,11 @@
             }
           ],
           "description": "Source-qualified resolved identity; omitted when resolution failed."
+        },
+        "matching_granularity": {
+          "$ref": "#/$defs/RecurrenceGranularity",
+          "default": "exact_genomic_allele",
+          "description": "Genomic allele equality only, never a protein, residue or gene match."
         },
         "more": {
           "description": "Source has further rows or cannot yet establish its end.",

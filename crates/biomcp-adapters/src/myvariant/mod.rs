@@ -1,9 +1,11 @@
 //! MyVariant exact source identities and compact component-attributed facts.
 mod map;
 mod raw;
+mod search;
 use crate::{Mapped, quotas};
 use biodata::{Source, Text, VariantHeader};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+pub use search::{SearchPage, search};
 use std::time::Duration;
 /// Public reads retain each component's independent terms.
 pub static SPEC: SourceSpec = SourceSpec {

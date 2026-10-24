@@ -72,4 +72,3 @@ crate::macros::wire_enum! {
         ExactGenomicAllele => "exact_genomic_allele",
     }
 }
-
