@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Install local candidates and exercise them outside the checkout. No publication."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+
+from artifacts import cargo, inspect
+from smoke import environment, smoke
+
+
+def installed(args):
+    output = args.artifacts.resolve()
+    wheel = next(output.glob("*.whl"))
+    record = inspect(wheel)  # All distributions must match these Cargo candidate bytes.
+    root = args.scratch.resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    fixtures = root / "fixtures"
+    (fixtures / "cases").mkdir(parents=True, exist_ok=True)
+    source = Path(__file__).resolve().parent.parent
+    shutil.copy(source / "tests/cases/gene/kras.yaml", fixtures / "cases/kras.yaml")
+    for name in ["gene/main", "article/search/synthetic-small"]:
+        shutil.copytree(source / "tests/replies" / name, fixtures / "replies" / name, dirs_exist_ok=True)
+    for path in fixtures.rglob("*"):
+        if path.is_file():
+            path.chmod(0o444)
+    executable = root / "case-runner"
+    shutil.copy2(Path(cargo("release", tests=True)["executable"]), executable)
+    results = []
+    def check(kind, binary):
+        if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
+            raise ValueError(kind + " installed bytes differ from the candidate")
+        smoke(binary, executable, fixtures, record["version"])
+        results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
+    venv = root / "venv"
+    subprocess.run([args.python, "-m", "venv", str(venv)], check=True)
+    python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    subprocess.run([str(python), "-m", "pip", "install", "--no-index", "--no-deps", str(wheel)], check=True, env={**os.environ, "PIP_CONFIG_FILE": os.devnull, "PIP_NO_CACHE_DIR": "1"})
+    check("wheel", venv / ("Scripts/biomcp.exe" if os.name == "nt" else "bin/biomcp"))
+    archive = next(output.glob("*.tar.gz"))
+    destination = root / "installer-bin"
+    subprocess.run(["/bin/bash", str(source / "release/install.sh"), str(archive), hashlib.sha256(archive.read_bytes()).hexdigest(), str(destination)], check=True)
+    check("install-script", destination / "biomcp")
+    brew = shutil.which("brew")
+    if brew:
+        # Clone only the local tool. Never install into the person's shared prefix.
+        brew_repo = subprocess.check_output([brew, "--repository"], text=True).strip()
+        prefix = root / "homebrew"
+        subprocess.run(["git", "clone", "--quiet", "--shared", "--local", brew_repo, str(prefix)], check=True)
+        formula_env = {**os.environ, "HOME": str(root / "brew-home"), "HOMEBREW_NO_AUTO_UPDATE": "1", "HOMEBREW_NO_INSTALL_FROM_API": "1", "HOMEBREW_NO_ANALYTICS": "1", "HOMEBREW_NO_ENV_HINTS": "1", "HOMEBREW_CACHE": str(root / "brew-cache"), "HOMEBREW_LOGS": str(root / "brew-logs"), "HOMEBREW_TEMP": str(root / "brew-temp")}
+        subprocess.run([str(prefix / "bin/brew"), "install", "--formula", "--ignore-dependencies", str(output / "biomcp.rb")], env=formula_env, check=True)
+        check("homebrew-formula", prefix / "bin/biomcp")
+    else:
+        results.append({"artifact": "homebrew-formula", "platform": record["platform"], "result": "deferred", "reason": "Homebrew is unavailable"})
+    (root / "report.json").write_text(json.dumps(results, indent=2) + "\n")
+    print(json.dumps(results))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--artifacts", type=Path, required=True)
+    parser.add_argument("--scratch", type=Path, required=True)
+    parser.add_argument("--python", default="python3")
+    installed(parser.parse_args())
+
+
+if __name__ == "__main__":
+    main()

@@ -24,3 +24,7 @@ coverage:
 
 unreached:
 	sh scripts/coverage.sh unreached
+
+.PHONY: release-artifacts
+release-artifacts:
+	sh release/matrix.sh

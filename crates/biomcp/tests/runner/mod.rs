@@ -12,6 +12,7 @@ mod pool_tables;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod publication;
 mod response_cases;
 mod schema;
 mod schema_proof;
@@ -356,4 +357,8 @@ fn run_sequence(
         }
     }
     Err("walk exceeded max_pages".into())
+}
+
+pub(super) fn installed_process_proof() -> Result<(), String> {
+    configuration::article_processes()
 }
