@@ -477,9 +477,21 @@ fn metadata_cases(server: &Server) -> Check {
         ("application/json; q=1.001, text/event-stream", 400),
         ("application/json; q=0.0001, text/event-stream", 400),
     ] {
-        let headers = format!("Content-Type: application/json\r\nAccept: {accept}\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/list\r\n");
-        let (status, _, _) = server.raw("POST", "/mcp", &server.address.to_string(), &headers, &request.to_string())?;
-        if status != expected { return Err(format!("Accept media range {accept:?}: expected {expected}, received {status}")); }
+        let headers = format!(
+            "Content-Type: application/json\r\nAccept: {accept}\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/list\r\n"
+        );
+        let (status, _, _) = server.raw(
+            "POST",
+            "/mcp",
+            &server.address.to_string(),
+            &headers,
+            &request.to_string(),
+        )?;
+        if status != expected {
+            return Err(format!(
+                "Accept media range {accept:?}: expected {expected}, received {status}"
+            ));
+        }
     }
     let request = super::mcp::request(
         json!(9),

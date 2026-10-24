@@ -102,12 +102,25 @@ fn accepts(value: &str, wanted: &str) -> bool {
     let mut best = None;
     for range in value.split(',') {
         let mut parts = range.split(';').map(str::trim);
-        let Some(media) = parts.next() else { continue; };
-        let specificity = if media.eq_ignore_ascii_case(wanted) { 2 }
-            else if media.strip_suffix("/*").is_some_and(|kind| wanted.split_once('/').is_some_and(|(prefix, _)| kind.eq_ignore_ascii_case(prefix))) { 1 }
-            else if media == "*/*" { 0 }
-            else { continue; };
-        let Some(quality) = quality(parts) else { return false; };
+        let Some(media) = parts.next() else {
+            continue;
+        };
+        let specificity = if media.eq_ignore_ascii_case(wanted) {
+            2
+        } else if media.strip_suffix("/*").is_some_and(|kind| {
+            wanted
+                .split_once('/')
+                .is_some_and(|(prefix, _)| kind.eq_ignore_ascii_case(prefix))
+        }) {
+            1
+        } else if media == "*/*" {
+            0
+        } else {
+            continue;
+        };
+        let Some(quality) = quality(parts) else {
+            return false;
+        };
         if best.is_none_or(|(prior, _)| specificity > prior) {
             best = Some((specificity, quality));
         } else if best.is_some_and(|(prior, _)| specificity == prior) && quality {
@@ -121,7 +134,9 @@ fn quality<'a>(parts: impl Iterator<Item = &'a str>) -> Option<bool> {
     for parameter in parts {
         let (name, value) = parameter.split_once('=')?;
         if name.trim().eq_ignore_ascii_case("q") {
-            if quality.is_some() { return None; }
+            if quality.is_some() {
+                return None;
+            }
             let value = value.trim();
             let (whole, fraction) = value.split_once('.').unwrap_or((value, ""));
             if fraction.len() > 3 || !fraction.bytes().all(|byte| byte.is_ascii_digit()) {
