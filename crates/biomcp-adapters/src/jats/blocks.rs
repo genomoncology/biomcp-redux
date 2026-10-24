@@ -12,6 +12,9 @@ pub(super) fn descendants<'a>(xml: &'a str, name: &str) -> Result<Vec<Element<'a
                 reader.read_to_end(tag.name()).map_err(|_| BadReply)?;
                 out.push(Element(&xml[begin..reader.buffer_position() as usize]));
             }
+            Event::Empty(tag) if tag.name().as_ref() == name => {
+                out.push(Element(&xml[begin..reader.buffer_position() as usize]));
+            }
             Event::Eof => return Ok(out),
             _ => {}
         }

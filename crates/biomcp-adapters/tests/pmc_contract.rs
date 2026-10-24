@@ -36,7 +36,10 @@ fn fixture(change: impl FnOnce(&mut Value), xml: &str) -> Result<tempfile::TempD
     }
     Ok(directory)
 }
-fn read(change: impl FnOnce(&mut Value), xml: &str) -> Result<Result<Option<pmc_oa::Document>, RequestError>, Error> {
+fn read(
+    change: impl FnOnce(&mut Value),
+    xml: &str,
+) -> Result<Result<Option<pmc_oa::Document>, RequestError>, Error> {
     let directory = fixture(change, xml)?;
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {
@@ -178,11 +181,20 @@ fn source_markup_and_first_citations_survive_without_duplicate_tables() -> Resul
 #[test]
 fn inline_markup_preserves_non_citation_superscripts() -> Result<(), Error> {
     for (xml, expected) in [
-        ("<p>A<sup>2<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>2[11]</sup>."),
-        ("<p>A<sup>&#945;<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>", "A<sup>α[11]</sup>."),
-        ("<p>A<sup><xref ref-type=\"bibr\" rid=\"B1\">11</xref>,<xref ref-type=\"bibr\" rid=\"B2\">12</xref></sup>.</p>", "A[11,12]."),
+        (
+            "<p>A<sup>2<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>",
+            "A<sup>2[11]</sup>.",
+        ),
+        (
+            "<p>A<sup>&#945;<xref ref-type=\"bibr\" rid=\"B1\">11</xref></sup>.</p>",
+            "A<sup>α[11]</sup>.",
+        ),
+        (
+            "<p>A<sup><xref ref-type=\"bibr\" rid=\"B1\">11</xref>,<xref ref-type=\"bibr\" rid=\"B2\">12</xref></sup>.</p>",
+            "A[11,12].",
+        ),
     ] {
-        assert_eq!(biomcp_adapters::jats::markdown(xml)?.as_str(), expected);
+        assert_eq!(biomcp_adapters::jats::markdown(xml).map_err(|_| "invalid source markup")?.as_str(), expected);
     }
     assert!(biomcp_adapters::jats::markdown("<p>&undefined;</p>").is_err());
     Ok(())

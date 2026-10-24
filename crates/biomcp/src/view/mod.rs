@@ -93,8 +93,10 @@ fn marked(node: &Value, root: &Value) -> bool {
 fn array_items<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
     let node = resolve(node, root);
     node.get("items").or_else(|| {
-        ["anyOf", "oneOf"].into_iter()
+        ["anyOf", "oneOf"]
+            .into_iter()
             .filter_map(|kind| node.get(kind).and_then(Value::as_array))
-            .flatten().find_map(|branch| array_items(branch, root))
+            .flatten()
+            .find_map(|branch| array_items(branch, root))
     })
 }
