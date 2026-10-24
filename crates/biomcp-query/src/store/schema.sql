@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS pool (
+ id TEXT PRIMARY KEY, request_key BLOB NOT NULL, created INTEGER NOT NULL, expires INTEGER NOT NULL,
+ size INTEGER NOT NULL, outcomes TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pool_current (request_key BLOB PRIMARY KEY, pool TEXT NOT NULL REFERENCES pool(id));
+CREATE TABLE IF NOT EXISTS pool_item (
+ pool TEXT NOT NULL REFERENCES pool(id), rank INTEGER NOT NULL, pmid TEXT NOT NULL,
+ checked INTEGER NOT NULL DEFAULT 0, header TEXT, problems TEXT NOT NULL DEFAULT '[]', outcome TEXT,
+ PRIMARY KEY(pool,rank), UNIQUE(pool,pmid)
+);

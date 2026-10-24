@@ -41,16 +41,22 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::SearchArticle(query) => serde_json::to_value(query)?,
         Request::GetGene(query) => serde_json::to_value(query)?,
         Request::SearchGene(query) => serde_json::to_value(query)?,
     };
     let mut args = vec![
         match request {
             Request::GetGene(_) => "get",
-            Request::SearchGene(_) => "search",
+            Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        "gene".into(),
+        if matches!(request, Request::SearchArticle(_)) {
+            "article"
+        } else {
+            "gene"
+        }
+        .into(),
     ];
     let positional = fields(&schema, &query, &mut args);
     if positional.iter().any(|arg| arg.starts_with('-')) {

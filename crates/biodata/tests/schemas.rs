@@ -38,6 +38,12 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        ArticleSearch => ("article-search", "biodata.article-search/1"),
+        ArticleHeader => ("article-header", "biodata.article_header/1"),
+        Envelope<ArticlePage> => ("article-page", "biomcp.article_page/1"),
+        Pmid => ("pmid", "biodata.pmid/1"),
+        Pmcid => ("pmcid", "biodata.pmcid/1"),
+        Doi => ("doi", "biodata.doi/1"),
         Envelope<Help> => ("help", "biomcp.help/1"),
         Envelope<KeyHelp> => ("key", "biomcp.key/1"),
         ErrorEnvelope => ("error", "biomcp.error/1"),
@@ -136,7 +142,11 @@ fn checked_in_schemas_match_types() {
 
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
-    for schema in [generate::<GeneGet>(), generate::<GeneSearch>()] {
+    for schema in [
+        generate::<GeneGet>(),
+        generate::<GeneSearch>(),
+        generate::<ArticleSearch>(),
+    ] {
         assert_eq!(schema["type"], "object");
         assert!(schema.get("oneOf").is_none());
         if schema.get("anyOf").is_some() {

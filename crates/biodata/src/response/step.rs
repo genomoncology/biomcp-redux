@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 super::status::wire_enum! {
 /// Purpose of an available next command.
 StepKind {
+    /// Start a replacement snapshot.
+    Restart => "restart",
     /// Request sections omitted from this card.
     Section => "section",
     /// Read another page.

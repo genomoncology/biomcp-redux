@@ -26,6 +26,10 @@ pub(crate) fn source(
         _ => report.failures.first().map(|failure| failure.reason),
     };
     SourceOutcome {
+        term: None,
+        count: None,
+        fetched: None,
+        notices: Vec::new(),
         source,
         state: if report.stale {
             SourceState::Stale

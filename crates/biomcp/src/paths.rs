@@ -18,9 +18,21 @@ pub(crate) fn cache(
     localappdata: Option<PathBuf>,
 ) -> Option<PathBuf> {
     if cfg!(windows) {
-        localappdata.map(|root| root.join("biomcp/replies.sqlite"))
+        localappdata.map(|root| {
+            root.join(format!(
+                "biomcp/cache-{}-{}.sqlite",
+                biomcp_fetch::VERSION,
+                biomcp_query::store::VERSION
+            ))
+        })
     } else {
         xdg.or_else(|| home.map(|root| root.join(".cache")))
-            .map(|root| root.join("biomcp/replies.sqlite"))
+            .map(|root| {
+                root.join(format!(
+                    "biomcp/cache-{}-{}.sqlite",
+                    biomcp_fetch::VERSION,
+                    biomcp_query::store::VERSION
+                ))
+            })
     }
 }

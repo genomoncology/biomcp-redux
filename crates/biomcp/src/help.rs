@@ -14,7 +14,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     let examples: BTreeMap<String, Vec<Vec<String>>> =
         serde_json::from_str(include_str!(concat!(env!("OUT_DIR"), "/examples.json")))?;
     let mut commands = Vec::new();
-    for &(verb, id) in crate::grammar::QUERIES {
+    for &(verb, entity, id) in crate::grammar::QUERIES {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("missing query schema"))?,
         )?;
@@ -27,7 +27,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .collect();
         let sections = section_words(&schema);
         commands.push(HelpCommand {
-            command: vec![verb.into(), "gene".into()],
+            command: vec![verb.into(), entity.into()],
             description: text(&schema, "description"),
             arguments,
             section_rule: (!sections.is_empty()).then(|| {
@@ -37,7 +37,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 )
             }),
             sections,
-            examples: examples.get(verb).cloned().unwrap_or_default(),
+            examples: examples
+                .get(&format!("{verb} {entity}"))
+                .cloned()
+                .unwrap_or_default(),
         });
     }
     for (command, description) in [
@@ -50,7 +53,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             "Print a checked-in schema artifact.",
         ),
         (
-            vec!["help", "[get gene|search gene]"],
+            vec!["help", "[get gene|search gene|search article]"],
             "Print generated command help.",
         ),
         (

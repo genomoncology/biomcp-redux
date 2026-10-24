@@ -19,7 +19,11 @@ const OPEN_WAIT: Duration = Duration::from_secs(5);
 // One connection is shared by source legs. Its lock covers only SQLite work;
 // callers decode and check owned bytes after the guard has been released.
 #[derive(Debug)]
-pub(crate) struct Cache(Mutex<Connection>, pub(crate) std::path::PathBuf);
+pub(crate) struct Cache(
+    Mutex<Connection>,
+    pub(crate) std::path::PathBuf,
+    pub(crate) std::path::PathBuf,
+);
 
 #[derive(Debug)]
 pub(crate) struct Entry {
@@ -44,16 +48,76 @@ impl Entry {
     }
 }
 
+/// Metadata owned by another schema sharing the active cache.
+#[derive(Clone, Copy, Debug)]
+pub struct SchemaOwner {
+    /// Stable schema owner name.
+    pub name: &'static str,
+    /// Expected schema version.
+    pub version: u32,
+    /// Tables that must not exist without this owner's metadata.
+    pub tables: &'static [&'static str],
+}
+/// Validate declared owners without changing journal mode or creating tables.
+pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
+    let has_meta: bool = connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    for owner in owners {
+        let version: Option<u32> = if has_meta {
+            connection
+                .query_row(
+                    "SELECT version FROM meta WHERE owner=?1",
+                    [owner.name],
+                    |r| r.get(0),
+                )
+                .optional()
+                .map_err(|_| CacheError::Version)?
+        } else {
+            None
+        };
+        if version.is_some_and(|v| v != owner.version) {
+            return Err(CacheError::Version);
+        }
+        if version.is_none() {
+            for table in owner.tables {
+                let orphan: bool = connection
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name=?1)",
+                        [table],
+                        |r| r.get(0),
+                    )
+                    .map_err(db_error)?;
+                if orphan {
+                    return Err(CacheError::Version);
+                }
+            }
+        }
+    }
+    Ok(())
+}
 impl Cache {
-    pub(crate) fn open(path: &Path) -> Result<Self, CacheError> {
+    pub(crate) fn open_with_owners(
+        path: &Path,
+        owners: &[SchemaOwner],
+    ) -> Result<Self, CacheError> {
         let mut connection = Connection::open(path).map_err(db_error)?;
+        check_owners(&connection, owners)?;
         connection.busy_timeout(OPEN_WAIT).map_err(db_error)?;
         Self::initialize(&mut connection)?;
         // Ownership is validated before changing the file's journal mode.
         connection
             .pragma_update(None, "journal_mode", "WAL")
             .map_err(db_error)?;
-        Ok(Self(Mutex::new(connection), path.with_extension("parts")))
+        Ok(Self(
+            Mutex::new(connection),
+            path.with_extension("parts"),
+            path.to_owned(),
+        ))
     }
 
     fn initialize(connection: &mut Connection) -> Result<(), CacheError> {

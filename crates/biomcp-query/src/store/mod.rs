@@ -1,0 +1,129 @@
+//! Per-command SQLite owner for fixed search snapshots.
+#![expect(
+    clippy::disallowed_types,
+    clippy::disallowed_methods,
+    reason = "Keep wall time and SQLite state inside the reviewed store boundary"
+)]
+mod pool;
+use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
+pub(crate) use pool::{Pool, StoredItem};
+use rusqlite::{Connection, params};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
+/// Query schema version used in the binary's shared cache filename.
+pub const VERSION: u32 = 1;
+/// Query-owned metadata checked by transport before any journal or schema mutation.
+pub const OWNER: SchemaOwner = SchemaOwner {
+    name: "biomcp-query",
+    version: VERSION,
+    tables: &["pool", "pool_current", "pool_item"],
+};
+/// One command's owned connection, retaining the replay directory capability.
+#[derive(Debug)]
+pub(crate) struct Store<'a> {
+    connection: Connection,
+    deadline: Deadline<'a>,
+    wall_end: Instant,
+    _access: CacheAccess,
+}
+impl<'a> Store<'a> {
+    pub(crate) fn open(access: CacheAccess, deadline: Deadline<'a>) -> Result<Self, CacheError> {
+        if deadline.expired() {
+            return Err(CacheError::Busy);
+        }
+        let started = Instant::now();
+        let wall_end = started.checked_add(deadline.remaining()).unwrap_or(started);
+        let mut connection = access.connect()?;
+        connection.busy_timeout(deadline.remaining()).map_err(db)?;
+        access.admit(deadline, || {
+            biomcp_fetch::check_owners(
+                &connection,
+                &[
+                    SchemaOwner {
+                        name: "biomcp-fetch",
+                        version: biomcp_fetch::VERSION,
+                        tables: &["reply", "bundle"],
+                    },
+                    OWNER,
+                ],
+            )?;
+            let tx = connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db)?;
+            tx.execute_batch(include_str!("schema.sql")).map_err(db)?;
+            tx.execute(
+                "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
+                params![OWNER.name, VERSION],
+            )
+            .map_err(db)?;
+            tx.commit().map_err(db)?;
+            connection
+                .pragma_update(None, "journal_mode", "WAL")
+                .map_err(db)?;
+            Ok(())
+        })?;
+        Ok(Self {
+            connection,
+            deadline,
+            wall_end,
+            _access: access,
+        })
+    }
+    pub(super) fn prepare(&self) -> Result<(), CacheError> {
+        if self.deadline().expired() {
+            return Err(CacheError::Busy);
+        }
+        self.connection
+            .busy_timeout(self.deadline().remaining())
+            .map_err(db)
+    }
+    pub(super) fn read<T>(
+        &self,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self.prepare()?;
+        self._access
+            .admit(self.deadline(), || operation(&self.connection))
+    }
+    pub(super) fn write<T>(
+        &mut self,
+        operation: impl FnOnce(&rusqlite::Transaction<'_>) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self.prepare()?;
+        let deadline = self.deadline();
+        self._access.admit(deadline, || {
+            let tx = self
+                .connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db)?;
+            let result = operation(&tx)?;
+            tx.commit().map_err(db)?;
+            Ok(result)
+        })
+    }
+    pub(crate) fn set_deadline(&mut self, deadline: Deadline<'a>) {
+        self.deadline = deadline;
+    }
+    pub(crate) fn deadline(&self) -> Deadline<'a> {
+        self.deadline
+            .child(self.wall_end.saturating_duration_since(Instant::now()))
+    }
+    pub(crate) fn now() -> i64 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|t| i64::try_from(t.as_secs()).unwrap_or(i64::MAX))
+            .unwrap_or(0)
+    }
+}
+fn db(error: rusqlite::Error) -> CacheError {
+    match error {
+        rusqlite::Error::SqliteFailure(e, _)
+            if matches!(
+                e.code,
+                rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
+            ) =>
+        {
+            CacheError::Busy
+        }
+        _ => CacheError::Database,
+    }
+}

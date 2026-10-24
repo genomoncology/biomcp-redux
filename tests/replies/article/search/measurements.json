@@ -1,0 +1,44 @@
+{
+  "akt1": {
+    "pages": 20,
+    "first_bytes": 4148,
+    "largest_bytes": 4780,
+    "measured_plus_15_percent": 5497
+  },
+  "egfr": {
+    "pages": 1,
+    "first_bytes": 4288,
+    "largest_bytes": 4288,
+    "measured_plus_15_percent": 4932
+  },
+  "notice": {
+    "pages": 1,
+    "first_bytes": 3689,
+    "largest_bytes": 3689,
+    "measured_plus_15_percent": 4243
+  },
+  "her2": {
+    "pages": 55,
+    "first_bytes": 4998,
+    "largest_bytes": 5575,
+    "measured_plus_15_percent": 6412
+  },
+  "sur1": {
+    "pages": 1,
+    "first_bytes": 549,
+    "largest_bytes": 549,
+    "measured_plus_15_percent": 632
+  },
+  "akt1-gene": {
+    "pages": 1,
+    "first_bytes": 4349,
+    "largest_bytes": 4349,
+    "measured_plus_15_percent": 5002
+  },
+  "kras": {
+    "pages": 1,
+    "first_bytes": 4247,
+    "largest_bytes": 4247,
+    "measured_plus_15_percent": 4885
+  }
+}

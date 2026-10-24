@@ -32,13 +32,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
-    let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases/gene");
+    let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     for (verb, file, index) in [
-        ("get", "kras.yaml", 0),
-        ("get", "braf.yaml", 0),
-        ("search", "search.yaml", 0),
-        ("search", "search.yaml", 1),
+        ("get gene", "gene/kras.yaml", 0),
+        ("get gene", "gene/braf.yaml", 0),
+        ("search gene", "gene/search.yaml", 0),
+        ("search gene", "gene/search.yaml", 1),
+        ("search article", "article/search/pubmed-floor.yaml", 0),
     ] {
         let path = cases.join(file);
         println!("cargo:rerun-if-changed={}", path.display());

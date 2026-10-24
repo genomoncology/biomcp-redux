@@ -57,11 +57,17 @@ impl Leg<'_> {
                 crate::prepared::form(params, self.spec.key, self.fetch.config.max_body)?,
             )
         };
-        self.send(
-            ep,
-            Prepared::new(url, body, ep.method, ep.idempotent),
-            codec,
-        )
+        let mut prepared = Prepared::new(url, body, ep.method, ep.idempotent);
+        prepared.outgoing = params
+            .iter()
+            .filter_map(|(name, value)| match value {
+                Arg::Contact(secret) => {
+                    Some(((*name).to_owned(), crate::Secret::new(secret.value())))
+                }
+                _ => None,
+            })
+            .collect();
+        self.send(ep, prepared, codec)
     }
 
     /// Send checked JSON from a GET or form POST, treating HTTP 404 as an absent record.
@@ -217,6 +223,9 @@ impl Leg<'_> {
             self.fetch.agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
+        for (name, value) in &prepared.outgoing {
+            request = request.query(name, value.value());
+        }
         if prepared.identity_encoding {
             request = request.header("Accept-Encoding", "identity");
         }

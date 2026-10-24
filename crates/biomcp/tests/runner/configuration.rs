@@ -36,6 +36,15 @@ fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("article/concurrent-process-pool-publication", || {
+            article_processes().map_err(Into::into)
+        }),
+        Trial::test("article/persistent-replay-command-epochs", || {
+            article_replay_epoch().map_err(Into::into)
+        }),
+        Trial::test("article/owners-refused-before-journal-and-tables", || {
+            article_owners().map_err(Into::into)
+        }),
         Trial::test("gene/next-commands-preserve-hyphen-positionals", || {
             next_positionals().map_err(Into::into)
         }),
@@ -287,6 +296,167 @@ fn next_positionals() -> Check {
         let repeated = invoke(&env, args, 4)?;
         if repeated.get("query") != original.get("query") {
             return Err("next command changed its positional query".into());
+        }
+    }
+    Ok(())
+}
+
+fn article_owners() -> Check {
+    for owned in [false, true] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let parent = env.root().join("cache/biomcp");
+        fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
+        let file = parent.join(format!(
+            "cache-{}-{}.sqlite",
+            biomcp_fetch::VERSION,
+            biomcp_query::store::VERSION
+        ));
+        let case = env.root().join("case");
+        let replay = if owned {
+            Some(biomcp_fetch::ReplayCache::create_case(&case).map_err(|e| e.to_string())?)
+        } else {
+            None
+        };
+        let fetch = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+            cache: Some(file),
+            mode: biomcp_fetch::Mode::Offline,
+            replay_cache: replay,
+            ..Default::default()
+        })
+        .map_err(|e| e.to_string())?;
+        let connection = fetch
+            .cache_access()
+            .map_err(|e| e.to_string())?
+            .connect()
+            .map_err(|e| e.to_string())?;
+        drop(fetch);
+        connection
+            .execute(
+                "INSERT INTO meta(owner,version) VALUES ('biomcp-query',?1)",
+                [biomcp_query::store::VERSION + 1],
+            )
+            .map_err(|e| e.to_string())?;
+        connection
+            .pragma_update(None, "journal_mode", "DELETE")
+            .map_err(|e| e.to_string())?;
+        let mut args = vec![
+            "search".into(),
+            "article".into(),
+            "AKT1 E17K".into(),
+            "--offline".into(),
+        ];
+        if owned {
+            args.extend(["--case-cache".into(), case.to_string_lossy().into()]);
+        }
+        let result = invoke(&env, args, 5)?;
+        if result.pointer("/error/code") != Some(&json!("local.failure")) {
+            return Err("wrong owner was not a local configuration error".into());
+        }
+        let journal = connection
+            .query_row("PRAGMA journal_mode", [], |r| r.get::<_, String>(0))
+            .map_err(|e| e.to_string())?;
+        let pool = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='pool')",
+                [],
+                |r| r.get::<_, bool>(0),
+            )
+            .map_err(|e| e.to_string())?;
+        if journal != "delete" || pool {
+            return Err("wrong query owner allowed journal or table mutation".into());
+        }
+    }
+    Ok(())
+}
+
+fn article_replay_epoch() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let root = env.root().join("recordings");
+    let pubmed = root.join("pubmed");
+    fs::create_dir_all(&pubmed).map_err(|e| e.to_string())?;
+    let original = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/article/search/synthetic-small/pubmed");
+    for entry in fs::read_dir(original).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        let exchanges = value
+            .get_mut("exchanges")
+            .and_then(Value::as_array_mut)
+            .ok_or("exchanges missing")?;
+        let first = exchanges.first().ok_or("exchange missing")?.clone();
+        *exchanges = vec![first; 32];
+        fs::write(
+            pubmed.join(entry.file_name()),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    mcp::article_sequence(&env, &env.globals(Some(&root), false))
+}
+
+fn article_processes() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("case");
+    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/article/search/synthetic-small");
+    let base = ["search", "article", "AKT1 E17K", "--limit", "2"];
+    let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
+    let expected = initial
+        .pointer("/result/items")
+        .ok_or("initial items missing")?
+        .clone();
+    let old = initial
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("pool missing")?;
+    let mut args = cached(&base, &case, None);
+    args.push("--fresh".into());
+    let spawn = || {
+        env.command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())
+    };
+    let one = spawn()?;
+    let two = spawn()?;
+    for _ in 0..3 {
+        let read = invoke(&env, cached(&base, &case, None), 0)?;
+        if read.pointer("/result/items") != Some(&expected)
+            || read.pointer("/page/total") != Some(&json!(2))
+        {
+            return Err("reader saw a partial pool publication".into());
+        }
+    }
+    let mut pools = std::collections::BTreeSet::new();
+    for child in [one, two] {
+        let output = child.wait_with_output().map_err(|e| e.to_string())?;
+        if !output.status.success() || !output.stderr.is_empty() {
+            return Err(format!(
+                "concurrent article child failed: {}",
+                String::from_utf8_lossy(&output.stdout)
+            ));
+        }
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.pointer("/result/items") != Some(&expected) {
+            return Err("concurrent pool lost identities or headers".into());
+        }
+        let pool = value
+            .pointer("/page/pool/id")
+            .and_then(Value::as_str)
+            .ok_or("pool missing")?;
+        if pool == old || !pools.insert(pool.to_owned()) {
+            return Err("concurrent fresh pools collided".into());
+        }
+    }
+    for pool in pools.into_iter().chain(std::iter::once(old.to_owned())) {
+        let mut args = base.to_vec();
+        args.extend(["--pool", &pool]);
+        if invoke(&env, cached(&args, &case, None), 0)?.pointer("/result/items") != Some(&expected)
+        {
+            return Err("published snapshot changed".into());
         }
     }
     Ok(())

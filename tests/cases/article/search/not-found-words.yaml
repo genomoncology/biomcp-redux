@@ -1,0 +1,27 @@
+{
+  "feature": "article-search",
+  "story": "PubMed names unindexed words without treating them as failure.",
+  "replay": "article/search/live",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "xqzvw zzyzxq kinase"
+      ],
+      "max_bytes": 4243,
+      "max_tokens": 1168,
+      "expect": {
+        "/status": "complete",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/0/kind": "not_found_words",
+        "/sources/0/notices/0/words": {
+          "includes_all_of": [
+            "xqzvw",
+            "zzyzxq"
+          ]
+        }
+      }
+    }
+  ]
+}

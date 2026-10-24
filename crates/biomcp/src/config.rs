@@ -8,12 +8,14 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    ncbi_email: Option<String>,
     keys: Option<Keys>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Keys {
     oncokb_api_key: Option<String>,
+    ncbi_api_key: Option<String>,
 }
 #[expect(
     clippy::disallowed_methods,
@@ -35,6 +37,11 @@ fn variable(name: &str) -> Option<PathBuf> {
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
     let home = variable("HOME");
+    let file = read_file()?;
+    fetch_using(globals, home, file)
+}
+fn read_file() -> Result<Option<ConfigFile>, ()> {
+    let home = variable("HOME");
     let path = crate::paths::config(
         variable("XDG_CONFIG_HOME"),
         home.clone(),
@@ -50,6 +57,19 @@ pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
         })
         .transpose()?
         .flatten();
+    Ok(file)
+}
+pub(crate) fn ncbi_email() -> Result<Option<Secret>, ()> {
+    Ok(read_file()?
+        .and_then(|file| file.ncbi_email)
+        .filter(|s| !s.is_empty())
+        .map(Secret::new))
+}
+fn fetch_using(
+    globals: &Globals,
+    home: Option<PathBuf>,
+    file: Option<ConfigFile>,
+) -> Result<Fetch, ()> {
     let cache = crate::paths::cache(variable("XDG_CACHE_HOME"), home, variable("LOCALAPPDATA"));
     let mode = if let Some(dir) = &globals.replay {
         Mode::Replay { dir: dir.clone() }
@@ -67,9 +87,9 @@ pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
         .as_ref()
         .map(|path| {
             if globals.replay.is_some() && !path.exists() {
-                ReplayCache::create_case(path)
+                ReplayCache::create_case_with_owners(path, &[biomcp_query::store::OWNER])
             } else {
-                ReplayCache::open_case(path)
+                ReplayCache::open_case_with_owners(path, &[biomcp_query::store::OWNER])
             }
         })
         .transpose()
@@ -91,7 +111,18 @@ pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
     if let Some(key) = key {
         secrets.insert(SecretName::OncokbApiKey, Secret::new(key));
     }
+    let ncbi = variable("NCBI_API_KEY")
+        .map(|v| v.to_string_lossy().into_owned())
+        .or_else(|| {
+            file.as_ref()
+                .and_then(|f| f.keys.as_ref())
+                .and_then(|k| k.ncbi_api_key.clone())
+        });
+    if let Some(key) = ncbi {
+        secrets.insert(SecretName::NcbiApiKey, Secret::new(key));
+    }
     Fetch::open(FetchConfig {
+        cache_owners: vec![biomcp_query::store::OWNER],
         secrets,
         cache,
         mode,

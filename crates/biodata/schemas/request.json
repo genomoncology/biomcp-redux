@@ -1,5 +1,19 @@
 {
   "$defs": {
+    "ArticleSort": {
+      "description": "Article ordering supported by this command.",
+      "enum": [
+        "rank"
+      ],
+      "type": "string"
+    },
+    "ArticleSource": {
+      "description": "Source selectors supported by article search.",
+      "enum": [
+        "pubmed"
+      ],
+      "type": "string"
+    },
     "Cytoband": {
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
@@ -60,6 +74,104 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "text"
+          ]
+        },
+        {
+          "required": [
+            "gene"
+          ]
+        },
+        {
+          "required": [
+            "variant"
+          ]
+        },
+        {
+          "required": [
+            "disease"
+          ]
+        },
+        {
+          "required": [
+            "drug"
+          ]
+        }
+      ],
+      "description": "Search PubMed article identities.",
+      "properties": {
+        "command": {
+          "const": "search_article",
+          "type": "string"
+        },
+        "disease": {
+          "$ref": "#/$defs/Text",
+          "description": "Disease words."
+        },
+        "drug": {
+          "$ref": "#/$defs/Text",
+          "description": "Drug words."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Gene input resolved through HGNC."
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum page length.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Number of pool items to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Stable snapshot from an earlier response."
+        },
+        "sort": {
+          "$ref": "#/$defs/ArticleSort",
+          "default": "rank",
+          "description": "Native relevance order."
+        },
+        "source": {
+          "default": [
+            "pubmed"
+          ],
+          "description": "Sources in caller order; defaults to PubMed.",
+          "items": {
+            "$ref": "#/$defs/ArticleSource"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array"
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Words sent to PubMed in its default fields.",
+          "x-positional": 0
+        },
+        "variant": {
+          "$ref": "#/$defs/Text",
+          "description": "Variant words."
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Get gene identities and annotations.",

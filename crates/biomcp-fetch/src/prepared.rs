@@ -12,6 +12,7 @@ pub(crate) struct PostMetadata {
 }
 pub(crate) struct Prepared {
     pub(crate) url: String,
+    pub(crate) outgoing: Vec<(String, crate::Secret)>,
     pub(crate) identity: [u8; 32],
     pub(crate) body: Vec<u8>,
     pub(crate) post: Option<PostMetadata>,
@@ -50,6 +51,7 @@ impl Prepared {
             crate::retry::identity(&url)
         };
         Self {
+            outgoing: Vec::new(),
             url,
             identity,
             body,
@@ -119,10 +121,9 @@ pub(crate) fn form(
 ) -> Result<Vec<u8>, InputError> {
     let mut writer = Bounded::new(limit);
     let mut first = true;
-    for (name, value) in params
-        .iter()
-        .filter(|(name, _)| Some(*name) != crate::retry::credential_query(key))
-    {
+    for (name, value) in params.iter().filter(|(name, value)| {
+        Some(*name) != crate::retry::credential_query(key) && !matches!(value, Arg::Contact(_))
+    }) {
         if !first {
             writer.write_all(b"&").map_err(|_| InputError::BodyLimit)?;
         }
@@ -132,6 +133,7 @@ pub(crate) fn form(
             .and_then(|()| writer.write_all(b"="))
             .map_err(|_| InputError::BodyLimit)?;
         let result = match value {
+            Arg::Contact(_) => Ok(()),
             Arg::Text(text) => writer.encoded(text),
             Arg::Num(number) => writer.encoded(&number.to_string()),
             Arg::Ids(ids) => {

@@ -58,6 +58,8 @@ fn invoke(root: &Path, args: &[&str]) -> Result<std::process::Output, String> {
 
 fn negatives() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
+    fs::write(directory.path().join("missing-floor.json"), "[\"missing\"]")
+        .map_err(|e| e.to_string())?;
     let cases = [
         (
             "wrong-value",

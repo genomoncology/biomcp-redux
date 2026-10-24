@@ -157,5 +157,31 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "    expect: {'/type': integer}\n  - run: [schema, biodata.source/1]\n    expect: {'/type': {unknown: null}}",
             "unknown assertion operator unknown",
         ),
+    ].into_iter().chain(article_cases()).collect()
+}
+
+fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
+    vec![
+        ("follow-absent", "  - follow: page", "follow action absent"),
+        (
+            "walk-non-page",
+            "    walk: {items: /enum, max_pages: 2}",
+            "walk requires page offset",
+        ),
+        (
+            "unique-duplicate",
+            "  - run: [schema, biodata.gene-resolution/1]\n    expect: {'/oneOf/*/properties/resolution/type': {unique: true}}",
+            "unique: duplicate member",
+        ),
+        (
+            "includes-all-missing",
+            "    expect: {'/enum': {includes_all_of: missing-floor.json}}",
+            "includes_all_of: missing member",
+        ),
+        (
+            "equals-floor-wrong",
+            "    expect: {'/enum': {equals_file: []}}",
+            "expected [], actual",
+        ),
     ]
 }
