@@ -27,7 +27,7 @@
           "max_tokens": 700
         },
         "/problems/0/field": "summary",
-        "/problems/1/field": "grch37RefSeq"
+        "/problems/1/field": "grch37.refseq"
       },
       "exit": 0,
       "max_bytes": 5000,

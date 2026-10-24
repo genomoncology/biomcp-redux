@@ -35,8 +35,8 @@ impl Gene {
         super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
-                highest_sensitive_level: text(self.highest_sensitive_level, "highestSensitiveLevel"),
-                highest_resistance_level: text(self.highest_resistance_level, "highestResistanceLevel"),
+                highest_sensitive_level: text(self.highest_sensitive_level, "highest_sensitive_level"),
+                highest_resistance_level: text(self.highest_resistance_level, "highest_resistance_level"),
                 version: None,
             },
             section: Oncokb {
@@ -44,12 +44,12 @@ impl Gene {
                 summary: text(self.summary, "summary"),
                 background: text(self.background, "background"),
                 grch37: OncokbTranscript {
-                    isoform: text(self.grch37_isoform, "grch37Isoform"),
-                    refseq: text(self.grch37_refseq, "grch37RefSeq"),
+                    isoform: text(self.grch37_isoform, "grch37.isoform"),
+                    refseq: text(self.grch37_refseq, "grch37.refseq"),
                 },
                 grch38: OncokbTranscript {
-                    isoform: text(self.grch38_isoform, "grch38Isoform"),
-                    refseq: text(self.grch38_refseq, "grch38RefSeq"),
+                    isoform: text(self.grch38_isoform, "grch38.isoform"),
+                    refseq: text(self.grch38_refseq, "grch38.refseq"),
                 },
             },
         }

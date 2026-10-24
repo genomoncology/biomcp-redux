@@ -50,14 +50,14 @@ pub fn gene(
         if row.entrez_gene_id == id {
             accepted.push(row);
         } else {
-            problem(&mut problems, id, "entrezGeneId");
+            problem(&mut problems, id, "entrez_id");
         }
     }
     let value = if accepted.len() == 1 {
         accepted.pop().map(|row| row.mapped(&mut problems))
     } else {
         if accepted.len() > 1 {
-            problem(&mut problems, id, "entrezGeneId");
+            problem(&mut problems, id, "entrez_id");
         }
         None
     };
