@@ -67,7 +67,8 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
-    let next = next(query, resolution, &candidates, page.as_ref());
+    let mut next = next(query, resolution, &candidates, page.as_ref());
+    next.extend(oncokb::next(query, &sources));
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {
