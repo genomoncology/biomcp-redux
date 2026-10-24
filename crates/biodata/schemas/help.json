@@ -369,6 +369,25 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {
