@@ -151,6 +151,9 @@ pub enum NciArmRecord {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTextPage {
+    /// Checked request for the next original characters, absent when complete.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<crate::TrialGet>,
     /// Original source fragment, including whitespace.
     pub text: Box<str>,
     /// Original Unicode scalar position.

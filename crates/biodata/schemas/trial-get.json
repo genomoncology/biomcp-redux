@@ -19,7 +19,17 @@
         "contacts",
         "references",
         "documents",
-        "all"
+        "all",
+        "diseases",
+        "summary"
+      ],
+      "type": "string"
+    },
+    "TrialSource": {
+      "description": "Independent trial providers; results are never folded or used as fallbacks.",
+      "enum": [
+        "ctgov",
+        "nci"
       ],
       "type": "string"
     }
@@ -65,6 +75,10 @@
       },
       "type": "array",
       "x-trailing-section": true
+    },
+    "source": {
+      "$ref": "#/$defs/TrialSource",
+      "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
     }
   },
   "required": [

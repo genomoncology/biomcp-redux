@@ -107,6 +107,7 @@ impl Trial {
             phase: self.phase.clone(),
             brief_summary: if summary {
                 self.brief_summary.as_ref().map(|s| biodata::NciTextPage {
+                    continuation: None,
                     text: s.chars().take(CARD_SUMMARY_CHARACTERS).collect(),
                     offset: 0,
                     total_characters: s.chars().count() as u32,
@@ -115,6 +116,7 @@ impl Trial {
                 None
             },
             diseases: biodata::TrialRecords {
+                continuation: None,
                 offset: 0,
                 total: self.diseases.len() as u32,
                 items: self

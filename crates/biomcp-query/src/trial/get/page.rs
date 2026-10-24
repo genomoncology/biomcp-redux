@@ -239,7 +239,7 @@ fn records_sections(
     Ok(())
 }
 
-fn continuation(
+pub(in crate::trial) fn continuation(
     query: &TrialGet,
     id: NctId,
     section: TrialSection,
@@ -250,7 +250,7 @@ fn continuation(
     pool.filter(|_| end < total)
         .map(|p| query.page(id, section, p.clone(), end))
 }
-fn continue_records<T>(
+pub(in crate::trial) fn continue_records<T>(
     page: &mut TrialRecords<T>,
     query: &TrialGet,
     id: NctId,

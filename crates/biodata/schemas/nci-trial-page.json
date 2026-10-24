@@ -571,6 +571,57 @@
       "minLength": 1,
       "type": "string"
     },
+    "TrialGet": {
+      "additionalProperties": false,
+      "description": "Retrieve exact trial cards and bounded source sections in input order.",
+      "properties": {
+        "input": {
+          "description": "One to twenty exact NCT identifiers, in caller order.",
+          "items": {
+            "$ref": "#/$defs/NctId"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 10,
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Checked stored source record, supplied by a continuation."
+        },
+        "section": {
+          "description": "Optional intact source sections. The default returns cards only.",
+          "items": {
+            "$ref": "#/$defs/TrialSection"
+          },
+          "type": "array",
+          "x-trailing-section": true
+        },
+        "source": {
+          "$ref": "#/$defs/TrialSource",
+          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
     "TrialParameter": {
       "additionalProperties": false,
       "description": "One exact source request parameter, in canonical name order.",
@@ -594,6 +645,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -740,6 +802,22 @@
         }
       },
       "type": "object"
+    },
+    "TrialSection": {
+      "description": "Available source protocol sections.",
+      "enum": [
+        "eligibility",
+        "outcomes",
+        "arms",
+        "locations",
+        "contacts",
+        "references",
+        "documents",
+        "all",
+        "diseases",
+        "summary"
+      ],
+      "type": "string"
     },
     "TrialSex": {
       "description": "Source-native registry value.",

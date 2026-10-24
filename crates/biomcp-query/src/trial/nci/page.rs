@@ -121,7 +121,8 @@ fn records<T: Clone>(
     out: &mut Outcome,
     size: impl Fn(&T) -> Result<Vec<u8>, serde_json::Error>,
 ) -> Result<biodata::TrialRecords<T>, RequestError> {
-    let page = crate::trial::get::page::records(q, rows, SECTION_BYTES, size)?;
+    let mut page = crate::trial::get::page::records(q, rows, SECTION_BYTES, size)?;
+    crate::trial::get::page::continue_records(&mut page, q, id, section, pool);
     crate::trial::get::page::advance(
         q,
         id,
@@ -182,6 +183,14 @@ fn summary(
     Section::Data {
         source: Source::Nci,
         data: biodata::NciTextPage {
+            continuation: crate::trial::get::page::continuation(
+                q,
+                s.detail.card.nct_id,
+                TrialSection::Summary,
+                pool,
+                q.offset() + fragment.chars().count() as u32,
+                total,
+            ),
             text: fragment.into(),
             offset: q.offset(),
             total_characters: total,

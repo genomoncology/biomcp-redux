@@ -1089,6 +1089,7 @@
         "icite",
         "pubtator",
         "ctgov",
+        "nci",
         "civic",
         "oncokb"
       ],
@@ -1110,6 +1111,7 @@
         " NIH iCite.",
         " PubTator.",
         " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
         " CIViC.",
         " OncoKB."
       ]
@@ -2003,6 +2005,10 @@
           },
           "type": "array",
           "x-trailing-section": true
+        },
+        "source": {
+          "$ref": "#/$defs/TrialSource",
+          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
         }
       },
       "required": [
@@ -2545,7 +2551,9 @@
         "contacts",
         "references",
         "documents",
-        "all"
+        "all",
+        "diseases",
+        "summary"
       ],
       "type": "string"
     },
@@ -2654,6 +2662,14 @@
         "COMPLETED",
         "WITHDRAWN",
         "AVAILABLE"
+      ],
+      "type": "string"
+    },
+    "TrialSource": {
+      "description": "Independent trial providers; results are never folded or used as fallbacks.",
+      "enum": [
+        "ctgov",
+        "nci"
       ],
       "type": "string"
     },

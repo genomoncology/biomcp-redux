@@ -1734,7 +1734,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Record count per outcomes or arms page; eligibility pages follow the text budget.",
+          "description": "Record count per source collection page; eligibility pages follow the text budget.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1742,7 +1742,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for eligibility or whole-record offset for outcomes and arms.",
+          "description": "Character offset for eligibility or whole-record offset for a source collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1773,6 +1773,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -1804,6 +1815,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -1835,6 +1857,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -1866,6 +1899,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -1897,6 +1941,17 @@
       "additionalProperties": false,
       "description": "Whole-record page retaining collection order.",
       "properties": {
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked request for the next intact records, absent when complete."
+        },
         "items": {
           "description": "Complete records in source order.",
           "items": {
@@ -1930,6 +1985,10 @@
         "eligibility",
         "outcomes",
         "arms",
+        "locations",
+        "contacts",
+        "references",
+        "documents",
         "all",
         "diseases",
         "summary"
