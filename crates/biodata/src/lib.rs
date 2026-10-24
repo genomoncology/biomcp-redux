@@ -39,4 +39,4 @@ pub use response::{
 
 pub use response::{SyncQuery, SyncResult};
 
-pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};
+pub use response::{CivicGene, Constraint, FiniteNumber, FiniteNumberError, GeneSections};

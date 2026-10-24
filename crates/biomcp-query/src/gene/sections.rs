@@ -1,5 +1,5 @@
-mod constraint;
 mod civic;
+mod constraint;
 use crate::Ctx;
 use biodata::{
     Constraint, Gene, GeneGet, GeneItem, GeneResolution, GeneSection, GeneSectionWord,
@@ -54,7 +54,12 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
                 constraint: requested
                     .contains(&GeneSection::Constraint)
                     .then_some(Section::NotApplicable),
-                civic: requested.contains(&GeneSection::Civic).then_some(Section::Empty { source: biodata::Source::Civic, record: None }),
+                civic: requested
+                    .contains(&GeneSection::Civic)
+                    .then_some(Section::Empty {
+                        source: biodata::Source::Civic,
+                        record: None,
+                    }),
             });
         }
         if !genes.iter().any(|(id, _)| *id == gene.hgnc_id) {
@@ -78,7 +83,9 @@ pub(super) fn jobs<'a>(
         }));
     }
     if requested(query).contains(&GeneSection::Civic) && !genes.is_empty() {
-        jobs.push(Box::new(move || super::get::Job::Section(civic::run(cx, deadline, genes))));
+        jobs.push(Box::new(move || {
+            super::get::Job::Section(civic::run(cx, deadline, genes))
+        }));
     }
     jobs
 }
@@ -90,8 +97,11 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         let Some((_, section)) = result.values.iter().find(|(id, _)| *id == gene.hgnc_id) else {
             continue;
         };
-        if matches!(section, SectionValue::Constraint(Section::Unavailable { .. }) | SectionValue::Civic(Section::Unavailable { .. }))
-            || result.source.state == SourceState::Stale
+        if matches!(
+            section,
+            SectionValue::Constraint(Section::Unavailable { .. })
+                | SectionValue::Civic(Section::Unavailable { .. })
+        ) || result.source.state == SourceState::Stale
             || result.problems.iter().any(|problem| {
                 problem.record.as_ref().is_some_and(|record| {
                     gene.ensembl_id

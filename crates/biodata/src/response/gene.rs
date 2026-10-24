@@ -1,9 +1,9 @@
-mod constraint;
 mod civic;
-pub use civic::CivicGene;
+mod constraint;
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
+pub use civic::CivicGene;
 pub use constraint::{Constraint, FiniteNumber, FiniteNumberError};
 use serde::{Deserialize, Serialize};
 /// Answer to one requested input.
