@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 1
 
+Changes: crates/, tests/, scripts/, release/, Makefile, README.md, manifest.json, server.json, sdlc/
+
 ## Outcome
 
 A pm job builds each release artifact that 0.9 ships (the PyPI wheel, the install script's binary, the Homebrew formula's binary, the Docker image, the desktop extension bundle from `manifest.json`, and the MCP registry entry's metadata) without publishing anything. It installs each one in a clean container or on a clean machine, and runs the MCP handshake, `tools/list` and one replay case. It checks that the build is a release build, that the version matches, that the embedded schemas and help are present, and that the claimed platform tags match the real glibc floor. 0.9 shipped a debug wheel that overflowed its stack and lost its assets (issues 282 and 287), Docker images that were missing, private or amd64 only, wheels that claimed manylinux 2_28 but needed glibc 2.39, and an install script that broke on stock macOS bash. The 0.9.3 release took eight rehearsals.
