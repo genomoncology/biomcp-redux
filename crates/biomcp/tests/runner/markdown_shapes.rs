@@ -17,14 +17,14 @@ fn shapes() -> Result<(), String> {
             vec!["# BRAF", "**status:**", "biomcp get gene"],
         ),
         (
-            vec!["get", "gene", "BRAF", "protein"],
-            "gene/main",
-            vec!["# BRAF", "Protein", "**state:**"],
+            vec!["get", "gene", "CDKN2A", "protein"],
+            "gene/protein",
+            vec!["# CDKN2A", "Protein", "**state:**", "P42771", "Q8N726"],
         ),
         (
-            vec!["search", "gene", "BRAF"],
+            vec!["search", "gene", "KRAS"],
             "gene/main",
-            vec!["| Symbol |", "Hgnc id", "BRAF"],
+            vec!["| Symbol |", "Hgnc id", "KRAS"],
         ),
         (
             vec!["search", "article", "AKT1 E17K"],
