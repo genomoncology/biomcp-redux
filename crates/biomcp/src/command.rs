@@ -34,10 +34,7 @@ fn dispatch_using(
         });
     }
     if let Some(message) = crate::retired::message(args) {
-        return encode(
-            ErrorEnvelope::retired(message),
-            crate::exit::Status::Usage,
-        );
+        return encode(ErrorEnvelope::retired(message), crate::exit::Status::Usage);
     }
     let mut parsed = match crate::grammar::parse(args) {
         Ok(parsed) => parsed,
@@ -80,29 +77,20 @@ fn dispatch_using(
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
                 Err(()) => {
-                    return encode(
-                        ErrorEnvelope::local(),
-                        crate::exit::Status::Local,
-                    );
+                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
         }
         Some(Err(())) if !parsed.globals.offline => {
-            return encode(
-                ErrorEnvelope::local(),
-                crate::exit::Status::Local,
-            );
+            return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
         }
         _ => {
             owned = match crate::config::fetch(&parsed.globals) {
                 Ok(fetch) => fetch,
                 Err(()) => {
-                    return encode(
-                        ErrorEnvelope::local(),
-                        crate::exit::Status::Local,
-                    );
+                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
                 }
             };
             &owned
@@ -125,9 +113,9 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
             } else {
                 biomcp_types::Source::ClinicalTrialsGov
             };
-            return Some(usage_envelope(
-                ErrorEnvelope::unsupported_trial_filter(source, option),
-            ));
+            return Some(usage_envelope(ErrorEnvelope::unsupported_trial_filter(
+                source, option,
+            )));
         }
     }
 
@@ -214,12 +202,10 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
         }
-        (_, QueryBody::UnsupportedTrialFilter { source, option }) => usage_envelope(
-            ErrorEnvelope::unsupported_trial_filter(source, option),
-        ),
-        (_, QueryBody::NciDiseaseError) => {
-            usage_envelope(ErrorEnvelope::nci_disease())
+        (_, QueryBody::UnsupportedTrialFilter { source, option }) => {
+            usage_envelope(ErrorEnvelope::unsupported_trial_filter(source, option))
         }
+        (_, QueryBody::NciDiseaseError) => usage_envelope(ErrorEnvelope::nci_disease()),
         (Request::GetTrial(query), QueryBody::NciTrialCards(body)) => {
             meta.encode(query, Some(body))
         }
@@ -236,20 +222,17 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)
         }
-        (_, QueryBody::ArticleSaveRefused(url)) => {
-            usage_envelope(ErrorEnvelope::save_refused(url))
-        }
+        (_, QueryBody::ArticleSaveRefused(url)) => usage_envelope(ErrorEnvelope::save_refused(url)),
         (_, QueryBody::PdfSaveRefused(link)) => {
             usage_envelope(ErrorEnvelope::save_refused(link.url))
         }
         (Request::ArticlePdf(query), QueryBody::ArticlePdf(body)) => meta.encode(query, Some(body)),
-        (_, QueryBody::UnsupportedFilter { source, option }) => usage_envelope(
-            ErrorEnvelope::unsupported_filter(source, option),
-        ),
-        (_, QueryBody::TextPositionError) => encode(
-            ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        ),
+        (_, QueryBody::UnsupportedFilter { source, option }) => {
+            usage_envelope(ErrorEnvelope::unsupported_filter(source, option))
+        }
+        (_, QueryBody::TextPositionError) => {
+            encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage)
+        }
         (Request::ArticleEvidence(query), QueryBody::ArticleEvidence(body)) => {
             meta.encode(query, Some(body))
         }
@@ -313,10 +296,7 @@ fn tool_using(
             .iter()
             .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
     }) {
-        return encode(
-            ErrorEnvelope::arguments(),
-            crate::exit::Status::Usage,
-        );
+        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
     }
     if args.first().is_some_and(|arg| arg == "schema") {
         return dispatch(args);
@@ -544,10 +524,7 @@ fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
             Envelope::new(Status::Complete, (), Some(result)),
             crate::exit::Status::Success,
         ),
-        Err(_) => encode(
-            ErrorEnvelope::local(),
-            crate::exit::Status::Local,
-        ),
+        Err(_) => encode(ErrorEnvelope::local(), crate::exit::Status::Local),
     }
 }
 

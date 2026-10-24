@@ -355,6 +355,10 @@ fn public_civic_tier_and_level_remain_separate() -> Check {
         Some(&row["classification"])
     );
     assert_eq!(output.pointer("/subject/level"), Some(&json!("protein")));
+    let mut other_consumer = output.clone();
+    other_consumer["attribution"]["source"] = json!("another-consumer");
+    let neutral: Statement = serde_json::from_value(other_consumer)?;
+    assert_eq!(neutral.attribution.source.as_str(), "another-consumer");
     Ok(())
 }
 
