@@ -11,7 +11,9 @@ pub use query::{ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, Articl
 pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleItem, ArticleKey, ArticlePage, LitVarCandidate, PoolInfo, SourceNotice};
+pub use response::{
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+};
 pub use response::{
     ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,

@@ -157,6 +157,7 @@ impl Row {
             influential: None,
             contexts: None,
             found_by: Default::default(),
+            sentence: None,
         })
     }
 }

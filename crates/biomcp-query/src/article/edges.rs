@@ -143,6 +143,7 @@ fn create<'a>(
             influential: None,
             contexts: None,
             found_by: Default::default(),
+            sentence: None,
         })
         .collect();
     if !order::apply(cx, deadline, &mut items, out)? {
