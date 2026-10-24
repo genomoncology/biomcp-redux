@@ -69,7 +69,7 @@ pub struct TrialSections {
     pub arms: Option<Section<TrialRecords<TrialArmRecord>>>,
 }
 /// Character paging preserves source whitespace and counts Unicode scalar values.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialEligibilityPage {
@@ -92,7 +92,7 @@ pub struct TrialEligibilityPage {
     pub total_characters: u32,
 }
 /// Whole-record page retaining collection order.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
@@ -107,7 +107,7 @@ pub struct TrialRecords<T> {
     pub total: u32,
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(
     tag = "record",
     content = "data",
