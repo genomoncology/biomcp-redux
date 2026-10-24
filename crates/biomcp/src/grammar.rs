@@ -60,7 +60,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("article", "recommendations", "biodata.article-recommend/1"),
     ("search", "trial", "biodata.trial-search/1"),
 ];
-fn root() -> Result<Command, ()> {
+pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
         .disable_help_subcommand(true)
@@ -98,6 +98,10 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
+    root
+}
+fn root() -> Result<Command, ()> {
+    let mut root = global_arguments();
     for verb in ["get", "search", "article"] {
         let mut command = Command::new(verb).subcommand_required(true);
         for &(_, entity, id) in QUERIES.iter().filter(|(v, _, _)| *v == verb) {
