@@ -78,7 +78,16 @@
           "all",
           "diseases",
           "summary"
-        ]
+        ],
+        "/result/commands/0/arguments/*/name": [
+          "input",
+          "--limit",
+          "--offset",
+          "--pool",
+          "--section",
+          "--source"
+        ],
+        "/result/commands/0/section_rule": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported."
       },
       "max_bytes": 6000
     },
