@@ -93,18 +93,18 @@ struct Fields {
     text: Option<Text>,
     /// Sources to search in caller order, comma separated. Default: pubmed.
     /// Several sources take turns, remove duplicates and show every native rank.
-    /// pubmed: keyword search with PubMed MeSH mapping, in plain PubMed order.
-    /// europepmc: words in open full text, and preprints.
-    /// litvar: exact variant publications; needs --variant, and --gene for a protein change.
-    /// semantic-scholar: broad discovery; an optional free key raises the limit.
-    /// litsense: sentence resemblance, not a match; may return unrelated papers or fail on nonsense.
-    /// pubtator: entity and relation search; needs the right entity ID, and uses full text where available.
+    /// pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
+    /// europepmc: words in open full text and preprints; incidental mentions are possible.
+    /// litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
+    /// semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
+    /// litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
+    /// pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,
-    /// rank (default): native provider order; several sources take turns.
-    /// date: newest first in each source; PubMed means date added to PubMed.
-    /// citations: most cited first; costs about 1 s per 1,000 PMIDs.
+    /// rank (default): native provider order; several sources take turns; native search cost.
+    /// date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
+    /// citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
     /// All sources support citations.
     #[serde(default = "sort")]
     sort: ArticleSort,

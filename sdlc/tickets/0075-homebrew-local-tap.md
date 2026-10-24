@@ -1,6 +1,7 @@
 # 0075 — Install the candidate formula through an owned local tap
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 95de99e01aa6804811d37ff46bb6ad95b59b050d
 
 Milestone: 1
 

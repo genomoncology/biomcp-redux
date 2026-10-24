@@ -102,19 +102,31 @@ def installed(args):
         download_env = {**environment(root), "PATH": os.defpath, "BIOMCP_RELEASE_BASE_URL": base, "BIOMCP_INSTALL_DIR": public_destination.as_posix()}
         subprocess.run([bash, (source / "release/install.sh").as_posix(), "--version", record["version"]], env=download_env, check=True)
     check("download-install-script", public_destination / ("biomcp" + suffix))
-    brew = shutil.which("brew")
-    if brew:
-        # Clone only the local tool. Never install into the person's shared prefix.
-        brew_repo = subprocess.check_output([brew, "--repository"], text=True).strip()
-        prefix = root / "homebrew"
-        subprocess.run(["git", "clone", "--quiet", "--shared", "--local", brew_repo, str(prefix)], check=True)
-        formula_env = {**environment(root), "PATH": os.defpath + ":" + str(prefix / "bin"), "HOME": str(root / "brew-home"), "HOMEBREW_NO_AUTO_UPDATE": "1", "HOMEBREW_NO_INSTALL_FROM_API": "1", "HOMEBREW_NO_ANALYTICS": "1", "HOMEBREW_NO_ENV_HINTS": "1", "HOMEBREW_CACHE": str(root / "brew-cache"), "HOMEBREW_LOGS": str(root / "brew-logs"), "HOMEBREW_TEMP": str(root / "brew-temp")}
-        subprocess.run([str(prefix / "bin/brew"), "install", "--formula", "--ignore-dependencies", str(output / "biomcp.rb")], env=formula_env, check=True)
-        check("homebrew-formula", prefix / "bin/biomcp")
-    else:
+    if not homebrew(output, root, check):
         results.append({"artifact": "homebrew-formula", "platform": record["platform"], "result": "deferred", "reason": "Homebrew is unavailable"})
     (root / "report.json").write_text(json.dumps(results, indent=2) + "\n")
     print(json.dumps(results))
+
+
+def homebrew(output, root, check):
+    """Install the candidate in an owned local tap and remove the whole prefix."""
+    brew = shutil.which("brew")
+    if not brew:
+        return False
+    brew_repo = subprocess.check_output([brew, "--repository"], text=True).strip()
+    with tempfile.TemporaryDirectory(prefix="homebrew-", dir=root) as directory:
+        owned = Path(directory)
+        prefix = owned / "prefix"
+        subprocess.run(["git", "clone", "--quiet", "--shared", "--local", brew_repo, str(prefix)], check=True)
+        tap = prefix / "Library/Taps/biomcp/homebrew-candidate"
+        formula = tap / "Formula/biomcp.rb"
+        formula.parent.mkdir(parents=True)
+        subprocess.run(["git", "init", "--quiet", str(tap)], check=True)
+        shutil.copyfile(output / "biomcp.rb", formula)
+        formula_env = {**environment(owned), "PATH": os.defpath + ":" + str(prefix / "bin"), "HOMEBREW_NO_AUTO_UPDATE": "1", "HOMEBREW_NO_INSTALL_FROM_API": "1", "HOMEBREW_NO_ANALYTICS": "1", "HOMEBREW_NO_ENV_HINTS": "1", "HOMEBREW_CACHE": str(owned / "cache"), "HOMEBREW_LOGS": str(owned / "logs"), "HOMEBREW_TEMP": str(owned / "tmp")}
+        subprocess.run([str(prefix / "bin/brew"), "install", "--formula", "--ignore-dependencies", "biomcp/candidate/biomcp"], env=formula_env, check=True)
+        check("homebrew-formula", prefix / "bin/biomcp")
+    return True
 
 
 def main():
