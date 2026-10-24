@@ -1,6 +1,6 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 use biodata::{
-    Markdown, NctId, PartialDate, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
+    Markdown, NctId, TrialDate, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
     TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
@@ -71,14 +71,19 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: TrialStatus,
-    last_update_post_date_struct: Date,
-    start_date_struct: Option<Date>,
-    primary_completion_date_struct: Option<Date>,
-    completion_date_struct: Option<Date>,
+    last_update_post_date_struct: RawDate,
+    start_date_struct: Option<RawDate>,
+    primary_completion_date_struct: Option<RawDate>,
+    completion_date_struct: Option<RawDate>,
 }
 #[derive(Deserialize)]
-struct Date {
-    date: PartialDate,
+struct RawDate {
+    date: biodata::PartialDate,
+    #[serde(rename="type")]
+    kind: Option<biodata::TrialDateKind>,
+}
+impl RawDate {
+    fn mapped(self)->TrialDate {TrialDate{date:self.date,kind:self.kind}}
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -185,13 +190,13 @@ impl Protocol {
             sponsor: self
                 .sponsor_collaborators_module
                 .and_then(|s| s.lead_sponsor.map(|s| s.name)),
-            start: self.status_module.start_date_struct.map(|d| d.date),
+            start: self.status_module.start_date_struct.map(RawDate::mapped),
             primary_completion: self
                 .status_module
                 .primary_completion_date_struct
-                .map(|d| d.date),
-            completion: self.status_module.completion_date_struct.map(|d| d.date),
-            updated: self.status_module.last_update_post_date_struct.date,
+                .map(RawDate::mapped),
+            completion: self.status_module.completion_date_struct.map(RawDate::mapped),
+            updated: self.status_module.last_update_post_date_struct.mapped(),
             brief_summary: self.description_module.and_then(|d| d.brief_summary),
         };
         let (arm_rows, interventions) = arms.map_or_else(

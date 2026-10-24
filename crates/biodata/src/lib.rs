@@ -106,3 +106,5 @@ pub use query::{TrialGet, TrialSection};
 pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialEligibilityPage, TrialRecords, TrialSections,
 };
+
+pub use trial_detail::{TrialDate, TrialDateKind};

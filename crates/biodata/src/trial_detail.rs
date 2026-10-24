@@ -23,13 +23,13 @@ pub struct TrialCard {
     /// Lead sponsor as registered.
     pub sponsor: Option<Box<str>>,
     /// Source start date, when present.
-    pub start: Option<PartialDate>,
+    pub start: Option<TrialDate>,
     /// Source primary completion date, when present.
-    pub primary_completion: Option<PartialDate>,
+    pub primary_completion: Option<TrialDate>,
     /// Source completion date, when present.
-    pub completion: Option<PartialDate>,
+    pub completion: Option<TrialDate>,
     /// Last posted registry update.
-    pub updated: PartialDate,
+    pub updated: TrialDate,
     /// Whole brief summary, preserving whitespace.
     pub brief_summary: Option<Markdown>,
     /// Canonical publisher record URL.
@@ -118,4 +118,24 @@ pub struct TrialIntervention {
     pub arm_group_labels: Box<[Box<str>]>,
     /// Source aliases, without invented expansion.
     pub other_names: Box<[Box<str>]>,
+}
+
+crate::macros::wire_enum! {
+    /// Registry date qualifier, without local interpretation.
+    TrialDateKind {
+        /// Source marks this date actual.
+        Actual => "ACTUAL",
+        /// Source marks this date estimated.
+        Estimated => "ESTIMATED",
+    }
+}
+/// A registry date retains its actual or estimated qualifier.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature="schema", derive(schemars::JsonSchema))]
+pub struct TrialDate {
+    /// Checked source date at its original precision.
+    pub date: PartialDate,
+    /// Source qualifier, absent only if the registry omitted it.
+    pub kind: Option<TrialDateKind>,
 }
