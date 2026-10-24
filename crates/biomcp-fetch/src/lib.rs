@@ -3,6 +3,8 @@
 mod batch;
 mod bundle;
 mod cache;
+mod cache_access;
+pub use cache_access::CacheAccess;
 mod cache_request;
 mod deadline;
 mod declaration;
@@ -17,7 +19,7 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{Bundle, BundleInfo, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat};
-pub use cache::VERSION;
+pub use cache::{VERSION, SchemaOwner, check_owners};
 pub use deadline::Deadline;
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, SecretName, SourceSpec,
@@ -39,6 +41,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// Other schema owners checked before any cache mutation.
+    pub cache_owners: Vec<SchemaOwner>,
     /// Configured credentials.
     pub secrets: Secrets,
     /// Explicit SQLite cache path; absence disables storage.
@@ -62,6 +66,7 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            cache_owners: Vec::new(),
             secrets: Secrets::default(),
             cache: None,
             mode: Mode::default(),
@@ -126,7 +131,7 @@ impl Fetch {
             .build()
             .new_agent();
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
-            config.replay_cache = Some(ReplayCache::temporary().map_err(FetchError::Cache)?);
+            config.replay_cache = Some(ReplayCache::temporary_with_owners(&config.cache_owners).map_err(FetchError::Cache)?);
         }
         let recordings = record::Recordings::open(&config.mode).map_err(FetchError::Recording)?;
         let cache = if matches!(config.mode, Mode::Replay { .. } | Mode::Offline)
@@ -139,7 +144,7 @@ impl Fetch {
             config
                 .cache
                 .as_deref()
-                .map(cache::Cache::open)
+                .map(|path| cache::Cache::open_with_owners(path, &config.cache_owners))
                 .transpose()
                 .map_err(FetchError::Cache)?
                 .map(std::sync::Arc::new)

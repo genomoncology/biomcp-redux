@@ -178,7 +178,7 @@ impl GeneSearch {
     }
 }
 
-fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
+pub(super) fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<T>, D::Error> {
     T::deserialize(deserializer).map(Some)

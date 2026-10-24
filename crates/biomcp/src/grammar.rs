@@ -1,5 +1,5 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-use biodata::{GeneGet, GeneSearch, Request};
+use biodata::{GeneGet, GeneSearch, ArticleSearch, Request};
 use biomcp_query::{Action, Bundle};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
@@ -21,13 +21,15 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchArticle(_) => "biodata.article-search/1",
         Request::GetGene(_) => "biodata.gene-get/1",
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
-pub(crate) const QUERIES: &[(&str, &str)] = &[
-    ("get", "biodata.gene-get/1"),
-    ("search", "biodata.gene-search/1"),
+pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("get", "gene", "biodata.gene-get/1"),
+    ("search", "gene", "biodata.gene-search/1"),
+    ("search", "article", "biodata.article-search/1"),
 ];
 fn root() -> Result<Command, ()> {
     let mut root = Command::new("biomcp")
@@ -53,14 +55,13 @@ fn root() -> Result<Command, ()> {
                 .overrides_with(name),
         );
     }
-    for &(verb, id) in QUERIES {
-        let schema: Value =
-            serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-        root = root.subcommand(
-            Command::new(verb)
-                .subcommand_required(true)
-                .subcommand(command_for("gene", &schema)?),
-        );
+    for verb in ["get", "search"] {
+        let mut command=Command::new(verb).subcommand_required(true);
+        for &(_,entity,id) in QUERIES.iter().filter(|(v,_,_)|*v==verb) {
+            let schema:Value=serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_|())?;
+            command=command.subcommand(command_for(entity,&schema)?);
+        }
+        root=root.subcommand(command);
     }
     root = root
         .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
@@ -126,8 +127,8 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             },
         }
     } else {
-        let (_, matches) = matches.subcommand().ok_or(())?;
-        let id = if verb == "get" {
+        let (entity, matches) = matches.subcommand().ok_or(())?;
+        let id = if entity == "article" { "biodata.article-search/1" } else if verb == "get" {
             "biodata.gene-get/1"
         } else {
             "biodata.gene-search/1"
@@ -135,7 +136,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         let schema: Value =
             serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
         let value = arguments(matches, &schema)?;
-        let request = if verb == "get" {
+        let request = if entity == "article" { Request::SearchArticle(serde_json::from_value::<ArticleSearch>(value).map_err(|_|())?) } else if verb == "get" {
             Request::GetGene(serde_json::from_value::<GeneGet>(value).map_err(|_| ())?)
         } else {
             Request::SearchGene(serde_json::from_value::<GeneSearch>(value).map_err(|_| ())?)

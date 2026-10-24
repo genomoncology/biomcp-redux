@@ -2,6 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// An article identifier failed its namespace syntax.
+    ArticleIdInvalid,
     /// The checked EntrezGeneIdInvalid value was rejected.
     EntrezGeneIdInvalid,
     /// The checked GeneSymbolInvalid value was rejected.
@@ -60,6 +62,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::ArticleIdInvalid => "id.article.invalid",
             Self::LocusTypeUnknown => "gene.locus_type.unknown",
             Self::BuildUnknown => "build.unknown",
             Self::StrandUnknown => "strand.unknown",

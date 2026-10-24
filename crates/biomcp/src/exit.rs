@@ -4,6 +4,7 @@ use std::{io, process::ExitCode};
 pub(crate) enum Status {
     Success,
     Usage,
+    Expired,
     Absent,
     Failed,
     Local,
@@ -14,6 +15,7 @@ pub(crate) fn finish(result: io::Result<()>, status: Status) -> ExitCode {
         Ok(()) => match status {
             Status::Success => ExitCode::SUCCESS,
             Status::Usage => ExitCode::from(2),
+            Status::Expired => ExitCode::from(3),
             Status::Absent => ExitCode::from(1),
             Status::Failed => ExitCode::from(4),
             Status::Local => ExitCode::from(5),

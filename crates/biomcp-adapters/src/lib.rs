@@ -1,5 +1,6 @@
 //! Checked source replies mapped into shared human gene values.
 pub mod hgnc;
+pub mod pubmed;
 mod mapped;
 pub mod mygene;
 /// Keyed OncoKB gene annotations.

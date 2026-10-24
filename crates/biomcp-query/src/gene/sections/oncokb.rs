@@ -106,6 +106,7 @@ fn skipped(genes: &[(HgncId, Gene)]) -> SectionResult {
             })
             .collect(),
         source: SourceOutcome {
+        term: None, count: None, fetched: None, notices: Vec::new(),
             source: Source::Oncokb,
             state: SourceState::Skipped,
             reason: Some(Reason::NoKey),

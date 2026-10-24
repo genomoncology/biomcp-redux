@@ -27,12 +27,12 @@ macro_rules! singleton {
 
 singleton! {
     /// The status of an invalid schema request.
-    pub ErrorStatus { Usage => "usage", Local => "local" }
+    pub ErrorStatus { Usage => "usage", Local => "local", Expired => "expired" }
 }
 
 singleton! {
     /// The stable error code for an invalid schema request.
-    pub ErrorCode { SchemaUsage => "usage.schema", Arguments => "usage.arguments", Retired => "usage.retired", Local => "local.failure" }
+    pub ErrorCode { SchemaUsage => "usage.schema", Arguments => "usage.arguments", Retired => "usage.retired", Local => "local.failure", PoolExpired => "pool.expired", PoolMismatch => "usage.pool_mismatch" }
 }
 
 singleton! {
@@ -47,7 +47,7 @@ singleton! {
         Drugs => "use: search drug --target <gene>", CellLines => "moved to the cell line entity",
         Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
-        Drug => "moved to the drug entity", Diagnostic => "moved to the diagnostic entity", Deferred => "deferred"
+        Drug => "moved to the drug entity", Diagnostic => "moved to the diagnostic entity", Deferred => "deferred", PoolExpired => "pool expired; restart the search", PoolMismatch => "pool selectors do not match this search"
     }
 }
 
@@ -67,12 +67,16 @@ pub struct ErrorEnvelope {
     schema: ErrorSchema,
     status: ErrorStatus,
     error: ErrorDetail,
+    /// Typed restart when a snapshot cannot answer this query.
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
+    pub next: Vec<super::Step>,
 }
 
 impl ErrorEnvelope {
     /// Construct the fixed response for every invalid schema request.
     pub fn schema_usage() -> Self {
         Self {
+            next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
@@ -87,6 +91,7 @@ impl ErrorEnvelope {
     /// Report fixed migration guidance without accepting caller input.
     pub fn retired(message: ErrorMessage) -> Self {
         Self {
+            next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
@@ -98,6 +103,7 @@ impl ErrorEnvelope {
     /// Refuse invalid command arguments without echoing input.
     pub fn arguments() -> Self {
         Self {
+            next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
             error: ErrorDetail {
@@ -109,6 +115,7 @@ impl ErrorEnvelope {
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self {
+            next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Local,
             error: ErrorDetail {
@@ -116,5 +123,12 @@ impl ErrorEnvelope {
                 message: ErrorMessage::Local,
             },
         }
+    }
+}
+
+impl ErrorEnvelope {
+    /// Report an unavailable or mismatched pool with its typed restart.
+    pub fn pool(mismatch: bool, next: super::Step) -> Self {
+        Self { schema: ErrorSchema::V1, status: if mismatch { ErrorStatus::Usage } else { ErrorStatus::Expired }, error: ErrorDetail { code: if mismatch { ErrorCode::PoolMismatch } else { ErrorCode::PoolExpired }, message: if mismatch { ErrorMessage::PoolMismatch } else { ErrorMessage::PoolExpired } }, next: vec![next] }
     }
 }

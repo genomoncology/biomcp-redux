@@ -64,7 +64,7 @@ pub(crate) fn wait(delay: Duration, deadline: Deadline<'_>) -> bool {
 pub(crate) fn canonical(url: &str, params: &[(&str, Arg<'_>)], key: KeyUse) -> String {
     let credential = credential_query(key);
     let mut canonical = url.to_owned();
-    for (name, value) in params.iter().filter(|(name, _)| Some(*name) != credential) {
+    for (name, value) in params.iter().filter(|(name, value)| Some(*name) != credential && !matches!(value, Arg::Contact(_))) {
         canonical.push(if canonical.contains('?') { '&' } else { '?' });
         encode(&mut canonical, name);
         canonical.push('=');

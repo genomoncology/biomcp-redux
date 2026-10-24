@@ -1,3 +1,5 @@
+mod article;
+pub use article::{ArticleKey, ArticleItem, ArticlePage};
 mod error;
 mod problem;
 
@@ -19,9 +21,9 @@ mod status;
 mod step;
 pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
-pub use page::PageInfo;
+pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};
-pub use source::{SourceOutcome, SourceState};
+pub use source::{SourceOutcome, SourceState, SourceNotice};
 pub use status::{ItemStatus, Status};
 pub use step::{Step, StepKind};
 

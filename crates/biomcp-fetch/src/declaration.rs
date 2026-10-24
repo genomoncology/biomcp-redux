@@ -106,6 +106,8 @@ pub enum KeyPlace {
 /// A parameter value. Identifier sets are sorted before sending.
 #[derive(Debug)]
 pub enum Arg<'a> {
+    /// Outgoing-only contact, excluded from persistent identities.
+    Contact(&'a crate::Secret),
     /// Literal text.
     Text(&'a str),
     /// Unsigned integer.
@@ -117,6 +119,7 @@ pub enum Arg<'a> {
 impl Arg<'_> {
     pub(crate) fn value(&self) -> String {
         match self {
+            Self::Contact(_) => String::new(),
             Self::Text(value) => (*value).to_owned(),
             Self::Num(value) => value.to_string(),
             Self::Ids(values) => {

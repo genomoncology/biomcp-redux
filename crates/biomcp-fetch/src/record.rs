@@ -36,8 +36,12 @@ impl std::fmt::Debug for ReplayCache {
 impl ReplayCache {
     /// Allocate an isolated cache whose files live until its last owner drops.
     pub fn temporary() -> Result<Self, CacheError> {
+        Self::temporary_with_owners(&[])
+    }
+    /// Allocate a cache while checking all declared schema owners first.
+    pub fn temporary_with_owners(owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
         let directory = tempfile::tempdir().map_err(|_| CacheError::Database)?;
-        let cache = Arc::new(Cache::open(&directory.path().join("replay.sqlite"))?);
+        let cache = Arc::new(Cache::open_with_owners(&directory.path().join("replay.sqlite"), owners)?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: Some(directory),
@@ -45,6 +49,10 @@ impl ReplayCache {
     }
     /// Exclusively create a marked case directory with a fixed cache filename.
     pub fn create_case(path: &Path) -> Result<Self, CacheError> {
+        Self::create_case_with_owners(path, &[])
+    }
+    /// Create a marked case with all schema owners checked before mutation.
+    pub fn create_case_with_owners(path: &Path, owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
         safe_path(path)?;
         fs::create_dir(path).map_err(|_| CacheError::Database)?;
         let result = (|| {
@@ -59,7 +67,7 @@ impl ReplayCache {
             let _ = fs::remove_dir_all(path);
             return Err(CacheError::Database);
         }
-        let cache = Arc::new(Cache::open(&path.join("replay.sqlite"))?);
+        let cache = Arc::new(Cache::open_with_owners(&path.join("replay.sqlite"), owners)?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: None,
@@ -67,6 +75,10 @@ impl ReplayCache {
     }
     /// Open only an owned marked case directory, refusing foreign or linked files.
     pub fn open_case(path: &Path) -> Result<Self, CacheError> {
+        Self::open_case_with_owners(path, &[])
+    }
+    /// Open an owned case after checking every declared schema owner.
+    pub fn open_case_with_owners(path: &Path, owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
         safe_path(path)?;
         if !fs::symlink_metadata(path).is_ok_and(|meta| meta.is_dir()) {
             return Err(CacheError::Version);
@@ -96,7 +108,7 @@ impl ReplayCache {
         {
             return Err(CacheError::Version);
         }
-        let cache = Arc::new(Cache::open(&path.join("replay.sqlite"))?);
+        let cache = Arc::new(Cache::open_with_owners(&path.join("replay.sqlite"), owners)?);
         Ok(Self(Arc::new(CaseCache {
             cache,
             _directory: None,

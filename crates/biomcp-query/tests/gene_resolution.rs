@@ -167,6 +167,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     assert_eq!(
         run(
             &Ctx {
+        ncbi_email:None,
                 fetch: &fetch,
                 budget: Duration::from_secs(20),
                 fresh: false
@@ -188,6 +189,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     })
     .unwrap();
     let cx = Ctx {
+        ncbi_email:None,
         fetch: &fetch,
         budget: Duration::from_secs(20),
         fresh: false,
@@ -274,6 +276,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
     );
     let outcome = run(
         &Ctx {
+        ncbi_email:None,
             fetch: &fetch,
             budget: Duration::from_millis(1500),
             fresh: false,

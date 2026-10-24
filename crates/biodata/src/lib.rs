@@ -1,5 +1,10 @@
 #![doc = include_str!("../README.md")]
 
+mod article;
+pub use article::{ArticleHeader, PublicationType};
+pub use id::{Pmid, Pmcid, Doi};
+pub use query::{ArticleSearch, ArticleSource, ArticleSort};
+pub use response::{ArticleKey, ArticleItem, ArticlePage, PoolInfo, SourceNotice};
 mod response;
 mod source;
 mod text;
