@@ -13,6 +13,10 @@ struct Fields {
     /// Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
+    /// Named source sections; omitted by default.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Box<[VariantSection]>,
     /// Resolver for reference-qualified notation; never repairs the input locally.
     #[serde(default = "resolver")]
     resolver: VariantResolver,
@@ -44,6 +48,7 @@ impl TryFrom<Fields> for VariantGet {
             return Err(super::gene::QueryInvalid);
         }
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        query.0.section = fields.section;
         query.0.limit = fields.limit;
         query.0.offset = fields.offset;
         Ok(query)
@@ -65,11 +70,21 @@ impl VariantGet {
         }
         Ok(Self(Fields {
             input,
+            section: Box::default(),
             resolver,
             build,
             limit: default_limit(),
             offset: 0,
         }))
+    }
+    /// Explicit section selection; an empty list means identity only.
+    pub fn sections(&self) -> &[VariantSection] {
+        &self.0.section
+    }
+    /// Keep the input and page selectors while choosing sections.
+    pub fn with_sections(mut self, sections: Box<[VariantSection]>) -> Self {
+        self.0.section = sections;
+        self
     }
     /// Candidate rows per page.
     pub fn limit(&self) -> u32 {
@@ -118,5 +133,21 @@ impl VariantResolver {
             Self::Mutalyzer => crate::Source::Mutalyzer,
             Self::Variantvalidator => crate::Source::VariantValidator,
         }
+    }
+}
+
+crate::source::canonical_enum! {
+    /// Named variant source sections, without automatic expansion of identity cards.
+    VariantSection, SourceUnknown {
+        /// ClinVar native assertions.
+        Clinvar => "clinvar",
+        /// ClinGen evidence repository assertions.
+        Erepo => "erepo",
+        /// gnomAD population frequencies.
+        Population => "population",
+        /// GWAS Catalog associations.
+        Gwas => "gwas",
+        /// Every implemented variant section.
+        All => "all",
     }
 }
