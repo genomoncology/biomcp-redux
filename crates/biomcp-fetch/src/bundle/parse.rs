@@ -1,4 +1,4 @@
-use super::{Keys, Row};
+use super::{Keys, Row, RowFormat};
 use crate::BadReply;
 use std::collections::BTreeSet;
 pub(super) struct Parsed {
@@ -48,6 +48,102 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
             row: value.to_string(),
             keys: decoded.keys(),
         });
+    }
+    Ok(rows)
+}
+
+pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
+    match format {
+        RowFormat::Tsv => tsv::<R>(body),
+        RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines),
+    }
+}
+fn csv<R: Row>(body: &[u8], banner_lines: usize) -> Result<Vec<Parsed>, BadReply> {
+    let mut text = std::str::from_utf8(body).map_err(|_| BadReply)?;
+    for _ in 0..banner_lines {
+        text = text.split_once('\n').ok_or(BadReply)?.1;
+    }
+    let mut records = records(text)?.into_iter();
+    let names = records.next().ok_or(BadReply)?;
+    let unique: BTreeSet<_> = names.iter().collect();
+    if names.iter().any(String::is_empty) || unique.len() != names.len() {
+        return Err(BadReply);
+    }
+    let mut rows = Vec::new();
+    for values in records {
+        if values
+            .iter()
+            .all(|v| !v.is_empty() && v.bytes().all(|c| c == b'+'))
+        {
+            continue;
+        }
+        if values.len() != names.len() {
+            return Err(BadReply);
+        }
+        let object: serde_json::Map<_, _> = names
+            .iter()
+            .zip(values)
+            .filter(|(_, v)| !v.is_empty())
+            .map(|(k, v)| (k.clone(), serde_json::Value::String(v)))
+            .collect();
+        let value = serde_json::Value::Object(object);
+        let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
+        rows.push(Parsed {
+            row: value.to_string(),
+            keys: decoded.keys(),
+        });
+    }
+    Ok(rows)
+}
+// Quoting is a wire boundary: keep the complete logical-record state machine here.
+fn records(text: &str) -> Result<Vec<Vec<String>>, BadReply> {
+    let mut chars = text.chars().peekable();
+    let mut rows = Vec::new();
+    let mut row = Vec::new();
+    let mut cell = String::new();
+    let (mut quoted, mut closed, mut started) = (false, false, false);
+    while let Some(c) = chars.next() {
+        started = true;
+        if quoted {
+            if c == '"' {
+                if chars.peek() == Some(&'"') {
+                    chars.next();
+                    cell.push('"');
+                } else {
+                    quoted = false;
+                    closed = true;
+                }
+            } else {
+                cell.push(c);
+            }
+            continue;
+        }
+        match c {
+            '"' if cell.is_empty() && !closed => quoted = true,
+            ',' => {
+                row.push(std::mem::take(&mut cell));
+                closed = false;
+            }
+            '\n' | '\r' => {
+                if c == '\r' && chars.next() != Some('\n') {
+                    return Err(BadReply);
+                }
+                row.push(std::mem::take(&mut cell));
+                rows.push(std::mem::take(&mut row));
+                closed = false;
+                started = false;
+            }
+            '"' => return Err(BadReply),
+            _ if closed => return Err(BadReply),
+            _ => cell.push(c),
+        }
+    }
+    if quoted {
+        return Err(BadReply);
+    }
+    if started {
+        row.push(cell);
+        rows.push(row);
     }
     Ok(rows)
 }

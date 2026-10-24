@@ -777,3 +777,70 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
         assert_eq!(call.join().unwrap().unwrap().len(), 1);
     });
 }
+
+#[test]
+fn banner_csv_records_are_checked_before_atomic_publication() {
+    let server = support::Server::new();
+    let mut bundle = declared(&server);
+    bundle.format = RowFormat::Csv { banner_lines: 2 };
+    let dir = tempfile::tempdir().unwrap();
+    let fetch = cached(&dir.path().join("cache.sqlite"));
+    let good = "banner\r\ncreated today\r\n\"symbol\",\"band\",\"name\"\r\n+++,+++,+++\r\nBRAF,9p,\"B, raf \"\"kinase\"\"\nwhole\"\r\n";
+    assert_eq!(
+        sync_reply(&fetch, &bundle, &server, 200, "", good)
+            .unwrap()
+            .rows,
+        1
+    );
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| fetch.sync(&bundle));
+        let request = server.next();
+        assert!(request.text.contains("text/csv"));
+        assert!(!request.text.to_ascii_lowercase().contains("if-"));
+        request.respond(
+            200,
+            "ETag: \"generated\"\r\nLast-Modified: Wed, 21 Oct 2015 07:28:00 GMT\r\n",
+            good,
+        );
+        call.join().unwrap().unwrap();
+    });
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| fetch.sync(&bundle));
+        let request = server.next();
+        assert!(!request.text.to_ascii_lowercase().contains("if-"));
+        request.respond(200, "", good);
+        call.join().unwrap().unwrap();
+    });
+    for bad in [
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,\"open",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,bad\"quote\n",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p,\"closed\"x\n",
+        "banner\ncreated\nsymbol,,name\nBRAF,9p,a\n",
+        "banner\ncreated\nsymbol,symbol,name\nBRAF,9p,a\n",
+        "banner\ncreated\nsymbol,band,name\nBRAF,9p\n",
+    ] {
+        assert!(sync_reply(&fetch, &bundle, &server, 200, "", bad).is_err());
+        let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(2)));
+        let rows = leg
+            .rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF"))
+            .unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].name, "B, raf \"kinase\"\nwhole");
+    }
+    let capture = dir.path().join("capture");
+    let record = Fetch::open(FetchConfig {
+        cache: Some(dir.path().join("record.sqlite")),
+        mode: biomcp_fetch::Mode::Record {
+            dir: capture.clone(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    sync_reply(&record, &bundle, &server, 200, "", good).unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: biomcp_fetch::Mode::Replay { dir: capture },
+        ..Default::default()
+    })
+    .unwrap();
+    assert_eq!(replay.sync(&bundle).unwrap().rows, 1);
+}

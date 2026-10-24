@@ -57,6 +57,8 @@ canonical_enum! {
         UniProt => "uniprot",
         /// gnomAD.
         Gnomad => "gnomad",
+        /// ClinGen.
+        ClinGen => "clingen",
         /// PubMed.
         PubMed => "pubmed",
         /// Europe PMC.

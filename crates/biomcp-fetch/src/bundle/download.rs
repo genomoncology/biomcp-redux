@@ -74,7 +74,12 @@ impl Leg<'_> {
             total: None,
         };
         let record = matches!(self.fetch.config.mode, Mode::Record { .. });
-        resume(prior, &mut part, &mut file, !record)?;
+        resume(
+            prior,
+            &mut part,
+            &mut file,
+            !record && matches!(b.format, super::RowFormat::Tsv),
+        )?;
         let started = Instant::now();
         let mut transfer = Transfer {
             holder: &holder,
@@ -87,7 +92,11 @@ impl Leg<'_> {
             b,
             &url,
             &mut transfer,
-            if record { None } else { old.as_ref() },
+            if record || matches!(b.format, super::RowFormat::Csv { .. }) {
+                None
+            } else {
+                old.as_ref()
+            },
         );
         if result.is_err() {
             // Preserve this holder's file only if its fenced metadata update succeeds.
@@ -135,7 +144,7 @@ impl Leg<'_> {
         if exchange.status != 200 {
             return Err(self.failure(Reason::BadReply, Some(exchange.status)).into());
         }
-        let rows = parse::tsv::<R>(exchange.body.bytes())
+        let rows = parse::rows::<R>(exchange.body.bytes(), b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(200)))?;
         let meta = meta(
             b,
@@ -164,7 +173,7 @@ impl Leg<'_> {
                 .limiters
                 .acquire(self.spec.quota, keyed, self.budget())
                 .ok_or_else(|| self.failure(Reason::Syncing, None))?;
-            let response = self.wire_call(&prepared, "text/tab-separated-values", &headers);
+            let response = self.wire_call(&prepared, b.format.media(), &headers);
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
@@ -246,11 +255,14 @@ impl Leg<'_> {
     ) -> Result<BundleInfo, RequestError> {
         let status = response.status().as_u16();
         self.validate_range(t, response)?;
+        if matches!(b.format, super::RowFormat::Csv { .. }) {
+            t.part.etag = None;
+        }
         self.stream(t, response)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
-        let rows =
-            parse::tsv::<R>(&body).map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
+        let rows = parse::rows::<R>(&body, b.format)
+            .map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
         if self.budget().expired() {
             return Err(self.failure(Reason::Syncing, None).into());
         }
@@ -258,13 +270,21 @@ impl Leg<'_> {
             b,
             t.part.bytes,
             rows.len() as u64,
-            header(response, "etag"),
-            header(response, "last-modified"),
+            if matches!(b.format, super::RowFormat::Tsv) {
+                header(response, "etag")
+            } else {
+                None
+            },
+            if matches!(b.format, super::RowFormat::Tsv) {
+                header(response, "last-modified")
+            } else {
+                None
+            },
         );
         if matches!(self.fetch.config.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 status: 200,
-                content_type: "text/tab-separated-values".into(),
+                content_type: b.format.media().into(),
                 delay_ms: crate::record::millis(t.started.elapsed())
                     .map_err(RequestError::Recording)?,
                 retry_after_ms: None,

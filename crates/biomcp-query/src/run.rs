@@ -6,6 +6,8 @@ use biomcp_fetch::RequestError;
 pub enum Bundle {
     /// The HGNC identity source, including approved and withdrawn records.
     Hgnc,
+    /// ClinGen validity and dosage files.
+    ClinGen,
 }
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]

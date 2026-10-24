@@ -1,0 +1,24 @@
+{
+  "feature": "gene-sections",
+  "story": "ClinGen sync imports both required summaries and sums their metadata",
+  "replay": "gene/clingen",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "clingen"
+      ],
+      "mcp": [
+        "sync",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/source": "clingen",
+        "/result/rows": 21,
+        "/result/bytes": 6600,
+        "/sources/0/source": "clingen"
+      }
+    }
+  ]
+}

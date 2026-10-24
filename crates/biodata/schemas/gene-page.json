@@ -277,6 +277,7 @@
         "mygene",
         "uniprot",
         "gnomad",
+        "clingen",
         "pubmed",
         "europepmc",
         "pubtator",

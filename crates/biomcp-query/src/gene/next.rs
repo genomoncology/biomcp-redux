@@ -45,6 +45,17 @@ pub(crate) fn get(
     {
         steps.push(sync());
     }
+    if sources
+        .iter()
+        .any(|source| source.source == biodata::Source::ClinGen && source.state != SourceState::Ok)
+    {
+        steps.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::ClinGen,
+            },
+        ));
+    }
     for item in items {
         if let Some(GeneResolution::Ambiguous { candidates }) = &item.answer {
             for candidate in candidates {
