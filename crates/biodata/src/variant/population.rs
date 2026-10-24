@@ -48,12 +48,15 @@ impl TryFrom<Fields> for PopulationFrequency {
             .allele_count
             .zip(fields.allele_number)
             .is_some_and(|(ac, an)| ac > an)
-            || [fields.allele_frequency, fields.faf95]
-                .into_iter()
-                .flatten()
-                .any(|n| !(0.0..=1.0).contains(&f64::from(n)))
         {
-            return Err(crate::Error::PopulationFrequencyInvalid);
+            return Err(crate::Error::PopulationCountExceedsNumber);
+        }
+        if [fields.allele_frequency, fields.faf95]
+            .into_iter()
+            .flatten()
+            .any(|n| !(0.0..=1.0).contains(&f64::from(n)))
+        {
+            return Err(crate::Error::PopulationFrequencyRange);
         }
         Ok(Self(fields))
     }

@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.gene-ref/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A source-stated gene reference; its label never implies an identifier.",
+  "properties": {
+    "ensembl_gene_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EnsemblGeneId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hgnc_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HgncId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "label": {
+      "$ref": "#/$defs/Text"
+    },
+    "ncbi_gene_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NcbiGeneId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "label"
+  ],
+  "title": "GeneRef",
+  "type": "object"
+}

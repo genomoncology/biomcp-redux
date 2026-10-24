@@ -47,14 +47,14 @@ pub(super) fn join(candidates: &[VariantHeader]) -> Option<String> {
     };
     let mut forms = std::collections::BTreeSet::new();
     for representation in &row.identity.representations {
-        if representation.build != Some(Build::Grch38) {
+        if representation.build != Some(Build::GRCh38) {
             continue;
         }
         let Some(allele) = &representation.allele else {
             continue;
         };
         let chromosome =
-            Chromosome::from_accession(allele.location().sequence, Build::Grch38).ok()?;
+            Chromosome::from_accession(allele.location().sequence, Build::GRCh38).ok()?;
         let reference = allele.reference().to_string();
         let alternate = allele.alternate().to_string();
         if allele.location().span.end() - allele.location().span.start() != 1
@@ -83,7 +83,7 @@ pub(super) fn summary(raw: &gnomad::variant::Variant) -> Result<VariantPopulatio
     Ok(VariantPopulation {
         variant: raw.variant_id.clone(),
         dataset: text(gnomad::variant::DATASET)?,
-        build: Build::Grch38,
+        build: Build::GRCh38,
         exome: raw
             .exome
             .as_ref()

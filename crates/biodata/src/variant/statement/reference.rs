@@ -1,4 +1,4 @@
-use crate::{GeneSymbol, HgvsText, Text, VariantId};
+use crate::{GeneRef, HgvsText, Text, VariantId};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 /// Checked prefix:local ontology identifier.
@@ -88,7 +88,7 @@ impl VariantRef {
         }))
     }
     /// Reference a protein label in its source gene context.
-    pub fn protein(gene: GeneSymbol, label: Text) -> Self {
+    pub fn protein(gene: GeneRef, label: Text) -> Self {
         Self(Fields::Protein(ProteinRef {
             gene,
             hgvs: None,
@@ -96,7 +96,7 @@ impl VariantRef {
         }))
     }
     /// Preserve a source-qualified protein expression and optional source label.
-    pub fn protein_hgvs(gene: GeneSymbol, hgvs: HgvsText, label: Option<Text>) -> Self {
+    pub fn protein_hgvs(gene: GeneRef, hgvs: HgvsText, label: Option<Text>) -> Self {
         Self(Fields::Protein(ProteinRef {
             gene,
             hgvs: Some(hgvs),
@@ -144,7 +144,7 @@ struct AlleleRef {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct ProteinRef {
     /// Source gene.
-    gene: GeneSymbol,
+    gene: GeneRef,
     /// Source protein HGVS.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     hgvs: Option<HgvsText>,

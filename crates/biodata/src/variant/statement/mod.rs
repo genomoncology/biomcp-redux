@@ -1,5 +1,5 @@
 //! Source assertions without ranking, merging or clinical inference.
-use crate::{GeneSymbol, PartialDate, Pmid, Source, Text};
+use crate::{GeneRef, PartialDate, Pmid, Source, Text};
 use serde::{Deserialize, Serialize};
 mod coding;
 pub use coding::*;
@@ -36,7 +36,7 @@ pub struct Statement {
     pub allele_origin: Option<Term>,
     /// Source gene context.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub gene_context: Option<GeneSymbol>,
+    pub gene_context: Option<GeneRef>,
     /// Source criterion labels in source order.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub criteria: Box<[Text]>,

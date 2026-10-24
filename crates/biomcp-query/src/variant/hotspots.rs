@@ -28,6 +28,7 @@ pub(super) fn section(
                 .iter()
                 .chain(c.myvariant.iter().flat_map(|v| v.genes.iter()))
         })
+        .filter_map(|gene| gene.label().as_str().parse::<biodata::GeneSymbol>().ok())
         .fold(Vec::new(), |mut genes, gene| {
             if !genes.contains(&gene) {
                 genes.push(gene);

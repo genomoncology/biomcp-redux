@@ -118,7 +118,15 @@ fn lrg(input: &mut &str) -> ModalResult<Accession> {
 }
 
 fn version(input: &mut &str) -> ModalResult<u16> {
-    preceded('.', decimal).parse_next(input)
+    preceded(
+        '.',
+        digit1.verify_map(|text: &str| {
+            (!text.starts_with('0'))
+                .then(|| text.parse().ok())
+                .flatten()
+        }),
+    )
+    .parse_next(input)
 }
 
 /// Digits read as a number, written in exactly the width the number renders at.
@@ -184,11 +192,84 @@ fn decimal<T: FromStr>(input: &mut &str) -> ModalResult<T> {
 impl FromStr for Accession {
     type Err = Error;
     fn from_str(text: &str) -> Result<Self, Error> {
-        accession.parse(text).map_err(|_| Error::AccessionInvalid)
+        if text.starts_with("LRG_") {
+            return accession
+                .parse(text)
+                .map_err(|_| Error::AccessionLrgInvalid);
+        }
+        let prefix_len = if text
+            .get(..3)
+            .is_some_and(|p| p.parse::<RefSeqPrefix>().is_ok())
+        {
+            3
+        } else if text
+            .get(..4)
+            .is_some_and(|p| p.parse::<EnsemblFeature>().is_ok())
+        {
+            4
+        } else {
+            return Err(Error::AccessionInvalid);
+        };
+        let tail = text.get(prefix_len..).ok_or(Error::AccessionInvalid)?;
+        let (number, version) = tail.split_once('.').ok_or(Error::AccessionVersionMissing)?;
+        let width_ok = if prefix_len == 3 {
+            matches!(number.len(), 6 | 9)
+        } else {
+            number.len() == 11
+        };
+        if !width_ok || !number.bytes().all(|c| c.is_ascii_digit()) {
+            return Err(Error::AccessionDigitsWidth);
+        }
+        if version.starts_with('0') {
+            return Err(Error::AccessionVersionLeadingZero);
+        }
+        if version.is_empty() {
+            return Err(Error::AccessionVersionMissing);
+        }
+        if !version.bytes().all(|c| c.is_ascii_digit()) || version.parse::<u16>().is_err() {
+            return Err(Error::AccessionVersionOverflow);
+        }
+        accession
+            .parse(text)
+            .map_err(|_| Error::AccessionDigitsWidth)
     }
 }
 text_value!(
     Accession,
     "Accession",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[0-9]+|ENS[GTP][0-9]{11}\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)$"
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[1-9][0-9]*|ENS[GTP][0-9]{11}\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$"
+);
+
+/// An accession whose source states no version; never used for an allele location.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AccessionBase(Box<str>);
+impl AccessionBase {
+    /// Borrow the canonical unversioned accession.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+impl FromStr for AccessionBase {
+    type Err = Error;
+    fn from_str(text: &str) -> Result<Self, Error> {
+        if text.contains('.') {
+            return Err(Error::AccessionVersionPresent);
+        }
+        if text.starts_with("LRG_") {
+            text.parse::<Accession>()?;
+        } else {
+            format!("{text}.1").parse::<Accession>()?;
+        }
+        Ok(Self(text.into()))
+    }
+}
+impl fmt::Display for AccessionBase {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+text_value!(
+    AccessionBase,
+    "AccessionBase",
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$"
 );

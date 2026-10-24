@@ -14,7 +14,7 @@ pub(super) fn source_build(hit: &Hit) -> Option<Build> {
     }
     let span = literal_span(expression)?;
     let mut found = None;
-    for (build, value) in [(Build::Grch37, &hit.hg19), (Build::Grch38, &hit.hg38)] {
+    for (build, value) in [(Build::GRCh37, &hit.hg19), (Build::GRCh38, &hit.hg38)] {
         if let Some(value) = value {
             let source = source_span(value)?;
             if source == span {

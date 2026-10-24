@@ -1,5 +1,5 @@
 use crate::raw::Field;
-use biodata::{EntrezGeneId, Text};
+use biodata::{NcbiGeneId, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
     Deserialize,
@@ -65,7 +65,7 @@ pub(super) struct Gene {
     pub id: u64,
     #[serde(rename = "entrezId")]
     #[serde(deserialize_with = "entrez")]
-    pub entrez_id: EntrezGeneId,
+    pub entrez_id: NcbiGeneId,
     #[serde(deserialize_with = "nullable")]
     pub description: Option<Field<String>>,
     pub link: String,
@@ -82,6 +82,6 @@ fn nullable<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
     Option::<T>::deserialize(d)
 }
 
-fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<EntrezGeneId, D::Error> {
-    EntrezGeneId::new(u32::deserialize(d)?).map_err(serde::de::Error::custom)
+fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<NcbiGeneId, D::Error> {
+    NcbiGeneId::new(u32::deserialize(d)?).map_err(serde::de::Error::custom)
 }

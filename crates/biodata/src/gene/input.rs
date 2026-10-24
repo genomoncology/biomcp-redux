@@ -1,5 +1,5 @@
 use crate::macros::text_value;
-use crate::{EnsemblGeneId, EntrezGeneId, Error, HgncId, Text};
+use crate::{EnsemblGeneId, Error, HgncId, NcbiGeneId, Text};
 use std::{fmt, str::FromStr};
 
 /// An input classified before source resolution; aliases remain free text.
@@ -11,7 +11,7 @@ pub enum GeneInput {
     /// An explicitly namespaced Ensembl gene identifier.
     EnsemblId(EnsemblGeneId),
     /// A decimal NCBI Gene identifier.
-    EntrezId(EntrezGeneId),
+    EntrezId(NcbiGeneId),
     /// A symbol or alias for source resolution.
     Text(Text),
 }

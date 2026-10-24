@@ -45,7 +45,7 @@ fn constraint_numbers_refuse_non_finite_values_and_empty_sections_omit_record() 
             biodata::FiniteNumber::try_from(value)
                 .unwrap_err()
                 .to_string(),
-            "number.non_finite"
+            "number.value.non_finite"
         );
     }
     for value in [0.0, -2.5, f64::MAX] {

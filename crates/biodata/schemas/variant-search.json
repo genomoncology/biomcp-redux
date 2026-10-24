@@ -13,14 +13,14 @@
       ]
     },
     "GeneSymbol": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
     "MyVariantQuery": {
       "pattern": "\\S",
       "type": "string"
     },
-    "ProteinChange": {
+    "ProteinQuery": {
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
@@ -48,7 +48,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.variant-search/1",
+  "$id": "biodata.variant-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [
@@ -106,7 +106,7 @@
       "type": "integer"
     },
     "protein": {
-      "$ref": "#/$defs/ProteinChange",
+      "$ref": "#/$defs/ProteinQuery",
       "description": "Explicit substitution using checked one-letter or three-letter amino-acid codes."
     },
     "query": {

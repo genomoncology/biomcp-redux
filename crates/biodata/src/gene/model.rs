@@ -1,6 +1,6 @@
-use super::{GeneStatus, HgncStatus, LocusGroup, LocusType, ManeSelect, MatchKind, Summary};
+use super::{GeneStatus, HgncStatus, LocusGroup, LocusType, Mane, MatchKind, Summary};
 use crate::{
-    Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, GenomicInterval, HgncId, OmimId, Text,
+    Cytoband, EnsemblGeneId, GeneSymbol, GenomicInterval, HgncId, NcbiGeneId, OmimId, Text,
     UniProtAcc,
 };
 use serde::{Deserialize, Serialize};
@@ -48,7 +48,7 @@ pub struct Gene {
     pub symbol: GeneSymbol,
     /// NCBI Gene identifier, if stated.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub entrez_id: Option<EntrezGeneId>,
+    pub entrez_id: Option<NcbiGeneId>,
     /// Ensembl gene identifier, if stated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ensembl_id: Option<EnsemblGeneId>,
@@ -71,8 +71,8 @@ pub struct Gene {
     /// All stated OMIM identifiers.
     pub omim: Box<[OmimId]>,
     /// Versioned MANE Select transcript pair, if stated.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mane_select: Option<ManeSelect>,
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub mane: Box<[Mane]>,
     /// Source intervals with explicit assembly and counting rule.
     pub spans: Box<[GenomicInterval]>,
     /// Gene name.

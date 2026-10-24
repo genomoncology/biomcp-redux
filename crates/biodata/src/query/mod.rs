@@ -43,7 +43,8 @@ mod trial_document;
 pub use trial_document::TrialDocumentGet;
 
 mod protein_change;
-pub use protein_change::ProteinChange;
+pub(crate) use protein_change::ProteinQuery;
+pub use protein_change::protein_query_forms;
 mod variant_search;
 pub use variant_search::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,

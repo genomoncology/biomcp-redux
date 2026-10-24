@@ -25,4 +25,4 @@ steps:
     expect:
       /result/items/0/answer/resolution: resolved
       /result/items/0/answer/gene/symbol: AK6
-      /result/items/1/answer/gene/mane_select/refseq: NR_186305.1
+      /result/items/1/answer/gene/mane/0/refseq: NR_186305.1

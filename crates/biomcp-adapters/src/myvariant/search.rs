@@ -47,7 +47,7 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
     if let Some(build) = query.build() {
         args.push((
             "assembly",
-            Arg::Text(if build == Build::Grch38 {
+            Arg::Text(if build == Build::GRCh38 {
                 "hg38"
             } else {
                 "hg19"

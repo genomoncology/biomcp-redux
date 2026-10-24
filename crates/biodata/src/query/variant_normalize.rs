@@ -38,7 +38,7 @@ impl TryFrom<Fields> for VariantNormalize {
                 NormalizationSource::All | NormalizationSource::Variantvalidator
             ) && f.build.is_none()
             || f.build
-                .is_some_and(|b| !matches!(b, Build::Grch37 | Build::Grch38))
+                .is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))
         {
             return Err(super::gene::QueryInvalid);
         }

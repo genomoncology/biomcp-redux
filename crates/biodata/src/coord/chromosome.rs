@@ -24,7 +24,7 @@ impl Chromosome {
         let (number, version) = if self.0 == 25 {
             (12920, 1)
         } else {
-            let row = if build == Build::Grch37 {
+            let row = if build == Build::GRCh37 {
                 VERSIONS.first()
             } else {
                 VERSIONS.last()

@@ -1,5 +1,5 @@
 use crate::raw::Field;
-use biodata::{EntrezGeneId, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript, Text};
+use biodata::{NcbiGeneId, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript, Text};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Deserialize)]
@@ -14,7 +14,7 @@ impl Reply for Genes {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Gene {
     #[serde(deserialize_with = "entrez")]
-    pub entrez_gene_id: EntrezGeneId,
+    pub entrez_gene_id: NcbiGeneId,
     hugo_symbol: biodata::GeneSymbol,
     gene_type: OncokbGeneType,
     highest_sensitive_level: Option<Field<String>>,
@@ -76,14 +76,14 @@ impl Reply for Info {
     }
 }
 
-fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<EntrezGeneId, D::Error> {
+fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<NcbiGeneId, D::Error> {
     let value = u32::deserialize(d)?;
-    EntrezGeneId::new(value).map_err(serde::de::Error::custom)
+    NcbiGeneId::new(value).map_err(serde::de::Error::custom)
 }
 
 fn text(
     value: Option<Field<String>>,
-    id: EntrezGeneId,
+    id: NcbiGeneId,
     field: &str,
     problems: &mut Vec<biodata::Problem>,
 ) -> Option<Text> {

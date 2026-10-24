@@ -6,7 +6,7 @@ mod variant_map;
 mod variant_raw;
 use crate::{Mapped, quotas, raw::Field};
 use biodata::{
-    CivicGene, EntrezGeneId, GeneSymbol, Problem, ProblemCode, Section, Source, SourceRecord, Text,
+    CivicGene, GeneSymbol, NcbiGeneId, Problem, ProblemCode, Section, Source, SourceRecord, Text,
 };
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use serde::Serialize;
@@ -40,14 +40,14 @@ pub struct GeneCivic {
     /// Submitted symbol that selected the GraphQL alias.
     pub symbol: GeneSymbol,
     /// Submitted Entrez join identity.
-    pub id: EntrezGeneId,
+    pub id: NcbiGeneId,
     /// Complete section or its explicit absence/failure.
     pub civic: Mapped<Section<CivicGene>>,
 }
 /// Fetch up to twenty distinct symbol/Entrez pairs in one encoded aliased query.
 pub fn genes(
     leg: &Leg<'_>,
-    ids: &[(GeneSymbol, EntrezGeneId)],
+    ids: &[(GeneSymbol, NcbiGeneId)],
 ) -> Result<Vec<GeneCivic>, RequestError> {
     let mut ids = ids.to_vec();
     ids.sort_unstable_by(|a, b| a.0.as_str().cmp(b.0.as_str()));
@@ -80,7 +80,7 @@ pub fn genes(
         .map(|(index, (symbol, id))| mapped(&raw, index, symbol, id))
         .collect())
 }
-fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: EntrezGeneId) -> GeneCivic {
+fn mapped(raw: &raw::Aliases, index: usize, symbol: GeneSymbol, id: NcbiGeneId) -> GeneCivic {
     let mut problems = Vec::new();
     let gene = raw
         .0

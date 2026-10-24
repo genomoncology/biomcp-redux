@@ -116,7 +116,7 @@ pub(crate) fn resolve(
                 input.to_owned()
             };
             let found =
-                myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::Grch37))?;
+                myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::GRCh37))?;
             problems.extend(found.problems);
             Ok((found.value, None))
         }
@@ -166,12 +166,12 @@ fn car(
 }
 fn join_id(row: &VariantHeader) -> Option<String> {
     row.identity.representations.iter().find_map(|r| {
-        if r.build != Some(biodata::Build::Grch37) {
+        if r.build != Some(biodata::Build::GRCh37) {
             return None;
         }
         let allele = r.allele.as_ref()?;
         let chromosome =
-            biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::Grch37)
+            biodata::Chromosome::from_accession(allele.location().sequence, biodata::Build::GRCh37)
                 .ok()?;
         myvariant::genomic_id(&chromosome.name(), r.expression.value())
     })
@@ -207,7 +207,7 @@ fn enrich(
     let mut join_error = None;
     for candidate in candidates {
         if let Some(id) = join_id(candidate) {
-            match myvariant::lookup(&leg, &id, biodata::Build::Grch37) {
+            match myvariant::lookup(&leg, &id, biodata::Build::GRCh37) {
                 Ok(found) => {
                     problems.extend(found.problems);
                     for row in found.value {

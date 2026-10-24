@@ -1,72 +1,164 @@
 use crate::{Error, macros::text_value};
-use std::{fmt, str::FromStr};
-/// A published variant identifier; the namespace never comes from biological meaning.
+use std::{fmt, num::NonZeroU64, str::FromStr};
+macro_rules! numeric_id {
+    ($(#[$doc:meta])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
+        $(#[$doc])*
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+        pub struct $name(NonZeroU64);
+        impl $name {
+            /// Check a positive namespace-local number.
+            pub fn new(value: u64) -> Result<Self, Error> {
+                NonZeroU64::new(value).map(Self).ok_or(Error::$error)
+            }
+            /// Return the namespace-local number.
+            pub fn get(self) -> u64 { self.0.get() }
+        }
+        impl FromStr for $name {
+            type Err = Error;
+            fn from_str(text: &str) -> Result<Self, Error> {
+                let number = text.strip_prefix($prefix).ok_or(Error::$error)?;
+                let id = Self::new(number.parse().map_err(|_| Error::$error)?)?;
+                if id.to_string() != text { return Err(Error::$error); }
+                Ok(id)
+            }
+        }
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "{}{:0width$}", $prefix, self.get(), width = $padding)
+            }
+        }
+        text_value!($name, stringify!($name), $pattern);
+    };
+}
+// Each level has its own checked value, even where the grammar is the same.
+numeric_id!(/// A dbSNP site identifier, never an allele join key.
+    RsId, RsIdInvalid, "rs", "^rs[1-9][0-9]*$", 0);
+numeric_id!(/// A ClinGen canonical nucleotide allele identifier.
+    CaId, CaIdInvalid, "CA", "^CA[0-9]{6,}$", 6);
+// Registry API documents separate CA nucleotide and PA protein namespaces:
+// https://reg.genome.network/doc/AlleleRegistry_1.01.xx_api_v1.pdf
+numeric_id!(/// A ClinGen canonical protein allele identifier.
+    PaId, PaIdInvalid, "PA", "^PA[1-9][0-9]*$", 0);
+numeric_id!(/// A ClinVar variation record, which may represent a compound.
+    ClinVarVariationId, ClinVarVariationIdInvalid, "clinvar:", "^clinvar:[1-9][0-9]*$", 0);
+numeric_id!(/// An allele identifier inside a ClinVar record, not a variant identifier.
+    ClinVarAlleleId, ClinVarAlleleIdInvalid, "", "^[1-9][0-9]*$", 0);
+macro_rules! accession_id {
+    ($(#[$doc:meta])* $name:ident, $error:ident, $prefix:literal) => {
+        $(#[$doc])*
+        #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+        pub struct $name(Box<str>);
+        impl FromStr for $name {
+            type Err = Error;
+            fn from_str(text: &str) -> Result<Self, Error> {
+                let (accession, version) = text.split_once('.').map_or((text, None), |(a,v)| (a,Some(v)));
+                let valid = accession.strip_prefix($prefix).is_some_and(|n| {
+                    n.len() == 9 && n.bytes().all(|b| b.is_ascii_digit()) && n != "000000000"
+                });
+                if !valid || !version.is_none_or(positive) { return Err(Error::$error); }
+                Ok(Self(text.into()))
+            }
+        }
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+        }
+        text_value!($name, stringify!($name), concat!("^", $prefix, "[0-9]{9}(\\.[1-9][0-9]*)?$"));
+    };
+}
+accession_id!(/// A ClinVar variation accession, possibly a haplotype or compound.
+    VcvId, VcvIdInvalid, "VCV");
+accession_id!(/// A ClinVar variant-and-condition aggregate accession.
+    RcvId, RcvIdInvalid, "RCV");
+accession_id!(/// A ClinVar submission accession.
+    ScvId, ScvIdInvalid, "SCV");
+fn positive(text: &str) -> bool {
+    !text.is_empty() && !text.starts_with('0') && text.bytes().all(|b| b.is_ascii_digit())
+}
+/// A COSMIC genomic, legacy transcript or noncoding variant identifier; its kind is retained.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct CosmicId(Box<str>);
+impl FromStr for CosmicId {
+    type Err = Error;
+    fn from_str(text: &str) -> Result<Self, Error> {
+        if !["COSV", "COSM", "COSN"]
+            .iter()
+            .any(|p| text.strip_prefix(p).is_some_and(positive))
+        {
+            return Err(Error::CosmicIdInvalid);
+        }
+        Ok(Self(text.into()))
+    }
+}
+impl fmt::Display for CosmicId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+text_value!(CosmicId, "CosmicId", "^COS[VMN][1-9][0-9]*$");
+/// A source-supplied VRS allele identifier; construction never computes a digest.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct VrsId(Box<str>);
+impl FromStr for VrsId {
+    type Err = Error;
+    fn from_str(text: &str) -> Result<Self, Error> {
+        if !text.strip_prefix("ga4gh:VA.").is_some_and(|d| {
+            d.len() == 32
+                && d.bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_'))
+        }) {
+            return Err(Error::VrsIdInvalid);
+        }
+        Ok(Self(text.into()))
+    }
+}
+impl fmt::Display for VrsId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+text_value!(VrsId, "VrsId", r"^ga4gh:VA\.[A-Za-z0-9_-]{32}$");
+/// Published variant-level identifiers, with each identifier's level retained.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum VariantId {
-    /// dbSNP RefSNP identifier.
-    Rs(u64),
-    /// ClinGen canonical nucleotide allele.
-    Ca(u64),
-    /// ClinVar Variation ID.
-    ClinVarVariation(u64),
-    /// ClinVar Allele ID.
-    ClinVarAllele(u64),
-    /// ClinVar versioned or unversioned VCV, RCV or SCV accession.
-    ClinVarAccession(Box<str>),
-    /// A source-supplied VRS allele digest.
-    Vrs(Box<str>),
+    /// dbSNP site, possibly containing multiple alternate alleles.
+    Rs(RsId),
+    /// Canonical nucleotide allele.
+    Ca(CaId),
+    /// Canonical protein allele.
+    Pa(PaId),
+    /// ClinVar variation record, possibly a compound.
+    Vcv(VcvId),
+    /// Numeric ClinVar variation record identifier.
+    ClinVarVariation(ClinVarVariationId),
+    /// COSMIC identifier with its stated kind.
+    Cosmic(CosmicId),
+    /// Source-supplied VRS allele digest.
+    Vrs(VrsId),
 }
 impl FromStr for VariantId {
     type Err = Error;
-    fn from_str(value: &str) -> Result<Self, Error> {
-        for (prefix, make) in [
-            ("rs", Self::Rs as fn(u64) -> Self),
-            ("clinvar:", Self::ClinVarVariation),
-            ("clinvar.allele:", Self::ClinVarAllele),
-        ] {
-            if let Some(number) = value.strip_prefix(prefix) {
-                let n = number.parse::<u64>().map_err(|_| Error::VariantIdInvalid)?;
-                return if n > 0 && n.to_string() == number {
-                    Ok(make(n))
-                } else {
-                    Err(Error::VariantIdInvalid)
-                };
-            }
+    fn from_str(text: &str) -> Result<Self, Error> {
+        if text.starts_with("rs") {
+            return text.parse().map(Self::Rs);
         }
-        for (prefix, make) in [("CA", Self::Ca as fn(u64) -> Self)] {
-            if let Some(number) = value.strip_prefix(prefix) {
-                let n = number.parse::<u64>().map_err(|_| Error::VariantIdInvalid)?;
-                let id = make(n);
-                return if n > 0 && id.to_string() == value {
-                    Ok(id)
-                } else {
-                    Err(Error::VariantIdInvalid)
-                };
-            }
+        if text.starts_with("CA") {
+            return text.parse().map(Self::Ca);
         }
-        if let Some(digest) = value.strip_prefix("ga4gh:VA.")
-            && digest.len() == 32
-            && digest
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_'))
-        {
-            return Ok(Self::Vrs(value.into()));
+        if text.starts_with("PA") {
+            return text.parse().map(Self::Pa);
         }
-        let (accession, version) = value
-            .split_once('.')
-            .map_or((value, None), |(a, v)| (a, Some(v)));
-        let valid = ["VCV", "RCV", "SCV"].iter().any(|prefix| {
-            accession.strip_prefix(prefix).is_some_and(|n| {
-                n.len() == 9 && n.bytes().all(|b| b.is_ascii_digit()) && n != "000000000"
-            })
-        });
-        if valid
-            && version.is_none_or(|v| {
-                !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit()) && !v.starts_with('0')
-            })
-        {
-            return Ok(Self::ClinVarAccession(value.into()));
+        if text.starts_with("VCV") {
+            return text.parse().map(Self::Vcv);
+        }
+        if text.starts_with("clinvar:") {
+            return text.parse().map(Self::ClinVarVariation);
+        }
+        if text.starts_with("COS") {
+            return text.parse().map(Self::Cosmic);
+        }
+        if text.starts_with("ga4gh:VA.") {
+            return text.parse().map(Self::Vrs);
         }
         Err(Error::VariantIdInvalid)
     }
@@ -74,16 +166,18 @@ impl FromStr for VariantId {
 impl fmt::Display for VariantId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Rs(n) => write!(f, "rs{n}"),
-            Self::Ca(n) => write!(f, "CA{n:06}"),
-            Self::ClinVarVariation(n) => write!(f, "clinvar:{n}"),
-            Self::ClinVarAllele(n) => write!(f, "clinvar.allele:{n}"),
-            Self::ClinVarAccession(s) | Self::Vrs(s) => f.write_str(s),
+            Self::Rs(v) => v.fmt(f),
+            Self::Ca(v) => v.fmt(f),
+            Self::Pa(v) => v.fmt(f),
+            Self::Vcv(v) => v.fmt(f),
+            Self::ClinVarVariation(v) => v.fmt(f),
+            Self::Cosmic(v) => v.fmt(f),
+            Self::Vrs(v) => v.fmt(f),
         }
     }
 }
-text_value!(
-    VariantId,
-    "VariantId",
-    r"^(((rs|clinvar:|clinvar\.allele:)[1-9][0-9]*|CA[0-9]{6,})|(VCV|RCV|SCV)[0-9]{9}(\.[1-9][0-9]*)?|ga4gh:VA\.[A-Za-z0-9_-]{32})$"
-);
+#[cfg(feature = "schema")]
+impl VariantId {
+    pub(crate) const PATTERN: &'static str = r"^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\.[A-Za-z0-9_-]{32})$";
+}
+text_value!(VariantId, "VariantId", Self::PATTERN);

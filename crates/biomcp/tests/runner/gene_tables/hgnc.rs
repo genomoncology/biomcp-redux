@@ -122,7 +122,7 @@ fn withdrawn() -> Check {
             &["get", "gene", input],
             |_, _| {},
             json!({"/result/items/0/answer/resolution": "withdrawn",
-                "/result/items/0/answer/hgnc_status": "Merged/Split",
+                "/result/items/0/answer/hgnc_status": "merged_split",
                 "/result/items/0/answer/merged_into": targets}),
             0,
         )?;
@@ -216,7 +216,7 @@ fn vocabulary() -> Check {
                 );
             }
         },
-        json!({"/result/items/0/answer/gene/mane_select/refseq": "NR_186305.1"}),
+        json!({"/result/items/0/answer/gene/mane/0/refseq": "NR_186305.1"}),
         0,
     )
 }

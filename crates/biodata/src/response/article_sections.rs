@@ -1,4 +1,4 @@
-use crate::{Capped, EntrezGeneId, Section, Text};
+use crate::{Capped, NcbiGeneId, Section, Text};
 use serde::{Deserialize, Serialize};
 crate::source::canonical_enum! {
     /// Normalized annotation category in deterministic tie order.
@@ -26,7 +26,7 @@ pub struct AnnotatedEntity {
     pub count: u64,
     /// Gene identity, including a variant's associated gene.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub entrez_id: Option<EntrezGeneId>,
+    pub entrez_id: Option<NcbiGeneId>,
     /// Source MeSH identity for a disease or chemical.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mesh: Option<Text>,

@@ -48,10 +48,6 @@
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
-    "EntrezGeneId": {
-      "pattern": "^[1-9][0-9]*$",
-      "type": "string"
-    },
     "Gene": {
       "additionalProperties": false,
       "description": "Human gene identity and whole source annotations, independent of response cards.",
@@ -77,7 +73,7 @@
         "entrez_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EntrezGeneId"
+              "$ref": "#/$defs/NcbiGeneId"
             },
             {
               "type": "null"
@@ -115,16 +111,12 @@
           ],
           "description": "HGNC locus type, if stated and recognized."
         },
-        "mane_select": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/ManeSelect"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Versioned MANE Select transcript pair, if stated."
+        "mane": {
+          "description": "Versioned MANE Select transcript pair, if stated.",
+          "items": {
+            "$ref": "#/$defs/Mane"
+          },
+          "type": "array"
         },
         "name": {
           "$ref": "#/$defs/Text",
@@ -367,7 +359,7 @@
       ]
     },
     "GeneSymbol": {
-      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
     "GenomicInterval": {
@@ -418,8 +410,8 @@
     "HgncStatus": {
       "description": "HGNC's stated withdrawn-file status.",
       "enum": [
-        "Entry Withdrawn",
-        "Merged/Split"
+        "entry_withdrawn",
+        "merged_split"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -503,24 +495,43 @@
         " HGNC virus integration site."
       ]
     },
-    "ManeSelect": {
+    "Mane": {
       "additionalProperties": false,
-      "description": "A MANE Select pair whose two accessions both state their versions.",
+      "description": "A source-stated MANE pair with versioned sequence accessions.",
       "properties": {
         "ensembl": {
+          "description": "Versioned Ensembl accession.",
           "pattern": "^ENST[0-9]{11}\\.[1-9][0-9]*$",
           "type": "string"
         },
         "refseq": {
-          "pattern": "^(NM_|NR_)[0-9]{6,}\\.[1-9][0-9]*$",
+          "description": "Versioned RefSeq accession.",
+          "pattern": "^(NM_|NR_)([0-9]{6}|[0-9]{9})\\.[1-9][0-9]*$",
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/ManeStatus",
+          "description": "Source-stated transcript status."
         }
       },
       "required": [
+        "status",
         "refseq",
         "ensembl"
       ],
       "type": "object"
+    },
+    "ManeStatus": {
+      "description": "The source-stated MANE transcript status.",
+      "enum": [
+        "select",
+        "plus_clinical"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " MANE Select transcript pair.",
+        " MANE Plus Clinical transcript pair."
+      ]
     },
     "Match": {
       "additionalProperties": false,
@@ -564,6 +575,10 @@
         " Ensembl gene identifier.",
         " Cytogenetic band."
       ]
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
     },
     "NctId": {
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
@@ -1400,7 +1415,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial_page/2",
+  "$id": "biomcp.trial_page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1446,7 +1461,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial_page/2",
+      "const": "biomcp.trial_page/3",
       "type": "string"
     },
     "sources": {

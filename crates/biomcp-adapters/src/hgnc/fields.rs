@@ -1,4 +1,4 @@
-use biodata::{HgncId, LocusGroup, LocusType, ManeSelect, Problem, ProblemCode, Source, Text};
+use biodata::{HgncId, LocusGroup, LocusType, Mane, Problem, ProblemCode, Source, Text};
 use std::str::FromStr;
 
 pub(super) struct Fields {
@@ -72,7 +72,12 @@ pub(super) fn locus(value: &str) -> Option<LocusType> {
         _ => return None,
     })
 }
-pub(super) fn mane(value: &str) -> Option<ManeSelect> {
+pub(super) fn mane(value: &str) -> Option<Mane> {
     let (ensembl, refseq) = value.split_once('|')?;
-    ManeSelect::new(refseq.parse().ok()?, ensembl.parse().ok()?).ok()
+    Mane::new(
+        biodata::ManeStatus::Select,
+        refseq.parse().ok()?,
+        ensembl.parse().ok()?,
+    )
+    .ok()
 }

@@ -2,7 +2,7 @@
 mod map;
 mod raw;
 use crate::{Mapped, quotas};
-use biodata::{EntrezGeneId, GenomicInterval, HgncId, Problem, Source, Summary};
+use biodata::{GenomicInterval, HgncId, NcbiGeneId, Problem, Source, Summary};
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use std::time::Duration;
 
@@ -31,9 +31,9 @@ const BATCH: usize = 200;
 #[derive(Debug)]
 pub struct GeneExtras {
     /// Submitted query identifier; never inferred from array position.
-    pub query_id: EntrezGeneId,
+    pub query_id: NcbiGeneId,
     /// Returned checked identifier, required to match the submitted query.
-    pub entrez_id: EntrezGeneId,
+    pub entrez_id: NcbiGeneId,
     /// Returned HGNC identity, checked against the HGNC record by the caller.
     pub hgnc_id: Option<HgncId>,
     /// Whole RefSeq summary with only a recognized attribution marker removed.
@@ -45,7 +45,7 @@ pub struct GeneExtras {
 #[derive(Debug)]
 pub struct GeneBatch {
     /// Sorted distinct identifiers submitted in this chunk.
-    pub ids: Box<[EntrezGeneId]>,
+    pub ids: Box<[NcbiGeneId]>,
     /// Accepted per-gene annotations or the original transport failure.
     pub result: Result<Vec<Mapped<GeneExtras>>, RequestError>,
     /// Rejected hits that have no safe per-gene value to carry their problems.
@@ -53,7 +53,7 @@ pub struct GeneBatch {
 }
 
 /// Fetch annotations in sorted distinct chunks, preserving each chunk's failures.
-pub fn genes(leg: &Leg<'_>, ids: &[EntrezGeneId]) -> Vec<GeneBatch> {
+pub fn genes(leg: &Leg<'_>, ids: &[NcbiGeneId]) -> Vec<GeneBatch> {
     let mut ids = ids.to_vec();
     ids.sort_unstable();
     ids.dedup();

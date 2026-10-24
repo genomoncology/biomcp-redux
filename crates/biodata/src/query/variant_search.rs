@@ -1,5 +1,6 @@
+use super::ProteinQuery;
 use super::gene::{QueryInvalid, present};
-use crate::{Build, Chromosome, GeneSymbol, ProteinChange, Text, macros::text_value};
+use crate::{Build, Chromosome, GeneSymbol, Text, macros::text_value};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 const MAX_FILTER_CHARS: usize = 256;
@@ -99,8 +100,8 @@ struct Fields {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "ProteinChange"))]
-    protein: Option<ProteinChange>,
+    #[cfg_attr(feature = "schema", schemars(with = "ProteinQuery"))]
+    protein: Option<ProteinQuery>,
     /// Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
     #[serde(
         default,

@@ -13,7 +13,7 @@
       "expect": {
         "/result/items/0/answer/resolution": "withdrawn",
         "/result/items/0/answer/hgnc_id": "HGNC:18617",
-        "/result/items/0/answer/hgnc_status": "Entry Withdrawn",
+        "/result/items/0/answer/hgnc_status": "entry_withdrawn",
         "/sources/*/source": {
           "equals": [
             "hgnc"

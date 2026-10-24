@@ -38,7 +38,7 @@
         "entrez_id": {
           "anyOf": [
             {
-              "$ref": "#/$defs/EntrezGeneId"
+              "$ref": "#/$defs/NcbiGeneId"
             },
             {
               "type": "null"
@@ -678,10 +678,6 @@
       "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
       "type": "string"
     },
-    "EntrezGeneId": {
-      "pattern": "^[1-9][0-9]*$",
-      "type": "string"
-    },
     "EuropePmcId": {
       "pattern": "^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
       "type": "string"
@@ -887,6 +883,10 @@
         "major"
       ],
       "type": "object"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
     },
     "OpenAccessStatus": {
       "description": "Open-access status supplied by the paper-link provider.",

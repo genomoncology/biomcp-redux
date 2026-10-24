@@ -5,18 +5,18 @@ canonical_enum! {
     /// The assembly stated by the source; no default is inferred.
     Build, BuildUnknown {
         /// Genome Reference Consortium human build 37.
-        Grch37 => "GRCh37",
+        GRCh37 => "GRCh37",
         /// Genome Reference Consortium human build 38.
-        Grch38 => "GRCh38",
+        GRCh38 => "GRCh38",
     }
 }
 canonical_enum! {
     /// Source-stated forward or reverse strand.
     Strand, StrandUnknown {
         /// Forward strand.
-        Forward => "+",
+        Plus => "+",
         /// Reverse strand.
-        Reverse => "-",
+        Minus => "-",
     }
 }
 /// A source chromosome or scaffold name without spelling normalization.
@@ -72,4 +72,20 @@ pub struct GenomicInterval {
     /// Source-stated strand, if available.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strand: Option<Strand>,
+}
+
+impl GenomicInterval {
+    /// Compare regions only when both sources state the same assembly and chromosome.
+    pub fn contains(&self, other: &Self) -> Result<bool, Error> {
+        let (Some(build), Some(other_build)) = (self.build, other.build) else {
+            return Err(Error::IntervalBuildAbsent);
+        };
+        if build != other_build {
+            return Err(Error::IntervalBuildMismatch);
+        }
+        if self.chromosome != other.chromosome {
+            return Err(Error::IntervalChromosomeMismatch);
+        }
+        Ok(self.span.start() <= other.span.start() && self.span.end() >= other.span.end())
+    }
 }

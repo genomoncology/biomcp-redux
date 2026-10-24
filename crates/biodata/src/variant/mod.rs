@@ -3,14 +3,17 @@ mod model;
 pub use model::*;
 
 mod accession;
-pub use accession::{Accession, EnsemblFeature, LrgPart, RefSeqPrefix};
+pub use accession::{Accession, AccessionBase, EnsemblFeature, LrgPart, RefSeqPrefix};
 mod sequence;
 pub use sequence::{Base, Sequence};
 mod allele;
 pub use allele::{Allele, SequenceLocation};
 
 mod id;
-pub use id::VariantId;
+pub use id::{
+    CaId, ClinVarAlleleId, ClinVarVariationId, CosmicId, PaId, RcvId, RsId, ScvId, VariantId,
+    VcvId, VrsId,
+};
 mod notation;
 pub use notation::{Expression, ExpressionSyntax, HgvsText};
 

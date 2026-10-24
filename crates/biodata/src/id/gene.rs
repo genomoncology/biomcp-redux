@@ -8,34 +8,34 @@ use std::{
 
 /// A positive NCBI Gene identifier in canonical decimal text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct EntrezGeneId(NonZeroU32);
-impl EntrezGeneId {
+pub struct NcbiGeneId(NonZeroU32);
+impl NcbiGeneId {
     /// Check a namespace-local positive number.
     pub fn new(value: u32) -> Result<Self, Error> {
         NonZeroU32::new(value)
             .map(Self)
-            .ok_or(Error::EntrezGeneIdInvalid)
+            .ok_or(Error::NcbiGeneIdInvalid)
     }
     /// Return the namespace-local number.
     pub fn get(self) -> u32 {
         self.0.get()
     }
 }
-impl FromStr for EntrezGeneId {
+impl FromStr for NcbiGeneId {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {
         if value.starts_with('0') || !value.bytes().all(|ch| ch.is_ascii_digit()) {
-            return Err(Error::EntrezGeneIdInvalid);
+            return Err(Error::NcbiGeneIdInvalid);
         }
-        Self::new(value.parse().map_err(|_| Error::EntrezGeneIdInvalid)?)
+        Self::new(value.parse().map_err(|_| Error::NcbiGeneIdInvalid)?)
     }
 }
-impl fmt::Display for EntrezGeneId {
+impl fmt::Display for NcbiGeneId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.get().fmt(f)
     }
 }
-text_value!(EntrezGeneId, "EntrezGeneId", "^[1-9][0-9]*$");
+text_value!(NcbiGeneId, "NcbiGeneId", "^[1-9][0-9]*$");
 
 /// Source spelling of a gene symbol, with ASCII case-insensitive identity.
 #[derive(Clone, Debug)]
@@ -43,11 +43,17 @@ pub struct GeneSymbol(Box<str>);
 impl GeneSymbol {
     /// Maximum accepted symbol length in bytes.
     pub const MAX_LEN: usize = 255;
-    /// Check printable non-whitespace ASCII without inferring HGNC membership.
+    /// Check the approved-symbol alphabet without inferring HGNC membership.
     pub fn new(value: &str) -> Result<Self, Error> {
         if value.is_empty()
             || value.len() > Self::MAX_LEN
-            || !value.bytes().all(|ch| ch.is_ascii_graphic())
+            || !value
+                .as_bytes()
+                .first()
+                .is_some_and(u8::is_ascii_alphabetic)
+            || !value
+                .bytes()
+                .all(|ch| ch.is_ascii_alphanumeric() || b"-._/@".contains(&ch))
         {
             return Err(Error::GeneSymbolInvalid);
         }
@@ -85,7 +91,7 @@ impl fmt::Display for GeneSymbol {
 text_value!(
     GeneSymbol,
     "GeneSymbol",
-    format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN)
+    format!(r"^[A-Za-z][A-Za-z0-9._/@-]{{0,{}}}$", Self::MAX_LEN - 1)
 );
 
 macro_rules! accession {

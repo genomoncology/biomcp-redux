@@ -36,7 +36,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.expression/1",
+  "$id": "biodata.expression/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Source expression checked for its declared published form, without normalization.",

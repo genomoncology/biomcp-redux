@@ -27,8 +27,8 @@
           "includes": "KRAS2"
         },
         "/result/items/0/answer/match/text": "KRAS",
-        "/result/items/0/answer/gene/mane_select/refseq": "NM_004985.5",
-        "/result/items/0/answer/gene/mane_select/ensembl": "ENST00000311936.8",
+        "/result/items/0/answer/gene/mane/0/refseq": "NM_004985.5",
+        "/result/items/0/answer/gene/mane/0/ensembl": "ENST00000311936.8",
         "/sources/0/source": "hgnc",
         "/sources/1/source": "mygene",
         "/sources/2": {
@@ -40,7 +40,8 @@
         },
         "/next/*/kind": {
           "includes": "key"
-        }
+        },
+        "/result/items/0/answer/gene/mane/0/status": "select"
       },
       "max_bytes": 2400,
       "mcp": [

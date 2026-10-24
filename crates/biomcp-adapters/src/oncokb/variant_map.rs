@@ -181,7 +181,11 @@ fn classification(
                 condition: None,
                 therapies: Box::default(),
                 allele_origin: None,
-                gene_context: row.query.hugo_symbol.clone(),
+                gene_context: row
+                    .query
+                    .hugo_symbol
+                    .clone()
+                    .and_then(|g| g.try_into().ok()),
                 criteria: Box::default(),
                 citations: citations.into(),
                 attribution: Attribution {
@@ -206,7 +210,7 @@ fn classification(
 }
 fn subject(query: &Query) -> Option<VariantRef> {
     Some(VariantRef::protein(
-        query.hugo_symbol.clone()?,
+        query.hugo_symbol.clone()?.try_into().ok()?,
         query.alteration.clone()?,
     ))
 }

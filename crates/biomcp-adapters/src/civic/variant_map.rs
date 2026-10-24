@@ -149,7 +149,13 @@ fn claim_page<T>(
     })
 }
 fn member(raw: &raw::Member) -> Result<CivicMember, RequestError> {
-    let gene = raw.feature.name.as_str().parse::<GeneSymbol>().ok();
+    let gene = raw
+        .feature
+        .name
+        .as_str()
+        .parse::<GeneSymbol>()
+        .ok()
+        .and_then(|symbol| biodata::GeneRef::try_from(symbol).ok());
     let proteins = raw
         .hgvs_descriptions
         .iter()

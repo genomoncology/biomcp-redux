@@ -33,11 +33,11 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
-        Request::VariantPopulation(_) => "biodata.variant-population/1",
-        Request::VariantNormalize(_) => "biodata.variant-normalize/1",
-        Request::SearchVariant(_) => "biodata.variant-search/1",
-        Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/1",
-        Request::GetVariant(_) => "biodata.variant-get/1",
+        Request::VariantPopulation(_) => "biodata.variant-population/2",
+        Request::VariantNormalize(_) => "biodata.variant-normalize/2",
+        Request::SearchVariant(_) => "biodata.variant-search/2",
+        Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/2",
+        Request::GetVariant(_) => "biodata.variant-get/2",
         Request::TrialDocument(_) => "biodata.trial-document/1",
         Request::GetTrial(_) => "biodata.trial-get/1",
         Request::SearchTrial(_) => "biodata.trial-search/1",
@@ -68,15 +68,15 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "trial", "biodata.trial-search/1"),
     ("get", "trial", "biodata.trial-get/1"),
     ("trial", "document", "biodata.trial-document/1"),
-    ("get", "variant", "biodata.variant-get/1"),
-    ("variant", "population", "biodata.variant-population/1"),
-    ("search", "variant", "biodata.variant-search/1"),
+    ("get", "variant", "biodata.variant-get/2"),
+    ("variant", "population", "biodata.variant-population/2"),
+    ("search", "variant", "biodata.variant-search/2"),
     (
         "variant",
         "recurrence",
-        "biodata.variant-recurrence-query/1",
+        "biodata.variant-recurrence-query/2",
     ),
-    ("variant", "normalize", "biodata.variant-normalize/1"),
+    ("variant", "normalize", "biodata.variant-normalize/2"),
 ];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")

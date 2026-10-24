@@ -41,7 +41,7 @@ pub fn lookup(
     if query.starts_with("chr") {
         return annotation(leg, query, build);
     }
-    let assembly = if build == biodata::Build::Grch38 {
+    let assembly = if build == biodata::Build::GRCh38 {
         "hg38"
     } else {
         "hg19"
@@ -108,7 +108,7 @@ fn annotation(
     id: &str,
     build: biodata::Build,
 ) -> Result<Mapped<Vec<VariantHeader>>, RequestError> {
-    let assembly = if build == biodata::Build::Grch38 {
+    let assembly = if build == biodata::Build::GRCh38 {
         "hg38"
     } else {
         "hg19"

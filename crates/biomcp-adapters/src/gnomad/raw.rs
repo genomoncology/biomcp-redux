@@ -1,5 +1,5 @@
 use crate::raw::Field;
-use biodata::{EnsemblGeneId, EnsemblTranscript, FiniteNumber};
+use biodata::{AccessionBase, EnsemblGeneId, FiniteNumber};
 use biomcp_fetch::{BadReply, Reply};
 use serde::{
     Deserialize,
@@ -91,14 +91,19 @@ pub(super) struct Mane {
     pub ensembl_id: String,
 }
 impl Gene {
-    pub(super) fn transcript(&self) -> Option<EnsemblTranscript> {
+    pub(super) fn transcript(&self) -> Option<AccessionBase> {
         let text = self
             .mane_select_transcript
             .as_ref()
             .map(|mane| mane.ensembl_id.as_str())
             .or(self.canonical_transcript_id.as_deref())?;
-        let id: EnsemblTranscript = text.parse().ok()?;
-        id.base().parse().ok()
+        if !text.starts_with("ENST") {
+            return None;
+        }
+        if text.contains('.') {
+            text.parse::<biodata::Accession>().ok()?;
+        }
+        text.split('.').next()?.parse().ok()
     }
 }
 #[derive(Debug, Deserialize)]

@@ -41,15 +41,12 @@ mod macros;
 pub use coord::{Position1, Span0};
 pub use date::PartialDate;
 pub use error::Error;
-pub use id::{
-    Cytoband, EnsemblGeneId, EnsemblTranscript, EntrezGeneId, GeneSymbol, HgncId, OmimId,
-    RefSeqTranscript, UniProtAcc,
-};
+pub use id::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, OmimId, UniProtAcc};
 
 mod gene;
 pub use gene::{
-    Gene, GeneHeader, GeneInput, GeneResolution, GeneStatus, HgncStatus, LocusGroup, LocusType,
-    ManeSelect, Match, MatchKind, Summary, SummarySource,
+    Gene, GeneHeader, GeneInput, GeneRef, GeneResolution, GeneStatus, HgncStatus, LocusGroup,
+    LocusType, Mane, ManeStatus, Match, MatchKind, Summary, SummarySource,
 };
 
 pub use coord::{Build, Contig, GenomicInterval, Strand};
@@ -102,10 +99,14 @@ pub use response::{VariantCard, VariantHeader, VariantResolution};
 pub use coord::Chromosome;
 
 pub use variant::{
-    Accession, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence, SequenceLocation,
+    Accession, AccessionBase, Allele, Base, EnsemblFeature, LrgPart, RefSeqPrefix, Sequence,
+    SequenceLocation,
 };
 
-pub use variant::{Expression, ExpressionSyntax, HgvsText, VariantId};
+pub use variant::{
+    CaId, ClinVarAlleleId, ClinVarVariationId, CosmicId, Expression, ExpressionSyntax, HgvsText,
+    PaId, RcvId, RsId, ScvId, VariantId, VcvId, VrsId,
+};
 
 pub use query::{VariantInput, VariantNamespace};
 mod trial;
@@ -152,8 +153,8 @@ pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use trial_publications::{TrialDocument, TrialReference};
 
 pub use query::{
-    MyVariantQuery, ProteinChange, VariantRegion, VariantSearch, VariantSearchField,
-    VariantSearchSource,
+    MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
+    protein_query_forms,
 };
 pub use response::VariantPage;
 

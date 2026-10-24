@@ -1,4 +1,4 @@
-use crate::{EntrezGeneId, Text, Variant, VariantRecurrenceQuery};
+use crate::{NcbiGeneId, Text, Variant, VariantRecurrenceQuery};
 use serde::{Deserialize, Serialize};
 /// Exact-allele observations confined to one explicitly bounded source page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -13,7 +13,7 @@ pub struct VariantRecurrence {
     pub matching_granularity: RecurrenceGranularity,
     /// HGNC-resolved gene query bound.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub entrez_gene_id: Option<EntrezGeneId>,
+    pub entrez_gene_id: Option<NcbiGeneId>,
     /// Study title, citation and description kept as the source states them.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub study: Option<RecurrenceStudy>,
@@ -33,7 +33,7 @@ pub struct VariantRecurrence {
     pub terms: RecurrenceTerms,
 }
 impl super::ResponseBody for VariantRecurrence {
-    const SCHEMA: &'static str = "biomcp.variant_recurrence/1";
+    const SCHEMA: &'static str = "biomcp.variant_recurrence/2";
     type Query = VariantRecurrenceQuery;
 }
 /// Source-native descriptive metadata, without treating access groups as licenses.

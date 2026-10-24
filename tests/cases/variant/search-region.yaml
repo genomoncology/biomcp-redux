@@ -30,7 +30,7 @@
       "max_bytes": 1525,
       "max_tokens": 382,
       "expect": {
-        "/schema": "biomcp.variant_page/2",
+        "/schema": "biomcp.variant_page/3",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -60,7 +60,9 @@
                     }
                   ],
                   "genes": [
-                    "EGFR"
+                    {
+                      "label": "EGFR"
+                    }
                   ]
                 },
                 "source": "myvariant",
@@ -84,7 +86,9 @@
                     }
                   ],
                   "genes": [
-                    "EGFR"
+                    {
+                      "label": "EGFR"
+                    }
                   ]
                 },
                 "source": "myvariant",
@@ -148,7 +152,9 @@
                     }
                   ],
                   "genes": [
-                    "EGFR"
+                    {
+                      "label": "EGFR"
+                    }
                   ]
                 },
                 "source": "myvariant",
@@ -172,7 +178,9 @@
                     }
                   ],
                   "genes": [
-                    "EGFR"
+                    {
+                      "label": "EGFR"
+                    }
                   ]
                 },
                 "source": "myvariant",

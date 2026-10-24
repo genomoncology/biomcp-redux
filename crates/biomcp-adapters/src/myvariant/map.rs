@@ -35,9 +35,9 @@ pub(super) fn candidates(
         }
         if allow_clinvar
             && let Some(cv) = hit.clinvar
-            && cv.variant_id > 0
+            && let Ok(id) = biodata::ClinVarVariationId::new(cv.variant_id)
         {
-            ids.push(VariantId::ClinVarVariation(cv.variant_id));
+            ids.push(VariantId::ClinVarVariation(id));
         }
         let component_terms = component_terms(&ids);
         let mut genes = Vec::new();
@@ -48,7 +48,7 @@ pub(super) fn candidates(
             };
             for gene in source_genes {
                 if let Some(symbol) = gene.symbol {
-                    match symbol.as_str().parse() {
+                    match biodata::GeneRef::new(symbol, None, None, None) {
                         Ok(g) => genes.push(g),
                         Err(_) => problems.push(problem(hit.id.clone(), "genes")),
                     }
