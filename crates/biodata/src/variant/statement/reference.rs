@@ -100,6 +100,14 @@ impl VariantRef {
             label: Some(label),
         }))
     }
+    /// Preserve a source-qualified protein expression and optional source label.
+    pub fn protein_hgvs(gene: GeneSymbol, hgvs: HgvsText, label: Option<Text>) -> Self {
+        Self(Fields::Protein(ProteinRef {
+            gene,
+            hgvs: Some(hgvs),
+            label,
+        }))
+    }
     /// Preserve a compound profile and its native member references.
     pub fn profile(record: Text, label: Text, members: Box<[Self]>) -> Result<Self, crate::Error> {
         Fields::Profile {
