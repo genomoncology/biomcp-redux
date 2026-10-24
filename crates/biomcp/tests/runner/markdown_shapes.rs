@@ -37,6 +37,11 @@ fn shapes() -> Result<(), String> {
             vec!["# ", "**status:**", "biomcp"],
         ),
         (
+            vec!["article", "text", "PMC5606870", "--part", "1"],
+            "article/fulltext/synthetic",
+            vec!["## Introduction", "*text*", "biomcp article text"],
+        ),
+        (
             vec!["get", "gene"],
             "gene/main",
             vec!["Error", "**status:**", "usage"],
@@ -46,8 +51,10 @@ fn shapes() -> Result<(), String> {
         let replay = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../tests/replies")
             .join(replies);
-        let mut command = env.globals(Some(&replay), false);
-        command.extend(args.into_iter().map(str::to_owned));
+        let globals = env.globals(Some(&replay), false);
+        let tool_args: Vec<String> = args.into_iter().map(str::to_owned).collect();
+        let mut command = globals.clone();
+        command.extend(tool_args.iter().cloned());
         let json_output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &command)
             .output()
@@ -66,17 +73,19 @@ fn shapes() -> Result<(), String> {
                 return Err(format!("{command:?} lacks {required}: {text}"));
             }
         }
+        if output.status != json_output.status || !output.stderr.is_empty() {
+            return Err("Markdown changed command status or emitted diagnostics".into());
+        }
+        let mut tool_args = tool_args;
+        tool_args.extend(["--format".into(), "md".into()]);
         let tool = super::mcp::call_with_globals(
             &env,
-            &["--format".into(), "md".into(), "get".into(), "gene".into()],
-            true,
-            &[],
+            &tool_args,
+            !json_output.status.success(),
+            &globals,
         )?;
-        if tool.get("schema") != Some(&json!("biomcp.error/1")) {
-            return Err("MCP did not keep JSON".into());
-        }
-        if value.get("status").is_none() {
-            return Err("JSON baseline missing status".into());
+        if tool != value {
+            return Err("MCP changed JSON under Markdown configuration".into());
         }
         measurements.push(format!("{} bytes: {}", command.join(" "), text.len()));
         command.extend(["--format".into(), "json".into()]);
