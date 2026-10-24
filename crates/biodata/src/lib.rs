@@ -170,3 +170,4 @@ pub use response::{
     AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion,
     VariantAssertion, VariantAssertions,
 };
+pub use query::VariantPopulationQuery;

@@ -40,3 +40,5 @@ pub use trial_document::TrialDocumentGet;
 
 mod variant_assertions;
 pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
+mod variant_population;
+pub use variant_population::VariantPopulationQuery;
