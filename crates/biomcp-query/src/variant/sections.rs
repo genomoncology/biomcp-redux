@@ -46,11 +46,25 @@ pub(super) fn apply(
                 };
             }
             match section {
-                VariantSection::Population => attach!(population, super::population::section(cx, query, candidates, deadline)),
-                VariantSection::Gwas => attach!(gwas, super::gwas::section(cx, query, candidates, deadline)),
-                VariantSection::Civic => attach!(civic, super::civic::section(cx, query, candidates, deadline)),
-                VariantSection::Hotspots => attach!(hotspots, super::hotspots::section(cx, query, candidates, deadline)),
-                VariantSection::Oncokb => attach!(oncokb, super::oncokb::section(cx, query, candidates, deadline)),
+                VariantSection::Population => attach!(
+                    population,
+                    super::population::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Gwas => {
+                    attach!(gwas, super::gwas::section(cx, query, candidates, deadline))
+                }
+                VariantSection::Civic => attach!(
+                    civic,
+                    super::civic::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Hotspots => attach!(
+                    hotspots,
+                    super::hotspots::section(cx, query, candidates, deadline)
+                ),
+                VariantSection::Oncokb => attach!(
+                    oncokb,
+                    super::oncokb::section(cx, query, candidates, deadline)
+                ),
                 _ => {}
             }
         }
