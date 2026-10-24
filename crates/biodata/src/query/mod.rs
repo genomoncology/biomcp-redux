@@ -24,6 +24,8 @@ mod article_recommend;
 pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
 
+mod recurrence;
+pub use recurrence::{RecurrenceSource, VariantRecurrenceQuery};
 mod variant;
 pub use variant::{VariantGet, VariantResolver};
 

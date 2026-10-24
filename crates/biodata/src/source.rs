@@ -95,6 +95,8 @@ canonical_enum! {
         Mutalyzer => "mutalyzer",
         /// VariantValidator.
         VariantValidator => "variantvalidator",
+        /// Public cBioPortal with study-specific reuse terms.
+        Cbioportal => "cbioportal",
     }
 }
 

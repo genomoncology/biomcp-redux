@@ -64,6 +64,8 @@ pub use article::{
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
 
+mod recurrence;
+pub use recurrence::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 mod variant;
 pub use variant::{VariantCard, VariantHeader, VariantPage, VariantResolution};
 mod trial;

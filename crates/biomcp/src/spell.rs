@@ -42,6 +42,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::VariantRecurrence(query) => serde_json::to_value(query)?,
         Request::SearchVariant(query) => serde_json::to_value(query)?,
         Request::GetVariant(query) => serde_json::to_value(query)?,
         Request::TrialDocument(query) => serde_json::to_value(query)?,
@@ -60,55 +61,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         Request::GetGene(query) => serde_json::to_value(query)?,
         Request::SearchGene(query) => serde_json::to_value(query)?,
     };
-    let mut args = vec![
-        match request {
-            Request::TrialDocument(_) => "trial",
-            Request::ArticlePdf(_)
-            | Request::ArticleEvidence(_)
-            | Request::ArticleRecommend(_)
-            | Request::ArticleSupplement(_)
-            | Request::ArticleText(_)
-            | Request::ArticleCitations(_)
-            | Request::ArticleReferences(_) => "article",
-            Request::GetVariant(_)
-            | Request::GetTrial(_)
-            | Request::GetGene(_)
-            | Request::GetArticle(_) => "get",
-            Request::SearchVariant(_)
-            | Request::SearchTrial(_)
-            | Request::SearchGene(_)
-            | Request::SearchArticle(_) => "search",
-        }
-        .into(),
-        if matches!(request, Request::TrialDocument(_)) {
-            "document"
-        } else if matches!(request, Request::SearchTrial(_)) {
-            "trial"
-        } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
-            "variant"
-        } else if matches!(request, Request::ArticlePdf(_)) {
-            "pdf"
-        } else if matches!(request, Request::ArticleEvidence(_)) {
-            "citation-evidence"
-        } else if matches!(request, Request::ArticleRecommend(_)) {
-            "recommendations"
-        } else if matches!(request, Request::ArticleSupplement(_)) {
-            "supplement"
-        } else if matches!(request, Request::ArticleText(_)) {
-            "text"
-        } else if matches!(request, Request::ArticleCitations(_)) {
-            "citations"
-        } else if matches!(request, Request::ArticleReferences(_)) {
-            "references"
-        } else if matches!(request, Request::GetTrial(_) | Request::SearchTrial(_)) {
-            "trial"
-        } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
-            "article"
-        } else {
-            "gene"
-        }
-        .into(),
-    ];
+    let mut args = command_words(request);
     let positional = fields(&schema, &query, &mut args);
     if positional.iter().any(|arg| arg.starts_with('-')) {
         args.push("--".into());
@@ -136,6 +89,61 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
                     .is_some_and(|words| words.contains(input))
             })
         })
+}
+
+fn command_words(request: &Request) -> Vec<String> {
+    vec![
+        match request {
+            Request::VariantRecurrence(_) => "variant",
+            Request::TrialDocument(_) => "trial",
+            Request::ArticlePdf(_)
+            | Request::ArticleEvidence(_)
+            | Request::ArticleRecommend(_)
+            | Request::ArticleSupplement(_)
+            | Request::ArticleText(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => "article",
+            Request::GetVariant(_)
+            | Request::GetTrial(_)
+            | Request::GetGene(_)
+            | Request::GetArticle(_) => "get",
+            Request::SearchVariant(_)
+            | Request::SearchTrial(_)
+            | Request::SearchGene(_)
+            | Request::SearchArticle(_) => "search",
+        }
+        .into(),
+        if matches!(request, Request::VariantRecurrence(_)) {
+            "recurrence"
+        } else if matches!(request, Request::TrialDocument(_)) {
+            "document"
+        } else if matches!(request, Request::SearchTrial(_)) {
+            "trial"
+        } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
+            "variant"
+        } else if matches!(request, Request::ArticlePdf(_)) {
+            "pdf"
+        } else if matches!(request, Request::ArticleEvidence(_)) {
+            "citation-evidence"
+        } else if matches!(request, Request::ArticleRecommend(_)) {
+            "recommendations"
+        } else if matches!(request, Request::ArticleSupplement(_)) {
+            "supplement"
+        } else if matches!(request, Request::ArticleText(_)) {
+            "text"
+        } else if matches!(request, Request::ArticleCitations(_)) {
+            "citations"
+        } else if matches!(request, Request::ArticleReferences(_)) {
+            "references"
+        } else if matches!(request, Request::GetTrial(_) | Request::SearchTrial(_)) {
+            "trial"
+        } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
+            "article"
+        } else {
+            "gene"
+        }
+        .into(),
+    ]
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {
