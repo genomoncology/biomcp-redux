@@ -57,6 +57,7 @@ pub struct Association {
     #[serde(default, deserialize_with = "optional_text")]
     pub range: Option<Text>,
     /// Source publication identity.
+    #[serde(default, deserialize_with = "optional_text")]
     pub pubmed_id: Option<Text>,
 }
 /// Source trait identity and label.
@@ -88,6 +89,15 @@ impl Reply for Response {
             || self.page.total_elements == 0 && !rows.is_empty()
             || self.page.total_elements > 0 && self.embedded.is_none()
         {
+            return Err(BadReply);
+        }
+        let offset = u64::from(self.page.number) * u64::from(self.page.size);
+        let expected = self
+            .page
+            .total_elements
+            .saturating_sub(offset)
+            .min(self.page.size.into());
+        if rows.len() as u64 != expected {
             return Err(BadReply);
         }
         let mut ids = std::collections::BTreeSet::new();
