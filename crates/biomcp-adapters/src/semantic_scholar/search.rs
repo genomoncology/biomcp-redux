@@ -137,7 +137,7 @@ impl Paper {
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
         ArticleItem {
-            key,
+            key: Some(key),
             pmid,
             header,
             cited_by: None,
