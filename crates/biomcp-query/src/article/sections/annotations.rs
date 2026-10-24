@@ -37,9 +37,9 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -
     for (chunk, reply) in chunks.iter().zip(replies) {
         match reply {
             Ok(rows) => {
-                for (id, mapped) in rows {
-                    values.push((id, mapped.value));
-                    status::append(&mut problems, mapped.problems);
+                for row in rows {
+                    values.push((row.id, row.annotations.value));
+                    status::append(&mut problems, row.annotations.problems);
                 }
             }
             Err(error) => {
