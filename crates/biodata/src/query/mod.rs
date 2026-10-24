@@ -21,3 +21,6 @@ mod article_evidence;
 mod article_recommend;
 pub use article_evidence::ArticleEvidence;
 pub use article_recommend::ArticleRecommend;
+
+mod variant;
+pub use variant::VariantGet;

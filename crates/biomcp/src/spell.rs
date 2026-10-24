@@ -42,6 +42,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::GetVariant(query) => serde_json::to_value(query)?,
         Request::ArticleEvidence(query) => serde_json::to_value(query)?,
         Request::ArticleRecommend(query) => serde_json::to_value(query)?,
         Request::ArticleSupplement(query) => serde_json::to_value(query)?,
@@ -62,11 +63,13 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetGene(_) | Request::GetArticle(_) => "get",
+            Request::GetGene(_) | Request::GetArticle(_) | Request::GetVariant(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::ArticleEvidence(_)) {
+        if matches!(request, Request::GetVariant(_)) {
+            "variant"
+        } else if matches!(request, Request::ArticleEvidence(_)) {
             "citation-evidence"
         } else if matches!(request, Request::ArticleRecommend(_)) {
             "recommendations"

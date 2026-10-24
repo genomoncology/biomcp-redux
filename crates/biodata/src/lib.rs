@@ -86,3 +86,9 @@ pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+
+mod variant;
+pub use variant::{VariantInput, VariantNamespace, VariantIdentity, VariantRepresentation, VariantResolution, VariantHeader, VariantFact, VariantResolver, variant_build};
+
+pub use query::VariantGet;
+pub use response::VariantCard;

@@ -39,3 +39,8 @@ pub mod registry;
 /// Sentence resemblance in native provider order.
 pub mod litsense;
 pub mod sheet;
+
+pub mod myvariant;
+pub mod allele_registry;
+pub mod mutalyzer;
+pub mod variantvalidator;

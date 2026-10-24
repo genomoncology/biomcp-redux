@@ -38,6 +38,8 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        VariantGet => ("variant-get", "biodata.variant-get/1"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/1"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
         ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),

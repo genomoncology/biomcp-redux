@@ -62,3 +62,6 @@ pub use article::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+
+mod variant;
+pub use variant::VariantCard;

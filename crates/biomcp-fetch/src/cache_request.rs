@@ -45,7 +45,9 @@ impl Leg<'_> {
             Ok((reply, status, body, fetched)) => {
                 let mut entry = Entry::new(status, body, seconds, codec.name());
                 entry.fetched_at = fetched;
-                cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                if (200..300).contains(&status) {
+                    cache.write(key, self.spec.source, url, &entry, self.budget())?;
+                }
                 Ok((reply, fetched))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {

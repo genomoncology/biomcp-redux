@@ -62,6 +62,7 @@ pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
     codec: Codec,
     pub(crate) limit: Option<u64>,
+    pub(crate) json_rejections: bool,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
 }
@@ -72,6 +73,7 @@ impl<T: Reply> Decoder<'_, T> {
             validate: None,
             octet_stream: false,
             limit: None,
+            json_rejections: false,
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
@@ -84,6 +86,7 @@ impl<T: Reply> Decoder<'_, T> {
             validate: None,
             octet_stream: false,
             limit: None,
+            json_rejections: false,
             parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
@@ -273,6 +276,7 @@ impl Decoder<'_, Probe> {
             codec: Codec::Probe,
             validate: None,
             limit: None,
+            json_rejections: false,
             octet_stream: false,
             parse: |_| Some(Probe),
         }
@@ -300,6 +304,7 @@ impl<'a> Decoder<'a, Bytes> {
             validate: None,
             octet_stream: false,
             limit: Some(limit),
+            json_rejections: false,
             parse: |body| Some(Bytes(body.to_vec())),
         }
     }

@@ -2,6 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// Input is not a published variant identifier.
+    VariantInputInvalid,
     /// An article identifier failed its namespace syntax.
     ArticleIdInvalid,
     /// The checked EntrezGeneIdInvalid value was rejected.
@@ -62,6 +64,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::VariantInputInvalid => "variant.input.invalid",
             Self::ArticleIdInvalid => "id.article.invalid",
             Self::LocusTypeUnknown => "gene.locus_type.unknown",
             Self::BuildUnknown => "build.unknown",

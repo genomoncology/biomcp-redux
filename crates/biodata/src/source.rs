@@ -49,6 +49,14 @@ pub(crate) use canonical_enum;
 canonical_enum! {
     /// A source of BioMCP data, identified by its canonical short name.
     Source, SourceUnknown {
+        /// MyVariant.info aggregation.
+        MyVariant => "myvariant",
+        /// ClinGen Allele Registry.
+        AlleleRegistry => "car",
+        /// Mutalyzer.
+        Mutalyzer => "mutalyzer",
+        /// VariantValidator.
+        VariantValidator => "variantvalidator",
         /// HGNC.
         Hgnc => "hgnc",
         /// MyGene.info.
