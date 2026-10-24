@@ -4,13 +4,16 @@
     reason = "Scoped callers exercise shared public transport state against controlled local HTTP peers"
 )]
 mod support;
+#[path = "support/timing.rs"]
+mod timing;
 use biodata::Reason;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
 use std::{
     thread,
     time::{Duration, SystemTime},
 };
-use support::{Answer, Server};
+use support::Answer;
+use timing::Server;
 
 fn quota() -> &'static Quota {
     Box::leak(Box::new(Quota::new(

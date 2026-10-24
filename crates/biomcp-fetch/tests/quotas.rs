@@ -32,10 +32,13 @@ fn quota_declarations_reject_empty_invalid_and_zero_limits() {
 }
 
 mod support;
+#[path = "support/timing.rs"]
+mod timing;
 use biodata::Reason;
 use biomcp_fetch::{Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Secret, SecretName};
 use std::{sync::mpsc, thread, time::Duration};
-use support::{Answer, Server};
+use support::Answer;
+use timing::Server;
 
 fn quota(key: &'static str, rate: Rate, keyed: Option<Rate>, in_flight: u8) -> &'static Quota {
     Box::leak(Box::new(Quota::new(

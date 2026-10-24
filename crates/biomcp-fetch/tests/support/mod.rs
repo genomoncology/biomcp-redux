@@ -10,7 +10,7 @@ use std::{
     net::{TcpListener, TcpStream},
     sync::mpsc,
     thread,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 #[derive(Debug, Deserialize)]
@@ -23,27 +23,25 @@ impl Reply for Answer {
     }
 }
 
-pub(super) struct Request {
+pub(super) struct Request<T> {
     pub(super) text: String,
-    #[allow(
-        dead_code,
-        reason = "Only quota and retry contracts inspect request timing"
-    )]
-    pub(super) started: Instant,
+    observation: T,
     reply: mpsc::Sender<String>,
 }
-impl Request {
+impl<T> std::ops::Deref for Request<T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        &self.observation
+    }
+}
+impl<T> Request<T> {
     pub(super) fn respond(self, status: u16, headers: &str, body: &str) {
         let response = format!(
             "HTTP/1.1 {status} Stub\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n{headers}\r\n{body}",
             body.len()
         );
-        let _ = self.reply.send(response);
+        self.raw(&response);
     }
-    #[allow(
-        dead_code,
-        reason = "Only retry contracts send malformed raw HTTP replies"
-    )]
     pub(super) fn raw(self, response: &str) {
         let _ = self.reply.send(response.to_owned());
     }
@@ -52,12 +50,12 @@ impl Request {
     }
 }
 
-pub(super) struct Server {
+pub(super) struct Server<T = ()> {
     pub(super) base: &'static str,
-    pub(super) requests: mpsc::Receiver<Request>,
+    pub(super) requests: mpsc::Receiver<Request<T>>,
     worker: Option<thread::JoinHandle<()>>,
 }
-impl Server {
+impl<T: Default + Send + 'static> Server<T> {
     pub(super) fn new() -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let base = Box::leak(format!("http://{}", listener.local_addr().unwrap()).into_boxed_str());
@@ -84,7 +82,7 @@ impl Server {
                 if sent
                     .send(Request {
                         text: String::from_utf8(bytes).unwrap(),
-                        started: Instant::now(),
+                        observation: T::default(),
                         reply,
                     })
                     .is_err()
@@ -107,7 +105,7 @@ impl Server {
             worker: Some(worker),
         }
     }
-    pub(super) fn next(&self) -> Request {
+    pub(super) fn next(&self) -> Request<T> {
         self.requests.recv_timeout(Duration::from_secs(10)).unwrap()
     }
     pub(super) fn spec(&self, quota: &'static Quota, key: KeyUse) -> &'static SourceSpec {
@@ -120,7 +118,7 @@ impl Server {
         }))
     }
 }
-impl Drop for Server {
+impl<T> Drop for Server<T> {
     fn drop(&mut self) {
         // Drop any unclaimed replies before joining their handlers.
         while self.requests.try_recv().is_ok() {}
