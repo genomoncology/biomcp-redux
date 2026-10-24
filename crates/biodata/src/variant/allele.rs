@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SequenceLocation {
     /// Versioned source sequence, without an inferred genome build.
+    #[serde(serialize_with = "serialize_sequence")]
     pub sequence: Accession,
     /// Zero-based half-open bounds.
     pub span: Span0,
@@ -31,6 +32,7 @@ impl Allele {
         reference: Sequence,
         alternate: Sequence,
     ) -> Result<Self, Error> {
+        checked_sequence(&location.sequence)?;
         if reference.is_empty() && alternate.is_empty() {
             return Err(Error::AlleleEmpty);
         }
@@ -55,6 +57,20 @@ impl Allele {
     pub fn alternate(&self) -> &Sequence {
         &self.0.alternate
     }
+}
+
+// Accession's copied enum permits public field construction. Reuse its parser at
+// receiving boundaries so unchecked enum fields cannot escape as an allele.
+fn checked_sequence(sequence: &Accession) -> Result<(), Error> {
+    sequence.to_string().parse::<Accession>().map(|_| ())
+}
+
+fn serialize_sequence<S: serde::Serializer>(
+    sequence: &Accession,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    checked_sequence(sequence).map_err(serde::ser::Error::custom)?;
+    sequence.serialize(serializer)
 }
 impl TryFrom<Fields> for Allele {
     type Error = Error;
