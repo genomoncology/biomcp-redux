@@ -87,7 +87,9 @@ fn resolved(env: &Environment, id: &str) -> Result<(), String> {
     let args = args(id)?;
     let resolved = oncokb::invoke(env, &args, 0)?;
     if resolved.pointer(&format!("{SECTION}/state")) != Some(&json!("data")) {
-        return Err(format!("keyed ID was not resolved for annotation: {resolved}"));
+        return Err(format!(
+            "keyed ID was not resolved for annotation: {resolved}"
+        ));
     }
     let mcp = super::mcp::call_with_globals(env, &args, false, &[])?;
     if resolved.get("result") != mcp.get("result") {
