@@ -16,3 +16,6 @@ pub use notation::{Expression, ExpressionSyntax, HgvsText};
 
 mod statement;
 pub use statement::*;
+
+mod predictor;
+pub use predictor::*;

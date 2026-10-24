@@ -155,3 +155,5 @@ pub use variant::{
     AcmgAmp2015Code, AmpAscoCap2017LevelCode, AmpAscoCap2017TierCode, ClingenCgcVicc2022Code,
     ClingenLowPenetrance2024Code,
 };
+
+pub use variant::{PredictorScore, VariantComponent, VariantPredictors, VariantConservation, VariantCosmic, CosmicRecord};
