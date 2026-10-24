@@ -117,11 +117,8 @@ fn run_step(
             String::from_utf8_lossy(&output.stderr)
         ));
     }
-    if step.exit != 0
-        && (!output.stdout.is_empty()
-            || output.stderr != b"biomcp: expected schema <known artifact id>\n")
-    {
-        return Err("error output: expected empty stdout and fixed diagnostic".into());
+    if !output.stderr.is_empty() {
+        return Err("error output: expected empty stderr".into());
     }
     assertions::check(&output.stdout, step, expectations)
 }

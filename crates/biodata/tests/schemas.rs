@@ -7,14 +7,17 @@ mod compatibility_cases;
 #[path = "schemas/values.rs"]
 mod values;
 
-use biodata::{HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0, Text};
+use biodata::{
+    ErrorEnvelope, HgncId, PartialDate, Position1, Problem, ProblemCode, Reason, Source, Span0,
+    Text,
+};
 use schemars::{JsonSchema, generate::SchemaSettings};
 use serde_json::Value;
 use std::{fs, path::Path};
 
 struct Contract {
     name: &'static str,
-    major: u64,
+    id: &'static str,
     generate: fn() -> Value,
 }
 
@@ -31,51 +34,56 @@ fn generate<T: JsonSchema>() -> Value {
     .expect("schema serializes")
 }
 
-fn registry() -> [Contract; 9] {
+fn registry() -> [Contract; 10] {
     [
         Contract {
+            name: "error",
+            id: "biomcp.error/1",
+            generate: generate::<ErrorEnvelope>,
+        },
+        Contract {
             name: "hgnc-id",
-            major: 1,
+            id: "biodata.hgnc-id/1",
             generate: generate::<HgncId>,
         },
         Contract {
             name: "partial-date",
-            major: 1,
+            id: "biodata.partial-date/1",
             generate: generate::<PartialDate>,
         },
         Contract {
             name: "position1",
-            major: 1,
+            id: "biodata.position1/1",
             generate: generate::<Position1>,
         },
         Contract {
             name: "span0",
-            major: 1,
+            id: "biodata.span0/1",
             generate: generate::<Span0>,
         },
         Contract {
             name: "text",
-            major: 1,
+            id: "biodata.text/1",
             generate: generate::<Text>,
         },
         Contract {
             name: "source",
-            major: 1,
+            id: "biodata.source/1",
             generate: generate::<Source>,
         },
         Contract {
             name: "reason",
-            major: 1,
+            id: "biodata.reason/1",
             generate: generate::<Reason>,
         },
         Contract {
             name: "problem-code",
-            major: 1,
+            id: "biodata.problem-code/1",
             generate: generate::<ProblemCode>,
         },
         Contract {
             name: "problem",
-            major: 1,
+            id: "biodata.problem/1",
             generate: generate::<Problem>,
         },
     ]
@@ -94,7 +102,7 @@ fn checked_in_schemas_match_types() {
         .into_iter()
         .map(|contract| {
             let mut new = (contract.generate)();
-            new["$id"] = format!("biodata.{}/{}", contract.name, contract.major).into();
+            new["$id"] = contract.id.into();
             let path = root.join(format!("{}.json", contract.name));
             if path.exists() {
                 let old: Value =
