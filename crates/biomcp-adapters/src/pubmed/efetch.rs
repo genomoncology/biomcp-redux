@@ -1,4 +1,5 @@
-use super::{SPEC, element::Element, map::publication_type};
+use super::{SPEC, map::publication_type};
+use crate::xml_element::Element;
 use biodata::{
     AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
     PartialDate, Pmid, Text,
@@ -186,7 +187,7 @@ fn abstracts(row: Element<'_>) -> Result<Vec<AbstractPart>, BadReply> {
             if !value.trim().is_empty() {
                 out.push(AbstractPart {
                     label: text(part.attr("Label")?)?,
-                    text: Text::new(&value).map_err(|_| BadReply)?,
+                    text: crate::jats::markdown(part.0)?,
                 });
             }
         }

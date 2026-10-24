@@ -4,6 +4,21 @@ BioMCP 1.0 rebuilds search and get on typed biodata entities. This page lists ev
 
 Source tags: **bundle** is a local data file queried like an API. **keyed** runs only with the user's own key. **optional key** works without a key and runs faster or with higher limits with one. **dropped** is not carried into 1.0, with the reason in the slice design. **investigate** waits for the entity's slice to decide.
 
+## API keys
+
+Each key is read from the config file's `keys` or its environment variable, sent only to its own source, and never printed or recorded. With an optional key, BioMCP uses the source's higher limit; without it, the source runs at its public limit. A keyed source sends nothing without its key and says which key to set. A box is ticked when a landed case proves both the keyless and the keyed behavior.
+
+- [x] `ncbi_api_key` (optional): PubMed search and summaries, NCBI EFetch
+- [ ] `ncbi_api_key` (optional): PMC ID converter, ClinVar, PubTator3
+- [x] `oncokb_api_key` (keyed): OncoKB gene
+- [ ] `oncokb_api_key` (keyed): OncoKB variant
+- [ ] `semantic_scholar_api_key` (optional): Semantic Scholar
+- [ ] NCI Clinical Trials Search key (keyed)
+- [ ] openFDA key (optional)
+- [ ] UMLS key (keyed, investigate)
+- [ ] AlphaGenome key (keyed, investigate)
+- [ ] ORCID credentials (optional)
+
 ## Parity with 0.9
 
 | Measure | Count |
@@ -28,8 +43,15 @@ Each slice updates these counts when its accounting lands.
 - [x] JSON envelope, statuses, exit codes and next steps
 - [ ] Markdown view over JSON
 - [x] Outside-in runner with size ceilings and coverage floor
+- [x] Enforced test placement with documented library exceptions
 - [x] The one MCP tool over the CLI grammar
 - [ ] Release pipeline carried over from 0.9
+- [ ] MCP over streamable HTTP at `/mcp`, with a `/health` endpoint
+- [ ] `biomcp health`: each source's reachability, latency, terms and on or off state
+- [ ] Corporate networks: added certificate authorities and standard proxy settings
+- [ ] Source terms of use, and switching sources off by group
+- [ ] Scheduled live replay that reports source drift
+- [ ] Install test of every release artifact on each platform
 
 ## Every entity's checklist
 
@@ -85,7 +107,9 @@ Sources:
 - [x] PubMed author, journal, date and publication-type filters and date order
 - [x] Get by PMID, PMCID and DOI with article cards
 - [x] Article section grammar and PubTator3 annotations through CLI and MCP
-- [ ] Full text, supplementary material and citations
+- [x] PMC full-text outline and JATS Markdown text reader
+- [x] Citation counts, citation ordering and citation/reference walks
+- [ ] Supplementary material
 - [x] Plain PubMed search cases, including the complete recorded AKT1 E17K walk
 - [ ] Token budget
 - [x] Plain PubMed search MCP parity
@@ -95,9 +119,10 @@ Sources:
 Sources:
 - [x] PubMed search and page summaries (optional key)
 - [x] PubTator3 export for annotations
-- [ ] Europe PMC
+- [x] Europe PMC
 - [ ] Semantic Scholar (optional key)
-- [ ] PMC Open Access and NCBI ID converter (optional key)
+- [x] PMC Open Access full-text records and JATS
+- [ ] NCBI ID converter (optional key)
 - [x] NCBI EFetch (optional key)
 - [ ] LitVar
 - [ ] LitSense2

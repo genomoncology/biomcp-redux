@@ -26,6 +26,7 @@ impl SourceSpec {
             method: Method::Get,
             idempotent: true,
             identity_encoding: false,
+            octet_stream: false,
         }
     }
     /// Declare a form POST endpoint. Retries require explicit idempotence.
@@ -60,6 +61,7 @@ pub struct Endpoint {
     pub(crate) method: Method,
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
+    pub(crate) octet_stream: bool,
 }
 
 /// Whether a source requires a credential before sending.
@@ -157,6 +159,11 @@ impl Freshness {
     }
 }
 impl Endpoint {
+    /// Accept the reviewed bucket media type while retaining JSON/XML decoding and body limits.
+    pub const fn octet_stream(mut self) -> Self {
+        self.octet_stream = true;
+        self
+    }
     /// Request an uncompressed representation from a source with broken compression.
     pub const fn identity_encoding(mut self) -> Self {
         self.identity_encoding = true;

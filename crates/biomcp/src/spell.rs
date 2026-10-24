@@ -41,6 +41,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
     )?;
     let query = match request {
+        Request::ArticleText(query) => serde_json::to_value(query)?,
         Request::ArticleCitations(query) | Request::ArticleReferences(query) => {
             serde_json::to_value(query)?
         }
@@ -51,12 +52,16 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     };
     let mut args = vec![
         match request {
-            Request::ArticleCitations(_) | Request::ArticleReferences(_) => "article",
+            Request::ArticleText(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => "article",
             Request::GetGene(_) | Request::GetArticle(_) => "get",
             Request::SearchGene(_) | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::ArticleCitations(_)) {
+        if matches!(request, Request::ArticleText(_)) {
+            "text"
+        } else if matches!(request, Request::ArticleCitations(_)) {
             "citations"
         } else if matches!(request, Request::ArticleReferences(_)) {
             "references"

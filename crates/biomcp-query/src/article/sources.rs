@@ -142,10 +142,10 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(words);
     }
     if let Some(author) = query.author() {
-        parts.push(format!("AUTH:{author}"));
+        parts.push(format!("AUTH:{}", field(author.as_str())));
     }
     if let Some(journal) = query.journal() {
-        parts.push(format!("JOURNAL:{journal}"));
+        parts.push(format!("JOURNAL:{}", field(journal.as_str())));
     }
     let (since, until) = query.dates();
     if since.is_some() || until.is_some() {
@@ -168,4 +168,16 @@ fn term(query: &ArticleSearch) -> String {
         parts.push(format!("PUB_TYPE:\"{name}\""));
     }
     parts.join(" AND ")
+}
+
+// Structured selectors are literal field values, not additional query syntax.
+fn field(value: &str) -> String {
+    if value
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'.' | b'_'))
+    {
+        value.to_owned()
+    } else {
+        format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+    }
 }

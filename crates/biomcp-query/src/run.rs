@@ -48,6 +48,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::ArticleText(query) => crate::article::text::read(cx, query),
         Request::ArticleCitations(query) => crate::article::edges(cx, query, false),
         Request::ArticleReferences(query) => crate::article::edges(cx, query, true),
         Request::GetArticle(query) => crate::article::get::get(cx, query),
