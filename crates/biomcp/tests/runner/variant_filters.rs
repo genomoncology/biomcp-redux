@@ -5,9 +5,10 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("variant-search/literal-filters-preserve-page-and-cache", || {
-        filters().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "variant-search/literal-filters-preserve-page-and-cache",
+        || filters().map_err(Into::into),
+    )]
 }
 fn filters() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", body)?;
@@ -16,33 +17,80 @@ fn filters() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
-    let mut args: Vec<String> = ["search", "variant", "--region", "chr7:140453136-140453136", "--build", "GRCh37", "--significance", "Pathogenic", "--review-status", "no assertion criteria provided", "--condition", "Carcinoma of colon (CRC)", "--has", "clinvar", "--limit", "1"]
-        .into_iter().map(Into::into).collect();
+    let mut args: Vec<String> = [
+        "search",
+        "variant",
+        "--region",
+        "chr7:140453136-140453136",
+        "--build",
+        "GRCh37",
+        "--significance",
+        "Pathogenic",
+        "--review-status",
+        "no assertion criteria provided",
+        "--condition",
+        "Carcinoma of colon (CRC)",
+        "--has",
+        "clinvar",
+        "--limit",
+        "1",
+    ]
+    .into_iter()
+    .map(Into::into)
+    .collect();
     for offset in [0, 1, 1] {
         let value = command(&env, &args)?;
         if value.pointer("/status") != Some(&json!("complete"))
             || value.pointer("/page/offset") != Some(&json!(offset))
             || value.pointer("/query/condition") != Some(&json!("Carcinoma of colon (CRC)"))
-            || value.pointer("/result/source_query") != Some(&json!("chr7:140453136-140453136 AND clinvar.rcv.clinical_significance:\"Pathogenic\" AND clinvar.rcv.review_status:\"no assertion criteria provided\" AND clinvar.rcv.conditions.name:\"Carcinoma of colon \\(CRC\\)\" AND _exists_:clinvar.variant_id"))
-        { return Err(format!("literal filter or page lost: {value}")); }
+            || value.pointer("/result/source_query")
+                != Some(&json!(
+                    "chr7:140453136-140453136 AND clinvar.rcv.clinical_significance:\"Pathogenic\" AND clinvar.rcv.review_status:\"no assertion criteria provided\" AND clinvar.rcv.conditions.name:\"Carcinoma of colon \\(CRC\\)\" AND _exists_:clinvar.variant_id"
+                ))
+        {
+            return Err(format!("literal filter or page lost: {value}"));
+        }
         if offset == 0 {
-            let action = value["next"].as_array().ok_or("missing actions")?.iter()
-                .find(|v| v["kind"] == "page").ok_or("missing page")?;
-            args = serde_json::from_value(action["args"].clone()).map_err(|e| e.to_string())?;
+            let action = value.get("next")
+                .and_then(Value::as_array)
+                .ok_or("missing actions")?
+                .iter()
+                .find(|v| v.get("kind") == Some(&json!("page")))
+                .ok_or("missing page")?;
+            args = serde_json::from_value(action.get("args").cloned().ok_or("missing page args")?).map_err(|e| e.to_string())?;
         }
     }
-    for extra in [vec!["--missing", "clinvar"], vec!["--significance", "x\" OR *"], vec!["--has", "cadd"]] {
-        let mut args = vec!["search", "variant", "--query", "dbsnp.rsid:rs113488022", "--source", "myvariant"];
+    for extra in [
+        vec!["--missing", "clinvar"],
+        vec!["--significance", "x\" OR *"],
+        vec!["--has", "cadd"],
+    ] {
+        let mut args = vec![
+            "search",
+            "variant",
+            "--query",
+            "dbsnp.rsid:rs113488022",
+            "--source",
+            "myvariant",
+        ];
         args.extend(extra);
-        if command(&env, &args.into_iter().map(Into::into).collect::<Vec<_>>())?.pointer("/error/code") != Some(&json!("usage.arguments")) {
+        if command(&env, &args.into_iter().map(Into::into).collect::<Vec<_>>())?
+            .pointer("/error/code")
+            != Some(&json!("usage.arguments"))
+        {
             return Err("raw query/filter mix or unsupported component was accepted".into());
         }
     }
-    if stub.finish()?.len() != 2 { return Err("warm page or invalid arguments requested source".into()); }
+    if stub.finish()?.len() != 2 {
+        return Err("warm page or invalid arguments requested source".into());
+    }
     Ok(())
 }
 fn command(env: &Environment, args: &[String]) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
+        .map_err(|e| e.to_string())?;
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
 fn body(request: &str) -> Result<String, String> {

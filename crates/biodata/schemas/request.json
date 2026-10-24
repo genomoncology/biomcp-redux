@@ -283,6 +283,13 @@
       ],
       "type": "string"
     },
+    "VariantSearchField": {
+      "description": "Independently permitted component fields supported by the presence filters.",
+      "enum": [
+        "clinvar"
+      ],
+      "type": "string"
+    },
     "VariantSearchSource": {
       "description": "The source-native query language exposed by variant search.",
       "enum": [
@@ -378,9 +385,17 @@
           "const": "search_variant",
           "type": "string"
         },
+        "condition": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector."
+        },
         "gene": {
           "$ref": "#/$defs/GeneSymbol",
           "description": "Exact checked gene symbol for the fixed MyVariant gene/protein field query."
+        },
+        "has": {
+          "$ref": "#/$defs/VariantSearchField",
+          "description": "Require the selected component's identifier field. Only independently permitted, proven mappings are offered."
         },
         "limit": {
           "default": 10,
@@ -389,6 +404,10 @@
           "maximum": 50,
           "minimum": 1,
           "type": "integer"
+        },
+        "missing": {
+          "$ref": "#/$defs/VariantSearchField",
+          "description": "Require the selected component's identifier field to be missing; this states source coverage, not clinical absence."
         },
         "offset": {
           "default": 0,
@@ -409,6 +428,14 @@
         "region": {
           "$ref": "#/$defs/VariantRegion",
           "description": "Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build."
+        },
+        "review_status": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector."
+        },
+        "significance": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal MyVariant clinvar.rcv.clinical_significance value; no aliases or classification inference. Requires a declared protein or region selector."
         },
         "source": {
           "$ref": "#/$defs/VariantSearchSource",

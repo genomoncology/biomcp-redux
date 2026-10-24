@@ -133,23 +133,43 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchSource"))]
     source: Option<VariantSearchSource>,
     /// Literal MyVariant clinvar.rcv.clinical_significance value; no aliases or classification inference. Requires a declared protein or region selector.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     significance: Option<Text>,
     /// Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     review_status: Option<Text>,
     /// Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     condition: Option<Text>,
     /// Require the selected component's identifier field. Only independently permitted, proven mappings are offered.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
     has: Option<VariantSearchField>,
     /// Require the selected component's identifier field to be missing; this states source coverage, not clinical absence.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
     missing: Option<VariantSearchField>,
     /// Native candidates per page, default 10, maximum 50; all candidates remain candidates.
@@ -184,7 +204,9 @@ impl TryFrom<Fields> for VariantSearch {
             || f.offset >= Self::MAX_RESULTS
             || (raw && f.filtered())
             || (f.has.is_some() && f.has == f.missing)
-            || [&f.significance, &f.review_status, &f.condition].into_iter().flatten()
+            || [&f.significance, &f.review_status, &f.condition]
+                .into_iter()
+                .flatten()
                 .any(|v| v.as_str().len() > 256 || v.as_str().chars().any(char::is_control))
         {
             return Err(QueryInvalid);
@@ -202,14 +224,16 @@ impl VariantSearch {
         }
         let mut term = if let Some(region) = &self.0.region {
             region.to_string()
-        } else { match (&self.0.gene, &self.0.protein) {
-            (Some(g), Some(p)) => format!(
-                "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
-                literal(g.as_str()),
-                literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
-            ),
-            _ => String::new(),
-        }};
+        } else {
+            match (&self.0.gene, &self.0.protein) {
+                (Some(g), Some(p)) => format!(
+                    "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
+                    literal(g.as_str()),
+                    literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
+                ),
+                _ => String::new(),
+            }
+        };
         self.0.append_filters(&mut term);
         term
     }
@@ -234,8 +258,11 @@ impl VariantSearch {
 }
 impl Fields {
     fn filtered(&self) -> bool {
-        self.significance.is_some() || self.review_status.is_some() || self.condition.is_some()
-            || self.has.is_some() || self.missing.is_some()
+        self.significance.is_some()
+            || self.review_status.is_some()
+            || self.condition.is_some()
+            || self.has.is_some()
+            || self.missing.is_some()
     }
     fn append_filters(&self, term: &mut String) {
         for (field, value) in [
@@ -244,7 +271,10 @@ impl Fields {
             ("conditions.name", &self.condition),
         ] {
             if let Some(value) = value {
-                term.push_str(&format!(" AND clinvar.rcv.{field}:\"{}\"", literal(value.as_str())));
+                term.push_str(&format!(
+                    " AND clinvar.rcv.{field}:\"{}\"",
+                    literal(value.as_str())
+                ));
             }
         }
         for (operator, field) in [("_exists_", self.has), ("_missing_", self.missing)] {

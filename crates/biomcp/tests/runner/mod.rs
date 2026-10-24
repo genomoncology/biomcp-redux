@@ -43,8 +43,8 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod variant;
-mod variant_search;
 mod variant_filters;
+mod variant_search;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
