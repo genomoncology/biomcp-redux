@@ -86,6 +86,22 @@ fn visit(
             return Err(format!("unsupported keyword {key} at {path}"));
         }
     }
+    // These generated forms carry annotations beside a reference or union,
+    // never assertions. Assertions would intersect, while Shape only records
+    // one constraint at each path; refuse them instead of merging incorrectly.
+    for composition in ["$ref", "anyOf"] {
+        if object.contains_key(composition)
+            && object.keys().any(|key| {
+                key != composition
+                    && !["$schema", "$id", "$defs", "title", "description"]
+                        .contains(&key.as_str())
+            })
+        {
+            return Err(format!(
+                "unsupported assertion sibling of {composition} at {path}"
+            ));
+        }
+    }
     if let Some(reference) = node.get("$ref") {
         let reference = reference.as_str().ok_or("invalid reference")?;
         let pointer = reference
