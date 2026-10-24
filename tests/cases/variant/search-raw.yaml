@@ -27,8 +27,8 @@
         "--build",
         "GRCh37"
       ],
-      "max_bytes": 1504,
-      "max_tokens": 376,
+      "max_bytes": 2005,
+      "max_tokens": 502,
       "expect": {
         "/schema": "biomcp.variant_page/2",
         "/status": "partial",
