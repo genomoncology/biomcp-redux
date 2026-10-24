@@ -1,0 +1,21 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "2c9e2f4121dd636627cb9948e116a0c2e5c4e2913a2e2e71ae75bc1890e4a404"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 430,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"51208","HGNC":"2039","_id":"51208","_version":1,"entrezgene":"51208","genomic_pos":{"chr":"3","end":138033655,"ensemblgene":"ENSG00000066405","start":137998735,"strand":1},"genomic_pos_hg19":{"chr":"3","end":137752494,"start":137717577,"strand":1},"summary":"This gene encodes a member of the claudin family. Claudins are integral membrane proteins and components of tight junction strands. Tight junction strands serve as a physical barrier to prevent solutes and water from passing freely through the paracellular space between epithelial or endothelial cell sheets, and also play critical roles in maintaining cell polarity and signal transductions. This gene is upregulated in patients with ulcerative colitis and highly overexpressed in infiltrating ductal adenocarcinomas. PKC/MAPK/AP-1 (protein kinase C/mitogen-activated protein kinase/activator protein-1) dependent pathway regulates the expression of this gene in gastric cells. Alternatively spliced transcript variants encoding different isoforms have been identified. [provided by RefSeq, Jun 2010]."}]
+      }
+    }
+  ]
+}

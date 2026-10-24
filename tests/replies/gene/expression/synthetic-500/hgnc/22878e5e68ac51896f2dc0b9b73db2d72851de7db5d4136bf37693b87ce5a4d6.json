@@ -1,0 +1,1 @@
+{"method":"GET","source":"hgnc","url":"https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/withdrawn.txt","exchanges":[{"status":200,"content_type":"text/tab-separated-values","delay_ms":586,"retry_after_ms":null,"body":{"kind":"text","value":"HGNC_ID\tSTATUS\tWITHDRAWN_SYMBOL\tMERGED_INTO_REPORT(S) (i.e HGNC_ID|SYMBOL|STATUS)\n"}}]}

@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/symbol/CLDN18",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 194,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"responseHeader":{"status":0,"QTime":0},"response":{"numFound":1,"start":0,"numFoundExact":true,"docs":[{"mane_select":["ENST00000183605.10","NM_016369.4"],"refseq_accession":["NM_001002026"],"agr":"HGNC:2039","date_modified":"2023-01-20T00:00:00Z","locus_type":"gene with protein product","ucsc_id":"uc003erp.2","rgd_id":["RGD:1359696"],"location":"3q22.3","uniprot_ids":["P56856"],"prev_name":["surfactant associated protein J"],"hgnc_id":"HGNC:2039","status":"Approved","iuphar":"HGNC:2039","omim_id":["609210"],"uuid":"8d3d8355-5d09-4ba3-ad3f-768abf51c012","name":"claudin 18","vega_id":"OTTHUMG00000159762","symbol":"CLDN18","locus_group":"protein-coding gene","gene_group_id":[488],"prev_symbol":["SFTPJ"],"date_approved_reserved":"2000-01-31T00:00:00Z","entrez_id":"51208","ccds_id":["CCDS3095","CCDS33862"],"ensembl_gene_id":"ENSG00000066405","gene_group":["Claudins"],"ena":["AF221069","AY102073"],"mgd_id":["MGI:1929209"]}]}}
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hpa",
+  "url": "https://www.proteinatlas.org/ENSG00000284190.json",
+  "exchanges": [
+    {
+      "status": 404,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 124,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "Unknown gene ENSG00000284190"
+      }
+    }
+  ]
+}

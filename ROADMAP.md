@@ -71,7 +71,7 @@ Sources:
 - [ ] GenCC (bundle)
 - [x] gnomAD (constraint)
 - [ ] GTEx
-- [ ] Human Protein Atlas
+- [x] Human Protein Atlas
 - [ ] OncoKB (keyed)
 - [ ] COSMIC Cancer Gene Census (keyed)
 - Moved to the drug slice: DGIdb and Open Targets druggability
