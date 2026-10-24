@@ -3,7 +3,7 @@ mod map;
 mod raw;
 use crate::quotas;
 use biodata::{Source, Text, VariantHeader};
-use biomcp_fetch::{Arg, Endpoint, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use std::time::Duration;
 /// Public GET access; raw output redistribution rights remain unverified.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -38,24 +38,26 @@ pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 }
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
-    let endpoint = ALLELE.clone().with_segments(&[PathSegment::new(input)?]);
-    let (reply, _) = leg.json_received_checked::<raw::Allele>(
+    let endpoint = ALLELE
+        .clone()
+        .with_segments(&[PathSegment::new(input)?])
+        .fresh(Freshness::Days(1));
+    let reply = leg.json_checked_cache::<raw::Allele>(
         &endpoint,
         &[("fields", Arg::Text(FIELDS))],
-        |reply| {
-            if reply.error_type.is_some()
-                || reply
-                    .id
-                    .as_ref()
-                    .is_some_and(|url| url.as_str().rsplit('/').next() == Some(input))
-            {
-                Ok(())
-            } else {
-                Err(biomcp_fetch::BadReply)
-            }
-        },
+        |reply| reply.error_type.is_none() && matches_id(reply, input),
     )?;
+    if reply.error_type.is_none() && !matches_id(&reply, input) {
+        return Err(bad());
+    }
     map::allele(reply).map_err(|_| bad())
+}
+
+fn matches_id(reply: &raw::Allele, input: &str) -> bool {
+    reply
+        .id
+        .as_ref()
+        .is_some_and(|url| url.as_str().rsplit('/').next() == Some(input))
 }
 
 fn bad() -> RequestError {
