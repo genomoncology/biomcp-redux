@@ -86,3 +86,10 @@ pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
+
+mod trial;
+pub use trial::{NctId, TrialHeader, TrialPhase, TrialStatus, StudyType, TrialSex};
+pub use query::TrialSearch;
+pub use response::TrialPage;
+pub use query::SponsorType;
+pub use query::PhaseFilter;

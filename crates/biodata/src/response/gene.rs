@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native registry search page.
+    TrialPage(crate::TrialPage),
     /// Citation context evidence.
     ArticleEvidence(crate::ArticleEvidenceResult),
     /// Source-native recommendations.

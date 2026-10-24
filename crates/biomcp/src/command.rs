@@ -165,6 +165,10 @@ fn response(
         problems: result.problems,
     };
     match (request, result.body) {
+        (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
         (_, QueryBody::UnsupportedFilter { source, option }) => {
             usage_envelope(biodata::ErrorEnvelope::unsupported_filter(source, option))
         }

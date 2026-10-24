@@ -39,3 +39,6 @@ pub mod registry;
 /// Sentence resemblance in native provider order.
 pub mod litsense;
 pub mod sheet;
+
+/// ClinicalTrials.gov native search.
+pub mod ctgov;
