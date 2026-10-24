@@ -13,7 +13,7 @@ from smoke import mcp_probe
 
 def main():
     image, arch, proof, version = sys.argv[1:]
-    common = ["docker", "run", "--rm", "--label", "pm.repo=biomcp-redux", "--label", "pm.ticket=0058", "--platform", "linux/" + arch]
+    common = ["docker", "run", "--rm", "--memory", "2g", "--cpus", "2", "--label", "pm.repo=biomcp-redux", "--label", "pm.ticket=0058", "--platform", "linux/" + arch]
     checksum = subprocess.check_output(common + ["--entrypoint", "/usr/bin/sha256sum", image, "/usr/local/bin/biomcp"], text=True).split()[0]
     assert checksum == hashlib.sha256((Path(proof) / "biomcp").read_bytes()).hexdigest(), "container binary differs from the candidate"
     for args, key in [(["schema", "biodata.problem/1"], "$id"), (["help"], "commands")]:

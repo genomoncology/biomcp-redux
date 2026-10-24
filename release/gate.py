@@ -40,6 +40,7 @@ def installed(args):
             raise ValueError(kind + " installed bytes differ from the candidate")
         smoke(binary, executable, fixtures, record["version"])
         results.append({"artifact": kind, "platform": record["platform"], "result": "pass", "checks": ["release", "candidate-bytes", "version", "help", "schemas", "mcp-all-stdout", "replay-cli-mcp", "ordinary-cache-two-process"]})
+        print(json.dumps(results[-1]), flush=True)
     venv = root / "venv"
     subprocess.run([args.python, "-m", "venv", str(venv)], check=True)
     python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
