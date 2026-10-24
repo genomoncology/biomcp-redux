@@ -47,9 +47,9 @@ macro_rules! wire_enum {
     };
 
     ($(#[$doc:meta])* $name:ident { $($(#[$vdoc:meta])* $variant:ident => $literal:literal),+ $(,)? }) => {
-        $(#[$doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        $(#[$doc])*
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         pub enum $name { $($(#[$vdoc])* #[serde(rename = $literal)] $variant,)+ }
         impl $name {

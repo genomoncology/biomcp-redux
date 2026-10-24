@@ -299,8 +299,8 @@ Proof paths without a prefix are under `tests/cases/trial/`; `runner/` means `cr
 | `eligibility` | Intact source text and structured age/sex metadata; character continuations preserve every character | `runner/trial_get.rs`, `runner/nci_walk.rs` |
 | `outcomes` | Whole native outcome records with measures, descriptions and time frames | Get cases and both source walkers |
 | `arms` | Whole native arms and intervention relationships; source-provided intervention names remain intact | Get cases and both source walkers |
-| `locations` | Whole original sites with attached contacts and coordinates when supplied | `sites/*.yaml`, `runner/trial_sites.rs`, `runner/nci_walk.rs` |
-| `contacts` | Central contacts and officials with original roles; independent from site contacts | Same site and source walkers |
+| `locations` | Whole original registry sites with attached contacts and coordinates when supplied. NCI reports unsupported | `sites/*.yaml`, `runner/trial_sites.rs`, `nci-get.yaml` |
+| `contacts` | Registry central contacts and officials with original roles; independent from site contacts. NCI reports unsupported | `sites/*.yaml`, `runner/trial_sites.rs`, `nci-get.yaml` |
 | `references` | Registry publication identities, native types and citation order; article action fetches the page's PMIDs without inferring a primary paper. NCI reports unsupported | `references.yaml`, `runner/trial_documents.rs`, `nci-get.yaml` |
 | `documents` | Registry manifest, source URLs and document metadata. NCI reports unsupported | `documents.yaml`, `nci-get.yaml` |
 | `document FILE` | `trial document NCT FILE --save PATH` saves only an exact manifest member; never extracts text. CLI and stdio MCP save; HTTP refuses with the URL | `document-examples.yaml`, `runner/trial_documents.rs`, `input-boundaries.yaml` |

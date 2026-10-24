@@ -81,7 +81,7 @@
       "description": "Checked stored source record, supplied by a continuation."
     },
     "section": {
-      "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI references and documents are unsupported.",
+      "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
       "items": {
         "$ref": "#/$defs/TrialSection"
       },
