@@ -332,10 +332,6 @@
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
-        "myvariant",
-        "car",
-        "mutalyzer",
-        "variantvalidator",
         "hgnc",
         "mygene",
         "reactome",
@@ -353,14 +349,14 @@
         "pubtator",
         "ctgov",
         "civic",
-        "oncokb"
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " MyVariant.info aggregation.",
-        " ClinGen Allele Registry.",
-        " Mutalyzer.",
-        " VariantValidator.",
         " HGNC.",
         " MyGene.info.",
         " Reactome.",
@@ -378,7 +374,11 @@
         " PubTator.",
         " ClinicalTrials.gov.",
         " CIViC.",
-        " OncoKB."
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator."
       ]
     },
     "SourceNotice": {
