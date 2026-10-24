@@ -98,7 +98,7 @@ struct Fields {
     /// litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
     /// semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
     /// litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
-    /// pubtator: entity and word search including full text; --gene uses HGNC Entrez identity and cannot run without that join.
+    /// pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
     #[serde(default = "sources")]
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-comma-separated"=true)))]
     source: Box<[ArticleSource]>,

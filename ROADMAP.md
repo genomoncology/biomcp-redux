@@ -136,7 +136,7 @@ Live source checks retained as open proof boundaries:
 - [ ] Positive Semantic Scholar TLDR for 17611497
 - [ ] Successful LitSense2 AKT1 search
 
-PDF extraction awaits the PM ruling. Its source and output checks remain open.
+PDF metadata and explicit-path download remain pending. BioMCP will not extract PDF text.
 
 ## Milestone 2: variants and trials
 
