@@ -94,7 +94,15 @@ fn walk(id: &str, section: &str, raw: &Value, count: usize) -> Check {
     if !finished {
         return Err("bounded sites walk did not finish".into());
     }
-    println!("Measured {id} {section} largest page {max_bytes} bytes");
+    let ceiling = match (id, section) {
+        ("NCT03734029", "locations") => 5040,
+        ("NCT03734029", _) => 2206,
+        ("NCT02987543", "locations") => 4645,
+        ("NCT02987543", _) => 2511,
+        (_, "locations") => 3411,
+        _ => 3561,
+    };
+    if max_bytes + 1 > ceiling {return Err(format!("{id} {section} page exceeded {ceiling} byte budget: {}",max_bytes+1).into())}
     let expected = expected_records(raw, section);
     if rows != expected || section == "locations" && rows.len() != count {
         return Err(format!("{id} {section} lost original fields or order").into());
