@@ -8,6 +8,7 @@ use std::marker::PhantomData;
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
+    /// Return the row’s exact and word search keys.
     fn keys(&self) -> Keys;
 }
 /// A declared local data source.
@@ -29,44 +30,62 @@ pub struct Bundle<R: Row + 'static> {
 /// Supported published row encoding.
 #[derive(Clone, Copy, Debug)]
 pub enum RowFormat {
+    /// Tab-separated cells with a named header.
     Tsv,
 }
 /// Searchable keys produced by a decoded row.
 #[derive(Debug)]
 pub struct Keys {
+    /// Namespaced exact keys, folded in the shared index.
     pub exact: Vec<(KeyKind, Box<str>)>,
+    /// Literal text indexed by SQLite’s tokenizer.
     pub words: Vec<Box<str>>,
 }
 /// Exact-key namespace.
 #[derive(Clone, Copy, Debug)]
 pub enum KeyKind {
+    /// Primary identifier.
     Id,
+    /// Current symbol.
     Symbol,
+    /// Previous symbol.
     PreviousSymbol,
+    /// Alternative symbol.
     Alias,
+    /// External reference.
     Xref,
+    /// Indexed band text.
     Band,
 }
 /// One literal indexed lookup.
 #[derive(Clone, Copy, Debug)]
 pub enum Find<'a> {
+    /// Case-insensitive complete key.
     Exact(KeyKind, &'a str),
+    /// Literal key prefix.
     Prefix(KeyKind, &'a str),
+    /// Literal words combined with AND.
     Words(&'a str),
 }
 /// Public bundle metadata contains no local filenames or provider diagnostics.
 #[derive(Clone, Debug)]
 pub struct BundleInfo {
+    /// Stable declared bundle name.
     pub name: &'static str,
+    /// Complete raw body bytes.
     pub bytes: u64,
+    /// Checked decoded row count.
     pub rows: u64,
+    /// Whether stored freshness has expired.
     pub fresh: bool,
 }
 impl Fetch {
     /// Synchronize a declared bundle under the configured independent sync budget.
     pub fn sync<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
         let deadline = self.deadline(self.config.sync_budget);
-        self.leg(bundle.spec, deadline).sync_bundle(bundle, false)
+        let mut leg = self.leg(bundle.spec, deadline);
+        leg.deadline = deadline;
+        leg.sync_bundle(bundle, false)
     }
 }
 impl Leg<'_> {
@@ -83,14 +102,12 @@ impl Leg<'_> {
         if offline && old.is_none() {
             return Err(self.failure(biodata::Reason::Offline, None).into());
         }
-        if !(offline
-            || fresh
-                && !replay
-                && !matches!(
-                    self.fetch.config.mode,
-                    Mode::Record { .. } | Mode::Live { fresh: true }
-                ))
-        {
+        let forced = replay
+            || matches!(
+                self.fetch.config.mode,
+                Mode::Record { .. } | Mode::Live { fresh: true }
+            );
+        if !offline && (!fresh || forced) {
             match self.sync_bundle(bundle, true) {
                 Ok(_) => {}
                 Err(RequestError::Source(error)) if old.is_some() => {
@@ -103,6 +120,12 @@ impl Leg<'_> {
                 }
                 Err(error) => return Err(error),
             }
+        }
+        if offline && !fresh {
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
         }
         let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
         let rows = rows

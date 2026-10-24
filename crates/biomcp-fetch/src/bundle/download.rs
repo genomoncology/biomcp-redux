@@ -14,6 +14,13 @@ use std::{
     io::{Read, Write},
     time::{Duration, Instant},
 };
+struct Transfer<'a> {
+    holder: &'a str,
+    file: &'a mut tempfile::NamedTempFile,
+    part: &'a mut Part,
+    auto: bool,
+    started: Instant,
+}
 impl Leg<'_> {
     pub(super) fn sync_bundle<R: Row>(
         &self,
@@ -67,31 +74,33 @@ impl Leg<'_> {
             && let Some(prior) = prior
             && strong(prior.etag.as_deref())
             && prior.bytes > 0
+            && let Ok(input) = fs::File::open(&prior.path)
         {
-            if let Ok(input) = fs::File::open(&prior.path) {
-                let copied = std::io::copy(&mut input.take(prior.bytes), &mut file)
+            let copied = std::io::copy(&mut input.take(prior.bytes), &mut file)
+                .map_err(|_| CacheError::Database)?;
+            if copied == prior.bytes {
+                part.bytes = copied;
+                part.etag = prior.etag;
+                part.total = prior.total;
+            } else {
+                file.as_file_mut()
+                    .set_len(0)
                     .map_err(|_| CacheError::Database)?;
-                if copied == prior.bytes {
-                    part.bytes = copied;
-                    part.etag = prior.etag;
-                    part.total = prior.total;
-                } else {
-                    file.as_file_mut()
-                        .set_len(0)
-                        .map_err(|_| CacheError::Database)?;
-                }
             }
         }
         let started = Instant::now();
+        let mut transfer = Transfer {
+            holder: &holder,
+            file: &mut file,
+            part: &mut part,
+            auto,
+            started,
+        };
         let result = self.download(
             b,
             &url,
-            &holder,
-            &mut file,
-            &mut part,
+            &mut transfer,
             if record { None } else { old.as_ref() },
-            auto,
-            started,
         );
         if result.is_err() {
             // Preserve this holder's file only if its fenced metadata update succeeds.
@@ -151,25 +160,11 @@ impl Leg<'_> {
         &self,
         b: &Bundle<R>,
         url: &str,
-        holder: &str,
-        file: &mut tempfile::NamedTempFile,
-        part: &mut Part,
+        t: &mut Transfer<'_>,
         old: Option<&Meta>,
-        auto: bool,
-        started: Instant,
     ) -> Result<BundleInfo, RequestError> {
         let prepared = Prepared::new(url.into(), Vec::new(), Method::Get, true);
-        let mut headers = Vec::new();
-        if part.bytes > 0 {
-            headers.push(("Range", format!("bytes={}-", part.bytes)));
-            headers.push(("If-Match", part.etag.clone().ok_or(CacheError::Database)?));
-        } else if let Some(old) = old {
-            if let Some(etag) = &old.etag {
-                headers.push(("If-None-Match", etag.clone()));
-            } else if let Some(date) = &old.modified {
-                headers.push(("If-Modified-Since", date.clone()));
-            }
-        }
+        let mut headers = conditional(t.part, old)?;
         let keyed = match self.spec.key {
             crate::KeyUse::Optional(c) | crate::KeyUse::Required(c) => {
                 self.fetch.config.secrets.get(c.secret).is_some()
@@ -186,29 +181,18 @@ impl Leg<'_> {
             match response {
                 Ok(mut response) => {
                     let status = response.status().as_u16();
-                    if status == 412 && part.bytes > 0 {
-                        reset(file, part)?;
+                    if status == 412 && t.part.bytes > 0 {
+                        reset(t.file, t.part)?;
                         headers.clear();
                         continue;
                     }
                     if status == 304
                         && let Some(old) = old
                     {
-                        let mut m = old.clone();
-                        m.fresh_until = fresh_until(b);
-                        if !self.bundle_cache()?.publish(
-                            b,
-                            Some(holder),
-                            &m,
-                            None,
-                            self.budget(),
-                        )? {
-                            return Err(self.failure(Reason::Syncing, None).into());
-                        }
-                        return Ok(store::info(b, &m));
+                        return self.revalidated(b, t.holder, old);
                     }
                     if status == 200 || status == 206 {
-                        return self.consume(b, holder, file, part, &mut response, auto, started);
+                        return self.consume(b, t, &mut response);
                     }
                     let wait = header(&response, "retry-after")
                         .and_then(|v| crate::retry::retry_after(&v, std::time::SystemTime::now()));
@@ -258,45 +242,113 @@ impl Leg<'_> {
         }
         Err(self.failure(Reason::Syncing, None).into())
     }
-    fn consume<R: Row>(
+    fn revalidated<R: Row>(
         &self,
         b: &Bundle<R>,
         holder: &str,
-        file: &mut tempfile::NamedTempFile,
-        part: &mut Part,
-        response: &mut ureq::http::Response<ureq::Body>,
-        auto: bool,
-        started: Instant,
+        old: &Meta,
     ) -> Result<BundleInfo, RequestError> {
+        let mut m = old.clone();
+        m.fresh_until = fresh_until(b);
+        if !self
+            .bundle_cache()?
+            .publish(b, Some(holder), &m, None, self.budget())?
+        {
+            return Err(self.failure(Reason::Syncing, None).into());
+        }
+        Ok(store::info(b, &m))
+    }
+    fn consume<R: Row>(
+        &self,
+        b: &Bundle<R>,
+        t: &mut Transfer<'_>,
+        response: &mut ureq::http::Response<ureq::Body>,
+    ) -> Result<BundleInfo, RequestError> {
+        let status = response.status().as_u16();
+        self.validate_range(t, response)?;
+        self.stream(t, response)?;
+        t.file.flush().map_err(|_| CacheError::Database)?;
+        let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
+        let rows =
+            parse::tsv::<R>(&body).map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
+        let meta = meta(
+            b,
+            t.part.bytes,
+            rows.len() as u64,
+            header(response, "etag"),
+            header(response, "last-modified"),
+        );
+        if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+            let exchange = Exchange {
+                status: 200,
+                content_type: "text/tab-separated-values".into(),
+                delay_ms: crate::record::millis(t.started.elapsed())
+                    .map_err(RequestError::Recording)?,
+                retry_after_ms: None,
+                body: Body::capture_bundle(body).map_err(RequestError::Recording)?,
+            };
+            let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
+            self.fetch
+                .recordings
+                .append_bundle(
+                    self.spec.source,
+                    &crate::retry::identity(&url),
+                    &url,
+                    exchange,
+                )
+                .map_err(RequestError::Recording)?;
+        }
+        if !self
+            .bundle_cache()?
+            .publish(b, Some(t.holder), &meta, Some(&rows), self.budget())?
+        {
+            return Err(self.failure(Reason::Syncing, None).into());
+        }
+        Ok(store::info(b, &meta))
+    }
+    fn validate_range(
+        &self,
+        t: &mut Transfer<'_>,
+        response: &ureq::http::Response<ureq::Body>,
+    ) -> Result<(), RequestError> {
         let status = response.status().as_u16();
         let etag = header(response, "etag");
         let length = header(response, "content-length").and_then(|v| v.parse::<u64>().ok());
         if status == 206 {
-            let range = header(response, "content-range").and_then(|v| range(&v));
-            let Some((start, end, total)) = range else {
+            let Some((start, end, total)) =
+                header(response, "content-range").and_then(|v| range(&v))
+            else {
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             };
-            if part.bytes == 0
-                || start != part.bytes
+            if t.part.bytes == 0
+                || start != t.part.bytes
                 || !strong(etag.as_deref())
-                || etag != part.etag
-                || part.total.is_some_and(|n| n != total)
+                || etag != t.part.etag
+                || t.part.total.is_some_and(|n| n != total)
                 || length.is_some_and(|n| n != end - start + 1)
             {
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             }
-            part.total = Some(total);
+            t.part.total = Some(total);
         } else {
-            reset(file, part)?;
-            part.total = length;
-            part.etag = etag.clone();
+            reset(t.file, t.part)?;
+            t.part.total = length;
+            t.part.etag = etag;
         }
-        let limit = if auto {
+        Ok(())
+    }
+    fn stream(
+        &self,
+        t: &mut Transfer<'_>,
+        response: &mut ureq::http::Response<ureq::Body>,
+    ) -> Result<(), RequestError> {
+        let status = response.status().as_u16();
+        let limit = if t.auto {
             self.fetch.config.auto_sync_max_bytes.min(MAX_BUNDLE_BYTES)
         } else {
             MAX_BUNDLE_BYTES
         };
-        if part.total.is_some_and(|n| n > limit) {
+        if t.part.total.is_some_and(|n| n > limit) {
             return Err(self.failure(Reason::Syncing, Some(status)).into());
         }
         let mut reader = response.body_mut().as_reader();
@@ -321,53 +373,16 @@ impl Leg<'_> {
             let Some(bytes) = buffer.get(..n) else {
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             };
-            if part.bytes.saturating_add(n as u64) > limit {
+            if t.part.bytes.saturating_add(n as u64) > limit {
                 return Err(self.failure(Reason::Syncing, Some(status)).into());
             }
-            file.write_all(bytes).map_err(|_| CacheError::Database)?;
-            part.bytes += n as u64;
+            t.file.write_all(bytes).map_err(|_| CacheError::Database)?;
+            t.part.bytes += n as u64;
         }
-        if part.total.is_some_and(|n| n != part.bytes) {
+        if t.part.total.is_some_and(|n| n != t.part.bytes) {
             return Err(self.failure(Reason::BadReply, Some(status)).into());
         }
-        file.flush().map_err(|_| CacheError::Database)?;
-        let body = fs::read(file.path()).map_err(|_| CacheError::Database)?;
-        let rows =
-            parse::tsv::<R>(&body).map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
-        let meta = meta(
-            b,
-            part.bytes,
-            rows.len() as u64,
-            etag,
-            header(response, "last-modified"),
-        );
-        if matches!(self.fetch.config.mode, Mode::Record { .. }) {
-            let exchange = Exchange {
-                status: 200,
-                content_type: "text/tab-separated-values".into(),
-                delay_ms: crate::record::millis(started.elapsed())
-                    .map_err(RequestError::Recording)?,
-                retry_after_ms: None,
-                body: Body::capture_bundle(body).map_err(RequestError::Recording)?,
-            };
-            let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
-            self.fetch
-                .recordings
-                .append_bundle(
-                    self.spec.source,
-                    &crate::retry::identity(&url),
-                    &url,
-                    exchange,
-                )
-                .map_err(RequestError::Recording)?;
-        }
-        if !self
-            .bundle_cache()?
-            .publish(b, Some(holder), &meta, Some(&rows), self.budget())?
-        {
-            return Err(self.failure(Reason::Syncing, None).into());
-        }
-        Ok(store::info(b, &meta))
+        Ok(())
     }
 }
 fn reset(file: &mut tempfile::NamedTempFile, part: &mut Part) -> Result<(), CacheError> {
@@ -422,4 +437,19 @@ fn meta<R: Row>(
         etag,
         modified,
     }
+}
+
+fn conditional(part: &Part, old: Option<&Meta>) -> Result<Vec<(&'static str, String)>, CacheError> {
+    let mut headers = Vec::new();
+    if part.bytes > 0 {
+        headers.push(("Range", format!("bytes={}-", part.bytes)));
+        headers.push(("If-Match", part.etag.clone().ok_or(CacheError::Database)?));
+    } else if let Some(old) = old {
+        if let Some(etag) = &old.etag {
+            headers.push(("If-None-Match", etag.clone()));
+        } else if let Some(date) = &old.modified {
+            headers.push(("If-Modified-Since", date.clone()));
+        }
+    }
+    Ok(headers)
 }
