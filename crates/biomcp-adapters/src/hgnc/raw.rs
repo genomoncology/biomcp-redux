@@ -2,7 +2,9 @@ use biodata::{Cytoband, EnsemblGeneId, EntrezGeneId, GeneSymbol, HgncId};
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
 
-pub(super) fn cell(value: &Option<String>) -> &str { value.as_deref().unwrap_or("") }
+pub(super) fn cell(value: &Option<String>) -> &str {
+    value.as_deref().unwrap_or("")
+}
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Gene {
