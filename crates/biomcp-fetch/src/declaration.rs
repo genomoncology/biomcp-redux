@@ -88,6 +88,8 @@ pub struct Credential {
 pub enum SecretName {
     /// NCBI API key.
     NcbiApiKey,
+    /// OncoKB API key.
+    OncokbApiKey,
 }
 
 /// Credential insertion location.
@@ -97,6 +99,8 @@ pub enum KeyPlace {
     Query(&'static str),
     /// HTTP request header.
     Header(&'static str),
+    /// Authorization bearer token.
+    Bearer,
 }
 
 /// A parameter value. Identifier sets are sorted before sending.

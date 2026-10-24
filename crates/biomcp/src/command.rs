@@ -41,6 +41,9 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
+    if action == Action::KeyHelp {
+        return key_help();
+    }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
         Some(Ok(fetch)) if !parsed.globals.offline => fetch.as_ref(),
@@ -61,6 +64,7 @@ fn dispatch_using(
 }
 fn execute(fetch: &biomcp_fetch::Fetch, action: Action) -> io::Result<Outcome> {
     match action {
+        Action::KeyHelp => key_help(),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = biomcp_query::run(
@@ -186,6 +190,10 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
             status.into()
         },
     )
+}
+fn key_help() -> io::Result<Outcome> {
+    let data = biodata::KeyHelp { source: biodata::Source::Oncokb, config: biodata::Text::new("keys.oncokb_api_key").map_err(io::Error::other)?, environment: biodata::Text::new("ONCOKB_API_KEY").map_err(io::Error::other)? };
+    encode(Envelope::new(Status::Complete, (), Some(data)), crate::exit::Status::Success)
 }
 fn encode(value: impl serde::Serialize, status: crate::exit::Status) -> io::Result<Outcome> {
     let mut bytes = serde_json::to_vec(&value)?;

@@ -1,6 +1,6 @@
 //! The process argument and settings boundary.
 use crate::grammar::Globals;
-use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret};
+use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
 use serde::Deserialize;
 use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 
@@ -8,7 +8,11 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    keys: Option<Keys>,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Keys { oncokb_api_key: Option<String> }
 #[expect(
     clippy::disallowed_methods,
     reason = "Arguments enter only at the command boundary"
@@ -74,7 +78,12 @@ pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
     {
         fs::create_dir_all(parent).map_err(|_| ())?;
     }
+    let mut secrets = Secrets::default();
+    let key = variable("ONCOKB_API_KEY").map(|value| value.to_string_lossy().into_owned())
+        .or_else(|| file.as_ref().and_then(|file| file.keys.as_ref()).and_then(|keys| keys.oncokb_api_key.clone()));
+    if let Some(key) = key { secrets.insert(SecretName::OncokbApiKey, Secret::new(key)); }
     Fetch::open(FetchConfig {
+        secrets,
         cache,
         mode,
         replay_cache,

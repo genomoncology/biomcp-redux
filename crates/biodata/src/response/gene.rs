@@ -1,4 +1,6 @@
 mod constraint;
+mod oncokb;
+pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
@@ -9,6 +11,9 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneItem {
+    /// Verified keyed source card annotation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<OncokbCard>,
     /// Original checked input.
     pub input: GeneInput,
     /// This input's outcome.
@@ -84,6 +89,9 @@ impl ResponseBody for SyncResult {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
+    /// Keyed source gene details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub oncokb: Option<Section<Oncokb>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,

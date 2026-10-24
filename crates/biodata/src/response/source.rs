@@ -11,6 +11,8 @@ SourceState {
     Syncing => "syncing",
     /// The source failed.
     Failed => "failed",
+    /// User settings prevented the source request.
+    Skipped => "skipped",
 }
 }
 /// One source's outcome, without provider text.

@@ -65,6 +65,8 @@ canonical_enum! {
         ClinicalTrialsGov => "ctgov",
         /// CIViC.
         Civic => "civic",
+        /// OncoKB.
+        Oncokb => "oncokb",
     }
 }
 

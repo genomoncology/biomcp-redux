@@ -21,6 +21,11 @@ impl Environment {
         Ok(Self { root })
     }
 
+    pub(super) fn config(&self, value: &serde_json::Value) -> io::Result<()> {
+        let directory = self.root.path().join("config/biomcp");
+        fs::create_dir_all(&directory)?;
+        fs::write(directory.join("config.json"), serde_json::to_vec(value)?)
+    }
     pub(super) fn globals(&self, replay: Option<&Path>, offline: bool) -> Vec<String> {
         if offline {
             vec![

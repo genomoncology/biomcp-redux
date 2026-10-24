@@ -60,6 +60,7 @@ fn root() -> Result<Command, ()> {
         );
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc"])));
+    root = root.subcommand(Command::new("help").subcommand_required(true).subcommand(Command::new("key").arg(Arg::new("source").required(true).value_parser(["oncokb"]))));
     Ok(root.subcommand(Command::new("serve")))
 }
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -82,7 +83,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             globals,
         });
     }
-    let action = if verb == "sync" {
+    let action = if verb == "help" {
+        Action::KeyHelp
+    } else if verb == "sync" {
         Action::Sync {
             bundle: Bundle::Hgnc,
         }

@@ -12,6 +12,8 @@ StepKind {
     Disambiguate => "disambiguate",
     /// Synchronize a missing or stale identity file.
     Sync => "sync",
+    /// Explain how to configure a source key.
+    Key => "key",
 }
 }
 /// A command argument list spelled from a typed action.

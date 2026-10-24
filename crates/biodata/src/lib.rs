@@ -37,6 +37,6 @@ pub use response::{
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
 };
 
-pub use response::{SyncQuery, SyncResult};
+pub use response::{SyncQuery, SyncResult, KeyHelp, Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 
 pub use response::{Constraint, FiniteNumber, FiniteNumberError, GeneSections};

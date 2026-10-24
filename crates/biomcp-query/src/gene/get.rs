@@ -26,7 +26,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         }
     }
     let mut sources = vec![hgnc];
-    let genes = sections::prepare(query, &mut items);
+    let genes = sections::prepare(query, &mut items, cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey));
     let ids: Vec<_> = genes
         .iter()
         .filter_map(|(_, gene)| gene.entrez_id)
@@ -136,6 +136,7 @@ fn resolve_item(
         }
     };
     GeneItem {
+        oncokb: None,
         input: input.clone(),
         status: state,
         answer,
