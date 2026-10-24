@@ -45,13 +45,3 @@ impl super::ResponseBody for ArticlePage {
     const SCHEMA: &'static str = "biomcp.article_page/1";
     type Query = ArticleSearch;
 }
-
-impl ArticleKey {
-    /// PubMed identity, when this key carries one.
-    pub fn pmid(&self) -> Option<Pmid> {
-        match self {
-            Self::Pubmed(id) => Some(*id),
-            _ => None,
-        }
-    }
-}
