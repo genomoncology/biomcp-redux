@@ -178,7 +178,7 @@ pub use variant::{
     VariantConservation, VariantCosmic, VariantPredictors,
 };
 
-pub use response::{OncokbVariantRecord, VariantOncokb};
+pub use response::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
 pub use variant::PopulationFrequency;
 
 pub use response::VariantPopulationResult;

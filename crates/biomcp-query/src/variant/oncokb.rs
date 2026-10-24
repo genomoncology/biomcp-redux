@@ -56,6 +56,9 @@ pub(super) fn section(
                     data_version: row.data_version.and_then(|s| s.parse().ok()),
                     last_update: row.last_update.and_then(|s| s.parse().ok()),
                     variant_exist: row.variant_exist,
+                    gene_exist: row.gene_exist,
+                    vus: row.vus,
+                    hotspot: row.hotspot,
                     allele_exist: row.allele_exist,
                     records: rows.into(),
                     page: PageInfo {

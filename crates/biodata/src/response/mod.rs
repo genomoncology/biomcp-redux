@@ -107,7 +107,7 @@ pub use variant_assertions::{
 };
 
 mod variant_oncokb;
-pub use variant_oncokb::{OncokbVariantRecord, VariantOncokb};
+pub use variant_oncokb::{OncokbCitation, OncokbVariantRecord, VariantOncokb};
 
 pub use variant_population::VariantPopulationResult;
 

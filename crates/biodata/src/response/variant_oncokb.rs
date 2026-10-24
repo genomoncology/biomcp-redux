@@ -20,6 +20,15 @@ pub struct VariantOncokb {
     pub last_update: Option<Text>,
     /// Native exact variant curation flag; never a clinical conclusion.
     pub variant_exist: bool,
+    /// Source gene curation flag.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gene_exist: Option<bool>,
+    /// Source investigated-but-unknown flag, never used to create a classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vus: Option<bool>,
+    /// Source hotspot flag, without an actionability conclusion.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hotspot: Option<bool>,
     /// Native alternate allele curation flag.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_exist: Option<bool>,
@@ -41,6 +50,17 @@ pub enum OncokbVariantRecord {
     Statement {
         /// Common source-attributed claim.
         statement: Box<Statement>,
+    },
+    /// Native non-PubMed citation, preserving source text and link.
+    Citation {
+        /// Provider collection owning this citation.
+        field: Box<str>,
+        /// Native text, without trimming.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        text: Option<Box<str>>,
+        /// Source link.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        link: Option<Text>,
     },
     /// Native narrative, split only at checked character boundaries.
     Text {
@@ -87,6 +107,9 @@ pub enum OncokbVariantRecord {
         /// Source PMID citations.
         #[serde(default)]
         citations: Box<[crate::Pmid]>,
+        /// Native non-PubMed citations, with their complete source content and links.
+        #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+        abstracts: Box<[OncokbCitation]>,
         /// Source narrative, kept without trimming.
         #[serde(skip_serializing_if = "Option::is_none")]
         description: Option<Box<str>>,
@@ -104,4 +127,17 @@ pub enum OncokbVariantRecord {
 
 fn unmapped() -> bool {
     true
+}
+
+/// One native non-PubMed source citation.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OncokbCitation {
+    /// Complete native citation content.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<Box<str>>,
+    /// Native citation link.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link: Option<Text>,
 }

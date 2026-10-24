@@ -530,6 +530,42 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "description": "OncoKB oncogenicity vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbOncogenicityCode"
+            },
+            "system": {
+              "const": "oncokb_oncogenicity",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "OncoKB evidence levels.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbLevelCode"
+            },
+            "system": {
+              "const": "oncokb_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "CIViC evidence level.",
           "properties": {
             "code": {
@@ -1174,6 +1210,37 @@
         }
       ]
     },
+    "OncokbLevelCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "level_1",
+        "level_2",
+        "level_3a",
+        "level_3b",
+        "level_4",
+        "level_r1",
+        "level_r2",
+        "level_dx1",
+        "level_dx2",
+        "level_dx3",
+        "level_px1",
+        "level_px2",
+        "level_px3"
+      ],
+      "type": "string"
+    },
+    "OncokbOncogenicityCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "oncogenic",
+        "likely_oncogenic",
+        "likely_neutral",
+        "inconclusive",
+        "resistance",
+        "unknown"
+      ],
+      "type": "string"
+    },
     "OncokbVariantRecord": {
       "description": "A native annotation row; no level or classification is inferred from other fields.",
       "oneOf": [
@@ -1201,8 +1268,8 @@
           "description": "Native narrative, split only at checked character boundaries.",
           "properties": {
             "field": {
-              "$ref": "#/$defs/Text",
-              "description": "Original provider field name."
+              "description": "Original provider field name.",
+              "type": "string"
             },
             "kind": {
               "const": "text",
@@ -1215,8 +1282,8 @@
               "type": "integer"
             },
             "text": {
-              "$ref": "#/$defs/Text",
-              "description": "This exact text fragment, without trimming or rewriting."
+              "description": "This exact text fragment, without trimming or rewriting.",
+              "type": "string"
             },
             "total": {
               "description": "Complete number of characters in this provider field.",
@@ -1236,6 +1303,35 @@
         },
         {
           "additionalProperties": false,
+          "description": "A source label without a representable source protein subject.",
+          "properties": {
+            "classification": {
+              "$ref": "#/$defs/Term",
+              "description": "Whole native classification."
+            },
+            "field": {
+              "description": "Native field.",
+              "type": "string"
+            },
+            "kind": {
+              "const": "unmapped_label",
+              "type": "string"
+            },
+            "statement_unmapped": {
+              "default": true,
+              "description": "No subject was invented.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "field",
+            "classification"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "Native therapeutic, diagnostic or prognostic implication.",
           "properties": {
             "alterations": {
@@ -1245,6 +1341,29 @@
               },
               "type": "array"
             },
+            "approved_indications": {
+              "default": [],
+              "description": "Native approved indication labels.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            },
+            "citations": {
+              "default": [],
+              "description": "Source PMID citations.",
+              "items": {
+                "$ref": "#/$defs/Pmid"
+              },
+              "type": "array"
+            },
+            "description": {
+              "description": "Source narrative, kept without trimming.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "drugs": {
               "description": "Source-listed drugs, preserving order.",
               "items": {
@@ -1252,9 +1371,28 @@
               },
               "type": "array"
             },
+            "excluded_tumor_types": {
+              "default": [],
+              "description": "Native excluded contexts, never filled from the caller context.",
+              "items": {
+                "$ref": "#/$defs/Concept"
+              },
+              "type": "array"
+            },
+            "fda_level": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Term"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native FDA level label, independent of the evidence level."
+            },
             "field": {
-              "$ref": "#/$defs/Text",
-              "description": "Original provider collection name."
+              "description": "Original provider collection name.",
+              "type": "string"
             },
             "kind": {
               "const": "implication",
@@ -1273,7 +1411,12 @@
                   "type": "null"
                 }
               ],
-              "description": "Common statement only where the provider's claim can be mapped exactly."
+              "description": "Reserved common statement slot; native alteration groups leave it absent."
+            },
+            "statement_unmapped": {
+              "default": true,
+              "description": "Native grouping cannot be represented by a common source profile ID.",
+              "type": "boolean"
             },
             "tumor_type": {
               "anyOf": [
@@ -3847,6 +3990,17 @@
         "page": {
           "$ref": "#/$defs/PageInfo",
           "description": "Disclosure bounds for this section."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source rows remain candidates when no transcript/consequence join exists."
         },
         "records": {
           "description": "Native residue records in source order.",

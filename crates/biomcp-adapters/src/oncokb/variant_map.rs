@@ -59,6 +59,10 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
                 );
             }
         }
+        if let Some(citations) = &effect.citations {
+            out.value
+                .extend(abstracts("mutationEffect.citations", &citations.abstracts));
+        }
         narrative(
             &mut out.value,
             "mutationEffect.description",
@@ -101,6 +105,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
             statement_unmapped: true,
             statement: None,
             citations: pmids(&r.pmids, &mut out.problems).into(),
+            abstracts: abstracts(&r.abstracts),
             description: r.description.as_deref().map(Into::into),
             excluded_tumor_types: r
                 .level_excluded_cancer_types
@@ -132,6 +137,7 @@ fn implications(row: &Annotation, out: &mut Mapped<Vec<Record>>) {
                 statement_unmapped: true,
                 statement: None,
                 citations: pmids(&r.pmids, &mut out.problems).into(),
+                abstracts: abstracts(&r.abstracts),
                 description: r.description.as_deref().map(Into::into),
                 excluded_tumor_types: Box::default(),
                 approved_indications: Box::default(),
@@ -261,4 +267,13 @@ fn problem(out: &mut Vec<Problem>, field: &str) {
         field: field.into(),
         code: ProblemCode::ValueUnknown,
     });
+}
+
+fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biodata::OncokbCitation]> {
+    rows.iter()
+        .map(|row| biodata::OncokbCitation {
+            text: row.abstract_content.as_deref().map(Into::into),
+            link: row.link.clone(),
+        })
+        .collect()
 }

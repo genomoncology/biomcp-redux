@@ -16,6 +16,16 @@ pub struct Annotation {
     pub query: Query,
     /// Provider exact variant curation flag.
     pub variant_exist: bool,
+    /// Native gene curation flag.
+    pub gene_exist: Option<bool>,
+    /// Native investigated-but-unknown flag, without deriving a classification.
+    #[serde(rename = "vus", alias = "VUS")]
+    pub vus: Option<bool>,
+    /// Native statistical hotspot flag.
+    pub hotspot: Option<bool>,
+    /// Provider reports invalid inputs as a 200 with validation errors.
+    #[serde(default)]
+    pub errors: Vec<ValidationError>,
     /// Provider alternate allele curation flag.
     pub allele_exist: Option<bool>,
     /// Native oncogenicity label.
@@ -78,6 +88,9 @@ pub struct Citations {
     /// Source PMID identities.
     #[serde(default)]
     pub pmids: Vec<String>,
+    /// Native non-PubMed citations.
+    #[serde(default)]
+    pub abstracts: Vec<Abstract>,
 }
 /// Native drug identity.
 #[derive(Debug, Deserialize)]
@@ -123,6 +136,9 @@ pub struct Treatment {
     pub approved_indications: Vec<String>,
     /// Native FDA level label.
     pub fda_level: Option<String>,
+    /// Native non-PubMed citations.
+    #[serde(default)]
+    pub abstracts: Vec<Abstract>,
 }
 /// Native diagnostic or prognostic implication.
 #[derive(Debug, Deserialize)]
@@ -140,10 +156,17 @@ pub struct Implication {
     pub pmids: Vec<String>,
     /// Native source description.
     pub description: Option<String>,
+    /// Native non-PubMed citations.
+    #[serde(default)]
+    pub abstracts: Vec<Abstract>,
 }
 impl Reply for Annotation {
     fn check(&self) -> Result<(), BadReply> {
-        Ok(())
+        if self.errors.is_empty() {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }
 /// Read only the licensed endpoint under the existing required-key source policy.
@@ -174,4 +197,23 @@ pub fn annotation(
         },
     )
     .map(|(row, _)| row)
+}
+
+/// Native citation text and link, kept without claiming reuse rights.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Abstract {
+    /// Native citation content.
+    pub abstract_content: Option<String>,
+    /// Source citation link.
+    pub link: Option<biodata::Text>,
+}
+/// Provider validation failures must not enter the annotation cache.
+#[derive(Debug, Deserialize)]
+pub struct ValidationError {
+    /// Source failure code.
+    #[serde(rename = "type")]
+    pub kind: String,
+    /// Source message, never interpreted as a clinical classification.
+    pub message: String,
 }
