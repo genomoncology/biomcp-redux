@@ -38,6 +38,12 @@ def main():
         result = check(root)
         assert result.returncode != 0 and "upgrade commands differ" in result.stderr, result
         note.write_text(original_note)
+        slice_path = root / "sdlc/planning/slices/gene.md"
+        original_slice = slice_path.read_text()
+        slice_path.write_text(original_slice.replace("Section 1 replaces this leaf", "Section 1 removes this leaf", 1))
+        result = check(root)
+        assert result.returncode != 0 and "upgrade commands differ" in result.stderr, result
+        slice_path.write_text(original_slice)
         case = root / "tests/cases/new-command/proof.yaml"
         case.parent.mkdir()
         case.write_text("story: A new command\n")
