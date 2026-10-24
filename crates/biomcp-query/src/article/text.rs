@@ -28,17 +28,17 @@ pub fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         if let QueryBody::ArticleText(body) = &mut out.body {
-            body.content = Section::Unavailable {
-                source: if matches!(query.input(), ArticleInput::EuropePmc(_)) {
-                    Source::EuropePmc
-                } else {
-                    Source::PmcOa
-                },
-                reason: match error {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                },
+            let default_source = if matches!(query.input(), ArticleInput::EuropePmc(_)) {
+                Source::EuropePmc
+            } else {
+                Source::PmcOa
             };
+            let (source, reason) = match error {
+                RequestError::Source(e) => (e.source, e.reason),
+                _ => (default_source, Reason::Unavailable),
+
+            };
+            body.content = Section::unavailable(source, reason);
         }
         out.next.push((
             StepKind::Fresh,
@@ -115,10 +115,7 @@ fn execute<'a>(
     }
     out.sources.push(source);
     let content = match result? {
-        None => Section::Unavailable {
-            source: Source::PmcOa,
-            reason: Reason::NotOpen,
-        },
+        None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
             let Some(content) = select(query, ArticleInput::Pmcid(id), &document, out) else {
                 out.body = QueryBody::TextPositionError;

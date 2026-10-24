@@ -8,6 +8,7 @@ use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 #[serde(deny_unknown_fields)]
 struct ConfigFile {
     proxy: Option<String>,
+    disable_sources: Option<Vec<String>>,
     ca_bundle: Option<PathBuf>,
     ncbi_email: Option<String>,
     keys: Option<Keys>,
@@ -135,6 +136,7 @@ fn fetch_using(
     }
     let network = network(file.as_ref())?;
     Fetch::open(FetchConfig {
+        disabled_sources: disabled_sources(globals, file.as_ref())?,
         observations: globals
             .observe
             .as_ref()
@@ -151,6 +153,18 @@ fn fetch_using(
         ..FetchConfig::default()
     })
     .map_err(|_| ())
+}
+
+fn disabled_sources(
+    globals: &Globals,
+    file: Option<&ConfigFile>,
+) -> Result<std::collections::BTreeSet<biodata::Source>, ()> {
+    let mut disabled = globals.disable_sources.clone();
+    disabled.extend(
+        file.and_then(|f| f.disable_sources.clone())
+            .unwrap_or_default(),
+    );
+    biomcp_adapters::registry::disabled(&disabled).map_err(|_| ())
 }
 
 fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {

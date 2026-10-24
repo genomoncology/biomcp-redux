@@ -80,10 +80,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     out.status = status::status(cards.items.iter().map(|i| i.status));
 }
 fn unavailable(reason: Reason) -> Section<FullText> {
-    Section::Unavailable {
-        source: Source::PmcOa,
-        reason,
-    }
+    Section::unavailable(Source::PmcOa, reason)
 }
 pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
     FullText {

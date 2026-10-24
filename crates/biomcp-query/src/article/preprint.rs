@@ -90,13 +90,10 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
                 item.status = Status::Partial;
-                Section::Unavailable {
-                    source: Source::EuropePmc,
-                    reason: match e {
-                        biomcp_fetch::RequestError::Source(e) => e.reason,
-                        _ => biodata::Reason::Unavailable,
-                    },
-                }
+                Section::unavailable(Source::EuropePmc, match e {
+                    biomcp_fetch::RequestError::Source(e) => e.reason,
+                    _ => biodata::Reason::Unavailable,
+                })
             }
         });
     }

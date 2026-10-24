@@ -38,6 +38,7 @@ fn registry() -> Vec<Contract> {
         };
     }
     contracts! {
+        Envelope<Health> => ("health", "biomcp.health/1"),
         Markdown => ("markdown", "biodata.markdown/1"),
         ArticleText => ("article-text", "biodata.article-text/2"),
         Envelope<ArticleTextResult> => ("article-text-result", "biomcp.article_text/2"),

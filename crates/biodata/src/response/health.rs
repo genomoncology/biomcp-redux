@@ -1,0 +1,38 @@
+use crate::{Reason, Source, SourceState, Text, Use};
+use serde::{Deserialize, Serialize};
+/// Source reachability and publisher terms, independent of local HTTP service health.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct Health {
+    /// Every implemented adapter, in declaration order.
+    pub sources: Box<[SourceHealth]>,
+}
+impl super::ResponseBody for Health {
+    const SCHEMA: &'static str = "biomcp.health/1";
+    type Query = ();
+}
+/// One bounded source probe, without credentials or provider error text.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct SourceHealth {
+    /// Implemented source identity.
+    pub source: Source,
+    /// Publisher license or terms name.
+    pub terms: Text,
+    /// Publisher terms page.
+    pub terms_url: Text,
+    /// Reviewed source category, not blanket permission for each record.
+    pub usage: Use,
+    /// Whether source policy prevents all requests and cached reads.
+    pub disabled: bool,
+    /// Probe outcome; disabled and missing credentials remain skipped.
+    pub state: SourceState,
+    /// Typed failure or skip reason.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<Reason>,
+    /// Probe duration in milliseconds; omitted when policy skipped the probe.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub latency_ms: Option<u64>,
+}

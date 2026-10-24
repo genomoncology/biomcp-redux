@@ -13,6 +13,11 @@ use biomcp_fetch::{
 use std::time::Duration;
 /// Shared NCBI E-utilities policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    terms: biomcp_fetch::Terms {
+        name: "NCBI policies; publisher rights in abstracts",
+        url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+        usage: biodata::Use::Restricted,
+    },
     source: Source::PubMed,
     base: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
     key: KeyUse::Optional(Credential {
