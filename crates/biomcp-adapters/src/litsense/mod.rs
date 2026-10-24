@@ -38,7 +38,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Vec<ArticleItem>, RequestErro
             cited_by: None,
             header: None,
             sentence: Some(ArticleSentence {
-                section: sentence.section,
+                section: sentence.section.and_then(crate::raw::Field::value),
                 text: sentence.text,
             }),
         });
@@ -50,7 +50,8 @@ struct Sentences(Vec<Sentence>);
 #[derive(Deserialize)]
 struct Sentence {
     pmid: crate::raw::NumericPmid,
-    section: Option<Text>,
+    #[serde(default)]
+    section: Option<crate::raw::Field<Text>>,
     text: Text,
 }
 impl Reply for Sentences {
