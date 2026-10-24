@@ -11,7 +11,7 @@ pub(super) fn document(id: Pmid, document: Option<&Document>) -> Mapped<Section<
     for annotation in document
         .into_iter()
         .flat_map(|d| &d.passages)
-        .flat_map(|p| &p.annotations)
+        .flat_map(|p| p.annotations.iter().flatten())
     {
         let Some((key, entity)) = entity(id, annotation, &mut problems) else {
             continue;
