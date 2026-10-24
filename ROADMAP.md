@@ -163,9 +163,9 @@ PDF metadata and explicit-path download remain pending. BioMCP will not extract 
 Sources:
 - [x] MyVariant.info
 - [x] ClinGen Allele Registry
-- [ ] ClinVar through NCBI EFetch (optional key): native assertions landed; actual drug-response capture remains open
-- [ ] gnomAD: counts and missing-release handling landed; same-response dataset release proof remains open
-- [ ] CIViC: membership and native paging landed; actual positive joined capture remains open
+- [x] ClinVar through NCBI EFetch (optional key): actual drug-response label captured and replayed as unmapped native detail; disease relationship omission remains separate
+- [x] gnomAD: captured and replayed exome counts with same-response release 4.1.0; genome absent
+- [x] CIViC: captured and replayed exact native variant membership and the returned bounded evidence and assertion pages
 - [x] cBioPortal
 - [ ] Cancer Hotspots: candidate residue counts only; no established exact allele join
 - [x] OncoKB (keyed)
