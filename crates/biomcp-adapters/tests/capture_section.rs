@@ -1,22 +1,53 @@
 //! Temporary driver for bounded public source captures.
+use biodata::{EntrezGeneId, Source};
 use biomcp_adapters::{gnomad, mygene};
-use biomcp_fetch::{Fetch, FetchConfig, Mode, Quota, Rate, SourceKey, SourceSpec, KeyUse, Reply, BadReply};
-use biodata::{Source, EntrezGeneId};
+use biomcp_fetch::{
+    BadReply, Fetch, FetchConfig, KeyUse, Mode, Quota, Rate, Reply, SourceKey, SourceSpec,
+};
 use std::time::Duration;
-static QUOTA: Quota = Quota::new(SourceKey::declare("hgnc-rest-capture"), Rate::per_second(1), None, 1);
-static REST: SourceSpec = SourceSpec { source: Source::Hgnc, base:"https://rest.genenames.org", key: KeyUse::None, quota:&QUOTA, deadline:Duration::from_secs(20) };
+static QUOTA: Quota = Quota::new(
+    SourceKey::declare("hgnc-rest-capture"),
+    Rate::per_second(1),
+    None,
+    1,
+);
+static REST: SourceSpec = SourceSpec {
+    source: Source::Hgnc,
+    base: "https://rest.genenames.org",
+    key: KeyUse::None,
+    quota: &QUOTA,
+    deadline: Duration::from_secs(20),
+};
 #[derive(Debug, serde::Deserialize)]
 struct Raw(serde_json::Value);
-impl Reply for Raw { fn check(&self) -> Result<(), BadReply> { if self.0["response"]["numFound"] == 1 { Ok(()) } else { Err(BadReply) } } }
+impl Reply for Raw {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.0["response"]["numFound"] == 1 {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    }
+}
 #[test]
 #[ignore]
 fn capture_missing_public_identities() {
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/constraint/captured");
-    let fetch = Fetch::open(FetchConfig { mode:Mode::Record { dir }, ..Default::default() }).unwrap();
-    for symbol in ["TP53","BCR"] {
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/gene/constraint/captured");
+    std::fs::create_dir_all(dir.parent().unwrap()).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Record { dir },
+        ..Default::default()
+    })
+    .unwrap();
+    for symbol in ["TP53", "BCR"] {
         let leg = fetch.leg(&REST, fetch.deadline(Duration::from_secs(30)));
         // HGNC's fetch route requires the symbol in the path.
-        let ep = if symbol == "TP53" { REST.get("/fetch/symbol/TP53") } else { REST.get("/fetch/symbol/BCR") };
+        let ep = if symbol == "TP53" {
+            REST.get("/fetch/symbol/TP53")
+        } else {
+            REST.get("/fetch/symbol/BCR")
+        };
         let reply = leg.json::<Raw>(&ep, &[]).unwrap();
         assert_eq!(reply.0["response"]["numFound"], 1);
     }

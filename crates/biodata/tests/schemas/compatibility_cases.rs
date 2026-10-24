@@ -188,3 +188,17 @@ fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
         assert!(check(&invalid, &invalid).is_err());
     }
 }
+
+#[test]
+fn compatibility_checks_consumed_decimal_bounds_and_section_annotation() {
+    let old = json!({"$id":"biodata.example/1","type":"number","format":"double","minimum":-2.5,"maximum":3.25});
+    assert!(check(&old, &old).is_ok());
+    for (minimum, maximum, expected) in [(-3.0, 4.0, true), (-2.0, 3.25, false), (-2.5, 3.0, false)] {
+        let mut new = old.clone(); new["minimum"] = json!(minimum); new["maximum"] = json!(maximum);
+        assert_eq!(check(&old, &new).is_ok(), expected);
+    }
+    let annotation = json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"},"x-trailing-section":true});
+    assert!(check(&annotation, &annotation).is_ok());
+    let mut bad = annotation.clone(); bad["x-trailing-section"] = json!("all");
+    assert!(check(&bad, &bad).is_err());
+}
