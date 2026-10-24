@@ -195,7 +195,10 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
                     .json::<Answer>(&spec.get("/bad"), &[])
             });
             server.next().raw(response);
-            assert_eq!(worker.join().unwrap().unwrap_err().reason, Reason::BadReply);
+            assert_eq!(
+                source(worker.join().unwrap().unwrap_err()).reason,
+                Reason::BadReply
+            );
             assert!(server.requests.try_recv().is_err());
             let peer = scope.spawn(|| {
                 fetch
@@ -206,4 +209,11 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
             assert!(peer.join().unwrap().unwrap().answer);
         });
     }
+}
+
+fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
+    error
 }

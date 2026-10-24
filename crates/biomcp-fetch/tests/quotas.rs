@@ -117,7 +117,7 @@ fn canceled_waiter_leaves_shared_in_flight_queue_and_releases_successor() {
         });
         // Completion with the holder still blocked proves the waiter exhausted its queue budget.
         assert_eq!(
-            canceled.join().unwrap().unwrap_err().reason,
+            source(canceled.join().unwrap().unwrap_err()).reason,
             Reason::DeadlineExceeded
         );
         assert!(server.requests.try_recv().is_err());
@@ -209,7 +209,7 @@ fn declared_burst_admits_only_its_capacity_and_expired_rate_waiters_leave() {
                 .json::<Answer>(&spec.get("/expired"), &[])
         });
         assert_eq!(
-            canceled.join().unwrap().unwrap_err().reason,
+            source(canceled.join().unwrap().unwrap_err()).reason,
             Reason::DeadlineExceeded
         );
         assert!(server.requests.try_recv().is_err());
@@ -265,4 +265,11 @@ fn shared_queue_applies_each_arriving_sources_credential_rate() {
         assert!(second.join().unwrap().unwrap().answer);
         assert!(spacing >= Duration::from_millis(195), "{spacing:?}");
     });
+}
+
+fn source(error: biomcp_fetch::RequestError) -> biomcp_fetch::SourceError {
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
+    error
 }
