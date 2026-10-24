@@ -41,8 +41,6 @@
     "VariantSection": {
       "description": "Named variant source sections, without automatic expansion of identity cards.",
       "enum": [
-        "clinvar",
-        "erepo",
         "population",
         "gwas",
         "civic",
@@ -55,8 +53,6 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " ClinVar native assertions.",
-        " ClinGen native assertions.",
         " gnomAD population observations.",
         " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",

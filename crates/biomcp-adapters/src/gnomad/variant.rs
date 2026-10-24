@@ -1,4 +1,6 @@
 //! Source-native gnomAD population subsets; no frequency inference.
+//! VA release/count/cohort fields: https://github.com/broadinstitute/gnomad-browser/blob/main/graphql-api/src/graphql/types/va.graphql
+//! The resolver supplies an ALL cohort alongside ancestry rows; its constants are not observed releases.
 use super::{Query, SPEC};
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
@@ -8,7 +10,7 @@ const VARIANT: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
-const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an filters populations{id ac an}} genome{ac an filters populations{id ac an}}}}";
+const QUERY: &str = "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an filters populations{id ac an}} genome{ac an filters populations{id ac an}} va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}}}";
 /// Dataset selector sent unchanged to the source.
 pub const DATASET: &str = "gnomad_r4";
 #[derive(Debug, Deserialize)]
@@ -30,12 +32,47 @@ struct Data {
 pub struct Variant {
     /// Exact returned source allele identifier.
     pub variant_id: Text,
+    /// Optional source release provenance; old retained replies can lack it.
+    pub va: Option<Va>,
     /// Exome observation, absent when source says null.
     #[serde(deserialize_with = "nullable")]
     pub exome: Option<Subset>,
     /// Genome observation, absent when source says null.
     #[serde(deserialize_with = "nullable")]
     pub genome: Option<Subset>,
+}
+/// Source VA cohorts, kept separate for each sequencing dataset.
+#[derive(Debug, Deserialize)]
+pub struct Va {
+    /// Exome cohort observations.
+    pub exome: Option<Vec<CohortFrequency>>,
+    /// Genome cohort observations.
+    pub genome: Option<Vec<CohortFrequency>>,
+}
+/// Same-response release and count association, not a resolver constant.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CohortFrequency {
+    /// Source dataset metadata.
+    pub derived_from: Option<Derivation>,
+    /// Source focus allele count.
+    pub focus_allele_count: u64,
+    /// Source locus allele count.
+    pub locus_allele_count: u64,
+    /// Source cohort identity.
+    pub cohort: Cohort,
+}
+/// Source dataset derivation.
+#[derive(Debug, Deserialize)]
+pub struct Derivation {
+    /// Nullable source release, never backfilled.
+    pub version: Option<String>,
+}
+/// Source cohort identity, including the documented ALL total.
+#[derive(Debug, Deserialize)]
+pub struct Cohort {
+    /// Native cohort key.
+    pub id: Text,
 }
 /// Source counts and overlapping source groups, never summed or interpreted.
 #[derive(Debug, Deserialize)]

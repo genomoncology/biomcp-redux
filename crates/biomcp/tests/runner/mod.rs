@@ -54,6 +54,7 @@ mod variant_civic;
 mod variant_filters;
 mod variant_hotspots;
 mod variant_population;
+mod variant_population_release;
 mod variant_search;
 
 use libtest_mimic::Trial;
@@ -298,6 +299,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials().into_iter().chain(variant_assertions::trials()).collect::<Vec<_>>());
     trials.extend(variant_population::trials());
+    trials.extend(variant_population_release::trials());
     trials.extend(oncokb::trials());
     trials.extend(oncokb_context::trials());
     trials.extend(variant_civic::trials());
