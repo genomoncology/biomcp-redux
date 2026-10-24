@@ -56,14 +56,7 @@ pub(super) fn search<'a>(
                 out.sources.push(resolved.source);
             }
         }
-        if result.outcome.reason == Some(biodata::Reason::RateLimited)
-            && result.source == ArticleSource::SemanticScholar
-        {
-            out.next.push((
-                biodata::StepKind::Key,
-                crate::Action::KeyHelp(Source::SemanticScholar),
-            ));
-        }
+
     }
     for failure in join_failures {
         if let Some(existing) = results
