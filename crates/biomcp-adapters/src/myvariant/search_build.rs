@@ -1,13 +1,15 @@
 //! Source coordinate metadata qualifies an unchanged native record key.
 //! https://biothings.io/blog/new-data-release-201606 describes root chrom/hg19/hg38.
 //! Index selection alone never establishes a returned coordinate's assembly.
-use super::raw::Hit;
+use super::raw::{Hit, SourceChromosome, SourceSpan};
 use biodata::Build;
-use serde_json::Value;
 
 pub(super) fn source_build(hit: &Hit) -> Option<Build> {
     let (chromosome, expression) = hit.id.as_str().strip_prefix("chr")?.split_once(":g.")?;
-    if hit.chrom.as_ref()?.as_str()? != chromosome {
+    let SourceChromosome::Name(source_chromosome) = hit.chrom.as_ref()? else {
+        return None;
+    };
+    if source_chromosome.as_str() != chromosome {
         return None;
     }
     let span = literal_span(expression)?;
@@ -25,10 +27,11 @@ pub(super) fn source_build(hit: &Hit) -> Option<Build> {
     }
     found
 }
-fn source_span(value: &Value) -> Option<(u64, u64)> {
-    let start = value.get("start")?.as_u64()?;
-    let end = value.get("end")?.as_u64()?;
-    (start > 0 && end >= start).then_some((start, end))
+fn source_span(value: &SourceSpan) -> Option<(u64, u64)> {
+    match value {
+        SourceSpan::Bounds { start, end } if *start > 0 && end >= start => Some((*start, *end)),
+        _ => None,
+    }
 }
 // Compare only literal substitution positions. Other HGVS forms retain unknown assembly;
 // no normalization, strand conversion, or allele transplant qualifies them.
