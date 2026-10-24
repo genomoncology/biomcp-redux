@@ -113,4 +113,7 @@ pub use response::{GeneHeader, GeneResolution, Match};
 pub use response::TrialHeader;
 
 pub use query::{AssertionSource, VariantAssertionsGet};
-pub use response::{AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions};
+pub use response::{
+    AssertionAssessment, AssertionCondition, AssertionDetail, AssertionDocument, AssertionDomain,
+    AssertionKind, UnmappedAssertion, VariantAssertion, VariantAssertions,
+};

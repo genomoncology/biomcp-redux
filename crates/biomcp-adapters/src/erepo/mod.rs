@@ -2,8 +2,8 @@
 mod history;
 mod raw;
 use crate::quotas;
-use biomcp_types::{Source, VariantAssertion};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
+use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// Exact public evidence repository policy; record rights remain source-specific.
 pub static SPEC: SourceSpec = SourceSpec {

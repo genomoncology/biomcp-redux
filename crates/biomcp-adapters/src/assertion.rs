@@ -1,5 +1,7 @@
 use biodata::{Attribution, Coding, Proposition, Statement, Term, Text, VariantRef};
-use biomcp_types::{AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion};
+use biomcp_types::{
+    AssertionDetail, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
+};
 /// Map only the reviewed source categories, retaining every other source label natively.
 pub(crate) fn row(
     kind: AssertionKind,

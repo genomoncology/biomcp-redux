@@ -1,7 +1,10 @@
 //! Only the reviewed source label and subject mappings occur here.
 use super::variant::{Annotation, Query, TumorType};
 use crate::Mapped;
-use biodata::{Attribution, Coding, Concept, OncokbLevelCode, OncokbOncogenicityCode, Proposition, Statement, Term, Text, VariantRef};
+use biodata::{
+    Attribution, Coding, Concept, OncokbLevelCode, OncokbOncogenicityCode, Proposition, Statement,
+    Term, Text, VariantRef,
+};
 
 use biomcp_types::{OncokbVariantRecord as Record, Problem, ProblemCode, Source};
 

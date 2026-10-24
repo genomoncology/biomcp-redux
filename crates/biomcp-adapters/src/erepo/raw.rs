@@ -1,6 +1,8 @@
 use biodata::{Attribution, Text, VariantRef};
-use biomcp_types::{AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion};
 use biomcp_fetch::{BadReply, Reply, RequestError};
+use biomcp_types::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
+};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct ReplyBody {

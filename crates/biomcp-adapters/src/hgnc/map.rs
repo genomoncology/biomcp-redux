@@ -6,7 +6,6 @@ use super::{
 use crate::Mapped;
 use biodata::{Cytoband, Gene, GeneStatus, GeneSymbol, HgncId, Text};
 
-
 pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
     let mut problems = Vec::new();
     let value = rows

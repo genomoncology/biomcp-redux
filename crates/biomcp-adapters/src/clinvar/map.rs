@@ -1,7 +1,9 @@
 use crate::xml_element::Element;
 use biodata::{Attribution, Text, VariantRef};
-use biomcp_types::{AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion};
 use biomcp_fetch::BadReply;
+use biomcp_types::{
+    AssertionCondition, AssertionDetail, AssertionDomain, AssertionKind, Source, VariantAssertion,
+};
 const DOMAINS: [(&str, AssertionDomain); 3] = [
     ("GermlineClassification", AssertionDomain::Germline),
     (

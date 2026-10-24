@@ -1,6 +1,8 @@
 //! Only the cited source vocabulary maps into the approved common claim model.
 use super::{variant::failure, variant_raw as raw};
-use biodata::{Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef};
+use biodata::{
+    Attribution, Concept, Direction, Predicate, Proposition, Statement, Term, Text, VariantRef,
+};
 
 use biomcp_fetch::RequestError;
 use biomcp_types::{CivicStatement, Problem, ProblemCode, Reason, Source, SourceRecord};

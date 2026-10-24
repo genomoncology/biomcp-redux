@@ -1,8 +1,11 @@
 //! Source assertions with independent row paging and exact record selection.
 use crate::{Action, Ctx, Outcome, status};
-use biodata::{VariantId};
-use biomcp_types::{AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind, VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader};
+use biodata::VariantId;
 use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{
+    AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind,
+    VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
+};
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
