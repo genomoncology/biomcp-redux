@@ -1,6 +1,6 @@
 {
   "feature": "article-get",
-  "story": "A DOI expands in source order with each PMID returned once despite duplicate source IDs.",
+  "story": "synthetic-doi-shared",
   "replay": "article/get/synthetic-doi-shared",
   "steps": [
     {
