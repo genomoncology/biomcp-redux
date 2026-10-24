@@ -204,11 +204,7 @@ impl Leg<'_> {
                 Err(Failure::Local(error)) => return Err(error),
                 Err(Failure::Transport(error)) => {
                     let retryable = crate::retry::retry_error(&error);
-                    let reason = if matches!(error, ureq::Error::Timeout(_)) && !retryable {
-                        Reason::DeadlineExceeded
-                    } else {
-                        Reason::Unavailable
-                    };
+                    let reason = crate::tls::reason(&error);
                     (self.failure(reason, None), retryable, None)
                 }
             };
@@ -242,10 +238,15 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
+        let agent = self.fetch.agents.for_url(
+            &self.fetch.config.network,
+            self.fetch.config.proxy.is_some(),
+            &prepared.url,
+        );
         let mut request = if prepared.post.is_some() {
-            self.fetch.agent.post(&prepared.url)
+            agent.post(&prepared.url)
         } else {
-            self.fetch.agent.get(&prepared.url).force_send_body()
+            agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
         for (name, value) in &prepared.outgoing {
