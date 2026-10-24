@@ -461,7 +461,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     match (verb, entity) {
         ("get", "variant") => serde_json::from_value::<biodata::VariantGet>(value)
             .map(Request::GetVariant)
-.map_err(|_| ()),
+            .map_err(|_| ()),
         ("get", "trial") => serde_json::from_value::<biodata::TrialGet>(value)
             .map(Request::GetTrial)
             .map_err(|_| ()),

@@ -69,7 +69,10 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetVariant(_) | Request::GetTrial(_) | Request::GetGene(_) | Request::GetArticle(_) => "get",
+            Request::GetVariant(_)
+            | Request::GetTrial(_)
+            | Request::GetGene(_)
+            | Request::GetArticle(_) => "get",
             Request::SearchTrial(_) | Request::SearchGene(_) | Request::SearchArticle(_) => {
                 "search"
             }

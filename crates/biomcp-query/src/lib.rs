@@ -13,5 +13,5 @@ mod fan_out;
 
 pub mod health;
 
-pub mod variant;
 pub mod trial;
+pub mod variant;
