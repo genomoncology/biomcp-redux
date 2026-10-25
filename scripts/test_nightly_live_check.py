@@ -86,10 +86,14 @@ class NightlyCommand(unittest.TestCase):
         return list((self.workspace / 'data/biomcp-redux/0068-scheduled-scratch').glob('*'))
 
     def test_clean_copies_and_cleans_only_owned_scratch(self):
+        unowned = self.workspace / 'data/biomcp-redux/0068-scheduled-scratch/another-run'
+        unowned.mkdir(parents=True)
+        (unowned / 'keep').write_text('owned by another run')
         result = self.run_command()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((self.copied() / 'exit-status').read_text(), '0\n')
-        self.assertEqual(self.scratch(), [])
+        self.assertEqual(self.scratch(), [unowned])
+        self.assertEqual((unowned / 'keep').read_text(), 'owned by another run')
         second = self.run_command()
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertEqual(len(list((self.store / 'data/biomcp-redux/0068-scheduled').glob('*'))), 2)
