@@ -12,41 +12,94 @@ pub(super) fn next(
     let has_more = result
         .page
         .as_ref()
-        .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total)
-        || matches!(&result.body, biomcp_types::QueryBody::PgxAnnotations(biomcp_types::PgxAnnotations::Clinical {page,..}) if u64::from(page.offset)+u64::from(page.returned)<page.total);
-    let candidates = matches!(
-        &result.body,
-        biomcp_types::QueryBody::PgxAnnotations(biomcp_types::PgxAnnotations::Clinical { .. })
-            | biomcp_types::QueryBody::DiagnosticSupplements(_)
-            | biomcp_types::QueryBody::DiagnosticCompanion(_)
-            | biomcp_types::QueryBody::DiagnosticPage(_)
-            | biomcp_types::QueryBody::DiagnosticGenes(_)
-            | biomcp_types::QueryBody::AdverseEventPage(_)
-            | biomcp_types::QueryBody::DrugPage(_)
-            | biomcp_types::QueryBody::DrugWhoPage(_)
-            | biomcp_types::QueryBody::DrugFdaPage(_)
-            | biomcp_types::QueryBody::DrugCivic(_)
-            | biomcp_types::QueryBody::DiseasePage(_)
-            | biomcp_types::QueryBody::DiseaseGenes(_)
-            | biomcp_types::QueryBody::DiseasePhenotypes(_)
-            | biomcp_types::QueryBody::VariantPage(_)
-    ) || matches!(
-        &result.body,
-        biomcp_types::QueryBody::VariantCard(card)
-            if card.resolution == biomcp_types::VariantResolution::Candidates
-    );
-    if matches!(
-        &result.body,
-        biomcp_types::QueryBody::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(
-            _
-        )))
-    ) {
-        append_network_steps(&mut steps, &result.sources);
-        steps.truncate(5);
-    } else {
-        network_steps(&mut steps, &result.sources, candidates.then_some(has_more));
+        .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
+    match navigation(&result.body) {
+        Navigation::BoundedPma => {
+            append_network_steps(&mut steps, &result.sources);
+            steps.truncate(5);
+        }
+        Navigation::Bounded => network_steps(&mut steps, &result.sources, None),
+        Navigation::Selectable => network_steps(&mut steps, &result.sources, Some(has_more)),
+        Navigation::Nested(page) => network_steps(
+            &mut steps,
+            &result.sources,
+            Some(has_more || u64::from(page.offset) + u64::from(page.returned) < page.total),
+        ),
     }
     Ok(source_steps(fetch, steps))
+}
+
+#[derive(Debug)]
+enum Navigation<'a> {
+    Bounded,
+    Selectable,
+    Nested(&'a biomcp_types::PgxPageInfo),
+    // PMA cards retain section-first order even when they contain a pivot.
+    BoundedPma,
+}
+
+fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
+    use biomcp_types::{PgxAnnotations, QueryBody as Body};
+    match body {
+        Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
+        Body::VariantCard(card) => {
+            if card.resolution == biomcp_types::VariantResolution::Candidates {
+                Navigation::Selectable
+            } else {
+                Navigation::Bounded
+            }
+        }
+        Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
+            Navigation::BoundedPma
+        }
+        Body::DiagnosticCompanion(_)
+        | Body::DiagnosticPage(_)
+        | Body::DiagnosticGenes(_)
+        | Body::DiagnosticSupplements(_)
+        | Body::AdverseEventPage(_)
+        | Body::DiseasePage(_)
+        | Body::DiseaseGenes(_)
+        | Body::DiseasePhenotypes(_)
+        | Body::DrugPage(_)
+        | Body::DrugWhoPage(_)
+        | Body::DrugFdaPage(_)
+        | Body::DrugCivic(_)
+        | Body::VariantPage(_) => Navigation::Selectable,
+        Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
+        Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
+        Body::PgxDiplotype(_) => Navigation::Bounded,
+        Body::PgxAnnotations(PgxAnnotations::Guideline { .. } | PgxAnnotations::Label { .. }) => {
+            Navigation::Bounded
+        }
+        Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
+        Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
+        Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
+        Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
+        Body::AdverseEventReactions(_) => Navigation::Bounded,
+        Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
+        Body::AdverseEventMaudeCard(_) | Body::AdverseEventDevices(_) => Navigation::Bounded,
+        Body::AdverseEventNarrative(_) | Body::DiseaseCard(_) => Navigation::Bounded,
+        Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
+        Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
+        Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
+        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
+        Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
+        Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
+        Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
+        Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
+        Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
+        Body::UnsupportedTrialFilter { .. } | Body::NciDiseaseError => Navigation::Bounded,
+        Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
+        Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
+        Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
+        Body::PdfSaveRefused(_) | Body::ArticleSaveRefused(_) => Navigation::Bounded,
+        Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
+        Body::ArticleSupplement(_) | Body::UnsupportedFilter { .. } => Navigation::Bounded,
+        Body::ArticleText(_) | Body::TextPositionError => Navigation::Bounded,
+        Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
+        Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
+        Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+    }
 }
 
 fn source_steps(
