@@ -149,13 +149,21 @@ fn search(call: &Call, envelope: Value) -> io::Result<Value> {
     .map_err(Into::into)
 }
 
-fn restrictions(mut hit: biomcp_types::ResearchHit, args: &[OsString]) -> io::Result<biomcp_types::ResearchHit> {
-    let mut words = shlex::split(&hit.id).ok_or_else(|| io::Error::other("invalid get projection"))?;
+fn restrictions(
+    mut hit: biomcp_types::ResearchHit,
+    args: &[OsString],
+) -> io::Result<biomcp_types::ResearchHit> {
+    let mut words =
+        shlex::split(&hit.id).ok_or_else(|| io::Error::other("invalid get projection"))?;
     let mut args = args.iter().filter_map(|a| a.to_str());
     while let Some(arg) = args.next() {
         if arg == "--disable-sources" {
-            if let Some(value) = args.next() { words.extend([arg.to_owned(), value.to_owned()]); }
-        } else if arg.starts_with("--disable-sources=") { words.push(arg.to_owned()); }
+            if let Some(value) = args.next() {
+                words.extend([arg.to_owned(), value.to_owned()]);
+            }
+        } else if arg.starts_with("--disable-sources=") {
+            words.push(arg.to_owned());
+        }
     }
     hit.id = shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?;
     Ok(hit)

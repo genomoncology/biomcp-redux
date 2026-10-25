@@ -121,7 +121,8 @@ pub(super) fn research_aggregate() -> Check {
         json!({"query":"adverse-event MMR seriousness --source vaers"}),
         &[],
     )?;
-    if result.to_string().len() > 2376 || result.get("results") != Some(&json!([]))
+    if result.to_string().len() > 2376
+        || result.get("results") != Some(&json!([]))
         || result.pointer("/metadata/envelope") != Some(&cli)
         || result.pointer("/metadata/omitted_rows") != Some(&json!(3))
     {

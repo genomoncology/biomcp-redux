@@ -181,10 +181,11 @@ fn variant_url(row: &Value, envelope: &Value) -> Option<String> {
             }
         })
         .collect::<String>();
-    let assembly = text(envelope, &["/query/build"]) == Some("GRCh38") || row
-        .pointer("/identity/representations")
-        .and_then(Value::as_array)
-        .is_some_and(|rows| rows.iter().any(|r| text(r, &["/build"]) == Some("GRCh38")));
+    let assembly = text(envelope, &["/query/build"]) == Some("GRCh38")
+        || row
+            .pointer("/identity/representations")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| rows.iter().any(|r| text(r, &["/build"]) == Some("GRCh38")));
     Some(format!(
         "https://myvariant.info/v1/variant/{encoded}{}",
         if assembly { "?assembly=hg38" } else { "" }

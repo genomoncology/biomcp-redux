@@ -323,7 +323,11 @@ fn discovery() -> Check {
             .iter()
             .find(|tool| tool.get("name") == Some(&json!(name)))
             .ok_or("research wrapper missing")?;
-        descriptions += wrapper.get("description").and_then(Value::as_str).ok_or("wrapper description missing")?.len();
+        descriptions += wrapper
+            .get("description")
+            .and_then(Value::as_str)
+            .ok_or("wrapper description missing")?
+            .len();
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
             || wrapper.get("outputSchema").is_none()
             || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
@@ -331,8 +335,14 @@ fn discovery() -> Check {
             return Err("research tool contract differs".into());
         }
     }
-    writeln!(std::io::stdout(), "RESEARCH_DESCRIPTION_BYTES={descriptions}").map_err(|e|e.to_string())?;
-    if descriptions > 250 { return Err("research descriptions exceed budget".into()); }
+    writeln!(
+        std::io::stdout(),
+        "RESEARCH_DESCRIPTION_BYTES={descriptions}"
+    )
+    .map_err(|e| e.to_string())?;
+    if descriptions > 250 {
+        return Err("research descriptions exceed budget".into());
+    }
     discovery_description(text)
 }
 

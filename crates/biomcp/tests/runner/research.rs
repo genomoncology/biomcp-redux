@@ -116,7 +116,11 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .or_else(|| cli.pointer("/result/candidates"))
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
-    let search_cap = match args.get(1).map(String::as_str) { Some("article") => 1637, Some("trial") => 8192, _ => 2864 };
+    let search_cap = match args.get(1).map(String::as_str) {
+        Some("article") => 1637,
+        Some("trial") => 8192,
+        _ => 2864,
+    };
     bounded(&wrapped, search_cap)?;
     let hits = wrapped
         .get("results")
@@ -166,7 +170,11 @@ fn fetch_parity(
         get.extend(shlex::split(id).ok_or("invalid argument-list id")?);
         let cli_get = command(env, &get, &fetch_globals, 0)?;
         let fetched = call(env, "fetch", json!({"id":id}), &fetch_globals)?;
-        let cap = match args.get(1).map(String::as_str) { Some("article") => 6012, Some("trial") => 5047, _ => 2451 };
+        let cap = match args.get(1).map(String::as_str) {
+            Some("article") => 6012,
+            Some("trial") => 5047,
+            _ => 2451,
+        };
         bounded(&fetched, cap)?;
         if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id)) {
             return Err("fetch differs from CLI".into());
@@ -273,6 +281,8 @@ fn unprojectable() -> Result<(), String> {
 
 // Ceilings use full compact projections measured in j13609 plus fifteen percent.
 fn bounded(value: &Value, cap: usize) -> Result<(), String> {
-    if value.to_string().len() > cap { return Err(format!("research output exceeds {cap} bytes")); }
+    if value.to_string().len() > cap {
+        return Err(format!("research output exceeds {cap} bytes"));
+    }
     Ok(())
 }
