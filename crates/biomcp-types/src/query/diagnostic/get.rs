@@ -23,8 +23,12 @@ struct GetFields {
     /// Exact native PMA supplement; absent selects the base row.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     supplement: Option<PmaSupplement>,
-    /// Native rows or regulatory fragments per section page.
-    #[serde(default, deserialize_with = "super::super::gene::present")]
+    /// Maximum native rows; omitted means five rows, or one regulatory fragment.
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     section_limit: Option<u32>,
     /// Zero-based native row or fragment offset.
@@ -36,7 +40,7 @@ struct GetFields {
 }
 impl TryFrom<GetFields> for DiagnosticGet {
     type Error = QueryInvalid;
-    fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
+    fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         let valid = match v.source {
             DiagnosticGetSource::Gtr => {
                 v.id.as_str().parse::<GtrTestId>().is_ok()
@@ -68,12 +72,6 @@ impl TryFrom<GetFields> for DiagnosticGet {
         if !valid || v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
             return Err(QueryInvalid);
         }
-        v.section_limit
-            .get_or_insert(if v.section == Some(DiagnosticSection::Regulatory) {
-                1
-            } else {
-                limit()
-            });
         Ok(Self(v))
     }
 }
@@ -96,7 +94,13 @@ impl DiagnosticGet {
     }
     /// Maximum rows or fragments per section page.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit.unwrap_or_else(limit)
+        self.0.section_limit.unwrap_or_else(|| {
+            if self.0.section == Some(DiagnosticSection::Regulatory) {
+                1
+            } else {
+                limit()
+            }
+        })
     }
     /// Native row or text-fragment offset.
     pub fn section_offset(&self) -> u32 {

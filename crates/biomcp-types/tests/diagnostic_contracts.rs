@@ -340,6 +340,7 @@ fn continuation_preserves_revision_filters_and_source_checked_sections() {
         .at_section_offset(2);
     assert_eq!(next.section(), Some(DiagnosticSection::Regulatory));
     assert_eq!(next.section_offset(), 2);
+    assert_eq!(next.section_limit(), 1);
     assert_eq!(next.bundle_revision().unwrap().as_str(), "revision-2");
 }
 
