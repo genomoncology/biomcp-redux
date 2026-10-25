@@ -1,0 +1,1 @@
+{"data":{"therapies":{"totalCount":11,"pageInfo":{"hasNextPage":true,"endCursor":"MQ"},"nodes":[{"id":27062,"name":"Binimetinib/Imatinib Regimen","link":"/therapies/27062","ncitId":"C203467","therapyAliases":["Binimetinib-Imatinib","Binimetinib/Imatinib","Gleevec/Mektovi","Imatinib-Binimetinib","Imatinib/Binimetinib","Mektovi/Gleevec"],"deprecated":false}]}}}

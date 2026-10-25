@@ -9,12 +9,13 @@
       "type": "string"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
+        "xrefs",
         "targets",
         "indications",
         "civic",
@@ -25,6 +26,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -53,7 +55,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-get/1",
+  "$id": "biomcp.drug-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Exact native ID retrieval with an explicitly selected source.",
