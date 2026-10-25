@@ -53,6 +53,6 @@ fn conflict(id: &biodata::GtrTestId) -> biomcp_types::Problem {
         source: Source::Gtr,
         record: biodata::Text::new(&id.to_string()).ok(),
         field: "test_accession_ver".into(),
-        code: biomcp_types::ProblemCode::ValueUnknown,
+        code: biomcp_types::ProblemCode::IdentityConflict,
     }
 }

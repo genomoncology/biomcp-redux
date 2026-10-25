@@ -55,7 +55,7 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
 pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
     match format {
         RowFormat::Json { rows, metadata } => json::<R>(body, rows, metadata),
-        RowFormat::NativeTsv { gzip } => super::native::rows::<R>(body, gzip),
+        RowFormat::NativeTsv { gzip, max_decoded_bytes } => super::native::rows::<R>(body, gzip, max_decoded_bytes),
         RowFormat::Tsv => tsv::<R>(body),
         RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines),
     }

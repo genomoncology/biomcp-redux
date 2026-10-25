@@ -60,39 +60,7 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                 record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
             );
         }
-        Some(DiagnosticSection::Genes) => {
-            let rows: Vec<_> = record
-                .relations
-                .into_iter()
-                .filter_map(|r| {
-                    if let GtrTestRelation::Gene(v) = r {
-                        Some(v)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            let total = rows.len();
-            let items: Box<[_]> = rows
-                .into_iter()
-                .skip(q.section_offset() as usize)
-                .take(q.section_limit() as usize)
-                .collect();
-            let mut seen = BTreeSet::new();
-            for id in items
-                .iter()
-                .filter_map(|r| r.gene.ncbi_gene_id())
-                .filter(|id| seen.insert(id.to_string()))
-            {
-                if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
-                    && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
-                {
-                    next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
-                }
-            }
-            page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticGenes(DiagnosticGenes { items });
-        }
+        Some(DiagnosticSection::Genes) => genes(out, q, record.relations, fresh),
         Some(DiagnosticSection::Conditions) => {
             let rows: Vec<_> = record
                 .relations
@@ -144,4 +112,38 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
             fresh,
         );
     }
+}
+
+fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, fresh: bool) {
+            let rows: Vec<_> = relations
+                .into_iter()
+                .filter_map(|r| {
+                    if let GtrTestRelation::Gene(v) = r {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            let total = rows.len();
+            let items: Box<[_]> = rows
+                .into_iter()
+                .skip(q.section_offset() as usize)
+                .take(q.section_limit() as usize)
+                .collect();
+            let mut seen = BTreeSet::new();
+            for id in items
+                .iter()
+                .filter_map(|r| r.gene.ncbi_gene_id())
+                .filter(|id| seen.insert(id.to_string()))
+            {
+                if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
+                    && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
+                {
+                    next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
+                }
+            }
+            page(out, q, items.len(), total, fresh);
+            out.body = QueryBody::DiagnosticGenes(DiagnosticGenes { items });
+
 }

@@ -4,18 +4,19 @@ use crate::BadReply;
 use std::{collections::BTreeSet, io::Read};
 const MAX_DECODED_BYTES: u64 = 256 * 1024 * 1024;
 
-pub(super) fn rows<R: Row>(body: &[u8], gzip: bool) -> Result<Vec<Parsed>, BadReply> {
+pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Parsed>, BadReply> {
+    if limit == 0 || limit > MAX_DECODED_BYTES { return Err(BadReply); }
     let bytes = if gzip {
         let mut bytes = Vec::new();
         flate2::read::MultiGzDecoder::new(body)
-            .take(MAX_DECODED_BYTES + 1)
+            .take(limit + 1)
             .read_to_end(&mut bytes)
             .map_err(|_| BadReply)?;
         bytes
     } else {
         body.to_vec()
     };
-    if bytes.len() as u64 > MAX_DECODED_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(BadReply);
     }
     let text = std::str::from_utf8(&bytes).map_err(|_| BadReply)?;

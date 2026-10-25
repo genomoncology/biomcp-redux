@@ -10,12 +10,12 @@ const SET: BundleSet<Native> = BundleSet {
     name: "gtr",
     fresh: Freshness::Days(7),
     row: PhantomData,
-    format: RowFormat::NativeTsv { gzip: false },
+    format: RowFormat::NativeTsv { gzip: false, max_decoded_bytes: 256 * 1024 * 1024 },
     parts: &[
         BundlePart {
             name: "versions",
             path: "/data/test_version.gz",
-            format: Some(RowFormat::NativeTsv { gzip: true }),
+            format: Some(RowFormat::NativeTsv { gzip: true, max_decoded_bytes: 256 * 1024 * 1024 }),
         },
         BundlePart {
             name: "relations",

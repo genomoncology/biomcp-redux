@@ -43,6 +43,8 @@ pub enum RowFormat {
     NativeTsv {
         /// Decode the published gzip member before reading cells.
         gzip: bool,
+        /// Maximum decoded bytes, bounded by the shared native TSV ceiling.
+        max_decoded_bytes: u64,
     },
     /// JSON object with a declared row array and shared metadata object.
     Json {

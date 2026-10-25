@@ -26,8 +26,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     } else if let Some(id) = query.condition_id() {
         Find::Exact(KeyKind::Xref, id.as_str())
     } else if let Some(kind) = query.test_type() {
-        key = kind.to_string();
-        Find::Exact(KeyKind::Alias, &key)
+        Find::Exact(KeyKind::Alias, kind.as_str())
     } else {
         Find::Exact(KeyKind::Band, "relations")
     };

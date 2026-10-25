@@ -33,8 +33,12 @@ pub(super) enum Object {
 impl Row for Native {
     fn check_bundle(&self, _rows: usize) -> Result<(), biomcp_fetch::BadReply> {
         match self {
-            Self::Version(v) => super::map::card(v).map(|_| ()).map_err(|_| biomcp_fetch::BadReply),
-            Self::Relation(v) => super::map::relation(v).map(|_| ()).map_err(|_| biomcp_fetch::BadReply),
+            Self::Version(v) => super::map::card(v)
+                .map(|_| ())
+                .map_err(|_| biomcp_fetch::BadReply),
+            Self::Relation(v) => super::map::relation(v)
+                .map(|_| ())
+                .map_err(|_| biomcp_fetch::BadReply),
         }
     }
     fn keys(&self) -> Keys {
@@ -43,7 +47,7 @@ impl Row for Native {
             Self::Version(_) => exact.push((KeyKind::Band, "versions".into())),
             Self::Relation(r) => {
                 exact.push((KeyKind::Band, "relations".into()));
-                exact.push((KeyKind::Alias, r.test_type.to_string().into()));
+                exact.push((KeyKind::Alias, r.test_type.as_str().into()));
                 if r.object == Object::Gene {
                     exact.push((KeyKind::Symbol, r.gene_symbol.clone()));
                     exact.push((KeyKind::Xref, format!("gene:{}", r.object_id).into()));

@@ -459,6 +459,7 @@ mod sets {
         let path = dir.path().join("cache.sqlite");
         let writer = cached(&path);
         let reader = cached(&path);
+        let second_reader = cached(&path);
         std::thread::scope(|scope| {
             let call = scope.spawn(|| writer.sync_set(&set));
             for part in PARTS {
@@ -477,6 +478,8 @@ mod sets {
                 if i == 7 {
                     assert_eq!(names(&reader, &set, "OLD").len(), 8);
                     assert!(names(&reader, &set, "NEW").is_empty());
+                    assert_eq!(names(&second_reader, &set, "OLD").len(), 8);
+                    assert!(names(&second_reader, &set, "NEW").is_empty());
                 }
                 request.respond(200, "", &format!("name\nNEW {}\n", part.name));
             }
@@ -484,6 +487,7 @@ mod sets {
         });
         assert!(names(&reader, &set, "OLD").is_empty());
         assert_eq!(names(&reader, &set, "NEW").len(), 8);
+        assert_eq!(names(&second_reader, &set, "NEW").len(), 8);
         for malformed in [false, true] {
             std::thread::scope(|scope| {
                 let call = scope.spawn(|| writer.sync_set(&set));
@@ -502,6 +506,7 @@ mod sets {
                 assert!(call.join().unwrap().is_err());
             });
             assert_eq!(names(&reader, &set, "NEW").len(), 8);
+        assert_eq!(names(&second_reader, &set, "NEW").len(), 8);
             assert!(names(&reader, &set, "BROKEN").is_empty());
         }
         // Every read above is stored-only. No unresponded read request exists.
