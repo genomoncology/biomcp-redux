@@ -64,15 +64,7 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
 
 fn arguments(mode: &str) -> Vec<String> {
     match mode {
-        "drug-search" => vec![
-            "search",
-            "drug",
-            "synthetic",
-            "--source",
-            "mychem",
-            "--limit",
-            "5",
-        ],
+        "drug-search" => vec!["search", "drug", "synthetic", "--limit", "5"],
         "variant-search" => vec![
             "search",
             "variant",
@@ -89,6 +81,9 @@ fn arguments(mode: &str) -> Vec<String> {
             "get",
             "variant",
             "rs113488022",
+            "oncokb",
+            "--tumor-type",
+            "Synthetic tumor",
             "--build",
             "GRCh37",
             "--limit",
@@ -117,7 +112,7 @@ fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
             .and_then(Value::as_array)
             .ok_or("candidate args")?;
         if row.get("kind") != Some(&json!("disambiguate"))
-            || args.get(0) != Some(&json!("get"))
+            || args.first() != Some(&json!("get"))
             || args.get(2) != Some(&json!(id))
         {
             return Err(format!("candidate {n} get lost or reordered: {next:?}"));
@@ -140,7 +135,10 @@ fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
         let mut expected = arguments(mode);
         expected.extend(["--offset".into(), "5".into()]);
         // Spelling may order flags differently; every supplied selector must survive.
-        for pair in expected.windows(2).filter(|w| w[0].starts_with("--")) {
+        for pair in expected
+            .windows(2)
+            .filter(|w| w.first().is_some_and(|word| word.starts_with("--")))
+        {
             if !args.windows(2).any(|w| w == pair) {
                 return Err(format!("lost page selector {pair:?}: {args:?}"));
             }
