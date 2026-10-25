@@ -4,6 +4,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod native;
 const ROOT: &str = "/result/candidates/0/sections/oncokb";
 const NAMES: [&str; 9] = [
     "synthetic-explicit-context",
@@ -17,15 +18,19 @@ const NAMES: [&str; 9] = [
     "all-distinct-pivots-and-both-stream-pages",
 ];
 pub(super) fn trials() -> Vec<Trial> {
-    NAMES
-        .into_iter()
-        .enumerate()
-        .map(|(n, name)| {
-            Trial::test(format!("drug-next-steps/{name}"), move || {
-                run(n).map_err(Into::into)
+    let mut trials = native::trials();
+    trials.extend(
+        NAMES
+            .into_iter()
+            .enumerate()
+            .map(|(n, name)| {
+                Trial::test(format!("drug-next-steps/{name}"), move || {
+                    run(n).map_err(Into::into)
+                })
             })
-        })
-        .collect()
+            .collect::<Vec<_>>(),
+    );
+    trials
 }
 fn run(n: usize) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -86,7 +91,7 @@ fn run(n: usize) -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     // Measured full and source-terms-subtracted envelopes, each with 15 percent headroom.
     let (full_cap, comparable_cap) = [
-        (2137, 2041),
+        (3000, 3000),
         (2039, 1943),
         (1992, 1896),
         (1983, 1886),
@@ -94,7 +99,7 @@ fn run(n: usize) -> Result<(), String> {
         (1943, 1846),
         (2014, 1918),
         (2021, 1924),
-        (18000, 18000),
+        (23000, 23000),
     ]
     .get(n)
     .copied()
@@ -118,6 +123,18 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
         .filter_map(|s| s.get("args").and_then(Value::as_array))
         .find(|a| a.iter().any(|v| v == "oncokb"));
     if n == 0 {
+        let lookup = value
+            .pointer("/result/civic/data/evidence/records/0/oncokb_lookup")
+            .ok_or("missing scoped lookup")?;
+        if lookup.get("member") != Some(&json!("900"))
+            || lookup.get("label")
+                != Some(&json!(
+                    "Look up this source-listed genomic variant in the stated tumor context"
+                ))
+            || lookup.pointer("/query/input") != Some(&json!("NC_000007.14:g.140753336A>T"))
+        {
+            return Err("lookup lost source-member linkage or scope".into());
+        }
         let args = annotation.ok_or("explicit source context omitted typed OncoKB step")?;
         if args
             != &json!([

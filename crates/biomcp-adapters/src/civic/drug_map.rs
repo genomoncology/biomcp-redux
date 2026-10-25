@@ -71,6 +71,7 @@ pub(super) fn evidence(
         therapies: therapies(&raw.claim.therapies)?,
         therapy_interaction_type: raw.therapy_interaction_type,
         oncokb_missing: Box::default(),
+        oncokb_lookup: None,
     })
 }
 pub(super) fn assertion(
@@ -85,5 +86,6 @@ pub(super) fn assertion(
         therapies: therapies(&raw.claim.therapies)?,
         therapy_interaction_type: raw.therapy_interaction_type,
         oncokb_missing: Box::default(),
+        oncokb_lookup: None,
     })
 }

@@ -42,6 +42,9 @@ pub struct DrugCivicClaim {
     /// Missing source context prevents a keyed variant annotation next command.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub oncokb_missing: Box<[DrugOncokbMissing]>,
+    /// Scoped lookup of a source-listed genomic description, with no evidence transfer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oncokb_lookup: Option<DrugOncokbLookup>,
 }
 /// Profile context embedded in a therapy claim, with no invented profile totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -83,4 +86,17 @@ biodata::wire_enum! {
         /// No source claim tumor label.
         TumorType => "tumor_type",
     }
+}
+
+/// Link one source member to a checked variant lookup in its claim's tumor context.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugOncokbLookup {
+    /// Native CIViC member ID to which the genomic description belongs.
+    pub member: Text,
+    /// Scope visible alongside the generated command.
+    pub label: Text,
+    /// Checked owning-entity request; input preserves the selected source HGVS.
+    pub query: crate::VariantGet,
 }
