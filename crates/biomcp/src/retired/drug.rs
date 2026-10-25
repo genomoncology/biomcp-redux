@@ -32,7 +32,7 @@ pub(super) fn command(words: &[&str]) -> Option<ErrorMessage> {
         ["cvx", "sync", ..] => Some(ErrorMessage::CvxSync),
         ["ema", "sync", ..] => Some(ErrorMessage::EmaSync),
         ["ddinter", "sync", ..] => Some(ErrorMessage::DdinterSync),
-        ["who", "sync", ..] => Some(ErrorMessage::WhoSync),
+        ["who", "sync", ..] => Some(ErrorMessage::WhoPqSync),
         ["gene", "drugs", ..] => Some(ErrorMessage::DrugUnproved),
         _ => None,
     }

@@ -3,12 +3,15 @@
 #[derive(Debug)]
 pub struct DrugGetCommand;
 impl schemars::JsonSchema for DrugGetCommand {
-    fn schema_name() -> std::borrow::Cow<'static, str> { "DrugGetCommand".into() }
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "DrugGetCommand".into()
+    }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = super::DrugGet::json_schema(generator);
         let who = super::DrugWhoGet::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|v| v.as_object_mut())
-            && let Some(input) = who.pointer("/properties/input") {
+            && let Some(input) = who.pointer("/properties/input")
+        {
             properties.insert("input".into(), input.clone());
         }
         schema

@@ -30,13 +30,19 @@ impl Row for Native {
 }
 impl Native {
     pub(super) fn matches(&self, query: &str) -> bool {
-        let words = |s: &str| s.split(|c: char| !c.is_alphanumeric())
-            .filter(|s| !s.is_empty()).map(str::to_lowercase).collect::<Vec<_>>();
+        let words = |s: &str| {
+            s.split(|c: char| !c.is_alphanumeric())
+                .filter(|s| !s.is_empty())
+                .map(str::to_lowercase)
+                .collect::<Vec<_>>()
+        };
         let needle = words(query);
         let haystack = words(&self.inn);
         !needle.is_empty() && haystack.windows(needle.len()).any(|part| part == needle)
     }
-    pub(super) fn reference(&self) -> &biodata::Text { &self.reference }
+    pub(super) fn reference(&self) -> &biodata::Text {
+        &self.reference
+    }
 }
 impl From<Native> for biomcp_types::DrugWhoRow {
     fn from(row: Native) -> Self {

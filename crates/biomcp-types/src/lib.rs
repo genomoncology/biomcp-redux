@@ -135,7 +135,8 @@ pub use drug::{
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
     DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText,
     DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
-    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
+    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
+    DrugWhoRow, DrugXrefs,
 };
 
 pub use query::QueryInvalid;

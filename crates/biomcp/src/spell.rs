@@ -193,8 +193,10 @@ fn command_entity(request: &Request) -> &'static str {
         "adverse-event"
     } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
         "disease"
-    } else if matches!(request, Request::SearchDrug(_) | Request::GetWhoMedicine(_)
-        | Request::GetDrug(_)) {
+    } else if matches!(
+        request,
+        Request::SearchDrug(_) | Request::GetWhoMedicine(_) | Request::GetDrug(_)
+    ) {
         "drug"
     } else if matches!(request, Request::VariantAssertions(_)) {
         "assertions"

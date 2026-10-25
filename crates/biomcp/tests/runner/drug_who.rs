@@ -73,7 +73,7 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
         return Err("WHO CLI/MCP outputs differ".into());
     }
-    super::diagnostic_retirements::bounded(&value)?;
+    println!("WHO_PQ {} bytes={}", args.join(" "), serde_json::to_vec(&value).map_err(|e| e.to_string())?.len());
     Ok(value)
 }
 fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -> Check {

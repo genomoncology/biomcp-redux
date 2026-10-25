@@ -63,15 +63,24 @@ struct Fields {
 impl TryFrom<Fields> for DrugWhoGet {
     type Error = QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if fields.source != DrugSource::WhoPq { return Err(QueryInvalid); }
+        if fields.source != DrugSource::WhoPq {
+            return Err(QueryInvalid);
+        }
         Ok(Self(fields))
     }
 }
 impl DrugWhoGet {
     /// Exact requested native reference.
-    pub fn input(&self) -> &Text { &self.0.input }
+    pub fn input(&self) -> &Text {
+        &self.0.input
+    }
     /// Construct a checked action for a native WHO reference.
-    pub fn new(input: Text) -> Self { Self(Fields { input, source: DrugSource::WhoPq }) }
+    pub fn new(input: Text) -> Self {
+        Self(Fields {
+            input,
+            source: DrugSource::WhoPq,
+        })
+    }
 }
 impl ResponseBody for DrugWhoPage {
     const SCHEMA: &'static str = "biomcp.drug_who_page/1";
