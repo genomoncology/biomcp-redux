@@ -82,15 +82,12 @@
           "description": "One explicit source, default OLS."
         },
         "text": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
           "description": "Literal source search text; absent for the SEER site catalog.",
+          "minLength": 1,
+          "type": [
+            "string",
+            "null"
+          ],
           "x-positional": 0
         }
       },
@@ -130,6 +127,15 @@
             "$ref": "#/$defs/ComponentLabel"
           },
           "type": "array"
+        },
+        "fetched": {
+          "description": "Original response retrieval time in Unix seconds, distinct from publisher version/date.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
@@ -638,7 +644,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_sites/1",
+  "$id": "biomcp.disease_sites/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -684,7 +690,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_sites/1",
+      "const": "biomcp.disease_sites/2",
       "type": "string"
     },
     "sources": {

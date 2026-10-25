@@ -1,6 +1,7 @@
 # 0131 — Sync the EMA medicines bundle and read EMA regulatory records
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d90464c61c86033367d335ade2d39cc080819b36
 
 Milestone: 3
 

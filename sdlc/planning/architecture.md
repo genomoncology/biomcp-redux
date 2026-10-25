@@ -518,7 +518,7 @@ pub struct Envelope<T: ResponseBody> {
     pub page: Option<PageInfo>,            // searches only
     pub sources: Box<[SourceOutcome]>,     // one per source asked
     pub problems: Box<[Problem]>,
-    pub next: Box<[Step]>,                 // at most five
+    pub next: Box<[Step]>,                 // see 6.10 for the bound
 }
 
 pub struct SchemaId { pub name: &'static str, pub major: u16 }   // text form name/major
@@ -1311,7 +1311,7 @@ Link commands that equal a filter on the target's search do not exist. Drill-dow
 
 ### 6.10 Next steps
 
-Each response type has one pure `next` function in its entity's `next.rs`. It returns typed actions with their kinds, at most five, ordered by what the slice found agents need first:
+Each response type has one pure `next` function in its entity's `next.rs`. It returns typed actions with their kinds, ordered by what the slice found agents need first. When a page holds selectable candidates, `next` holds one `disambiguate` get per candidate on that page, bounded by the checked page limit, then the `page` step, then at most three other steps. Otherwise it holds at most five steps:
 
 | Kind | When |
 | --- | --- |
@@ -1511,7 +1511,7 @@ The values above are illustrative, and the names in them are omitted from some h
 - Identifiers are canonical text.
 - Header lists are capped by their types. A header cuts long text to a stated length and sets `truncated: true`. The get returns it whole.
 - `query` echoes only the query that ran.
-- `next` holds at most five steps, each with its kind, and never repeats one.
+- `next` follows the bound in 6.10, gives each step its kind, and never repeats one.
 - Every output validates against its schema in every case run, and cases cap the size of each command's output and of each section (section 10.1).
 
 ### 8.5 Errors and exit codes

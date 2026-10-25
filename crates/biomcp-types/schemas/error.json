@@ -32,13 +32,9 @@
           "$ref": "#/$defs/ErrorMessage"
         },
         "option": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/FilterOption"
-            },
-            {
-              "type": "null"
-            }
+          "type": [
+            "string",
+            "null"
           ]
         },
         "source": {
@@ -60,6 +56,15 @@
               "type": "null"
             }
           ]
+        },
+        "valid_values": {
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
         }
       },
       "required": [
@@ -71,6 +76,7 @@
     "ErrorMessage": {
       "description": "Fixed input-free error and migration guidance.",
       "enum": [
+        "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
         "expected schema <known artifact id>",
@@ -154,41 +160,6 @@
         "usage",
         "local",
         "expired"
-      ],
-      "type": "string"
-    },
-    "FilterOption": {
-      "enum": [
-        "TEXT",
-        "--gene",
-        "--variant",
-        "--disease",
-        "--drug",
-        "--author",
-        "--journal",
-        "--since",
-        "--until",
-        "--type",
-        "--sort date",
-        "--open-access",
-        "--no-preprints",
-        "--exclude-retracted",
-        "--criteria",
-        "--intervention",
-        "--status",
-        "--phase",
-        "--study-type",
-        "--sex",
-        "--age",
-        "--facility",
-        "--lat",
-        "--sponsor",
-        "--sponsor-type",
-        "--updated-since",
-        "--updated-until",
-        "--id",
-        "--has-results",
-        "--keyword"
       ],
       "type": "string"
     },

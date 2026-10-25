@@ -202,7 +202,7 @@
             }
           ],
           "description": "One named section; absent means identity card only.",
-          "x-trailing-section": true
+          "x-positional": 1
         },
         "section_limit": {
           "default": 5,
@@ -251,6 +251,15 @@
             "$ref": "#/$defs/ComponentLabel"
           },
           "type": "array"
+        },
+        "fetched": {
+          "description": "Original response retrieval time in Unix seconds, distinct from dataset publication.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
@@ -951,7 +960,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_incidence/1",
+  "$id": "biomcp.disease_incidence/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -997,7 +1006,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_incidence/1",
+      "const": "biomcp.disease_incidence/3",
       "type": "string"
     },
     "sources": {

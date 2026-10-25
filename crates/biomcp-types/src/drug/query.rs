@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
+        /// All native identity cross-references and product links, mechanically paged.
+        Xrefs => "xrefs",
         /// Native target and mechanism relations.
         Targets => "targets",
         /// Native indication wording.
@@ -43,6 +45,14 @@ struct SearchFields {
     /// Exactly one source; default MyChem never fans out.
     #[serde(default = "default_source")]
     source: DrugSource,
+    /// Explicit ChEMBL native name selector; omitted means preferred name.
+    #[serde(
+        default,
+        deserialize_with = "selected_name",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "super::DrugNameSelector"))]
+    name_selector: Option<super::DrugNameSelector>,
     /// Native candidate rows per page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -54,10 +64,20 @@ struct SearchFields {
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) {
+        if !(1..=50).contains(&fields.limit)
+            || fields.name_selector.is_some() && fields.source != DrugSource::Chembl
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(fields))
+    }
+}
+impl DrugSearch {
+    /// Checked native selector, with preferred name as the ChEMBL default.
+    pub fn name_selector(&self) -> super::DrugNameSelector {
+        self.0
+            .name_selector
+            .unwrap_or(super::DrugNameSelector::Preferred)
     }
 }
 /// Exact native ID retrieval with an explicitly selected source.
@@ -118,9 +138,9 @@ impl TryFrom<GetFields> for DrugGet {
         if fields
             .civic_profile
             .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
-            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
-            || fields.civic_profile.is_some()
+            || fields.civic_profile.is_some() && fields.civic_kind.is_none()
+            || fields.civic_cursor.is_some() && fields.civic_kind.is_none()
+            || fields.civic_kind.is_some()
                 && (fields.source != DrugSource::Civic
                     || !fields.section.contains(&DrugSection::Civic))
         {
@@ -159,6 +179,17 @@ impl DrugGet {
         fields.civic_cursor = cursor;
         fields.try_into()
     }
+    /// Continue a therapy-wide claim stream without selecting a molecular profile.
+    pub fn with_civic_stream(
+        &self,
+        kind: CivicClaimKind,
+        cursor: Option<Text>,
+    ) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        fields.try_into()
+    }
     /// Selected native drug-scoped CIViC molecular profile.
     pub fn civic_profile(&self) -> Option<u64> {
         self.0.civic_profile
@@ -192,6 +223,13 @@ impl DrugSource {
     /// Check only published ID grammar for this endpoint, without inferring identity level or joining records.
     pub fn accepts(self, id: &DrugId) -> bool {
         let id = id.to_string();
+        if id.split_once(':').is_some_and(|(prefix, _)| {
+            Self::ALL
+                .into_iter()
+                .any(|source| source.as_str().eq_ignore_ascii_case(prefix))
+        }) {
+            return false;
+        }
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
             Self::Mychem => true,
@@ -218,5 +256,77 @@ impl DrugSource {
                         .all(|s| s.bytes().all(|b| b.is_ascii_hexdigit()))
             }
         }
+    }
+}
+
+fn selected_name<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<super::DrugNameSelector>, D::Error> {
+    super::DrugNameSelector::deserialize(d).map(Some)
+}
+impl DrugSearch {
+    /// Literal source query, without rewriting.
+    pub fn query(&self) -> &Text {
+        &self.0.query
+    }
+    /// Single selected native source.
+    pub fn source(&self) -> DrugSource {
+        self.0.source
+    }
+    /// Native page bound.
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
+    /// Native page offset.
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
+    /// Continue that exact literal source query.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut fields = self.0.clone();
+        fields.offset = offset;
+        Self(fields)
+    }
+}
+impl DrugGet {
+    /// Explicit requested disclosures.
+    pub fn sections(&self) -> &[DrugSection] {
+        &self.0.section
+    }
+}
+
+impl DrugGet {
+    /// Continue the same named section without changing source, identity or section selectors.
+    pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section_offset = Some(offset);
+        fields.try_into()
+    }
+    /// Exact selected native label heading.
+    pub fn label_section(&self) -> Option<&Text> {
+        self.0.label_section.as_ref()
+    }
+    /// Exact application product selector.
+    pub fn product_number(&self) -> Option<&Text> {
+        self.0.product_number.as_ref()
+    }
+}
+
+impl DrugGet {
+    /// Select one named disclosure without changing the exact source identity.
+    pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = vec![section].into();
+        fields.try_into()
+    }
+}
+
+impl DrugGet {
+    /// Select an explicit native label heading for the same source identity.
+    pub fn for_label(&self, heading: Text) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = vec![DrugSection::Label].into();
+        fields.label_section = Some(heading);
+        fields.try_into()
     }
 }

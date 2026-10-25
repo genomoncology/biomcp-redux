@@ -230,18 +230,28 @@
             }
           ],
           "description": "Source record URL."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source revision, omitted when the source supplies none."
         }
       },
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentityLevel": {
@@ -294,6 +304,36 @@
       "required": [
         "identity",
         "label"
+      ],
+      "type": "object"
+    },
+    "DrugLabelFragment": {
+      "additionalProperties": false,
+      "description": "One slice of a native label array element, partitioning the page's unchanged text.",
+      "properties": {
+        "characters": {
+          "description": "Consecutive Unicode scalars consumed from the page text for this fragment.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source_offset": {
+          "description": "Unicode scalar offset inside that original array element.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source_part": {
+          "description": "Zero-based native array element; empty elements have a zero-character fragment.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source_part",
+        "source_offset",
+        "characters"
       ],
       "type": "object"
     },
@@ -353,6 +393,13 @@
       "additionalProperties": false,
       "description": "A mechanical continuation of one native label heading.",
       "properties": {
+        "fragments": {
+          "description": "Native array boundaries; consume the flat text in this order without separators.",
+          "items": {
+            "$ref": "#/$defs/DrugLabelFragment"
+          },
+          "type": "array"
+        },
         "heading": {
           "$ref": "#/$defs/Text",
           "description": "Exact native label heading."
@@ -362,17 +409,28 @@
           "description": "Exact source label set and revision."
         },
         "offset": {
-          "description": "Continuation offset in the declared source text.",
+          "description": "Zero-based bounded text fragment offset; section_limit is a maximum fragment count.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "retrieved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source reply retrieval date; absent for legacy captures without a timestamp."
         },
         "text": {
           "description": "Original text slice, preserving whitespace and wording.",
           "type": "string"
         },
         "total": {
-          "description": "Total source text length when known, without local clinical summarization.",
+          "description": "Total bounded text fragments, including fragments for empty native array elements.",
           "format": "uint64",
           "minimum": 0,
           "type": [
@@ -385,6 +443,7 @@
         "label",
         "heading",
         "text",
+        "fragments",
         "offset"
       ],
       "type": "object"
@@ -392,6 +451,7 @@
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
+        "xrefs",
         "targets",
         "indications",
         "civic",
@@ -402,6 +462,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -1057,7 +1118,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_label/1",
+  "$id": "biomcp.drug_label/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1103,7 +1164,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_label/1",
+      "const": "biomcp.drug_label/3",
       "type": "string"
     },
     "sources": {

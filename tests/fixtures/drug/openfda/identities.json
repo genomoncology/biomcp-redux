@@ -1,0 +1,74 @@
+[
+  {
+    "id": "2b30c65b-bf6e-4a30-9754-585d500d59f3",
+    "set_id": "211ef2da-2868-4a77-8055-1cb2cd78e24b",
+    "version": "41",
+    "effective_time": "20260713",
+    "brand": "Gleevec",
+    "original_sha256": "e3c13f2437dc03bb93cd523e3ba232f1c396906a47e79b314846b2b48a13e835"
+  },
+  {
+    "id": "7517f775-6a10-4ddd-8dfb-6704ece413d0",
+    "set_id": "492dbdb2-077e-4064-bff3-372d6af0a7a2",
+    "version": "27",
+    "effective_time": "20260529",
+    "brand": "Herceptin",
+    "original_sha256": "858930506ea91496892808227cd4f3b05dfb1bf26a7ad8551a9111dd8aea8f84"
+  },
+  {
+    "id": "a4106ba4-f398-4663-980c-2b7195283edd",
+    "set_id": "7e67e73e-ddf4-4e4d-8b50-09d7514910b6",
+    "version": "28",
+    "effective_time": "20260515",
+    "brand": "Enhertu",
+    "original_sha256": "83d177ea9e87035b6214bc082d94444126e609f4e52a575e43567a6e7c8d65af"
+  },
+  {
+    "id": "228e1e3f-d207-481f-8e14-9fdcbd0470e9",
+    "set_id": "9333c79b-d487-4538-a9f0-71b91a02b287",
+    "version": "228",
+    "effective_time": "20260710",
+    "brand": "KEYTRUDA",
+    "original_sha256": "00034c6b380c0537a6475365ddd65db3490e56bf644546d7be5337470c0372c6"
+  },
+  {
+    "id": "0142c57f-6211-4638-8c48-c215686871b8",
+    "set_id": "741ff3e3-dc1a-45a6-84e5-2481b27131aa",
+    "version": "38",
+    "effective_time": "20250710",
+    "brand": "Lynparza",
+    "original_sha256": "46c21c5215a32abf1f0f7e741f55f952ce87c631431a5742290c0b96b9a50e81"
+  },
+  {
+    "id": "5d893369-497c-46ee-9b64-ee737fab4225",
+    "set_id": "b118a40d-6b56-cee3-10f6-ded821a97018",
+    "version": "283",
+    "effective_time": "20260520",
+    "brand": "Venclexta",
+    "original_sha256": "b23e09b475a5998732538347c76922a62d723e74fd20b0b6c7a1043d65cef38d"
+  },
+  {
+    "id": "5bcbc281-342c-4b05-8409-53a08b1fc9f6",
+    "set_id": "1e6ff055-590c-41e6-9530-1fdf04cdbd02",
+    "version": "2",
+    "effective_time": "20211129",
+    "brand": "SOLTAMOX",
+    "original_sha256": "69dd1767592006dabaa9f84f069c11fc16d393a28c847cbca41cfe21282d3a51"
+  },
+  {
+    "id": "32dd0155-c5cb-49c2-9b74-74f40df22df7",
+    "set_id": "e702d84d-7162-4751-bf37-d724cc7e45a5",
+    "version": "32",
+    "effective_time": "20260205",
+    "brand": "XELODA",
+    "original_sha256": "291a73d4527dd03e6991979f7e164410907f702f518a398280b51e548194ef1d"
+  },
+  {
+    "id": "190606ed-cb7f-411b-8548-cc2f98e57819",
+    "set_id": "65d254c0-67ad-42c4-b972-ad463b755b2d",
+    "version": "11",
+    "effective_time": "20251222",
+    "brand": "TIBSOVO",
+    "original_sha256": "644d6b68a3d851cd83a0e66e826646be91a024ef7e9871239b0ce8dfe684ac56"
+  }
+]

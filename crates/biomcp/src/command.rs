@@ -1,4 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod disease;
+mod drug;
+mod drug_label;
 mod steps;
 mod variant;
 
@@ -68,6 +71,10 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
+    let action = match disease::prepare(action) {
+        Ok(action) => action,
+        Err(error) => return disease::selector_error(error),
+    };
     if let Some(outcome) = unsupported(&action) {
         return outcome;
     }
@@ -99,6 +106,9 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if disease::unsupported(action) {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if let Action::Run {
         request: Request::SearchTrial(q),
         ..
@@ -155,7 +165,7 @@ fn execute(
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, globals, allow_save)?;
-            response(fetch, request, result)
+            response(fetch, request, result, fresh)
         }
     }
 }
@@ -188,8 +198,10 @@ impl ResponseMeta {
 fn response(
     fetch: &biomcp_fetch::Fetch,
     request: Request,
-    result: biomcp_query::Outcome,
+    mut result: biomcp_query::Outcome,
+    fresh: bool,
 ) -> io::Result<Outcome> {
+    drug_label::bound(fetch, &request, &mut result, fresh)?;
     let steps = steps::next(fetch, &result)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
@@ -202,6 +214,12 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        return disease::encode(meta, request, body);
+    }
+    if matches!(&request, Request::SearchDrug(_) | Request::GetDrug(_)) {
+        return drug::encode(meta, request, body);
+    }
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
@@ -372,10 +390,15 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = match bundle {
+        Bundle::Ema => biomcp_types::Source::Ema,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
     };
     let result = match bundle {
+        Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
+            rows: info.rows,
+            bytes: info.bytes,
+        }),
         Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
         Bundle::Hgnc => {
             biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
@@ -420,7 +443,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     ));
-    steps::network_steps(&mut envelope.next, &envelope.sources);
+    steps::network_steps(&mut envelope.next, &envelope.sources, None);
     encode(
         envelope,
         if local {

@@ -1,5 +1,5 @@
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
-use crate::{CivicProfile, ResponseBody, Section, Step};
+use crate::{ResponseBody, Section, Step};
 use biodata::{
     AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
     DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
@@ -15,12 +15,17 @@ pub struct DrugHeader {
     /// The single source responsible for this header.
     pub source: DrugSource,
     /// Original source display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Level established only by the endpoint or record type.
     pub identity_level: DrugIdentityLevel,
     /// Native record type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
+    /// Native source revision, omitted when the source supplies none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
     /// Source record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<Text>,
@@ -99,6 +104,18 @@ pub struct DrugRecords<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieved: Option<PartialDate>,
 }
+/// One slice of a native label array element, partitioning the page's unchanged text.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugLabelFragment {
+    /// Zero-based native array element; empty elements have a zero-character fragment.
+    pub source_part: u32,
+    /// Unicode scalar offset inside that original array element.
+    pub source_offset: u32,
+    /// Consecutive Unicode scalars consumed from the page text for this fragment.
+    pub characters: u32,
+}
 /// A mechanical continuation of one native label heading.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -110,9 +127,14 @@ pub struct DrugLabelText {
     pub heading: Text,
     /// Original text slice, preserving whitespace and wording.
     pub text: Box<str>,
-    /// Continuation offset in the declared source text.
+    /// Original source reply retrieval date; absent for legacy captures without a timestamp.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retrieved: Option<PartialDate>,
+    /// Native array boundaries; consume the flat text in this order without separators.
+    pub fragments: Box<[DrugLabelFragment]>,
+    /// Zero-based bounded text fragment offset; section_limit is a maximum fragment count.
     pub offset: u32,
-    /// Total source text length when known, without local clinical summarization.
+    /// Total bounded text fragments, including fragments for empty native array elements.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub total: Option<u64>,
 }
@@ -154,7 +176,7 @@ pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<DrugRecords<CivicProfile<DrugGet>>>,
+    pub civic: Section<super::DrugCivicStreams>,
 }
 /// Explicit native application/product history without a global approval flag.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -187,38 +209,53 @@ pub struct DrugInteractions {
     pub interactions: Section<DrugRecords<DrugInteractionClaim>>,
 }
 impl ResponseBody for DrugPage {
-    const SCHEMA: &'static str = "biomcp.drug_page/1";
+    const SCHEMA: &'static str = "biomcp.drug_page/3";
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug_card/1";
+    const SCHEMA: &'static str = "biomcp.drug_card/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug_label/1";
+    const SCHEMA: &'static str = "biomcp.drug_label/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug_targets/2";
+    const SCHEMA: &'static str = "biomcp.drug_targets/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug_indications/2";
+    const SCHEMA: &'static str = "biomcp.drug_indications/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug_civic/1";
+    const SCHEMA: &'static str = "biomcp.drug_civic/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug_approvals/1";
+    const SCHEMA: &'static str = "biomcp.drug_approvals/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug_regulatory/1";
+    const SCHEMA: &'static str = "biomcp.drug_regulatory/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug_interactions/2";
+    const SCHEMA: &'static str = "biomcp.drug_interactions/3";
+    type Query = DrugGet;
+}
+
+/// A mechanical page of the selected document's complete checked native links.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugXrefs {
+    /// Exact source-selected identity, without choosing any linked product.
+    pub identity: DrugHeader,
+    /// Native links with an exact link count, original version and retrieval date.
+    pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
+}
+impl ResponseBody for DrugXrefs {
+    const SCHEMA: &'static str = "biomcp.drug_xrefs/1";
     type Query = DrugGet;
 }

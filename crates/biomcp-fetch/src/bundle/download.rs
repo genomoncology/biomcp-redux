@@ -92,7 +92,7 @@ impl Leg<'_> {
             b,
             &url,
             &mut transfer,
-            if record || matches!(b.format, super::RowFormat::Csv { .. }) {
+            if record || !matches!(b.format, super::RowFormat::Tsv) {
                 None
             } else {
                 old.as_ref()
@@ -288,7 +288,7 @@ impl Leg<'_> {
     ) -> Result<BundleInfo, RequestError> {
         let status = response.status().as_u16();
         self.validate_range(t, response)?;
-        if matches!(b.format, super::RowFormat::Csv { .. }) {
+        if !matches!(b.format, super::RowFormat::Tsv) {
             t.part.etag = None;
         }
         self.stream(t, response)?;

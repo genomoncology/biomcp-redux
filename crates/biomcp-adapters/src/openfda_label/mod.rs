@@ -1,4 +1,4 @@
-//! Canonical OPENFDA_LABEL source declaration.
+//! Exact openFDA brand candidates and SPL revisions without clinical text selection.
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -15,3 +15,102 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod map;
+mod page;
+mod raw;
+use biodata::{DrugId, Text};
+use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
+pub use raw::Record;
+/// Exact native headings supported by the label surface.
+pub const HEADINGS: [&str; 5] = [
+    "boxed_warning",
+    "dosage_and_administration",
+    "drug_interactions",
+    "indications_and_usage",
+    "warnings_and_cautions",
+];
+const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
+/// A source candidate page, preserving native order and source total.
+#[derive(Debug)]
+pub struct Page {
+    /// Source revision records, never merged by ingredient or brand.
+    pub records: Vec<Record>,
+    /// Native count for this exact selector.
+    pub total: u64,
+    /// This reply's actual original retrieval metadata.
+    pub metadata: ReplyMetadata,
+}
+fn literal(value: &str) -> String {
+    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+}
+/// Brand-name-only discovery; no generic-name selector or altered-query retry.
+pub fn search(leg: &Leg<'_>, brand: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
+    if !(1..=50).contains(&limit) {
+        return Err(bad());
+    }
+    page(
+        leg,
+        &format!("openfda.brand_name.exact:{}", literal(brand.as_str())),
+        limit,
+        offset,
+        None,
+    )
+}
+/// Read only the explicitly selected SPL set, refusing a mismatched returned set before caching.
+pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
+    if !biomcp_types::DrugSource::OpenfdaLabel.accepts(set) {
+        return Err(bad());
+    }
+    page(
+        leg,
+        &format!("openfda.spl_set_id:{}", literal(&set.to_string())),
+        1,
+        0,
+        Some(set),
+    )
+}
+fn page(
+    leg: &Leg<'_>,
+    selector: &str,
+    limit: u32,
+    offset: u32,
+    set: Option<&DrugId>,
+) -> Result<Page, RequestError> {
+    let mut args = vec![
+        ("search", Arg::Text(selector)),
+        ("limit", Arg::Num(limit.into())),
+        ("sort", Arg::Text("effective_time:desc")),
+    ];
+    if offset > 0 {
+        args.push(("skip", Arg::Num(offset.into())));
+    }
+    let (reply, metadata) =
+        leg.json_received_checked::<raw::Response>(&LABEL, &args, |reply| match reply {
+            raw::Response::Success { meta, results }
+                if meta.results.skip != offset
+                    || meta.results.limit != limit
+                    || set.is_some_and(|set| results.iter().any(|r| r.set_id != *set)) =>
+            {
+                Err(BadReply)
+            }
+            _ => Ok(()),
+        })?;
+    let (records, total) = match reply {
+        raw::Response::Success { meta, results } => (results, meta.results.total),
+        raw::Response::Absent { .. } => (Vec::new(), 0),
+    };
+    Ok(Page {
+        records,
+        total,
+        metadata,
+    })
+}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::OpenfdaLabel,
+        reason: biomcp_types::Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
+}

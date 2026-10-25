@@ -1,10 +1,12 @@
 # 0141 — Get the exact disease card, synonyms, cross-references and parents through MyDisease
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 40bab02e0a0eb297c88dd6bf517ffd85e07e498c
 
 Milestone: 3
 
 Depends on: 0139
+Depends on: 0140
 
 ## Outcome
 

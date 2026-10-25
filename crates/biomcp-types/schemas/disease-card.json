@@ -156,6 +156,17 @@
       "additionalProperties": false,
       "description": "Exact identity and available pages without hidden enrichment.",
       "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiseaseRelation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native relation proving a source-accepted alternate identifier."
+        },
         "attribution": {
           "$ref": "#/$defs/Attribution",
           "description": "Publisher record and version."
@@ -200,7 +211,8 @@
           ]
         },
         "replaced_by": {
-          "description": "Publisher explicit replacement identifiers.",
+          "default": null,
+          "description": "Publisher explicit replacement identifiers; null preserves no native replacement.",
           "items": {
             "$ref": "#/$defs/Curie"
           },
@@ -232,6 +244,31 @@
         "attribution",
         "sections",
         "components"
+      ],
+      "type": "object"
+    },
+    "DiseaseEndpoint": {
+      "additionalProperties": false,
+      "description": "One native endpoint with an identifier and an optional source label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Curie",
+          "description": "Exact source identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label when supplied."
+        }
+      },
+      "required": [
+        "id"
       ],
       "type": "object"
     },
@@ -314,7 +351,7 @@
             }
           ],
           "description": "One named section; absent means identity card only.",
-          "x-trailing-section": true
+          "x-positional": 1
         },
         "section_limit": {
           "default": 5,
@@ -361,6 +398,42 @@
         "ncit"
       ],
       "type": "string"
+    },
+    "DiseaseRelation": {
+      "additionalProperties": false,
+      "description": "A publisher relation with distinct endpoints and predicate.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Publisher record and version."
+        },
+        "description": {
+          "description": "Unchanged native cross-reference description when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "object": {
+          "$ref": "#/$defs/DiseaseEndpoint",
+          "description": "Native object."
+        },
+        "predicate": {
+          "$ref": "#/$defs/Curie",
+          "description": "Publisher predicate, without equivalence promotion."
+        },
+        "subject": {
+          "$ref": "#/$defs/DiseaseEndpoint",
+          "description": "Native subject."
+        }
+      },
+      "required": [
+        "subject",
+        "predicate",
+        "object",
+        "attribution"
+      ],
+      "type": "object"
     },
     "DiseaseSection": {
       "description": "One named disease page.",
@@ -872,7 +945,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_card/1",
+  "$id": "biomcp.disease_card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -918,7 +991,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_card/1",
+      "const": "biomcp.disease_card/2",
       "type": "string"
     },
     "sources": {

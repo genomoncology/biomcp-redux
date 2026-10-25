@@ -1,0 +1,15 @@
+{
+  "$id": "biomcp.drug_name_selector/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
+  "enum": [
+    "preferred",
+    "synonym"
+  ],
+  "title": "DrugNameSelector",
+  "type": "string",
+  "x-enum-descriptions": [
+    " Match the native preferred name exactly, ignoring case.",
+    " Match an explicit native synonym exactly, ignoring case."
+  ]
+}

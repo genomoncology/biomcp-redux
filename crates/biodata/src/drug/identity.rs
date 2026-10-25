@@ -42,7 +42,9 @@ pub struct DrugIdentity {
     /// Source responsible for this identity.
     pub source: Text,
     /// Original source name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Level established by the endpoint or record type; unknown stays unknown.
     pub identity_level: DrugIdentityLevel,
     /// Native record type, without local classification.

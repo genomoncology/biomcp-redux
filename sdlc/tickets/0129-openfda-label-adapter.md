@@ -1,6 +1,7 @@
 # 0129 — Search openFDA labels by brand name and read named label sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 95dd306b78b7cd15267f944a94a26e4c48493e6c
 
 Milestone: 3
 

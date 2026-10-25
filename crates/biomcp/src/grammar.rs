@@ -37,6 +37,10 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchDisease(_) => "biomcp.disease-search/1",
+        Request::GetDisease(_) => "biomcp.disease-get/2",
+        Request::SearchDrug(_) => "biomcp.drug-search/2",
+        Request::GetDrug(_) => "biomcp.drug-get/2",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
         Request::VariantNormalize(_) => "biodata.variant-normalize/2",
@@ -59,6 +63,10 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "disease", "biomcp.disease-search/1"),
+    ("get", "disease", "biomcp.disease-get/2"),
+    ("search", "drug", "biomcp.drug-search/2"),
+    ("get", "drug", "biomcp.drug-get/2"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -142,8 +150,9 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root
-        .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
+    root = root.subcommand(
+        Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema"])),
+    );
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
@@ -247,13 +256,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         Action::KeyHelp(source)
     } else if verb == "sync" {
         Action::Sync {
-            bundle: if matches
-                .get_one::<String>("bundle")
-                .is_some_and(|v| v == "clingen")
-            {
-                Bundle::ClinGen
-            } else {
-                Bundle::Hgnc
+            bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("ema") => Bundle::Ema,
+                Some("clingen") => Bundle::ClinGen,
+                _ => Bundle::Hgnc,
             },
         }
     } else {
@@ -467,14 +473,14 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 }
 
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let id = QUERIES
-        .iter()
-        .find(|(v, e, _)| *v == verb && *e == entity)
-        .map(|(_, _, id)| *id)
-        .ok_or(())?;
-    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-    let value = arguments(matches, &schema)?;
+    let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
+        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
+            .map(Request::SearchDisease)
+            .map_err(|_| ()),
+        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value)
+            .map(Request::GetDisease)
+            .map_err(|_| ()),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),
@@ -535,6 +541,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
             .map(Request::SearchArticle)
             .map_err(|_| ()),
+        ("search" | "get", "drug") => drug_request(verb, value),
         ("get", "gene") => serde_json::from_value::<GeneGet>(value)
             .map(Request::GetGene)
             .map_err(|_| ()),
@@ -543,6 +550,16 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             .map_err(|_| ()),
         _ => Err(()),
     }
+}
+
+fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Value, ()> {
+    let id = QUERIES
+        .iter()
+        .find(|(v, e, _)| *v == verb && *e == entity)
+        .map(|(_, _, id)| *id)
+        .ok_or(())?;
+    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+    arguments(matches, &schema)
 }
 
 fn property_type(property: &Value) -> Option<&str> {
@@ -559,4 +576,16 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+fn drug_request(verb: &str, value: Value) -> Result<Request, ()> {
+    if verb == "search" {
+        serde_json::from_value::<biomcp_types::DrugSearch>(value)
+            .map(Request::SearchDrug)
+            .map_err(|_| ())
+    } else {
+        serde_json::from_value::<biomcp_types::DrugGet>(value)
+            .map(Request::GetDrug)
+            .map_err(|_| ())
+    }
 }

@@ -65,13 +65,15 @@ pub mod gwas;
 /// Drug publisher declarations and independently labeled aggregator fields.
 pub mod drug_sources;
 
-mod chembl;
+pub mod chembl;
 pub mod ddinter;
 mod drugsfda;
-mod ema;
-mod mychem;
-mod openfda_label;
-mod opentargets;
+/// EMA medicines bundle with explicit synchronization.
+pub mod ema;
+/// MyChem literal native candidate and document identity adapter.
+pub mod mychem;
+pub mod openfda_label;
+pub mod opentargets;
 
 /// Disease publisher policy and pre-request component admission.
 pub mod disease_sources;
@@ -79,3 +81,8 @@ pub mod monarch;
 pub mod mydisease;
 pub mod ols;
 pub mod seer;
+
+mod text_parts;
+
+mod received;
+pub use received::received_date;
