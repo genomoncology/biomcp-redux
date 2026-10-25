@@ -35,7 +35,7 @@ fn plan() -> Result<Vec<Case>, String> {
     .map_err(|e| e.to_string())
 }
 pub(super) fn trials() -> Vec<Trial> {
-    match plan() {
+    let mut trials: Vec<Trial> = match plan() {
         Ok(cases) => cases
             .into_iter()
             .map(|case| {
@@ -47,7 +47,61 @@ pub(super) fn trials() -> Vec<Trial> {
         Err(error) => vec![Trial::test("drug-native/fixture-plan", move || {
             Err(error.clone().into())
         })],
+    };
+    if let Some(root) = std::env::var_os("BIOMCP_CHEMBL_DEFAULT_RECORDING") {
+        trials.push(Trial::test(
+            "drug-native/chembl-default-retained",
+            move || default_retained(PathBuf::from(&root)).map_err(Into::into),
+        ));
     }
+    trials
+}
+fn default_retained(root: PathBuf) -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let args = [
+        "search",
+        "drug",
+        "axicabtagene ciloleucel",
+        "--source",
+        "chembl",
+    ]
+    .map(str::to_owned)
+    .to_vec();
+    let globals = env.globals(Some(&root), false);
+    let mut cli = globals.clone();
+    cli.extend(args.clone());
+    let value = invoke(&env, cli, 0)?;
+    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+    if super::mcp::call_with_globals(&env, &args, false, &globals)? != value {
+        return Err("retained ChEMBL default CLI/MCP mismatch".into());
+    }
+    for (pointer, expected) in [
+        ("/query/limit", json!(10)),
+        ("/query/source", json!("chembl")),
+        ("/page/returned", json!(1)),
+        ("/page/total", json!(1)),
+        ("/result/items/0/id", json!("CHEMBL3989989")),
+    ] {
+        if value.pointer(pointer) != Some(&expected) {
+            return Err(format!(
+                "retained ChEMBL default changed {pointer}: {value}"
+            ));
+        }
+    }
+    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(&value, "")?;
+    if full > 756 || comparable > 633 {
+        return Err(format!(
+            "retained ChEMBL default exceeds measured ceiling: {full}/{comparable}"
+        ));
+    }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "CHEMBL_DEFAULT_REPLAY full={full} comparable={comparable} caps=756/633"
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
 }
 fn peer(replies: Vec<Reply>) -> Result<Stub, String> {
     let host = if replies.first().is_some_and(|r| r.json.is_some()) {
