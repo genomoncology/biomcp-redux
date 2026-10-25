@@ -97,3 +97,5 @@ adverse-event-search: Search literal FAERS report mentions with typed phrase, se
 
 maude-reports: Search explicit device report phrases and read exact native cards, device rows and complete narratives with source terms and independent count units. Cases: `crates/biomcp/tests/runner/maude.rs`.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference. Cases: `crates/biomcp/tests/runner/faers_get.rs`.
+
+diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `tests/cases/diagnostic/who.yaml`.
