@@ -26,9 +26,9 @@ mod secret;
 pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
-pub use bundle::{encode_bundle_row,
+pub use bundle::{
     Bundle, BundleInfo, BundlePart, BundleSet, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
-    RowFormat, SetRow,
+    RowFormat, SetRow, encode_bundle_row,
 };
 pub use cache::{SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};

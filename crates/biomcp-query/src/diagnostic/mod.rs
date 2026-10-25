@@ -1,6 +1,6 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
-mod get;
 mod companion;
+mod get;
 mod next;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
@@ -47,7 +47,9 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
 }
 /// Search only stored source-native GTR relations and retain matched selectors.
 pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
-    if q.source() == DiagnosticSearchSource::FdaCdx { return companion::search(cx, q); }
+    if q.source() == DiagnosticSearchSource::FdaCdx {
+        return companion::search(cx, q);
+    }
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),
         count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),

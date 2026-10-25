@@ -1,11 +1,18 @@
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::CompanionDiagnosticRelation;
 use biomcp_adapters::fda_cdx;
-use biomcp_types::{DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, QueryBody, Reason, Request, Source, SourceState, Status, StepKind};
+use biomcp_types::{
+    DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, QueryBody, Reason,
+    Request, Source, SourceState, Status, StepKind,
+};
 use std::collections::HashSet;
 
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
-    let mut out = super::empty(QueryBody::DiagnosticCompanion(DiagnosticCompanion { items: Box::default(), count_unit: None, distinct_id_total: None }));
+    let mut out = super::empty(QueryBody::DiagnosticCompanion(DiagnosticCompanion {
+        items: Box::default(),
+        count_unit: None,
+        distinct_id_total: None,
+    }));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&fda_cdx::SPEC, deadline);
@@ -13,24 +20,57 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     let mut group_unsupported = false;
     if let Ok(page) = result {
-        let q = page.info.content_revision.as_deref().and_then(|v|v.parse().ok()).map_or_else(||q.clone(), |v|q.with_bundle_revision(v));
+        let q = page
+            .info
+            .content_revision
+            .as_deref()
+            .and_then(|v| v.parse().ok())
+            .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
         pivots(&mut out, &page.items, cx.fresh);
         let returned = page.items.len() as u32;
         if u64::from(q.offset()) + u64::from(returned) < page.total {
-            super::next::push(&mut out, StepKind::Page, Request::SearchDiagnostic(q.at_offset(q.offset()+returned)), cx.fresh);
+            super::next::push(
+                &mut out,
+                StepKind::Page,
+                Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                cx.fresh,
+            );
         }
-        out.status = if page.problems.is_empty() { Status::Complete } else { Status::Partial };
+        out.status = if page.problems.is_empty() {
+            Status::Complete
+        } else {
+            Status::Partial
+        };
         group_unsupported = page.group_unsupported;
         out.problems = page.problems;
-        out.page = Some(PageInfo { offset:q.offset(), returned, total:page.total, pool:None, truncated:None });
-        out.body = QueryBody::DiagnosticCompanion(DiagnosticCompanion { items:page.items, count_unit:None, distinct_id_total:None });
+        out.page = Some(PageInfo {
+            offset: q.offset(),
+            returned,
+            total: page.total,
+            pool: None,
+            truncated: None,
+        });
+        out.body = QueryBody::DiagnosticCompanion(DiagnosticCompanion {
+            items: page.items,
+            count_unit: None,
+            distinct_id_total: None,
+        });
     }
     out.local = error.and_then(status::local);
     let mut source = status::source(Source::FdaCdx, leg.finish(), error);
-    if group_unsupported { source.state = SourceState::Partial; source.reason = Some(Reason::Unsupported); }
-    if matches!(source.state, SourceState::Stale) && out.status==Status::Complete { out.status=Status::Partial; }
+    if group_unsupported {
+        source.reason = Some(Reason::Unsupported);
+    }
+    if matches!(source.state, SourceState::Stale) && out.status == Status::Complete {
+        out.status = Status::Partial;
+    }
     if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
-        out.next.push((StepKind::Sync, Action::Sync { bundle:Bundle::FdaCdx }));
+        out.next.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::FdaCdx,
+            },
+        ));
     }
     out.sources.push(source);
     command.finish(deadline.remaining());
@@ -39,13 +79,21 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
 fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) {
     let mut seen = HashSet::new();
     for row in rows {
-        let applications = match row { CompanionDiagnosticRelation::Individual { drug_applications, .. } | CompanionDiagnosticRelation::Group { drug_applications, .. } => drug_applications };
+        let applications = match row {
+            CompanionDiagnosticRelation::Individual {
+                drug_applications, ..
+            }
+            | CompanionDiagnosticRelation::Group {
+                drug_applications, ..
+            } => drug_applications,
+        };
         for application in applications {
             if seen.insert(application.id.clone())
                 && let Ok(id) = application.id.as_str().parse()
-                && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda) {
-                    super::next::push(out, StepKind::Disambiguate, Request::GetDrug(get), fresh);
-                }
+                && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda)
+            {
+                super::next::push(out, StepKind::Disambiguate, Request::GetDrug(get), fresh);
+            }
         }
     }
 }

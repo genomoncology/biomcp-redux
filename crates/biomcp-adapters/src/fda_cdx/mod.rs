@@ -4,10 +4,10 @@ mod html;
 mod identity;
 mod raw;
 mod search;
-pub use bundle::sync;
-pub use search::{Search, search};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
+pub use bundle::sync;
+pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -24,5 +24,11 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 fn bad() -> biomcp_fetch::RequestError {
-    biomcp_fetch::SourceError { source: Source::FdaCdx, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into()
+    biomcp_fetch::SourceError {
+        source: Source::FdaCdx,
+        reason: biomcp_types::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
