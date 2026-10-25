@@ -2,13 +2,14 @@ use super::{Check, both, environment, words};
 use crate::runner::network_stub::Stub;
 use serde_json::json;
 pub(super) fn run() -> Check {
-    for fault in ["row-width", "vaccine", "group", "html"] {
+    for fault in ["oversized", "row-width", "vaccine", "group", "html"] {
         let stub = Stub::for_sources(
             &["wonder.cdc.gov"],
             |_| "application/xml",
             move |_| {
                 let body = super::fixture::table("MMR", "D8.V13-level2");
                 Ok(match fault {
+                "oversized" => body.replace("Synthetic zero-row notice.", &"x".repeat(2 * 1024 * 1024)),
                     "row-width" => body.replacen("<c v=\"80.00%\"/>", "", 1),
                     "vaccine" => body.replacen("code=\"MMR\"", "code=\"COVID19\"", 1),
                     "group" => body.replacen("code=\"D8.V13-level2\"", "code=\"D8.V10\"", 1),

@@ -563,3 +563,24 @@ CDC WONDER declares `restricted` use under [CDC WONDER data use restrictions](ht
 Each native row keeps its label, Events Reported and Percent cells as original attribute maps. The native measure codes and labels accompany each table. The source message report total remains separate from the native footer, which can count multiple symptom occurrences per report and exceed the message total. No row sum, denominator sharing, inferred row code or suppressed-cell reconstruction occurs. Each table preserves dataset vintage, applied response footnotes and evaluated caveats, and page messages. The dataset's unselected documentation catalog does not become applicable response notices.
 
 The clinical reviewer approved this interpretation notice from the [CDC WONDER VAERS guide](https://wonder.cdc.gov/vaers.html) and [VAERS data guide](https://vaers.hhs.gov/data/dataguide.html): Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. A report may mention several symptoms. Each table retains its own source total and percentages. Reported symptoms and reports classified as serious preserve source meaning; no diagnoses or unique people are inferred.
+
+### VAERS synthetic command costs
+
+The command case helper `vaers/budget.rs` enforces each observed envelope size plus fifteen percent. The local synthetic rows exercise separate totals and suppression; these measurements do not describe provider latency or native table costs. Full bytes retain registry terms. Comparable bytes remove only the verified registry use, terms and terms URL fields.
+
+| Synthetic response | Full compact bytes | Comparable compact bytes |
+| --- | ---: | ---: |
+| Symptoms first page | 1856 | 1744 |
+| Symptoms continuation | 1698 | 1586 |
+| Seriousness | 1781 | 1669 |
+| Age | 1782 | 1670 |
+| 403 HTML | 294 | 182 |
+| 429 | 298 | 186 |
+| 500 | 297 | 185 |
+| Timeout | 303 | 191 |
+| Broken XML | 295 | 183 |
+| Disabled | 295 | 183 |
+| Disabled retained table | 373 | 261 |
+| Expired snapshot | 224 | 224 |
+
+Search help measured 2542 compact bytes and 2543 stdout bytes. `adverse-event/help.yaml` owns its approved ceiling. Exact report get help retains only FAERS and MAUDE and measured 2243 stdout bytes. The MCP command description measured 1920 bytes under its existing ceiling; snapshot tokens remain in detailed help and emitted continuations. Whole help and the Source enum retain their existing ceilings.
