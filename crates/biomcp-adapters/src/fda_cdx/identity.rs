@@ -1,19 +1,35 @@
 use biodata::{DiagnosticCell, DiagnosticDeviceId, DiagnosticDrugApplication, FdaDrugApplication};
 
-fn parameter<'a>(href: &'a str, keys: &[&str]) -> Option<&'a str> {
+fn parameter<'a>(href: &'a str, keys: &[&str]) -> Result<Option<&'a str>, ()> {
     if !href
         .strip_prefix("https://")
         .or_else(|| href.strip_prefix("http://"))
         .is_some_and(|v| v.starts_with("www.accessdata.fda.gov/"))
     {
-        return None;
+        return Ok(None);
     }
-    href.split_once('?')?.1.split('&').find_map(|pair| {
-        let (key, value) = pair.split_once('=')?;
-        keys.iter()
-            .any(|v| key.eq_ignore_ascii_case(v))
-            .then_some(value)
-    })
+    let Some((_, query)) = href.split_once('?') else {
+        return Ok(None);
+    };
+    let mut found = None;
+    for pair in query.split('&') {
+        let Some((key, value)) = pair.split_once('=') else {
+            if keys.iter().any(|v| key_matches(v, pair)) {
+                return Err(());
+            }
+            continue;
+        };
+        if keys.iter().any(|v| key_matches(v, key)) {
+            if value.is_empty() || found.is_some_and(|previous| previous != value) {
+                return Err(());
+            }
+            found = Some(value);
+        }
+    }
+    Ok(found)
+}
+fn key_matches(expected: &str, actual: &str) -> bool {
+    expected.eq_ignore_ascii_case(actual)
 }
 fn tokens(text: &str) -> impl Iterator<Item = &str> {
     text.split(|c: char| !c.is_ascii_alphanumeric() && c != '/')
@@ -41,8 +57,13 @@ pub(super) fn drugs(cell: &DiagnosticCell) -> (Box<[DiagnosticDrugApplication]>,
     let mut result = Vec::new();
     let mut conflict = false;
     for link in &cell.links {
-        let Some(number) = parameter(&link.href, &["ApplNo", "varApplNo"]) else {
-            continue;
+        let number = match parameter(&link.href, &["ApplNo", "varApplNo"]) {
+            Ok(Some(value)) => value,
+            Ok(None) => continue,
+            Err(()) => {
+                conflict = true;
+                continue;
+            }
         };
         let matching: Vec<_> = text
             .iter()
@@ -85,8 +106,13 @@ pub(super) fn devices(cell: &DiagnosticCell) -> (Box<[DiagnosticDeviceId]>, bool
     let mut result = Vec::new();
     let mut conflict = false;
     for link in &cell.links {
-        let Some(value) = parameter(&link.href, &["ID"]) else {
-            continue;
+        let value = match parameter(&link.href, &["ID"]) {
+            Ok(Some(value)) => value,
+            Ok(None) => continue,
+            Err(()) => {
+                conflict = true;
+                continue;
+            }
         };
         let Some(id) = linked_device(value) else {
             continue;
