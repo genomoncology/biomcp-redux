@@ -4,7 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    ["wrong-therapy", "missing-join", "conflicting-spl"]
+    let mut trials = ["wrong-therapy", "missing-join", "conflicting-spl"]
         .into_iter()
         .map(|fault| {
             Trial::test(
@@ -12,7 +12,58 @@ pub(super) fn trials() -> Vec<Trial> {
                 move || check(fault).map_err(Into::into),
             )
         })
-        .collect()
+        .collect::<Vec<_>>();
+    trials.push(Trial::test("drug-identity/stale-fallback-keeps-rejected-record-problem", || {
+        stale().map_err(Into::into)
+    }));
+    trials
+}
+fn stale() -> Result<(), String> {
+    let mut count = 0;
+    let stub = Stub::for_source("api.fda.gov", "application/json", move |_| {
+        count += 1;
+        let mut value = label();
+        if count == 2 {
+            corrupt(&mut value, "conflicting-spl")?;
+        }
+        Ok(value.to_string())
+    })?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let cert = env.root().join("ca.pem");
+    fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    let args = ["get", "drug", "492dbdb2-077e-4064-bff3-372d6af0a7a2", "--source", "openfda-label"]
+        .map(str::to_owned).to_vec();
+    let original = invoke(&env, args.clone(), 0)?;
+    let path = fs::read_dir(env.root().join("cache/biomcp")).map_err(|e| e.to_string())?
+        .filter_map(Result::ok).map(|e| e.path())
+        .find(|p| p.extension().is_some_and(|e| e == "sqlite")).ok_or("reply cache")?;
+    let cache = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
+    cache.execute("UPDATE reply SET fresh_until=0", []).map_err(|e| e.to_string())?;
+    let stale = invoke(&env, args.clone(), 0)?;
+    if stale["status"] != "partial"
+        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
+        || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || stale.get("result") != original.get("result")
+        || stale.pointer("/problems/0/field") != Some(&json!("record"))
+        || stale.pointer("/problems/0/source") != Some(&json!("openfda-label"))
+    {
+        return Err(format!("rejected identity lost its record problem during stale fallback: {stale}"));
+    }
+    let corrected = invoke(&env, args.clone(), 0)?;
+    if corrected != original
+        || super::mcp::call_with_globals(&env, &args, false, &[])? != corrected
+        || stub.finish()?.len() != 3
+    {
+        return Err("rejected stale identity cached, or corrected identity failed to cache".into());
+    }
+    let full = serde_json::to_vec(&stale).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(&stale, "")?;
+    if full > 1600 || comparable > 1472 {
+        return Err(format!("stale identity refusal exceeds size ceiling: full={full}, comparable={comparable}"));
+    }
+    Ok(())
 }
 fn check(fault: &'static str) -> Result<(), String> {
     let civic = fault != "conflicting-spl";
