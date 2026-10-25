@@ -48,10 +48,3 @@ pub(crate) const DDINTER_TERMS: Terms = Terms {
     url: "https://ddinter.scbdd.com/terms/",
     usage: Use::Noncommercial,
 };
-// Conservative local policy, not a claim about the publisher's quota.
-pub(crate) static FDA_QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
-    biomcp_fetch::SourceKey::declare("openfda"),
-    biomcp_fetch::Rate::per_second(1),
-    None,
-    1,
-);

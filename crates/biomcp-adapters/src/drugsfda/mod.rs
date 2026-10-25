@@ -11,7 +11,7 @@ pub static SPEC: SourceSpec = SourceSpec {
         url: crate::drug_sources::FDA_TERMS.url,
         usage: crate::drug_sources::FDA_TERMS.usage,
     },
-    quota: &crate::drug_sources::FDA_QUOTA,
+    quota: &crate::quotas::OPENFDA,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
