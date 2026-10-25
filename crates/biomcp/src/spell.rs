@@ -61,6 +61,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchPgx(query) => serde_json::to_value(query),
+        Request::GetPgx(query) => serde_json::to_value(query),
         Request::SearchAdverseEvent(query) => serde_json::to_value(query),
         Request::GetAdverseEvent(query) => serde_json::to_value(query),
         Request::SearchDisease(query) => serde_json::to_value(query),
@@ -125,14 +127,16 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetAdverseEvent(_)
+            Request::GetPgx(_)
+            | Request::GetAdverseEvent(_)
             | Request::GetDisease(_)
             | Request::GetDrug(_)
             | Request::GetVariant(_)
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchAdverseEvent(_)
+            Request::SearchPgx(_)
+            | Request::SearchAdverseEvent(_)
             | Request::SearchDisease(_)
             | Request::SearchDrug(_)
             | Request::SearchVariant(_)
@@ -141,7 +145,9 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(
+        if matches!(request, Request::SearchPgx(_) | Request::GetPgx(_)) {
+            "pgx"
+        } else if matches!(
             request,
             Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)
         ) {

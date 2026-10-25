@@ -22,3 +22,6 @@ pub mod drug;
 
 /// Source-owned adverse event search.
 pub mod adverse_event;
+
+/// Explicit CPIC gene and native context retrieval.
+pub mod pgx;

@@ -1,5 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod adverse_event;
+mod pgx;
 mod disease;
 mod drug;
 mod drug_label;
@@ -107,6 +108,7 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if matches!(action,Action::Run{request:Request::GetPgx(q),..} if q.source()!=biomcp_types::PgxSource::Cpic) {return Some(usage_envelope(ErrorEnvelope::arguments()));}
     if matches!(
         action,
         Action::Run {
@@ -226,6 +228,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchPgx(_) | Request::GetPgx(_) => pgx::encode(meta,request,body),
         Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
             adverse_event::encode(meta, request, body)
         }

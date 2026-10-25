@@ -12,6 +12,7 @@ struct Wire {
     fetched: i64,
     status: u16,
     content_type: String,
+    content_range: Option<String>,
     body: Vec<u8>,
     retry_after: Option<Duration>,
 }
@@ -237,17 +238,19 @@ impl Leg<'_> {
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
+        prepared.exact_count = ep.exact_count;
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
-        let (reply, fetched) = self.cached(ep, &prepared, &codec, || {
+        let (reply, fetched, content_range) = self.cached(ep, &prepared, &codec, || {
             self.attempts(&prepared, keyed, &codec)
         })?;
         let metadata = crate::ReplyMetadata {
             identity: prepared.identity,
             fetched,
+            content_range,
         };
         self.report
             .lock()
@@ -262,7 +265,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         keyed: bool,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>, i64), RequestError> {
+    ) -> Result<(T, u16, Vec<u8>, i64, Option<String>), RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
                 .fetch
@@ -366,6 +369,7 @@ impl Leg<'_> {
             agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
+        if prepared.exact_count { request = request.header("Prefer", "count=exact"); }
         for (name, value) in &prepared.outgoing {
             request = request.query(name, value.value());
         }
@@ -431,6 +435,7 @@ impl Leg<'_> {
             .and_then(|v| v.to_str().ok())
             .unwrap_or("")
             .to_owned();
+        let content_range = response.headers().get("content-range").and_then(|v| v.to_str().ok()).map(str::to_owned);
         let retry_after = response
             .headers()
             .get("retry-after")
@@ -452,6 +457,7 @@ impl Leg<'_> {
             fetched,
             status,
             content_type,
+            content_range,
             body,
             retry_after,
         };
@@ -484,6 +490,7 @@ impl Leg<'_> {
             fetched: exchange.fetched,
             status: exchange.status,
             content_type: exchange.content_type,
+            content_range: exchange.content_range,
             body: exchange.body.bytes().to_vec(),
             retry_after: exchange.retry_after_ms.map(Duration::from_millis),
         })
@@ -499,6 +506,7 @@ impl Leg<'_> {
             fetched: wire.fetched,
             status: wire.status,
             content_type: wire.content_type.clone(),
+            content_range: wire.content_range.clone(),
             body: if codec.binary() {
                 Body::Bytes(wire.body.clone())
             } else {
@@ -558,7 +566,7 @@ impl Leg<'_> {
         &self,
         response: Wire,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>, i64), SourceError> {
+    ) -> Result<(T, u16, Vec<u8>, i64, Option<String>), SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {
@@ -570,11 +578,11 @@ impl Leg<'_> {
         codec
             .validate(&response.body)
             .map_err(|reason| self.failure(reason, Some(status)))?;
-        let reply = codec.decode(&response.body).ok_or_else(bad)?;
+        let reply = codec.decode_response(&response.body, response.content_range.as_deref(), status).ok_or_else(bad)?;
         reply.check_status(status).map_err(|_| bad())?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
-        Ok((reply, status, response.body, response.fetched))
+        Ok((reply, status, response.body, response.fetched, response.content_range))
     }
 }

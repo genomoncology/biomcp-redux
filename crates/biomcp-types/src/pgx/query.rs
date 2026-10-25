@@ -83,6 +83,7 @@ struct GetFields {
     source: PgxSource,
     /// One named section; omitted means the CPIC gene card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     section: Option<PgxSection>,
     /// Unchanged declared expression required for the diplotype section only.
     #[serde(default, skip_serializing_if = "Option::is_none")]

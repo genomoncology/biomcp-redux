@@ -377,4 +377,9 @@ pub struct ReplyMetadata {
     pub identity: [u8; 32],
     /// Original fetch time in Unix seconds; zero for legacy recordings without a timestamp.
     pub fetched: i64,
+    /// Native exact count and selected bounds, when supplied by the provider.
+    pub content_range: Option<ContentRange>,
 }
+
+mod counted;
+pub use counted::ContentRange;

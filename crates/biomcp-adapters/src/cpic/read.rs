@@ -1,0 +1,73 @@
+//! Complete native CPIC rows with provider counts checked before cache admission.
+use super::SPEC;
+use biodata::*;
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
+use biomcp_types::{PgxGet, PgxSearch};
+use serde::Deserialize;
+/// One native array and its exact collection size.
+pub struct Page<T> {
+    /// Complete rows in native order.
+    pub items: Vec<T>,
+    /// Native exact collection size.
+    pub total: u64,
+}
+#[derive(Deserialize)]
+#[serde(transparent)]
+struct Rows<T>(Vec<T>);
+impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {}
+fn read<T: serde::de::DeserializeOwned>(
+    leg: &Leg<'_>, path: &'static str, args: &[(&str, Arg<'_>)], offset: u32, limit: u32,
+    check: impl Fn(&[T]) -> bool,
+) -> Result<Page<T>, RequestError> {
+    let endpoint = SPEC.get(path).fresh(Freshness::Days(1));
+    let (rows, metadata) = leg.json_counted::<Rows<T>>(&endpoint, args, |rows, range, status| {
+        range.check(offset, limit, rows.0.len(), status)?;
+        if !check(&rows.0) { return Err(BadReply); }
+        Ok(())
+    })?;
+    Ok(Page { items: rows.0, total: metadata.content_range.ok_or(biomcp_fetch::InputError::Serialization)?.total })
+}
+/// Search exact gene pairs, preserving native level namespaces and row order.
+pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, RequestError> {
+    let gene = format!("eq.{}", query.gene());
+    let level = query.cpic_level().map(|v| format!("eq.{}", v.as_str()));
+    let mut args = vec![("select", Arg::Text("*")), ("genesymbol", Arg::Text(&gene)), ("order", Arg::Text("pairid.asc")), ("limit", Arg::Num(query.limit().into())), ("offset", Arg::Num(query.offset().into()))];
+    if let Some(level) = &level { args.push(("cpiclevel", Arg::Text(level))); }
+    read(leg, "/pair_view", &args, query.offset(), query.limit(), |rows: &[PgxPair]| {
+        rows.iter().all(|r| &r.genesymbol == query.gene() && query.cpic_level().is_none_or(|v| r.cpiclevel.as_ref() == v.as_str())) && ordered(rows.iter().map(|r| r.pairid))
+    })
+}
+/// Select only the seven reviewed native identity fields.
+pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, RequestError> {
+    let gene = format!("eq.{}", query.gene());
+    read(leg, "/gene", &[("select", Arg::Text("symbol,hgncid,ncbiid,ensemblid,clinpgxid,lookupmethod,version")), ("symbol", Arg::Text(&gene)), ("limit", Arg::Num(5)), ("offset", Arg::Num(0))], 0, 5, |rows: &[PgxGeneIdentity]| rows.len() <= 1 && rows.iter().all(|r| &r.symbol == query.gene()))
+}
+/// Read gene-keyed recommendation view rows without inventing drug IDs.
+pub fn recommendations(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxRecommendation>, RequestError> {
+    let key = format!("lookupkey->>{}", query.gene());
+    read(leg, "/recommendation_view", &[("select", Arg::Text("*")), (&key, Arg::Text("not.is.null")), ("order", Arg::Text("recommendationid.asc")), ("limit", Arg::Num(query.section_limit().into())), ("offset", Arg::Num(query.section_offset().into()))], query.section_offset(), query.section_limit(), |rows: &[PgxRecommendation]| rows.iter().all(|r| r.lookupkey.keys().any(|k| k.to_string() == query.gene().to_string())) && ordered(rows.iter().map(|r| r.recommendationid)))
+}
+/// Exact native drug filter selects the distinct table contract, with the declared gene.
+pub fn drug_recommendations(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDrugRecommendation>, RequestError> {
+    let id = query.drug_id().ok_or(biomcp_fetch::InputError::Serialization)?;
+    let drug = format!("eq.{id}");
+    let key = format!("lookupkey->>{}", query.gene());
+    read(leg, "/recommendation", &[("select", Arg::Text("*")), (&key, Arg::Text("not.is.null")), ("drugid", Arg::Text(&drug)), ("order", Arg::Text("id.asc")), ("limit", Arg::Num(query.section_limit().into())), ("offset", Arg::Num(query.section_offset().into()))], query.section_offset(), query.section_limit(), |rows: &[PgxDrugRecommendation]| rows.iter().all(|r| &r.drugid == id && r.lookupkey.keys().any(|k| k.to_string() == query.gene().to_string())) && ordered(rows.iter().map(|r| r.id)))
+}
+/// Read the native summary references, with no publication or date enrichment.
+pub fn guidelines(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGuidelineReference>, RequestError> {
+    let genes = format!("cs.{}", serde_json::json!([{"symbol":query.gene()}]));
+    read(leg, "/guideline_summary_view", &[("select", Arg::Text("*")), ("genes", Arg::Text(&genes)), ("limit", Arg::Num(query.section_limit().into())), ("offset", Arg::Num(query.section_offset().into()))], query.section_offset(), query.section_limit(), |rows: &[PgxGuidelineReference]| rows.iter().all(|r| r.genes.iter().any(|g| &g.symbol == query.gene())))
+}
+/// Retrieve every mapping for the unchanged expression; literal empty is success.
+pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResult>, RequestError> {
+    let expression = query.diplotype().ok_or(biomcp_fetch::InputError::Serialization)?;
+    let gene = format!("eq.{}", query.gene());
+    let value = format!("eq.{expression}");
+    read(leg, "/diplotype", &[("select", Arg::Text("*")), ("genesymbol", Arg::Text(&gene)), ("diplotype", Arg::Text(&value)), ("limit", Arg::Num(query.section_limit().into())), ("offset", Arg::Num(query.section_offset().into()))], query.section_offset(), query.section_limit(), |rows: &[PgxDiplotypeResult]| rows.iter().all(|r| &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()))
+}
+fn ordered(values: impl Iterator<Item = i64>) -> bool {
+    let mut previous = None;
+    for value in values { if previous.is_some_and(|p| value <= p) { return false; } previous = Some(value); }
+    true
+}

@@ -12,7 +12,7 @@ use std::{
 };
 
 /// Transport schema version used by callers when naming shared cache files.
-pub const VERSION: u32 = 1;
+pub const VERSION: u32 = 2;
 const OWNER: &str = "biomcp-fetch";
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
@@ -30,6 +30,7 @@ pub(crate) struct Entry {
     pub(crate) status: u16,
     pub(crate) body: Vec<u8>,
     pub(crate) content_type: Option<String>,
+    pub(crate) content_range: Option<String>,
     pub(crate) fresh_until: i64,
     pub(crate) fetched_at: i64,
 }
@@ -41,6 +42,7 @@ impl Entry {
         Self {
             status,
             body,
+            content_range: None,
             content_type: (status != 404).then(|| content_type.to_owned()),
             fetched_at,
             fresh_until,
@@ -140,7 +142,7 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| version != VERSION) {
+        if version.is_some_and(|version| version != 1 && version != VERSION) {
             return Err(CacheError::Version);
         }
         if version.is_none() {
@@ -156,14 +158,15 @@ impl Cache {
             "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS reply (
                 key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
-                status INTEGER NOT NULL, content_type TEXT, body BLOB NOT NULL,
+                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, body BLOB NOT NULL,
                 fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
         )
         .map_err(db_error)?;
+        if version == Some(1) { tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", []).map_err(db_error)?; }
         crate::bundle::store::initialize(&tx)?;
         tx.execute(
-            "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO NOTHING",
+            "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
             (OWNER, VERSION),
         )
         .map_err(db_error)?;
@@ -215,12 +218,12 @@ impl Cache {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         self.sql(deadline, |connection| {
             let entry = connection.query_row(
-                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type FROM reply WHERE key=?1",
-                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?)),
+                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range FROM reply WHERE key=?1",
+                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?)),
             ).optional().map_err(db_error)?;
             match entry {
-                Some((status, Some(body), fresh_until, fetched_at, content_type)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
-                    Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type}))
+                Some((status, Some(body), fresh_until, fetched_at, content_type, content_range)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type, content_range}))
                 }
                 Some(_) => { Self::delete(connection, key)?; Ok(None) }
                 None => Ok(None),
@@ -249,9 +252,9 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.sql(deadline, |connection| {
             connection.execute(
-                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until) VALUES (?1,?2,?3,?4,?5,?6,?7,?8)
-                ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until",
-                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until],
+                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)
+                ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range",
+                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until, entry.content_range],
             ).map_err(db_error)?;
             Ok(())
         })
