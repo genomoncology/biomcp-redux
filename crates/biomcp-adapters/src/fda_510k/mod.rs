@@ -42,7 +42,10 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
             ],
             |reply| {
                 if let raw::Response::Page { meta, .. } = reply
-                    && (meta.results.skip != 0 || meta.results.limit != 1 || meta.results.total != 1) {
+                    && (meta.results.skip != 0
+                        || meta.results.limit != 1
+                        || meta.results.total != 1)
+                {
                     return Err(BadReply);
                 }
                 Ok(())
@@ -53,8 +56,7 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
             error,
             identity_conflict: false,
         })?;
-    if !identity(&reply,q)
-    {
+    if !identity(&reply, q) {
         return Err(Failure {
             error: biomcp_fetch::SourceError {
                 source: Source::Fda510k,
@@ -72,6 +74,6 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
     })
 }
 
-fn identity(reply:&raw::Response,q:&DiagnosticGet)->bool {
+fn identity(reply: &raw::Response, q: &DiagnosticGet) -> bool {
     !matches!(reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str()))
 }
