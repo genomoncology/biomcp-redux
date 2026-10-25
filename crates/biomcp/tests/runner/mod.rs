@@ -53,6 +53,7 @@ mod trial_documents;
 mod trial_get;
 mod trial_sites;
 mod trial_tables;
+mod trial_wider;
 mod variant;
 mod variant_civic;
 mod variant_filters;
@@ -279,6 +280,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(trial_tables::trials());
+    trials.extend(trial_wider::trials());
     trials.extend(trial_get::trials());
     trials.extend(nci::trials());
     trials.extend(clinvar_key::trials());

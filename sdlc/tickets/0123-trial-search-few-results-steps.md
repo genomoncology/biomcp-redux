@@ -1,6 +1,7 @@
 # 0123 — Offer wider steps when a trial search finds few trials
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 193a9a220bcd2bbe0cbc300d4be31475c8fc766c
 
 Milestone: 2
 

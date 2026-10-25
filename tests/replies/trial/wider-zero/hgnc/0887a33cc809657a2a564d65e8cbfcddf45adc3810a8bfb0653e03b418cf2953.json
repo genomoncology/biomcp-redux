@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1792886253,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 3844,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:6342\tKIT\tKIT proto-oncogene, receptor tyrosine kinase\tprotein-coding gene\tgene with protein product\tApproved\t4q12\t\"CD117|SCFR|C-Kit\"\tmast/stem cell growth factor receptor Kit\tPBT\t\"piebald trait|v-kit Hardy-Zuckerman 4 feline sarcoma viral oncogene homolog\"\t\"CD molecules|Immunoglobulin like domain containing|CSF1R, KIT, FLT3 receptor tyrosine kinase family\"\t\"471|594|3929\"\t1986-01-01\t\t2019-01-22\t2023-01-20\t3815\tENSG00000157404\tOTTHUMG00000128713\tuc010igr.4\tS67773\tNM_000222\t\"CCDS3496|CCDS47058|CCDS93527|CCDS93528|CCDS93529|CCDS93530|CCDS93531|CCDS93532\"\tP10721\t9027509\tMGI:96677\tRGD:620568\tLRG_307|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_307.xml\tKIT\t164920\t\t\t\t\t122862\t\t\t\t\tHGNC:6342\t\t\tCD117\t\t\t\t\t\t\tHGNC:6342\t\"ENST00000288135.6|NM_000222.3\"\tHGNC:6342\nHGNC:9585\tPTCH1\tpatched 1\tprotein-coding gene\tgene with protein product\tApproved\t9q22.32\t\"BCNS|SLC65B1\"\t\t\"NBCCS|PTCH\"\t\"patched (Drosophila) homolog|patched homolog (Drosophila)|patched homolog 1 (Drosophila)\"\tSolute carrier family 65\t2214\t1996-07-19\t2006-09-26\t2010-06-24\t2025-02-05\t5727\tENSG00000185920\tOTTHUMG00000020280\tuc004avk.5\tAI494442\tNM_000264\t\"CCDS43851|CCDS47995|CCDS47996|CCDS6714|CCDS87661\"\tQ13635\t8658145\tMGI:105373\tRGD:621425\tLRG_515|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_515.xml\tPTCH1\t601309\t\t\t\t\t118121\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tHGNC:9585\t\"ENST00000331920.11|NM_000264.5\"\tHGNC:9585\n"
+      }
+    }
+  ]
+}
