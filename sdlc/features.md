@@ -75,3 +75,5 @@ disease-ols: Discover source-ordered ontology candidates and read exact OLS card
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment. Cases: `crates/biomcp/tests/runner/disease_mydisease.rs`, `crates/biomcp/tests/runner/disease_mydisease/cases.rs`, `crates/biomcp/tests/runner/disease_mydisease/native.rs`.
 
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts. Cases: `crates/biomcp/tests/runner/disease_seer.rs`, `crates/biomcp/tests/runner/disease_seer/failures.rs`, `crates/biomcp/tests/runner/disease_seer/native.rs`.
+
+drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision. Cases: `tests/cases/drug/ddinter.yaml`, `crates/biomcp/tests/runner/drug_ddinter.rs`.

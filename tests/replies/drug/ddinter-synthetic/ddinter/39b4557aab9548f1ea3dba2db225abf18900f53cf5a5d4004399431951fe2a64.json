@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "ddinter",
+  "url": "https://ddinter.scbdd.com/static/media/download/ddinter_downloads_code_H.csv",
+  "exchanges": [
+    {
+      "fetched": 1792886400,
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\r\nDDInter6,Synthetic AnchorSix,DDInter7,Synthetic PartnerSeven,Unknown\r\n"
+      }
+    }
+  ]
+}
