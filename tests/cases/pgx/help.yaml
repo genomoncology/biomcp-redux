@@ -1,6 +1,6 @@
 {
-  "feature": "cpic-pgx",
-  "story": "Generated PGx help exposes typed selectors and independent section arguments.",
+  "feature": "generated-help",
+  "story": "PGx help lists source-scoped selectors, sections and two parsed executable examples without calculating phenotype, phase or dose.",
   "steps": [
     {
       "run": [
@@ -18,7 +18,22 @@
         "/result/commands/0/command": [
           "search",
           "pgx"
-        ]
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/description": {
+          "regex": "No phenotype, phase or dose is calculated"
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--gene",
+            "--source",
+            "--cpic-level",
+            "--limit",
+            "--offset"
+          ]
+        }
       },
       "max_bytes": 1189,
       "max_tokens": 297
@@ -39,6 +54,32 @@
         "/result/commands/0/command": [
           "get",
           "pgx"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/description": {
+          "regex": "No phenotype, phase or dose is calculated"
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--gene",
+            "--source",
+            "section",
+            "--diplotype",
+            "--kind",
+            "--drug-id",
+            "--annotation-id",
+            "--section-limit",
+            "--section-offset",
+            "--snapshot"
+          ]
+        },
+        "/result/commands/0/sections/*/word": [
+          "recommendations",
+          "guidelines",
+          "diplotype",
+          "annotations"
         ]
       },
       "max_bytes": 2178,
