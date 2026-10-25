@@ -304,14 +304,19 @@ pub(super) fn wrong_site() -> Result<(), String> {
 
 pub(super) fn stale_rejection() -> Result<(), String> {
     let mut calls = 0;
-    let stub = Stub::for_source("seer.cancer.gov", "application/json", move |request| {
-        calls += 1;
-        if calls == 1 {
-            wire(request)
-        } else {
-            Ok("broken JSON".into())
-        }
-    })?;
+    let stub = Stub::for_source_status(
+        "seer.cancer.gov",
+        "application/json",
+        move |request| {
+            calls += 1;
+            if calls == 1 {
+                wire(request)
+            } else {
+                Ok("broken JSON".into())
+            }
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let words = args(&[
         "get",
