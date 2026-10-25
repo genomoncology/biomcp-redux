@@ -78,7 +78,9 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
         let mut outcome = registry::outcome(source, state, Some(Reason::Disabled));
         outcome.count = Some(0);
         let value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
-        if value.get("use") != row.get("usage") { return Err(format!("lost use: {value}")); }
+        if value.get("use") != row.get("usage") {
+            return Err(format!("lost use: {value}"));
+        }
         for field in ["source", "terms", "terms_url"] {
             if value.get(field) != row.get(field) {
                 return Err(format!("lost {field}: {value}"));
@@ -119,6 +121,12 @@ fn switches() -> Check {
             let disabled = name == "gtr"
                 || name == configured
                 || configured == "noncommercial" && name == "who-ivd";
+            if disabled
+                && (row.get("state") != Some(&json!("skipped"))
+                    || row.get("reason") != Some(&json!("disabled")))
+            {
+                return Err(format!("disabled health did not skip: {row}"));
+            }
             if row.get("disabled") != Some(&json!(disabled)) {
                 return Err(format!("bad union {row}"));
             }
