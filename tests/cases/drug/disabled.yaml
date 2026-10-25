@@ -23,7 +23,7 @@
         "/sources/0/state": "skipped",
         "/sources/0/reason": "disabled"
       },
-      "exit": 3,
+      "exit": 4,
       "max_bytes": 1500,
       "max_tokens": 375
     }
