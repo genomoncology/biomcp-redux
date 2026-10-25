@@ -1,7 +1,6 @@
 //! Feature maude-reports: a card's section actions retain its original checked record.
 use super::{
-    configuration::invoke,
-    maude::{Check, environment, response, row},
+    maude::{Check, environment, invoke, response, row},
     network_stub::Stub,
 };
 use serde_json::{Value, json};

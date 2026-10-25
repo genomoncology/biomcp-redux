@@ -1,5 +1,5 @@
 //! Feature maude-reports: synthetic source-native device reports through CLI and MCP.
-use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use super::{configuration::invoke as raw_invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
@@ -47,6 +47,11 @@ pub(super) fn environment(stub: &Stub) -> Result<Environment, String> {
         .map_err(|e| e.to_string())?;
     Ok(env)
 }
+pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+    let value = raw_invoke(env, args, exit)?;
+    super::maude_budget::observe(&value)?;
+    Ok(value)
+}
 pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String> {
     let args: Vec<String> = words.iter().map(|v| (*v).into()).collect();
     let cli = invoke(env, args.clone(), exit)?;
@@ -55,7 +60,6 @@ pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value
     if cli != mcp {
         return Err(format!("MAUDE CLI/MCP differ: {cli} / {mcp}"));
     }
-    super::maude_budget::observe(&cli)?;
     Ok(cli)
 }
 fn search_card() -> Check {

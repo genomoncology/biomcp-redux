@@ -1,6 +1,6 @@
 //! Feature maude-reports: component policy precedes source cache, recorder and HTTP.
-use super::maude::{Check, environment, response, row};
-use super::{configuration::invoke, network_stub::Stub};
+use super::maude::{Check, environment, invoke, response, row};
+use super::network_stub::Stub;
 use serde_json::json;
 pub(super) fn run() -> Check {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| Ok(response(row())))?;
