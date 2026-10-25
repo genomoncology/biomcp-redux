@@ -1,36 +1,43 @@
-//! Feature clinpgx-annotations: independent retained collections through CLI and MCP.
+//! Feature clinpgx-annotations: native tiers through actual CLI and MCP.
+mod failures;
 mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "clinpgx-annotations/guideline-local-page",
-        || scenario().map_err(Into::into),
-    )]
+    let mut trials = vec![];
+    for name in ["clinical", "guideline", "label", "empty", "annotation"] {
+        trials.push(Trial::test(
+            format!("clinpgx-annotations/{name}-network-cache-replay"),
+            move || scenario(name).map_err(Into::into),
+        ));
+    }
+    trials.extend(failures::trials());
+    trials
 }
-fn scenario() -> Result<(), String> {
-    let body = json!({"data": rows::references(), "status":"success"});
-    let expected = body.pointer("/data/0").ok_or("synthetic row")?.clone();
-    let stub = Stub::for_sources(
-        &["api.clinpgx.org"],
-        |_| "application/json",
-        move |request| {
-            if !request.starts_with("GET /v1/data/guidelineAnnotation?")
-                || !request.contains("relatedGenes.symbol=DPYD")
-                || !request.contains("view=min")
-            {
-                return Err(format!("wrong native route: {request}"));
-            }
-            Ok(body.to_string())
-        },
-    )?;
+fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
-    let args = [
+    Ok(env)
+}
+fn args(name: &str) -> Vec<String> {
+    if name == "annotation" {
+        return [
+            "get",
+            "pgx",
+            "--annotation-id",
+            "PA100001",
+            "--source",
+            "clinpgx",
+        ]
+        .map(str::to_owned)
+        .to_vec();
+    }
+    let mut args = [
         "get",
         "pgx",
         "--gene",
@@ -38,25 +45,147 @@ fn scenario() -> Result<(), String> {
         "annotations",
         "--source",
         "clinpgx",
-        "--kind",
-        "guideline",
         "--section-limit",
         "1",
     ]
     .map(str::to_owned)
     .to_vec();
-    let first = invoke(&env, args.clone(), 0)?;
-    if first.pointer("/result/items/0") != Some(&expected)
-        || first.pointer("/result/page/total") != Some(&json!(2))
-        || first.pointer("/result/page/total_kind") != Some(&json!("observed"))
-    {
-        return Err(format!("collection or observed scope changed: {first}"));
+    if matches!(name, "guideline" | "label") {
+        args.extend(["--kind".into(), name.into()]);
     }
-    let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
-    if mcp != first {
+    args
+}
+fn native(name: &str) -> Result<Value, String> {
+    let data = match name {
+        "annotation" => rows::detail(1)?,
+        "clinical" => json!([rows::clinical(1, "DPYD"), rows::clinical(2, "DPYD")]),
+        "empty" => json!([]),
+        _ => rows::references(),
+    };
+    Ok(json!({"data":data,"status":"success"}))
+}
+fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+    let cli = invoke(env, args.clone(), exit)?;
+    super::schema::Registry::embedded()?.validate(&cli, &args, exit < 2)?;
+    let mcp = super::mcp::call_with_globals(env, &args, exit >= 2, &[])?;
+    if cli != mcp {
         return Err("CLI/MCP differs".into());
     }
-    let next = first
+    Ok(cli)
+}
+fn scenario(name: &'static str) -> Check {
+    let native = native(name)?;
+    let original = native.clone();
+    let stub = Stub::for_sources(
+        &["api.clinpgx.org"],
+        |_| "application/json",
+        move |request| {
+            request_matches(name, request)?;
+            Ok(native.to_string())
+        },
+    )?;
+    let env = environment(&stub)?;
+    let args = args(name);
+    let record = env.root().join("record");
+    let mut recording = vec!["--record".into(), record.to_string_lossy().into()];
+    recording.extend(args.clone());
+    let cold = invoke(&env, recording, 0)?;
+    if both(&env, args.clone(), 0)? != cold {
+        return Err("warm cache changed native response".into());
+    }
+    verify(name, &cold, &original)?;
+    let fresh = Environment::new().map_err(|e| e.to_string())?;
+    let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];
+    replay.extend(args.clone());
+    if both(&fresh, replay, 0)? != cold {
+        return Err("recorded native response changed".into());
+    }
+    if !matches!(name, "annotation" | "empty") {
+        walk(&env, &cold)?;
+    }
+    blocked(&env, &args, &record)?;
+    let mut md = vec!["--format".into(), "md".into()];
+    md.extend(args);
+    let text = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &md)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !text.status.success() || !String::from_utf8_lossy(&text.stdout).contains("clinpgx") {
+        return Err("Markdown lost source".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("local page, cache, replay or disabled request opened HTTP".into());
+    }
+    Ok(())
+}
+fn request_matches(name: &str, r: &str) -> Check {
+    let path = match name {
+        "annotation" => "clinicalAnnotation/PA100001",
+        "guideline" => "guidelineAnnotation",
+        "label" => "labelAnnotation",
+        _ => "clinicalAnnotation",
+    };
+    if !r.starts_with(&format!("GET /v1/data/{path}?"))
+        || !r.contains(if name == "annotation" {
+            "view=base"
+        } else {
+            "view=min"
+        })
+    {
+        return Err(format!("wrong native route: {r}"));
+    }
+    if name != "annotation"
+        && !r.contains(if matches!(name, "guideline" | "label") {
+            "relatedGenes.symbol=DPYD"
+        } else {
+            "location.genes.symbol=DPYD"
+        })
+    {
+        return Err("lost gene selector".into());
+    }
+    if r.contains("offset=") || r.contains("limit=") {
+        return Err("invented provider pagination".into());
+    }
+    Ok(())
+}
+fn verify(name: &str, v: &Value, native: &Value) -> Check {
+    if name == "annotation" {
+        if v.pointer("/result/annotation") != native.get("data") {
+            return Err("base fields changed".into());
+        }
+        return Ok(());
+    }
+    let rows = v
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("items")?;
+    let expected = native
+        .get("data")
+        .and_then(Value::as_array)
+        .ok_or("native array")?;
+    if rows != &expected.iter().take(1).cloned().collect::<Vec<_>>()
+        || v.pointer("/result/page/total") != Some(&json!(expected.len()))
+        || v.pointer("/result/page/total_kind") != Some(&json!("observed"))
+    {
+        return Err("native rows or observed scope changed".into());
+    }
+    let next = v.get("next").and_then(Value::as_array).ok_or("next")?;
+    if name == "clinical"
+        && next.first().and_then(|v| v.get("kind")) != Some(&json!("disambiguate"))
+    {
+        return Err("clinical candidate not first".into());
+    }
+    if matches!(name, "guideline" | "label")
+        && next
+            .iter()
+            .any(|v| v.get("kind") == Some(&json!("disambiguate")))
+    {
+        return Err("reference invented full guidance get".into());
+    }
+    Ok(())
+}
+fn walk(env: &Environment, v: &Value) -> Check {
+    let next = v
         .get("next")
         .and_then(Value::as_array)
         .and_then(|v| v.iter().find(|v| v.get("kind") == Some(&json!("page"))))
@@ -70,14 +199,34 @@ fn scenario() -> Result<(), String> {
                 .ok_or("page argument".to_owned())
         })
         .collect::<Result<Vec<_>, _>>()?;
-    let second = invoke(&env, next, 0)?;
-    if second.pointer("/result/items/0/id") != Some(&json!("PA100002"))
-        || second.pointer("/result/page/offset") != Some(&json!(1))
+    let second = both(env, next, 0)?;
+    if second.pointer("/result/page/offset") != Some(&json!(1))
+        || second.pointer("/result/page/returned") != Some(&json!(1))
+        || second.pointer("/result/items/0") == v.pointer("/result/items/0")
     {
-        return Err("local page skipped row".into());
+        return Err("local page skipped or repeated row".into());
     }
-    if stub.finish()?.len() != 1 {
-        return Err("local page or warm transport opened provider request".into());
+    for key in ["source", "gene", "kind", "section_limit"] {
+        let p = format!("/query/{key}");
+        if second.pointer(&p) != v.pointer(&p) {
+            return Err(format!("page lost {key}"));
+        }
+    }
+    Ok(())
+}
+fn blocked(env: &Environment, args: &[String], record: &std::path::Path) -> Check {
+    for source in ["clinpgx", "noncommercial"] {
+        for replay in [false, true] {
+            let mut command = vec!["--disable-sources".into(), source.into()];
+            if replay {
+                command.extend(["--replay".into(), record.to_string_lossy().into()]);
+            }
+            command.extend(args.iter().cloned());
+            let v = both(env, command, 4)?;
+            if v.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+                return Err("disabled source restored data".into());
+            }
+        }
     }
     Ok(())
 }

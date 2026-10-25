@@ -31,12 +31,10 @@ fn collection<T: serde::de::DeserializeOwned>(
         .get(path)
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);
+    let gene = q.gene().to_string();
     let body: Native<Vec<T>> = leg.json(
         &endpoint,
-        &[
-            (key, Arg::Text(q.gene().as_ref())),
-            ("view", Arg::Text("min")),
-        ],
+        &[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))],
     )?;
     Ok(body.data)
 }
