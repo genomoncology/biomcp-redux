@@ -18,8 +18,8 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, PathSegment, RequestError};
 pub use raw::{
-    Hierarchy, Indication, Indications, Mechanism, Mechanisms, Molecule, Molecules, PageMeta,
-    Reference, Synonym,
+    CrossReference, Hierarchy, Indication, Indications, Mechanism, Mechanisms, Molecule, Molecules,
+    PageMeta, Reference, Synonym,
 };
 const MOLECULES: biomcp_fetch::Endpoint = SPEC.get("/molecule.json").fresh(Freshness::Days(1));
 const MOLECULE: biomcp_fetch::Endpoint = SPEC.get("/molecule").fresh(Freshness::Days(1));

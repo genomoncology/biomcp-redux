@@ -7,6 +7,9 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
+        return native::search(cx, query);
+    }
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
         total: None,
@@ -78,6 +81,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
+        return native::get(cx, query);
+    }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {
         QueryBody::DrugXrefs(None)
@@ -234,3 +240,5 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
         ));
     }
 }
+
+mod native;

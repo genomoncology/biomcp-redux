@@ -24,7 +24,7 @@
       "max_bytes": 4096,
       "max_tokens": 1024,
       "expect": {
-        "/schema": "biomcp.drug_card/1",
+        "/schema": "biomcp.drug_card/2",
         "/result/header/id": "CHEMBL941",
         "/result/header/source": "chembl"
       }
@@ -47,7 +47,7 @@
       "max_bytes": 4096,
       "max_tokens": 1024,
       "expect": {
-        "/schema": "biomcp.drug_card/1",
+        "/schema": "biomcp.drug_card/2",
         "/result/header/id": "CHEMBL1201585",
         "/result/header/source": "chembl"
       }
@@ -70,7 +70,7 @@
       "max_bytes": 4096,
       "max_tokens": 1024,
       "expect": {
-        "/schema": "biomcp.drug_card/1",
+        "/schema": "biomcp.drug_card/2",
         "/result/header/id": "CHEMBL3989989",
         "/result/header/source": "chembl"
       }

@@ -12,6 +12,8 @@ pub struct Molecule {
     pub molecule_type: String,
     /// Explicit source synonyms.
     pub molecule_synonyms: Vec<Synonym>,
+    /// Explicit native source cross-references.
+    pub cross_references: Vec<CrossReference>,
     /// Explicit native hierarchy.
     pub molecule_hierarchy: Option<Hierarchy>,
 }
@@ -148,4 +150,15 @@ impl Reply for Indications {
             Err(BadReply)
         }
     }
+}
+
+/// A source-stated cross-reference, preserving its original source namespace and path.
+#[derive(Debug, Deserialize)]
+pub struct CrossReference {
+    /// Native identifier or website path.
+    pub xref_id: String,
+    /// Native label when provided.
+    pub xref_name: Option<String>,
+    /// Native source namespace.
+    pub xref_src: String,
 }

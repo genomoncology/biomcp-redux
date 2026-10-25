@@ -63,7 +63,7 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, Reque
         },
     )?;
     let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
-    card.value.card.retrieved = map::received_date(received.fetched);
+    card.value.card.retrieved = crate::drug_sources::received_date(received.fetched);
     Ok(card)
 }
 
