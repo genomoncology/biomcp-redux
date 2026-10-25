@@ -1,0 +1,132 @@
+use super::{DiagnosticGetSource, DiagnosticSection, QueryInvalid, limit};
+use biodata::{GtrTestId, PmaNumber, PmaSupplement, Text, WhoProductId};
+use serde::{Deserialize, Serialize};
+/// Checked exact diagnostic selection with source-owned section pagination.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "GetFields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
+pub struct DiagnosticGet(GetFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct GetFields {
+    /// Exact native identity, including version for GTR.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    id: Text,
+    /// Required explicit source; no all or automatic lookup.
+    source: DiagnosticGetSource,
+    /// One source-supported named page, absent for the card.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Option<DiagnosticSection>,
+    /// Exact native PMA supplement; absent selects the base row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    supplement: Option<PmaSupplement>,
+    /// Maximum native rows; omitted means five rows, or one regulatory fragment.
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
+    section_limit: Option<u32>,
+    /// Zero-based native row or fragment offset.
+    #[serde(default)]
+    section_offset: u32,
+    /// Immutable stored bundle revision retained by a continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    bundle_revision: Option<Text>,
+}
+impl TryFrom<GetFields> for DiagnosticGet {
+    type Error = QueryInvalid;
+    fn try_from(v: GetFields) -> Result<Self, Self::Error> {
+        let valid = match v.source {
+            DiagnosticGetSource::Gtr => {
+                v.id.as_str().parse::<GtrTestId>().is_ok()
+                    && v.supplement.is_none()
+                    && matches!(
+                        v.section,
+                        None | Some(
+                            DiagnosticSection::Genes
+                                | DiagnosticSection::Conditions
+                                | DiagnosticSection::Methods
+                        )
+                    )
+            }
+            DiagnosticGetSource::WhoIvd => {
+                v.id.as_str().parse::<WhoProductId>().is_ok()
+                    && v.supplement.is_none()
+                    && v.section.is_none()
+            }
+            DiagnosticGetSource::FdaPma => {
+                v.id.as_str().parse::<PmaNumber>().is_ok()
+                    && matches!(
+                        v.section,
+                        None | Some(DiagnosticSection::Regulatory | DiagnosticSection::Supplements)
+                    )
+                    && !(v.supplement.is_some()
+                        && v.section == Some(DiagnosticSection::Supplements))
+            }
+        };
+        if !valid || v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
+            return Err(QueryInvalid);
+        }
+        Ok(Self(v))
+    }
+}
+impl DiagnosticGet {
+    /// Exact checked source identity.
+    pub fn id(&self) -> &Text {
+        &self.0.id
+    }
+    /// Explicit selected source.
+    pub fn source(&self) -> DiagnosticGetSource {
+        self.0.source
+    }
+    /// One supported named page.
+    pub fn section(&self) -> Option<DiagnosticSection> {
+        self.0.section
+    }
+    /// Explicit selected supplement, absent for the base.
+    pub fn supplement(&self) -> Option<&PmaSupplement> {
+        self.0.supplement.as_ref()
+    }
+    /// Maximum rows or fragments per section page.
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit.unwrap_or_else(|| {
+            if self.0.section == Some(DiagnosticSection::Regulatory) {
+                1
+            } else {
+                limit()
+            }
+        })
+    }
+    /// Native row or text-fragment offset.
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
+    /// Stored source snapshot.
+    pub fn bundle_revision(&self) -> Option<&Text> {
+        self.0.bundle_revision.as_ref()
+    }
+    /// Continue the exact selected section and record.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
+    }
+    /// Select a supported section; invalid source combinations remain refused.
+    pub fn with_section(&self, section: DiagnosticSection) -> Result<Self, QueryInvalid> {
+        let mut q = self.0.clone();
+        q.section = Some(section);
+        q.section_offset = 0;
+        q.try_into()
+    }
+    /// Bind the selected record to one immutable stored revision.
+    pub fn with_bundle_revision(&self, revision: Text) -> Self {
+        let mut q = self.clone();
+        q.0.bundle_revision = Some(revision);
+        q
+    }
+}

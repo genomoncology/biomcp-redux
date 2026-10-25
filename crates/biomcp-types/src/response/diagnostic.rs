@@ -1,0 +1,278 @@
+use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
+use biodata::{
+    CompanionDiagnosticRelation, GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId,
+    PmaNumber, PmaSupplementCell, Text, WhoIvdProduct,
+};
+use serde::{Deserialize, Serialize};
+
+/// Compact native laboratory context without authorization interpretation.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticLaboratory {
+    /// Native laboratory identifier.
+    pub id: Text,
+    /// Source laboratory name, absent when the native cell is empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
+    /// Native institution name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub institution: Option<Text>,
+    /// Native country.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<Text>,
+}
+/// Small resolved GTR candidate; broad gene and condition arrays stay off the header.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrHeader {
+    /// Complete source accession and version.
+    pub id: GtrTestId,
+    /// Native test name, absent when the cell is empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
+    /// Native laboratory context.
+    pub laboratory: DiagnosticLaboratory,
+    /// Source record URL.
+    pub url: Text,
+}
+/// A conflict is visible once without a selected name or card.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(
+    tag = "identity_status",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum DiagnosticCandidate {
+    /// One resolved native identity.
+    Resolved {
+        /// Compact source header.
+        header: GtrHeader,
+    },
+    /// Several incompatible native rows with the same exact accession/version.
+    Conflict {
+        /// Exact conflicting identity.
+        id: GtrTestId,
+        /// Explicit source identity problem; no chosen winner.
+        problem: Problem,
+    },
+}
+/// Native flags retain distinct source meanings and exact source codes.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrNativeStatus {
+    /// Current version flag, not current clinical availability.
+    pub now_current: Box<str>,
+    /// Native test current status.
+    #[serde(rename = "test_currStat")]
+    pub test_current: Box<str>,
+    /// Native test public status.
+    #[serde(rename = "test_pubStat")]
+    pub test_public: Box<str>,
+    /// Native laboratory current status.
+    #[serde(rename = "lab_currStat")]
+    pub laboratory_current: Box<str>,
+    /// Native laboratory public status.
+    #[serde(rename = "lab_pubStat")]
+    pub laboratory_public: Box<str>,
+}
+/// Exact GTR card retains native context but never embeds its broad relation lists.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrCard {
+    /// Source identity header.
+    pub header: GtrHeader,
+    /// Separate native flags.
+    pub native_status: GtrNativeStatus,
+    /// Native revision date; not a local retrieval date.
+    pub last_touch_date: Text,
+    /// Source creation date.
+    pub test_create_date: Text,
+    /// Native deletion cell, including empty.
+    pub test_deletion_date: Box<str>,
+    /// Native manufacturer test name, including empty.
+    pub manufacturer_test_name: Box<str>,
+    /// Native development description, without regulatory inference.
+    pub test_development: Box<str>,
+    /// Native laboratory test identifier, including empty.
+    pub lab_test_id: Box<str>,
+    /// Native order code, including empty.
+    pub test_order_code: Box<str>,
+    /// Native CLIA number; never authorization.
+    pub clia_number: Box<str>,
+    /// Whole original license list, not paired with numbers by position.
+    pub state_licenses: Box<str>,
+    /// Whole original license number list, independently retained.
+    pub state_license_numbers: Box<str>,
+    /// Source-supported named pages.
+    pub sections: Box<[DiagnosticSection]>,
+}
+/// Exactly one source-owned diagnostic card; conflicts have no card variant.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum DiagnosticCard {
+    /// Exact resolved GTR accession/version.
+    GtrTest(Box<GtrCard>),
+    /// All native rows under one WHO Product ID.
+    WhoIvdProduct(WhoIvdProduct),
+    /// Exact native FDA base or supplement, never an application-wide inferred claim.
+    PmaSubmission(DiagnosticPmaCard),
+}
+impl ResponseBody for DiagnosticCard {
+    const SCHEMA: &'static str = "biomcp.diagnostic_card/1";
+    type Query = DiagnosticGet;
+}
+/// One bounded regulatory fragment from the exact selected native submission.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticRegulatoryFragment {
+    /// Exact selected native record and its dated regulatory metadata.
+    pub submission: DiagnosticPmaHeader,
+    /// Native metadata for this exact record, without a duplicated whole statement.
+    pub metadata: DiagnosticPmaRegulatory,
+    /// Native text field being continued.
+    pub field: DiagnosticRegulatoryField,
+    /// Fragment offset, independent of characters and supplement rows.
+    pub offset: u32,
+    /// Total mechanical fragments.
+    pub total: u32,
+    /// Complete unmodified text fragment.
+    pub text: Box<str>,
+}
+biodata::wire_enum! {
+    /// Regulatory text available in this source tier.
+    DiagnosticRegulatoryField { #[doc = "Native ApprovalOrderStatement spelling."] ApprovalOrderStatement => "ao_statement" }
+}
+macro_rules! page {
+    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        pub struct $name {
+            /// Complete source-owned rows in native order; envelope totals count native rows.
+            pub items: Box<[$row]>,
+        }
+        impl ResponseBody for $name {
+            const SCHEMA: &'static str = $schema;
+            type Query = $query;
+        }
+    };
+}
+page!(
+    DiagnosticPage,
+    DiagnosticCandidate,
+    DiagnosticSearch,
+    "biomcp.diagnostic_page/1",
+    "Source-ordered GTR candidates with explicit conflicts."
+);
+page!(
+    DiagnosticGenes,
+    GtrGeneRelation,
+    DiagnosticGet,
+    "biomcp.diagnostic_genes/1",
+    "Native GTR gene relation rows without variant-coverage inference."
+);
+page!(
+    DiagnosticConditions,
+    GtrConditionRelation,
+    DiagnosticGet,
+    "biomcp.diagnostic_conditions/1",
+    "Native GTR condition rows without ontology or clinical conversion."
+);
+page!(
+    DiagnosticMethods,
+    GtrMethod,
+    DiagnosticGet,
+    "biomcp.diagnostic_methods/1",
+    "Independent native method entries without positional pairing."
+);
+page!(
+    DiagnosticRegulatory,
+    DiagnosticRegulatoryFragment,
+    DiagnosticGet,
+    "biomcp.diagnostic_regulatory/1",
+    "Exact selected submission regulatory text fragments."
+);
+page!(
+    DiagnosticSupplements,
+    DiagnosticPmaHeader,
+    DiagnosticGet,
+    "biomcp.diagnostic_supplements/1",
+    "Native supplement records retaining exact identity and independent dated decisions."
+);
+page!(
+    DiagnosticCompanion,
+    CompanionDiagnosticRelation,
+    DiagnosticSearch,
+    "biomcp.diagnostic_companion/1",
+    "Whole distinct physical companion-table rows with cell-owned identifiers."
+);
+/// Compact exact PMA row identity; its native empty base cell is explicit.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaHeader {
+    /// Native application.
+    pub pma_number: PmaNumber,
+    /// Absent differs from explicit empty base cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_number: Option<PmaSupplementCell>,
+    /// Native trade_name when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trade_name: Option<Box<str>>,
+    /// Native applicant when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub applicant: Option<Box<str>>,
+    /// Native decision_date when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_date: Option<Box<str>>,
+    /// Native decision_code when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_code: Option<Box<str>>,
+    /// Exact source record URL.
+    pub url: Text,
+}
+/// Selected PMA card; statement text stays behind its bounded regulatory page.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaCard {
+    /// Exact selected source header.
+    pub header: DiagnosticPmaHeader,
+    /// Source-supported pages for this exact base or supplement.
+    pub sections: Box<[DiagnosticSection]>,
+}
+/// Dated metadata belonging only to the selected submission.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaRegulatory {
+    /// Native date_received when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub date_received: Option<Box<str>>,
+    /// Native fed_reg_notice_date when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fed_reg_notice_date: Option<Box<str>>,
+    /// Native advisory_committee when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advisory_committee: Option<Box<str>>,
+    /// Native advisory_committee_description when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advisory_committee_description: Option<Box<str>>,
+    /// Native product_code when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product_code: Option<Box<str>>,
+    /// Native supplement_type when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_type: Option<Box<str>>,
+    /// Native supplement_reason when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_reason: Option<Box<str>>,
+}

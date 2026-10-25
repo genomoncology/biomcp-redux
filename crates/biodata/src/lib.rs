@@ -103,3 +103,5 @@ pub use adverse_event::{
     FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
     FaersSeriousness, MaudeDevice, MaudeNarrative, MaudeReport, ReportId, ReportIdInvalid,
 };
+mod diagnostic;
+pub use diagnostic::*;
