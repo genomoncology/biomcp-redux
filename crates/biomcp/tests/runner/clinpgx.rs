@@ -7,7 +7,14 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![];
-    for name in ["clinical", "guideline", "label", "empty", "annotation"] {
+    for name in [
+        "clinical",
+        "wide",
+        "guideline",
+        "label",
+        "empty",
+        "annotation",
+    ] {
         trials.push(Trial::test(
             format!("clinpgx-annotations/{name}-network-cache-replay"),
             move || scenario(name).map_err(Into::into),
@@ -50,6 +57,9 @@ fn args(name: &str) -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec();
+    if name == "wide" {
+        args.truncate(args.len().saturating_sub(2));
+    }
     if matches!(name, "guideline" | "label") {
         args.extend(["--kind".into(), name.into()]);
     }
@@ -59,6 +69,7 @@ fn native(name: &str) -> Result<Value, String> {
     let data = match name {
         "annotation" => rows::detail(1)?,
         "clinical" => json!([rows::clinical(1, "DPYD"), rows::clinical(2, "DPYD")]),
+        "wide" => Value::Array((1..=6).map(|id| rows::clinical(id, "DPYD")).collect()),
         "empty" => json!([]),
         _ => rows::references(),
     };
@@ -168,7 +179,12 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
         .get("data")
         .and_then(Value::as_array)
         .ok_or("native array")?;
-    if rows != &expected.iter().take(1).cloned().collect::<Vec<_>>()
+    if rows
+        != &expected
+            .iter()
+            .take(if name == "wide" { 5 } else { 1 })
+            .cloned()
+            .collect::<Vec<_>>()
         || v.pointer("/result/page/total") != Some(&json!(expected.len()))
         || v.pointer("/result/page/total_kind") != Some(&json!("observed"))
     {
@@ -180,6 +196,16 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
         && next.first().and_then(|v| v.get("kind")) != Some(&json!("disambiguate"))
     {
         return Err("clinical candidate not first".into());
+    }
+    if name == "wide"
+        && (next.len() != 6
+            || next
+                .iter()
+                .take(5)
+                .any(|step| step.get("kind") != Some(&json!("disambiguate")))
+            || next.last().and_then(|step| step.get("kind")) != Some(&json!("page")))
+    {
+        return Err("selectable page lost candidates before continuation".into());
     }
     if matches!(name, "guideline" | "label")
         && next
@@ -206,7 +232,7 @@ fn walk(env: &Environment, v: &Value) -> Check {
         })
         .collect::<Result<Vec<_>, _>>()?;
     let second = both(env, next, 0)?;
-    if second.pointer("/result/page/offset") != Some(&json!(1))
+    if second.pointer("/result/page/offset") != v.pointer("/result/page/returned")
         || second.pointer("/result/page/returned") != Some(&json!(1))
         || second.pointer("/result/items/0") == v.pointer("/result/items/0")
     {
