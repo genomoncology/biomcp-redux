@@ -358,8 +358,17 @@ fn discovery_description(text: &str) -> Check {
         "variant population",
         "variant normalize",
         "variant recurrence",
-        "search adverse-event [--source faers|maude] [--reaction --serious --received-from --received-to]",
-        "get adverse-event [--source faers|maude --drug-index --section-limit --section-offset] sections: drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative",
+        "search adverse-event",
+        "get adverse-event"
+        ,"sections: drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative"
+        ,"[--source faers|maude]"
+        ,"[--reaction]"
+        ,"[--serious]"
+        ,"[--received-from]"
+        ,"[--received-to]"
+        ,"[--drug-index]"
+        ,"[--section-limit]"
+        ,"[--section-offset]",
         "search drug",
         "get drug",
         "sync ema",

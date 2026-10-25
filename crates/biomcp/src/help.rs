@@ -189,15 +189,18 @@ pub(crate) fn tree() -> String {
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
         if command.command == ["search", "gene"] || command.command == ["search", "disease"] {
-            for argument in command.arguments {
+            for argument in &command.arguments {
                 line.push_str(&format!(" [{}]", argument.name));
             }
         }
-        if command.command == ["search", "adverse-event"] {
-            line.push_str(" [--source faers|maude] [--reaction --serious --received-from --received-to]");
-        }
-        if command.command == ["get", "adverse-event"] {
-            line.push_str(" [--source faers|maude --drug-index --section-limit --section-offset]");
+        if command.command.iter().any(|word| word == "adverse-event") {
+            for argument in command.arguments.iter().filter(|arg| arg.position.is_none()) {
+                line.push_str(&format!(" [{}", argument.name));
+                if !argument.choices.is_empty() {
+                    line.push_str(&format!(" {}", argument.choices.join("|")));
+                }
+                line.push(']');
+            }
         }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
