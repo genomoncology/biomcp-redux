@@ -1,6 +1,7 @@
 # 0132 — Sync the DDInter bundle and add the drug interactions section
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 97ed80e5e079417cd3aa4daa96396be884784f1b
 
 Milestone: 3
 

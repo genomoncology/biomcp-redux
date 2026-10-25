@@ -1,6 +1,7 @@
 # 0137 — Resolve an explicit disease identifier for trial search
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2ad9bd619996f0913d9bc9c9fe6de2c8e14437e1
 
 Milestone: 3
 

@@ -1,6 +1,7 @@
 # 0142 — Add the Monarch disease genes and phenotypes sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 45c9755fd141264f33e2aaa632e44e719d6a2329
 
 Milestone: 3
 
