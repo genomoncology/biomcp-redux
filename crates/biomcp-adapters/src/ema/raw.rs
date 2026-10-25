@@ -1,9 +1,10 @@
 use biomcp_fetch::{BadReply, KeyKind, Keys, Row};
 use serde::Deserialize;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub timestamp: biodata::Text,
+    pub total_records: usize,
 }
 #[derive(Debug)]
 pub(super) struct Medicine {
@@ -64,33 +65,8 @@ pub(super) fn date(text: &str) -> Result<biodata::PartialDate, BadReply> {
         .map_err(|_| BadReply)
 }
 impl Row for Medicine {
-    fn check_document(document: &serde_json::Value) -> Result<(), BadReply> {
-        let rows = document
-            .get("data")
-            .and_then(serde_json::Value::as_array)
-            .ok_or(BadReply)?;
-        let count = document
-            .pointer("/meta/total_records")
-            .and_then(serde_json::Value::as_u64)
-            .ok_or(BadReply)?;
-        let timestamp = document
-            .pointer("/meta/timestamp")
-            .and_then(serde_json::Value::as_str)
-            .ok_or(BadReply)?;
-        // Keep the complete publisher timestamp; never substitute retrieval time.
-        if count != rows.len() as u64 || timestamp.is_empty() {
-            return Err(BadReply);
-        }
-        let mut ids = BTreeSet::new();
-        for row in rows {
-            let id = row
-                .get("ema_product_number")
-                .and_then(serde_json::Value::as_str)
-                .ok_or(BadReply)?;
-            if !ids.insert(id) {
-                return Err(BadReply);
-            }
-        }
+    fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
+        if self.meta.total_records != rows { return Err(BadReply); }
         Ok(())
     }
     fn keys(&self) -> Keys {

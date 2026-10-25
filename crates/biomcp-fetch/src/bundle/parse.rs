@@ -151,7 +151,6 @@ fn records(text: &str) -> Result<Vec<Vec<String>>, BadReply> {
 
 fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>, BadReply> {
     let document: serde_json::Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
-    R::check_document(&document)?;
     let meta = document
         .get(metadata)
         .filter(|v| v.is_object())
@@ -161,6 +160,7 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>,
         .and_then(serde_json::Value::as_array)
         .filter(|rows| !rows.is_empty())
         .ok_or(BadReply)?;
+    let mut ids = BTreeSet::new();
     values
         .iter()
         .map(|value| {
@@ -170,10 +170,14 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>,
             }
             let value = serde_json::Value::Object(object);
             let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
-            Ok(Parsed {
-                row: value.to_string(),
-                keys: decoded.keys(),
-            })
+            decoded.check_bundle(values.len())?;
+            let keys = decoded.keys();
+            for (kind, id) in &keys.exact {
+                if matches!(kind, super::KeyKind::Id) && !ids.insert(id.to_ascii_lowercase()) {
+                    return Err(BadReply);
+                }
+            }
+            Ok(Parsed { row: value.to_string(), keys })
         })
         .collect()
 }
