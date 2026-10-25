@@ -1,6 +1,7 @@
 //! Feature variant-identity: printed repeat keys retain their required assembly.
 use crate::runner::{configuration::invoke, mcp, network_stub::Stub, schema::Registry};
 use serde_json::{Value, json};
+use std::io::Write;
 
 const REPEAT: &str = "chr19:g.11106928AAG[1]";
 
@@ -17,6 +18,7 @@ pub(super) fn check() -> Result<(), String> {
         return Err("repeat card differs over MCP".into());
     }
     identity(&card)?;
+    measured("rsID", &card)?;
     let next = card
         .get("next")
         .and_then(Value::as_array)
@@ -36,6 +38,7 @@ pub(super) fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         let followed = invoke(&env, args.clone(), 0)?;
         identity(&followed)?;
+        measured("repeat", &followed)?;
         Registry::embedded()?.validate(&followed, &args, true)?;
         if mcp::call_with_globals(&env, &args, false, &[])? != followed {
             return Err("printed repeat command differs over MCP".into());
@@ -52,6 +55,16 @@ pub(super) fn check() -> Result<(), String> {
         ));
     }
     Ok(())
+}
+
+fn measured(label: &str, card: &Value) -> Result<(), String> {
+    let full = serde_json::to_vec(card).map_err(|e| e.to_string())?.len();
+    let comparable = crate::runner::source_terms::size(card, "")?;
+    writeln!(
+        std::io::stdout(),
+        "repeat {label}: full={full}, comparable={comparable}"
+    )
+    .map_err(|e| e.to_string())
 }
 
 fn identity(card: &Value) -> Result<(), String> {
