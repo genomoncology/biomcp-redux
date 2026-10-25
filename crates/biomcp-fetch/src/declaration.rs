@@ -185,7 +185,11 @@ impl Freshness {
 }
 impl Endpoint {
     /// Request the provider's exact count and retain its Content-Range metadata.
-    pub const fn exact_count(mut self) -> Self { self.exact_count = true; self }
+    pub const fn exact_count(mut self) -> Self {
+        self.exact_count = true;
+        self
+    }
+
     /// Decode a checked JSON HTTP404 absence envelope without caching it.
     /// The reply type must distinguish exact source absence from an arbitrary route404.
     pub const fn json_absence(mut self) -> Self {
@@ -226,8 +230,6 @@ impl Endpoint {
 }
 
 impl Endpoint {
-    /// Request the provider's exact count and retain its Content-Range metadata.
-    pub const fn exact_count(mut self) -> Self { self.exact_count = true; self }
     /// Replace only the path, retaining the declared source, method and policy.
     /// Accept canonical absolute paths with unreserved ASCII segments only.
     pub fn with_path(mut self, path: impl Into<String>) -> Result<Self, crate::InputError> {
@@ -275,8 +277,6 @@ impl PathSegment {
     }
 }
 impl Endpoint {
-    /// Request the provider's exact count and retain its Content-Range metadata.
-    pub const fn exact_count(mut self) -> Self { self.exact_count = true; self }
     /// Append checked raw segments to this declared endpoint without changing its origin.
     pub fn with_segments(mut self, segments: &[PathSegment]) -> Self {
         let mut path = self.path.trim_end_matches('/').to_owned();

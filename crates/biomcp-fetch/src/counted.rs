@@ -12,33 +12,65 @@ impl ContentRange {
     pub(crate) fn parse(text: &str) -> Option<Self> {
         let (bounds, total) = text.split_once('/')?;
         let total = decimal(total)?;
-        let bounds = if bounds == "*" { None } else {
+        let bounds = if bounds == "*" {
+            None
+        } else {
             let (first, last) = bounds.split_once('-')?;
             let (first, last) = (decimal(first)?, decimal(last)?);
-            if first > last || last >= total { return None; }
+            if first > last || last >= total {
+                return None;
+            }
             Some((first, last))
         };
         Some(Self { bounds, total })
     }
     /// Check the requested offset, actual row count and native success status together.
-    pub fn check(self, offset: u32, limit: u32, returned: usize, status: u16) -> Result<(), BadReply> {
+    pub fn check(
+        self,
+        offset: u32,
+        limit: u32,
+        returned: usize,
+        status: u16,
+    ) -> Result<(), BadReply> {
         let n = u64::try_from(returned).map_err(|_| BadReply)?;
-        let coherent = if n == 0 { self.bounds.is_none() && u64::from(offset) >= self.total }
-        else { self.bounds == Some((u64::from(offset), u64::from(offset).checked_add(n).and_then(|v| v.checked_sub(1)).ok_or(BadReply)?)) };
-        if !coherent || n > u64::from(limit) || !matches!(status,200 | 206) { return Err(BadReply); }
+        let coherent = if n == 0 {
+            self.bounds.is_none() && u64::from(offset) >= self.total
+        } else {
+            self.bounds
+                == Some((
+                    u64::from(offset),
+                    u64::from(offset)
+                        .checked_add(n)
+                        .and_then(|v| v.checked_sub(1))
+                        .ok_or(BadReply)?,
+                ))
+        };
+        if !coherent || n > u64::from(limit) || !matches!(status, 200 | 206) {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }
 fn decimal(text: &str) -> Option<u64> {
-    (!text.is_empty() && text.bytes().all(|b| b.is_ascii_digit())).then(|| text.parse().ok()).flatten()
+    (!text.is_empty() && text.bytes().all(|b| b.is_ascii_digit()))
+        .then(|| text.parse().ok())
+        .flatten()
 }
 impl Leg<'_> {
     /// Read an exact-count array, validating native bounds before admission and on every reuse.
     pub fn json_counted<T: Reply>(
-        &self, endpoint: &Endpoint, params: &[(&str, Arg<'_>)],
+        &self,
+        endpoint: &Endpoint,
+        params: &[(&str, Arg<'_>)],
         check: impl Fn(&T, ContentRange, u16) -> Result<(), BadReply>,
     ) -> Result<(T, ReplyMetadata), RequestError> {
         let endpoint = endpoint.clone().exact_count();
-        self.parameters(&endpoint, params, Decoder::counted_json(&|reply, range, status| check(reply, range.ok_or(BadReply)?, status)))
+        self.parameters(
+            &endpoint,
+            params,
+            Decoder::counted_json(&|reply, range, status| {
+                check(reply, range.ok_or(BadReply)?, status)
+            }),
+        )
     }
 }

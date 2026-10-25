@@ -57,13 +57,23 @@ impl Leg<'_> {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _, fetched, range)| (reply, fetched, range.as_deref().and_then(crate::ContentRange::parse)));
+            return live().map(|(reply, _, _, fetched, range)| {
+                (
+                    reply,
+                    fetched,
+                    range.as_deref().and_then(crate::ContentRange::parse),
+                )
+            });
         };
         let mut stale = None;
         if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, prepared, codec)? {
-                Some(Checked::Positive(reply, true, fetched, range)) => return Ok((reply, fetched, range)),
-                Some(Checked::Positive(reply, false, fetched, range)) => stale = Some((reply, fetched, range)),
+                Some(Checked::Positive(reply, true, fetched, range)) => {
+                    return Ok((reply, fetched, range));
+                }
+                Some(Checked::Positive(reply, false, fetched, range)) => {
+                    stale = Some((reply, fetched, range))
+                }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
@@ -80,7 +90,14 @@ impl Leg<'_> {
                 } else if codec.json_absence && status == 404 {
                     cache.remove(key, self.budget())?;
                 }
-                Ok((reply, fetched, entry.content_range.as_deref().and_then(crate::ContentRange::parse)))
+                Ok((
+                    reply,
+                    fetched,
+                    entry
+                        .content_range
+                        .as_deref()
+                        .and_then(crate::ContentRange::parse),
+                ))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
@@ -208,6 +225,14 @@ impl Leg<'_> {
                 (std::any::type_name::<T>(), true),
             );
         }
-        Ok(Some(Checked::Positive(reply, fresh, entry.fetched_at, entry.content_range.as_deref().and_then(crate::ContentRange::parse))))
+        Ok(Some(Checked::Positive(
+            reply,
+            fresh,
+            entry.fetched_at,
+            entry
+                .content_range
+                .as_deref()
+                .and_then(crate::ContentRange::parse),
+        )))
     }
 }

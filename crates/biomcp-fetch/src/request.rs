@@ -369,7 +369,9 @@ impl Leg<'_> {
             agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
-        if prepared.exact_count { request = request.header("Prefer", "count=exact"); }
+        if prepared.exact_count {
+            request = request.header("Prefer", "count=exact");
+        }
         for (name, value) in &prepared.outgoing {
             request = request.query(name, value.value());
         }
@@ -435,7 +437,11 @@ impl Leg<'_> {
             .and_then(|v| v.to_str().ok())
             .unwrap_or("")
             .to_owned();
-        let content_range = response.headers().get("content-range").and_then(|v| v.to_str().ok()).map(str::to_owned);
+        let content_range = response
+            .headers()
+            .get("content-range")
+            .and_then(|v| v.to_str().ok())
+            .map(str::to_owned);
         let retry_after = response
             .headers()
             .get("retry-after")
@@ -578,11 +584,19 @@ impl Leg<'_> {
         codec
             .validate(&response.body)
             .map_err(|reason| self.failure(reason, Some(status)))?;
-        let reply = codec.decode_response(&response.body, response.content_range.as_deref(), status).ok_or_else(bad)?;
+        let reply = codec
+            .decode_response(&response.body, response.content_range.as_deref(), status)
+            .ok_or_else(bad)?;
         reply.check_status(status).map_err(|_| bad())?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }
-        Ok((reply, status, response.body, response.fetched, response.content_range))
+        Ok((
+            reply,
+            status,
+            response.body,
+            response.fetched,
+            response.content_range,
+        ))
     }
 }

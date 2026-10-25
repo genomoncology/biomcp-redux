@@ -69,7 +69,8 @@ pub(crate) struct Decoder<'a, T> {
     pub(crate) json_absence: bool,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
-    range_check: Option<&'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>>,
+    range_check:
+        Option<&'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>>,
 }
 impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn checked_json(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self {
@@ -77,8 +78,26 @@ impl<'a, T: Reply> Decoder<'a, T> {
         codec.check = Some(check);
         codec
     }
-    pub(crate) fn counted_json(check: &'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>) -> Self { let mut codec = Self::json(); codec.range_check = Some(check); codec }
-    pub(crate) fn decode_response(&self, body: &[u8], range: Option<&str>, status: u16) -> Option<T> { let reply = self.decode(body)?; reply.check_status(status).ok()?; if let Some(check) = self.range_check { check(&reply, range.and_then(crate::ContentRange::parse), status).ok()?; } Some(reply) }
+    pub(crate) fn counted_json(
+        check: &'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>,
+    ) -> Self {
+        let mut codec = Self::json();
+        codec.range_check = Some(check);
+        codec
+    }
+    pub(crate) fn decode_response(
+        &self,
+        body: &[u8],
+        range: Option<&str>,
+        status: u16,
+    ) -> Option<T> {
+        let reply = self.decode(body)?;
+        reply.check_status(status).ok()?;
+        if let Some(check) = self.range_check {
+            check(&reply, range.and_then(crate::ContentRange::parse), status).ok()?;
+        }
+        Some(reply)
+    }
     pub(crate) fn checked_json_string(
         check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>,
     ) -> Self {

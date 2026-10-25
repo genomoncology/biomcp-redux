@@ -163,7 +163,10 @@ impl Cache {
             CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
         )
         .map_err(db_error)?;
-        if version == Some(1) { tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", []).map_err(db_error)?; }
+        if version == Some(1) {
+            tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", [])
+                .map_err(db_error)?;
+        }
         crate::bundle::store::initialize(&tx)?;
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",

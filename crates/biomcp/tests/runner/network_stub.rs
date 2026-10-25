@@ -74,9 +74,35 @@ impl Stub {
     fn with_hosts(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
+        length: fn(&str, usize) -> usize,
+        status: impl FnMut(&str) -> u16 + Send + 'static,
+    ) -> Result<Self, String> {
+        Self::with_headers(hosts, content_type, reply, length, status, |_| {
+            String::new()
+        })
+    }
+    pub(super) fn counted(
+        reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
+        range: impl FnMut(&str) -> String + Send + 'static,
+        status: impl FnMut(&str) -> u16 + Send + 'static,
+    ) -> Result<Self, String> {
+        Self::with_headers(
+            &["api.cpicpgx.org"],
+            |_| "application/json",
+            reply,
+            |_, bytes| bytes,
+            status,
+            range,
+        )
+    }
+    fn with_headers(
+        hosts: &[&str],
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
         mut status: impl FnMut(&str) -> u16 + Send + 'static,
+        mut range: impl FnMut(&str) -> String + Send + 'static,
     ) -> Result<Self, String> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -114,7 +140,7 @@ impl Stub {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
-                    write!(tls, "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", length(&request, body.len())).map_err(|e| e.to_string())?;
+                    write!(tls, "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\n{}Connection: close\r\n\r\n{body}", length(&request, body.len()), range(&request)).map_err(|e| e.to_string())?;
                     tls.flush().map_err(|e| e.to_string())?;
                     requests.push((connect, request));
                 }
