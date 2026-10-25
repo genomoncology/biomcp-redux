@@ -54,17 +54,18 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError
     Ok(exact(leg, id)?.as_ref().map(map::card))
 }
 /// Source-native dates and status for only the selected EMA application record.
-pub fn regulatory(
-    leg: &Leg<'_>,
-    id: &DrugId,
-) -> Result<Option<DrugRegulatory>, RequestError> {
+pub fn regulatory(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugRegulatory>, RequestError> {
     Ok(exact(leg, id)?.map(|row| DrugRegulatory {
         identity: map::header(&row),
         regulatory: Section::Data {
             source: Source::Ema,
             data: DrugRecords {
-                records: vec![map::event(&row)].into(), offset: 0, total: Some(1), truncated: None,
-                version: Some(row.meta.timestamp), retrieved: None,
+                records: vec![map::event(&row)].into(),
+                offset: 0,
+                total: Some(1),
+                truncated: None,
+                version: Some(row.meta.timestamp),
+                retrieved: None,
             },
         },
     }))

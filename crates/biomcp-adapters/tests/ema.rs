@@ -29,7 +29,9 @@ fn explicit_sync_keeps_tibsovo_candidates_and_native_regulatory_roles_separate()
     assert!(card.get("dates").is_none());
     let section = ema::regulatory(&leg, &id).unwrap().unwrap();
     assert_eq!(section.identity.id, id);
-    let biomcp_types::Section::Data { data: records, .. } = section.regulatory else { panic!("missing regulatory facts") };
+    let biomcp_types::Section::Data { data: records, .. } = section.regulatory else {
+        panic!("missing regulatory facts")
+    };
     assert_eq!(records.version.unwrap().as_str(), "2026-10-24T18:22:32Z");
     let event = &records.records[0];
     assert!(event.jurisdiction.is_none());
@@ -43,7 +45,12 @@ fn explicit_sync_keeps_tibsovo_candidates_and_native_regulatory_roles_separate()
     let withdrawn = ema::regulatory(&leg, &"EMEA/H/C/005621".parse().unwrap())
         .unwrap()
         .unwrap();
-    let biomcp_types::Section::Data { data: withdrawn, .. } = withdrawn.regulatory else { panic!("missing withdrawn application") };
+    let biomcp_types::Section::Data {
+        data: withdrawn, ..
+    } = withdrawn.regulatory
+    else {
+        panic!("missing withdrawn application")
+    };
     assert_eq!(
         withdrawn.records[0].status.as_ref().unwrap().as_str(),
         "Application withdrawn"
@@ -56,7 +63,10 @@ fn explicit_sync_keeps_tibsovo_candidates_and_native_regulatory_roles_separate()
     );
 }
 #[test]
-#[expect(clippy::disallowed_methods, reason = "Mutate isolated synthetic recordings through the public sync boundary")]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Mutate isolated synthetic recordings through the public sync boundary"
+)]
 fn malformed_native_metadata_dates_and_duplicate_ids_never_replace_usable_medicines() {
     let original = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../tests/replies/drug/ema-synthetic/ema");

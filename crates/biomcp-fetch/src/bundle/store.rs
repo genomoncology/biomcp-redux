@@ -53,13 +53,9 @@ impl Cache {
         d: Deadline<'_>,
     ) -> Result<Option<Meta>, CacheError> {
         self.sql(d, |c| {
-            c.query_row(
-                METADATA,
-                [name],
-                metadata,
-            )
-            .optional()
-            .map_err(db_error)
+            c.query_row(METADATA, [name], metadata)
+                .optional()
+                .map_err(db_error)
         })
     }
     pub(super) fn bundle_rows(
@@ -79,11 +75,7 @@ impl Cache {
         self.sql(d, |c| {
             let tx = c.unchecked_transaction().map_err(db_error)?;
             let meta = tx
-                .query_row(
-                    METADATA,
-                    [name],
-                    metadata,
-                )
+                .query_row(METADATA, [name], metadata)
                 .optional()
                 .map_err(db_error)?;
             let value = meta
