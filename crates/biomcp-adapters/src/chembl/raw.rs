@@ -11,7 +11,6 @@ pub struct Molecule {
     /// Native record type, including nonchemical therapies.
     pub molecule_type: String,
     /// Explicit source synonyms.
-    #[serde(default)]
     pub molecule_synonyms: Vec<Synonym>,
     /// Explicit native hierarchy.
     pub molecule_hierarchy: Option<Hierarchy>,
