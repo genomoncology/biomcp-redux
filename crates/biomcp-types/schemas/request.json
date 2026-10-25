@@ -118,7 +118,16 @@
         "incidence",
         "survival"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Publisher scoped synonyms.",
+        " Native cross references.",
+        " Native parent relations.",
+        " Native gene association rows.",
+        " Native phenotype association rows.",
+        " Native stage incidence rows.",
+        " Annual survival rows."
+      ]
     },
     "DiseaseSource": {
       "description": "An explicit disease source without fallback.",
@@ -592,8 +601,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "default": 5,
-          "description": "Native rows per section page.",
+          "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,

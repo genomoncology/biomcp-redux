@@ -242,3 +242,30 @@ fn association_references_allow_native_urls_without_invented_labels() {
     let row = json!({"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001","label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"evidence":[{"id":"ECO:0000501","url":"http://purl.obolibrary.org/obo/ECO_0000501"}],"publications":[{"id":"PMID:1","url":"http://identifiers.org/pubmed/1"}],"qualifiers":[{"field":"frequency_qualifier","id":"HP:0040283","label":"Synthetic frequency"}],"subject_closure":[],"object_closure":[]});
     assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
 }
+
+#[test]
+fn source_scoped_defaults_preserve_explicit_limits_and_reject_null_or_zero() {
+    for (source, section, expected) in [
+        ("monarch", "genes", 2),
+        ("monarch", "phenotypes", 1),
+        ("mydisease", "synonyms", 5),
+        ("ols", "xrefs", 5),
+    ] {
+        let base = json!({"id":"MONDO:0019003","source":source,"section":section});
+        let resolved = roundtrip::<DiseaseGet>(base.clone()).unwrap();
+        assert_eq!(resolved["section_limit"], expected);
+        for limit in [json!(1), json!(5), json!(50)] {
+            let mut explicit = base.clone();
+            explicit["section_limit"] = limit.clone();
+            assert_eq!(
+                roundtrip::<DiseaseGet>(explicit).unwrap()["section_limit"],
+                limit
+            );
+        }
+        for limit in [json!(null), json!(0), json!(51)] {
+            let mut invalid = base.clone();
+            invalid["section_limit"] = limit;
+            assert!(serde_json::from_value::<DiseaseGet>(invalid).is_err());
+        }
+    }
+}

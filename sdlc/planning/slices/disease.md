@@ -1,6 +1,6 @@
-# Disease slice investigation and proposed design
+# Disease slice investigation and implemented contract
 
-This investigation starts from published revision `ecef1096239f8aeee8fcc6cbefc5720e89506035`. It proposes the disease slice through steps 1 to 4 of the slice method. It changes only this design. The clinical harvest and two fresh capture reviews establish the clinical limits below. Proposed schemas, JSON shapes and ceilings are design artifacts, not implemented product proof.
+The initial investigation starts from published revision `ecef1096239f8aeee8fcc6cbefc5720e89506035`. The clinical harvest and capture reviews establish the clinical limits below. Historical proposed JSON remains labeled as illustration. The implemented command, migration, measured budget and case tables identify the accepted product behavior and its evidence limits.
 
 ## Settled product contract
 
@@ -95,29 +95,36 @@ The survival command has no `--period` option. It returns the provider's annual 
 
 ## Progressive disclosure and measured byte budgets
 
-The default search/card answer identity only. Synonyms, cross-references, hierarchy and each source association list are explicit five-row pages. Statistics and the SEER catalog are separate explicit commands. Full definitions stay complete when present; if a source definition makes the default exceed its budget, the implementation needs a named complete-definition drill-down instead of silent truncation. Source claims, predicates and qualifiers cannot be dropped to meet a ceiling.
+The default search/card answer identity only. Synonyms, cross-references and hierarchy default to five-row pages. Monarch genes default to two association rows and phenotypes to one; explicit valid limits remain unchanged. Statistics and the SEER catalog are separate explicit commands. Full definitions stay complete when present; if a source definition makes the default exceed its budget, the implementation needs a named complete-definition drill-down instead of silent truncation. Source claims, predicates and qualifiers cannot be dropped to meet a ceiling.
 
-The repair serialized full illustrative consumer envelopes over retained source facts through `pm job`, without executing BioMCP or making any request. These measurements include source/component terms and historical next actions. Later command-shape and HPO category amendments are not reserialized measurements; final wire sizes remain unmeasured and the retained samples remain immutable. They calibrate proposed ceilings; they do not establish implemented schemas, availability or latency. A terminal page has no next-page action. The historical OLS size samples use the captured three-ontology source query, not a new public multi-ontology option or the settled MONDO-only default. The public option accepts exactly one of mondo/doid/ncit. The implementation must capture that exact default selector and assert a positive before claiming its counts or speed. Those historical multi-ontology envelopes provide a conservative formatting example, not a substituted source request or an advertised selector.
+The table below uses actual compact CLI output and CLI/MCP parity cases from the accepted adapters. Full bytes include the whole envelope. Comparable bytes remove only the validated `use`, `terms` and `terms_url` fields on source outcomes under the shared accounting rule; component terms, native closures, evidence and qualifiers remain included. Each existing fixed case ceiling remains unchanged. Token estimates use `ceil(comparable bytes/4)` and are not tokenizer measurements. Earlier illustrative projections remain external investigation evidence and no longer supply product allocations.
 
-| Surface and actual illustrative sample | Measured bytes | `ceil(bytes/4)` proxy | Proposed whole-envelope byte ceiling | Matched 0.9.3 measurement and reason |
-|---|---:|---:|---:|---|
-| OLS search, five headers, D01–D24 | 1,008–2,082 | 252–521 | 2,400 | Contained D01–D21 searches measure 176–1,731 bytes in the table below. These are old MyDisease request identities, not the proposed OLS selectors. Larger proposed replies preserve candidates, source counts, exact IDs, terms and typed actions. Old empty replies do not establish a complete clinical answer.  **UNMEASURED:** MONDO-only default request and actual generated-schema CLI/MCP output. |
-| Default card, D08 exact melanoma | 1,601 | 401 | 1,850 | **UNMEASURED:** same-case D08 0.9 get, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). The actual D02 breast default get was 8,462 bytes, but that is a different identity and includes hidden MyChem/trial enrichment; no same-case ratio is claimed.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| Other exact cards, including the D15 JSON illustration | **UNMEASURED** | **UNMEASURED** | No measured ceiling beyond D08 | No same-case serialization measurement. The 0.9 comparison is **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Final CLI/MCP output is **UNMEASURED**. |
-| Synonyms, D08 four native rows | 802 | 201 | 950 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md); no invented comparison.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| Cross-references, D08 five rows | 1,093 | 274 | 1,300 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Exact namespaces/predicates and next page are retained.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| Hierarchy, D08 five rows | 1,131 | 283 | 1,350 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Preserve each native relation and endpoint.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| Monarch genes, D13/D14/D18 five association rows | 4,188–4,531 | 1,047–1,133 | 5,300 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Native provenance and component terms explain the higher cost than identity.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| Open Targets genes, historical seven native-ID sample pages; section deferred | 1,691–4,265 | 423–1,067 | —; no accepted implementation ceiling | **UNSUPPORTED/DEFERRED:** cross-provider EFO join and product route. **UNMEASURED:** 0.9 section, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Historical native-ID formatting does not prove the required join. |
-| Monarch phenotypes, D13/D14/D18 five rows | 4,520–5,071 | 1,130–1,268 | 5,900 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Evidence, negation, qualifiers and per-row source identity remain attached.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| SEER incidence, D19 five stage rows | 2,222 | 556 | 2,650 | 0.9 statistics section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Preserve uncertainty/counts and unverified dimensions.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
-| SEER annual survival, D20 five annual rows | 2,835 | 709 | 3,400 | 0.9 statistics section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Period mismatch and observed/modeled values remain distinct.  **UNMEASURED:** final no-period request and actual generated-schema CLI/MCP output; the measured format uses the historical captured trend body. |
-| SEER sites, all 15 retained five-row pages | 490–808 | 123–202 | 950 | **UNMEASURED:** 0.9 catalog comparison, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md), and actual product CLI/MCP. Offline 73-site catalog serialization includes each native code/label/active field, source terms and valid next pages. |
+| Implemented surface | Full JSON bytes | Comparable bytes | Comparable token estimate | Existing comparable case ceiling | Qualified 0.9.3 comparison or reason unavailable |
+| --- | ---: | ---: | ---: | ---: | --- |
+| OLS discovery, eight five-row or shorter pages | 816–2,147 | 682–2,013 | 171–504 | 785–2,315 by exact case | Contained D01–D21 discovery: 176–1,731 bytes. Older MyDisease requests differ from OLS; no matched-request reduction or complete answer parity. |
+| Default MyDisease card, D08 melanoma | 1,783 | 1,655 | 414 | 2,024 | No qualified same-case get: the contained source allowance ended before exact gets. Historical D02 get 8,462 bytes has a different identity and hidden enrichment. |
+| Other measured exact MyDisease cards, D02/D03/D04/D05/D06/D07/D12/D13/D15 | 847–1,888 | 719–1,760 | 180–440 | 2,024 | No qualified same-case get: contained source allowance exhausted. Exact OLS cards separately measure 839–1,223 full / 705–1,089 comparable bytes with caps 811–1,253. |
+| Synonyms, native MyDisease default five-row D05 page | 1,770 | 1,642 | 411 | 1,889 | No qualified section output: the contained allowance ended before sections. OLS D05 three-row page: 1,003 full / 869 comparable, cap 1,000. |
+| Cross-references, native MyDisease default five-row D05 page | 2,041 | 1,913 | 479 | 2,200 | No qualified section output: contained allowance exhausted. OLS D05 five-row page: 1,829 full / 1,695 comparable, cap 1,950. |
+| Hierarchy, native MyDisease default D05 parent page | 1,688 | 1,560 | 390 | 1,794 | No qualified section output: contained allowance exhausted. Parents retain native source endpoints; no child route. |
+| Monarch genes, explicit limit 5, D12/D13/D14/D18 native pages | 796–9,658 | 665–9,527 | 167–2,382 | 765–10,957 by exact page | No qualified gene output: the contained allowance ended before gene sections. Totals count source association rows. |
+| Open Targets disease genes | Not implemented | Not implemented | — | None | Deferred: exact source-provided EFO join returned null. Historical source-native pages do not prove the join or an executable product route. |
+| Monarch phenotypes, explicit limit 5, D13/D14/D15/D18 native pages | 13,255–16,400 | 13,124–16,269 | 3,281–4,068 | 15,093–18,710 by exact page | No qualified phenotype output: contained allowance exhausted. Full ordered native closures, evidence and qualifiers explain the cost above the original illustrative allocation. |
+| Monarch genes, new default two rows, derived local deliveries | 3,686–4,496 | 3,555–4,365 | 889–1,092 | 4,089–5,020 by exact page | No qualified 0.9 section. Native ordered prefixes of retained five-row bodies; no actual provider request at limit 2 is claimed. |
+| Monarch phenotypes, new default one row, derived local deliveries | 3,312–4,016 | 3,181–3,885 | 796–972 | 3,659–4,468 by exact page | No qualified 0.9 section. Native first rows of retained five-row bodies; no actual provider request at limit 1 is claimed. |
+| SEER incidence, D19 five stage rows | 4,462 | 4,348 | 1,087 | 5,001 | No qualified 0.9 statistic output. Old disease-name routing and Stat Facts HTML do not measure this explicit structured site/statistic command. |
+| SEER annual survival, D20 ten pages | 2,971–5,087 | 2,857–4,973 | 715–1,244 | 5,719 maximum | No qualified 0.9 annual-series output. The dropped recent aggregate is a different question; annual rows do not substitute for it. |
+| SEER sites, all fifteen native pages | 690–994 | 576–880 | 144–220 | 1,012 maximum | No released same-command catalog measurement; no old executable rerun was authorized. |
 
+MyDisease two-row page maxima are synonyms 1,203 full / 1,075 comparable bytes (cap 1,237), xrefs 1,322 / 1,194 (cap 1,374), and hierarchy 1,332 / 1,204 (cap 1,385). Explicit limit-50 pages measure synonyms 2,067 / 1,939 (cap 2,230), xrefs 5,014 / 4,886 (cap 5,619), and hierarchy 1,689 / 1,561 (cap 1,796). These are separately measured commands, not a multiplication of a default-page allowance. The OLS fifty-candidate boundary retains all fifty get actions and the page action: 14,160 full / 14,026 comparable bytes, cap 16,130.
 
-The proposed ceilings stay close to the measured illustrations with room for final schema fields and explicit problems. They replace the earlier broad 5–12 KB allocations. They include the full envelope and component metadata; no terms subtraction creates hidden room. A five-row page may carry fewer rows when the source is shorter. Increasing a limit requires its own measured ceiling case rather than multiplying an unbounded payload.
+The native measurements come from OLS `j11984`/`j12001`, MyDisease `j12142`, SEER `j12155`, and Monarch `j12295`. MyDisease's original source captures, assertions and measurement logs remain, but its first product run deleted derived recordings and JSON outputs. The retained measurements establish the recorded size; they cannot provide a replay of those deleted artifacts. No output was reconstructed and no established provider proof was repeated. The later retention regression protects future product proof runs.
 
-Actual tokenizer counts remain unavailable. The explicit bytes/4 proxy matches the runner's approximate cost convention and must never be labeled measured tokens. Use `max_bytes` for the actual ceiling; a `max_tokens` proxy can additionally assert the corresponding rounded bound. Search/card, every section, the site catalog and statistics must have CLI/MCP cases against the actual generated schemas before those ceilings become implementation acceptance. Further 0.9 comparisons belong to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md) and require verified network containment. No old executable runs under this design ticket.
+PM ruling m4768 keeps the original default association allocations by reducing default row counts, without selecting or dropping fields. Presence-aware decoding distinguishes omission from an explicit limit: omitted Monarch genes resolves to 2, omitted phenotypes to 1, and every other source/section to 5. Explicit null, zero and out-of-range limits still fail; explicit 5 stays 5. CLI and MCP omit absent flags until this shared check, and every checked request serializes the effective numeric limit. Page actions retain that limit and native row order. Existing explicit-limit measurements and case ceilings remain unchanged.
+
+The new-default proof `j12430` uses eight labeled local projections of unchanged source bodies: only the native ordered prefix and fixture page limit differ. It preserves every field in each retained row. The archive on Yellow is `data/biomcp-redux/0145-disease-docs-proof/j12430-monarch-defaults.tar.gz`, SHA-256 `62e66f8da0c1ac929d5ce42099031cdc292e9ec6ba69e25ea1cf1dbd7790e31c`. It retains original request URLs, body hashes and retrieval dates separately from the local delivery times, projection manifest, actual local recordings and CLI JSON output. The job checked CLI/MCP equality, but raw MCP protocol stdout was not retained. It proves the product's smaller-page behavior over those facts; it is not native capture proof of limit 2 or 1, a continuous cross-date source walk, or a new clinical answer. A synthetic complete walk separately checks that omitted and explicit limits keep all six source rows reachable without duplicates.
+
+The broader same-question clinical comparison remains owned by [0098](../../tickets/0098-compare-with-0-9-on-outside-question-sets.md). These rows account for product bytes and explicitly unavailable old measurements. They do not establish complete clinical parity or a clinical answer for every harvested question.
 
 
 ### Implemented SEER command measurements
@@ -136,7 +143,7 @@ No same-surface 0.9 statistic/catalog ratio is available from the bounded baseli
 
 ## Complete command and option case map
 
-The D identifiers below are harvested stories, not claims that implementation cases already exist. Suffixes name the proposed outside-in witness using that story. Direct capture identities and remaining exact-selector gaps stay explicit. Each retained option gets a positive source fact and a contrast; each dropped spelling gets a typed retirement/usage case. No unsupported filter is quietly accepted.
+The D identifiers below are harvested stories. The executed witness table below distinguishes implemented cases, external source evidence and deferred answers. Suffixes describe the behavior to trace within its owning case. Direct capture identities and remaining exact-selector gaps stay explicit. Each retained option gets a positive source fact and a contrast; each dropped spelling gets a typed retirement/usage case. No unsupported filter is quietly accepted.
 
 | Surface | Command/option/section accounting | Harvested case witnesses and required assertions |
 |---|---|---|
@@ -237,7 +244,89 @@ The shared baseline download tried the official v0.9.4 release, received 404, an
 | Shared `--no-cache` | Use the existing explicit transport cache policy | No new disease-only cache control. Capture and replay use the shared transport. |
 | Shared `--disable-sources`, help | Keep existing shared settings/help | Enforce before cache/network access; report skipped/disabled with registry terms. |
 
-This table applies the settled product dispositions. The concrete schemas and adapter details remain design proposals for PM review. Every retained narrowing filter needs its own known-positive direct request and case. The 0.9 code's `icd10cm` crosswalk querying `umls.icd10am` is a namespace mismatch; the new identity model must preserve those coding systems separately. No interpretation of their clinical interchangeability is made.
+This table applies the settled product dispositions. The implemented spelling and owning evidence are recorded below. Each retained selector has its captured positive and command case; unsupported filters remain explicit retirements. The 0.9 code's `icd10cm` crosswalk querying `umls.icd10am` is a namespace mismatch; the new identity model must preserve those coding systems separately. No interpretation of their clinical interchangeability is made.
+
+### Implemented migration ledger
+
+The rows below close every surface in the accounting table above. Shared aliases and positional section words remain listed here even though the historical command-count inventory excludes aliases, section values and global flags. Trial-owned `disease trials` and its option slots remain counted once in [trial accounting](trial.md#09-command-option-and-section-accounting); article-owned `disease articles` remains counted once in [article accounting](article.md#1-how-biomcp-093-does-articles).
+
+| Released surface | Implemented answer and owner | Owning case or limit |
+| --- | --- | --- |
+| `search disease QUERY`, positional text | `search disease TEXT`, OLS | `disease_ols.rs`: native order and literal selectors; external OLS product proof. |
+| `-q`, `--query` | Retired to positional text | `tests/cases/disease/retired.yaml`. |
+| `--source mondo/doid/mesh` | `--source ols --ontology mondo/doid/ncit`; mesh unsupported | OLS native selectors and retired source guidance. |
+| `--inheritance` | Dropped clinical phrase expansion | Retired case; no request. |
+| `--phenotype` | Deferred exact HPO-ID filter | Retired case; no request. |
+| `--onset` | Dropped wrong-field mapping | Retired case; no request. |
+| `--no-fallback` | Retired; valid zero stays zero | Retired case and OLS literal-zero regression. |
+| `--limit`, `--offset`, `-l` | Long paging options retained; short alias retired | OLS native first/next/terminal pages and fifty-row boundary. |
+| `get disease NAME_OR_ID`, `--name` | Exact CURIE get; names use discovery | MyDisease native identity/alias checks and retired name guidance. |
+| Get positional section words | One named source section, or identity card | Generated get help and independently paged sections. |
+| `genes` | `get disease CURIE genes --source monarch` | Native association endpoint/predicate cases; Open Targets stays deferred. |
+| `phenotypes` | `get disease CURIE phenotypes --source monarch` | Native evidence, negation and qualifier cases. |
+| `clinical_features` | Retired with `phenotypes` recovery | Retired case. |
+| `pathways` | Dropped disease-to-gene-to-pathway fanout | Retired case. |
+| `diagnostics` | Dropped from disease slice | Retired case. |
+| `variants` | Dropped disease-context fanout; explicit variant commands | Retired case. |
+| `civic` | Dropped disease context; variant CIViC unchanged | Retired case; no disease-name join. |
+| `models` | Dropped outside care-question scope | Retired case. |
+| `prevalence` | Dropped; incidence and survival are distinct measures | Retired case. |
+| Legacy name-driven `survival` | Explicit SEER catalog site and survival section | Retired recovery and SEER native annual-series cases. |
+| `funding` | Dropped | Retired case. |
+| `disgenet` | Remains dropped | Retired case. |
+| `all` | Dropped; request one source section | Retired case. |
+| Hidden `treatments` and `recruiting_trials` | Removed from identity lookup; explicit drug/trial routes | MyDisease request-count and identity cases. |
+| `disease trials`, `--source`, `--limit`, `--offset` | `search trial --condition` or trial-owned exact `--condition-id` | Trial condition-ID native proof and trial retirement case; owned by 0137. |
+| `disease articles`, `--limit`, `--offset` | `search article --disease` | Existing article accounting and disease retirement case. |
+| `disease drugs`, `--limit`, `--offset` | Dropped convenience route; consult explicit drug help | Retired case. No indication search is asserted. |
+| `list disease` | Generated `help search disease` and `help get disease` | Disease help and retired list case. |
+| `search phenotype TERMS`, `--limit`, `--offset` | Dropped symptom-to-diagnosis ranking | Retired case; no patient ranker. |
+| Shared `-j`, `--json` | Retired to `--format json` | Retired case and CLI/MCP envelope parity. |
+| Shared `--no-cache` | Retired to `--fresh` | Retired case; shared transport owns cache behavior. |
+| Shared `--disable-sources`, help | Retained; source/component policy before I/O/cache/replay | Disease registry admission, source cases and generated help. |
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search disease` | Ported or renamed | `--source`, `--limit`, `--offset` | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | — | Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired. |
+| `get disease` | Ported or renamed | — | `--name` | — | Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts. |
+| `disease drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated. |
+| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop symptom-to-disease ranking; selected disease phenotype facts remain explicit Monarch sections. |
+<!-- /parity-accounting -->
+
+### Executed harvested-case map
+
+Product proof uses retained native bodies through the actual CLI recorder, CLI/MCP replay and schema validation. Raw bodies with uncertain storage rights stay outside Git. OLS product proof is on Yellow in `data/biomcp-redux/0140-ols-product-proof/`; MyDisease measurements and assertions are in `0141-mydisease-product-proof/`; SEER product proof is in `0143-seer-product-proof/`; Monarch product proof is in `0130-0142-native-proof/0142-command-proof/`. The external investigation matrix in `0117-disease-investigation/biomcp-redux-0117-disease-analysis/` remains the outside-repo case for questions without a product answer. It supplies source facts, not a substitute executable product case or complete clinical parity.
+
+| Design ID | Actual case or external case | Proven scope or explicit remaining limit |
+| --- | --- | --- |
+| D01 | `disease_ols/native.rs`, native breast discovery and three pages | Literal text, native order/totals, terminal continuation. |
+| D02 | OLS exact MONDO card/search; `disease_mydisease/native.rs` breast card; disease help | Identity, source/component terms, no hidden enrichment. |
+| D03 | MyDisease native MONDO:0005494 card; external D03 matrix | Distinct source identity; no clinical subtype classifier. |
+| D04 | MyDisease native MONDO:0004984 card; external D04 matrix | Separate source concept; no TNBC equivalence inference. |
+| D05 | OLS DOID search/card/sections; MyDisease DOID:3910 card/sections | Proven alternate-ID relation and native coding namespaces; trial mapping remains trial-owned. |
+| D06 | MyDisease native MONDO:0005233 card; external D06 matrix | Source identity; no local broad-to-narrow equivalence. |
+| D07 | MyDisease native MONDO:0018905 card; external D07 matrix | Source identity; no new classification rule. |
+| D08 | MyDisease native melanoma card/sections; registry admission cases | Scoped synonyms, native cross-references, independent pages; exact trial label route owned by 0137. |
+| D09 | External D09 capture/matrix and contained old source-local zero | Investigation-only site/scope comparison; no complete product clinical answer claimed. |
+| D10 | External D10 capture/matrix | Investigation-only uveal identity comparison. |
+| D11 | External D11 capture/matrix; disease-drugs retirement case | Open Targets score/gene answer deferred; no Monarch substitution. |
+| D12 | MyDisease native MONDO:0005835 card; Monarch native genes proof | Native endpoints/evidence; no causal or germline-panel interpretation. |
+| D13 | MyDisease MONDO:0018875 card/sections; Monarch genes/phenotypes first/next pages | Multiple mappings remain distinct; duplicate closure IDs and provenance retained. |
+| D14 | Monarch MONDO:0008667 genes/phenotypes first/next pages | Association-row count; native empty terminal gene page; no unique-gene total inference. |
+| D15 | OLS obsolete MONDO:0007607; MyDisease obsolete/parent cards; Monarch MONDO:0800444 phenotypes | Consider choices are not replacement; returned MONDO:0800445 subjects keep requested parent and native closure. |
+| D16 | External D16 capture/matrix | Source-local empty comparison only; no clinical absence claim. |
+| D17 | External D17 capture/matrix | Investigation-only association context; no complete product clinical answer claimed. |
+| D18 | OLS MEN2 discovery; Monarch MONDO:0019003 genes/phenotypes pages | Parent request beside actual child endpoints, negation, qualifiers and complete ordered closures. |
+| D19 | `disease_seer/native.rs`, catalog and incidence pages | Publisher site selection and returned stage/statistic context; unverified dimensions remain problems. |
+| D20 | SEER native catalog/annual survival pages, model-only tail | Annual series only; recent aggregate answer dropped and not substituted. |
+| D21 | OLS native MF ambiguity; retired name-get case | Every candidate remains a choice; no abbreviation expansion selected. |
+| D22 | External D22 capture/matrix; retired variant fanout | Open Targets score/gene answer deferred. |
+| D23 | Retired no-fallback case; external CIViC source-local zero | No recovery rewrite; dropped CIViC disease route remains investigation evidence. |
+| D24 | OLS/MyDisease/Monarch/SEER failure cases and `retired.yaml` | Synthetic timeout, HTTP failure and malformed body preserve failed/absent distinction; no observed live outage claim. |
+| D25 | D05 native namespace/xref cases plus external dataset-conflict case | Preserves native codes; does not resolve the dataset's clinical-field conflict. |
+
+All native command cases enforce fixed measured byte ceilings; ordinary cases keep their existing source-specific caps. The generated examples are selected verbatim from `tests/cases/disease/examples.yaml` and execute against synthetic local SEER replay. They demonstrate source catalog selection and explicit statistic selectors without moving native source bodies into Git. `help_examples.rs` checks every printed example against its owning case and runs CLI/MCP parity. Disease help covers literal ontology discovery, the catalog form, all section words and all typed selectors. MCP discovery uses that same generated tree.
 
 ## Source and component use policy
 
