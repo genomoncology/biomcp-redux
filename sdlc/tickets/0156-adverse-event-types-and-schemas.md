@@ -1,6 +1,7 @@
 # 0156 — Add the adverse event types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c3cfbcd3d8e060ceccd8baefa95cd43997dd38c2
 
 Milestone: 3
 

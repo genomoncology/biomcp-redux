@@ -1,6 +1,7 @@
 # 0163 — Capture the pharmacogenomics policy text, order, drug filter and single annotation witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: bcbe87ef6879a6c5494ac6eedee83478ea74721c
 
 Milestone: 4
 
