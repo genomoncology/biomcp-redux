@@ -10,17 +10,12 @@ impl schemars::JsonSchema for PgxGetCommand {
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = super::PgxGet::json_schema(generator);
         let annotation = super::PgxAnnotationGet::json_schema(generator);
-        if let Some(properties) = schema
-            .get_mut("properties")
-            .and_then(serde_json::Value::as_object_mut)
+        if let Some(properties) = schema.get_mut("properties").and_then(|v| v.as_object_mut())
             && let Some(id) = annotation.pointer("/properties/id")
         {
             properties.insert("annotation_id".into(), id.clone());
         }
-        if let Some(required) = schema
-            .get_mut("required")
-            .and_then(serde_json::Value::as_array_mut)
-        {
+        if let Some(required) = schema.get_mut("required").and_then(|v| v.as_array_mut()) {
             required.retain(|value| value.as_str() != Some("gene"));
         }
         schema
