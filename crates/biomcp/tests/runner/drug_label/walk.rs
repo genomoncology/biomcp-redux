@@ -38,69 +38,7 @@ fn walk(n: usize, limit: u32) -> Check {
         "--section-limit".into(),
         limit.to_string(),
     ]);
-    let mut rebuilt = vec![String::new(); originals.len()];
-    let mut seen = vec![false; originals.len()];
-    let mut offset = 0;
-    let mut pages = 0;
-    loop {
-        let value = if pages == 0 {
-            both(&env, args.clone(), 0)?
-        } else {
-            invoke(&env, args.clone(), 0)?
-        };
-        super::measure(&value)?;
-        super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-        let data = &value["result"]["label"]["data"];
-        if data["offset"] != offset {
-            return Err("fragment offset changed unit".into());
-        }
-        let fragments = data["fragments"].as_array().ok_or("fragments")?;
-        if fragments.is_empty() || fragments.len() > limit as usize {
-            return Err("fragment maximum changed".into());
-        }
-        let text = data["text"].as_str().ok_or("text")?;
-        let mut chars = text.chars();
-        for fragment in fragments {
-            let source_part = fragment["source_part"].as_u64().ok_or("source part")? as usize;
-            let rebuilt = rebuilt.get_mut(source_part).ok_or("array boundary")?;
-            seen[source_part] = true;
-            if fragment["source_offset"] != rebuilt.chars().count() {
-                return Err("native scalar offset changed".into());
-            }
-            rebuilt.extend(
-                chars
-                    .by_ref()
-                    .take(fragment["characters"].as_u64().ok_or("characters")? as usize),
-            );
-        }
-        if chars.next().is_some() {
-            return Err("unpartitioned text".into());
-        }
-        offset += fragments.len();
-        pages += 1;
-        let Some(next) = value
-            .get("next")
-            .and_then(Value::as_array)
-            .and_then(|steps| steps.iter().find(|s| s["kind"] == "page"))
-        else {
-            if data["total"] != offset {
-                return Err("walk ended before final source fragment".into());
-            }
-            break;
-        };
-        args = next["args"]
-            .as_array()
-            .ok_or("next args")?
-            .iter()
-            .map(|v| v.as_str().map(str::to_owned).ok_or("arg".to_owned()))
-            .collect::<Result<_, _>>()?;
-        if pages > 100 {
-            return Err("nonadvancing label walk".into());
-        }
-    }
-    if rebuilt != originals || seen.iter().any(|seen| !*seen) {
-        return Err("label array reconstruction changed source text or an empty boundary".into());
-    }
+    reconstruct(&env, args, &originals, limit)?;
     if stub.finish()?.len() != 1 {
         return Err("label continuation fetched the cached source again".into());
     }
@@ -131,4 +69,87 @@ fn missing() -> Check {
         return Err("warm unavailable section fetched again".into());
     }
     Ok(())
+}
+
+pub(super) fn reconstruct(
+    env: &super::Environment,
+    mut args: Vec<String>,
+    originals: &[String],
+    limit: u32,
+) -> Check {
+    let mut rebuilt = Rebuilt {
+        rows: vec![String::new(); originals.len()],
+        seen: vec![false; originals.len()],
+    };
+    let mut offset = 0;
+    let mut pages = 0;
+    loop {
+        let value = if pages == 0 {
+            both(&env, args.clone(), 0)?
+        } else {
+            invoke(&env, args.clone(), 0)?
+        };
+        super::measure(&value)?;
+        super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+        let data = &value["result"]["label"]["data"];
+        if data["offset"] != offset {
+            return Err("fragment offset changed unit".into());
+        }
+        let fragments = data["fragments"].as_array().ok_or("fragments")?;
+        if fragments.is_empty() || fragments.len() > limit as usize {
+            return Err("fragment maximum changed".into());
+        }
+        rebuilt.append(data)?;
+        offset += fragments.len();
+        pages += 1;
+        let Some(next) = value
+            .get("next")
+            .and_then(Value::as_array)
+            .and_then(|steps| steps.iter().find(|s| s["kind"] == "page"))
+        else {
+            if data["total"] != offset {
+                return Err("walk ended before final source fragment".into());
+            }
+            break;
+        };
+        args = next["args"]
+            .as_array()
+            .ok_or("next args")?
+            .iter()
+            .map(|v| v.as_str().map(str::to_owned).ok_or("arg".to_owned()))
+            .collect::<Result<_, _>>()?;
+        if pages > 100 {
+            return Err("nonadvancing label walk".into());
+        }
+    }
+    if rebuilt.rows != originals || rebuilt.seen.iter().any(|seen| !*seen) {
+        return Err("label array reconstruction changed source text or an empty boundary".into());
+    }
+    Ok(())
+}
+struct Rebuilt {
+    rows: Vec<String>,
+    seen: Vec<bool>,
+}
+impl Rebuilt {
+    fn append(&mut self, data: &Value) -> Check {
+        let mut chars = data["text"].as_str().ok_or("text")?.chars();
+        for fragment in data["fragments"].as_array().ok_or("fragments")? {
+            let source_part = fragment["source_part"].as_u64().ok_or("source part")? as usize;
+            let rebuilt = self.rows.get_mut(source_part).ok_or("array boundary")?;
+            self.seen[source_part] = true;
+            if fragment["source_offset"] != rebuilt.chars().count() {
+                return Err("native scalar offset changed".into());
+            }
+            rebuilt.extend(
+                chars
+                    .by_ref()
+                    .take(fragment["characters"].as_u64().ok_or("characters")? as usize),
+            );
+        }
+        if chars.next().is_some() {
+            return Err("unpartitioned text".into());
+        }
+        Ok(())
+    }
 }
