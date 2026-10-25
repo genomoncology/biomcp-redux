@@ -80,5 +80,9 @@ fn check_quotes(text: &str) -> Result<(), BadReply> {
             start = matches!(byte, b'\t' | b'\r' | b'\n');
         }
     }
-    if quoted { Err(BadReply) } else { Ok(()) }
+    if quoted {
+        Err(BadReply)
+    } else {
+        Ok(())
+    }
 }
