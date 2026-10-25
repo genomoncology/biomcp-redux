@@ -62,7 +62,8 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         if result.pointer("/result/fetched") != row.get("fetched") {
             return Err("original fetch time changed".into());
         }
-        replay(&directory, steps(name, &words)?)?;
+        let last = replay(&directory, steps(name, &words)?)?;
+        verify_last(name, &last)?;
         markdown(
             &env,
             &refs,
@@ -78,6 +79,20 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
     }
     if stub.finish()?.len() != count {
         return Err("native command proof changed source delivery count".into());
+    }
+    Ok(())
+}
+fn verify_last(name: &str, value: &Value) -> Result<(), String> {
+    if name == "survival"
+        && value
+            .pointer("/result/items")
+            .and_then(Value::as_array)
+            .is_none_or(|rows| rows.iter().skip(1).any(|row| row.get("observed").is_some()))
+    {
+        return Err("native model-only years acquired observed estimates".into());
+    }
+    if name == "catalog" && value.get("next").is_some() {
+        return Err("terminal native catalog page has another page action".into());
     }
     Ok(())
 }
@@ -184,6 +199,14 @@ fn steps(name: &str, words: &[String]) -> Result<Value, String> {
         }
         "incidence" => {
             steps.push(json!({"run":words,"offline":true,"expect":{"/page/total":5,"/result/items/0/observed/value":47.172044,"/result/items/0/observed/count":434448,"/result/items/0/returned_selectors/3/code":"101","/result/items/4/returned_selectors/3/code":"107"},"max_bytes":50000}));
+            let mut middle = words.to_vec();
+            middle.extend([
+                "--section-limit".into(),
+                "1".into(),
+                "--section-offset".into(),
+                "1".into(),
+            ]);
+            steps.push(json!({"run":middle,"mcp":middle,"offline":true,"expect":{"/page/returned":1,"/page/total":5,"/result/items/0/returned_selectors/3/code":"104","/result/items/0/observed/value":13.624780,"/result/items/0/observed/count":125024},"max_bytes":50000}));
             let mut terminal = words.to_vec();
             terminal.extend(["--section-offset".into(), "5".into()]);
             steps.push(json!({"run":terminal,"offline":true,"expect":{"/page/returned":0,"/page/total":5},"max_bytes":50000}));

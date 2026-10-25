@@ -86,7 +86,10 @@ fn invalid_forms(env: &Environment) -> Result<(), String> {
             "seer",
         ],
     ] {
-        let output = invoke(&env, &args(&words), 2)?;
+        let output = invoke(env, &args(&words), 2)?;
+        if crate::runner::source_terms::size(&output, "")? > 406 {
+            return Err("invalid selector guidance exceeds its measured ceiling".into());
+        }
         if output.get("sources").is_some() {
             return Err("usage opened a source leg".into());
         }
