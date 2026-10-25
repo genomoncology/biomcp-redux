@@ -124,6 +124,7 @@ pub(super) fn run() -> Result<(), String> {
     Ok(())
 }
 fn malformed_statistics() -> Result<(), String> {
+    let mut errors = Vec::new();
     for kind in [
         "object", "double", "broken", "order", "number", "year", "mismatch",
     ] {
@@ -164,15 +165,21 @@ fn malformed_statistics() -> Result<(), String> {
         } else {
             json!({"/status":"failed","/sources/0/reason":"bad_reply","/sources/0/source":"seer"})
         };
-        replay(
+        if let Err(error) = replay(
             &directory,
             json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {327}}]),
-        )?;
+        ) {
+            errors.push(format!("{kind}: {error}"));
+        }
         if stub.finish()?.len() != 1 {
             return Err("malformed source retried".into());
         }
     }
-    Ok(())
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors.join("\n"))
+    }
 }
 fn timeout() -> Result<(), String> {
     let stub = Stub::for_source("seer.cancer.gov", "application/json", wire)?;

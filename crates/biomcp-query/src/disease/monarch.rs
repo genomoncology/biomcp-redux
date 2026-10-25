@@ -16,15 +16,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if matches!(error, Some(biomcp_fetch::RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
-    {
-        out.problems.push(biomcp_types::Problem {
-            source: Source::Monarch,
-            record: Some(query.id().clone()),
-            field: "record".into(),
-            code: biomcp_types::ProblemCode::ValueUnknown,
-        });
-    }
+    super::page::record_problem(&mut out, query, Source::Monarch, error);
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, page.total));

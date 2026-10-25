@@ -22,20 +22,11 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.sources
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
+    super::page::record_problem(&mut out, query, Source::MyDisease, error);
     match reply {
         Ok(mapped) => {
             out.problems = mapped.problems;
             apply(&mut out, query, mapped.value);
-        }
-        Err(biomcp_fetch::RequestError::Source(e))
-            if e.reason == biomcp_types::Reason::BadReply =>
-        {
-            out.problems.push(biomcp_types::Problem {
-                source: Source::MyDisease,
-                record: Some(query.id().clone()),
-                field: "record".into(),
-                code: biomcp_types::ProblemCode::ValueUnknown,
-            });
         }
         _ => (),
     }
