@@ -1,0 +1,119 @@
+[
+  {
+    "request": "GET /v1/query?q=imatinib&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:16.396878+00:00",
+    "original_sha256": "9700b9a2d07c5ba172a1060c4a8c1089d367b3c768d5c8bced16f4cf8b8568ab",
+    "total": 18,
+    "ids": [
+      "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+      "YLMAHDNUQAMNNX-UHFFFAOYSA-N",
+      "68001-623",
+      "0832-0532",
+      "60687-882",
+      "68001-622",
+      "31722-297",
+      "82249-021",
+      "31722-296",
+      "82249-020"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=trastuzumab&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:16.832622+00:00",
+    "original_sha256": "23b62f537acc3efb361eccb529a36f1404d54bd5a7e83097ccf926388bd428a5",
+    "total": 100,
+    "ids": [
+      "PA165958441",
+      "103771413",
+      "135301230",
+      "365372316",
+      "438447953",
+      "440790663",
+      "46507516",
+      "50067185",
+      "55513-132",
+      "50242-088"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=fam-trastuzumab+deruxtecan&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:17.112482+00:00",
+    "original_sha256": "f83228d311da20a5af99e3967013d4a1ed59ffdb8e63c2b5aa48e71abc2e0e7f",
+    "total": 5,
+    "ids": [
+      "PLXLYXLUCNZSAA-UHFFFAOYSA-N",
+      "65597-406",
+      "384585505",
+      "404772407",
+      "404719727"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=axicabtagene+ciloleucel&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:17.371693+00:00",
+    "original_sha256": "3e4628f330a34280d3e1de92b17229cdbf159c8df5b4e8be853ab6d97515bd7f",
+    "total": 6,
+    "ids": [
+      "381129647",
+      "374364294",
+      "347911476",
+      "71287-119",
+      "CHEMBL3989989",
+      "CHEBI:756472"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=imatinib&size=2&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:17.640289+00:00",
+    "original_sha256": "e1e0e84d2ec6d3710f0f18d12fc6755a8e52bffc5449a4a202ee46ad15c7ffc4",
+    "total": 18,
+    "ids": [
+      "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+      "YLMAHDNUQAMNNX-UHFFFAOYSA-N"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=imatinib&size=2&from=2&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:17.915834+00:00",
+    "original_sha256": "4d1ac0227700807deb53361bc1313cbb3dfad93d910ce32438c91fcb1bdf4121",
+    "total": 18,
+    "ids": [
+      "68001-623",
+      "0832-0532"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:18.155452+00:00",
+    "original_sha256": "c92d2a086e743e3066ee9099270a2545d00d2be67eb8c3f69fd9ec08e5737d2e",
+    "total": null,
+    "ids": [
+      "KTUFNOKKBVMGRW-UHFFFAOYSA-N"
+    ],
+    "subset": true
+  },
+  {
+    "request": "GET /v1/chem/CHEMBL3989989?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
+    "retrieved": "2026-10-25T00:54:18.488137+00:00",
+    "original_sha256": "efebb29293a504ee2dcd5064defc62a1a55101fb37378f273c73d0174676ae93",
+    "total": null,
+    "ids": [
+      "CHEMBL3989989"
+    ],
+    "subset": false
+  },
+  {
+    "request": "GET /v1/query?q=%22biomcp-nonexistent-drug-0116-control%22&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",
+    "retrieved": "2026-10-25T00:55:17.588531+00:00",
+    "original_sha256": "1f131b88230bf274be3df04a323c51caa88343166eef68e4fe50a9a59769439d",
+    "total": 0,
+    "ids": [],
+    "subset": false
+  }
+]

@@ -64,4 +64,4 @@ variant-help: Variant help gives executable examples and explicit migration step
 
 drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
 
-drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`.
+drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`.
