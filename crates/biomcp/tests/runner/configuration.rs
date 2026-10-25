@@ -36,6 +36,9 @@ pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Ve
 }
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("gene/version-one-default-cache-remains-readable", || {
+            default_cache_migration().map_err(Into::into)
+        }),
         Trial::test("article/concurrent-process-pool-publication", || {
             article_processes().map_err(Into::into)
         }),
@@ -58,6 +61,52 @@ pub(super) fn trials() -> Vec<Trial> {
             boundaries().map_err(Into::into)
         }),
     ]
+}
+fn default_cache_migration() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let stub = super::network_stub::Stub::new()?;
+    let ca = env.root().join("ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    invoke(&env, vec!["sync".into(), "hgnc".into()], 0)?;
+    let folder = env.root().join("cache/biomcp");
+    let current = fs::read_dir(&folder)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .map(|e| e.path())
+        .find(|p| p.extension().is_some_and(|v| v == "sqlite"))
+        .ok_or("missing cache")?;
+    let historical = folder.join("cache-1-5.sqlite");
+    if current != historical {
+        fs::rename(&current, &historical).map_err(|e| e.to_string())?;
+        fs::rename(
+            current.with_extension("parts"),
+            historical.with_extension("parts"),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    let connection = rusqlite::Connection::open(&historical).map_err(|e| e.to_string())?;
+    connection.execute_batch("ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch';")
+        .map_err(|e| e.to_string())?;
+    drop(connection);
+    let args = vec![
+        "get".into(),
+        "gene".into(),
+        "BRAF".into(),
+        "--offline".into(),
+    ];
+    let value = invoke(&env, args.clone(), 0)?;
+    let peer = mcp::call_with_globals(&env, &args[..3], false, &args[3..])?;
+    if value != peer || value.pointer("/result/items/0/answer/symbol") != Some(&json!("BRAF")) {
+        return Err(format!(
+            "upgrade lost the ordinary offline gene bundle: {value}"
+        ));
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("offline migration opened HTTP".into());
+    }
+    Ok(())
 }
 fn ownership() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
