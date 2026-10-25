@@ -52,11 +52,20 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
             ),
         );
     }
+    if let QueryBody::NciTrialPage(body) = &mut out.body {
+        body.request = params
+            .iter()
+            .map(|(name, value)| biomcp_types::TrialParameter {
+                name: name.clone(),
+                value: value.clone(),
+            })
+            .collect();
+    }
     let result = nci::search(&leg, &params);
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Nci, leg.finish(), error);
     if let Ok(page) = result {
-        apply(q, cx.fresh, &mut out, &mut source, page, params);
+        apply(q, cx.fresh, &mut out, &mut source, page);
     }
     finish(&mut out, source, error);
     command.finish(deadline.remaining());
@@ -93,7 +102,6 @@ fn apply(
     out: &mut Outcome,
     source: &mut biomcp_types::SourceOutcome,
     page: nci::Page,
-    params: Vec<(String, String)>,
 ) {
     source.count = Some(page.total);
     source.fetched = Some(page.data.len() as u32);
@@ -139,9 +147,5 @@ fn apply(
         if !q.count_only() {
             body.items = page.data.into_iter().map(|r| r.card(false)).collect();
         }
-        body.request = params
-            .into_iter()
-            .map(|(name, value)| biomcp_types::TrialParameter { name, value })
-            .collect();
     }
 }
