@@ -87,26 +87,20 @@ fn check(case: Case) -> Check {
         .map_err(|e| e.to_string())?;
     let recording = env.root().join("recording");
     fs::create_dir(&recording).map_err(|e| e.to_string())?;
-    let mut args = case.args.clone();
-    args.extend([
-        "--fresh".into(),
-        "--record".into(),
-        recording.to_string_lossy().into(),
-    ]);
+    let mut action = case.args.clone();
+    action.push("--fresh".into());
+    let mut args = action.clone();
+    args.extend(["--record".into(), recording.to_string_lossy().into()]);
     let value = invoke(&env, args, case.exit)?;
     super::schema::Registry::embedded()?.validate(&value, &case.args, true)?;
     assertions(&case, &value)?;
-    let globals = vec![
-        "--fresh".into(),
-        "--replay".into(),
-        recording.to_string_lossy().into(),
-    ];
-    let mut replay = case.args.clone();
+    let globals = vec!["--replay".into(), recording.to_string_lossy().into()];
+    let mut replay = action.clone();
     replay.extend(globals.clone());
     if invoke(&env, replay, case.exit)? != value {
         return Err("CLI replay changed native response".into());
     }
-    if super::mcp::call_with_globals(&env, &case.args, case.exit >= 2, &globals)? != value {
+    if super::mcp::call_with_globals(&env, &action, case.exit >= 2, &globals)? != value {
         return Err("MCP replay changed native response".into());
     }
     let requests = stub.finish()?;
@@ -144,7 +138,7 @@ fn assertions(case: &Case, value: &Value) -> Check {
         if returned > 0 && offset + returned < total {
             let args = page_next
                 .and_then(|p| p["args"].as_array())
-                .ok_or("missing page continuation")?;
+                .ok_or_else(|| format!("missing page continuation: {}", value))?;
             for flag in ["--source", "--name-selector", "--section-limit"] {
                 if let Some(index) = case.args.iter().position(|s| s == flag) {
                     let actual = args
