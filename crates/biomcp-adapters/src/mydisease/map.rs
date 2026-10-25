@@ -1,0 +1,186 @@
+use super::{Annotation, native};
+use crate::Mapped;
+use biodata::{
+    Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text,
+};
+use biomcp_fetch::{InputError, RequestError};
+use biomcp_types::{
+    ComponentLabel, ComponentTerms, DiseaseCard, DiseaseSection, Problem, ProblemCode, Source,
+};
+
+fn text(value: &str) -> Result<Text, RequestError> {
+    Text::new(value).map_err(|_| InputError::Serialization.into())
+}
+fn attribution(
+    id: &Curie,
+    source: &str,
+    version: Option<u64>,
+) -> Result<Attribution, RequestError> {
+    Ok(Attribution {
+        source: text(source)?,
+        record: Some(text(&id.to_string())?),
+        version: version.map(|v| text(&v.to_string())).transpose()?,
+        release: None,
+        submitter: None,
+        evaluated: None,
+        url: Some(text(&format!("https://mydisease.info/v1/disease/{id}"))?),
+    })
+}
+fn terms(components: &[native::Component]) -> Result<Box<[ComponentLabel]>, RequestError> {
+    components
+        .iter()
+        .map(|value| {
+            let component = crate::disease_sources::components::get(Source::MyDisease, value.name)
+                .ok_or(InputError::Serialization)?;
+            Ok(ComponentLabel {
+                component: text(component.name)?,
+                terms: ComponentTerms {
+                    usage: component.terms.usage,
+                    name: text(component.terms.name)?,
+                    url: text(component.terms.url)?,
+                },
+            })
+        })
+        .collect()
+}
+fn root(component: &native::Component) -> &str {
+    if component.name == "doid" {
+        "disease_ontology"
+    } else {
+        component.name
+    }
+}
+fn predicate(component: &native::Component, field: &str) -> Result<Curie, RequestError> {
+    format!("mydisease:{}.{field}", root(component))
+        .parse()
+        .map_err(|_| InputError::Serialization.into())
+}
+fn endpoint(component: &native::Component) -> DiseaseEndpoint {
+    DiseaseEndpoint {
+        id: component.id.clone(),
+        label: Some(component.label.clone()),
+    }
+}
+fn xref_id(value: &native::Value) -> Option<Curie> {
+    let prefix = value.field.to_ascii_uppercase();
+    let native = value.value.as_str();
+    if native
+        .split_once(':')
+        .is_some_and(|(p, _)| p.eq_ignore_ascii_case(&prefix))
+    {
+        native.parse().ok()
+    } else {
+        format!("{prefix}:{native}").parse().ok()
+    }
+}
+pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, RequestError> {
+    let primary = record
+        .components
+        .iter()
+        .find(|c| c.id == record.returned_id)
+        .ok_or(InputError::Serialization)?;
+    let mut mapped = Mapped {
+        value: Annotation {
+            card: DiseaseCard {
+                requested_id: record.requested_id.clone(),
+                returned_id: record.returned_id.clone(),
+                alias: None,
+                concept: Concept {
+                    id: Some(primary.id.clone()),
+                    label: primary.label.clone(),
+                },
+                definition: primary.definition.clone(),
+                obsolete: primary.obsolete,
+                consider: primary.consider.clone(),
+                replaced_by: primary.replaced_by.clone(),
+                attribution: attribution(&record.returned_id, "mydisease", record.version)?,
+                sections: Box::default(),
+                components: terms(&record.components)?,
+            },
+            synonyms: Vec::new(),
+            xrefs: Vec::new(),
+            parents: Vec::new(),
+        },
+        problems: Vec::new(),
+    };
+    for component in &record.components {
+        rows(component, &mut mapped)?;
+    }
+    let value = &mut mapped.value;
+    if record.requested_id != record.returned_id {
+        value.card.alias = value
+            .xrefs
+            .iter()
+            .find(|r| {
+                r.subject.id == record.returned_id
+                    && r.object.id == record.requested_id
+                    && r.predicate.to_string() == "mydisease:mondo.xrefs.doid"
+            })
+            .cloned();
+        if value.card.alias.is_none() {
+            return Err(InputError::Serialization.into());
+        }
+    }
+    value.card.sections = [
+        (!value.synonyms.is_empty(), DiseaseSection::Synonyms),
+        (!value.xrefs.is_empty(), DiseaseSection::Xrefs),
+        (!value.parents.is_empty(), DiseaseSection::Hierarchy),
+    ]
+    .into_iter()
+    .filter_map(|(present, section)| present.then_some(section))
+    .collect();
+    Ok(mapped)
+}
+fn rows(
+    component: &native::Component,
+    mapped: &mut Mapped<Annotation>,
+) -> Result<(), RequestError> {
+    let attribution = attribution(&component.id, component.name, None)?;
+    let synonym_field = if component.name == "doid" {
+        "synonyms"
+    } else {
+        "synonym"
+    };
+    for value in &component.synonyms {
+        mapped.value.synonyms.push(DiseaseSynonym {
+            value: value.value.clone(),
+            scope: Some(predicate(
+                component,
+                &format!("{synonym_field}.{}", value.field),
+            )?),
+            language: None,
+            attribution: attribution.clone(),
+        });
+    }
+    for value in &component.xrefs {
+        let Some(id) = xref_id(value) else {
+            mapped.problems.push(Problem {
+                source: Source::MyDisease,
+                record: Some(text(&component.id.to_string())?),
+                field: format!("{}.xrefs.{}", root(component), value.field).into(),
+                code: ProblemCode::ValueUnknown,
+            });
+            continue;
+        };
+        mapped.value.xrefs.push(DiseaseRelation {
+            subject: endpoint(component),
+            predicate: predicate(component, &format!("xrefs.{}", value.field))?,
+            object: DiseaseEndpoint { id, label: None },
+            attribution: attribution.clone(),
+            description: None,
+        });
+    }
+    for id in &component.parents {
+        mapped.value.parents.push(DiseaseRelation {
+            subject: endpoint(component),
+            predicate: predicate(component, "parents")?,
+            object: DiseaseEndpoint {
+                id: id.clone(),
+                label: None,
+            },
+            attribution: attribution.clone(),
+            description: None,
+        });
+    }
+    Ok(())
+}
