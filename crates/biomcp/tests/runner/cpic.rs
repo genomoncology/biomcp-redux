@@ -125,7 +125,7 @@ fn scenario(name: &'static str) -> Check {
         return Err("recording lost native response".into());
     }
     verify_body(name, &cold, &original, total)?;
-    markdown(&env, &args)?;
+    markdown(&env, &args, cold.get("next").is_some())?;
     blocked(&env, &args, &record)?;
     let expected = follow_page(&env, &cold, total)?;
     if stub.finish()?.len() != expected {
@@ -267,7 +267,7 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    super::pgx_retirements::bounded(&format!("CPIC {name}"), &value, 0)?;
+    super::pgx_retirements::bounded(&format!("CPIC {name}"), &value)?;
     let mut replay = args.clone();
     *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
     let replay_env = Environment::new().map_err(|e| e.to_string())?;
@@ -322,11 +322,11 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     if name == "missing-second-gene" && cold.pointer("/result/items/0/lookupkey/TPMT").is_some() {
         return Err("Q16 missing second gene acquired a result".into());
     }
-    super::pgx_retirements::bounded(&format!("CPIC {name}"), cold, 0)?;
+    super::pgx_retirements::bounded(&format!("CPIC {name}"), cold)?;
     verify_next(name, cold)?;
     Ok(())
 }
-fn markdown(env: &Environment, args: &[String]) -> Check {
+fn markdown(env: &Environment, args: &[String], has_next: bool) -> Check {
     let mut md = args.to_vec();
     md.extend(["--format".into(), "md".into()]);
     let text = env
@@ -334,7 +334,10 @@ fn markdown(env: &Environment, args: &[String]) -> Check {
         .output()
         .map_err(|e| e.to_string())?;
     let text = String::from_utf8(text.stdout).map_err(|e| e.to_string())?;
-    if !text.contains("cpic") || !text.contains("biomcp") || text.trim_start().starts_with('{') {
+    if !text.contains("cpic")
+        || (has_next && !text.contains("biomcp"))
+        || text.trim_start().starts_with('{')
+    {
         return Err("Markdown omitted source or follow-up commands".into());
     }
     Ok(())
@@ -408,7 +411,7 @@ fn timeout() -> Check {
     {
         return Err(format!("timeout became success: {value}"));
     }
-    super::pgx_retirements::bounded("CPIC timeout", &value, 0)?;
+    super::pgx_retirements::bounded("CPIC timeout", &value)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
     }

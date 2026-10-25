@@ -46,7 +46,8 @@ fn check(words: &str, message: &str) -> Result<(), String> {
     .map_err(|e| e.to_string())?
     .len();
 
-    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > measured * 115 / 100 {
+    if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > (measured * 115).div_ceil(100)
+    {
         return Err("guidance exceeds size ceiling".into());
     }
     if listener.accept().is_ok() {
@@ -208,15 +209,37 @@ fn boundaries() -> Result<(), String> {
     Ok(())
 }
 
-pub(super) fn bounded(
-    name: &str,
-    value: &serde_json::Value,
-    baseline: usize,
-) -> Result<(), String> {
+pub(super) fn bounded(name: &str, value: &serde_json::Value) -> Result<(), String> {
     use std::io::Write;
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     writeln!(std::io::stdout(), "{name}: {bytes}").map_err(|e| e.to_string())?;
-    if baseline != 0 && bytes > (baseline * 115).div_ceil(100) {
+    let baseline: usize = match name {
+        "CPIC pairs" => 1047,
+        "CPIC card" => 859,
+        "CPIC view" => 1255,
+        "CPIC table" => 1365,
+        "CPIC missing-second-gene" => 1018,
+        "CPIC guidelines" => 942,
+        "CPIC guidelines-many" => 1529,
+        "CPIC diplotype" => 970,
+        "CPIC empty" => 570,
+        "CPIC wrong-gene" | "CPIC status" | "CPIC count" | "CPIC unknown-field" | "CPIC range"
+        | "CPIC missing-range" | "CPIC broken" => 579,
+        "CPIC wrong-drug" => 669,
+        "CPIC truncated-card" => 538,
+        "CPIC truncated-diplotype" => 495,
+        "CPIC 429" => 511,
+        "CPIC 500" => 510,
+        "CPIC timeout" => 475,
+        "ClinPGx empty" => 569,
+        "ClinPGx 429" => 584,
+        "ClinPGx 500" => 583,
+        "ClinPGx broken" | "ClinPGx status" | "ClinPGx unknown-field" | "ClinPGx wrong-gene" => 655,
+        "ClinPGx wrong-accession" => 534,
+        "ClinPGx timeout" => 468,
+        _ => return Err(format!("missing PGx output measurement: {name}")),
+    };
+    if bytes > (baseline * 115).div_ceil(100) {
         return Err(format!("{name}: output exceeds measured ceiling"));
     }
     Ok(())

@@ -88,7 +88,7 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value, 0)?;
+    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value)?;
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();
     let fresh = Environment::new().map_err(|e| e.to_string())?;
     let replay = both(&fresh, command, 4)?;
@@ -157,7 +157,7 @@ fn timeout() -> Check {
     {
         return Err("timeout became negative fact".into());
     }
-    super::super::pgx_retirements::bounded("ClinPGx timeout", &v, 0)?;
+    super::super::pgx_retirements::bounded("ClinPGx timeout", &v)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached provider".into());
     }
