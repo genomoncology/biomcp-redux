@@ -76,14 +76,10 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
             .iter()
             .map(|s| s.as_str().map(str::to_owned))
             .collect::<Option<Vec<_>>>()?;
-        if args.first().is_some_and(|s| s == "get")
-            && args.get(1).is_some_and(|s| s == entity)
-            && args.iter().any(|s| s == id)
-        {
-            Some(args.into_iter().skip(1).collect())
-        } else {
-            None
-        }
+        let command = args.iter().position(|s| s == "get")?;
+        if args.get(command + 1).is_some_and(|s| s == entity) && args.iter().any(|s| s == id) {
+            Some(args.into_iter().enumerate().filter_map(|(index, arg)| (index != command).then_some(arg)).collect())
+        } else { None }
     })
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {

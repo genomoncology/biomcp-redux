@@ -94,6 +94,11 @@ fn parity() -> Result<(), String> {
             ],
             "variant/search/raw",
         ),
+        (
+            "article 'AKT1 E17K' --disable-sources oncokb",
+            vec!["search", "article", "AKT1 E17K", "--disable-sources", "oncokb"],
+            "article/search/synthetic-card-step",
+        ),
     ] {
         scenario(query, args, capture)?;
     }
@@ -147,6 +152,9 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
     {
         return Err("uncitable result".into());
     }
+    if args.iter().any(|a| a == "--disable-sources") && !id.contains("--disable-sources oncokb") {
+        return Err("get id dropped search source restrictions".into());
+    }
     fetch_parity(&env, &args, id, &recording)?;
     Ok(())
 }
@@ -163,9 +171,9 @@ fn fetch_parity(
         _ => "variant/synthetic-components",
     };
     {
-        super::response_cases::copy_capture(get_capture, &recording, |_, _| {})
+        super::response_cases::copy_capture(get_capture, recording, |_, _| {})
             .map_err(|e| e.to_string())?;
-        let fetch_globals = env.globals(Some(&recording), false);
+        let fetch_globals = env.globals(Some(recording), false);
         let mut get = vec!["get".to_owned()];
         get.extend(shlex::split(id).ok_or("invalid argument-list id")?);
         let cli_get = command(env, &get, &fetch_globals, 0)?;
