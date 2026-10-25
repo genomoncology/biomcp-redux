@@ -200,14 +200,19 @@ impl Leg<'_> {
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
         self.bundle_source(bundle)?;
         let cache = self.bundle_cache()?;
-        let meta = cache.bundle_info(bundle.name, self.budget())?
+        let meta = cache
+            .bundle_info(bundle.name, self.budget())?
             .ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
-        let rows = cache.bundle_rows(bundle.name, find, self.budget())?
+        let rows = cache
+            .bundle_rows(bundle.name, find, self.budget())?
             .into_iter()
             .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
             .collect::<Result<_, RequestError>>()?;
         if meta.fresh_until <= crate::cache::now() {
-            self.report.lock().unwrap_or_else(std::sync::PoisonError::into_inner).stale = true;
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
         }
         Ok((rows, store::info(bundle, &meta)))
     }

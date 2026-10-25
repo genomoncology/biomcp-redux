@@ -1,0 +1,11 @@
+feature: drug-ema
+story: Explicit EMA synchronization imports one complete synthetic medicines file and preserves its byte count
+replay: drug/ema-synthetic
+steps:
+  - run: [sync, ema]
+    expect:
+      /schema: biomcp.sync/2
+      /status: complete
+      /query/source: ema
+      /result/rows: 6
+      /result/bytes: 1776
