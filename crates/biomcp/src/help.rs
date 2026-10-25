@@ -59,7 +59,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>) {
             "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
         ),
         (
-            vec!["sync", "[hgnc|clingen]"],
+            vec!["sync", "[hgnc|clingen|ema]"],
             "Synchronize a local source bundle.",
         ),
         (

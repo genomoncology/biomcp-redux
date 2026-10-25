@@ -23,6 +23,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::Ema => "ema",
                 Bundle::Hgnc => "hgnc",
                 Bundle::ClinGen => "clingen",
             }

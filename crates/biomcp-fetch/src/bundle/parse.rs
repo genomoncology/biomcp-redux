@@ -54,6 +54,7 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
 
 pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
     match format {
+        RowFormat::Json { rows, metadata } => json::<R>(body, rows, metadata),
         RowFormat::Tsv => tsv::<R>(body),
         RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines),
     }
@@ -146,4 +147,19 @@ fn records(text: &str) -> Result<Vec<Vec<String>>, BadReply> {
         rows.push(row);
     }
     Ok(rows)
+}
+
+fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>, BadReply> {
+    let document: serde_json::Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
+    R::check_document(&document)?;
+    let meta = document.get(metadata).filter(|v| v.is_object()).ok_or(BadReply)?;
+    let values = document.get(field).and_then(serde_json::Value::as_array)
+        .filter(|rows| !rows.is_empty()).ok_or(BadReply)?;
+    values.iter().map(|value| {
+        let mut object = value.as_object().ok_or(BadReply)?.clone();
+        if object.insert("_bundle_meta".into(), meta.clone()).is_some() { return Err(BadReply); }
+        let value = serde_json::Value::Object(object);
+        let decoded: R = serde_json::from_value(value.clone()).map_err(|_| BadReply)?;
+        Ok(Parsed { row: value.to_string(), keys: decoded.keys() })
+    }).collect()
 }
