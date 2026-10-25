@@ -19,8 +19,8 @@
         "fda-510k"
       ],
       "exit": 4,
-      "max_bytes": 2000,
-      "max_tokens": 500,
+      "max_bytes": 357,
+      "max_tokens": 90,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-510k",
@@ -46,8 +46,8 @@
         "fda-510k"
       ],
       "exit": 4,
-      "max_bytes": 2000,
-      "max_tokens": 500,
+      "max_bytes": 356,
+      "max_tokens": 89,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-510k",
@@ -73,8 +73,8 @@
         "fda-510k"
       ],
       "exit": 4,
-      "max_bytes": 2000,
-      "max_tokens": 500,
+      "max_bytes": 363,
+      "max_tokens": 91,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-510k",
@@ -100,8 +100,8 @@
         "fda-510k"
       ],
       "exit": 4,
-      "max_bytes": 2000,
-      "max_tokens": 500,
+      "max_bytes": 354,
+      "max_tokens": 89,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-510k",

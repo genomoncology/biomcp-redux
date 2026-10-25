@@ -441,3 +441,17 @@ The clearance card keeps `k_number`, `device_name`, `applicant`, `decision_code`
 The unchanged K080653 probe in j12632 returned HTTP 404 `NOT_FOUND` with `No matches found!`. This is source-local absence, with no claim that the identifier is invalid elsewhere. Malformed bodies, rate limits, upstream failures and deadlines remain failed source outcomes. Non-K get identities, section arguments, supplements and free-text 510(k) searches fail before transport. DEN and H identifiers have no executable get.
 
 Companion associations emit one pivot per distinct exact cell-owned K identity, preserving other PMA and drug pivots and any page continuation. The clearance card emits the exact companion device selector and its ordinary fresh action. The source registry owns `fda-510k`, its openFDA terms, open use category and disabled-source behavior; it has no group alias.
+
+
+The retained product run j13314 at `62fe0c837a0ef4a55dc45dbcb519aff9fcce8fc8` passed eight CLI/MCP pairs with embedded schema validation. It used three contained local deliveries and zero provider requests. The unchanged native companion HTML executed the clearance card's exact device selector and returned the exact K-number get pivot. This proves those source-owned selectors without a name or product-code join. The routine whole-help preflight passed its existing ceiling; no help ceiling changed.
+
+| Output | Complete compact JSON bytes | CLI stdout bytes | Comparable compact bytes | Complete stdout ceiling | Estimated token ceiling |
+|---|---:|---:|---:|---:|---:|
+| Native K173492 card | 758 | 759 | 643 | 873 | 219 |
+| Native K080653 absence | 281 | 282 | 166 | 325 | 82 |
+| Synthetic 429 | 309 | 310 | 194 | 357 | 90 |
+| Synthetic 500 | 308 | 309 | 193 | 356 | 89 |
+| Synthetic deadline | 314 | 315 | 199 | 363 | 91 |
+| Synthetic malformed JSON | 306 | 307 | 191 | 354 | 89 |
+
+Ceilings round complete stdout times 1.15 upward. The existing case runner independently validates publisher terms and subtracts only `use`, `terms` and `terms_url` for its historical comparable check. The full native envelopes remain separately measured above. No released 0.9 equivalent was measured, and these contained replay measurements say nothing about provider speed.
