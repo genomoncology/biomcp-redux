@@ -113,4 +113,4 @@ diagnostic-510k: Retrieve one exact native FDA clearance with source-owned ident
 
 diagnostic-retirements: Retired diagnostic spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/diagnostic_retirements.rs`, `crates/biomcp/tests/runner/diagnostic_bundles.rs`.
 
-- `drug-who-medicines`: Explicit WHO finished-product sync publishes a validated local bundle; regional name reads preserve native prequalification rows and independent source outcomes without downloading.
+drug-who-medicines: Explicit WHO finished-product sync publishes a validated local bundle; regional name reads preserve native prequalification rows and independent source outcomes without downloading. Cases: `tests/cases/drug/who-missing.yaml`.
