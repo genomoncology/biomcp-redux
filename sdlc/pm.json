@@ -25,12 +25,12 @@
     {
       "name": "2",
       "targetRef": "origin/main",
-      "state": "planned"
+      "state": "active"
     },
     {
       "name": "3",
       "targetRef": "origin/main",
-      "state": "planned"
+      "state": "active"
     },
     {
       "name": "4",
