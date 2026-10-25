@@ -22,6 +22,18 @@ pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
         next: Vec::new(),
         local: error.and_then(status::local),
     };
+    if out
+        .sources
+        .iter()
+        .any(|s| s.reason == Some(biomcp_types::Reason::BadReply))
+    {
+        out.problems.push(biomcp_types::Problem {
+            source: Source::Maude,
+            record: Text::new(query.id().as_str()).ok(),
+            field: "report".into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        });
+    }
     if let Ok(report) = reply {
         out.status = if report.is_none() {
             Status::Absent

@@ -233,6 +233,7 @@ fn wrong_key() -> Check {
         4,
     )?;
     if value.get("result").is_some()
+        || value.pointer("/problems/0/field") != Some(&json!("report"))
         || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
         || stub.finish()?.len() != 2
     {
