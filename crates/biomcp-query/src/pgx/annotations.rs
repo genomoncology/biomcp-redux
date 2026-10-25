@@ -3,22 +3,18 @@ use super::{finish, next};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::clinpgx;
 use biomcp_types::*;
-fn page<T>(q: &PgxGet, rows: Vec<T>) -> (Box<[T]>, PgxPageInfo) {
+fn page<T>(rows: Vec<T>) -> (Box<[T]>, PgxPageInfo) {
     let total = rows.len() as u64;
-    let items: Box<[T]> = rows
-        .into_iter()
-        .skip(q.section_offset() as usize)
-        .take(q.section_limit() as usize)
-        .collect();
+    let items: Box<[T]> = rows.into();
     let page = PgxPageInfo {
-        offset: q.section_offset(),
+        offset: 0,
         returned: items.len() as u32,
         total,
         total_kind: PgxTotalKind::Observed,
     };
     (items, page)
 }
-fn body(
+pub(super) fn body(
     q: &PgxGet,
     clinical: Vec<biodata::PgxAnnotationHeader>,
     references: Vec<biodata::PgxAnnotationReference>,
@@ -29,7 +25,7 @@ fn body(
     };
     match q.kind() {
         Some(PgxAnnotationKind::Guideline) => {
-            let (items, page) = page(q, references);
+            let (items, page) = page(references);
             PgxAnnotations::Guideline {
                 header,
                 items,
@@ -37,7 +33,7 @@ fn body(
             }
         }
         Some(PgxAnnotationKind::Label) => {
-            let (items, page) = page(q, references);
+            let (items, page) = page(references);
             PgxAnnotations::Label {
                 header,
                 items,
@@ -45,7 +41,7 @@ fn body(
             }
         }
         _ => {
-            let (items, page) = page(q, clinical);
+            let (items, page) = page(clinical);
             PgxAnnotations::Clinical {
                 header,
                 items,
@@ -54,20 +50,81 @@ fn body(
         }
     }
 }
+fn slice(q: &PgxGet, body: PgxAnnotations) -> PgxAnnotations {
+    match body {
+        PgxAnnotations::Clinical {
+            header,
+            items,
+            page,
+        } => {
+            let (items, page) = local_page(q, items, page);
+            PgxAnnotations::Clinical {
+                header,
+                items,
+                page,
+            }
+        }
+        PgxAnnotations::Guideline {
+            header,
+            items,
+            page,
+        } => {
+            let (items, page) = local_page(q, items, page);
+            PgxAnnotations::Guideline {
+                header,
+                items,
+                page,
+            }
+        }
+        PgxAnnotations::Label {
+            header,
+            items,
+            page,
+        } => {
+            let (items, page) = local_page(q, items, page);
+            PgxAnnotations::Label {
+                header,
+                items,
+                page,
+            }
+        }
+    }
+}
+fn local_page<T>(q: &PgxGet, items: Box<[T]>, mut page: PgxPageInfo) -> (Box<[T]>, PgxPageInfo) {
+    let items: Box<[T]> = items
+        .into_vec()
+        .into_iter()
+        .skip(q.section_offset() as usize)
+        .take(q.section_limit() as usize)
+        .collect();
+    page.offset = q.section_offset();
+    page.returned = items.len() as u32;
+    (items, page)
+}
 pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&clinpgx::SPEC, deadline).fresh(cx.fresh);
-    let reply = match q.kind() {
-        Some(PgxAnnotationKind::Clinical) => {
-            clinpgx::clinical(&leg, q).map(|rows| body(q, rows, vec![]))
+    let mut out = Outcome {
+        status: Status::Failed,
+        body: QueryBody::PgxAnnotations(body(q, vec![], vec![])),
+        page: None,
+        sources: vec![],
+        problems: vec![],
+        next: vec![],
+        local: None,
+    };
+    match super::snapshot::load(cx, q, deadline, &mut out) {
+        Ok(Some((body, snapshot))) => {
+            let bound = q.with_snapshot(snapshot);
+            out.body = QueryBody::PgxAnnotations(slice(q, body));
+            out.next = next::steps(&Request::GetPgx(bound), &out);
         }
-        _ => clinpgx::references(&leg, q).map(|rows| body(q, vec![], rows)),
+        Ok(None) => {}
+        Err(error) => {
+            out.local = crate::status::local(error);
+            out.next = next::steps(&Request::GetPgx(q.clone()), &out);
+        }
     }
-    .map(QueryBody::PgxAnnotations);
-    let empty = QueryBody::PgxAnnotations(body(q, vec![], vec![]));
-    let mut out = finish(leg, reply, empty, Source::ClinPgx);
-    out.next = next::steps(&Request::GetPgx(q.clone()), &out);
     command.finish(deadline.remaining());
     out
 }

@@ -101,6 +101,9 @@ struct GetFields {
     /// Offset within the selected section.
     #[serde(default)]
     section_offset: u32,
+    /// Checked retained ClinPGx collection for provider-free continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    snapshot: Option<Text>,
 }
 impl TryFrom<GetFields> for PgxGet {
     type Error = QueryInvalid;
@@ -111,6 +114,7 @@ impl TryFrom<GetFields> for PgxGet {
             || (v.section == Some(PgxSection::Diplotype)) != v.diplotype.is_some()
             || (v.drug_id.is_some() && v.section != Some(PgxSection::Recommendations))
             || (v.kind.is_some() && !annotations)
+            || (v.snapshot.is_some() && !annotations)
             || (v.section.is_none() && v.section_offset != 0)
         {
             return Err(QueryInvalid);
@@ -153,6 +157,23 @@ impl PgxGet {
     /// Checked section_offset selector.
     pub fn section_offset(&self) -> u32 {
         self.0.section_offset
+    }
+    /// Retained ClinPGx collection selector.
+    pub fn snapshot(&self) -> Option<&Text> {
+        self.0.snapshot.as_ref()
+    }
+    /// Bind later local pages to the complete received collection.
+    pub fn with_snapshot(&self, snapshot: Text) -> Self {
+        let mut q = self.clone();
+        q.0.snapshot = Some(snapshot);
+        q
+    }
+    /// Restart collection admission without a retained selector.
+    pub fn restart(&self) -> Self {
+        let mut q = self.clone();
+        q.0.snapshot = None;
+        q.0.section_offset = 0;
+        q
     }
     /// Continue the same independent section.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {

@@ -13,6 +13,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetPgx(q), QueryBody::PgxDiplotype(b)) => meta.encode(q, success.then_some(b)),
         (Request::GetPgx(q), QueryBody::PgxAnnotations(b)) => meta.encode(q, success.then_some(b)),
         (Request::GetPgxAnnotation(q), QueryBody::PgxAnnotation(b)) => meta.encode(q, b),
+        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }
 }
