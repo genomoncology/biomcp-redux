@@ -71,5 +71,6 @@ pub(super) struct Link {
 #[derive(Debug, Deserialize)]
 pub(super) struct Reference {
     pub id: Curie,
-    pub url: Text,
+    pub label: Option<Text>,
+    pub url: Option<Text>,
 }

@@ -73,20 +73,20 @@ fn references(
     let mut links = links.unwrap_or_default().into_vec();
     let mut references = Vec::new();
     for id in ids.unwrap_or_default() {
-        let url = links
+        let link = links
             .iter()
             .position(|link| link.id == id)
-            .map(|index| links.remove(index).url);
+            .map(|index| links.remove(index));
         references.push(DiseaseAssociationReference {
             id,
-            label: None,
-            url,
+            label: link.as_ref().and_then(|link| link.label.clone()),
+            url: link.and_then(|link| link.url),
         });
     }
     references.extend(links.into_iter().map(|link| DiseaseAssociationReference {
         id: link.id,
-        label: None,
-        url: Some(link.url),
+        label: link.label,
+        url: link.url,
     }));
     references.into()
 }
