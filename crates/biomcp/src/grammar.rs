@@ -1,6 +1,8 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
 
+pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "gtr", "fda-cdx"];
+
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
     ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
@@ -184,11 +186,11 @@ fn help_command() -> Command {
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for &(verb, entity, _) in QUERIES.iter().chain(&[
-        ("sync", "ema", ""),
-        ("sync", "ddinter", ""),
-        ("sync", "gtr", ""),
-    ]) {
+    for (verb, entity, _) in QUERIES
+        .iter()
+        .copied()
+        .chain(BUNDLE_HELP.iter().map(|&bundle| ("sync", bundle, "")))
+    {
         let command = verbs
             .remove(verb)
             .unwrap_or_else(|| Command::new(verb).subcommand_required(true));

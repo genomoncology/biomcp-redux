@@ -111,7 +111,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
     );
 }
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
-    for bundle in ["ema", "ddinter", "gtr", "fda-cdx"] {
+    for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
             description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
