@@ -4,6 +4,7 @@ use crate::{
     cache::{Cache, db_error, now},
 };
 use rusqlite::{Connection, OptionalExtension, params};
+const METADATA: &str = "SELECT bytes,rows,fresh_until,etag,modified FROM bundle WHERE name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
     pub bytes: u64,
@@ -53,7 +54,7 @@ impl Cache {
     ) -> Result<Option<Meta>, CacheError> {
         self.sql(d, |c| {
             c.query_row(
-                "SELECT bytes,rows,fresh_until,etag,modified FROM bundle WHERE name=?1",
+                METADATA,
                 [name],
                 metadata,
             )
@@ -79,7 +80,7 @@ impl Cache {
             let tx = c.unchecked_transaction().map_err(db_error)?;
             let meta = tx
                 .query_row(
-                    "SELECT bytes,rows,fresh_until,etag,modified FROM bundle WHERE name=?1",
+                    METADATA,
                     [name],
                     metadata,
                 )

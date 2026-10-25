@@ -1,13 +1,13 @@
 //! Canonical EMA source declaration.
 mod map;
 mod raw;
-use biodata::{AuthorizationEvent, DrugId};
+use biodata::DrugId;
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
     SourceSpec, Terms,
 };
 use biomcp_types::Source;
-use biomcp_types::{DrugCard, DrugHeader, DrugRecords};
+use biomcp_types::{DrugCard, DrugHeader, DrugRecords, DrugRegulatory, Section};
 use std::marker::PhantomData;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
@@ -57,13 +57,15 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError
 pub fn regulatory(
     leg: &Leg<'_>,
     id: &DrugId,
-) -> Result<Option<DrugRecords<AuthorizationEvent>>, RequestError> {
-    Ok(exact(leg, id)?.map(|row| DrugRecords {
-        records: vec![map::event(&row)].into(),
-        offset: 0,
-        total: Some(1),
-        truncated: None,
-        version: Some(row.meta.timestamp),
-        retrieved: None,
+) -> Result<Option<DrugRegulatory>, RequestError> {
+    Ok(exact(leg, id)?.map(|row| DrugRegulatory {
+        identity: map::header(&row),
+        regulatory: Section::Data {
+            source: Source::Ema,
+            data: DrugRecords {
+                records: vec![map::event(&row)].into(), offset: 0, total: Some(1), truncated: None,
+                version: Some(row.meta.timestamp), retrieved: None,
+            },
+        },
     }))
 }
