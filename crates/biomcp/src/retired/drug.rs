@@ -29,7 +29,7 @@ pub(super) fn command(words: &[&str]) -> Option<ErrorMessage> {
     match words {
         ["drug", "cell-lines", ..] => Some(ErrorMessage::DrugCellLines),
         ["drug", "interactions", ..] => Some(ErrorMessage::DrugInteractions),
-        ["cvx", "sync", ..] => Some(ErrorMessage::CvxSync),
+        ["cvx", "sync", ..] => Some(ErrorMessage::CvxUnavailable),
         ["ema", "sync", ..] => Some(ErrorMessage::EmaSync),
         ["ddinter", "sync", ..] => Some(ErrorMessage::DdinterSync),
         ["who", "sync", ..] => Some(ErrorMessage::WhoSync),
