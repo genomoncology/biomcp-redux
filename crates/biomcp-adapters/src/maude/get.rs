@@ -1,22 +1,17 @@
 use super::{SPEC, raw};
-use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::{AdverseEventGet, AdverseEventSection};
-/// One identity-checked retained response; section reads share its ordinary transport cache.
-#[derive(Debug)]
-pub struct Report {
-    /// Kept native source fields, without administrative contacts.
-    pub record: biodata::MaudeReport,
-    /// Original retrieval metadata.
-    pub metadata: ReplyMetadata,
-}
 /// Exact numeric native key; never probe another endpoint or source family.
-pub fn get(leg: &Leg<'_>, query: &AdverseEventGet) -> Result<Option<Report>, RequestError> {
+pub fn get(
+    leg: &Leg<'_>,
+    query: &AdverseEventGet,
+) -> Result<Option<biodata::MaudeReport>, RequestError> {
     if query.section() == Some(AdverseEventSection::Devices) {
         crate::adverse_event_sources::components::gmdn(leg)?;
     }
     let selector = format!("mdr_report_key:\"{}\"", query.id().as_str());
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
-    let (reply, metadata) = leg.json_received_checked::<raw::Response>(
+    let (reply, _) = leg.json_received_checked::<raw::Response>(
         &endpoint,
         &[("search", Arg::Text(&selector)), ("limit", Arg::Num(1))],
         |reply| {
@@ -32,10 +27,7 @@ pub fn get(leg: &Leg<'_>, query: &AdverseEventGet) -> Result<Option<Report>, Req
         },
     )?;
     Ok(match reply {
-        raw::Response::Page { results, .. } => results.into_iter().next().map(|record| Report {
-            record: super::map::report(record),
-            metadata,
-        }),
+        raw::Response::Page { results, .. } => results.into_iter().next().map(super::map::report),
         raw::Response::Absent { .. } => None,
     })
 }

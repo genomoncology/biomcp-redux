@@ -19,4 +19,4 @@ mod get;
 mod map;
 mod raw;
 mod search;
-pub use get::{Report, get};
+pub use get::get;

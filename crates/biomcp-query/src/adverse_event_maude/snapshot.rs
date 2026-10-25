@@ -72,7 +72,7 @@ pub(super) fn load(
             out.status = Status::Absent;
             return Ok(None);
         };
-        let saved = (report.record, out.sources.clone());
+        let saved = (report, out.sources.clone());
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
         let snapshot = store.save_source_snapshot(&key(query), &payload, &out.sources)?;
