@@ -59,7 +59,47 @@ A fresh clinical reviewer read the passages below on 2026-10-25 and accepted the
 | Q32 | Can unphased TPMT c.460G>A and c.719A>G establish *1/*3A? | M: no; *3B/*3C in trans remains possible. | C17; authored phase-ambiguity control. |
 | Q33 | What do empty and unavailable results establish? | Retrieval-only controls: source-local no matches versus failure; neither supplies a normal result or dose. | C27/P09 if native zero; explicit authored failure controls. |
 
-A 38-attempt recipe samples the current tiers for these questions; it does not claim every question has a positive captured answer. In particular Q09–Q11, Q25 and complete guideline prose may need explicit future capture requests. Preserve these gaps rather than expanding the recipe. A source's five-row page may not include a question's exact recommendation. No row outside that actual page is asserted as observed.
+### Per-question source and section coverage
+
+Status here describes whether the retained API captures answer the entire question. The accepted clinical literature answer above remains valid in its stated version. `answered` means the needed API fact is present; `partial` means some source identity/context is present but the full answer is not; `unanswered` means the required answer was not captured. Every source is independent. A five-row page never proves absence beyond its declared scope.
+
+| Question | Status | Source and section | Actual coverage or missing part |
+| --- | --- | --- | --- |
+| Q01 | answered | CPIC pairs/guidelines | C03/C21 identify guideline and both drugs. |
+| Q02 | partial | ClinPGx annotation; CPIC diplotype | P10 gives source variant mappings with a newer reference version; C16/C25 literal star-name lookups are empty. |
+| Q03 | answered | CPIC recommendations | C09/C15 carry both source score groups and their reduction/titration text. |
+| Q04 | unanswered | CPIC recommendations; website notice | C09/C15 have no 1.75 row; the reviewed July notice is not an API capture. |
+| Q05 | partial | ClinPGx annotation | Captured identifiers do not implement the reviewed proxy/causal testing qualification. |
+| Q06 | answered | CPIC pairs | C03 has tegafur with `usedforrecommendation: No`. |
+| Q07 | answered | CPIC diplotype | C17 reports the declared TPMT expression as intermediate. |
+| Q08 | answered | CPIC diplotype | C18 reports the declared NUDT15 expression as intermediate. |
+| Q09 | unanswered | CPIC diplotype | No exact *5/*5 request was reserved. |
+| Q10 | unanswered | CPIC diplotype | No exact function-pair mapping capture. |
+| Q11 | unanswered | CPIC diplotype | No exact function-pair mapping capture. |
+| Q12 | unanswered | CPIC recommendations | C10/C11 first pages concern azathioprine, not mercaptopurine. |
+| Q13 | unanswered | CPIC recommendations | No malignancy-specific mercaptopurine row captured. |
+| Q14 | unanswered | CPIC recommendations | Joint keys exist, but this mercaptopurine phenotype row is not in the sampled page. |
+| Q15 | unanswered | CPIC recommendations | No thioguanine recommendation row captured. |
+| Q16 | partial | CPIC recommendations | Joint keys and indeterminate values are preserved; the literature's missing-second-gene caveat is not fully captured. |
+| Q17 | partial | CPIC guidelines | C23 identifies the tamoxifen guideline, but not its cancer-setting prose. |
+| Q18 | unanswered | CPIC recommendations | C12 first page concerns amitriptyline, not tamoxifen. |
+| Q19 | unanswered | CPIC recommendations | No postmenopausal tamoxifen row captured. |
+| Q20 | unanswered | CPIC recommendations | No premenopausal tamoxifen row captured. |
+| Q21 | unanswered | CPIC recommendations | No tamoxifen endoxifen comment captured. |
+| Q22 | unanswered | CPIC recommendations | Tumor/germline qualification remains in reviewed literature only. |
+| Q23 | unanswered | CPIC recommendations | Endpoint evidence distinction remains in reviewed literature only. |
+| Q24 | partial | CPIC diplotype/pairs; ClinPGx label references | C20 maps the expression; C07 identifies the pair without CPIC guideline, P08 supplies references, not DPWG dosing text. C13 concerns atazanavir. |
+| Q25 | unanswered | ClinPGx annotation/label | No exact diplotype-guidance detail captured. |
+| Q26 | partial | ClinPGx annotation/label | References exist; source-defined deficient-allele guidance is not captured in min tier. |
+| Q27 | unanswered | ClinPGx label/guideline detail | P08 min references do not expose competing guideline prose. |
+| Q28 | answered | ClinPGx annotation | P10 has exact PA166134421 Toxicity/Neoplasms and distinct PA166224841 Other. |
+| Q29 | partial | CPIC pairs; ClinPGx annotation | Independent evidence and guidance objects are observed; the framework interpretation is literature-reviewed. |
+| Q30 | answered | CPIC pairs/recommendations | C07 has level A without guideline; C13's complete UGT1A1 collection concerns another drug. |
+| Q31 | unanswered | CPIC diplotype | Declared-expression lookup is proved; no phase resolution or ambiguity API was captured. |
+| Q32 | unanswered | CPIC diplotype | No unphased-variant-to-diplotype conversion is offered or captured. |
+| Q33 | partial | CPIC pairs; ClinPGx annotations; authored failures | C27 zero and P09 positive establish source-locality. Failure controls are proposed, not executed. |
+
+No further provider call belongs to this investigation. Implementation tickets must retain these gaps and capture their named exact selectors or detail tier before accepting them. The contained 0.9 PGx comparison is a named later proof ticket, with verified containment and an explicit request ledger; no legacy executable runs here.
 
 ### Clinical ruling boundaries
 
@@ -158,19 +198,15 @@ M01 and M02 return identical JavaScript shells, so they retain no actual policy/
 
 ### Use and terms
 
-Keep API access, data reuse, website text, guideline manuscripts and third-party components separate. A keyless HTTP success proves access, not permission to redistribute. No curator answer or complete source body enters Git.
+The PM ruled on 2026-10-25 that CPIC and ClinPGx both use `noncommercial`, group `noncommercial`, under the shared [ClinPGx data use policy](https://www.clinpgx.org/page/dataUsagePolicy). Both remain on by default under the existing decision; commercial users can disable the group. The type ticket must capture actual current policy text. M01/M02 retained JavaScript shells, not that text, so this design distinguishes the PM's product ruling from an independently verified policy receipt. Current official footer text read through the web reader names Creative Commons Attribution-NonCommercial-ShareAlike 4.0. No paid or commercial permission is assumed.
 
-| Asset | Current evidence | Proposed use label and group | Unresolved scope |
-| --- | --- | --- | --- |
-| ClinPGx API data | API introduction explicitly binds API data to [the current data policy](https://www.clinpgx.org/page/dataUsagePolicy). The policy page exposes only a JavaScript shell through the text reader. Current [gene page](https://www.clinpgx.org/gene/PA142672008) and [chemical page](https://www.clinpgx.org/chemical/PA449211/prescribingInfo) footer names Creative Commons Attribution-NonCommercial-ShareAlike 4.0. | Propose `noncommercial`, group `noncommercial`, with the policy URL and exact publisher name. Do not reuse the legacy BY-SA label without verification. | Capture the actual current policy text and any API-specific terms. A footer alone does not prove every underlying asset's license. |
-| CPIC database/API | Current database wiki links its license/citation section to the ClinPGx policy. | Provisional `restricted`, group `restricted`, with unresolved CPIC scope stated; PM must settle against captured policy. Source remains open by default under the standing product rule unless disabled or a required user key is missing. | Establish whether current policy distinguishes CPIC database facts, CPIC guideline text and other ClinPGx content. Do not infer CPIC manuscript terms from an API or website footer. |
-| CPIC manuscripts | Each journal or source publication carries its own reuse terms. | Preserve native publication URL and actual manuscript terms when exposed. | No copied recommendation prose is licensed merely by a PMID. |
+API access, source database facts, website content, journal manuscripts and third-party components keep their own terms. A keyless success is not a redistribution grant. The [key rule](../../decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md) still prevents calls to a source whose terms require the user's key when none is configured. Neither bounded capture used credentials. Keep terms names and links in source outcomes and health; use the existing disable groups, with no separate PGx policy system.
 
-The [open-by-default decision](../../decisions/2026-10-24-sources-are-open-by-default.md) supplies the existing labels and disable groups. The [keyed-source decision](../../decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md) applies if current terms require a user's account or key. Such a source makes no request without that configured key. Do not borrow credentials, infer authorization from old code or fall back to an unofficial mirror. A 401 or 403 ends that source's capture allocation. No request for paid access or account creation is part of this investigation.
+The source registry name is `clinpgx`; `pharmgkb` remains only a retired spelling that returns the replacement without provider work. CPIC remains `cpic`. Do not register two names for the same API. No licensed curation-team answer or raw source body enters Git.
 
 ### Identity and joins
 
-Source identities remain separate. A CPIC gene symbol is a source key; a returned HGNC, NCBI or Ensembl identifier can support a typed gene next step after equality checks. A CPIC drug key is its published source-qualified identifier. Preserve every supplied cross-reference and its namespace. A ClinPGx PA identifier is a ClinPGx object identity, not a CAid, an rsID or a universal drug identifier. A guideline ID, an annotation ID and a publication PMID refer to different objects.
+Source identities remain separate. A CPIC gene symbol is a source key; a returned HGNC, NCBI or Ensembl identifier can support a typed gene next step after equality checks. A CPIC drug key is its published source-qualified identifier. Preserve every supplied cross-reference and its namespace. A ClinPGx PA accession is a ClinPGx object identity. It is not the shared `PaId`, which belongs to a different identifier namespace, and it is not a CAid, rsID or universal drug identifier. Use a separate checked ClinPGx accession type, never `VariantId::PaId`. A guideline ID, an annotation ID and a publication PMID refer to different objects.
 
 Named alleles keep gene context, native allele ID, exact source spelling, optional definition ID, copy representation and source version when supplied. Diplotypes keep the entire source expression, gene context, source tuple and original lookup data; the captured view supplies no numeric record identity or allele IDs. Do not invent either. Preserve unknown, uncertain, duplicated and multiple returned mappings. Do not sort two allele strings, infer phase, strip copy suffixes, turn a star allele into one genomic variant, or calculate an activity score.
 
@@ -217,100 +253,117 @@ The delegate reports raw compact JSON bytes and a consistently labeled approxima
 
 ## 3. What would delight the agent
 
-1. **First question.** “Which source guidance exists for this explicitly named gene and drug?” One `search pgx --gene SYMBOL --drug-id ID --source cpic` returns source pair candidates and native guideline presence. Do not guess whether a bare word is a gene or drug.
-2. **Smallest useful header.** Native pair ID if present, exact gene and drug IDs, source labels, guideline reference, native evidence/testing labels, source terms and a section count when the provider reports it. A CPIC level is not a source recommendation strength or a ClinPGx annotation level.
-3. **Next step.** Typed actions expose the exact selected guideline, a recommendation page, a source diplotype lookup, annotations and source frequency records. Each action keeps the source, gene, drug and all page selectors. Missing join IDs produce a named limitation rather than a name-based action.
-4. **Identity.** Return exact gene IDs, drug key, PA identities, guideline IDs, recommendation IDs, alleles/diplotypes and PMID links. Names aid display; IDs permit chaining.
-5. **Disagreement.** Display separate source records with their own evidence framework, population, drug, genotype/diplotype, guideline date and classification. Do not vote, blend levels or select the newest date as a clinical winner.
-6. **Empty and failure.** Native successful zero, an unsupported public field, missing user key, disabled source, rejected identity, malformed JSON, timeout and a truncated collection have distinct outcomes. None means “safe dose” or “no clinically relevant association.”
-7. **Speed.** Start with one selected source and one bounded page. Named sections call only their owning source. Cold/warm latency remains unmeasured until actual commands exist; no read synchronizes a database.
-8. **What changes from 0.9.** Remove bare-text gene/drug routing, substring evidence filtering, hidden overfetch and automatic multi-source section expansion. Keep source facts, complete context, independent paging and useful failure distinctions.
-9. **Stop early.** A pair header can answer whether a source tracks that exact pair and links a guideline. A source-reported mapping can answer how the source labels an explicitly supplied diplotype. Neither turns into a patient-specific treatment choice.
-10. **Trust.** Every source claim retains its record URL, publication, framework, date/version when supplied, exact matching scope and terms. Source revisions and retrieval times stay separate.
+1. **First question.** “Which guidance does CPIC track for this declared gene?” `search pgx --gene DPYD --source cpic` returns a bounded native pair page. No bare input is classified as gene or drug.
+2. **Header.** Exact source, gene, pair ID, drug ID/name and native guideline/level/testing facts let an agent choose a follow-up. CPIC level, ClinPGx evidence level and recommendation strength stay independent.
+3. **Guidance.** `get pgx --gene DPYD recommendations --source cpic` returns source rows with native drug names and whole lookup keys. It never locally filters by drug name or silently claims a selected patient recommendation.
+4. **Diplotype.** `get pgx --gene TPMT diplotype --diplotype '*1/*3A' --source cpic` reports the source's complete lookup result. No allele calling, phase resolution or score calculation occurs.
+5. **Annotations.** One ClinPGx kind is disclosed at a time. Min pages let the agent choose an exact accession; a captured single-record base get will expose detail. Missing disease fields in min never become disease absence.
+6. **Disagreement and dates.** Keep source records independent, complete contexts and source versions distinct from retrieval date. A website notice absent from API tables remains an explicit limitation, never a local correction.
+7. **Failure.** A successful zero, missing key, disabled source, unavailable transport, identity rejection and unsupported field remain different. None implies a normal phenotype or safe dose.
+8. **Cost.** Start with a bounded page and one source. Offline projections below measure proposed bodies only. Product latency, full envelopes and contained 0.9 comparison remain later proof.
+9. **Stop early.** Pair facts can answer guideline presence; a declared diplotype can answer a source-reported label. Neither is a patient treatment choice.
+10. **Trust.** Return exact native IDs, source links, original scope, terms and available dates. Every next step keeps the selectors and selection scope that produced it.
 
-## 4. Proposed types and command tree
+## 4. Reviewed types, schemas and commands
 
-All names below are proposals for PM review. Reuse shared strings, identifiers, dates, source outcomes, terms, pages and typed actions. Generate schema and help once from the accepted types. A capture's missing field remains optional; an entire tier missing the field makes the section unsupported. Do not add a field because old structs contain it.
+The PM settled these interface choices on 2026-10-25. Domain types preserve source facts without I/O. Consumer types own queries, header/card/page disclosure, envelope outcomes and typed actions. Schemas and help derive from one accepted type definition. This design changes no product code or schema.
 
-### Domain records and Statement boundary
+### Domain and identity boundaries
 
-`PgxPair` contains source-owned pair identity, gene/drug references, optional guideline identity and separate native CPIC level, ClinPGx level and testing labels. It contains no inferred interaction severity. `PgxGuideline` preserves the observed source guideline URL and optional source identity/publication/update fields only when an actual tier supplies them. The captured summary does not supply the latter fields. Publication date and API retrieval date remain distinct.
+`PgxPair` holds exact source pair ID, gene, drug ID/name and optional guideline URL, PMID list, CPIC/ClinPGx levels, testing, provisional and recommendation-use facts. Preserve compound labels such as `B/C`. `PgxGeneIdentity` holds source symbol, exact cross-references, lookup method and native record version. A record version is not a dataset release. `PgxGuidelineReference` holds the captured summary's name, URL, ordered drug names and gene symbol/URL objects. It supplies no invented publication ID or version.
 
-`PgxNamedAllele` contains source ID, gene reference, source name, optional definition ID, native copy value and source-defined sequence/location references. `PgxDiplotypeResult` contains the source diplotype record/expression, complete gene context, native allele members, lookup method, source lookup key, phenotype/activity/allele-status values when present and all returned matches. It does not implement allele calling, phasing or diplotype normalization.
+`PgxRecommendation` keeps recommendation ID, complete multi-gene lookup key, drug name, guideline name/URL, implications, full source recommendation, classification, phenotype/activity maps, population and comments. The captured view has no drug ID, separate allele-status field, version or date. The adapter ticket captures native `drugid` and deterministic `order` before those capabilities are accepted. The currently proved gene-keyed section ships without a local drug filter.
 
-`PgxRecommendation` preserves source row identity, whole multi-gene lookup key, native drug name and guideline URL, population, classification/strength, source recommendation, implications and comments. Exact drug/guideline IDs, publication references and versions stay absent for the captured view. A richer captured source tier is required before adding them. `PgxAnnotation` preserves native annotation kind, record identity/version, evidence framework, genes, chemicals, variant or haplotype members, phenotype or outcome scope and reference links. Clinical, guideline and label annotations are separate typed collections. `PgxFrequency` preserves named allele, source population/group, publication, native frequency value/label and source-provided counts or aggregation method. It computes no frequency or ancestry assignment.
+`PgxNamedAllele` preserves exact gene/name, optional native allele and definition IDs, source version, distinct function statuses and source activity strings. `PgxDiplotypeResult` preserves source expression, gene, complete `diplotypekey` counts, both function/activity values, source result, consultation/EHR text and result lookup key. The source view has no numeric row ID or allele IDs. Preserve `n/a`, uncertainty and multiple results. Do not strip copy notation or compute function, phase or phenotype.
 
-A star allele or diplotype is not a `VariantRef::Allele`. A pair-level recommendation is not a claim about an arbitrarily chosen genomic member. The currently agreed shared `Subject` alternatives do not explicitly model a phased named-allele diplotype. Preserve such source records natively with `statement_unmapped: true`. The same applies when a source classification is outside approved propositions or carries no supported subject identity. Do not misuse a compound molecular profile to conceal phase, copy or gene-result semantics. A new proposition or subject kind requires both owning PMs' agreement under the shared model. An explicitly source-given genomic variant claim may use existing `Statement` only when subject, proposition, classification and context fit without interpretation; no clinical annotation level becomes therapeutic sensitivity or resistance by inference.
+Star alleles and diplotypes stay native PGx records. They produce no `Statement` and no `statement_unmapped` flag. No ClinPGx evidence level maps to a shared proposition. This slice adds no shared `Subject` kind. Source-given genomic identifiers can provide exact variant lookup actions only where the target accepts that identifier and the source establishes its scope; a single rsID is not a whole haplotype. ClinPGx accessions use a distinct namespace and never the shared `PaId`.
 
-### Proposed consumer schemas
+`PgxAnnotationHeader` preserves every captured min-tier row field, including native numeric/PA identities, evidence term, location and native gene/chemical/link arrays. `PgxAnnotationDetail` retains all captured base-tier fields when a direct single-get capture proves that request. Clinical, guideline and label kinds remain separate. Min guideline/label rows are references, not full guidance. Missing min-tier disease, history or genotype text is unsupported disclosure, not a negative fact.
 
-Propose `biomcp.pgx_page/1`, `biomcp.pgx_card/1`, `biomcp.pgx_guidelines/1`, `biomcp.pgx_recommendations/1`, `biomcp.pgx_diplotype/1`, `biomcp.pgx_annotations/1` and `biomcp.pgx_frequencies/1`. This investigation changes no schema. `biodata` owns domain records without I/O. `biomcp-types` owns request selectors, page limits, response headers, outcomes and next actions. Source adapters own checked native replies. Query composes no clinical conclusion.
+### Concrete JSON body shapes and fields
 
-### Command proposal
+These are design shapes, not executed outputs. Common envelopes reuse architecture's `schema`, `status`, exact `query`, `result`, applicable `page`, source outcomes/terms, problems and typed `next`. Offline projection sizes count the bodies below only; they do not claim measured full envelopes. Names inside native rows retain the native spelling and complete fields. Do not duplicate a native row into a second summary within the same response.
 
-| Command | Header and disclosure | Exact selectors and next actions |
+Header and compact gene card:
+
+```json
+{"header":{"source":"cpic","gene":"TPMT"},"identity":{"symbol":"TPMT","hgncid":"HGNC:12014","ncbiid":"7172","ensemblid":"ENSG00000137364","clinpgxid":"PA356","lookupmethod":"PHENOTYPE","version":448}}
+```
+
+The illustrated card lists only source-supplied identity fields. Implemented output must read their actual captured values, never this illustration as a fixture. The default card is gene identity, not the deferred exact pair card. Bulky source methods and frequencies do not appear in it.
+
+Every bounded collection body follows this shape:
+
+```json
+{"header":{"source":"cpic","gene":"DPYD"},"items":[],"page":{"offset":0,"returned":0,"total":0,"total_kind":"source"}}
+```
+
+The empty values demonstrate fields only; native fixtures supply actual counts and rows. Pair items contain the entire C03–C08/C28 row. Recommendation items contain the entire C09–C15 row. Guideline-reference items contain the entire C21–C23 row. A ClinPGx collection header adds `kind`; its page uses `total_kind: "observed"`, the received collection length, and ordinary checked local page bounds. It does not claim native server total or stable provider pagination. An explicitly bounded retained collection supplies all later local pages in observed order. No row or context field is dropped to satisfy output cost.
+
+Diplotype result:
+
+```json
+{"header":{"source":"cpic","gene":"TPMT"},"diplotypes":[]}
+```
+
+The array carries every complete returned row. Zero, one and multiple rows remain distinct; missing source row IDs stay absent. `--diplotype` is echoed unchanged in the outer query.
+
+Proposed single annotation detail:
+
+```json
+{"header":{"source":"clinpgx","id":"PA166134421"},"annotation":{}}
+```
+
+The annotation object retains the full captured base-tier row. This body is projected offline from P10, but native direct-get request and returned-accession equality need one future capture before implementation accepts it. An annotation numeric ID and its PA accession remain separate fields.
+
+Proposed schemas are `biomcp.pgx_page/1`, `biomcp.pgx_card/1`, `biomcp.pgx_guidelines/1`, `biomcp.pgx_recommendations/1`, `biomcp.pgx_diplotype/1`, `biomcp.pgx_annotations/1` and `biomcp.pgx_annotation/1`. No frequency schema is approved. The source adapters own native decoding and checked identity; query composes disclosure without clinical inference. No new client, cache or variant parser is introduced.
+
+### Command tree and per-command next actions
+
+| Command | Body and proven scope | Next actions |
 | --- | --- | --- |
-| `search pgx --gene SYMBOL --source cpic` | One page of tracked gene/drug pairs with native guideline and level labels. | `--drug-id` narrows with an exact source key only after a positive native capture. `--cpic-level` and `--pgx-testing` wait for their own positive native selector proofs. `--limit`/`--offset` keep independent native pages. |
-| `search pgx --drug TEXT --source cpic` | Source-native drug candidates, never an automatically chosen pair. | Native text selector must be proved; unchanged literal input is echoed. Candidate actions use exact returned IDs. No local substring filter or reranker. |
-| `get pgx --gene SYMBOL --drug-id ID --source cpic` | Selected pair identity and concise guideline references only. | Reject missing/ambiguous pair scope. No default recommendation, automatic phenotype or multi-source fan-out. |
-| `get pgx --gene SYMBOL --drug-id ID guidelines --source cpic` | One source guideline-reference page; publication records only when directly supplied by a captured tier. | `--section-limit`/`--section-offset`. Every linked article uses the exact returned PMID. |
-| `get pgx --gene SYMBOL --drug-id ID recommendations --source cpic` | Deferred until a native exact drug-ID selector and richer source table are captured. Gene-only views cannot prove this pair-specific route. | `--population` and a source-owned `--lookup-key JSON` are proposed only after exact selector captures; do not accept a bare phenotype as a universal key. All matches stay reachable. |
-| `pgx diplotype --gene SYMBOL --diplotype TEXT --source cpic` | Exact source lookup result(s), with source-reported result method and values. | No score calculation. Native zero and multiple rows differ. A recommendation action includes a complete source key, drug and population only when established. |
-| `get pgx --gene SYMBOL annotations --source pharmgkb` | One explicitly selected annotation-kind page with exact source subjects and native evidence levels. | `--kind clinical|guideline|label` selects independent collections. Default kind proposed `clinical`. `--section-limit`/`--section-offset` need proved source paging or an approved local snapshot. |
-| Deferred: `get pgx --gene SYMBOL frequencies --source cpic` | Possible native named-allele population page. No harvested question justifies implementation yet. | Inventory C24 for legacy accounting only; no clinical ancestry inference, aggregation or patient risk calculation. |
+| `search pgx --gene SYMBOL --source cpic` | Native pair page from C03–C08. `--cpic-level` has C28 positive proof. `--limit`/`--offset` select source pages; deterministic order is captured in the adapter ticket. No positional search. | One exact gene-card selection where accepted; distinct source-returned gene associations pivot in native order. Page retains gene, source, level and paging selectors; then at most three useful section/pivot actions. Exact pair get remains deferred. |
+| `get pgx --gene SYMBOL --source cpic` | Compact source gene identity card from C01. | At most five actions, prioritizing recommendations, guidelines, declared diplotype lookup help and annotation search with a proved exact gene relation. No frequency step. |
+| `get pgx --gene SYMBOL recommendations --source cpic` | Complete gene-keyed recommendation rows from C09–C15, native drug names, complete lookup keys and populations. `--section-limit`/`--section-offset`. No local drug filter. | Page first when more rows remain; exact source-supported gene pivots only, then at most three useful actions. Do not emit a drug-ID action from native drug name alone. |
+| `get pgx --gene SYMBOL guidelines --source cpic` | Native summary-reference page from C21–C23, with section paging. | Exact source-returned linked genes pivot in native order; page follows; source publication actions only when that exact record actually supplies a PMID. No invented article action from guideline name. |
+| `get pgx --gene TPMT diplotype --diplotype '*1/*3A' --source cpic` | Full native source lookup from C17–C20; C16 preserves literal DPYD zero. | At most five steps. A gene-keyed recommendation section remains available; never emit a uniquely selected recommendation from an incomplete multi-gene key. Exact alternate candidate selections require real source identities. |
+| `get pgx --gene SYMBOL annotations --kind clinical --source clinpgx` | Local page from the captured min collection, observed total and native order. `--kind clinical|guideline|label`, default clinical. Section limit/offset are local collection selectors. | One `disambiguate` single-annotation get per clinical candidate by exact PA accession after direct base-get proof, then page, then at most three useful pivots. Kind/source/gene and collection identity persist. Guideline/label kinds expose only proved references until richer detail is captured. |
+| Deferred: `get pgx --annotation-id PA… --source clinpgx` | Single base annotation; one future exact direct-get capture required. | At most five exact source gene/drug/variant actions and available section actions. Names never become identifiers. |
 
-The source registry can retain `pharmgkb` as its compatibility identifier while displaying publisher ClinPGx and current terms. A rename needs a PM ruling; do not add two registry sources for one API. Literal identifiers retain their published namespace; no invented `CPIC:GENE:DRUG` compound identifier is accepted. The explicit named options above remove the old gene/drug word-shape heuristic. Required source-specific identifiers are checked before I/O.
+These rules apply architecture 6.10. One pure PGx `next` function returns typed requests; presentation spells the arguments. Selectable pages emit every candidate disambiguation before the page action, bounded by checked page size, then at most three extras. Association pages emit one pivot per distinct linked record in native order before page and extras. Other responses have at most five actions. `fresh` retries the same request after failed/stale source outcome; disabled/missing-key recovery uses existing shared actions. No frequency action appears anywhere. A deferred selector or unsupported detail command does not appear as an executable next until its source proof and implementation exist.
 
-### Disclosure and measurement budget
+### Deferred selectors and proof obligations
 
-Default search exposes one small pair page. The default card exposes pair identity and guideline links. Recommendation prose and complete multi-gene context belong in a named section; source annotation bodies and frequency studies lie deeper. Every row remains reachable through an exact next action. Start the default page proposal at five rows, then measure complete actual output on the harvested cases before accepting a byte budget. A smaller default changes page size, never removes fields from the returned row.
+`--drug-id`, exact pair card, `--population`, `--lookup-key` and `--pgx-testing` are unproved and deferred. No positional search or drug-text search is proposed; the question bank does not need a drug-name search. The adapter ticket separately captures exact drug IDs and deterministic native ordering without local drug filtering. The type ticket captures current policy text. A single-record ClinPGx base get needs one exact native capture. These are implementation proof tasks, not unresolved product choices or permission to expand this investigation's provider ledger.
 
-| Layer | Measurement at this design revision | Budget acceptance requirement |
-| --- | --- | --- |
-| Default pair search/card | Unmeasured; no PGx product command exists. | Measure CLI and MCP compact JSON on every representative source capture; keep full envelope and validated comparable body separately. |
-| Guideline page | Unmeasured. | Preserve PMID/ID/date roles and every returned source link; set a per-case full-output ceiling from measured size plus reviewed headroom. |
-| Recommendation page | Unmeasured. | Include all genes, population, guideline and source text. Do not meet a cap by deleting context. Reduce default row count if needed. |
-| Diplotype lookup | Unmeasured. | Include every source mapping and copy/phase context. A zero/multiple result gets its own ceiling. |
-| Annotation/frequency pages | Unmeasured. | Establish actual public fields and complete collection bounds first. Keep each annotation kind independent. |
-| 0.9 comparison | Unmeasured for all PGx commands. | Verified network containment and an approved per-request recipe must precede execution. No old binary runs in this investigation recipe. |
+### Case map and failure boundaries
 
-No numeric product budget is presented as measured. Approximate upstream tokens do not establish a command ceiling. Routine implementation cases must enforce full-output byte ceilings, compare CLI and MCP and preserve source provenance. Any default larger than the same-question contained 0.9 output requires an explicit explanation of added facts. A missing contained 0.9 measurement remains a named comparison gap.
+| Surface | Harvested cases and required assertion |
+| --- | --- |
+| Gene search, `--gene`, `--source` | Q01/Q06/Q30: exact pair/gene/drug identities, separate level namespaces, native no-action and missing guideline. Zero source switching or name inference. |
+| `--cpic-level` | C28/Q30: exactly source-proved positive native selector, compound other levels preserved in unfiltered pages. |
+| Search `--limit`/`--offset` | Q01/Q30: complete native rows, source total and retained selectors; future exact-order capture required before stable walk acceptance. |
+| Gene card | C01/Q01: source-given IDs/method/version only; absent relations stay absent. No pair or frequency claim. |
+| Recommendations | Q03/Q04/Q12–Q16/Q18–Q27: complete native drug names, all lookup genes, original scope/comments and no locally repaired notice/table discrepancy. Unsampled questions retain their unanswered status. |
+| Guidelines | Q01/Q17/Q30: native URL/name and ordered arrays, without invented publication metadata. |
+| Diplotype and `--diplotype` | Q02/Q07/Q08/Q24/Q31/Q32: exact expression, all source mappings, native result versus literal zero, no phase or score calculation. |
+| Annotation kinds | Q28/Q29/Q33: independent clinical/guideline/label collections, default clinical, observed total and all native context fields. No merging Toxicity and Other records. |
+| `--section-limit`/`--section-offset` | C09/C15 and ClinPGx retained collections: every row remains reachable with exact source/query/collection selectors. No hidden filter or lost multi-gene context. |
+| Future single annotation selector | Q28: disambiguation by native accession, one future native base-get capture and returned-identity equality before cache admission. |
+| Source retirement | `pharmgkb` spelling returns `clinpgx` replacement with zero provider requests. |
+| Failures, empty, shared options | Q33: source-local zero versus unavailable, 429/500/timeout/broken JSON/HTTP-200 error/identity mismatch, required key, disabled source and warm-cache exclusion. Synthetic failure controls remain explicitly authored. CLI/MCP equality and byte ceilings are implementation proof. |
 
-### Proposed outside-in case map
+### Disclosure and offline byte projections
 
-The final case bank maps the harvested questions to every proposed command and option. Shared failure cases include 429, 500, timeout, broken JSON, HTTP 200 error body, mismatched gene/drug/diplotype identity, missing field, missing key, disabled source and warm-cache exclusion. Failure cases are authored replay controls, not deliberately induced provider failures. Reject invalid limits, conflicting selectors, malformed explicitly typed identifiers and missing multi-gene context before provider work.
+The default pair search and gene card answer identity/guideline-presence questions. Recommendation prose belongs behind its named section. Min annotation pages expose choices; source base detail stays behind exact selection. Start with five rows per page. Smaller pages never delete a returned row's clinical context.
 
-Use exact native source recordings for known-positive gene, drug, pair, level, testing, population, lookup-key and annotation-kind selectors. Add a second-page case that proves no duplicated or lost rows. Preserve duplicate labels with distinct native identities and all recommendations for different populations. Include gene-key presence with no guideline, literal missing diplotype, complete multi-gene response, copy-bearing allele and source classification with an unsupported Statement subject. Do not label a synthetic key or body as native clinical proof.
+The separate offline projection recipe uses only the verified j12644 archive, compact UTF-8 JSON with `ensure_ascii=False` and separators `(',', ':')`. It constructs the exact result-body shapes above, keeping complete native rows. Pair and recommendation/guideline pages use captured Content-Range total and requested offset. Diplotypes preserve the whole captured list. Gene cards select the seven named identity fields, exactly as supplied. ClinPGx min arrays are paged five at a time through every retained collection, with observed totals. Each P10 annotation is projected as one design-only base detail body. No provider call, program build, old binary or clinical transform runs.
 
-### Per-command and option case coverage
-
-These are implementation acceptance stories, not authored or executed product cases. Keep source-capture dates beside each actual replay recording. A native request that fails cannot serve as the positive example for a filter. A missing native fixture blocks that option's implementation ticket; it does not authorize fabrication.
-
-| Proposed surface | Harvested story and assertion | Proof limit or negative control |
-| --- | --- | --- |
-| Search gene and `--gene` | Q01, Q07, Q17: source pairs keep exact returned gene IDs, guideline references and native order. | C03–C08; returned-identity mismatch rejects before cache. |
-| Search drug and `--drug` | Q01: discover fluorouracil and capecitabine as separate exact source candidates. | C02 proves an exact source-name list request, not arbitrary substring search. Current source text-search contract remains unmeasured. |
-| Combined `--gene`/`--drug-id` | Q01, Q24: native exact pair selection preserves each returned candidate. | Exact `drugid` pair filter needs its own future positive capture. No local name matching. |
-| `--source` | Q24, Q28–Q30: source selection preserves DPWG attribution and separate CPIC/ClinPGx labels. | Disabled and missing required key make zero requests; unknown source is a usage error. |
-| `--cpic-level` | Q30: native level A filter keeps native guideline presence separately. | C28 is the executed positive witness; malformed/unsupported values fail before I/O. |
-| `--pgx-testing` | Q30: source testing label remains independent from CPIC level. | No direct positive request is reserved; defer option until a bounded capture proves its selector and vocabulary. |
-| Search `--limit`, `--offset` | Q01/Q30: a page identifies its bounded scope and exact continuation. | C03–C08 have no proved stable order. C15 tests recommendation page shape only. Pair pagination remains a named gap. |
-| Default get card | Q01/Q30: selected pair shows identity, native guideline presence and source terms without recommendations. | No hidden ClinPGx request; missing/ambiguous identity returns candidates/problem rather than first-row selection. |
-| `guidelines` | Q01/Q17: keep logical guideline ID, publications, dates and exact article actions. | C21–C23; absent publication metadata is not invented. |
-| `recommendations` | Q12–Q15/Q18–Q21: complete source lookup key, population, drug, recommendations and comments survive. | C09–C14 may not contain a particular clinical row within five results. Such questions remain unproved. |
-| `--population` | Q13/Q14/Q19/Q20: exact native population selector never combines distinct recommendations. | No direct positive selector request is reserved; defer option, expose native context only. |
-| `--lookup-key` | Q12–Q16: source-supplied complete multi-gene key remains unchanged and produces all exact matches. | C09–C14 establish source fields, not an exact lookup selector. Defer the selector until direct proof. Partial keys never select a patient recommendation. |
-| `pgx diplotype`, `--diplotype` | Q02/Q07/Q08/Q24: exact source lookup reports every native mapping. | C16–C20; Q31/Q32 reject unsupported phase-derived input selection. Preserve unknown/copy expressions unchanged. |
-| `annotations`, `--kind clinical` | Q28/Q29: native evidence level, Toxicity/Neoplasms and Other rows stay separate, with source IDs. | P01–P06/P10; `view=min` versus `view=base` differences remain explicit. |
-| `--kind guideline`, `--kind label` | Q01/Q24/Q27: guideline and regulator label annotations remain independent collections. | P07/P08 prove min reference lists, not full annotations; no shared deduplication or total. |
-| `--section-limit`, `--section-offset` | Q12–Q15: one independent collection page, exact next selector and no silent omitted key context. | C09/C15 are recommendation page witnesses, not proof for other endpoints. Reject zero, invalid and incompatible selectors before I/O. |
-| Shared JSON/Markdown and MCP | Q01/Q28/Q33: same envelope, source terms, exact identity and independent outcomes across interfaces. | Native CLI/MCP equality and complete byte ceilings require future product implementation; no hypothetical passing claim. |
-| Retirement spellings | Q33: legacy positional get, evidence substring, all/full and renamed paging explain their explicit replacement. | Zero provider requests; no silent old-meaning execution. |
-| Empty, unavailable and stale data | Q04/Q10/Q11/Q16/Q33: no-source match, transport failure, missing key and dated source discrepancy stay separate. | C27/P09 may supply actual empty; failures and wrong identities use clearly authored controls. No dose inferred from missing data. |
+Each output is bounded at 1 MiB and the full projection set at 20 MiB. Record row identities/provenance, compact bytes, `ceil(bytes/4)` approximate tokens and provisional `ceil(bytes*1.15)` body ceiling; retain recipe/outputs/measurements on Yellow. These are offline design projections, not actual native product outputs, tokenizers or passing case ceilings. Complete envelope bytes, source outcomes, typed-next cost, CLI/MCP parity and cold/warm latency remain unmeasured until product implementation. The later contained 0.9 PGx comparison ticket first proves network containment, then measures the same harvested questions within a separately approved ledger. It does not run in this investigation.
 
 ### Structural risks
 
-Keep source identity and field mapping in one adapter. Generate source names, help and schema from the accepted contracts. Preserve independent annotation kinds instead of collecting a single flattened list that loses the collection total or provenance. Use the shared transport and cache admission checks; no custom client, fallback host, retry or source-specific credential store. A source response whose identity differs is rejected before caching. Isolate tests through the existing runner. Keep source recordings and raw process output outside temporary test lifetimes when a proof is retained. No general PGx inference engine or variant parser is justified here.
+Each adapter defines native fields and identities once; help/schema derive from accepted types. Separate annotation kinds preserve collection scope. Shared transport owns requests, quotas, cache and retries. Checked identity precedes cache admission. The current cache can retain a bounded source collection; use existing checked page/snapshot primitives rather than a second source-specific store. Every projected datum remains attributable to a retained row. Failures use isolated runner fixtures, never live induced errors. No activity calculator, clinical consensus ranker or patient inference engine is justified.
 
 ## 0.9 command, option and section accounting
 
@@ -321,33 +374,35 @@ Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b86
 | `search pgx` | CPIC pair rows; gene/drug search required. | Keep with explicit source, native identities, faithful totals and direct source selectors. |
 | `-g`, `--gene` | Gene text uppercased and used as primary query. | Keep explicit gene selector; use the source's supported key grammar, not free-text gene detection. |
 | positional search `QUERY` | Alias for gene option; shared conflict checks. | Drop ambiguous positional alias; retirement names `--gene`. |
-| `-d`, `--drug` | Source drug-name substring query; combined gene/drug filters locally. | Keep native candidate discovery after positive selector proof; add exact `--drug-id` for selection. No local name join. |
+| `-d`, `--drug` | Source drug-name substring query; combined gene/drug filters locally. | Drop drug-text search from the initial tree because no harvested question needs it. Exact `--drug-id` remains deferred; no local name join. |
 | `--cpic-level` | Local filter after a bounded overfetch. | Keep only after direct native positive filter capture C28. Separate from recommendation strength and ClinPGx level. |
 | `--pgx-testing` | Local match over five accepted labels. | Undecided until direct native selector and current enum proof; no hard-coded carry-forward. |
 | `--evidence` | Free-text substring of guideline name or CPIC level. | Drop under no-text-heuristics ruling. Return source labels and use exact proved native selectors. |
 | search `-l`, `--limit` | Default 10, allowed 1–50; fetches up to five times requested rows, capped at 200; truncates after local filters. | Keep bounded native paging, remove hidden overfetch and source-total/locally-filtered-count ambiguity. Proposed default five needs measurements. |
 | search `--offset` | Native offset precedes local filtering. | Keep only with a proved native stable page contract and all selectors retained in next. |
-| `get pgx QUERY` | Word-shape helper chooses gene or drug; default interactions. | Replace with explicitly declared gene/drug identity selectors and pair card; old bare form retires. |
+| `get pgx QUERY` | Word-shape helper chooses gene or drug; default interactions. | Replace with explicitly declared gene identity card and named sections; old bare form retires. Exact drug selector and pair card remain deferred. |
 | `interactions` | Gene-drug tracked-pair rows, not drug-drug interactions. | Rename pair disclosure into search/card; retirement explains the selected explicit route. |
-| `recommendations` | CPIC recommendations, with extra drug discovery and potentially multi-gene contexts. | Keep native independent page and complete lookup keys/populations; exact pair-specific route awaits richer native proof. No hidden discovery fan-out. |
+| `recommendations` | CPIC recommendations, with extra drug discovery and potentially multi-gene contexts. | Keep proved gene-keyed native page and complete lookup keys/populations with native drug names; drugid/order capture belongs to adapter ticket. No local drug filter or hidden fan-out. |
 | `frequencies` | CPIC allele frequency records, including additive drug-to-gene requests. | Defer product page because no harvested clinical question needs it; drop automatic drug-name fan-out. C24 inventories the existing source aggregate. |
 | `guidelines` | CPIC guideline summaries. | Keep proved source guideline references; full publication/version detail remains absent in the captured summary tier. |
-| `annotations` | Three PharmGKB endpoints merged and deduplicated with a shared limit. | Keep separate clinical/guideline/label collection pages under `--kind`; do not silently merge totals. |
+| `annotations` | Three PharmGKB endpoints merged and deduplicated with a shared limit. | Keep separate clinical/guideline/label min collections under `--kind`, default clinical, observed total; single base get requires one later capture. |
 | `all` | Includes every section. | Drop automatic section fan-out; named sections remain one action away. |
 | get `--full` | All sections, up to 50 rows each. | Drop bulk expansion. Explicit section pages retain all facts. |
 | multiple `SECTION` arguments | Several sections allowed at offset zero. | Replace with one named section per request and exact next actions. |
-| get `-l`, `--limit` | Bounds rows of each selected section, default 10, allowed 1–50. | Card/candidate paging uses `--limit`; named sections use shared `--section-limit`, with measured defaults. |
+| get `-l`, `--limit` | Bounds rows of each selected section, default 10, allowed 1–50. | Pair-search paging uses `--limit`; named sections use shared `--section-limit`, with provisional offline body budgets and later full-output checks. |
 | get `--offset` | Nonzero only for one named section and without full. | Rename named-section paging to `--section-offset`; reject incompatible selectors before I/O. |
 | `--json`, `-j`, section-position JSON shorthand | Shared CLI rendering selection and a legacy section-token extraction. | Global output follows current JSON-default/`--format md` contract. No PGx-specific renderer or section-token trick. |
-| PGx helper family | No separate helper in legacy CLI. | Proposed `pgx diplotype` is new explicit source lookup; not a claim of legacy parity. |
+| PGx helper family | No separate helper in legacy CLI. | The new `get pgx --gene SYMBOL diplotype --diplotype TEXT --source cpic` is an explicit source lookup, not a claim of legacy parity. |
 | recommendation drug summary and annotation note | Legacy output fields, not commands/options. | Replace hidden fan-out summaries with source row contexts and ordinary problems; preserve any captured unique fact in its owning section. |
 
 Shared transport/configuration options remain shared. Keys, disabled-source groups, replay/record, freshness, output format and help need no PGx-specific duplicate. Section failures keep current envelope outcomes. The old local CPIC-level rank and case-insensitive guideline filtering do not define a new clinical ranking. The comparison still owes actual contained old-binary outputs for the same questions; a legacy request plan alone does not prove the old runtime remained contained.
 
 ## Sources kept and deferred
 
-Keep CPIC as the source candidate for pair/guideline/recommendation and source-reported diplotype/frequency records. Keep PharmGKB through the current ClinPGx API as the annotation candidate, with independent kinds and current terms. Neither is accepted as a complete public implementation until its exact captures prove fields and identities. Do not add PharmCAT allele calling, PharmVar downloads, DPWG scraping, a sequence interpreter or a patient genotype calculator. A ClinPGx annotation may link another guideline, which remains a source link without a silently added adapter. The reviewed 33-question bank names no population-frequency question, so defer a product frequency section. C24 still examines the legacy field contract for explicit accounting; the command table records an optional proposal, not a recommendation to build it. Drop neither source merely because it is keyed or noncommercial; use the existing key and disable rules.
+Keep `cpic` for proved gene identity, pair/guideline-reference pages, gene-keyed recommendation pages and native declared-diplotype results. Keep `clinpgx` for separate min annotation collections and a single-record base get after one future capture. Both have PM-ruled noncommercial terms and stay on by default unless disabled. Retire `pharmgkb` spelling without provider work. Defer frequency commands and actions because the question bank needs none. Do not add PharmCAT calling, PharmVar downloads, DPWG scraping or a patient genotype calculator. Linked external guidelines remain attributed source references without a new adapter.
+
+The remaining type/adapter proof obligations are current policy capture, native drug-ID and stable-order witnesses, one exact ClinPGx base get and measured full product envelopes. Contained 0.9 comparison is a later proof ticket. No further provider request is authorized by this design review correction.
 
 ## Ian's questions
 
-No clinical or configuration question goes to Ian. The PM must settle the proposed explicit command forms, source registry display name, current terms scopes, native fallback for star/diplotype claims and any unresolved token comparison before filing implementation tickets. A new shared Subject/proposition requires both owning PMs. A paid service, commercial reuse commitment or newly required account needs the approval route; this design makes none.
+None.
