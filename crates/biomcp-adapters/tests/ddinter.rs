@@ -30,6 +30,23 @@ fn drug_ddinter_preserves_pair_order_orientation_and_all_provenances() {
     assert_eq!(pairs[0].provenance[0].part.as_ref(), "B");
     assert_eq!(pairs[0].provenance[1].part.as_ref(), "L");
     assert_eq!(pairs[1].partner_id(), "DDInter3");
+    let claim = pairs[0].claim("sha256:synthetic-revision").unwrap();
+    assert_eq!(claim.anchor().id.to_string(), "DDInter1");
+    assert_eq!(claim.partner().id.to_string(), "DDInter2");
+    assert_eq!(claim.additional_attributions().len(), 1);
+    assert_ne!(claim.attribution(), &claim.additional_attributions()[0]);
+    assert_eq!(
+        claim.attribution().record.as_ref().unwrap().as_str(),
+        "ddinter_downloads_code_B.csv:2"
+    );
+    assert_eq!(
+        claim.additional_attributions()[0]
+            .record
+            .as_ref()
+            .unwrap()
+            .as_str(),
+        "ddinter_downloads_code_L.csv:3"
+    );
     assert!(
         partners(
             vec![row("A", 2, "DDInter1", "DDInter2", "Other")],
