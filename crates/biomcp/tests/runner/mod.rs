@@ -321,11 +321,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_native::trials());
     trials.extend(drug_native_identity::trials());
     trials.extend(drug_label::trials());
-    trials.extend(disease_registry::trials());
-    trials.extend(disease_ols::trials());
-    trials.extend(disease_mydisease::trials());
-    trials.extend(disease_monarch::trials());
-    trials.extend(disease_seer::trials());
+    trials.extend(disease_trials());
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
@@ -511,4 +507,12 @@ pub(super) fn seer_native(path: &Path) -> Result<(), String> {
 
 pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
     disease_monarch::native(path)
+}
+
+fn disease_trials() -> Vec<Trial> {
+    disease_registry::trials().into_iter()
+        .chain(disease_ols::trials())
+        .chain(disease_mydisease::trials())
+        .chain(disease_monarch::trials())
+        .chain(disease_seer::trials()).collect()
 }
