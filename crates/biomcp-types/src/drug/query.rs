@@ -232,7 +232,7 @@ impl DrugSource {
         }
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
-            Self::WhoPq => true,
+            Self::WhoPq => false,
             Self::Mychem => true,
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
             Self::Civic => {

@@ -83,6 +83,7 @@ fn check() -> Check {
     if pair(&env, &replay, &fresh, 0)?.get("result") != before.get("result") {
         return Err("fresh read downloaded or changed native rows".into());
     }
+    stale(&env, &replay, &get)?;
     policy(&env, &replay, &get)?;
     Ok(())
 }
@@ -96,8 +97,6 @@ fn seed(env: &Environment) -> Result<PathBuf, String> {
     let args = vec![
         "--record".into(),
         replay.to_string_lossy().into(),
-        "--case-cache".into(),
-        env.root().join("case-cache").to_string_lossy().into(),
         "sync".into(),
         "who-pq".into(),
     ];
@@ -107,6 +106,7 @@ fn seed(env: &Environment) -> Result<PathBuf, String> {
             "explicit sync did not preserve all four native rows: {synced}"
         ));
     }
+    pair(env, &replay, &["sync", "who-pq"], 0)?;
     Ok(replay)
 }
 fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
@@ -165,6 +165,25 @@ fn policy(env: &Environment, replay: &Path, get: &[&str]) -> Check {
             {
                 return Err(format!("disabled WHO leaked data: {value}"));
             }
+        }
+    }
+    Ok(())
+}
+
+fn stale(env: &Environment, replay: &Path, get: &[&str]) -> Check {
+    let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    // Preserve content-addressed old snapshot bytes while expiring current bundle metadata.
+    cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;")
+        .map_err(|e| e.to_string())?;
+    drop(cache);
+    for args in [get.to_vec(), vec!["search", "drug", "trastuzumab", "--source", "who-pq"]] {
+        let value = pair(env, replay, &args, 0)?;
+        if value.get("status") != Some(&json!("partial"))
+            || value.pointer("/sources/0/state") != Some(&json!("stale"))
+            || !value.get("next").and_then(Value::as_array).is_some_and(|steps|
+                steps.iter().any(|step| step.get("args") == Some(&json!(["sync", "who-pq"])))) {
+            return Err(format!("stale WHO data omitted outcome or explicit sync: {value}"));
         }
     }
     Ok(())

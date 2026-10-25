@@ -46,6 +46,8 @@ fn check() -> Result<(), String> {
     Ok(())
 }
 const CASES: &[(&str, &str)] = &[
+    ("search drug trastuzumab --region who", "--region who is retired: use --source who-pq."),
+    ("get drug BT-ON001 --region=who", "--region who is retired: use --source who-pq."),
     (
         "drug cell-lines imatinib --cell-line A --dataset B --limit 1 --offset 0",
         "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
