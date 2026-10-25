@@ -14,6 +14,31 @@ pub struct Component {
     /// Component publisher's terms, independent of public API reachability.
     pub terms: Terms,
 }
+impl Component {
+    /// Apply independent publisher policy to an aggregator field.
+    pub fn disabled(&self, fetch: &biomcp_fetch::Fetch) -> bool {
+        self.policy(
+            |source| fetch.disabled(source),
+            |usage| fetch.disabled_use(usage),
+        )
+    }
+    /// Apply that same policy inside a deadline-scoped request.
+    pub fn disabled_on_leg(&self, leg: &biomcp_fetch::Leg<'_>) -> bool {
+        self.policy(
+            |source| leg.disabled_source(source),
+            |usage| leg.disabled_use(usage),
+        )
+    }
+    fn policy(
+        &self,
+        source_disabled: impl Fn(Source) -> bool,
+        use_disabled: impl Fn(Use) -> bool,
+    ) -> bool {
+        source_disabled(self.source)
+            || self.native_source.is_some_and(source_disabled)
+            || use_disabled(self.terms.usage)
+    }
+}
 /// CADD data retain their published noncommercial terms.
 pub const CADD: Component = Component {
     source: Source::MyVariant,
@@ -104,9 +129,7 @@ fn policy(
         || COMPONENTS
             .iter()
             .find(|c| c.name == name)
-            .and_then(|c| c.native_source)
-            .is_some_and(&source_disabled)
-        || terms(name).is_some_and(|terms| use_disabled(terms.usage))
+            .is_some_and(|c| c.policy(source_disabled, use_disabled))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.
 pub fn restricted(fetch: &biomcp_fetch::Fetch) -> bool {

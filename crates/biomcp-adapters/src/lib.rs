@@ -61,3 +61,6 @@ pub mod hotspots;
 
 /// GWAS Catalog v2 exact rsID associations.
 pub mod gwas;
+
+/// Drug publisher declarations and independently labeled aggregator fields.
+pub mod drug_sources;
