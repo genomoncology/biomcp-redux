@@ -1,0 +1,115 @@
+{
+  "feature": "diagnostic-who-search",
+  "story": "Literal native marker and manufacturer fields select source-ordered distinct WHO products without substring or inferred matches.",
+  "replay": "diagnostic/who-search-synthetic",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-ivd"
+      ],
+      "expect": {
+        "/result/rows": 10
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "hIv"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "hIv"
+      ],
+      "max_bytes": 12000,
+      "max_tokens": 3000,
+      "expect": {
+        "/page/total": 7,
+        "/page/returned": 5,
+        "/result/items/0/id": "0466-046-00"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--manufacturer",
+        "north"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--manufacturer",
+        "north"
+      ],
+      "max_bytes": 12000,
+      "max_tokens": 3000,
+      "expect": {
+        "/page/total": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "HIV",
+        "--manufacturer",
+        "north"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "HIV",
+        "--manufacturer",
+        "north"
+      ],
+      "max_bytes": 12000,
+      "max_tokens": 3000,
+      "expect": {
+        "/page/total": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "missing"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "missing"
+      ],
+      "max_bytes": 12000,
+      "max_tokens": 3000,
+      "expect": {
+        "/page/total": 0,
+        "/result/items": []
+      }
+    }
+  ]
+}
