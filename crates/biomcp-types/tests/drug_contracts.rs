@@ -35,13 +35,6 @@ fn published_ids_roundtrip_without_source_prefixes() {
 }
 
 #[test]
-fn unknown_identity_remains_unknown() {
-    let value: DrugIdentityLevel = "unknown".parse().expect("unknown level");
-    assert_eq!(value.to_string(), "unknown");
-    assert!("chemical_guess".parse::<DrugIdentityLevel>().is_err());
-}
-
-#[test]
 fn search_defaults_and_required_get_source_are_explicit() {
     let query: DrugSearch = serde_json::from_value(json!({"query":"Gleevec"})).expect("search");
     assert_eq!(

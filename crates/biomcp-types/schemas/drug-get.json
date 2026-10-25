@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "DrugId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "type": "string"
+    },
+    "DrugSection": {
+      "description": "Explicit drug disclosures; identity cards never expand into these sections.",
+      "enum": [
+        "targets",
+        "indications",
+        "civic",
+        "label",
+        "approvals",
+        "regulatory",
+        "interactions"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native target and mechanism relations.",
+        " Native indication wording.",
+        " Native CIViC therapy evidence and profile context.",
+        " One exact native label heading.",
+        " Native application and product history rows.",
+        " Source-scoped regulator events.",
+        " Native DDInter partner rows and levels."
+      ]
+    },
+    "DrugSource": {
+      "enum": [
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact native ID retrieval with an explicitly selected source.",
+  "properties": {
+    "input": {
+      "$ref": "#/$defs/DrugId",
+      "description": "Published source-native identifier, never SOURCE:ID or a selected name.",
+      "x-positional": 0
+    },
+    "label_section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact native label heading, required only for the label section."
+    },
+    "product_number": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Explicit native application product number, only for approvals."
+    },
+    "section": {
+      "description": "Explicit named disclosures; empty means identity only.",
+      "items": {
+        "$ref": "#/$defs/DrugSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "description": "Named section page size, refused on an identity-only card.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "section_offset": {
+      "description": "Named section continuation, refused on an identity-only card.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "source": {
+      "$ref": "#/$defs/DrugSource",
+      "description": "Required source; there is no default exact-ID resolver."
+    }
+  },
+  "required": [
+    "input",
+    "source"
+  ],
+  "title": "DrugGet",
+  "type": "object"
+}

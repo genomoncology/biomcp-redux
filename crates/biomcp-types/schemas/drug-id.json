@@ -1,0 +1,7 @@
+{
+  "$id": "biodata.drug-id/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+  "title": "DrugId",
+  "type": "string"
+}
