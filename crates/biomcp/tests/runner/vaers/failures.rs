@@ -28,6 +28,7 @@ pub(super) fn run() -> Check {
         args.extend(words("MMR"));
         let value = invoke(&replay, args, 4)?;
         assert_failed(&value, reason)?;
+        super::budget::check(&value)?;
         if crate::runner::mcp::call_with_globals(&replay, &words("MMR"), true, &globals)? != value {
             return Err("failure differs through MCP".into());
         }
