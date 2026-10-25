@@ -112,6 +112,30 @@
         "/page/total": 0,
         "/result/items": []
       }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--manufacturer",
+        "North Synthetic"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--manufacturer",
+        "North Synthetic"
+      ],
+      "max_bytes": 326,
+      "max_tokens": 82,
+      "expect": {
+        "/page/total": 0,
+        "/result/items": []
+      }
     }
   ]
 }
