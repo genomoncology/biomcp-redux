@@ -126,9 +126,7 @@ fn search(call: &Call, envelope: Value) -> io::Result<Value> {
         .flatten()
         .filter_map(|row| records::search(entity, row, &envelope))
         .map(|hit| restrictions(hit, &call.args))
-        .collect::<io::Result<Vec<_>>>()?
-        .into_iter()
-        .collect::<Vec<_>>();
+        .collect::<io::Result<Vec<_>>>()?;
     let native_rows = rows.or_else(|| envelope.pointer("/result/rows").and_then(Value::as_array));
     let omitted_rows = native_rows
         .map_or(

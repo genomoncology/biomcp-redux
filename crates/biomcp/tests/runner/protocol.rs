@@ -329,7 +329,8 @@ fn discovery() -> Check {
             .ok_or("wrapper description missing")?
             .len();
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
-            || wrapper.get("outputSchema").is_none()
+            || wrapper.pointer("/outputSchema/$id")
+                != Some(&json!(format!("biomcp.research-{name}/1")))
             || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
         {
             return Err("research tool contract differs".into());

@@ -1,6 +1,6 @@
 # Architecture
 
-BioMCP is a Rust command and a one-tool MCP server for biomedical search and get. Its user is an agent that supports cancer care decisions for clinicians. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles such as HGNC, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
+BioMCP is a Rust command with an MCP server for biomedical search and get. Its user is an agent that supports cancer care decisions for clinicians. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles such as HGNC, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
 
 Every choice here follows `decisions/2026-10-23-least-code-easy-upkeep-fast.md`: the least code we own, easy upkeep, and fast. Where this design picks a lighter option over a heavier one, it says what it rejected and why. Decisions in `decisions/` are settled, and this design works inside them. Section 13 records the PM's rulings on this design's earlier open questions, and section 14 lists what remains open.
 
@@ -1549,9 +1549,9 @@ pub(crate) struct Hint { pub schema: &'static str, pub title: &'static str, pub 
 
 A hint names the JSON pointer of a card's title and the columns of a page's table. Everything else renders by structure: objects as definition lists, arrays of objects as tables, sections under headings with their state. A field whose type is biodata's `Markdown`, such as a part of an article's body, prints as it is, unescaped. Next steps print as quoted shell commands. The view reads only the serialized JSON, so it cannot show anything the JSON lacks, and it cannot fetch. It replaces 0.9's 34 templates and 102 Markdown functions.
 
-### 8.7 The MCP tool
+### 8.7 The MCP tools
 
-MCP offers one tool, as `decisions/2026-10-23-mcp-is-one-tool-over-the-cli.md` says.
+MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wrappers, as the amended `decisions/2026-10-23-mcp-is-one-tool-over-the-cli.md` says.
 
 ```json
 {
@@ -1567,7 +1567,7 @@ MCP offers one tool, as `decisions/2026-10-23-mcp-is-one-tool-over-the-cli.md` s
 }
 ```
 
-The description embeds a compact command tree of about 300 tokens, generated at startup from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. A case pins the tree under 1,500 bytes. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
+The description embeds a compact command tree of about 300 tokens, generated at startup from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. The discovery case pins the main tree and the research descriptions under their separate measured ceilings. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
 
 `biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 
@@ -1575,13 +1575,13 @@ The description embeds a compact command tree of about 300 tokens, generated at 
 - The server supports two pinned revisions: 2026-07-28, the current one, and 2025-11-25, the last one with an `initialize` handshake. A small adapter at the protocol edge handles each era, and both feed one dispatcher. Current clients use `server/discover` and send the version in each request's metadata. Legacy clients send `initialize`, and the server answers with 2025-11-25. A request for any other revision gets the error the current specification names. A revision is added or dropped only with its cases.
 - Every notification is accepted silently, including `notifications/initialized` and `notifications/cancelled`.
 - `ping`, `tools/list` and `tools/call` are answered. Every other request gets a Method Not Found error.
-- `tools/call` parses `args` with `grammar::parse` and runs `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
-- The result carries the envelope as `structuredContent` and the same compact JSON as one text content block. `isError` is false for `complete`, `partial` and `absent`, which are answers. It is true for `usage`, `expired`, `failed` and `local`, whose envelope is the error envelope or a failed result. A malformed `tools/call`, such as a missing `args` or an unknown tool name, is a JSON-RPC Invalid Params error.
+- The main `biomcp` tool parses `args` with `grammar::parse` and runs `run`. Global flags that make no sense in a server, such as `--config`, `--record` and `--replay`, are refused.
+- The main tool result carries the envelope as `structuredContent` and the same compact JSON as one text content block. `isError` is false for `complete`, `partial` and `absent`, which are answers. It is true for `usage`, `expired`, `failed` and `local`, whose envelope is the error envelope or a failed result. A malformed `tools/call`, such as a missing `args` or an unknown tool name, is a JSON-RPC Invalid Params error.
 - Each `tools/call` runs on its own thread with its own `Store`. All threads share one `Fetch`. Responses go out through one locked writer.
 
 `biomcp serve --replay DIR` runs the same server over recordings, which the runner uses. Cases cover discovery and per-request versions on 2026-07-28, `initialize` on 2025-11-25, an unsupported revision, a notification, an array, an unknown method and each `isError` value.
 
-Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and one tool needs five methods.
+Rejected: an MCP library. The Rust MCP libraries pull in an async runtime, and the fixed RPC surface does not need that runtime.
 
 ### 8.8 Help and discovery
 
@@ -1937,6 +1937,6 @@ PMA regulatory pages preserve the selected submission metadata even when `ao_sta
 
 ### Research search and fetch compatibility
 
-The [official OpenAI MCP contract](https://developers.openai.com/api/docs/mcp), checked on 2026-10-25, defines read-only search and fetch inputs, declared output schemas, and matching structured JSON and JSON text. Search exposes citable headers; fetch exposes the existing Markdown view. Each result carries a nonempty canonical publisher URL and an exact get argument list as its opaque identifier. Source outcomes, terms, problems and continuations retain the CLI values in metadata. The wrappers share command execution with the main tool and add no provider or ranking logic.
+The [official OpenAI MCP contract](https://developers.openai.com/api/docs/mcp), checked on 2026-10-25, defines read-only search and fetch inputs, declared output schemas, and matching structured JSON and JSON text. Search exposes citable headers; fetch exposes the existing Markdown view. Each result carries a nonempty canonical publisher URL and an exact get argument list as its opaque identifier. Source outcomes, terms, problems and continuations retain the CLI values in metadata. The wrappers share command execution with the main tool and add no provider or ranking logic. Search metadata contains the full CLI envelope, the omitted-row count and a pointer to the main tool for uncitable rows. Fetch retains absent or ambiguous CLI envelopes as tool errors without choosing a record. Explicit entity tails and opaque get identifiers use quoted argument words without invoking a shell.
 
 The [Company knowledge compatibility guidance](https://developers.openai.com/plugins/build/mcp-server#company-knowledge-compatibility) scopes this interface to research and Company knowledge use. [Custom MCP plugins](https://developers.openai.com/api/docs/guides/custom-mcp-server) do not universally require these tool names. This server supplies the compatibility interface; it does not register a service or establish client eligibility.

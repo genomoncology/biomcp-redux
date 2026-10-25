@@ -147,7 +147,12 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         hits.first()
     }
     .ok_or("hit missing")?;
-    if args.get(1).is_some_and(|s| s == "variant") && hit.get("url") != Some(&json!("https://myvariant.info/v1/variant/chr7%3Ag.140453136A%3ET")) {
+    if args.get(1).is_some_and(|s| s == "variant")
+        && hit.get("url")
+            != Some(&json!(
+                "https://myvariant.info/v1/variant/chr7%3Ag.140453136A%3ET"
+            ))
+    {
         return Err("variant citation does not name the exact source record".into());
     }
     let id = hit
@@ -195,8 +200,11 @@ fn fetch_parity(
             _ => 2451,
         };
         bounded(&fetched, cap)?;
-        if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id))
-            || fetched.get("title") != hit.get("title") || fetched.get("url") != hit.get("url") {
+        if fetched.get("metadata") != Some(&cli_get)
+            || fetched.get("id") != Some(&json!(id))
+            || fetched.get("title") != hit.get("title")
+            || fetched.get("url") != hit.get("url")
+        {
             return Err("fetch differs from CLI".into());
         }
         let mut md = get;
@@ -311,14 +319,41 @@ fn headers(rows: &[Value], hits: &[Value], entity: &str) -> Result<(), String> {
     for (row, hit) in rows.iter().zip(hits) {
         let (native_id, title, url) = match entity {
             "article" => {
-                let id = row.get("pmid").and_then(Value::as_str).ok_or("PMID missing")?;
-                (id, row.pointer("/header/title"), format!("https://pubmed.ncbi.nlm.nih.gov/{id}/"))
+                let id = row
+                    .get("pmid")
+                    .and_then(Value::as_str)
+                    .ok_or("PMID missing")?;
+                (
+                    id,
+                    row.pointer("/header/title"),
+                    format!("https://pubmed.ncbi.nlm.nih.gov/{id}/"),
+                )
             }
-            "trial" => (row.get("nct_id").and_then(Value::as_str).ok_or("NCT id")?, row.get("title"), row.get("url").and_then(Value::as_str).ok_or("source URL")?.to_owned()),
-            _ => (row.pointer("/record/id").and_then(Value::as_str).ok_or("variant key")?, row.pointer("/record/id"), String::new()),
+            "trial" => (
+                row.get("nct_id").and_then(Value::as_str).ok_or("NCT id")?,
+                row.get("title"),
+                row.get("url")
+                    .and_then(Value::as_str)
+                    .ok_or("source URL")?
+                    .to_owned(),
+            ),
+            _ => (
+                row.pointer("/record/id")
+                    .and_then(Value::as_str)
+                    .ok_or("variant key")?,
+                row.pointer("/record/id"),
+                String::new(),
+            ),
         };
-        let args = hit.get("id").and_then(Value::as_str).and_then(shlex::split).ok_or("get arguments")?;
-        if !args.iter().any(|s| s == native_id) || hit.get("title") != title || (!url.is_empty() && hit.get("url") != Some(&json!(url))) {
+        let args = hit
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(shlex::split)
+            .ok_or("get arguments")?;
+        if !args.iter().any(|s| s == native_id)
+            || hit.get("title") != title
+            || (!url.is_empty() && hit.get("url") != Some(&json!(url)))
+        {
             return Err("research header differs from source row".into());
         }
     }
