@@ -30,7 +30,7 @@ fn native_id_grammars_refuse_wrappers_and_incomplete_identities() {
         roundtrip::<WhoProductId>(json!("0466-046-00")),
         "0466-046-00"
     );
-    for id in ["13641-013-00", "10304-118-00"] {
+    for id in ["13641-013-00", "10304-118-00", "10307-04545-00"] {
         assert_eq!(roundtrip::<WhoProductId>(json!(id)), id);
     }
     assert_eq!(roundtrip::<PmaNumber>(json!("P150013")), "P150013");

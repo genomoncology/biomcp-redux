@@ -10,13 +10,14 @@ fn gtr(value: &str) -> bool {
         .is_some_and(|(id, version)| {
             digits(id, 9)
                 && !version.starts_with('0')
-                && version.parse::<u32>().is_ok_and(|v| v > 0)
+                && !version.is_empty()
+                && version.bytes().all(|b| b.is_ascii_digit())
         })
 }
 fn who(value: &str) -> bool {
     let mut parts = value.split('-');
-    parts.next().is_some_and(|v| digits(v, 4))
-        && parts.next().is_some_and(|v| digits(v, 3))
+    parts.next().is_some_and(|v| digits(v, 4) || digits(v, 5))
+        && parts.next().is_some_and(|v| digits(v, 3) || digits(v, 5))
         && parts.next().is_some_and(|v| digits(v, 2))
         && parts.next().is_none()
 }
@@ -86,7 +87,7 @@ id!(
 id!(
     WhoProductId,
     who,
-    "^[0-9]{4}-[0-9]{3}-[0-9]{2}$",
+    "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
     "WHO product listing identity, independent of product codes."
 );
 id!(
