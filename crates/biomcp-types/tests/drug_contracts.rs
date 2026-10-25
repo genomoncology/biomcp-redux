@@ -263,7 +263,8 @@ fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
         "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},
         "civic":{"state":"data","source":"civic","data":{
             "evidence":{"records":[{
-                "profile":{"record":{"id":"1"},"label":"synthetic profile","compound":false,"members":[]},
+                "profile":{"record":{"id":"1"},"label":"synthetic profile","compound":false,"members":[{"record":{"id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
+                "oncokb_missing":["variant"],
                 "claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},
                 "therapies":[{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"}]
             }],"page":{"returned":1,"total":169,"next":next}},

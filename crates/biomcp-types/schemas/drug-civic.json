@@ -538,6 +538,13 @@
           "$ref": "#/$defs/CivicStatement",
           "description": "Existing source claim mapping, including unmapped native facts."
         },
+        "oncokb_missing": {
+          "description": "Missing source context prevents a keyed variant annotation next command.",
+          "items": {
+            "$ref": "#/$defs/DrugOncokbMissing"
+          },
+          "type": "array"
+        },
         "profile": {
           "$ref": "#/$defs/DrugCivicProfile",
           "description": "Source molecular profile context; its member expression is never collapsed."
@@ -903,6 +910,16 @@
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
       ]
+    },
+    "DrugOncokbMissing": {
+      "description": "Context absent or insufficient for an exact source-owned annotation command.",
+      "enum": [
+        "gene",
+        "build",
+        "variant",
+        "tumor_type"
+      ],
+      "type": "string"
     },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
