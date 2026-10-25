@@ -143,9 +143,9 @@ fn apply(
             ));
         }
     }
-    if let QueryBody::NciTrialPage(body) = &mut out.body {
-        if !q.count_only() {
-            body.items = page.data.into_iter().map(|r| r.card(false)).collect();
-        }
+    if let QueryBody::NciTrialPage(body) = &mut out.body
+        && !q.count_only()
+    {
+        body.items = page.data.into_iter().map(|r| r.card(false)).collect();
     }
 }
