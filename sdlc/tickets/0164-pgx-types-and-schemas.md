@@ -1,6 +1,7 @@
 # 0164 — Add the pharmacogenomics types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: abd6cad6b63400c9773ac3b49bc3a3e5f8569e35
 
 Milestone: 4
 
