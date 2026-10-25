@@ -28,7 +28,6 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut source = None;
     let mut serious = None;
     let mut section = None;
-    let mut option = None;
     let mut shared = None;
     let mut literal = false;
     let mut args = args.iter();
@@ -38,47 +37,84 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             positional.push(word);
             continue;
         }
-        if word == "--" { literal = true; continue; }
-        let (flag, inline) = word.split_once('=').map_or((word,None), |(a,b)|(a,Some(b)));
-        if matches!(flag,"-j"|"--json") {shared = Some(ErrorMessage::AdverseJson);}
-        let adverse = matches!(positional.as_slice(),["search"|"get","adverse-event",..]);
-        if adverse && let Some(found)=super::find(FLAGS,flag) {return Some(found);}
-        if adverse && flag=="--version" && positional.first()==Some(&"get") {return Some(ErrorMessage::AdverseVersion);}
-        if adverse && flag=="--type" {
-            return match inline.or_else(||args.next().and_then(|v|v.to_str())) {
-                Some("faers")=>Some(ErrorMessage::AdverseFaers),
-                Some("device"|"devices"|"maude")=>Some(ErrorMessage::AdverseMaude),
-                Some("recall"|"recalls"|"enforcement")=>Some(ErrorMessage::AdverseRecalls),
-                _=>None,
+        if word == "--" {
+            literal = true;
+            continue;
+        }
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
+        if matches!(flag, "-j" | "--json") {
+            shared = Some(ErrorMessage::AdverseJson);
+        }
+        let adverse = matches!(
+            positional.as_slice(),
+            ["search" | "get", "adverse-event", ..]
+        );
+        if adverse && let Some(found) = super::find(FLAGS, flag) {
+            return Some(found);
+        }
+        if adverse && flag == "--version" && positional.first() == Some(&"get") {
+            return Some(ErrorMessage::AdverseVersion);
+        }
+        if adverse && flag == "--type" {
+            return match inline.or_else(|| args.next().and_then(|v| v.to_str())) {
+                Some("faers") => Some(ErrorMessage::AdverseFaers),
+                Some("device" | "devices" | "maude") => Some(ErrorMessage::AdverseMaude),
+                Some("recall" | "recalls" | "enforcement") => Some(ErrorMessage::AdverseRecalls),
+                _ => None,
             };
         }
-        if adverse && flag=="--serious" {
-            serious=Some(inline.or_else(||args.next().and_then(|v|v.to_str())));
-        } else if flag=="--section" || super::takes_value(flag,&positional).unwrap_or(false) {
-            let value=inline.or_else(||args.next().and_then(|v|v.to_str()));
-            match flag {"--source"=>source=value,"--section"=>section=value,_=>()}
+        if adverse && flag == "--serious" {
+            serious = Some(inline.or_else(|| args.next().and_then(|v| v.to_str())));
+        } else if flag == "--section" || super::takes_value(flag, &positional).unwrap_or(false) {
+            let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
+            match flag {
+                "--source" => source = value,
+                "--section" => section = value,
+                _ => (),
+            }
         }
     }
-    match positional.as_slice() {
-        ["drug","adverse-events",..]=>Some(ErrorMessage::AdverseText),
-        ["search"|"get","adverse-event",rest @ ..]=>{
-            if shared.is_some() {return shared;}
-            if source==Some("all") {return Some(ErrorMessage::AdverseSource);}
-            if let Some(value)=serious {
-                if source==Some("maude") {return Some(ErrorMessage::AdverseFilter);}
-                if !matches!(value,Some("death"|"hospitalization")) {return Some(ErrorMessage::AdverseSerious);}
+    guidance(&positional, source, serious, section, shared, literal)
+}
+fn guidance(
+    positional: &[&str],
+    source: Option<&str>,
+    serious: Option<Option<&str>>,
+    section: Option<&str>,
+    shared: Option<ErrorMessage>,
+    literal: bool,
+) -> Option<ErrorMessage> {
+    match positional {
+        ["drug", "adverse-events", ..] => Some(ErrorMessage::AdverseText),
+        ["search" | "get", "adverse-event", rest @ ..] => {
+            if shared.is_some() {
+                return shared;
             }
-            if positional.first()==Some(&"get") {
-                let selected=section.or_else(||if literal {None}else{rest.get(1).copied()});
-                option=match selected {
-                    Some("outcomes")=>Some(ErrorMessage::AdverseOutcomes),
-                    Some("concomitant")=>Some(ErrorMessage::AdverseConcomitant),
-                    Some("guidance"|"all")=>Some(ErrorMessage::AdverseSection),
-                    _=>None,
+            if source == Some("all") {
+                return Some(ErrorMessage::AdverseSource);
+            }
+            if let Some(value) = serious {
+                if source == Some("maude") {
+                    return Some(ErrorMessage::AdverseFilter);
+                }
+                if !matches!(value, Some("death" | "hospitalization")) {
+                    return Some(ErrorMessage::AdverseSerious);
+                }
+            }
+            if positional.first() == Some(&"get") {
+                let selected =
+                    section.or_else(|| if literal { None } else { rest.get(1).copied() });
+                return match selected {
+                    Some("outcomes") => Some(ErrorMessage::AdverseOutcomes),
+                    Some("concomitant") => Some(ErrorMessage::AdverseConcomitant),
+                    Some("guidance" | "all") => Some(ErrorMessage::AdverseSection),
+                    _ => None,
                 };
             }
-            option
+            None
         }
-        _=>None,
+        _ => None,
     }
 }
