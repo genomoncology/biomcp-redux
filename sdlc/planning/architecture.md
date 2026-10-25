@@ -1763,6 +1763,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | --- | --- |
 | `crates/biomcp-types/tests/variant_values.rs` | Exercise copied common variant values and constructor boundaries through the public library API. |
 | `crates/biomcp-types/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/disease_contracts.rs` | Exercise neutral disease records and standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/drug_contracts.rs` | Exercise published drug identifier, neutral record and consumer schema contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/core.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/gene_ids.rs` | Exercise checked values and schema contracts through the public library API. |
@@ -1770,6 +1771,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/query.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/response.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas.rs` | Exercise checked values and schema contracts through the public library API. |
+| `crates/biomcp-types/tests/schemas/disease.rs` | Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration. |
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |

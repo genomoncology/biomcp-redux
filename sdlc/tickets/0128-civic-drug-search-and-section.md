@@ -5,7 +5,7 @@ Status: OPEN.
 Milestone: 3
 
 Depends on: 0124
-
+Depends on: 0126
 Depends on: 0125
 
 ## Outcome
@@ -16,3 +16,4 @@ Depends on: 0125
 - Starts from: `crates/biomcp-adapters/src/civic`, the gene and variant CIViC sections and their types; drug.md's CIViC rows and case C01; 0124 and 0125.
 - Rules: Trastuzumab Deruxtecan 4287 and the Neratinib 52 plus Trastuzumab 84 combination stay candidates, never merged with Trastuzumab 84. No drug identity join to MyChem, ChEMBL or Open Targets. A therapy name match is not drug equivalence. `identity_level` comes from the endpoint or record type, never from a field's shape.
 - Proof: outside-in cases first. One bounded keyless pm job captures a positive exact therapy-ID request for Imatinib 5, Trastuzumab 84 and Ivosidenib 454 before section code, and a known positive for the search and each collection's paging. Cases S03 for `civic` (D01, D03, D17, and D19's actual zero) and C01 (native therapy, evidence and profile IDs, separate evidence and assertion totals and continuations) replay the recorded replies with size ceilings. Existing CIViC gene and variant cases still pass. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
+- PM ruling 2026-10-25: therapy-wide evidence and assertions are two separate streams, and each row carries its native profile context. Existing member, statement and page types are reused, with no fan-out across profiles and no relabeled totals. `civic_kind` may be given without `civic_profile`; a cursor and a selected profile each require `civic_kind`. Changed drug schemas take a version change.
