@@ -60,39 +60,6 @@ impl TryFrom<SearchFields> for DrugSearch {
         Ok(Self(fields))
     }
 }
-impl DrugSearch {
-    /// Construct one literal source search with checked page bounds.
-    pub fn new(
-        query: Text,
-        source: DrugSource,
-        limit: u32,
-        offset: u32,
-    ) -> Result<Self, QueryInvalid> {
-        SearchFields {
-            query,
-            source,
-            limit,
-            offset,
-        }
-        .try_into()
-    }
-    /// Source-native selector.
-    pub fn query(&self) -> &Text {
-        &self.0.query
-    }
-    /// The sole source selected for this request.
-    pub fn source(&self) -> DrugSource {
-        self.0.source
-    }
-    /// Native candidate page length.
-    pub fn limit(&self) -> u32 {
-        self.0.limit
-    }
-    /// Native candidate offset.
-    pub fn offset(&self) -> u32 {
-        self.0.offset
-    }
-}
 /// Exact native ID retrieval with an explicitly selected source.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
@@ -212,10 +179,6 @@ impl DrugGet {
     pub fn source(&self) -> DrugSource {
         self.0.source
     }
-    /// Explicit named sections in caller order.
-    pub fn sections(&self) -> &[DrugSection] {
-        &self.0.section
-    }
     /// Explicit page bound; command handlers apply their existing default when absent.
     pub fn section_limit(&self) -> Option<u32> {
         self.0.section_limit
@@ -223,14 +186,6 @@ impl DrugGet {
     /// Explicit section continuation offset.
     pub fn section_offset(&self) -> Option<u32> {
         self.0.section_offset
-    }
-    /// Exact native label heading.
-    pub fn label_section(&self) -> Option<&Text> {
-        self.0.label_section.as_ref()
-    }
-    /// Explicit native product number.
-    pub fn product_number(&self) -> Option<&Text> {
-        self.0.product_number.as_ref()
     }
 }
 impl DrugSource {
