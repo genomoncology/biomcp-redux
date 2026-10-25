@@ -140,8 +140,8 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
             _ => CSV.lines().next().ok_or("header")?.to_owned(),
         };
         *changed
-            .pointer_mut("/exchanges/0/body/value")
-            .ok_or("body")? = json!(text);
+            .pointer_mut("/exchanges/0/body")
+            .ok_or("body")? = json!({"kind":"text", "value":text});
         fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = pair(env, replay, &["sync", "who-pq"], 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
