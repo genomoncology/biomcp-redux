@@ -1,0 +1,182 @@
+{
+  "feature": "cpic-pgx",
+  "story": "A caller disables CPIC before every PGx command can restore replay or contact the source.",
+  "live_check": "synthetic policy",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "mcp": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "expect": {
+        "/schema": "biomcp.pgx_page/1",
+        "/status": "failed",
+        "/query/source": "cpic",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true,
+      "max_bytes": 1500,
+      "max_tokens": 375
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "expect": {
+        "/schema": "biomcp.pgx_card/1",
+        "/status": "failed",
+        "/query/source": "cpic",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true,
+      "max_bytes": 1500,
+      "max_tokens": 375
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "TPMT",
+        "recommendations",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "TPMT",
+        "recommendations",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "expect": {
+        "/schema": "biomcp.pgx_recommendations/1",
+        "/status": "failed",
+        "/query/source": "cpic",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true,
+      "max_bytes": 1500,
+      "max_tokens": 375
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "guidelines",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "guidelines",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "expect": {
+        "/schema": "biomcp.pgx_guidelines/1",
+        "/status": "failed",
+        "/query/source": "cpic",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true,
+      "max_bytes": 1500,
+      "max_tokens": 375
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "TPMT",
+        "diplotype",
+        "--diplotype",
+        "*1/*3A",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "TPMT",
+        "diplotype",
+        "--diplotype",
+        "*1/*3A",
+        "--source",
+        "cpic",
+        "--disable-sources",
+        "cpic"
+      ],
+      "expect": {
+        "/schema": "biomcp.pgx_diplotype/1",
+        "/status": "failed",
+        "/query/source": "cpic",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "is_error": true,
+      "max_bytes": 1500,
+      "max_tokens": 375
+    }
+  ]
+}

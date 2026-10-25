@@ -92,3 +92,5 @@ adverse-event-types: A public API caller validates source-specific report reques
 pgx-types: A public API caller preserves source-native PGx context and validates explicit source and section requests before adapters exist. Contracts: `biomcp-types/pgx_contracts` (features: `schema`).
 diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
 adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/*.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.
+
+cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference. Cases: `tests/cases/pgx/*.yaml`, `crates/biomcp/tests/runner/cpic.rs`.
