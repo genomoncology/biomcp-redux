@@ -38,7 +38,7 @@ pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
     let reply = read(&leg, query);
-    let mut out = finish(leg, reply, empty(query));
+    let mut out = finish(leg, reply, empty(query), Source::Cpic);
     out.next = next::steps(&Request::GetPgx(query.clone()), &out);
     command.finish(deadline.remaining());
     out
