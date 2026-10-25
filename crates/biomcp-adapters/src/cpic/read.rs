@@ -92,8 +92,10 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
         ],
         0,
         5,
-        |rows: &[PgxGeneIdentity], _range| {
-            rows.len() <= 1 && rows.iter().all(|r| &r.symbol == query.gene())
+        |rows: &[PgxGeneIdentity], range| {
+            rows.len() <= 1
+                && range.total == rows.len() as u64
+                && rows.iter().all(|r| &r.symbol == query.gene())
         },
     )
 }
