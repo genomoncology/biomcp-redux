@@ -6,6 +6,7 @@ pub(super) fn chembl_header(row: &chembl::Molecule) -> Result<DrugHeader, Error>
         id: row.molecule_chembl_id.parse()?,
         source: DrugSource::Chembl,
         name: row.pref_name.as_deref().map(str::parse).transpose()?,
+        version: None,
         identity_level: DrugIdentityLevel::Unknown,
         r#type: Some(row.molecule_type.parse()?),
         url: Some(
@@ -22,6 +23,7 @@ pub(super) fn ot_header(row: opentargets::Hit) -> Result<DrugHeader, Error> {
         id: row.id.parse()?,
         source: DrugSource::Opentargets,
         name: Some(row.name.parse()?),
+        version: None,
         identity_level: DrugIdentityLevel::Unknown,
         r#type: Some(row.entity.parse()?),
         url: Some(format!("https://platform.opentargets.org/drug/{}", row.id).parse()?),
@@ -89,6 +91,7 @@ pub(super) fn chembl_card(row: chembl::Molecule, fetched: i64) -> Result<DrugCar
                     id: r.xref_id.parse()?,
                     source: r.xref_src.parse()?,
                     name: r.xref_name.map(|s| s.parse()).transpose()?,
+                    version: None,
                     identity_level: DrugIdentityLevel::Unknown,
                     r#type: None,
                     url: None,
