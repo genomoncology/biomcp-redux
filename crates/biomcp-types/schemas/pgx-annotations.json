@@ -1,0 +1,1213 @@
+{
+  "$defs": {
+    "ClinPgxAccession": {
+      "pattern": "^PA[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PgxAnnotationHeader": {
+      "additionalProperties": false,
+      "description": "Source-native PgxAnnotationHeader fields; no clinical interpretation.",
+      "properties": {
+        "accessionId": {
+          "$ref": "#/$defs/ClinPgxAccession",
+          "description": "Native `accessionId`; literal source value."
+        },
+        "id": {
+          "description": "Native `id`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "levelOfEvidence": {
+          "$ref": "#/$defs/PgxEvidenceTerm",
+          "description": "Native `levelOfEvidence`; literal source value."
+        },
+        "location": {
+          "$ref": "#/$defs/PgxLocation",
+          "description": "Native `location`; literal source value."
+        },
+        "name": {
+          "description": "Native `name`; literal source value.",
+          "type": "string"
+        },
+        "relatedChemicals": {
+          "description": "Native `relatedChemicals`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "relatedChemicalsLogic": {
+          "description": "Native `relatedChemicalsLogic`; literal source value.",
+          "type": "string"
+        },
+        "relatedGuidelines": {
+          "description": "Native `relatedGuidelines`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "relatedLabels": {
+          "description": "Native `relatedLabels`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "types": {
+          "description": "Native `types`; literal source value.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "accessionId",
+        "levelOfEvidence",
+        "location",
+        "name",
+        "relatedChemicals",
+        "relatedChemicalsLogic",
+        "relatedGuidelines",
+        "relatedLabels",
+        "types"
+      ],
+      "type": "object"
+    },
+    "PgxAnnotationKind": {
+      "description": "Independent ClinPGx collection kinds, never merged.",
+      "enum": [
+        "clinical",
+        "guideline",
+        "label"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Clinical annotation min tier.",
+        " Guideline references.",
+        " Label references."
+      ]
+    },
+    "PgxAnnotationReference": {
+      "additionalProperties": false,
+      "description": "Source-native PgxAnnotationReference fields; no clinical interpretation.",
+      "properties": {
+        "crossReferences": {
+          "description": "Native `crossReferences`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxUnobserved"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/$defs/ClinPgxAccession",
+          "description": "Native `id`; literal source value."
+        },
+        "name": {
+          "description": "Native `name`; literal source value.",
+          "type": "string"
+        },
+        "objCls": {
+          "description": "Native `objCls`; literal source value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "objCls",
+        "id",
+        "name",
+        "crossReferences"
+      ],
+      "type": "object"
+    },
+    "PgxAnnotations": {
+      "description": "One independent ClinPGx collection, preserving its native min-tier shape.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Complete clinical min rows including location and relationship arrays.",
+          "properties": {
+            "annotationkind": {
+              "const": "clinical",
+              "type": "string"
+            },
+            "header": {
+              "$ref": "#/$defs/PgxHeader",
+              "description": "Declared gene and source."
+            },
+            "items": {
+              "description": "Complete clinical min records.",
+              "items": {
+                "$ref": "#/$defs/PgxAnnotationHeader"
+              },
+              "type": "array"
+            },
+            "page": {
+              "$ref": "#/$defs/PgxPageInfo",
+              "description": "Observed bounded collection scope."
+            }
+          },
+          "required": [
+            "annotationkind",
+            "header",
+            "items",
+            "page"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Guideline references without invented full guidance.",
+          "properties": {
+            "annotationkind": {
+              "const": "guideline",
+              "type": "string"
+            },
+            "header": {
+              "$ref": "#/$defs/PgxHeader",
+              "description": "Declared gene and source."
+            },
+            "items": {
+              "description": "Complete guideline min references.",
+              "items": {
+                "$ref": "#/$defs/PgxAnnotationReference"
+              },
+              "type": "array"
+            },
+            "page": {
+              "$ref": "#/$defs/PgxPageInfo",
+              "description": "Observed bounded collection scope."
+            }
+          },
+          "required": [
+            "annotationkind",
+            "header",
+            "items",
+            "page"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Label references without invented full guidance.",
+          "properties": {
+            "annotationkind": {
+              "const": "label",
+              "type": "string"
+            },
+            "header": {
+              "$ref": "#/$defs/PgxHeader",
+              "description": "Declared gene and source."
+            },
+            "items": {
+              "description": "Complete label min references.",
+              "items": {
+                "$ref": "#/$defs/PgxAnnotationReference"
+              },
+              "type": "array"
+            },
+            "page": {
+              "$ref": "#/$defs/PgxPageInfo",
+              "description": "Observed bounded collection scope."
+            }
+          },
+          "required": [
+            "annotationkind",
+            "header",
+            "items",
+            "page"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "PgxCrossReference": {
+      "additionalProperties": false,
+      "description": "Source-native PgxCrossReference fields; no clinical interpretation.",
+      "properties": {
+        "_url": {
+          "description": "Native `_url`; literal source value.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Native `id`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Native `name` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resource": {
+          "description": "Native `resource`; literal source value.",
+          "type": "string"
+        },
+        "resourceId": {
+          "description": "Native `resourceId`; literal source value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "resource",
+        "resourceId",
+        "_url"
+      ],
+      "type": "object"
+    },
+    "PgxDiplotypeExpression": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "PgxEvidenceTerm": {
+      "additionalProperties": false,
+      "description": "Source-native PgxEvidenceTerm fields; no clinical interpretation.",
+      "properties": {
+        "id": {
+          "description": "Native `id`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "resource": {
+          "description": "Native `resource`; literal source value.",
+          "type": "string"
+        },
+        "synonyms": {
+          "description": "Native `synonyms` when supplied.",
+          "items": {
+            "$ref": "#/$defs/PgxUnobserved"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "term": {
+          "description": "Native `term`; literal source value.",
+          "type": "string"
+        },
+        "termId": {
+          "description": "Native `termId`; literal source value.",
+          "type": "string"
+        },
+        "valid": {
+          "description": "Native `valid` when supplied.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "resource",
+        "term",
+        "termId"
+      ],
+      "type": "object"
+    },
+    "PgxGet": {
+      "additionalProperties": false,
+      "description": "Checked exact gene card or one independently paged section.",
+      "properties": {
+        "diplotype": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxDiplotypeExpression"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unchanged declared expression required for the diplotype section only."
+        },
+        "drug_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact published CPIC drug key; recommendations only."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Explicit source gene symbol."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxAnnotationKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One ClinPGx collection; clinical is the default only on annotations."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One named section; omitted means the CPIC gene card."
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Complete source rows per independent section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Offset within the selected section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/PgxSource",
+          "description": "Required source, checked against the section."
+        }
+      },
+      "required": [
+        "gene",
+        "source"
+      ],
+      "type": "object"
+    },
+    "PgxHeader": {
+      "additionalProperties": false,
+      "description": "Source and declared gene context; no chosen pair or patient result.",
+      "properties": {
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Declared source symbol."
+        },
+        "source": {
+          "$ref": "#/$defs/PgxSource",
+          "description": "Explicit source."
+        }
+      },
+      "required": [
+        "source",
+        "gene"
+      ],
+      "type": "object"
+    },
+    "PgxLocation": {
+      "additionalProperties": false,
+      "description": "Source-native PgxLocation fields; no clinical interpretation.",
+      "properties": {
+        "buildVersion": {
+          "description": "Native `buildVersion` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chromosomeId": {
+          "description": "Native `chromosomeId` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chromosomeName": {
+          "description": "Native `chromosomeName` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "copyNumber": {
+          "description": "Native `copyNumber`; literal source value.",
+          "type": "string"
+        },
+        "diplotypes": {
+          "description": "Native `diplotypes`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxUnobserved"
+          },
+          "type": "array"
+        },
+        "displayName": {
+          "description": "Native `displayName`; literal source value.",
+          "type": "string"
+        },
+        "genes": {
+          "description": "Native `genes`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "gpPosition": {
+          "description": "Native `gpPosition`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "haplotypes": {
+          "description": "Native `haplotypes`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "Native `id`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "linkedObjects": {
+          "description": "Native `linkedObjects`; literal source value.",
+          "items": {
+            "$ref": "#/$defs/PgxObjectReference"
+          },
+          "type": "array"
+        },
+        "refSeqCrossReference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxCrossReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native `refSeqCrossReference` when supplied."
+        },
+        "refSeqPosition": {
+          "description": "Native `refSeqPosition`; literal source value.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "rsid": {
+          "description": "Native `rsid` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tagGene": {
+          "description": "Native `tagGene`; literal source value.",
+          "type": "boolean"
+        },
+        "type": {
+          "description": "Native `type`; literal source value.",
+          "type": "string"
+        },
+        "variant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxObjectReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native `variant` when supplied."
+        }
+      },
+      "required": [
+        "id",
+        "copyNumber",
+        "diplotypes",
+        "displayName",
+        "genes",
+        "gpPosition",
+        "haplotypes",
+        "linkedObjects",
+        "refSeqPosition",
+        "tagGene",
+        "type"
+      ],
+      "type": "object"
+    },
+    "PgxObjectReference": {
+      "additionalProperties": false,
+      "description": "Source-native PgxObjectReference fields; no clinical interpretation.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ClinPgxAccession",
+          "description": "Native `id`; literal source value."
+        },
+        "name": {
+          "description": "Native `name` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "objCls": {
+          "description": "Native `objCls` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "symbol": {
+          "description": "Native `symbol` when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "PgxPageInfo": {
+      "additionalProperties": false,
+      "description": "Independent collection scope; observed counts never imply native source totals.",
+      "properties": {
+        "offset": {
+          "description": "Offset in this collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "returned": {
+          "description": "Number of whole returned rows.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Exact source total or received bounded collection length.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_kind": {
+          "$ref": "#/$defs/PgxTotalKind",
+          "description": "Provenance of total."
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total",
+        "total_kind"
+      ],
+      "type": "object"
+    },
+    "PgxSection": {
+      "description": "One independent named section.",
+      "enum": [
+        "recommendations",
+        "guidelines",
+        "diplotype",
+        "annotations"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Complete native recommendation contexts.",
+        " Native guideline references.",
+        " Declared source diplotype lookup.",
+        " One ClinPGx annotation kind."
+      ]
+    },
+    "PgxSource": {
+      "description": "Explicit independent source.",
+      "enum": [
+        "cpic",
+        "clinpgx"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CPIC source-native records.",
+        " ClinPGx annotation records."
+      ]
+    },
+    "PgxTotalKind": {
+      "description": "Meaning of the stated collection total.",
+      "enum": [
+        "source",
+        "observed"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The source returned an exact total.",
+        " Length of a bounded received collection."
+      ]
+    },
+    "PgxUnobserved": {
+      "description": "No element shape was captured for these empty arrays. Populated values require new source proof.",
+      "not": {}
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.pgx_annotations/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/PgxGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PgxAnnotations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.pgx_annotations/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

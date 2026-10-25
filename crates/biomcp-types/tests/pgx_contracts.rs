@@ -177,7 +177,10 @@ fn native_selectors_and_closed_sets_roundtrip_and_pages_keep_all_context()
     let q: PgxGet = serde_json::from_value(
         json!({"gene":"TPMT","source":"cpic","section":"diplotype","diplotype":"*3A/*1"}),
     )?;
-    assert_eq!(q.diplotype().map(biodata::PgxDiplotypeExpression::as_str), Some("*3A/*1"));
+    assert_eq!(
+        q.diplotype().map(biodata::PgxDiplotypeExpression::as_str),
+        Some("*3A/*1")
+    );
     let a: PgxAnnotationGet = serde_json::from_value(json!({"id":"PA1234","source":"clinpgx"}))?;
     assert_eq!(a.id().as_str(), "PA1234");
     assert_eq!(a.source(), PgxSource::Clinpgx);
@@ -264,18 +267,45 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
 }
 
 #[test]
-fn declared_expressions_and_source_map_keys_keep_their_exact_spelling() -> Result<(),Box<dyn std::error::Error>> {
+fn declared_expressions_and_source_map_keys_keep_their_exact_spelling()
+-> Result<(), Box<dyn std::error::Error>> {
     use biodata::{PgxDiplotypeExpression, PgxGeneKey};
-    for spelling in ["*3A/*1"," *2x2/*4 ","*1/*3+*6"] {
-        let v:PgxDiplotypeExpression=spelling.parse()?;
-        assert_eq!(v.as_str(),spelling);
-        assert_eq!(v.to_string(),spelling);
-        assert_eq!(roundtrip::<PgxDiplotypeExpression>(json!(spelling))?,spelling);
+    for spelling in ["*3A/*1", " *2x2/*4 ", "*1/*3+*6"] {
+        let v: PgxDiplotypeExpression = spelling.parse()?;
+        assert_eq!(v.as_str(), spelling);
+        assert_eq!(v.to_string(), spelling);
+        assert_eq!(
+            roundtrip::<PgxDiplotypeExpression>(json!(spelling))?,
+            spelling
+        );
     }
     assert!(" ".parse::<PgxDiplotypeExpression>().is_err());
-    let upper:PgxGeneKey="TPMT".parse()?;let lower:PgxGeneKey="tpmt".parse()?;
-    assert_ne!(upper,lower);assert_eq!(upper.as_str(),"TPMT");assert_eq!(lower.to_string(),"tpmt");
+    let upper: PgxGeneKey = "TPMT".parse()?;
+    let lower: PgxGeneKey = "tpmt".parse()?;
+    assert_ne!(upper, lower);
+    assert_eq!(upper.as_str(), "TPMT");
+    assert_eq!(lower.to_string(), "tpmt");
     assert!("not a gene key".parse::<PgxGeneKey>().is_err());
-    assert_eq!(roundtrip::<PgxGeneKey>(json!("TPMT"))?,"TPMT");
+    assert_eq!(roundtrip::<PgxGeneKey>(json!("TPMT"))?, "TPMT");
+    Ok(())
+}
+
+#[test]
+fn card_section_actions_recheck_source_context_and_keep_the_declared_gene() -> Result<(),Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    let q:PgxSearch=serde_json::from_value(json!({"gene":"DPYD","source":"cpic","limit":2,"offset":3}))?;
+    assert_eq!(q.source(),PgxSource::Cpic);assert_eq!((q.limit(),q.offset()),(2,3));
+    let card:PgxGet=serde_json::from_value(json!({"gene":"DPYD","source":"cpic"}))?;
+    let annotations=card.with_section(PgxSection::Annotations,PgxSource::Clinpgx)?;
+    assert_eq!(annotations.gene(),card.gene());
+    assert_eq!(annotations.section(),Some(PgxSection::Annotations));
+    assert_eq!(annotations.kind(),Some(PgxAnnotationKind::Clinical));
+    assert!(card.with_section(PgxSection::Annotations,PgxSource::Cpic).is_err());
+    assert!(card.with_section(PgxSection::Diplotype,PgxSource::Cpic).is_err());
+    assert!(card.at_section_offset(1).is_err());
+    for v in [json!({"gene":"DPYD","source":"cpic","limit":51}),json!({"gene":"DPYD","source":"cpic","limit":null}),json!({"gene":"DPYD","source":"cpic","offset":-1})] {
+        assert!(serde_json::from_value::<PgxSearch>(v).is_err());
+    }
+    assert!(serde_json::from_value::<PgxGet>(json!({"gene":"DPYD","source":"cpic","section":"recommendations","drug_id":"tamoxifen"})).is_err());
     Ok(())
 }

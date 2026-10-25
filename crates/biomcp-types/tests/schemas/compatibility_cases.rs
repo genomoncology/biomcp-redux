@@ -254,30 +254,45 @@ fn compatibility_checks_unique_array_items_without_waiving_versions() {
 
 #[test]
 fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_elements() {
-    let old=json!({"$id":"biodata.example/1","type":"object","properties":{"genes":{"type":"object","propertyNames":{"type":"string","pattern":"^[A-Z]+$"},"additionalProperties":{"type":"string"}},"position":{"type":"integer","format":"int64","minimum":-1},"empty":{"type":"array","items":false}}});
-    assert!(super::compatibility::check(&old,&old).is_ok());
-    for changed in [json!({"type":"integer"}),json!({"type":"string","minLength":2})] {
-        let mut new=old.clone();new["properties"]["genes"]["additionalProperties"]=changed;
-        assert!(super::compatibility::check(&old,&new).is_err());
+    let old = json!({"$id":"biodata.example/1","type":"object","properties":{"genes":{"type":"object","propertyNames":{"type":"string","pattern":"^[A-Z]+$"},"additionalProperties":{"type":"string"}},"position":{"type":"integer","format":"int64","minimum":-1},"empty":{"type":"array","items":false}}});
+    assert!(super::compatibility::check(&old, &old).is_ok());
+    for changed in [
+        json!({"type":"integer"}),
+        json!({"type":"string","minLength":2}),
+    ] {
+        let mut new = old.clone();
+        new["properties"]["genes"]["additionalProperties"] = changed;
+        assert!(super::compatibility::check(&old, &new).is_err());
     }
-    let mut changed=old.clone();changed["properties"]["position"]["minimum"]=json!(0);
-    assert!(super::compatibility::check(&old,&changed).is_err());
-    let mut changed=old.clone();changed["properties"]["genes"]["propertyNames"]["pattern"]=json!("^[A-Z]{2}$");
-    assert!(super::compatibility::check(&old,&changed).is_err());
-    let pattern=json!({"$id":"biodata.example/1","type":"object","patternProperties":{"^[A-Z]+$":{"type":"string"}},"additionalProperties":false});
-    assert!(super::compatibility::check(&pattern,&pattern).is_ok());
-    let mut changed=pattern.clone();changed["patternProperties"]["^[A-Z]+$"]=json!({"type":"integer"});
-    assert!(super::compatibility::check(&pattern,&changed).is_err());
-    let mut changed=pattern.clone();changed["patternProperties"]["X"]=json!({"type":"string"});
-    assert!(super::compatibility::check(&pattern,&changed).is_err());
-    let impossible=json!({"$id":"biodata.example/1","type":"array","items":{"not":{}}});
-    assert!(super::compatibility::check(&impossible,&impossible).is_ok());
-    for negation in [json!({"not":{"type":"string"}}),json!({"not":{},"type":"string"})] {
-        let mut changed=impossible.clone();changed["items"]=negation;
-        assert!(super::compatibility::check(&impossible,&changed).is_err());
+    let mut changed = old.clone();
+    changed["properties"]["position"]["minimum"] = json!(0);
+    assert!(super::compatibility::check(&old, &changed).is_err());
+    let mut changed = old.clone();
+    changed["properties"]["genes"]["propertyNames"]["pattern"] = json!("^[A-Z]{2}$");
+    assert!(super::compatibility::check(&old, &changed).is_err());
+    let pattern = json!({"$id":"biodata.example/1","type":"object","patternProperties":{"^[A-Z]+$":{"type":"string"}},"additionalProperties":false});
+    assert!(super::compatibility::check(&pattern, &pattern).is_ok());
+    let mut changed = pattern.clone();
+    changed["patternProperties"]["^[A-Z]+$"] = json!({"type":"integer"});
+    assert!(super::compatibility::check(&pattern, &changed).is_err());
+    let mut changed = pattern.clone();
+    changed["patternProperties"]["X"] = json!({"type":"string"});
+    assert!(super::compatibility::check(&pattern, &changed).is_err());
+    let impossible = json!({"$id":"biodata.example/1","type":"array","items":{"not":{}}});
+    assert!(super::compatibility::check(&impossible, &impossible).is_ok());
+    for negation in [
+        json!({"not":{"type":"string"}}),
+        json!({"not":{},"type":"string"}),
+    ] {
+        let mut changed = impossible.clone();
+        changed["items"] = negation;
+        assert!(super::compatibility::check(&impossible, &changed).is_err());
     }
-    let loose=json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
-    for changed in [json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),json!({"$id":"biodata.example/1","type":"object","propertyNames":{"type":"string","pattern":"X"}})] {
-        assert!(super::compatibility::check(&loose,&changed).is_err());
+    let loose = json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
+    for changed in [
+        json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),
+        json!({"$id":"biodata.example/1","type":"object","propertyNames":{"type":"string","pattern":"X"}}),
+    ] {
+        assert!(super::compatibility::check(&loose, &changed).is_err());
     }
 }

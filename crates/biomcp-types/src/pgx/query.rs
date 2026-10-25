@@ -1,6 +1,6 @@
 use super::{PgxAnnotationKind, PgxSection, PgxSource};
 use crate::QueryInvalid;
-use biodata::{ClinPgxAccession, GeneSymbol, Text, Curie, PgxDiplotypeExpression};
+use biodata::{ClinPgxAccession, Curie, GeneSymbol, PgxDiplotypeExpression, Text};
 use serde::{Deserialize, Serialize};
 fn default_limit() -> u32 {
     5
