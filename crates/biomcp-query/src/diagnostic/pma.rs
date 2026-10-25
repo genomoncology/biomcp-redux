@@ -1,0 +1,75 @@
+use super::{empty, next};
+use crate::{Ctx, Outcome, status};
+use biodata::DeviceSubmission;
+use biomcp_adapters::fda_pma;
+use biomcp_types::{DiagnosticCard, DiagnosticGet, DiagnosticPmaCard, DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSearch, DiagnosticSection, DiagnosticSupplements, PageInfo, Problem, ProblemCode, QueryBody, Request, Source, Status, StepKind};
+pub(super) fn get(cx:&Ctx<'_>, q:&DiagnosticGet) -> Outcome {
+    let mut out = empty(QueryBody::DiagnosticCard(None));
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&fda_pma::SPEC,deadline);
+    let result = fda_pma::get(&leg,q).and_then(|records| selected(&mut out,q,records,cx.fresh));
+    let error = result.err();
+    out.local = error.and_then(status::local);
+    out.sources.push(status::source(Source::FdaPma,leg.finish(),error));
+    if error.is_some() {out.status = Status::Failed;}
+    command.finish(deadline.remaining());
+    out
+}
+fn selected(out:&mut Outcome,q:&DiagnosticGet,records:fda_pma::Records,fresh:bool) -> Result<(),biomcp_fetch::RequestError> {
+    if records.incomplete {
+        out.status = Status::Partial;
+        out.problems.push(Problem {source:Source::FdaPma,record:Some(q.id().clone()),field:"meta.results.total".into(),code:ProblemCode::CollectionIncomplete});
+        return Ok(());
+    }
+    let selected = records.rows.iter().find(|row| row.supplement_number.as_ref().is_some_and(|cell| cell.as_str() == q.supplement().map_or("",|s|s.as_str())));
+    out.status = if selected.is_some() {Status::Complete} else {Status::Absent};
+    let Some(row) = selected else {return Ok(());};
+    match q.section() {
+        None => {
+            let sections:Box<[_]> = if q.supplement().is_some() {vec![DiagnosticSection::Regulatory]} else {vec![DiagnosticSection::Regulatory,DiagnosticSection::Supplements]}.into();
+            for section in &sections {
+                if let Ok(query) = q.with_section(*section) {next::push(out,StepKind::Section,Request::GetDiagnostic(query),fresh);}
+            }
+            association(out,q,fresh);
+            out.body = QueryBody::DiagnosticCard(Some(DiagnosticCard::PmaSubmission(DiagnosticPmaCard {header:fda_pma::header(row)?,sections})));
+        }
+        Some(DiagnosticSection::Supplements) => supplements(out,q,&records.rows,fresh)?,
+        Some(DiagnosticSection::Regulatory) => regulatory(out,q,row,fresh)?,
+        _ => {}
+    }
+    Ok(())
+}
+fn association(out:&mut Outcome,q:&DiagnosticGet,fresh:bool) {
+    let id = format!("{}{}",q.id(),q.supplement().map_or(String::new(),|s|format!("/{s}")));
+    if let Ok(search) = serde_json::from_value::<DiagnosticSearch>(serde_json::json!({"source":"fda-cdx","device_id":id})) {next::push(out,StepKind::Pivot,Request::SearchDiagnostic(search),fresh);}
+}
+fn page(out:&mut Outcome,q:&DiagnosticGet,returned:usize,total:usize,fresh:bool) {
+    out.page = Some(PageInfo {offset:q.section_offset(),returned:returned as u32,total:total as u64,pool:None,truncated:None});
+    if (q.section_offset() as usize)+returned < total {next::push(out,StepKind::Page,Request::GetDiagnostic(q.at_section_offset(q.section_offset()+returned as u32)),fresh);}
+}
+fn supplements(out:&mut Outcome,q:&DiagnosticGet,rows:&[DeviceSubmission],fresh:bool) -> Result<(),biomcp_fetch::RequestError> {
+    let rows:Vec<_> = rows.iter().filter(|row| row.supplement_number.as_ref().is_some_and(|s| !s.as_str().is_empty())).collect();
+    let items = rows.iter().skip(q.section_offset() as usize).take(q.section_limit() as usize).map(|row|fda_pma::header(row)).collect::<Result<Vec<_>,_>>()?;
+    for row in &items {
+        if let Ok(query) = serde_json::from_value::<DiagnosticGet>(serde_json::json!({"id":q.id(),"source":"fda-pma","supplement":row.supplement_number})) {next::push(out,StepKind::Disambiguate,Request::GetDiagnostic(query),fresh);}
+    }
+    page(out,q,items.len(),rows.len(),fresh);
+    out.body = QueryBody::DiagnosticSupplements(DiagnosticSupplements {items:items.into(),count_unit:None,distinct_id_total:None});
+    Ok(())
+}
+fn regulatory(out:&mut Outcome,q:&DiagnosticGet,row:&DeviceSubmission,fresh:bool) -> Result<(),biomcp_fetch::RequestError> {
+    let all = fda_pma::fragments(row);
+    let total = all.len();
+    let mut items = Vec::new();
+    let mut bytes = 0;
+    for (index,text) in all.into_iter().enumerate().skip(q.section_offset() as usize).take(q.section_limit() as usize) {
+        let size = biomcp_adapters::text_parts::escaped_bytes(&text);
+        if !items.is_empty() && bytes+size > 6144 {break;}
+        bytes += size;
+        items.push(DiagnosticRegulatoryFragment {submission:fda_pma::header(row)?,metadata:fda_pma::regulatory(row),field:DiagnosticRegulatoryField::ApprovalOrderStatement,offset:index as u32,total:total as u32,text:text.into()});
+    }
+    page(out,q,items.len(),total,fresh);
+    out.body = QueryBody::DiagnosticRegulatory(DiagnosticRegulatory {items:items.into(),count_unit:None,distinct_id_total:None});
+    Ok(())
+}

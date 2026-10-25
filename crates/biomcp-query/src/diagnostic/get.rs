@@ -12,6 +12,7 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     if q.source() == DiagnosticGetSource::WhoIvd {
         return super::who::get(cx, q);
     }
+    if q.source() == DiagnosticGetSource::FdaPma { return super::pma::get(cx, q); }
     let mut out = empty(QueryBody::DiagnosticCard(None));
     if q.source() != DiagnosticGetSource::Gtr {
         return unsupported(

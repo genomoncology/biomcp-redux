@@ -82,7 +82,7 @@ pub mod mydisease;
 pub mod ols;
 pub mod seer;
 
-mod text_parts;
+pub mod text_parts;
 
 mod received;
 pub use received::received_date;

@@ -79,16 +79,25 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
 fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) {
     let mut seen = HashSet::new();
     for row in rows {
-        let applications = match row {
+        let (devices, applications) = match row {
             CompanionDiagnosticRelation::Individual {
-                drug_applications, ..
+                device_ids, drug_applications, ..
             }
             | CompanionDiagnosticRelation::Group {
-                drug_applications, ..
-            } => drug_applications,
+                device_ids, drug_applications, ..
+            } => (device_ids, drug_applications),
         };
+        for device in devices {
+            if !device.as_str().starts_with('P') || !seen.insert(device.as_str().to_owned()) {continue;}
+            let mut parts = device.as_str().split('/');
+            if let Some(base) = parts.next() {
+                let mut fields = serde_json::json!({"id":base,"source":"fda-pma"});
+                if let Some(supplement) = parts.next() { fields.as_object_mut().map(|v|v.insert("supplement".into(),serde_json::json!(supplement))); }
+                if let Ok(get) = serde_json::from_value(fields) { super::next::push(out,StepKind::Pivot,Request::GetDiagnostic(get),fresh); }
+            }
+        }
         for application in applications {
-            if seen.insert(application.id.clone())
+            if seen.insert(application.id.as_str().to_owned())
                 && let Ok(id) = application.id.as_str().parse()
                 && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda)
             {

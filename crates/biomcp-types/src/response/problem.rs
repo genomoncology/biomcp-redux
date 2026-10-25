@@ -6,6 +6,8 @@ canonical_enum! {
     ProblemCode, ProblemCodeUnknown {
         /// The field value was not recognized.
         ValueUnknown => "value.unknown",
+        /// Native collection exceeds the admitted complete source page.
+        CollectionIncomplete => "collection.incomplete",
         /// A source repeats one exact identity with incompatible records.
         IdentityConflict => "identity.conflict",
     }

@@ -3,6 +3,7 @@ mod companion;
 mod get;
 mod next;
 mod who;
+mod pma;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
