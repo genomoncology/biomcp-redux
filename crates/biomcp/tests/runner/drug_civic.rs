@@ -109,7 +109,12 @@ fn check(n: usize) -> Result<(), String> {
         "--fresh".into(),
     ]);
     let replay = invoke(&env, replay_args.clone(), exit)?;
-    let mcp = super::mcp::call_with_globals(&env, &replay_args, false, &[])?;
+    let globals = vec![
+        "--replay".into(),
+        recorded.display().to_string(),
+        "--fresh".into(),
+    ];
+    let mcp = super::mcp::call_with_globals(&env, &args, false, &globals)?;
     for key in ["result", "status", "query"] {
         if replay.get(key) != mcp.get(key) || replay.get(key) != value.get(key) {
             return Err(format!("CLI, recorder and MCP differ for {key}"));
