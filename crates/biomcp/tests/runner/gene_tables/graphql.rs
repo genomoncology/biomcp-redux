@@ -193,6 +193,9 @@ fn clingen() -> Check {
         "dosage only",
     ] {
         let expect = match mode {
+            "failed dosage" => {
+                json!({"/result/items/0/sections/clingen/state":"unavailable", "/sources/2/reason":"unavailable"})
+            }
             "validity only" => {
                 json!({"/result/items/0/sections/clingen/data/validity": {"count": 1}})
             }
