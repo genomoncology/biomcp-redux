@@ -18,7 +18,7 @@ pub(super) fn check() -> Result<(), String> {
         return Err("repeat card differs over MCP".into());
     }
     identity(&card)?;
-    measured("rsID", &card)?;
+    bounded("rsID", &card, 700)?;
     let next = card
         .get("next")
         .and_then(Value::as_array)
@@ -38,7 +38,18 @@ pub(super) fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         let followed = invoke(&env, args.clone(), 0)?;
         identity(&followed)?;
-        measured("repeat", &followed)?;
+        bounded("repeat", &followed, 615)?;
+        if followed
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|steps| {
+                steps
+                    .iter()
+                    .any(|step| step.get("args") == Some(&json!(args)))
+            })
+        {
+            return Err("exact repeat get prints a self-loop".into());
+        }
         Registry::embedded()?.validate(&followed, &args, true)?;
         if mcp::call_with_globals(&env, &args, false, &[])? != followed {
             return Err("printed repeat command differs over MCP".into());
@@ -57,14 +68,20 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 
-fn measured(label: &str, card: &Value) -> Result<(), String> {
+fn bounded(label: &str, card: &Value, ceiling: usize) -> Result<(), String> {
     let full = serde_json::to_vec(card).map_err(|e| e.to_string())?.len();
     let comparable = crate::runner::source_terms::size(card, "")?;
     writeln!(
         std::io::stdout(),
         "repeat {label}: full={full}, comparable={comparable}"
     )
-    .map_err(|e| e.to_string())
+    .map_err(|e| e.to_string())?;
+    if comparable > ceiling {
+        return Err(format!(
+            "repeat {label} exceeds measured budget: {comparable}/{ceiling}"
+        ));
+    }
+    Ok(())
 }
 
 fn identity(card: &Value) -> Result<(), String> {
