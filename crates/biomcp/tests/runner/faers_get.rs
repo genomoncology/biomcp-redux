@@ -8,6 +8,14 @@ pub(super) fn trials() -> Vec<Trial> {
         "adverse-event-get/synthetic-sections-and-snapshot",
         || sections().map_err(Into::into),
     )];
+    trials.push(Trial::test(
+        "adverse-event-get/synthetic-complete-array-walks",
+        || walks().map_err(Into::into),
+    ));
+    trials.push(Trial::test(
+        "adverse-event-get/synthetic-identifier-kinds",
+        || identifier_kinds().map_err(Into::into),
+    ));
     for mode in ["wrong-id", "two-versions", "absent", "bad-drug-index"] {
         trials.push(Trial::test(
             format!("adverse-event-get/synthetic-{mode}"),
@@ -17,10 +25,18 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn native() -> Value {
-    json!({"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[{"safetyreportid":"100","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240202","serious":"1","seriousnessdeath":"1","seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"","patientsex":"2","drug":[{"medicinalproduct":"Synthetic A","drugcharacterization":"1","openfda":{"unii":["TESTA"],"package_ndc":["A","B","C","D","E","F"]}},{"medicinalproduct":"Synthetic B","drugcharacterization":"2","openfda":{"unii":[]}},{"medicinalproduct":""}],"reaction":[{"reactionmeddrapt":"Synthetic reaction","reactionmeddraversionpt":"27.0","reactionoutcome":"1"}]}}]})
+    json!({"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":5,"total":1}},"results":[{"safetyreportid":"100","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240202","serious":"1","seriousnessdeath":"1","seriousnesshospitalization":"1","primarysource":{"qualification":"1","reportercountry":"US"},"patient":{"patientonsetage":"","patientsex":"2","drug":[{"medicinalproduct":"Synthetic A","drugcharacterization":"1","openfda":{"unii":["TESTA"],"rxcui":["1"],"product_ndc":["SYNTHETIC"],"spl_id":["SYNTHETIC-ID"],"spl_set_id":["SYNTHETIC-SET"],"application_number":["SYNTHETIC-APPLICATION"],"package_ndc":["A","B","C","D","E","F"]}},{"medicinalproduct":"Synthetic B","drugcharacterization":"2","openfda":{"unii":[]}},{"medicinalproduct":""}],"reaction":[{"reactionmeddrapt":"Synthetic reaction","reactionmeddraversionpt":"27.0","reactionoutcome":"1"}]}}]})
 }
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
+    if mode == "walks" {
+        let drugs: Vec<_> = (0..19).map(|n| json!({"medicinalproduct":format!("Synthetic drug {n}"),"drugcharacterization":if n%2==0 {"1"}else{"2"}})).collect();
+        let reactions: Vec<_> = (0..22).map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"})).collect();
+        *body.pointer_mut("/results/0/patient/drug").ok_or("drugs")? = json!(drugs);
+        *body
+            .pointer_mut("/results/0/patient/reaction")
+            .ok_or("reactions")? = json!(reactions);
+    }
     if mode == "wrong-id" {
         *body
             .pointer_mut("/results/0/safetyreportid")
@@ -178,6 +194,103 @@ fn identity(mode: &str) -> Check {
     let expected = if mode == "bad-drug-index" { 1 } else { 2 };
     if stub.finish()?.len() != expected {
         return Err("invalid identity entered cache".into());
+    }
+    Ok(())
+}
+
+fn walks() -> Check {
+    let (env, stub) = setup("walks")?;
+    let card = both(&env, args(None), 0)?;
+    let snapshot = card
+        .pointer("/result/snapshot")
+        .and_then(Value::as_str)
+        .ok_or("snapshot")?;
+    for (section, total) in [("drugs", 19), ("reactions", 22)] {
+        let mut words = args(Some(section));
+        words.extend(["--snapshot".into(), snapshot.into()]);
+        let mut seen = Vec::new();
+        loop {
+            let value = both(&env, words, 0)?;
+            let rows = value
+                .pointer(&format!("/result/{section}/records"))
+                .and_then(Value::as_array)
+                .ok_or("rows")?;
+            seen.extend(
+                rows.iter()
+                    .map(|r| r.get("index").cloned().unwrap_or(Value::Null)),
+            );
+            let next = value
+                .get("next")
+                .and_then(Value::as_array)
+                .and_then(|v| v.iter().find(|r| r.get("kind") == Some(&json!("page"))))
+                .and_then(|r| r.get("args"));
+            let Some(next) = next else { break };
+            words = serde_json::from_value(next.clone()).map_err(|e| e.to_string())?;
+            if seen.len() > total {
+                return Err("array walk repeated".into());
+            }
+        }
+        let expected: Vec<_> = (0..total).map(|n| json!(n)).collect();
+        if seen != expected {
+            return Err(format!("{section} native index gap or duplicate: {seen:?}"));
+        }
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("array continuation reached HTTP".into());
+    }
+    Ok(())
+}
+fn identifier_kinds() -> Check {
+    let (env, stub) = setup("valid")?;
+    let card = both(&env, args(None), 0)?;
+    let snapshot = card
+        .pointer("/result/snapshot")
+        .and_then(Value::as_str)
+        .ok_or("snapshot")?;
+    for (section, field, expected) in [
+        ("unii", "unii", "TESTA"),
+        ("rxcui", "rxcui", "1"),
+        ("product-ndc", "product_ndc", "SYNTHETIC"),
+        ("spl-id", "spl_id", "SYNTHETIC-ID"),
+        ("spl-set-id", "spl_set_id", "SYNTHETIC-SET"),
+        (
+            "application-number",
+            "application_number",
+            "SYNTHETIC-APPLICATION",
+        ),
+    ] {
+        let mut words = args(Some(section));
+        words.extend([
+            "--drug-index".into(),
+            "0".into(),
+            "--snapshot".into(),
+            snapshot.into(),
+        ]);
+        let value = both(&env, words, 0)?;
+        if value.pointer(&format!("/result/{field}/records")) != Some(&json!([expected]))
+            || value.get("next").is_some()
+        {
+            return Err(format!("identifier rewritten or acquired pivot: {value}"));
+        }
+    }
+    for (index, exit, expect_result) in [(1, 0, true), (2, 1, false)] {
+        let mut words = args(Some("unii"));
+        words.extend([
+            "--drug-index".into(),
+            index.to_string(),
+            "--snapshot".into(),
+            snapshot.into(),
+        ]);
+        let value = both(&env, words, exit)?;
+        if value.get("result").is_some() != expect_result {
+            return Err(format!("missing and empty list collapsed: {value}"));
+        }
+        if expect_result && value.pointer("/result/unii/records") != Some(&json!([])) {
+            return Err(format!("empty source list: {value}"));
+        }
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("identifier sections reached HTTP".into());
     }
     Ok(())
 }
