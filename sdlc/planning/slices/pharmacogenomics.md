@@ -4,7 +4,7 @@ This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`. It co
 
 ## Evidence boundaries
 
-Official documentation was read on 2026-10-25. Source response counts, field presence, latency and product budgets require the bounded capture below. A documented capability is not a successful public-tier request. The source captures must precede acceptance of shared types. Historical source adapters and public papers do not replace that proof.
+Official documentation was read on 2026-10-25. Source response counts, field presence and single-request latency are measured below. Product budgets remain unmeasured. A documented capability is not a successful public-tier request. The source captures must precede acceptance of shared types. Historical source adapters and public papers do not replace that proof.
 
 The reviewed drug, variant and disease designs establish source-owned identities, explicit selectors, independent collection pages and absence distinct from zero. The shared model in [biodata variants and annotations](../biodata-variants-and-annotations.md) establishes `Statement`, `Subject`, source attribution and native fallback. Its proposed `Subject` is broader than the `VariantRef` currently implemented at the starting revision. This slice must not silently implement either expansion or a star-allele subject.
 
@@ -78,6 +78,83 @@ The July 2026 DPYD notice and the April 2026 thiopurine correction are explicit 
 | CPIC | [Releases](https://github.com/cpicpgx/cpic-data/releases), read 2026-10-25 | Published application and database versions can differ. Retrieval date alone is not a dataset release. Preserve a release only when the response or retained export states it. |
 | ClinPGx | [API introduction](https://api.clinpgx.org/), read 2026-10-25 | Public JSON API advertises annotations and reference objects; parameters and replies may change. Published request limit is two per second. Capture recipe uses serial requests with one second between admissions. |
 | ClinPGx | [API documentation](https://api.clinpgx.org/swagger/), read 2026-10-25 | Documentation requires JavaScript. No current annotation field, key requirement or server pagination contract has yet been proved by a data capture. The old adapter's `view=min` is a hypothesis to test, not an accepted tier contract. |
+
+### Executed native findings and measured source cost
+
+The separate capture delegate ran `j12644` from landed main `b0a690d878bec55039f53ea9fa6e26feb6ea11c4` on 2026-10-25. The first request began at 05:50:40 UTC; final metadata retrieval began at 05:51:23 UTC. All 44 reserved attempts ran exactly once: 28 CPIC data, ten ClinPGx data and six metadata. Every body completed. All replies were HTTP 200 or 206. There were no retries, redirects, credentials, altered queries or automatic continuation. The investigator independently checked every raw body's SHA-256 against its receipt before the delegate removed its temporary reader copy. No provider failure was induced.
+
+The retained archive is on Yellow at `data/biomcp-redux/0153-pgx-native-capture/j12644-pgx-native-capture.tar.gz`, 209,068 bytes, SHA-256 `ddfb5fda5c2329f3aedc3f02d4e4f1cdc9a23965d51f354f5c1e890038da3a42`. Its root `2294-pgx-native-capture` holds all 220 manifest-verified files: recipe, actual request/receipt/body records, field and optionality inventories, ledger, measurements and report. This is the durable evidence reference; no raw source body enters Git.
+
+Each table row cost one physical request. These are upstream payloads, not product outputs. Approximate tokens are `ceil(compact_json_bytes / 4)`, not tokenizer counts. Raw bytes can exceed compact bytes because of source whitespace. Single-request latencies are not formal benchmarks or cold/warm observations. CPIC data ranged 240.236–422.249 ms, median 253.388 ms; ClinPGx ranged 233.638–580.104 ms, median 325.997 ms. Admission spacing is excluded. Data payloads totaled 73,687 CPIC bytes and 898,452 ClinPGx bytes.
+
+| Row | HTTP | Rows | Native Content-Range | Raw / compact bytes | Approximate tokens | Elapsed ms |
+| --- | --- | --- | --- | --- | --- | --- |
+| C01 | 200 | 6 | `0-5/6` | 21090 / 21075 | 5269 | 393.891 |
+| C02 | 200 | 8 | `0-7/8` | 2154 / 2133 | 534 | 253.194 |
+| C03 | 200 | 3 | `0-2/3` | 1024 / 1018 | 255 | 263.000 |
+| C04 | 200 | 3 | `0-2/3` | 1124 / 1118 | 280 | 249.935 |
+| C05 | 200 | 3 | `0-2/3` | 1129 / 1123 | 281 | 242.491 |
+| C06 | 206 | 5 | `0-4/79` | 1878 / 1866 | 467 | 247.960 |
+| C07 | 206 | 5 | `0-4/7` | 1316 / 1304 | 326 | 240.236 |
+| C08 | 206 | 5 | `0-4/49` | 1472 / 1460 | 365 | 245.905 |
+| C09 | 206 | 5 | `0-4/10` | 3999 / 3967 | 992 | 253.918 |
+| C10 | 206 | 5 | `0-4/105` | 4395 / 4338 | 1085 | 254.953 |
+| C11 | 206 | 5 | `0-4/105` | 4395 / 4338 | 1085 | 253.267 |
+| C12 | 206 | 5 | `0-4/1316` | 7331 / 7259 | 1815 | 255.214 |
+| C13 | 200 | 4 | `0-3/4` | 4996 / 4971 | 1243 | 266.819 |
+| C14 | 206 | 5 | `0-4/165` | 2954 / 2927 | 732 | 251.604 |
+| C15 | 206 | 5 | `5-9/10` | 4665 / 4633 | 1159 | 253.509 |
+| C16 | 200 | 0 | `*/0` | 2 / 2 | 1 | 258.210 |
+| C17 | 200 | 1 | `0-0/1` | 1198 / 1192 | 298 | 261.041 |
+| C18 | 200 | 1 | `0-0/1` | 1119 / 1113 | 279 | 257.011 |
+| C19 | 200 | 1 | `0-0/1` | 1158 / 1152 | 288 | 301.574 |
+| C20 | 200 | 1 | `0-0/1` | 1131 / 1127 | 282 | 246.186 |
+| C21 | 200 | 1 | `0-0/1` | 233 / 230 | 58 | 260.371 |
+| C22 | 200 | 1 | `0-0/1` | 306 / 299 | 75 | 249.766 |
+| C23 | 206 | 5 | `0-4/7` | 1778 / 1727 | 432 | 259.159 |
+| C24 | 206 | 5 | `0-4/301` | 891 / 828 | 207 | 422.249 |
+| C25 | 200 | 0 | `*/0` | 2 / 2 | 1 | 247.191 |
+| C26 | 200 | 1 | `0-0/1` | 1249 / 1232 | 308 | 246.456 |
+| C27 | 200 | 0 | `*/0` | 2 / 2 | 1 | 248.783 |
+| C28 | 200 | 2 | `0-1/2` | 696 / 693 | 174 | 246.337 |
+| P01 | 200 | 83 | `-` | 99050 / 99050 | 24763 | 468.322 |
+| P02 | 200 | 27 | `-` | 43211 / 43211 | 10803 | 233.638 |
+| P03 | 200 | 9 | `-` | 13458 / 13458 | 3365 | 312.036 |
+| P04 | 200 | 122 | `-` | 223077 / 223077 | 55770 | 536.702 |
+| P05 | 200 | 38 | `-` | 40995 / 40995 | 10249 | 364.827 |
+| P06 | 200 | 21 | `-` | 24860 / 24860 | 6215 | 339.958 |
+| P07 | 200 | 10 | `-` | 1544 / 1544 | 386 | 262.039 |
+| P08 | 200 | 5 | `-` | 703 / 703 | 176 | 260.954 |
+| P09 | 200 | 3 | `-` | 3408 / 3408 | 852 | 285.437 |
+| P10 | 200 | 83 | `-` | 448146 / 448146 | 112037 | 580.104 |
+
+A dash means no independent total or pagination field was supplied. ClinPGx array length is an observed collection count, not an asserted server-wide total. C09/C15 contain ten distinct recommendation IDs across two observed nonoverlapping DPYD pages. No `order` parameter was requested, so a stable future page walk remains unproved.
+
+### Public-tier identities, fields and scope
+
+| Capture | Observed native contract | Consequence for the proposal |
+| --- | --- | --- |
+| C01 gene | Six genes have HGNC, NCBI, Ensembl and ClinPGx IDs, reference accessions, native version and substantial method/usage notes. DPYD/CYP2D6 lookup method is `ACTIVITY_SCORE`; the other four use `PHENOTYPE`. | Preserve method and record version. Do not print whole methods in a default header or call a gene version a dataset release. |
+| C02 drug | Exact native drug keys include capecitabine `RxNorm:194000`, fluorouracil `RxNorm:4492`, mercaptopurine `RxNorm:103`, thioguanine `RxNorm:10485`, tamoxifen `RxNorm:10324`, irinotecan `RxNorm:51499`, rasburicase `RxNorm:283821`, ondansetron `RxNorm:26225`. Rows supply ClinPGx/DrugBank IDs, ATC arrays and nullable UMLS/flowchart/guideline fields. | Preserve namespace and multiplicity. Irinotecan has null guideline/flowchart. No native PA/DrugBank link automatically selects a MyChem or ChEMBL document. |
+| C03/C28 pairs | Pair ID, drug ID, gene, guideline URL, PMID list, CPIC/ClinPGx levels, testing label, provisional flag and `usedforrecommendation`. Level-A filter yields the exact two DPYD A pairs. Tegafur has level C and native `usedforrecommendation: No`. | Level filter has a positive native witness. Keep no-action separate from missing guideline/evidence. Testing can be null. |
+| C07 UGT1A1 pairs | Irinotecan pair `110106` is level A with null guideline name/URL. Other pairs carry literal level `B/C`. | Do not close the level enum to A/B/C/D only. Pair actionability does not establish a CPIC irinotecan recommendation. |
+| C09–C15 recommendation views | Recommendation IDs, complete lookup keys, implication maps, text, classification, phenotype/activity maps, population and comments. TPMT and NUDT15 first pages are byte-identical and retain both genes; CYP2D6 rows can include CYP2C19. All observed populations are `general`. | No drug ID, guideline integer ID, record date/version, publication IDs, separate allele-status field or structured dose field appears in this view. No pair-specific recommendation join or population filter is proved. Preserve source names/URLs; never join by name. |
+| C13 UGT1A1 recommendation | Four rows concern atazanavir only. | They cannot answer the irinotecan questions by gene association. The queried complete UGT1A1 collection supplies no irinotecan recommendation. |
+| C16/C25 | DPYD literal `*1/*2A` diplotype and `*2A` definition are successful complete zero replies. | Preserve exact queries and emptiness. Do not repair notation or infer absent clinical relevance. No sequence-location body shape was captured. |
+| C17–C20 diplotypes | TPMT `*1/*3A`, NUDT15 `*1/*3`, CYP2D6 `*1/*4` report intermediate; UGT1A1 `*28/*28` reports poor. Source fields include two functions/activity strings, total activity string, description, `diplotypekey`, result, EHR priority, consultation text and result lookup key. | No numeric diplotype ID, record version or allele reference IDs are supplied. The exact gene/expression tuple identifies the lookup. Preserve literal `n/a`; no local numeric conversion or calculation. |
+| C21–C23 guideline summaries | Only `guideline_name`, `guideline_url`, drug-name array and gene symbol/URL array. | This tier has no publication records, guideline integer ID or version. Pair PMIDs remain pair facts, without a name-based join. |
+| C24 frequency | Five of 301 aggregate rows contain gene, allele name, population group, subject count and source average/weighted/min/max frequency. | No per-study ID, numerator, denominator-unit proof or release. Do not invent study rows or patient ancestry. Product frequency stays deferred. |
+| C26 copy allele | CYP2D6 `*2x2`, native ID `779691`, definition `777938`, version `335`, activity string `2.0`, distinct nullable function fields, citations, frequency map and `inferredfrequency: false`. | Preserve copy-bearing source name; no standalone numeric copy field was supplied. `functionalstatus` can be null while clinical function exists. |
+| C27/P09 | CPIC TP53 pairs are empty; ClinPGx TP53 annotations have three records. | Empty is source/endpoint-local. Never suppress one source because another returned zero. |
+| P01–P06 clinical min | Numeric IDs and PA accession IDs, evidence terms, source location/build/reference information, gene and chemical arrays, chemical-combination logic, guideline/label links and native types. | No disease array, genotype phenotype text, history or recommendation body. Never extract missing context from display name. A position alone is not a complete genomic allele. |
+| P07/P08 min references | Only class, PA identity, display name and cross-reference array. | Not full guideline/label recommendations, dates or structured gene/drug context. |
+| P10 clinical base | Same ordered 83 DPYD IDs as min, plus allele-phenotype rows, conflicts, history, pediatric/override fields, related alleles/diseases and score details. | A larger tier is required for structured disease/genotype context. Still no native server pagination is proved. Source scores are not a local ranking rule. |
+
+P10 confirms native annotation PA166134421 for rs3918290/fluorouracil Level 1A Toxicity with a structured Neoplasms relation. PA166224841 is a separate Level 1A Other record with an empty disease array. Do not merge them. P10's NM_000110.4-related allele expression stays distinct from the historical paper's NM_000110.3 reference version. C09/C15 have no score-1.75 lookup key; the reviewed July notice explicitly warns that tables await updating. No missing score becomes a normal phenotype or a locally calculated new dose.
+
+Actual current fields `clinpgxid` and `clinpgxlevel` confirm the migration; legacy field spellings are absent. M06 contains the complete dynamic OpenAPI document. It documents richer `recommendation` table fields such as `drugid`, `guidelineid`, `allelestatus`, `version` and dose-related fields, but no data request captured that table. Documentation cannot accept those types or selector semantics. Its `info.version: 12.0.2` is PostgREST software metadata, not a CPIC dataset release.
+
+M01 and M02 return identical JavaScript shells, so they retain no actual policy/footer terms. M03 retains the API's policy link and rate limit. M04/M05 are documentation shells; no script follow-up ran. Official footer text read through the web reader remains separate evidence. Complete current policy wording and CPIC-specific scope remain unresolved; HTTP success grants no reuse license.
 
 ### Use and terms
 
