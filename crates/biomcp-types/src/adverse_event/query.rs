@@ -11,7 +11,7 @@ fn default_limit() -> u32 {
 fn full_day(date: Option<PartialDate>) -> bool {
     date.is_none_or(|d| d.day().is_some())
 }
-/// Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.
+/// Search five report headers by default. VAERS accepts only MMR, COVID19 or the exact display name COVID-19 vaccine, matched without case. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

@@ -3,11 +3,15 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 mod fixture;
+mod failures;
+mod rejections;
 mod navigation;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("vaers-summary/rejected-filters-and-influenza-before-io", || rejections::run().map_err(Into::into)),
+        Trial::test("vaers-summary/synthetic-403-429-500-timeout-broken", || failures::run().map_err(Into::into)),
         Trial::test("vaers-summary/independent-tables-retained-walk-and-suppression", || navigation::run().map_err(Into::into)),
         Trial::test("vaers-summary/unsupported-vaccine-before-io", || {
             unsupported().map_err(Into::into)

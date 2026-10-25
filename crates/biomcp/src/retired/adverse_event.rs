@@ -27,6 +27,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
     let mut source = None;
     let mut serious = None;
+    let mut faers_filter = false;
     let mut section = None;
     let mut shared = None;
     let mut literal = false;
@@ -51,6 +52,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             positional.as_slice(),
             ["search" | "get", "adverse-event", ..]
         );
+        if adverse && matches!(flag, "--reaction" | "--serious" | "--received-from" | "--received-to") { faers_filter = true; }
         if adverse && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
         }
@@ -76,6 +78,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             }
         }
     }
+    if source == Some("vaers") && faers_filter { return Some(ErrorMessage::VaersFilter); }
     guidance(&positional, source, serious, section, shared, literal)
 }
 fn guidance(

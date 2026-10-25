@@ -51,7 +51,7 @@ singleton! {
         AdverseFaers => "renamed; use: --source faers",
         AdverseMaude => "use: search adverse-event <TEXT> --source maude",
         AdverseRecalls => "recalls are outside this entity",
-        AdverseSource => "choose --source faers, --source maude or --source vaers",
+        AdverseSource => "choose --source faers or --source maude",
         VaersVaccine => "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
         VaersInfluenza => "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",

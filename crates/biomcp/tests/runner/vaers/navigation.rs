@@ -9,8 +9,8 @@ pub(super) fn run() -> Check {
             return Err("WONDER compatibility headers or restrictions missing".into());
         }
         let vaccine = if request.contains("COVID19") { "COVID19" } else { "MMR" };
-        let group = if request.contains("D8.V10") && !request.contains("D8.V13-level2") { "D8.V10" }
-            else if request.contains("D8.V1%3C") && !request.contains("D8.V13-level2") { "D8.V1" }
+        let group = if request.contains("%3Cvalue%3ED8.V10%3C") { "D8.V10" }
+            else if request.contains("%3Cvalue%3ED8.V1%3C") { "D8.V1" }
             else { "D8.V13-level2" };
         Ok(super::fixture::table(vaccine, group))
     })?;
