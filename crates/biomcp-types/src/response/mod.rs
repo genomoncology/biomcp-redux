@@ -125,6 +125,7 @@ pub use trial_header::TrialHeader;
 
 mod disease;
 pub use disease::{
-    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy, DiseaseIncidence, DiseasePage,
-    DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
+    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
+    DiseaseSynonyms, DiseaseXrefs,
 };

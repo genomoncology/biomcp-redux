@@ -78,7 +78,11 @@ struct SearchFields {
     #[serde(default)]
     source: DiseaseSource,
     /// Exactly one ontology, default MONDO.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
     ontology: Option<DiseaseOntology>,
     /// Maximum source rows on one page.
@@ -99,7 +103,9 @@ impl TryFrom<SearchFields> for DiseaseSearch {
         {
             return Err(QueryInvalid);
         }
-        if v.source == DiseaseSource::Ols { v.ontology.get_or_insert_with(DiseaseOntology::default); }
+        if v.source == DiseaseSource::Ols {
+            v.ontology.get_or_insert_with(DiseaseOntology::default);
+        }
         Ok(Self(v))
     }
 }
@@ -120,7 +126,11 @@ struct GetFields {
     #[serde(default = "get_source")]
     source: DiseaseSource,
     /// One OLS ontology.
-    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
@@ -182,7 +192,9 @@ impl TryFrom<GetFields> for DiseaseGet {
         {
             return Err(QueryInvalid);
         }
-        if v.source == DiseaseSource::Ols { v.ontology.get_or_insert_with(DiseaseOntology::default); }
+        if v.source == DiseaseSource::Ols {
+            v.ontology.get_or_insert_with(DiseaseOntology::default);
+        }
         Ok(Self(v))
     }
 }

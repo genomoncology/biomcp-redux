@@ -119,6 +119,9 @@ fn every_source_and_named_section_roundtrips_with_closed_spellings() {
 #[test]
 fn association_component_terms_stay_bound_to_the_native_row() {
     let row = json!({"association":{"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"RET"},"object":{"id":"MONDO:0008234","label":"MEN2A"},"predicate":"biolink:gene_associated_with_condition","attribution":{"source":"synthetic","record":"edge-1","version":"2026-01-01"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":["MONDO:0019003"]},"components":[{"component":"hpo","terms":{"usage":"attribution","name":"Synthetic attribution terms","url":"https://example.invalid/terms"}}]});
-    assert_eq!(roundtrip::<biomcp_types::DiseaseAssociationItem>(row.clone()), row);
+    assert_eq!(
+        roundtrip::<biomcp_types::DiseaseAssociationItem>(row.clone()),
+        row
+    );
     assert!(serde_json::from_value::<DiseaseAssociation>(row).is_err());
 }
