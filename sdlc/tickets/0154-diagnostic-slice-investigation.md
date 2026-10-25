@@ -1,6 +1,7 @@
 # 0154 — Investigate the diagnostic slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a5805fea2005425e2678ba5fa2fed2b0a3205704
 
 Milestone: 4
 

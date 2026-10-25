@@ -1,6 +1,7 @@
 # 0153 — Investigate the pharmacogenomics slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2dfef1c99a6e170ec5b6f4ddb73d594c469d8d67
 
 Milestone: 4
 

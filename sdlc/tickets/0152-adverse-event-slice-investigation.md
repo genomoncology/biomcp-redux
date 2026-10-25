@@ -1,6 +1,7 @@
 # 0152 — Investigate the adverse event slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0cbb25c61c66a27df6c6a7d4f855b50442569866
 
 Milestone: 3
 
