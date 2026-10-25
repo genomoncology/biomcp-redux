@@ -302,7 +302,7 @@ Sources:
 - [x] openFDA PMA (optional key)
 - [x] openFDA 510(k) exact K-number get (optional key)
 
-The diagnostic slice preserves exact source identities, complete native rows and bounded sections. A listing is not authorization, and a companion row is not a treatment recommendation. Free-text PMA and 510(k) search, WHO discovery/selectors and GTR laboratory selection remain deferred. Dropped: name-derived FDA overlay, disease synonym expansion, generic source merge and read-triggered refresh. Full same-question 0.9 comparison remains a separate release requirement; the budget records its unmeasured reason.
+The diagnostic slice preserves exact source identities, complete native rows and bounded sections. A listing is not authorization, and a companion row is not a treatment recommendation. Free-text PMA and 510(k) search, WHO type and GTR laboratory selection remain deferred. Stored WHO discovery supports literal marker and manufacturer words. Dropped: name-derived FDA overlay, disease synonym expansion, generic source merge and read-triggered refresh. Full same-question 0.9 comparison remains a separate release requirement; the budget records its unmeasured reason.
 
 ### Adverse event
 

@@ -71,6 +71,11 @@ fn boundaries() -> Result<(), String> {
     }
     for words in [
         "search diagnostic --source gtr --device-id K173492",
+        "search diagnostic --source gtr --marker HIV",
+        "search diagnostic --source who-ivd --gene BRCA1",
+        "search diagnostic --source who-ivd --biomarker HIV",
+        "search diagnostic --source who-ivd --marker ...",
+        "search diagnostic --source who-ivd --manufacturer ...",
         "search diagnostic --source fda-cdx --gene BRCA1",
         "get diagnostic P150013 --source gtr",
         "get diagnostic K173492 --source fda-pma",
