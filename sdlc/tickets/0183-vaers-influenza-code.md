@@ -1,6 +1,7 @@
 # 0183 — Find WONDER's current influenza vaccine code for VAERS summaries
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 99eda1647bc605bf4b687000c010619ad2b74eb0
 
 Milestone: 3
 

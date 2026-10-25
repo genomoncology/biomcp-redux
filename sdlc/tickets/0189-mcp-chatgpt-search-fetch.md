@@ -1,6 +1,7 @@
 # 0189 — Add ChatGPT-compatible search and fetch MCP tools over the CLI
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d860fc95361d7d1221fdc96688dc468cb5abe83c
 
 Milestone: 4
 
