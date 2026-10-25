@@ -117,6 +117,9 @@ fn scenario(name: &'static str) -> Check {
     if both(&env, args.clone(), 0)? != cold {
         return Err("warm cache changed native response".into());
     }
+    use std::io::Write;
+    writeln!(std::io::stdout(), "ClinPGx {name}: {}", serde_json::to_vec(&cold).map_err(|e| e.to_string())?.len())
+        .map_err(|e| e.to_string())?;
     verify(name, &cold, &original)?;
     let fresh = Environment::new().map_err(|e| e.to_string())?;
     let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];

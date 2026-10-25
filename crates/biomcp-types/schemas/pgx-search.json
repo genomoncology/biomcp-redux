@@ -25,7 +25,7 @@
   "$id": "biomcp.pgx-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Checked gene-keyed CPIC pair search; no positional or drug text input.",
+  "description": "Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.",
   "properties": {
     "cpic_level": {
       "anyOf": [

@@ -23,7 +23,7 @@ fn explicit_section_limit<'de, D: serde::Deserializer<'de>>(
 fn conditional_limit(schema: &mut schemars::Schema) {
     schema.remove("default");
 }
-/// Checked gene-keyed CPIC pair search; no positional or drug text input.
+/// Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -85,7 +85,7 @@ impl PgxSearch {
         q
     }
 }
-/// Checked exact gene card or one independently paged section.
+/// Checked source gene card, section or exact ClinPGx annotation accession. No phenotype, phase or dose is calculated.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

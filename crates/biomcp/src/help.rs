@@ -207,6 +207,18 @@ pub(crate) fn tree() -> String {
                 line.push(']');
             }
         }
+        if command.command.iter().any(|word| word == "pgx") {
+            for argument in command.arguments.iter().filter(|arg| {
+                matches!(arg.name.as_str(), "--source" | "--diplotype" | "--kind"
+                    | "--cpic-level" | "--limit" | "--offset" | "--section-limit"
+                    | "--section-offset")
+            }) {
+                line.push_str(&format!(" {}", argument.name));
+                if argument.name == "--source" {
+                    line.push_str(&format!(" {}", argument.choices.join("|")));
+                }
+            }
+        }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
             line.push_str(
