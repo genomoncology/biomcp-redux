@@ -3,7 +3,8 @@ mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, SourceSpec, Terms};
 use biomcp_types::{Source, Use, VaersSection, VaersSummary};
 use std::time::Duration;
-/// Registry-owned source policy and compatibility setting.
+/// Registry-owned restricted statistical use only; no re-identification.
+/// This compatibility setting applies only to CDC WONDER.
 pub static SPEC: SourceSpec = SourceSpec {
     user_agent: Some("Wget/1.21.4"),
     source: Source::Vaers,

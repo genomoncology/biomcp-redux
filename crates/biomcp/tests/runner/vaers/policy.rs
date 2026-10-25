@@ -53,7 +53,7 @@ pub(super) fn default_agent() -> Check {
     let env = environment(&stub)?;
     invoke(
         &env,
-        ["search", "adverse-event", "Synthetic drug"]
+        ["search", "adverse-event", "MMR"]
             .map(str::to_owned)
             .to_vec(),
         4,

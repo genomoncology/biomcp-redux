@@ -684,7 +684,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Native Events Reported cell, preserving suppressed or displayed-total text.",
+          "description": "Native Events Reported count for this row. A footer counts occurrences, separate from the message report total; suppressed and displayed-total text stay unchanged.",
           "type": "object"
         }
       },

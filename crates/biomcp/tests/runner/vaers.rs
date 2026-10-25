@@ -123,8 +123,13 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
         return Err("VAERS CLI/MCP mismatch".into());
     }
     use std::io::Write;
-    let full=serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();
-    let comparable=super::source_terms::size(&value, "")?;
-    writeln!(std::io::stdout(), "VAERS measurement {:?}: {full} full, {comparable} comparable", args).map_err(|e|e.to_string())?;
+    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(&value, "")?;
+    writeln!(
+        std::io::stdout(),
+        "VAERS measurement {:?}: {full} full, {comparable} comparable",
+        args
+    )
+    .map_err(|e| e.to_string())?;
     Ok(value)
 }
