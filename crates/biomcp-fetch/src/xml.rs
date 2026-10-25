@@ -334,6 +334,14 @@ impl Reply for Bytes {
     fn check(&self) -> Result<(), crate::BadReply> {
         Ok(())
     }
+    fn check_status(&self, status: u16) -> Result<(), crate::BadReply> {
+        // Binary callers retrieve complete resources and never send Range requests.
+        if status == 200 {
+            Ok(())
+        } else {
+            Err(crate::BadReply)
+        }
+    }
 }
 impl<'a> Decoder<'a, Bytes> {
     pub(crate) fn checked_bytes(

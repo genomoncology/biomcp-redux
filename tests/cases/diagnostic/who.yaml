@@ -87,7 +87,9 @@
       "max_tokens": 5000,
       "expect": {
         "/status": "absent"
-      }
+      },
+      "exit": 1,
+      "is_error": true
     }
   ]
 }
