@@ -1,0 +1,111 @@
+{
+  "feature": "diagnostic-pma",
+  "story": "Recorded synthetic PMA rate limits, upstream errors, deadlines and broken JSON retain source policy and never become absence.",
+  "replay": "diagnostic/pma-failures",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P999991",
+        "--source",
+        "fda-pma"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "P999991",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "max_bytes": 500,
+      "max_tokens": 125,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/use": "open",
+        "/sources/0/terms": "openFDA terms and license; third-party exceptions",
+        "/sources/0/reason": "rate_limited"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P999992",
+        "--source",
+        "fda-pma"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "P999992",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "max_bytes": 500,
+      "max_tokens": 125,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/use": "open",
+        "/sources/0/terms": "openFDA terms and license; third-party exceptions",
+        "/sources/0/reason": "unavailable"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P999993",
+        "--source",
+        "fda-pma"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "P999993",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "max_bytes": 500,
+      "max_tokens": 125,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/use": "open",
+        "/sources/0/terms": "openFDA terms and license; third-party exceptions",
+        "/sources/0/reason": "deadline_exceeded"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P999994",
+        "--source",
+        "fda-pma"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "P999994",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "max_bytes": 500,
+      "max_tokens": 125,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/use": "open",
+        "/sources/0/terms": "openFDA terms and license; third-party exceptions",
+        "/sources/0/reason": "bad_reply"
+      }
+    }
+  ]
+}

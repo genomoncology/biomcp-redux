@@ -407,3 +407,21 @@ Companion individual and group rows have separate tagged variants and separate e
 GTR search candidates retain the first matching native relation in relation-report order under `matched`. The search count unit is `test_identities`. A relation whose exact test has no current card remains a `missing_card` candidate with its original relation; it never gains a fabricated name. Multiplicity is checked across all version rows before deciding current-card availability. A repeated accession/version returns `identity.conflict` and supplies no selected card or executable get.
 
 Genes and conditions use the count unit `native_relation_rows`. Their `distinct_id_total` counts complete source identifiers across that relation collection, including namespace, while retaining rows without identifiers. Methods use `native_method_entries` and retain independent source list indices. The original version-row pipe cells do not supply any of those relation counts. Sync bytes count the downloaded source files before native gzip decoding.
+
+
+## Exact PMA implementation measurements
+
+The bounded six-request capture j13187 retrieved the complete P150013 application with 36 rows and P200010 with 31 rows. Their explicit empty base supplement cells occur at native indices 24 and 10. Exact P150013/S020 and S021 each returned their own single unchanged application member. S020 has its native notice date; S021 omits that field. P000000 returned native HTTP 404 `NOT_FOUND` using the approved `limit=1` control. The product application request uses `limit=100`, so this receipt is not a native product replay for P000000. Synthetic exact 404 replay proves product absence handling. Unknown-supplement product absence is also synthetic-only. No capture receipt was relabeled to another query.
+
+The separate retained product job j13229 ran 29 CLI/MCP pairs against four local receipt deliveries with no provider calls. Native base and supplement selection, complete 35/30-header walks, each exact row’s statement reconstruction, cross-source typed pivots and embedded schemas passed. Bodies and raw outputs remain outside Git. K173492 returned one native 510(k) row in the bounded capture; this is a positive source fact for a separate source ticket. K and DEN identifiers still have no executable get here.
+
+All sizes below include the product envelope. Comparable compact bytes remove the registry terms contribution only; stdout adds its final newline. Token ceilings use the existing conservative byte division. Each new ceiling is measured stdout plus 15 percent, rounded up.
+
+| Native command | Largest compact full/comparable bytes | Stdout byte ceiling | Token ceiling |
+|---|---:|---:|---:|
+| Base card, P150013/P200010 | 999 / 897 | 1150 | 288 |
+| Exact S020/S021 card | 970 / 868 | 1117 | 280 |
+| Five native supplement headers, largest page | 2518 / 2416 | 2897 | 725 |
+| One native regulatory fragment, largest retained statement | 3258 / 3156 | 3748 | 937 |
+
+The synthetic outside-in case uses larger statement fragments to exercise splitting. Its eight measured stdout values are 986, 961, 961, 2428, 1241, 7238, 300 and 280 bytes. The corresponding ceilings live in `tests/cases/diagnostic/pma.yaml`. Recorded failure cases cover 429, 500, deadline and broken JSON with source terms; request-bound identity and complete-collection checks run before cache admission. An incomplete application returns `collection.incomplete`, no selected card and no cached cut collection.

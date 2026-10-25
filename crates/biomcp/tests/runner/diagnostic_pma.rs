@@ -12,9 +12,6 @@ pub(super) fn trials() -> Vec<Trial> {
         "duplicate-base",
         "incomplete",
         "wrong-status",
-        "broken",
-        "500",
-        "429",
         "disabled",
     ]
     .into_iter()
@@ -65,19 +62,13 @@ fn boundary(mode: &'static str) -> Check {
             ) {
                 return Err(format!("wrong exact query: {request}"));
             }
-            Ok(if mode == "broken" {
-                "{".into()
-            } else if mode == "wrong-status" {
+            Ok(if mode == "wrong-status" {
                 json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string()
             } else {
                 body.to_string()
             })
         },
-        move |_| match mode {
-            "500" => 500,
-            "429" => 429,
-            _ => 200,
-        },
+        |_| 200,
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
