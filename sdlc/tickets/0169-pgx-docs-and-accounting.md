@@ -1,6 +1,7 @@
 # 0169 — Document the pharmacogenomics commands and close the pharmacogenomics accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 07a09ab2185a9ac10a2798ec6d47d33d2fc7c836
 
 Milestone: 4
 

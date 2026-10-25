@@ -1,6 +1,7 @@
 # 0176 — Retire old diagnostic options and prove diagnostic failure and identity cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2891731a1759494fa33c4cd8ca645cebe568da01
 
 Milestone: 4
 
