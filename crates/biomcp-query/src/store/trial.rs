@@ -1,4 +1,4 @@
-//! Trial protocol snapshots use the existing store owner, deadlines and source admission.
+//! Source snapshots use the existing store owner, deadlines and source admission.
 use super::{CacheError, Store, db};
 use biodata::Text;
 use biomcp_types::{Source, SourceOutcome};
@@ -6,7 +6,7 @@ use rusqlite::{OptionalExtension, params};
 use sha2::{Digest, Sha256};
 impl Store<'_> {
     /// Read source dependencies before any saved protocol content.
-    pub(crate) fn trial_snapshot(
+    pub(crate) fn source_snapshot(
         &self,
         id: &str,
         key: &[u8],
@@ -20,7 +20,7 @@ impl Store<'_> {
             cx.query_row("SELECT payload FROM trial_snapshot WHERE id=?1",params![id],|r|r.get(0)).map(Some).map_err(db)
         })
     }
-    pub(crate) fn save_trial_snapshot(
+    pub(crate) fn save_source_snapshot(
         &mut self,
         key: &[u8],
         payload: &str,
@@ -29,7 +29,7 @@ impl Store<'_> {
         self.write(|tx| {
             let id=Sha256::digest([key,payload.as_bytes()].concat()).iter().map(|b|format!("{b:02x}")).collect::<String>();
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;
-            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(id) DO UPDATE SET expires=excluded.expires",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO source_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(id) DO UPDATE SET expires=excluded.expires",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;
             Text::new(&id).map_err(|_|CacheError::Database)
         })
     }

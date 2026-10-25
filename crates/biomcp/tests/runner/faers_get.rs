@@ -75,7 +75,7 @@ fn identity(mode:&str) -> Check {
     let (env,stub)=setup(mode)?;
     let mut words=args(None);
     if mode=="bad-drug-index" {words=args(Some("unii"));words.extend(["--drug-index".into(),"99".into()]);}
-    let exit=if mode=="absent" {1} else if mode=="bad-drug-index" {3} else {4};
+    let exit=if mode=="absent" {1} else if mode=="bad-drug-index" {2} else {4};
     let value=both(&env,words,exit)?;
     if mode=="absent" {
         if value.get("status")!=Some(&json!("absent")) {return Err(format!("absence: {value}"));}

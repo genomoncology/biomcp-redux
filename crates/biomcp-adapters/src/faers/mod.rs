@@ -18,3 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod raw;
 mod search;
 pub use search::{Page, expression, search};
+
+mod detail_raw;
+mod detail_map;
+pub mod detail;
