@@ -1,0 +1,29 @@
+use super::{SPEC, raw::Native};
+use biomcp_fetch::{BundleInfo, BundlePart, BundleSet, Fetch, Find, Freshness, KeyKind, Leg, RequestError, RowFormat, SetRow};
+use biomcp_types::SyncResult;
+use std::{collections::BTreeMap, marker::PhantomData, time::Duration};
+const SET: BundleSet<Native> = BundleSet {
+    spec: &SPEC, name: "gtr", fresh: Freshness::Days(7), row: PhantomData,
+    format: RowFormat::NativeTsv { gzip: false },
+    parts: &[
+        BundlePart { name: "versions", path: "/data/test_version.gz", format: Some(RowFormat::NativeTsv { gzip: true }) },
+        BundlePart { name: "relations", path: "/data/test_condition_gene.txt", format: None },
+    ],
+};
+pub(super) fn read(leg: &Leg<'_>, find: Find<'_>) -> Result<(Vec<SetRow<Native>>, BundleInfo), RequestError> {
+    leg.stored_set_rows(&SET, find)
+}
+/// Synchronize both native files atomically and count identities before any status filter.
+pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
+    let info = fetch.sync_set(&SET)?;
+    let deadline = fetch.deadline(Duration::from_secs(120));
+    let leg = fetch.leg(&SPEC, deadline);
+    let (rows, snapshot) = read(&leg, Find::Exact(KeyKind::Band, "versions"))?;
+    if info.content_revision != snapshot.content_revision { return Err(super::bad()); }
+    let mut counts = BTreeMap::new();
+    for row in rows {
+        *counts.entry(row.value.id().to_string()).or_insert(0_u32) += 1;
+    }
+    Ok(SyncResult { rows: info.rows, bytes: info.bytes,
+        duplicate_identities: Some(counts.values().filter(|&&n| n > 1).count() as u64) })
+}

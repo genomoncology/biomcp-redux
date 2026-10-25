@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Complete GTR version and relation pair.
+    Gtr,
     /// The complete eight-file DDInter interaction set.
     Ddinter,
     /// EMA medicines, synchronized only by an explicit command.
@@ -57,6 +59,8 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::SearchDiagnostic(q) => crate::diagnostic::search(cx, q),
+        Request::GetDiagnostic(q) => crate::diagnostic::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
         Request::SearchDrug(query) => crate::drug::search(cx, query),

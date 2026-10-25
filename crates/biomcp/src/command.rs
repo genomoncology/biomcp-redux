@@ -1,5 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod disease;
+mod diagnostic;
 mod drug;
 mod drug_label;
 mod steps;
@@ -214,6 +215,9 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+    if matches!(&request, Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)) {
+        return diagnostic::encode(meta, request, body);
+    }
     if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
         return disease::encode(meta, request, body);
     }
@@ -392,19 +396,23 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = match bundle {
+        Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::Ema => biomcp_types::Source::Ema,
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
     };
     let result = match bundle {
+        Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
         Bundle::Ddinter => {
             biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
+                duplicate_identities: None,
                 rows: info.rows,
                 bytes: info.bytes,
             })
         }
         Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
+                duplicate_identities: None,
             rows: info.rows,
             bytes: info.bytes,
         }),
@@ -417,6 +425,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
                     Ok(biomcp_types::SyncResult {
+                duplicate_identities: None,
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,
                     })

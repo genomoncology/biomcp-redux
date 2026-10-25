@@ -19,3 +19,6 @@ pub mod variant;
 pub mod disease;
 /// Single-source drug discovery and exact native cards.
 pub mod drug;
+
+/// Source-owned diagnostic laboratory tests and relations.
+pub mod diagnostic;

@@ -37,6 +37,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchDiagnostic(_) => "biomcp.diagnostic-search/1",
+        Request::GetDiagnostic(_) => "biomcp.diagnostic-get/1",
         Request::SearchDisease(_) => "biomcp.disease-search/1",
         Request::GetDisease(_) => "biomcp.disease-get/2",
         Request::SearchDrug(_) => "biomcp.drug-search/2",
@@ -63,6 +65,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "diagnostic", "biomcp.diagnostic-search/1"),
+    ("get", "diagnostic", "biomcp.diagnostic-get/1"),
     ("search", "disease", "biomcp.disease-search/1"),
     ("get", "disease", "biomcp.disease-get/2"),
     ("search", "drug", "biomcp.drug-search/2"),
@@ -152,7 +156,7 @@ fn root() -> Result<Command, ()> {
     }
     root = root.subcommand(
         Command::new("sync")
-            .arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter"])),
+            .arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr"])),
     );
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
@@ -178,7 +182,7 @@ fn help_command() -> Command {
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
     for &(verb, entity, _) in QUERIES
         .iter()
-        .chain(&[("sync", "ema", ""), ("sync", "ddinter", "")])
+        .chain(&[("sync", "ema", ""), ("sync", "ddinter", ""), ("sync", "gtr", "")])
     {
         let command = verbs
             .remove(verb)
@@ -261,6 +265,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("gtr") => Bundle::Gtr,
                 Some("ema") => Bundle::Ema,
                 Some("ddinter") => Bundle::Ddinter,
                 Some("clingen") => Bundle::ClinGen,
@@ -480,6 +485,8 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
+        ("search", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticSearch>(value).map(Request::SearchDiagnostic).map_err(|_| ()),
+        ("get", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticGet>(value).map(Request::GetDiagnostic).map_err(|_| ()),
         ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
             .map(Request::SearchDisease)
             .map_err(|_| ()),

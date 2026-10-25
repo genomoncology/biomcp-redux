@@ -23,6 +23,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::Gtr => "gtr",
                 Bundle::Ema => "ema",
                 Bundle::Ddinter => "ddinter",
                 Bundle::Hgnc => "hgnc",
@@ -61,6 +62,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchDiagnostic(q) => serde_json::to_value(q),
+        Request::GetDiagnostic(q) => serde_json::to_value(q),
         Request::SearchDisease(query) => serde_json::to_value(query),
         Request::GetDisease(query) => serde_json::to_value(query),
         Request::SearchDrug(q) => serde_json::to_value(q),
@@ -123,13 +126,15 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetDisease(_)
+            Request::GetDiagnostic(_)
+            | Request::GetDisease(_)
             | Request::GetDrug(_)
             | Request::GetVariant(_)
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchDisease(_)
+            Request::SearchDiagnostic(_)
+            | Request::SearchDisease(_)
             | Request::SearchDrug(_)
             | Request::SearchVariant(_)
             | Request::SearchTrial(_)
@@ -137,7 +142,9 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        if matches!(request, Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)) {
+            "diagnostic"
+        } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
             "disease"
         } else if matches!(request, Request::SearchDrug(_) | Request::GetDrug(_)) {
             "drug"

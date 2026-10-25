@@ -50,6 +50,16 @@ pub enum DiagnosticCandidate {
     Resolved {
         /// Compact source header.
         header: GtrHeader,
+        /// Complete native relation that matched the source selector.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        matched: Option<biodata::GtrTestRelation>,
+    },
+    /// A native relation remains visible without a current card.
+    MissingCard {
+        /// Exact relation-owned test accession and version.
+        id: GtrTestId,
+        /// The original matched relation; no manufactured header.
+        matched: biodata::GtrTestRelation,
     },
     /// Several incompatible native rows with the same exact accession/version.
     Conflict {
@@ -169,7 +179,7 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic_page/1",
+    "biomcp.diagnostic_page/2",
     "Source-ordered GTR candidates with explicit conflicts."
 );
 page!(

@@ -1,6 +1,7 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
 mod parse;
+mod native;
 mod set;
 pub use set::{BundlePart, BundleSet, SetRow};
 pub(crate) mod store;
@@ -38,6 +39,11 @@ pub struct Bundle<R: Row + 'static> {
 pub enum RowFormat {
     /// Tab-separated cells with a named header.
     Tsv,
+    /// Strict quoted TSV preserving all cells, optionally gzip-encoded.
+    NativeTsv {
+        /// Decode the published gzip member before reading cells.
+        gzip: bool,
+    },
     /// JSON object with a declared row array and shared metadata object.
     Json {
         /// Object field holding the complete row array.
@@ -55,7 +61,7 @@ impl RowFormat {
     fn media(self) -> &'static str {
         match self {
             Self::Json { .. } => "application/json",
-            Self::Tsv => "text/tab-separated-values",
+            Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } => "text/csv",
         }
     }
@@ -89,6 +95,8 @@ pub enum KeyKind {
 pub enum Find<'a> {
     /// Case-insensitive complete key.
     Exact(KeyKind, &'a str),
+    /// Select several complete keys in one indexed snapshot.
+    AnyExact(KeyKind, &'a [&'a str]),
     /// Literal key prefix.
     Prefix(KeyKind, &'a str),
     /// Literal words combined with AND.

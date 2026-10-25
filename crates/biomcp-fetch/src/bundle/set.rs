@@ -12,6 +12,8 @@ pub struct BundlePart {
     pub name: &'static str,
     /// Exact path under the source declaration.
     pub path: &'static str,
+    /// A part-specific encoding; absent uses the set encoding.
+    pub format: Option<RowFormat>,
 }
 /// A source requires every declared part before any row becomes visible.
 #[derive(Debug)]
@@ -69,13 +71,14 @@ impl Fetch {
         let mut revision = Sha256::new();
         let mut bytes = 0_u64;
         for part in set.parts {
+            let format = part.format.unwrap_or(set.format);
             let endpoint = set
                 .spec
                 .get(part.path)
                 .bytes(super::MAX_BUNDLE_BYTES)
                 .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {
-                let parsed = parse::rows::<R>(body, set.format)
+                let parsed = parse::rows::<R>(body, format)
                     .map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
@@ -92,7 +95,7 @@ impl Fetch {
             revision.update(part.path.as_bytes());
             revision.update((body.len() as u64).to_be_bytes());
             revision.update(&body);
-            let rows = parse::rows::<R>(&body, set.format)
+            let rows = parse::rows::<R>(&body, format)
                 .map_err(|_| leg.failure(biomcp_types::Reason::BadReply, Some(200)))?;
             append_part(&mut complete, part, rows)?;
         }

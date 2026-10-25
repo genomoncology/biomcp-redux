@@ -1,4 +1,12 @@
-//! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
+//! Stored GTR test/version and relation reports under one atomic snapshot.
+mod bundle;
+mod raw;
+mod map;
+mod search;
+mod get;
+pub use bundle::sync;
+pub use search::{search, Search};
+pub use get::{get, Record};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -15,3 +23,19 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+fn bad() -> biomcp_fetch::RequestError {
+    biomcp_fetch::SourceError { source: Source::Gtr, reason: biomcp_types::Reason::BadReply,
+        status: None, retry_after: None }.into()
+}
+fn revision(expected: Option<&biodata::Text>, info: &biomcp_fetch::BundleInfo) -> Result<(), biomcp_fetch::RequestError> {
+    if expected.is_some_and(|v| Some(v.as_str()) != info.content_revision.as_deref()) {
+        return Err(biomcp_fetch::SourceError { source: Source::Gtr, reason: biomcp_types::Reason::Rejected,
+            status: None, retry_after: None }.into());
+    }
+    Ok(())
+}
+fn conflict(id: &biodata::GtrTestId) -> biomcp_types::Problem {
+    biomcp_types::Problem { source: Source::Gtr, record: biodata::Text::new(&id.to_string()).ok(),
+        field: "test_accession_ver".into(), code: biomcp_types::ProblemCode::ValueUnknown }
+}

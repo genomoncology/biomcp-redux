@@ -381,34 +381,42 @@ mod sets {
     );
     static PARTS: &[BundlePart] = &[
         BundlePart {
+            format: None,
             name: "A",
             path: "/A",
         },
         BundlePart {
+            format: None,
             name: "B",
             path: "/B",
         },
         BundlePart {
+            format: None,
             name: "D",
             path: "/D",
         },
         BundlePart {
+            format: None,
             name: "H",
             path: "/H",
         },
         BundlePart {
+            format: None,
             name: "L",
             path: "/L",
         },
         BundlePart {
+            format: None,
             name: "P",
             path: "/P",
         },
         BundlePart {
+            format: None,
             name: "R",
             path: "/R",
         },
         BundlePart {
+            format: None,
             name: "V",
             path: "/V",
         },
