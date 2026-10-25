@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "DiseaseOntology": {
+      "description": "One explicit OLS ontology.",
+      "enum": [
+        "mondo",
+        "doid",
+        "ncit"
+      ],
+      "type": "string"
+    },
+    "DiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.disease-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Literal discovery text or an explicit SEER catalog page.",
+  "properties": {
+    "limit": {
+      "default": 5,
+      "description": "Maximum source rows on one page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native row offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "ontology": {
+      "$ref": "#/$defs/DiseaseOntology",
+      "default": "mondo",
+      "description": "Exactly one ontology, default MONDO."
+    },
+    "source": {
+      "$ref": "#/$defs/DiseaseSource",
+      "default": "ols",
+      "description": "One explicit source, default OLS."
+    },
+    "text": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal source search text; absent for the SEER site catalog.",
+      "x-positional": 0
+    }
+  },
+  "title": "DiseaseSearch",
+  "type": "object"
+}

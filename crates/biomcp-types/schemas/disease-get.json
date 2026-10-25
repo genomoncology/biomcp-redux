@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "DiseaseOntology": {
+      "description": "One explicit OLS ontology.",
+      "enum": [
+        "mondo",
+        "doid",
+        "ncit"
+      ],
+      "type": "string"
+    },
+    "DiseaseSection": {
+      "description": "One named disease page.",
+      "enum": [
+        "synonyms",
+        "xrefs",
+        "hierarchy",
+        "genes",
+        "phenotypes",
+        "incidence",
+        "survival"
+      ],
+      "type": "string"
+    },
+    "DiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.disease-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact concept or native SEER site with independently paged section.",
+  "properties": {
+    "age_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native age-range code."
+    },
+    "dataset": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Requested native dataset selector, not proof of returned membership."
+    },
+    "id": {
+      "$ref": "#/$defs/Text",
+      "description": "Exact ontology CURIE or an explicit SEER catalog site ID.",
+      "x-positional": 0
+    },
+    "interval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Survival-only interval code."
+    },
+    "ontology": {
+      "$ref": "#/$defs/DiseaseOntology",
+      "default": "mondo",
+      "description": "One OLS ontology."
+    },
+    "period": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Incidence-only native period code."
+    },
+    "race": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native race code."
+    },
+    "section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DiseaseSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "One named section; absent means identity card only.",
+      "x-trailing-section": true
+    },
+    "section_limit": {
+      "default": 5,
+      "description": "Native rows per section page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Native row offset within the selected section.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "sex": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native sex code."
+    },
+    "source": {
+      "$ref": "#/$defs/DiseaseSource",
+      "default": "mydisease",
+      "description": "Default MyDisease; no automatic fallback."
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "DiseaseGet",
+  "type": "object"
+}
