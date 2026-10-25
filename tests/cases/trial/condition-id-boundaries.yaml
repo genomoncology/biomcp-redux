@@ -21,13 +21,14 @@
         "nci"
       ],
       "exit": 4,
-      "offline": true,
+      "offline": false,
       "expect": {
         "/sources/0/source": "nci",
         "/sources/0/reason": "no_key"
       },
       "max_bytes": 900,
-      "max_tokens": 225
+      "max_tokens": 225,
+      "is_error": true
     },
     {
       "run": [

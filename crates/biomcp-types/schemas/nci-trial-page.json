@@ -1,5 +1,218 @@
 {
   "$defs": {
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Provenance for one source record.",
+      "properties": {
+        "evaluated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evaluation date."
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native assertion record."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset release."
+        },
+        "source": {
+          "$ref": "#/$defs/Text",
+          "description": "Source responsible for the claim."
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record link."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record version."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
+    "ComponentLabel": {
+      "additionalProperties": false,
+      "description": "Terms attached to a named carried component on a consumer response.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component name."
+        },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Canonical publisher terms."
+        }
+      },
+      "required": [
+        "component",
+        "terms"
+      ],
+      "type": "object"
+    },
+    "ComponentTerms": {
+      "additionalProperties": false,
+      "description": "Terms attached to one independently licensed source component.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms name."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher terms page."
+        },
+        "usage": {
+          "$ref": "#/$defs/Use",
+          "description": "Publisher use category."
+        }
+      },
+      "required": [
+        "usage",
+        "name",
+        "url"
+      ],
+      "type": "object"
+    },
+    "Concept": {
+      "additionalProperties": false,
+      "description": "One source concept with its optional ontology identifier.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated concept identifier."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Original concept label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "DiseaseEndpoint": {
+      "additionalProperties": false,
+      "description": "One native endpoint with an identifier and an optional source label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Curie",
+          "description": "Exact source identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label when supplied."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "DiseaseRelation": {
+      "additionalProperties": false,
+      "description": "A publisher relation with distinct endpoints and predicate.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Publisher record and version."
+        },
+        "description": {
+          "description": "Unchanged native cross-reference description when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "object": {
+          "$ref": "#/$defs/DiseaseEndpoint",
+          "description": "Native object."
+        },
+        "predicate": {
+          "$ref": "#/$defs/Curie",
+          "description": "Publisher predicate, without equivalence promotion."
+        },
+        "subject": {
+          "$ref": "#/$defs/DiseaseEndpoint",
+          "description": "Native subject."
+        }
+      },
+      "required": [
+        "subject",
+        "predicate",
+        "object",
+        "attribution"
+      ],
+      "type": "object"
+    },
     "GeneInput": {
       "pattern": "\\S",
       "type": "string"
@@ -125,6 +338,17 @@
         "attribution": {
           "description": "Publisher attribution.",
           "type": "string"
+        },
+        "condition_resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrialConditionResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact condition identity and source-provided mapping, absent for literal text."
         },
         "items": {
           "description": "Source rows, never merged with another provider.",
@@ -661,6 +885,89 @@
       "minLength": 1,
       "type": "string"
     },
+    "TrialConditionResolution": {
+      "additionalProperties": false,
+      "description": "Exact condition identity used for one trial request, without eligibility inference.",
+      "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiseaseRelation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native relation proving a requested alias, when required."
+        },
+        "attribution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Attribution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Resolver record provenance, independent of the trial provider."
+        },
+        "components": {
+          "description": "Admitted resolver components and their own terms.",
+          "items": {
+            "$ref": "#/$defs/ComponentLabel"
+          },
+          "type": "array"
+        },
+        "concept": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Concept"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Returned concept with its unchanged native primary label."
+        },
+        "input": {
+          "$ref": "#/$defs/Curie",
+          "description": "Caller-selected CURIE, never a source-name search."
+        },
+        "ncit_candidates": {
+          "description": "Native NCIt mapping rows; duplicate targets keep their independent provenance.",
+          "items": {
+            "$ref": "#/$defs/DiseaseRelation"
+          },
+          "type": "array"
+        },
+        "resolver": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Source"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Named exact resolver; absent for explicit NCIt input."
+        },
+        "selected_ncit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit or unique source-provided NCIt identifier actually sent to NCI."
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
     "TrialGet": {
       "additionalProperties": false,
       "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
@@ -786,6 +1093,10 @@
         "condition": {
           "$ref": "#/$defs/Text",
           "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
+        },
+        "condition_id": {
+          "$ref": "#/$defs/Curie",
+          "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
         },
         "count_only": {
           "default": false,
@@ -968,7 +1279,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.nci_trial_page/2",
+  "$id": "biomcp.nci_trial_page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1014,7 +1325,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.nci_trial_page/2",
+      "const": "biomcp.nci_trial_page/3",
       "type": "string"
     },
     "sources": {

@@ -508,3 +508,7 @@ pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
 pub(super) fn seer_native(path: &Path) -> Result<(), String> {
     disease_seer::native(path)
 }
+
+pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
+    trial_condition::native(path)
+}

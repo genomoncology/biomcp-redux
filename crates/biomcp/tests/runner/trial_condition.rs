@@ -3,37 +3,70 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod native;
+pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("trial-search/condition-id-failures-before-trial", || {
-        failures().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "trial-search/condition-id-failures-before-trial",
+        || failures().map_err(Into::into),
+    )]
 }
 fn annotation(id: &str, codes: &[&str]) -> Value {
     json!({"_id":id,"mondo":{"mondo":id,"label":"Synthetic failure concept","xrefs":{"ncit":codes}}})
 }
 fn failures() -> Result<(), String> {
     for (case, body, expected) in [
-        ("ambiguous", annotation("MONDO:0005105", &["C3224", "C3512"]), None),
+        (
+            "ambiguous",
+            annotation("MONDO:0005105", &["C3224", "C3512"]),
+            None,
+        ),
         ("missing", annotation("MONDO:0005105", &[]), None),
-        ("wrong-id", annotation("MONDO:0000001", &["C3224"]), Some("bad_reply")),
-        ("resolver-error", json!({"error":"synthetic resolver failure"}), Some("bad_reply")),
+        (
+            "wrong-id",
+            annotation("MONDO:0000001", &["C3224"]),
+            Some("bad_reply"),
+        ),
+        (
+            "resolver-error",
+            json!({"error":"synthetic resolver failure"}),
+            Some("bad_reply"),
+        ),
     ] {
         let response = body.to_string();
-        let stub = Stub::for_source_status("mydisease.info", "application/json", move |request| {
-            if !request.starts_with("GET /v1/disease/MONDO%3A0005105?fields=mondo%2Cdisease_ontology ") {
-                return Err(format!("unexpected resolver or trial request: {request}"));
-            }
-            Ok(response.clone())
-        }, |_| 200)?;
+        let stub = Stub::for_source_status(
+            "mydisease.info",
+            "application/json",
+            move |request| {
+                if !request
+                    .starts_with("GET /v1/disease/MONDO%3A0005105?fields=mondo%2Cdisease_ontology ")
+                {
+                    return Err(format!("unexpected resolver or trial request: {request}"));
+                }
+                Ok(response.clone())
+            },
+            |_| 200,
+        )?;
         let env = setup(&stub)?;
         let directory = env.root().join(case);
-        let args = ["search", "trial", "--source", "nci", "--condition-id", "MONDO:0005105", "--limit", "1"];
+        let args = [
+            "search",
+            "trial",
+            "--source",
+            "nci",
+            "--condition-id",
+            "MONDO:0005105",
+            "--limit",
+            "1",
+        ];
         let mut record: Vec<String> = args.iter().map(|v| (*v).into()).collect();
         record.extend(["--record".into(), directory.to_string_lossy().into()]);
         let value = invoke(&env, &record, 4)?;
         if value.pointer("/result/request") != Some(&json!([])) || value.get("page").is_some() {
-            return Err(format!("{case}: unresolved identity asserted a trial request/count"));
+            return Err(format!(
+                "{case}: unresolved identity asserted a trial request/count"
+            ));
         }
         if let Some(reason) = expected {
             if value.pointer("/sources/0/reason") != Some(&json!(reason)) {
@@ -43,8 +76,16 @@ fn failures() -> Result<(), String> {
         if stub.finish()?.len() != 1 {
             return Err(format!("{case}: resolver fanout or trial request"));
         }
+        let sources = value.get("sources").and_then(Value::as_array).ok_or("missing resolver outcome")?;
+        if sources.len() != 1 || sources.first().and_then(|s| s.get("source")) != Some(&json!("mydisease")) {
+            return Err(format!("{case}: trial source ran after failed resolution"));
+        }
+        if case == "ambiguous" && value.pointer("/result/condition_resolution/ncit_candidates").and_then(Value::as_array).map(Vec::len) != Some(2) { return Err("ambiguous candidates lost".into()); }
+        if value.pointer("/result/condition_resolution/selected_ncit").is_some() { return Err("failed mapping selected an NCIt code".into()); }
+        use std::io::Write;
+        writeln!(std::io::stderr(), "condition failure {case}: full={} comparable={}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len(), super::source_terms::size(&value, "")?).map_err(|e|e.to_string())?;
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
-        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,"config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"expect":{"/status":"failed","/result/request":[]},"max_bytes":3000,"max_tokens":750}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,"config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,"expect":{"/status":"failed","/result/request":[]},"max_bytes":3000,"max_tokens":750}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
         super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
     }
     Ok(())
@@ -52,14 +93,21 @@ fn failures() -> Result<(), String> {
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e|e.to_string())?;
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":"synthetic-trial-condition-key"}})).map_err(|e|e.to_string())?;
     Ok(env)
 }
 fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
+        .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) {
-        return Err(format!("expected exit {exit}, got {:?}: {}", output.status.code(), String::from_utf8_lossy(&output.stdout)));
+        return Err(format!(
+            "expected exit {exit}, got {:?}: {}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stdout)
+        ));
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }

@@ -44,7 +44,13 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
     let mut params = nci::parameters(q);
     if let Some(condition) = condition {
-        params.insert(2, ("diseases.nci_thesaurus_concept_id".into(), condition.to_string()));
+        params.insert(
+            2,
+            (
+                "diseases.nci_thesaurus_concept_id".into(),
+                condition.to_string(),
+            ),
+        );
     }
     let result = nci::search(&leg, &params);
     let error = result.as_ref().err().copied();
@@ -92,7 +98,11 @@ fn apply(
     source.count = Some(page.total);
     source.fetched = Some(page.data.len() as u32);
     out.status = if source.state == biomcp_types::SourceState::Stale
-        || out.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) {
+        || out
+            .sources
+            .iter()
+            .any(|s| s.state != biomcp_types::SourceState::Ok)
+    {
         Status::Partial
     } else {
         Status::Complete

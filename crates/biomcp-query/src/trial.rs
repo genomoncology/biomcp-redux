@@ -1,8 +1,8 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
+mod condition;
 pub mod document;
 pub(crate) mod get;
 mod nci;
-mod condition;
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{ctgov, hgnc};

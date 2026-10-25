@@ -6,17 +6,33 @@ use biomcp_fetch::Deadline;
 use biomcp_types::{QueryBody, Source, TrialConditionResolution, TrialSearch, TrialSource};
 
 pub(super) fn resolve<'a>(
-    cx: &Ctx<'a>, query: &TrialSearch, out: &mut Outcome, deadline: &mut Deadline<'a>,
+    cx: &Ctx<'a>,
+    query: &TrialSearch,
+    out: &mut Outcome,
+    deadline: &mut Deadline<'a>,
 ) -> Option<Option<Text>> {
-    let Some(input) = query.condition_id() else { return Some(None); };
-    let target = if query.source() == TrialSource::Nci { Source::Nci } else { Source::ClinicalTrialsGov };
+    let Some(input) = query.condition_id() else {
+        return Some(None);
+    };
+    let target = if query.source() == TrialSource::Nci {
+        Source::Nci
+    } else {
+        Source::ClinicalTrialsGov
+    };
     // The target's ordinary transport admission returns its skipped outcome. Never resolve first.
     if cx.fetch.disabled(target)
         || (target == Source::Nci && !cx.fetch.has_key(biomcp_fetch::SecretName::NciApiKey))
-    { return Some(None); }
+    {
+        return Some(None);
+    }
     let mut resolution = TrialConditionResolution {
-        input: input.clone(), resolver: None, concept: None, alias: None,
-        ncit_candidates: Box::default(), selected_ncit: None, attribution: None,
+        input: input.clone(),
+        resolver: None,
+        concept: None,
+        alias: None,
+        ncit_candidates: Box::default(),
+        selected_ncit: None,
+        attribution: None,
         components: Box::default(),
     };
     if let Some(code) = ncit_code(input) {
@@ -31,7 +47,8 @@ pub(super) fn resolve<'a>(
     let reply = mydisease::annotation(&leg, input);
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let error = reply.as_ref().err().copied();
-    out.sources.push(status::source(Source::MyDisease, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
     let value = match reply {
         Ok(mapped) => {
@@ -52,7 +69,9 @@ pub(super) fn resolve<'a>(
     value.map(Some)
 }
 fn resolved(
-    source: TrialSource, annotation: mydisease::Annotation, resolution: &mut TrialConditionResolution,
+    source: TrialSource,
+    annotation: mydisease::Annotation,
+    resolution: &mut TrialConditionResolution,
 ) -> Option<Text> {
     let card = annotation.card;
     let label = card.concept.label.clone();
@@ -60,13 +79,22 @@ fn resolved(
     resolution.alias = card.alias;
     resolution.attribution = Some(card.attribution);
     resolution.components = card.components;
-    resolution.ncit_candidates = annotation.xrefs.into_iter()
+    resolution.ncit_candidates = annotation
+        .xrefs
+        .into_iter()
         .filter(|row| row.object.id.to_string().starts_with("NCIT:"))
         .collect();
-    if source == TrialSource::Ctgov { return Some(label); }
-    let choices: std::collections::BTreeSet<_> = resolution.ncit_candidates.iter()
-        .map(|row| row.object.id.to_string()).collect();
-    let unique = (choices.len() == 1).then(|| choices.into_iter().next()).flatten()?;
+    if source == TrialSource::Ctgov {
+        return Some(label);
+    }
+    let choices: std::collections::BTreeSet<_> = resolution
+        .ncit_candidates
+        .iter()
+        .map(|row| row.object.id.to_string())
+        .collect();
+    let unique = (choices.len() == 1)
+        .then(|| choices.into_iter().next())
+        .flatten()?;
     let unique: Curie = unique.parse().ok()?;
     let code = ncit_code(&unique)?;
     let value = Text::new(&code).ok()?;
@@ -76,8 +104,11 @@ fn resolved(
 fn ncit_code(id: &Curie) -> Option<String> {
     let value = id.to_string();
     let (namespace, local) = value.split_once(':')?;
-    (namespace == "NCIT" && local.strip_prefix('C').is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit())))
-        .then(|| local.to_owned())
+    (namespace == "NCIT"
+        && local
+            .strip_prefix('C')
+            .is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit())))
+    .then(|| local.to_owned())
 }
 fn assign(out: &mut Outcome, resolution: TrialConditionResolution) {
     match &mut out.body {
