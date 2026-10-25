@@ -83,6 +83,7 @@ pub(super) struct Disease {
 }
 #[derive(Deserialize)]
 pub(super) struct Therapy {
+    pub id: Option<u64>,
     pub name: Text,
 }
 #[derive(Deserialize)]

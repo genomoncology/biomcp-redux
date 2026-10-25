@@ -149,7 +149,7 @@ fn claim_page<T>(
         next,
     })
 }
-fn member(raw: &raw::Member) -> Result<CivicMember, RequestError> {
+pub(super) fn member(raw: &raw::Member) -> Result<CivicMember, RequestError> {
     let gene = raw
         .feature
         .name

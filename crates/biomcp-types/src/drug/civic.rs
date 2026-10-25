@@ -9,9 +9,11 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicStreams {
     /// Evidence items filtered by the selected native therapy and optional profile.
-    pub evidence: DrugCivicPage,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<DrugCivicPage>,
     /// Assertions filtered independently by the selected native therapy and optional profile.
-    pub assertions: DrugCivicPage,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assertions: Option<DrugCivicPage>,
 }
 /// One native claim stream and its own continuation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
