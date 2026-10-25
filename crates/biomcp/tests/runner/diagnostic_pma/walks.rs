@@ -3,10 +3,14 @@ use crate::runner::launch::fixtures;
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = fixtures().join("replies/diagnostic/pma-synthetic");
+    statement(&env, &replay)?;
+    supplements(&env, &replay)
+}
+fn statement(env: &Environment, replay: &std::path::Path) -> Check {
     let mut statements = String::new();
     let mut offset = 0u64;
     loop {
-        let mut args = env.globals(Some(&replay), false);
+        let mut args = env.globals(Some(replay), false);
         args.extend([
             "get".into(),
             "diagnostic".into(),
@@ -17,7 +21,7 @@ pub(super) fn run() -> Check {
             "--section-offset".into(),
             offset.to_string(),
         ]);
-        let value = invoke(&env, args, 0)?;
+        let value = invoke(env, args, 0)?;
         let rows = value
             .pointer("/result/items")
             .and_then(Value::as_array)
@@ -45,9 +49,12 @@ pub(super) fn run() -> Check {
     if statements != format!("Synthetic statement. {}", "x\"\\\n".repeat(2500)) {
         return Err("mechanical fragments did not reconstruct the whole native statement".into());
     }
+    Ok(())
+}
+fn supplements(env: &Environment, replay: &std::path::Path) -> Check {
     let mut identities = Vec::new();
     for offset in [0, 2, 4, 6] {
-        let mut args = env.globals(Some(&replay), false);
+        let mut args = env.globals(Some(replay), false);
         args.extend([
             "get".into(),
             "diagnostic".into(),
@@ -60,7 +67,7 @@ pub(super) fn run() -> Check {
             "--section-offset".into(),
             offset.to_string(),
         ]);
-        let value = invoke(&env, args, 0)?;
+        let value = invoke(env, args, 0)?;
         let rows = value
             .pointer("/result/items")
             .and_then(Value::as_array)
