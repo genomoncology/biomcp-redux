@@ -1,6 +1,7 @@
 # 0117 — Investigate the disease slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5b1620561eac38fe905f590e383fb69c8a21cd4e
 
 Milestone: 3
 
