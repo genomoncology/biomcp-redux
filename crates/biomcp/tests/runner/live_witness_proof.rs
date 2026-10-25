@@ -122,6 +122,14 @@ fn retained_context() -> Result<(), String> {
     {
         return Err("restricted article, variant or native gene/device identities were lost or text persisted".into());
     }
+    let component = json!({"sources":[{"source":"faers","use":"open"}],"result":{
+        "id":"report-1","components":[{"component":"meddra","terms":{"usage":"restricted"}}],"label":"restricted native terminology"}});
+    if live::witness::context(&component, &[])
+        .to_string()
+        .contains("restricted native terminology")
+    {
+        return Err("an open service bypassed its nested component terms".into());
+    }
     Ok(())
 }
 

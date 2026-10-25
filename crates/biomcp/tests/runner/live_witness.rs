@@ -93,19 +93,23 @@ pub(in crate::runner) fn context(output: &Value, observations: &[Observation]) -
     let permitted = observations.iter().all(|observation| {
         biomcp_adapters::registry::terms(observation.source)
             .is_some_and(|terms| terms.usage == Use::Open)
-    }) && output
-        .get("sources")
-        .and_then(Value::as_array)
-        .is_none_or(|sources| {
-            sources
-                .iter()
-                .all(|source| source.get("use").and_then(Value::as_str) == Some("open"))
-        });
+    }) && open_labels(output);
     let mut ids = Vec::new();
     identities(output, &mut ids, 0);
     json!({"requests":observations,"result_ids":ids,
         "output_shape":Shape::inspect(output.to_string().as_bytes(),"application/json"),
         "output":if permitted {output.clone()} else {json!({"omitted":"source terms require shape and identities only"})}})
+}
+
+fn open_labels(value: &Value) -> bool {
+    match value {
+        Value::Object(map) => map.iter().all(|(key, value)| {
+            (!matches!(key.as_str(), "use" | "usage") || value.as_str() == Some("open"))
+                && open_labels(value)
+        }),
+        Value::Array(items) => items.iter().all(open_labels),
+        _ => true,
+    }
 }
 
 fn identities(value: &Value, ids: &mut Vec<Value>, depth: usize) {
