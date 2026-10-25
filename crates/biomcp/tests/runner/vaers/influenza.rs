@@ -17,6 +17,7 @@ pub(super) fn run() -> Check {
         let args = words(code);
         let value = invoke(&env, args.clone(), 0)?;
         super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+        super::budget::check(&value)?;
         if value.pointer("/result/vaccine/code") != Some(&json!(code))
             || value.pointer("/result/vaccine/label") != Some(&json!(label))
             || value.pointer("/result/report_total") != Some(&json!("5"))

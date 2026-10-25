@@ -59,7 +59,7 @@ fn unsupported() -> Result<(), String> {
         &json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}),
     )
     .map_err(|e| e.to_string())?;
-    for text in ["HPV9", "MMR vaccine", "COVID", "165"] {
+    for text in ["HPV9", "MMR vaccine", "COVID", "165", "FLU3", "FLUX", "FLU( H1N1 )"] {
         let args = words(text);
         let value = invoke(&env, args.clone(), 2)?;
         let message = value
