@@ -53,13 +53,11 @@ impl TryFrom<Fields> for Medicine {
     }
 }
 pub(super) fn date(text: &str) -> Result<biodata::PartialDate, BadReply> {
-    let parts: Vec<_> = text.split('/').collect();
-    if parts.len() != 3 {
+    let mut parts = text.split('/');
+    let (Some(day), Some(month), Some(year), None) = (parts.next(), parts.next(), parts.next(), parts.next()) else {
         return Err(BadReply);
-    }
-    format!("{}-{}-{}", parts[2], parts[1], parts[0])
-        .parse()
-        .map_err(|_| BadReply)
+    };
+    format!("{year}-{month}-{day}").parse().map_err(|_| BadReply)
 }
 impl Row for Medicine {
     fn check_document(document: &serde_json::Value) -> Result<(), BadReply> {
