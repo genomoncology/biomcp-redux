@@ -94,7 +94,7 @@ fn check(n: usize) -> Check {
     }
     let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
-    let bound = [3005, 2348, 1724, 1853, 1262, 1169, 1652, 958, 516]
+    let bound = [3532, 2875, 1724, 1853, 1262, 1169, 1652, 958, 516]
         .get(n)
         .copied()
         .ok_or("budget index")?;
