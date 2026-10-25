@@ -33,26 +33,7 @@ pub(super) fn render(
     };
     match q.section() {
         None => {
-            out.body =
-                QueryBody::AdverseEventFaersCard(Some(biomcp_types::AdverseEventFaersCard {
-                    header,
-                    snapshot,
-                    latest_received: r.receiptdate,
-                    latest_received_format: r.receiptdateformat,
-                    transmitted: r.transmissiondate,
-                    transmitted_format: r.transmissiondateformat,
-                    first_received_format: r.receivedateformat,
-                    seriousness: r.seriousness,
-                    patient: r.patient,
-                    reporter: r.reporter,
-                    drug_count: r.drugs.len() as u32,
-                    reaction_count: r.reactions.len() as u32,
-                    source_url: Text::new("https://open.fda.gov/apis/drug/event/")
-                        .map_err(|_| biomcp_fetch::InputError::Serialization)?,
-                    report_url: url,
-                    available_sections: vec![S::Drugs, S::Reactions].into(),
-                    components,
-                }));
+            card(r, url, header, snapshot, out)?;
             for section in [S::Drugs, S::Reactions] {
                 section_step(&q, section, None, out);
             }
@@ -130,4 +111,33 @@ fn page(q: &AdverseEventGet, len: usize, total: u64, out: &mut Outcome) {
             },
         ));
     }
+}
+
+fn card(
+    r: FaersReport,
+    url: Text,
+    header: AdverseEventHeader,
+    snapshot: Text,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    out.body = QueryBody::AdverseEventFaersCard(Some(biomcp_types::AdverseEventFaersCard {
+        header,
+        snapshot,
+        latest_received: r.receiptdate,
+        latest_received_format: r.receiptdateformat,
+        transmitted: r.transmissiondate,
+        transmitted_format: r.transmissiondateformat,
+        first_received_format: r.receivedateformat,
+        seriousness: r.seriousness,
+        patient: r.patient,
+        reporter: r.reporter,
+        drug_count: r.drugs.len() as u32,
+        reaction_count: r.reactions.len() as u32,
+        source_url: Text::new("https://open.fda.gov/apis/drug/event/")
+            .map_err(|_| biomcp_fetch::InputError::Serialization)?,
+        report_url: url,
+        available_sections: vec![S::Drugs, S::Reactions].into(),
+        components: Box::default(),
+    }));
+    Ok(())
 }

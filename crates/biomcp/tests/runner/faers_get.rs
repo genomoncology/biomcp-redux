@@ -173,7 +173,7 @@ fn identity(mode: &str) -> Check {
     {
         return Err(format!("identity admitted: {value}"));
     }
-    let expected = if mode == "absent" || mode == "bad-drug-index" {
+    let expected = if mode == "bad-drug-index" {
         1
     } else {
         2
