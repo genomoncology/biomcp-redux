@@ -2,9 +2,16 @@
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::fs;
+use std::{fs, path::Path};
+mod failures;
+mod native;
+pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("disease-monarch/native-endpoints-and-paging", || exact().map_err(Into::into))]
+    let mut trials = vec![Trial::test("disease-monarch/native-endpoints-and-paging", || exact().map_err(Into::into))];
+    trials.push(Trial::test("disease-monarch/phenotype-evidence-and-independent-native-qualifiers", || phenotype().map_err(Into::into)));
+    trials.push(Trial::test("disease-monarch/five-checked-genes-keep-pivots-and-native-page", || navigation().map_err(Into::into)));
+    trials.extend(failures::trials());
+    trials
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -34,5 +41,67 @@ fn exact() -> Result<(), String> {
     }
     if value.pointer("/page/total") != Some(&json!(8)) || value.pointer("/page/returned") != Some(&json!(1)) {return Err("association page counts changed".into());}
     if stub.finish()?.len() != 1 {return Err("unexpected fanout".into());}
+    Ok(())
+}
+
+fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
+    let mut words = words.to_vec();
+    let path = directory.to_str().ok_or("non-UTF8 path")?;
+    words.extend(["--record",path]);
+    let value = invoke(env,&words,exit)?;
+    measure(&words,&value)?;
+    Ok(value)
+}
+fn measure(words: &[&str], value: &Value) -> Result<(), String> {
+    use std::io::Write;
+    writeln!(std::io::stderr(),"Monarch {:?}: full={} comparable={}",words,serde_json::to_vec(value).map_err(|e|e.to_string())?.len(),super::source_terms::size(value,"")?).map_err(|e|e.to_string())
+}
+fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
+    for step in steps.as_array_mut().ok_or("missing steps")? {
+        let step = step.as_object_mut().ok_or("missing step")?;
+        step.entry("max_bytes").or_insert(json!(5300));
+        let ceiling = step["max_bytes"].as_u64().ok_or("bad ceiling")?;
+        step.insert("max_tokens".into(),json!(ceiling.div_ceil(4)));
+    }
+    let file = tempfile::NamedTempFile::new().map_err(|e|e.to_string())?;
+    fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    super::run_case(file.path(),&super::schema::Registry::embedded()?)
+}
+
+fn phenotype() -> Result<(), String> {
+    let stub = Stub::for_source_status("api-v3.monarchinitiative.org","application/json", |_| {
+        let mut row = association();
+        let map = row.as_object_mut().ok_or("missing synthetic row")?;
+        for (key,value) in [("subject",json!("MONDO:0019003")),("object",json!("HP:0000001")),("frequency_qualifier",json!("HP:0040283")),("frequency_qualifier_label",json!("Synthetic frequency")),("has_count",json!(24)),("has_total",json!(35)),("has_percentage",json!(68.57143)),("has_quotient",json!(0.6857143)),("has_evidence_links",json!([{"id":"ECO:0000501","url":"http://purl.obolibrary.org/obo/ECO_0000501"}])),("publications",json!(["PMID:1"])),("publications_links",json!([{"id":"PMID:1","url":"http://identifiers.org/pubmed/1"}]))] {map.insert(key.into(),value);}
+        Ok(json!({"limit":5,"offset":0,"total":1,"items":[row]}).to_string())
+    }, |_|200)?;
+    let env = setup(&stub)?;
+    let words = ["get","disease","MONDO:0019003","phenotypes","--source","monarch"];
+    let directory = env.root().join("phenotypes");
+    let value = record(&env,&words,&directory,0)?;
+    if value.get("next").is_some() {return Err("phenotype received gene or page action".into());}
+    replay(&directory,json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143}}]))?;
+    if stub.finish()?.len()!=1 {return Err("unexpected phenotype fanout".into());}
+    Ok(())
+}
+
+fn navigation() -> Result<(),String> {
+    let stub = Stub::for_source_status("api-v3.monarchinitiative.org","application/json",|_| {
+        let mut items = Vec::new();
+        for number in 1..=5 {let mut row=association(); row["subject"]=json!(format!("HGNC:{number}"));items.push(row);}
+        Ok(json!({"limit":5,"offset":0,"total":6,"items":items}).to_string())
+    }, |_|200)?;
+    let env = setup(&stub)?;
+    let directory = env.root().join("navigation");
+    let words = ["get","disease","MONDO:0019003","genes","--source","monarch"];
+    let value = record(&env,&words,&directory,0)?;
+    let next = value["next"].as_array().ok_or("missing navigation")?;
+    if next.len() != 6 {return Err(format!("checked-gene pivot was truncated: {next:?}"));}
+    for (index,row) in next.iter().take(5).enumerate() {
+        if row["args"] != json!(["get","gene",format!("HGNC:{}",index+1)]) {return Err("gene source order changed".into());}
+    }
+    if next[5]["kind"] != "page" {return Err("native page was lost".into());}
+    replay(&directory,json!([{"run":words,"mcp":words,"expect":{"/next/5/kind":"page","/page/total":6},"max_bytes":12000}]))?;
+    if stub.finish()?.len()!=1 {return Err("gene navigation made additional source requests".into());}
     Ok(())
 }

@@ -71,6 +71,7 @@ fn native_proof() -> Option<ExitCode> {
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
         "--seer-native-proof" => runner::seer_native,
+        "--monarch-native-proof" => runner::monarch_native,
         "--mydisease-native-proof" => runner::mydisease_native,
         "--disease-native-proof" => runner::disease_native,
         _ => return None,

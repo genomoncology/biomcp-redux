@@ -86,7 +86,7 @@ pub use license::License;
 
 mod disease;
 pub use disease::{
-    DiseaseAssociation, DiseaseEndpoint, DiseaseRelation, DiseaseStatistic, DiseaseSynonym,
+    DiseaseAssociation, DiseaseAssociationReference, DiseaseAssociationQualifier, DiseaseEndpoint, DiseaseRelation, DiseaseStatistic, DiseaseSynonym,
     StatisticEstimate, StatisticSelector,
 };
 

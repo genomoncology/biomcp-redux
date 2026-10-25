@@ -17,6 +17,8 @@ pub(super) fn next(
         &result.body,
         biomcp_types::QueryBody::DrugPage(_)
             | biomcp_types::QueryBody::DiseasePage(_)
+            | biomcp_types::QueryBody::DiseaseGenes(_)
+            | biomcp_types::QueryBody::DiseasePhenotypes(_)
             | biomcp_types::QueryBody::VariantPage(_)
     ) || matches!(
         &result.body,

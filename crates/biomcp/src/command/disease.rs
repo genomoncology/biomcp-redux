@@ -28,6 +28,7 @@ pub(super) fn unsupported(action: &Action) -> bool {
                         )
                     )
             }
+            DiseaseSource::Monarch => !matches!(q.section(), Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)),
             DiseaseSource::Seer => !matches!(
                 q.section(),
                 Some(DiseaseSection::Incidence | DiseaseSection::Survival)
@@ -97,8 +98,14 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetDisease(q), QueryBody::DiseaseSynonyms(body)) => meta.encode(q, Some(body)),
         (Request::GetDisease(q), QueryBody::DiseaseXrefs(body)) => meta.encode(q, Some(body)),
         (Request::GetDisease(q), QueryBody::DiseaseHierarchy(body)) => meta.encode(q, Some(body)),
-        (Request::GetDisease(q), QueryBody::DiseaseGenes(body)) => meta.encode(q, Some(body)),
-        (Request::GetDisease(q), QueryBody::DiseasePhenotypes(body)) => meta.encode(q, Some(body)),
+        (Request::GetDisease(q), QueryBody::DiseaseGenes(body)) => {
+            let body = (meta.status != biomcp_types::Status::Failed).then_some(body);
+            meta.encode(q, body)
+        },
+        (Request::GetDisease(q), QueryBody::DiseasePhenotypes(body)) => {
+            let body = (meta.status != biomcp_types::Status::Failed).then_some(body);
+            meta.encode(q, body)
+        },
         (Request::GetDisease(q), QueryBody::DiseaseIncidence(body)) => {
             let body = (meta.status != biomcp_types::Status::Failed).then_some(body);
             meta.encode(q, body)

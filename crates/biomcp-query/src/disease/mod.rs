@@ -1,6 +1,8 @@
 //! Source-owned disease facts without identity choice or cross-provider fallback.
 /// MyDisease exact annotation outcomes.
 pub mod mydisease;
+/// Source-native Monarch association pages.
+pub mod monarch;
 /// OLS source-owned identity and discovery outcomes.
 pub mod ols;
 mod page;
@@ -19,6 +21,7 @@ pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
 pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     match query.source() {
         DiseaseSource::MyDisease => mydisease::get(cx, query),
+        DiseaseSource::Monarch => monarch::get(cx, query),
         biomcp_types::DiseaseSource::Seer => seer::get(cx, query),
         _ => ols::get(cx, query),
     }
