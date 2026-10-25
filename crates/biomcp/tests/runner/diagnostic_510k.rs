@@ -53,7 +53,7 @@ fn run(mode: &'static str) -> Result<(), String> {
         }
     }
     let requests = stub.finish()?;
-    let expected = match mode {"invalid" | "disabled" => 0, "foreign" => 2, _ => 1};
+    let expected = match mode {"invalid" | "disabled" => 0, "foreign" | "absent" => 2, _ => 1};
     if requests.len() != expected {return Err(format!("cache admission: {} requests, expected {expected}",requests.len()));}
     Ok(())
 }

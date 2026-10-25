@@ -23,6 +23,7 @@ const SOURCES: &[(&str, &str, &str)] = &[
         "https://www.fda.gov/about-fda/about-website/website-policies",
     ),
     ("fda-pma", "open", "https://open.fda.gov/terms/"),
+    ("fda-510k", "open", "https://open.fda.gov/terms/"),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
@@ -87,7 +88,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
             }
         }
     }
-    for alias in ["GTR", "openfda-device", "fda-510k"] {
+    for alias in ["GTR", "openfda-device"] {
         if registry::disabled(&[alias.into()]).is_ok() {
             return Err(format!("accepted alias {alias}"));
         }
@@ -95,7 +96,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     Ok(())
 }
 fn switches() -> Check {
-    for configured in ["gtr", "who-ivd", "fda-cdx", "fda-pma", "noncommercial"] {
+    for configured in ["gtr", "who-ivd", "fda-cdx", "fda-pma", "fda-510k", "noncommercial"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"disable_sources":[configured]}))
             .map_err(|e| e.to_string())?;

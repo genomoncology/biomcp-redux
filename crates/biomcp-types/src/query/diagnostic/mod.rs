@@ -10,7 +10,7 @@ biodata::wire_enum! {
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
-    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma" }
+    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma", #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
 }
 biodata::wire_enum! {
     /// Source-supported diagnostic sections; no all section.
@@ -86,7 +86,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || (v.source == DiagnosticSearchSource::FdaCdx && gtr)
             || v.device_id
                 .as_ref()
-                .is_some_and(|id| !id.as_str().starts_with('P'))
+                .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
             || v.condition_id.as_ref().is_some_and(|id| {
                 id.as_str()
                     .strip_prefix("MedGen:C")

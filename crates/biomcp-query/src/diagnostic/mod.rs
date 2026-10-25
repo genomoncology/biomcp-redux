@@ -3,6 +3,7 @@ mod companion;
 mod get;
 mod next;
 mod pma;
+mod clearance;
 mod who;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;

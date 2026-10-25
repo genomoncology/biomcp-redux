@@ -86,7 +86,7 @@ fn checked_search_rejects_cross_source_selectors_before_io() {
         json!({"source":"fda-cdx","gene_id":"672"}),
         json!({"source":"fda-cdx","condition_id":"MedGen:C2676676"}),
         json!({"source":"fda-cdx","type":"Clinical"}),
-        json!({"source":"fda-cdx","device_id":"K173492"}),
+        json!({"source":"fda-cdx","device_id":"DEN170019"}),
         json!({"source":"gtr","limit":0}),
         json!({"source":"fda-cdx","drug_cell":"Keytruda"}),
     ] {
