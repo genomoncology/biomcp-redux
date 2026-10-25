@@ -92,7 +92,7 @@ pub(super) struct Citation {
     pub source_type: Text,
 }
 impl<T> Connection<T> {
-    fn progresses(&self, previous: Option<&Text>) -> bool {
+    pub(super) fn progresses(&self, previous: Option<&Text>) -> bool {
         !self.page_info.has_next_page
             || !self.nodes.is_empty()
                 && self
@@ -101,7 +101,7 @@ impl<T> Connection<T> {
                     .as_ref()
                     .is_some_and(|cursor| Some(cursor) != previous)
     }
-    fn check(&self) -> Result<(), BadReply> {
+    pub(super) fn check(&self) -> Result<(), BadReply> {
         if self.nodes.len() as u64 > self.total_count
             || self.page_info.has_next_page
                 && !self.nodes.is_empty()

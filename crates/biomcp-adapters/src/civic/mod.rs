@@ -1,4 +1,5 @@
 //! Checked CIViC gene-level curation joined to HGNC Entrez identities.
+mod drug;
 mod raw;
 mod variant;
 mod variant_claims;
@@ -9,6 +10,7 @@ use biodata::{GeneSymbol, NcbiGeneId, Text};
 
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::{CivicGene, Problem, ProblemCode, Section, Source, SourceRecord};
+pub use drug::drug_search;
 use serde::Serialize;
 use std::{collections::BTreeMap, time::Duration};
 pub use variant::variant;

@@ -25,8 +25,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/total": 4,
-        "/result/items/0/id": "5"
+        "/result/total": 11,
+        "/result/items/0/id": "27062"
       },
       "max_bytes": 2000,
       "max_tokens": 500
@@ -79,8 +79,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/total": 1,
-        "/result/items/0/id": "454"
+        "/result/total": 3,
+        "/result/items/0/id": "25758"
       },
       "max_bytes": 2000,
       "max_tokens": 500
