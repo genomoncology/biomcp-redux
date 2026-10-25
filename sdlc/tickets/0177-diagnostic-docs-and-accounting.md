@@ -1,6 +1,7 @@
 # 0177 — Document the diagnostic commands and close the diagnostic accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 946ef9d04012feac5e8b619edd42d3fe602635b0
 
 Milestone: 4
 
