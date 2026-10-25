@@ -530,3 +530,40 @@ fn changed_native_record_responses_publish_version_two_and_checked_target_schema
         assert!(serde_json::from_value::<DrugTargetRelation>(valid).is_ok());
     }
 }
+
+#[test]
+fn chembl_name_selector_is_explicit_and_source_scoped() {
+    use biomcp_types::DrugNameSelector;
+    let default: DrugSearch =
+        serde_json::from_value(json!({"query":"imatinib","source":"chembl"})).unwrap();
+    assert_eq!(default.name_selector(), DrugNameSelector::Preferred);
+    let synonym: DrugSearch = serde_json::from_value(
+        json!({"query":"Enhertu","source":"chembl","name_selector":"synonym"}),
+    )
+    .unwrap();
+    assert_eq!(synonym.name_selector(), DrugNameSelector::Synonym);
+    for source in [
+        "mychem",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "ema",
+        "drugsfda",
+        "ddinter",
+    ] {
+        for selector in ["preferred", "synonym"] {
+            assert!(
+                serde_json::from_value::<DrugSearch>(
+                    json!({"query":"imatinib","source":source,"name_selector":selector})
+                )
+                .is_err()
+            );
+        }
+    }
+    assert!(
+        serde_json::from_value::<DrugSearch>(
+            json!({"query":"imatinib","source":"chembl","name_selector":"automatic"})
+        )
+        .is_err()
+    );
+}
