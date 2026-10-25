@@ -53,7 +53,7 @@ fn check() -> Result<(), String> {
 const CASES: &[(&str, &str)] = &[
     (
         "search adverse-event text --source=vaers",
-        "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
+        "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
     ),
     (
         "search adverse-event -d text",

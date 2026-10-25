@@ -113,7 +113,7 @@ fn guidance(
                     return Some(ErrorMessage::VaersInfluenzaCodes);
                 }
                 if biomcp_types::vaers_vaccine_code(text).is_none() {
-                    return Some(ErrorMessage::VaersVaccine);
+                    return Some(ErrorMessage::VaersVaccineChoices);
                 }
                 if serious.is_some() {
                     return Some(ErrorMessage::VaersFilter);

@@ -54,6 +54,7 @@ singleton! {
         AdverseSource => "choose --source faers or --source maude",
         VaersVaccine => "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
         VaersInfluenza => "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
+        VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
         VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One report may list several vaccines.",
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
         VaersGet => "VAERS has no individual report get; use search adverse-event MMR --source vaers",
