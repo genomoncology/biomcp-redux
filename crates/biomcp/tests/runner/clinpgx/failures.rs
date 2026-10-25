@@ -171,7 +171,7 @@ fn missing_snapshot() -> Check {
     {
         return Err("missing snapshot did not offer explicit restart".into());
     }
-    if stub.finish()?.len() != 0 {
+    if !stub.finish()?.is_empty() {
         return Err("missing snapshot reached HTTP".into());
     }
     Ok(())

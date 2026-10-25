@@ -222,6 +222,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked retained ClinPGx collection for provider-free continuation."
+        },
         "source": {
           "$ref": "#/$defs/PgxSource",
           "description": "Required source, checked against the section."
