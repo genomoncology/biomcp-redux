@@ -139,19 +139,9 @@ fn verify(n: usize, value: &Value, selected: &Value) -> Check {
         if value.pointer("/result/header/id") != selected.pointer("/ids/0") {
             return Err("exact returned identity changed".into());
         }
-        if n == 6
-            && !value
-                .pointer("/result/cross_references")
-                .and_then(Value::as_array)
-                .is_some_and(|rows| {
-                    rows.iter().any(|row| {
-                        row.pointer("/identity/id") == Some(&json!("CHEMBL941"))
-                            && row.pointer("/attribution/source") == Some(&json!("chembl"))
-                    })
-                })
-        {
-            return Err("missing attributed CHEMBL941".into());
-        }
+        if n==6 && value.pointer("/result/alternate_names").and_then(Value::as_array).is_none_or(|names|names.len()!=29) {return Err("identity card lost native aliases".into());}
+        if value.pointer("/result/cross_references").is_some() || value.pointer("/result/parents").is_some() || value.pointer("/result/products").is_some() || value.get("problems").and_then(Value::as_array).is_some_and(|p|!p.is_empty()) {return Err("identity card expanded native link scope".into());}
+        if next(value,"section")?.is_none() {return Err("identity card lacks xrefs action".into());}
         for key in [
             "approvals",
             "regulatory",
@@ -232,6 +222,7 @@ fn component_policy() -> Check {
         "get",
         "drug",
         "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+        "xrefs",
         "--source",
         "mychem",
     ]
@@ -239,7 +230,7 @@ fn component_policy() -> Check {
     .to_vec();
     let value = invoke(&env, args.clone(), 0)?;
     let rows = value
-        .pointer("/result/cross_references")
+        .pointer("/result/xrefs/data/records")
         .and_then(Value::as_array)
         .ok_or("crossrefs")?;
     if rows
@@ -296,48 +287,13 @@ fn xrefs_walk() -> Check {
         .to_vec(),
         0,
     )?;
-    let mut next =
+    let next =
         next(&card, "section")?.ok_or("identity card must offer explicit xrefs action")?;
     let date = card
         .pointer("/result/retrieved")
         .ok_or("card retrieval date")?
         .clone();
-    let mut links = Vec::new();
-    for page in 0..12 {
-        let value = invoke(&env, next.clone(), 0)?;
-        super::schema::Registry::embedded()?.validate(&value, &next, true)?;
-        if value.pointer("/result/identity/id") != Some(&json!("KTUFNOKKBVMGRW-UHFFFAOYSA-N"))
-            || value.pointer("/result/xrefs/data/retrieved") != Some(&date)
-            || value.pointer("/result/xrefs/data/total") != Some(&json!(112))
-        {
-            return Err("xref identity, native link total or retrieval date changed".into());
-        }
-        let rows = value
-            .pointer("/result/xrefs/data/records")
-            .and_then(Value::as_array)
-            .ok_or("xref rows")?;
-        if rows.len() > 10 {
-            return Err("xref default page exceeded limit".into());
-        }
-        links.extend(rows.iter().cloned());
-        if page == 0 || page == 11 {
-            if super::mcp::call_with_globals(&env, &next, false, &[])? != value {
-                return Err("xref MCP parity".into());
-            }
-        }
-        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-        let comparable = super::source_terms::size(&value, "")?;
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "drug xrefs page {page}: full {full}, comparable {comparable}"
-        )
-        .map_err(|e| e.to_string())?;
-        match self::next(&value, "page")? {
-            Some(args) => next = args,
-            None => break,
-        }
-    }
+    let links=walk_pages(&env,next,&date)?;
     if links.len() != 112
         || !links.iter().any(|r| {
             r.pointer("/identity/id") == Some(&json!("CHEMBL941"))
@@ -351,6 +307,7 @@ fn xrefs_walk() -> Check {
             return Err("duplicate xref in walk".into());
         }
     }
+    custom_page(&env,&links,&date)?;
     if stub.finish()?.len() != 1 {
         return Err("xref pages did not reuse the same original native document".into());
     }
@@ -368,4 +325,54 @@ fn next(value: &Value, kind: &str) -> Result<Option<Vec<String>>, String> {
                 .map_err(|e| e.to_string())
         })
         .transpose()
+}
+
+fn walk_pages(env:&Environment,mut next:Vec<String>,date:&Value)->Result<Vec<Value>,String> {
+    let mut links = Vec::new();
+    for page in 0..12 {
+        let value = invoke(env, next.clone(), 0)?;
+        super::schema::Registry::embedded()?.validate(&value, &next, true)?;
+        if value.pointer("/result/identity/id") != Some(&json!("KTUFNOKKBVMGRW-UHFFFAOYSA-N"))
+            || value.pointer("/result/xrefs/data/retrieved") != Some(date)
+            || value.pointer("/result/xrefs/data/total") != Some(&json!(112))
+        {
+            return Err("xref identity, native link total or retrieval date changed".into());
+        }
+        let rows = value
+            .pointer("/result/xrefs/data/records")
+            .and_then(Value::as_array)
+            .ok_or("xref rows")?;
+        if rows.len() > 10 {
+            return Err("xref default page exceeded limit".into());
+        }
+        links.extend(rows.iter().cloned());
+        if page == 0 || page == 11 {
+            if super::mcp::call_with_globals(env, &next, false, &[])? != value {
+                return Err("xref MCP parity".into());
+            }
+        }
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let comparable = super::source_terms::size(&value, "")?;
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
+            "drug xrefs page {page}: full {full}, comparable {comparable}"
+        )
+        .map_err(|e| e.to_string())?;
+        if page==11 && self::next(&value,"page")?.is_some() {return Err("xref walk advertised a page past its exact total".into());}
+        match self::next(&value, "page")? {
+            Some(args) => next = args,
+            None => break,
+        }
+    }
+    Ok(links)
+}
+fn custom_page(env:&Environment,links:&[Value],date:&Value)->Check {
+    let args=["get","drug","KTUFNOKKBVMGRW-UHFFFAOYSA-N","xrefs","--source","mychem","--section-limit","7","--section-offset","1"].map(str::to_owned).to_vec();
+    let custom=invoke(env,args,0)?;
+    let expected=links.get(1..8).ok_or("native custom page")?;
+    if custom.pointer("/result/xrefs/data/records")!=Some(&json!(expected)) || custom.pointer("/result/xrefs/data/retrieved")!=Some(date) {return Err("explicit xref selectors changed identity or rows".into());}
+    let continuation=self::next(&custom,"page")?.ok_or("custom continuation")?;
+    if !continuation.windows(2).any(|w|w==["--section-limit","7"]) || !continuation.windows(2).any(|w|w==["--section-offset","8"]) {return Err("xref continuation lost explicit selectors".into());}
+    Ok(())
 }

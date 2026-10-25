@@ -117,6 +117,7 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
         );
     }
     for name in [
+        "xrefs",
         "targets",
         "indications",
         "civic",

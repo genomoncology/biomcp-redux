@@ -78,34 +78,50 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = empty(QueryBody::DrugCard(None));
-    if query.source() != DrugSource::Mychem || !query.sections().is_empty() {
-        return unsupported(query.source(), out);
+    let xrefs=matches!(query.sections(),[biomcp_types::DrugSection::Xrefs]);
+    let mut out=empty(if xrefs {QueryBody::DrugXrefs(None)}else{QueryBody::DrugCard(None)});
+    if query.source()!=DrugSource::Mychem || !matches!(query.sections(),[]|[biomcp_types::DrugSection::Xrefs]) { return unsupported(query.source(),out); }
+    let command=cx.fetch.command_deadline(cx.budget);let deadline=command.deadline();
+    let leg=cx.fetch.leg(&mychem::SPEC,deadline).fresh(cx.fresh);
+    let result=mychem::get(&leg,&query.input().to_string());
+    let error=result.as_ref().err().copied();
+    out.local=error.and_then(status::local);
+    out.sources.push(status::source(Source::Mychem,leg.finish(),error));
+    if let Ok(document)=result {
+        out.status=if out.sources.iter().any(|s|s.state==biomcp_types::SourceState::Stale) {Status::Partial}else{Status::Complete};
+        if xrefs { link_page(query,cx.fresh,document,&mut out); }
+        else {
+            if document.value.card.available_sections.contains(&biomcp_types::DrugSection::Xrefs)
+                && let Ok(request)=query.for_section(biomcp_types::DrugSection::Xrefs) {
+                out.next.push((StepKind::Section,Action::Run {request:Request::GetDrug(request),fresh:cx.fresh}));
+            }
+            out.body=QueryBody::DrugCard(Some(document.value.card));
+        }
     }
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&mychem::SPEC, deadline).fresh(cx.fresh);
-    let result = mychem::get(&leg, &query.input().to_string());
-    let error = result.as_ref().err().copied();
-    out.local = error.and_then(status::local);
-    out.sources
-        .push(status::source(Source::Mychem, leg.finish(), error));
-    if let Ok(card) = result {
-        out.status = if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
-        out.body = QueryBody::DrugCard(Some(card.value.card));
-    }
-    component_outcomes(cx, &mut out, false);
-    command.finish(deadline.remaining());
-    out
+    component_outcomes(cx,&mut out,false);
+    command.finish(deadline.remaining());out
 }
+fn link_page(query:&DrugGet,fresh:bool,document:biomcp_adapters::Mapped<mychem::DrugDocument>,out:&mut Outcome) {
+    let card=document.value.card;
+    let total=document.value.xrefs.len() as u64;
+    let offset=query.section_offset().unwrap_or(0);
+    let records:Box<[_]>=document.value.xrefs.iter().skip(offset as usize).take(query.section_limit().unwrap_or(10) as usize).cloned().collect();
+    let returned=records.len() as u32;
+    if let Some(offset)=offset.checked_add(returned).filter(|next|returned>0 && u64::from(*next)<total)
+        && let Ok(request)=query.at_section_offset(offset) {
+        out.next.push((StepKind::Page,Action::Run {request:Request::GetDrug(request),fresh}));
+    }
+    if !document.problems.is_empty() {out.status=Status::Partial;}
+    out.problems=document.problems;
+    out.page=Some(PageInfo {offset,returned,total,pool:None,truncated:None});
+    out.body=QueryBody::DrugXrefs(Some(biomcp_types::DrugXrefs {
+        identity:card.header,
+        xrefs:biomcp_types::Section::Data {source:Source::Mychem,data:biomcp_types::DrugRecords {
+            records,offset,total:Some(total),truncated:None,version:card.version,retrieved:card.retrieved,
+        }},
+    }));
+}
+
 fn empty(body: QueryBody) -> Outcome {
     Outcome {
         status: Status::Failed,

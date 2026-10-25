@@ -33,7 +33,7 @@ pub(super) struct Hit {
 }
 impl Reply for Hit {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.is_empty() {
+        if self.id.parse::<biodata::DrugId>().is_err() {
             Err(BadReply)
         } else {
             Ok(())
