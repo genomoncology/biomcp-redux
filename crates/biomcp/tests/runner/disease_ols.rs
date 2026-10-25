@@ -360,4 +360,3 @@ fn maximum() -> Result<(), String> {
     }
     Ok(())
 }
-
