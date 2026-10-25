@@ -64,7 +64,10 @@ fn native(table: usize, index: usize, cells: Vec<DiagnosticCell>) -> Result<Nati
         _ => return Err(BadReply),
     };
     let (device_ids, device_conflict) = super::identity::devices(device);
-    let (drug_applications, drug_conflict) = super::identity::drugs(drug);
+    let (mut drug_applications, drug_conflict) = super::identity::drugs(drug);
+    if device_conflict {
+        drug_applications = Box::default();
+    }
     let relation = match cells.as_slice() {
         [diagnostic, indication, drug, biomarker, details, device] if table == 0 => {
             CompanionDiagnosticRelation::Individual {

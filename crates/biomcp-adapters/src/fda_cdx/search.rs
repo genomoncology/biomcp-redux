@@ -62,16 +62,16 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .map(|row| {
-            let index = match &row.relation {
-                CompanionDiagnosticRelation::Individual { index, .. }
-                | CompanionDiagnosticRelation::Group { index, .. } => index,
+            let (table, index) = match &row.relation {
+                CompanionDiagnosticRelation::Individual { index, .. } => (0, index),
+                CompanionDiagnosticRelation::Group { index, .. } => (1, index),
             };
             for (conflict, field) in [(row.device_conflict, "device"), (row.drug_conflict, "drug")]
             {
                 if conflict {
                     problems.push(Problem {
                         source: Source::FdaCdx,
-                        record: biodata::Text::new(&format!("{snapshot}:{index}")).ok(),
+                        record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
                         field: field.into(),
                         code: ProblemCode::IdentityConflict,
                     });
