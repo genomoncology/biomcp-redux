@@ -3,8 +3,10 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+mod capture;
+mod errors;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("drug-approvals/literal-application-candidates", || {
             search().map_err(Into::into)
         }),
@@ -12,9 +14,21 @@ pub(super) fn trials() -> Vec<Trial> {
             "drug-approvals/application-history-keeps-product-scope",
             || approvals().map_err(Into::into),
         ),
-    ]
+        Trial::test("drug-approvals/missing-product-is-unavailable", || {
+            missing_product().map_err(Into::into)
+        }),
+        Trial::test("drug-approvals/application-card-has-no-events", || {
+            card().map_err(Into::into)
+        }),
+    ];
+    trials.extend(errors::trials());
+    trials.extend(capture::trials());
+    trials
 }
 fn setup(body: Value, selector: &str) -> Result<(Environment, Stub), String> {
+    setup_status(body.to_string(), selector, 200)
+}
+fn setup_status(body: String, selector: &str, status: u16) -> Result<(Environment, Stub), String> {
     let expected = format!("GET /drug/drugsfda.json?search={selector}&limit=1 HTTP/1.1");
     let stub = Stub::for_source_status(
         "api.fda.gov",
@@ -23,9 +37,9 @@ fn setup(body: Value, selector: &str) -> Result<(Environment, Stub), String> {
             if request.lines().next() != Some(expected.as_str()) {
                 return Err(format!("unexpected FDA request: {request}"));
             }
-            Ok(body.to_string())
+            Ok(body.clone())
         },
-        |_| 200,
+        move |_| status,
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
@@ -60,11 +74,8 @@ fn search() -> Check {
     ]
     .map(str::to_owned)
     .to_vec();
-    let value = invoke(&env, args.clone(), 0)?;
-    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
-    if value != mcp
-        || value.pointer("/result/items/0/id") != Some(&json!("NDA021335"))
+    let value = both(&env, args, 0)?;
+    if value.pointer("/result/items/0/id") != Some(&json!("NDA021335"))
         || value.pointer("/result/items/0/identity_level") != Some(&json!("fda_application"))
         || value.pointer("/result/total") != Some(&json!(2))
     {
@@ -104,11 +115,8 @@ fn approvals() -> Check {
     ]
     .map(str::to_owned)
     .to_vec();
-    let value = invoke(&env, args.clone(), 0)?;
-    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
-    if value != mcp
-        || value.pointer("/result/products/0/product_number") != Some(&json!("002"))
+    let value = both(&env, args, 0)?;
+    if value.pointer("/result/products/0/product_number") != Some(&json!("002"))
         || value.pointer("/result/approvals/data/total") != Some(&json!(2))
         || value.pointer("/result/approvals/data/records/0/submission_number") != Some(&json!("1"))
         || value
@@ -121,8 +129,105 @@ fn approvals() -> Check {
             "application history acquired product scope or lost rows: {value}"
         ));
     }
+    let args: Vec<String> = value
+        .pointer("/next/0/args")
+        .and_then(Value::as_array)
+        .ok_or("missing history continuation")?
+        .iter()
+        .map(|v| v.as_str().map(str::to_owned).ok_or("next argument"))
+        .collect::<Result<_, _>>()?;
+    if !args.windows(2).any(|w| w == ["--product-number", "002"]) {
+        return Err("history continuation lost selected product".into());
+    }
+    let second = both(&env, args, 0)?;
+    if second.pointer("/result/approvals/data/records/0/submission_number") != Some(&json!("2"))
+        || second.pointer("/result/approvals/data/records/0/application_docs/0/date")
+            != Some(&json!("2003-01-01"))
+        || second
+            .pointer("/result/approvals/data/records/0/review_priority")
+            .is_some()
+        || second.get("next").is_some()
+    {
+        return Err(format!(
+            "native history continuation lost dates or absent fields: {second}"
+        ));
+    }
     if stub.finish()?.len() != 1 {
         return Err("warm approvals fetched again".into());
+    }
+    Ok(())
+}
+fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+    let value = invoke(env, args.clone(), exit)?;
+    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+    if value != super::mcp::call_with_globals(env, &args, exit >= 2, &[])? {
+        return Err("FDA CLI and MCP differ".into());
+    }
+    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(&value, "")?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "FDA envelope full={full} comparable={comparable} estimated_tokens={}",
+        comparable.div_ceil(4)
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(value)
+}
+fn exact_setup() -> Result<(Environment, Stub), String> {
+    setup(
+        json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application()]}),
+        "application_number%3A%22NDA021335%22",
+    )
+}
+fn missing_product() -> Check {
+    let (env, stub) = exact_setup()?;
+    let args = [
+        "get",
+        "drug",
+        "NDA021335",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--product-number",
+        "999",
+    ]
+    .map(str::to_owned)
+    .to_vec();
+    let value = both(&env, args, 0)?;
+    if value.pointer("/result/approvals/state") != Some(&json!("unavailable"))
+        || value.pointer("/result/products") != Some(&json!([]))
+        || value.get("page").is_some()
+        || value.get("next").is_some()
+    {
+        return Err(format!(
+            "missing product selected another product or history: {value}"
+        ));
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("missing product fetched again".into());
+    }
+    Ok(())
+}
+fn card() -> Check {
+    let (env, stub) = exact_setup()?;
+    let value = both(
+        &env,
+        ["get", "drug", "NDA021335", "--source", "drugsfda"]
+            .map(str::to_owned)
+            .to_vec(),
+        0,
+    )?;
+    if value.pointer("/result/header/id") != Some(&json!("NDA021335"))
+        || value.pointer("/result/approvals").is_some()
+        || value.pointer("/result/submissions").is_some()
+        || value.pointer("/result/header/name").is_some()
+        || value.pointer("/result/retrieved").is_none()
+    {
+        return Err("application card invented a drug name or leaked events".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("warm application card fetched again".into());
     }
     Ok(())
 }
