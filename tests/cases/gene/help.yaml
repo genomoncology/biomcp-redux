@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "Whole help measured 44,158 stdout bytes after approved drug command examples and explicit EMA/DDInter synchronization help. Whole-tree max_bytes follows measured output plus 15 percent under the standing rule. No comparable 0.9 generated-help JSON baseline exists. Existing entity-specific bounds remain unchanged."
+  "verified": "The combined generated disease and drug help is checked against the retained accepted whole-tree ceiling. The independent source measurements preceded their merge; this case verifies the combined output without silently raising that ceiling. No comparable 0.9 generated-help JSON baseline exists. Existing entity-specific bounds remain unchanged."
 }
