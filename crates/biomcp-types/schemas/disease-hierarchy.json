@@ -123,34 +123,34 @@
       ],
       "type": "object"
     },
-    "Concept": {
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "DiseaseEndpoint": {
       "additionalProperties": false,
-      "description": "One source concept with its optional ontology identifier.",
+      "description": "One native endpoint with an identifier and an optional source label.",
       "properties": {
         "id": {
+          "$ref": "#/$defs/Curie",
+          "description": "Exact source identifier."
+        },
+        "label": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Curie"
+              "$ref": "#/$defs/Text"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Source-stated concept identifier."
-        },
-        "label": {
-          "$ref": "#/$defs/Text",
-          "description": "Original concept label."
+          "description": "Source label when supplied."
         }
       },
       "required": [
-        "label"
+        "id"
       ],
       "type": "object"
-    },
-    "Curie": {
-      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
-      "type": "string"
     },
     "DiseaseGet": {
       "additionalProperties": false,
@@ -231,7 +231,7 @@
             }
           ],
           "description": "One named section; absent means identity card only.",
-          "x-trailing-section": true
+          "x-positional": 1
         },
         "section_limit": {
           "default": 5,
@@ -312,8 +312,19 @@
           "$ref": "#/$defs/Attribution",
           "description": "Publisher record and version."
         },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unchanged native cross-reference description when supplied."
+        },
         "object": {
-          "$ref": "#/$defs/Concept",
+          "$ref": "#/$defs/DiseaseEndpoint",
           "description": "Native object."
         },
         "predicate": {
@@ -321,7 +332,7 @@
           "description": "Publisher predicate, without equivalence promotion."
         },
         "subject": {
-          "$ref": "#/$defs/Concept",
+          "$ref": "#/$defs/DiseaseEndpoint",
           "description": "Native subject."
         }
       },
@@ -843,7 +854,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_hierarchy/1",
+  "$id": "biomcp.disease_hierarchy/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -889,7 +900,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_hierarchy/1",
+      "const": "biomcp.disease_hierarchy/2",
       "type": "string"
     },
     "sources": {

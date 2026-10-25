@@ -4,8 +4,8 @@ mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
-mod disease_registry;
 mod disease_ols;
+mod disease_registry;
 mod drug_registry;
 mod evidence;
 mod gene_tables;
@@ -478,4 +478,6 @@ mod variant_assertion_wire;
 mod variant_assertions;
 mod variant_condition_relationship;
 
-pub(super) fn disease_native(path:&Path) -> Result<(),String> { disease_ols::native(path) }
+pub(super) fn disease_native(path: &Path) -> Result<(), String> {
+    disease_ols::native(path)
+}

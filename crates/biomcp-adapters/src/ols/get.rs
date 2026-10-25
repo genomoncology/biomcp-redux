@@ -29,7 +29,7 @@ pub fn get(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Option<Record>, RequestE
         &[("obo_id", Arg::Text(query.id().as_str()))],
         |reply| {
             if reply.embedded.terms.iter().any(|t| {
-                t.obo_id.as_str() != query.id().as_str()
+                t.obo_id.to_string() != query.id().as_str()
                     || t.ontology_name.as_str() != ontology.as_str()
             }) {
                 return Err(BadReply);

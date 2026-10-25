@@ -11,7 +11,7 @@ use biomcp_types::{
 pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> Attribution {
     Attribution {
         source: Text::new(ontology.as_str()).unwrap_or_else(|_| iri.clone()),
-        record: Text::new(id.as_str()).ok(),
+        record: Text::new(&id.to_string()).ok(),
         url: Some(iri.clone()),
         version: None,
         release: None,
@@ -108,7 +108,7 @@ fn iri_id(value: &str) -> Option<Curie> {
 fn problem(id: &Curie, field: &str) -> Problem {
     Problem {
         source: Source::Ols,
-        record: Text::new(id.as_str()).ok(),
+        record: Text::new(&id.to_string()).ok(),
         field: field.into(),
         code: ProblemCode::ValueUnknown,
     }
