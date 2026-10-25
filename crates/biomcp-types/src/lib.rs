@@ -120,6 +120,10 @@ pub use response::{
 };
 
 mod drug;
-pub use drug::{DrugGet, DrugSearch, DrugSource, DrugSection, DrugHeader, DrugCard, DrugPage, DrugLabel, DrugLabelText, DrugTargets, DrugIndications, DrugCivic, DrugApprovals, DrugRegulatory, DrugInteractions, DrugRecords};
+pub use drug::{
+    DrugApprovals, DrugCard, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions,
+    DrugLabel, DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection,
+    DrugSource, DrugTargets,
+};
 
 pub use query::QueryInvalid;

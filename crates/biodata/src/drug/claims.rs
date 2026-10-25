@@ -1,5 +1,5 @@
-use crate::{Attribution, GeneRef, PartialDate, Text};
 use super::{DrugId, DrugIdentity};
+use crate::{Attribution, GeneRef, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// One independently identified label set and revision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

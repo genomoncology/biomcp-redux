@@ -1,5 +1,5 @@
-use crate::{Attribution, PartialDate, Text};
 use super::DrugId;
+use crate::{Attribution, PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// A native date kept with its original role.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

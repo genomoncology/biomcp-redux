@@ -1,6 +1,9 @@
-use biodata::{AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text};
-use crate::{CivicProfile, ResponseBody, Section, Step};
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
+use crate::{CivicProfile, ResponseBody, Section, Step};
+use biodata::{
+    AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
+    DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
+};
 use serde::{Deserialize, Serialize};
 /// One source candidate, without authorization, targets, label text or interactions.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -76,6 +79,7 @@ pub struct DrugPage {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(bound(deserialize = "T: Deserialize<'de>"))]
 pub struct DrugRecords<T> {
     /// Native source rows in order.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]

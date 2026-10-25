@@ -1,5 +1,5 @@
-use crate::{Attribution, Text};
 use super::DrugId;
+use crate::{Attribution, Text};
 use serde::{Deserialize, Serialize};
 crate::canonical_enum! {
     /// Identity level established by the source endpoint or record type, never inferred from ID shape.

@@ -85,4 +85,8 @@ mod license;
 pub use license::License;
 
 mod drug;
-pub use drug::{AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, DrugProduct, DrugLabelReference, DrugLabelSection, DrugTargetRelation, DrugIndicationClaim, DrugInteractionClaim};
+pub use drug::{
+    AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel,
+    DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim, DrugLabelReference,
+    DrugLabelSection, DrugProduct, DrugTargetRelation,
+};
