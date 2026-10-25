@@ -7,17 +7,24 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod admission;
 const SOURCES: &[(&str, &str, &str)] = &[
-    ("cpic", "noncommercial", "https://www.clinpgx.org/page/dataUsagePolicy"),
-    ("clinpgx", "noncommercial", "https://www.clinpgx.org/page/dataUsagePolicy"),
+    (
+        "cpic",
+        "noncommercial",
+        "https://www.clinpgx.org/page/dataUsagePolicy",
+    ),
+    (
+        "clinpgx",
+        "noncommercial",
+        "https://www.clinpgx.org/page/dataUsagePolicy",
+    ),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(
-                format!("pgx-registry/{source}-declaration"),
-                move || declaration(source, usage, url).map_err(Into::into),
-            )
+            Trial::test(format!("pgx-registry/{source}-declaration"), move || {
+                declaration(source, usage, url).map_err(Into::into)
+            })
         })
         .chain([
             Trial::test("pgx-registry/retired-source-before-io", || {
@@ -46,7 +53,10 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     if row.get("usage") != Some(&json!(usage))
         || row.get("terms_url") != Some(&json!(url))
         || row.get("disabled") != Some(&json!(false))
-        || row.get("terms").and_then(Value::as_str).is_none_or(|t| !t.contains("PM ruling") || !t.contains("JavaScript shell"))
+        || row
+            .get("terms")
+            .and_then(Value::as_str)
+            .is_none_or(|t| !t.contains("PM ruling") || !t.contains("JavaScript shell"))
     {
         return Err(format!("wrong declaration: {row}"));
     }
@@ -108,9 +118,7 @@ fn switches() -> Check {
                 .iter()
                 .find(|r| r.get("source") == Some(&json!(name)))
                 .ok_or("missing source")?;
-            let disabled = name == "cpic"
-                || name == configured
-                || configured == "noncommercial";
+            let disabled = name == "cpic" || name == configured || configured == "noncommercial";
             if disabled
                 && (row.get("state") != Some(&json!("skipped"))
                     || row.get("reason") != Some(&json!("disabled")))
@@ -127,6 +135,10 @@ fn switches() -> Check {
 
 fn retired() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)}))
+        .map_err(|e| e.to_string())?;
     for args in [
         vec!["search", "pgx", "DPYD", "--source", "pharmgkb"],
         vec!["health", "--disable-sources", "cpic,pharmgkb"],
@@ -135,11 +147,16 @@ fn retired() -> Check {
     ] {
         let result = invoke(&env, args.into_iter().map(String::from).collect(), 2)?;
         if result.pointer("/error/code") != Some(&json!("usage.retired"))
-            || result.pointer("/error/message").and_then(Value::as_str)
+            || result
+                .pointer("/error/message")
+                .and_then(Value::as_str)
                 .is_none_or(|text| !text.contains("clinpgx"))
         {
             return Err(format!("missing replacement guidance: {result}"));
         }
+    }
+    if listener.accept().is_ok() {
+        return Err("retired source opened a provider connection".into());
     }
     Ok(())
 }

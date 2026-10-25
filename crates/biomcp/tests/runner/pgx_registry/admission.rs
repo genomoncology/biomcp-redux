@@ -63,8 +63,7 @@ fn policy(
 }
 fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
     for spec in specs()? {
-        let blocked = spec.source.to_string() == switch
-            || switch == "noncommercial";
+        let blocked = spec.source.to_string() == switch || switch == "noncommercial";
         let result = get(fetch, spec);
         if blocked {
             if !matches!(result, Err(RequestError::Source(e)) if e.reason == Reason::Disabled && e.source == spec.source)

@@ -327,7 +327,8 @@ fn retired_source(args: &[OsString]) -> bool {
         if word == "--" {
             break;
         }
-        let (flag, value) = word.split_once('=')
+        let (flag, value) = word
+            .split_once('=')
             .map_or((word, None), |(flag, value)| (flag, Some(value)));
         if matches!(flag, "--source" | "--disable-sources") {
             let value = value.or_else(|| args.next().and_then(|word| word.to_str()));
