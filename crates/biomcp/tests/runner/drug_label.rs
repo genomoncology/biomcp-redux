@@ -39,6 +39,9 @@ fn record(identity: &Value) -> Value {
     json!({"id":identity["id"],"set_id":identity["set_id"],"version":identity["version"],"effective_time":identity["effective_time"],"openfda":{"brand_name":[identity["brand"]],"spl_set_id":[identity["set_id"]]},"boxed_warning":["Synthetic warning fixture."],"dosage_and_administration":[" Synthetic dose fixture.\n"],"drug_interactions":["Synthetic interaction fixture."],"indications_and_usage":["Synthetic indication fixture."],"warnings_and_cautions":["Synthetic caution fixture."]})
 }
 fn setup(body: Value, selector: String, status: u16) -> Result<(Environment, Stub), String> {
+    setup_raw(body.to_string(), selector, status)
+}
+fn setup_raw(body: String, selector: String, status: u16) -> Result<(Environment, Stub), String> {
     let expected = format!(
         "GET /drug/label.json?search={selector}&limit=1&sort=effective_time%3Adesc HTTP/1.1"
     );
@@ -49,7 +52,7 @@ fn setup(body: Value, selector: String, status: u16) -> Result<(Environment, Stu
             if request.lines().next() != Some(expected.as_str()) {
                 return Err(format!("unexpected request: {request}"));
             }
-            Ok(body.to_string())
+            Ok(body.clone())
         },
         move |_| status,
     )?;

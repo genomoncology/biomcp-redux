@@ -1,5 +1,5 @@
 //! Explicit external-input proof: unchanged source bodies never enter Git.
-use super::{Check, both, get_args, get_setup, identity, setup, walk};
+use super::{Check, both, get_args, identity, setup_raw, walk};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -17,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
         })
         .collect()
 }
-fn native(root: &Path, n: usize) -> Result<(Value, Value), String> {
+fn native(root: &Path, n: usize) -> Result<(Value, Value, String), String> {
     let manifest: Vec<Value> = serde_json::from_slice(
         &std::fs::read(root.join("retained-manifest.json")).map_err(|e| e.to_string())?,
     )
@@ -39,15 +39,19 @@ fn native(root: &Path, n: usize) -> Result<(Value, Value), String> {
         return Err("retained body hash differs".into());
     }
     let body = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-    Ok((body, entry))
+    Ok((
+        body,
+        entry,
+        String::from_utf8(bytes).map_err(|e| e.to_string())?,
+    ))
 }
 fn check(root: &Path, n: usize) -> Check {
     let id = identity(n)?;
-    let (body, entry) = native(root, n)?;
+    let (body, entry, raw) = native(root, n)?;
     if n < 3 {
         let brand = id["brand"].as_str().ok_or("brand")?;
-        let (env, stub) = setup(
-            body.clone(),
+        let (env, stub) = setup_raw(
+            raw.clone(),
             format!("openfda.brand_name.exact%3A%22{brand}%22"),
             200,
         )?;
@@ -77,7 +81,14 @@ fn check(root: &Path, n: usize) -> Check {
     // Enhertu's unchanged body was captured by brand; the SPL-get response delivery is synthetic.
     // The other six exact-ID requests retain their original request identity.
     let record = body["results"][0].clone();
-    let (env, stub) = get_setup(&id, record.clone())?;
+    let (env, stub) = setup_raw(
+        raw,
+        format!(
+            "openfda.spl_set_id%3A%22{}%22",
+            id["set_id"].as_str().ok_or("set")?
+        ),
+        200,
+    )?;
     both(&env, get_args(&id)?, 0)?;
     for heading in biomcp_adapters::openfda_label::HEADINGS {
         let mut args = get_args(&id)?;

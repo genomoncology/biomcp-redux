@@ -36,8 +36,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         } else {
             state(&out)
         };
-        out.sources[0].count = Some(total);
-        out.sources[0].fetched = Some(returned);
+        if let Some(source) = out.sources.first_mut() {
+            source.count = Some(total);
+            source.fetched = Some(returned);
+        }
         out.page = Some(page(query.offset(), returned, total));
         for item in &items {
             if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel) {
@@ -96,8 +98,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {
         out.status = state(&out);
-        out.sources[0].count = Some(page.total);
-        out.sources[0].fetched = Some(page.records.len() as u32);
+        if let Some(source) = out.sources.first_mut() {
+            source.count = Some(page.total);
+            source.fetched = Some(page.records.len() as u32);
+        }
         if let Some(record) = page.records.first() {
             if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
                 out.status = Status::Failed;
