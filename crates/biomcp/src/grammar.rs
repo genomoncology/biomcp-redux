@@ -471,7 +471,7 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 }
 
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let value = request_arguments(verb,entity,matches)?;
+    let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
         ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
             .map(Request::SearchDisease)
@@ -549,14 +549,14 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     }
 }
 
-fn request_arguments(verb:&str,entity:&str,matches:&clap::ArgMatches)->Result<Value,()> {
+fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Value, ()> {
     let id = QUERIES
         .iter()
         .find(|(v, e, _)| *v == verb && *e == entity)
         .map(|(_, _, id)| *id)
         .ok_or(())?;
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-    arguments(matches,&schema)
+    arguments(matches, &schema)
 }
 
 fn property_type(property: &Value) -> Option<&str> {

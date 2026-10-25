@@ -161,7 +161,8 @@ fn disease_page_continuations_keep_every_native_selector() {
     let next = search.at_offset(2);
     assert_eq!((next.limit(), next.offset()), (2, 2));
     let get: DiseaseGet=serde_json::from_value(json!({"id":"47","source":"seer","section":"incidence","section_limit":2,"sex":"1","race":"1","age_range":"1","dataset":"4","period":"5"})).unwrap();
-    let next = get.at_section_offset(2);
+    let resolved=get.with_demographics("1".parse().unwrap(),"1".parse().unwrap(),"1".parse().unwrap()).unwrap();
+    let next = resolved.at_section_offset(2);
     assert_eq!(next.id().as_str(), "47");
     assert_eq!(next.source(), biomcp_types::DiseaseSource::Seer);
     assert_eq!(
