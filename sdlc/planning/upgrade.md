@@ -24,7 +24,7 @@ The generated table below lists decided leaf commands and their dropped options 
 | `article recommendations` | Ported or renamed | — | [Section 5 preserves native positive and negative seed recommendations.](slices/article.md) |
 | `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | [The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice.](slices/article.md) |
 | `disease articles` | Ported or renamed | — | [Section 1 moves the capability to search article --disease.](slices/article.md) |
-| `search diagnostic` | Ported or renamed | `--disease`, `--full` | [Choose gtr or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO discovery and laboratory/manufacturer selectors remain deferred.](slices/diagnostic.md) |
+| `search diagnostic` | Ported or renamed | `--disease`, `--full` | [Choose gtr, who-ivd or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO uses literal `--marker` and `--manufacturer` words without synonyms. GTR laboratory selection remains deferred.](slices/diagnostic.md) |
 | `get diagnostic` | Ported or renamed | — | [Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire.](slices/diagnostic.md) |
 | `gtr sync` | Ported or renamed | — | [Use sync gtr; validate and atomically replace the complete two-file bundle.](slices/diagnostic.md) |
 | `who-ivd sync` | Ported or renamed | — | [Use sync who-ivd; replace the full unfiltered export.](slices/diagnostic.md) |
