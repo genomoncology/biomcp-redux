@@ -87,19 +87,7 @@ fn check() -> Check {
         .filter_map(|path| fs::read(path).ok().map(|bytes| (path, bytes)))
         .find(|(_, bytes)| String::from_utf8_lossy(bytes).contains("code_L.csv"))
         .ok_or("missing L partition")?;
-    let mut bad: Value = serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-    *bad.pointer_mut("/exchanges/0/body/value")
-        .ok_or("missing synthetic body")? =
-        "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\nwrong,bad,DDInter1,Synthetic,Major\n".into();
-    fs::write(path, bad.to_string()).map_err(|e| e.to_string())?;
-    let failed = call(&env, &replay, &["sync", "ddinter"], 4)?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
-        || call(&env, &replay, &args, 0)? != before
-    {
-        return Err(format!(
-            "malformed partition changed the complete set: {failed}"
-        ));
-    }
+    corrupted(&env, &replay, &args, &before, path, &original)?;
     fs::remove_file(path).map_err(|e| e.to_string())?;
     call(&env, &replay, &["sync", "ddinter"], 5)?;
     if call(&env, &replay, &args, 0)? != before {
@@ -126,6 +114,43 @@ fn check() -> Check {
         let disabled = call(&env, &replay, query, 4)?;
         if disabled.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err(format!("policy admitted stored or replay data: {disabled}"));
+        }
+    }
+    Ok(())
+}
+
+fn corrupted(
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    before: &Value,
+    path: &Path,
+    original: &[u8],
+) -> Check {
+    let header = "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\n";
+    for row in [
+        "wrong,Synthetic A,DDInter1,Synthetic B,Major\n",
+        "DDInter1,Synthetic A,DDInter,Synthetic B,Major\n",
+        "DDInter1,,DDInter2,Synthetic B,Major\n",
+        "DDInter1,Synthetic A,DDInter2, ,Major\n",
+        "DDInter1,Synthetic A,DDInter2,Synthetic B,\n",
+        "+++ ,+++,+++,+++,+++\n",
+        "+++,+++,+++,+++,+++\n",
+        "DDInter1,Synthetic A,DDInter2,\"unterminated\n",
+        "DDInter1,Synthetic A,DDInter2,Synthetic B\n",
+        "",
+    ] {
+        let mut bad: Value = serde_json::from_slice(original).map_err(|e| e.to_string())?;
+        *bad.pointer_mut("/exchanges/0/body/value")
+            .ok_or("missing synthetic body")? = format!("{header}{row}").into();
+        fs::write(path, bad.to_string()).map_err(|e| e.to_string())?;
+        let failed = call(env, replay, &["sync", "ddinter"], 4)?;
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || call(env, replay, args, 0)? != *before
+        {
+            return Err(format!(
+                "malformed partition changed the complete set: {failed}"
+            ));
         }
     }
     Ok(())

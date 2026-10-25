@@ -158,7 +158,11 @@
       "expect": {
         "/result/interactions/data/total": 1,
         "/result/interactions/data/records/0/partner/id": "DDInter4",
-        "/result/interactions/data/records/0/additional_attributions/0/record": "ddinter_downloads_code_L.csv:2"
+        "/result/interactions/data/records/0/additional_attributions/0/record": "ddinter_downloads_code_L.csv:2",
+        "/result/interactions/data/records/0/attribution/record": "ddinter_downloads_code_B.csv:2",
+        "/result/interactions/data/records/0/additional_attributions": {
+          "count": 1
+        }
       },
       "max_bytes": 15000,
       "max_tokens": 3750
