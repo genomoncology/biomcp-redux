@@ -83,3 +83,7 @@ pub use variant::PredictorScore;
 
 mod license;
 pub use license::License;
+
+mod disease;
+pub use disease::{DiseaseAssociation, DiseaseRelation, DiseaseSynonym, DiseaseStatistic, StatisticSelector, StatisticEstimate};
+

@@ -118,3 +118,8 @@ pub use response::{
     AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
     VariantAssertions,
 };
+
+pub use query::{DiseaseOntology, DiseaseSource, DiseaseSection, DiseaseSearch, DiseaseGet};
+
+
+pub use response::{DiseaseCard, DiseaseHeader, DiseaseSite, DiseasePage, DiseaseSynonyms, DiseaseXrefs, DiseaseHierarchy, DiseaseGenes, DiseasePhenotypes, DiseaseSites, DiseaseIncidence, DiseaseSurvival};

@@ -38,6 +38,9 @@ macro_rules! contracts {
         };
     }
 
+#[path = "schemas/disease.rs"]
+mod disease;
+
 fn common_registry() -> Vec<Contract> {
     contracts! {
         Accession => ("accession", "biodata.accession/2"),
@@ -141,6 +144,7 @@ fn registry() -> Vec<Contract> {
         Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(common_registry());
+    contracts.extend(disease::registry());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts
