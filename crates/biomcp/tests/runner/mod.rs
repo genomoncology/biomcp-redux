@@ -5,6 +5,7 @@ mod configuration;
 mod corporate;
 mod credential_containment;
 mod drug_registry;
+mod disease_registry;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -302,6 +303,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
     trials.extend(drug_registry::trials());
+    trials.extend(disease_registry::trials());
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
