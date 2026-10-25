@@ -31,8 +31,10 @@ pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
             institution: optional(&v.name_of_institution),
             country: optional(&v.facility_country),
         },
-        url: Text::new(&format!("https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"))
-            .map_err(|_| bad())?,
+        url: Text::new(&format!(
+            "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
+        ))
+        .map_err(|_| bad())?,
     })
 }
 pub(super) fn card(v: &GtrTestVersion) -> Result<GtrCard, RequestError> {
