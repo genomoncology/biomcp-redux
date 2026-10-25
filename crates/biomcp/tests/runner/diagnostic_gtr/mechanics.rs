@@ -44,16 +44,21 @@ pub(super) fn replacement() -> Check {
                 let mut value: Value =
                     serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
                         .map_err(|e| e.to_string())?;
-                if value.get("url")
+                if value
+                    .get("url")
                     .and_then(Value::as_str)
                     .is_some_and(|u| u.ends_with("test_condition_gene.txt"))
                 {
                     if fault == "malformed-relation" {
-                        *value.pointer_mut("/exchanges/0/body/value").ok_or("missing body cell")? =
+                        *value
+                            .pointer_mut("/exchanges/0/body/value")
+                            .ok_or("missing body cell")? =
                             json!("#accession_version\ttest_type\ninvalid\n");
                     }
                     if fault == "second-file-failure" {
-                        *value.pointer_mut("/exchanges/0/status").ok_or("missing status cell")? = json!(403);
+                        *value
+                            .pointer_mut("/exchanges/0/status")
+                            .ok_or("missing status cell")? = json!(403);
                     }
                     fs::write(&path, value.to_string()).map_err(|e| e.to_string())?;
                 }
