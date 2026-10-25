@@ -1,6 +1,7 @@
 # 0147 — Count reviewed public type contracts as outside-in callers in coverage
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b1831c57cc8e81f6e8a00e03f273cea49e44708f
 
 Milestone: 3
 
