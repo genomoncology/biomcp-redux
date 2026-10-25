@@ -4,6 +4,7 @@ mod drug;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
+mod disease;
 
 const GENE: &[(&str, ErrorMessage)] = &[
     ("pathways", ErrorMessage::Pathways),
@@ -95,6 +96,9 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 }
 
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+    if let Some(message) = disease::message(args) {
+        return Some(message);
+    }
     let words = words(args)?;
     if let Some(message) = command(&words.positional) {
         return Some(message);

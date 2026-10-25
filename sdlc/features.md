@@ -72,7 +72,7 @@ disease-types: A public API caller validates disease identifiers, source-selecte
 
 drug-label: Read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes. Cases: `crates/biomcp/tests/runner/drug_label.rs`.
 drug-approvals: Read source-native application candidates, independent product status and application submission history with explicit product selection. Cases: `crates/biomcp/tests/runner/drug_fda.rs`, `crates/biomcp/tests/runner/drug_fda/errors.rs`, `crates/biomcp/tests/runner/drug_fda/capture.rs`.
-disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.
+disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment. Cases: `crates/biomcp/tests/runner/disease_mydisease.rs`, `crates/biomcp/tests/runner/disease_mydisease/cases.rs`, `crates/biomcp/tests/runner/disease_mydisease/native.rs`.
 
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts. Cases: `crates/biomcp/tests/runner/disease_seer.rs`, `crates/biomcp/tests/runner/disease_seer/failures.rs`, `crates/biomcp/tests/runner/disease_seer/native.rs`.

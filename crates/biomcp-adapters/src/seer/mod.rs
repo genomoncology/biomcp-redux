@@ -154,7 +154,13 @@ pub fn statistics(
             } else {
                 "rate"
             };
-            if r.info.measure == expected {
+            let site_index = r.info.keys.iter().position(|key| key == "site");
+            let matching_site = site_index.is_some_and(|index| {
+                r.data
+                    .iter()
+                    .all(|(key, _)| key.split('_').nth(index) == Some(query.site.as_str()))
+            });
+            if r.info.measure == expected && matching_site {
                 Ok(())
             } else {
                 Err(biomcp_fetch::BadReply)

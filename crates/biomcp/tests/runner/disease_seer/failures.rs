@@ -123,6 +123,7 @@ pub(super) fn run() -> Result<(), String> {
     Ok(())
 }
 fn malformed_statistics() -> Result<(), String> {
+    let mut errors = Vec::new();
     for kind in [
         "object", "double", "broken", "order", "number", "year", "mismatch",
     ] {
@@ -163,15 +164,21 @@ fn malformed_statistics() -> Result<(), String> {
         } else {
             json!({"/status":"failed","/sources/0/reason":"bad_reply","/sources/0/source":"seer"})
         };
-        replay(
+        if let Err(error) = replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {327}}]),
-        )?;
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {426}}]),
+        ) {
+            errors.push(format!("{kind}: {error}"));
+        }
         if stub.finish()?.len() != 1 {
             return Err("malformed source retried".into());
         }
     }
-    Ok(())
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors.join("\n"))
+    }
 }
 fn timeout() -> Result<(), String> {
     let stub = Stub::for_source("seer.cancer.gov", "application/json", wire)?;
@@ -218,6 +225,149 @@ pub(super) fn disabled() -> Result<(), String> {
     }
     if stub.finish()?.len() != 1 {
         return Err("disabled source requested again".into());
+    }
+    Ok(())
+}
+
+pub(super) fn wrong_site() -> Result<(), String> {
+    let mut calls = 0;
+    let stub = Stub::for_source_status(
+        "seer.cancer.gov",
+        "application/json",
+        move |request| {
+            let body = super::wire(request)?;
+            calls += 1;
+            if calls > 2 {
+                return Ok(body);
+            }
+            let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+            let mut document: Value =
+                serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?)
+                    .map_err(|e| e.to_string())?;
+            let data = document
+                .get_mut("data")
+                .and_then(Value::as_object_mut)
+                .ok_or("missing data")?;
+            let old = data.keys().next().ok_or("missing series")?.clone();
+            let mut parts = old.split('_').collect::<Vec<_>>();
+            *parts.last_mut().ok_or("missing site")? = "999";
+            let new = parts.join("_");
+            let row = data.remove(&old).ok_or("missing original series")?;
+            data.insert(new, row);
+            encoded = json!(document.to_string());
+            Ok(encoded.to_string())
+        },
+        |_| 200,
+    )?;
+    let env = setup(&stub)?;
+    let words = [
+        "get",
+        "disease",
+        "55",
+        "survival",
+        "--source",
+        "seer",
+        "--dataset",
+        "4",
+        "--interval",
+        "5",
+    ];
+    for _ in 0..2 {
+        let value = invoke(&env, &args(&words), 4)?;
+        if crate::runner::source_terms::size(&value, "")? > 426 {
+            return Err("wrong site failure exceeds its measured budget".into());
+        }
+        if value.pointer("/status") != Some(&json!("failed"))
+            || value.pointer("/sources/0/state") != Some(&json!("failed"))
+            || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || value.pointer("/problems/0/field") != Some(&json!("record"))
+            || value.get("result").is_some()
+        {
+            return Err(format!("wrong SEER site admitted: {value}"));
+        }
+    }
+    let repaired = invoke(&env, &args(&words), 0)?;
+    let cached = invoke(&env, &args(&words), 0)?;
+    if crate::runner::source_terms::size(&repaired, "")? > 2671
+        || crate::runner::source_terms::size(&cached, "")? > 2671
+    {
+        return Err("corrected site output exceeds its measured budget".into());
+    }
+    if repaired.get("result").is_none() || cached.get("result") != repaired.get("result") {
+        return Err("corrected SEER reply did not return and cache its native rows".into());
+    }
+    if stub.finish()?.len() != 3 {
+        return Err("wrong SEER site was cached or corrected reply was not cached".into());
+    }
+    Ok(())
+}
+
+pub(super) fn stale_rejection() -> Result<(), String> {
+    let mut calls = 0;
+    let stub = Stub::for_source_status(
+        "seer.cancer.gov",
+        "application/json",
+        move |request| {
+            calls += 1;
+            if calls == 1 {
+                wire(request)
+            } else {
+                Ok("broken JSON".into())
+            }
+        },
+        |_| 200,
+    )?;
+    let env = setup(&stub)?;
+    let words = args(&[
+        "get",
+        "disease",
+        "55",
+        "survival",
+        "--source",
+        "seer",
+        "--dataset",
+        "4",
+        "--interval",
+        "5",
+    ]);
+    let original = invoke(&env, &words, 0)?;
+    let directory = env.root().join("cache/biomcp");
+    let path = fs::read_dir(directory)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.extension()
+                .is_some_and(|extension| extension == "sqlite")
+        })
+        .ok_or("missing cache")?;
+    let connection = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
+    connection
+        .execute("UPDATE reply SET fresh_until=0 WHERE source='seer'", [])
+        .map_err(|e| e.to_string())?;
+    let stale = invoke(&env, &words, 0)?;
+    if stale.pointer("/status") != Some(&json!("partial"))
+        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
+        || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || !stale
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|problems| {
+                problems.contains(
+                    &json!({"source":"seer","record":"55","field":"record","code":"value.unknown"}),
+                )
+            })
+        || stale.get("result") != original.get("result")
+    {
+        return Err(format!(
+            "stale checked rows lost the rejected-reply problem: {stale}"
+        ));
+    }
+    if crate::runner::source_terms::size(&stale, "")? > 2780 {
+        return Err("stale response exceeds bounded output".into());
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("unexpected stale request count".into());
     }
     Ok(())
 }
