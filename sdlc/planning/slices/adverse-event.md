@@ -590,3 +590,28 @@ The fixed native geographic selection is `D8.V12` State / Territory, value `00`,
 The adapter decoder enforces `MAX_XML` before its native DOM parse and cache admission. Shared transport `max_body` independently bounds wire reads. The valid oversized synthetic table proves the decoder limit; an HTML denial or malformed table never becomes a zero-report answer.
 
 The retained MMR symptom table has 4074 physical rows including the footer and 4073 pageable rows. Its native report-total message is 84,004 and its symptom footer is 269,356 / 320.65%. These remain separate source values, as do the independently returned seriousness and age totals.
+
+
+### VAERS retained native command costs
+
+The independent retained proof at revision `037b321dc552391eafa002a4ebf9ddecf94c340f` checked 26 successful CLI/MCP pairs, two disabled-policy pairs and six external schema cases. It checked each table against its own original XML, including scope, native cells, source messages, applied notices and footer. Symptoms used representative first, second and terminal pages; the complete paging walk remains synthetic. The completion made no provider requests or new recorder deliveries. Local replay timings do not measure provider latency.
+
+| Native response | MMR actual full/comparable | MMR ceilings | COVID19 actual full/comparable | COVID19 ceilings |
+| --- | ---: | ---: | ---: | ---: |
+| Default symptoms, five rows | 7977 / 7865 | 9174 / 9045 | 8650 / 8538 | 9948 / 9819 |
+| Second symptom page, five rows | 8053 / 7941 | 9261 / 9133 | 8684 / 8572 | 9987 / 9858 |
+| Terminal symptom page | 7722 / 7610 | 8881 / 8752 | 8276 / 8164 | 9518 / 9389 |
+| Symptoms, explicit three rows | 7849 / 7737 | 9027 / 8898 | 8507 / 8395 | 9784 / 9655 |
+| Symptoms, explicit one row | 7683 / 7571 | 8836 / 8707 | 8330 / 8218 | 9580 / 9451 |
+| Default seriousness, two rows | 7996 / 7884 | 9196 / 9067 | 8637 / 8525 | 9933 / 9804 |
+| Seriousness, explicit three-row limit | 8024 / 7912 | 9228 / 9099 | 8665 / 8553 | 9965 / 9836 |
+| Seriousness, explicit one row | 8151 / 8039 | 9374 / 9245 | 8795 / 8683 | 10115 / 9986 |
+| Default age, five rows | 7858 / 7746 | 9037 / 8908 | 8490 / 8378 | 9764 / 9635 |
+| Second age page, five rows | 7941 / 7829 | 9133 / 9004 | 8587 / 8475 | 9876 / 9747 |
+| Terminal age page, three rows | 7603 / 7491 | 8744 / 8615 | 8242 / 8130 | 9479 / 9350 |
+| Age, explicit three rows | 7745 / 7633 | 8907 / 8778 | 8378 / 8266 | 9635 / 9506 |
+| Age, explicit one row | 7591 / 7479 | 8730 / 8601 | 8224 / 8112 | 9458 / 9329 |
+
+The approved default remains five rows. Each native external ceiling is its own measured compact actual plus fifteen percent, rounded up. These external bounds remain separate from the synthetic case ceilings above and from existing help, discovery and source-enum caps. Full bytes describe compact envelopes. Comparable bytes remove only the validated registry use, terms and terms URL fields, a 112-byte difference. Raw CLI stdout adds one newline byte; MCP frames include protocol wrapping. Explicit limits remain visible in the query, and a one-row seriousness page adds continuation metadata. Preserved native notices dominate response size: reducing the symptom page from five rows to one saves only 294 bytes for MMR and 320 bytes for COVID19.
+
+The verified archive is `data/biomcp-redux/0182-vaers-product-proof/2291-vaers-offline-product-proof-037b321d.tar.gz` on Yellow, SHA-256 `f7b0e6d4a9661c8a80738d40d6908cdceb50f6e39e210eed84f008571cd2cd78`, with 287 exact members and 286 verified content hashes. Its measurements and raw CLI/MCP outputs remain outside Git.
