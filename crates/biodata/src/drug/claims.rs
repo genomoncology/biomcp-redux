@@ -1,6 +1,6 @@
+use super::{DrugDiseaseReference, DrugNativeReference, DrugStage};
 use super::{DrugId, DrugIdentity};
 use crate::{Attribution, PartialDate, Text};
-use super::{DrugDiseaseReference, DrugNativeReference, DrugStage};
 use serde::{Deserialize, Serialize};
 /// One independently identified label set and revision.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

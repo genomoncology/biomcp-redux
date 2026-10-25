@@ -92,7 +92,8 @@ pub use disease::{
 
 mod drug;
 pub use drug::{
-    AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel,
-    DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim, DrugLabelReference,
-    DrugLabelSection, DrugProduct, DrugTargetRelation, DrugNativeTarget, DrugDiseaseReference, DrugStage, DrugNativeReference,
+    AuthorizationDate, AuthorizationEvent, DrugDiseaseReference, DrugId, DrugIdentity,
+    DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim,
+    DrugLabelReference, DrugLabelSection, DrugNativeReference, DrugNativeTarget, DrugProduct,
+    DrugStage, DrugTargetRelation,
 };

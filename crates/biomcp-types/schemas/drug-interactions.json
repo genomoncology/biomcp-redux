@@ -333,21 +333,24 @@
       "additionalProperties": false,
       "description": "One native interaction pair and level, without invented management advice.",
       "properties": {
+        "additional_attributions": {
+          "items": {
+            "$ref": "#/$defs/Attribution"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
         "anchor": {
-          "$ref": "#/$defs/DrugIdentity",
-          "description": "Selected native anchor ID and name."
+          "$ref": "#/$defs/DrugIdentity"
         },
         "attribution": {
-          "$ref": "#/$defs/Attribution",
-          "description": "Pair record and bundle provenance."
+          "$ref": "#/$defs/Attribution"
         },
         "level": {
-          "$ref": "#/$defs/Text",
-          "description": "Original native level, without a computed severity."
+          "$ref": "#/$defs/Text"
         },
         "partner": {
-          "$ref": "#/$defs/DrugIdentity",
-          "description": "Native partner ID and name."
+          "$ref": "#/$defs/DrugIdentity"
         }
       },
       "required": [
@@ -1086,7 +1089,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_interactions/1",
+  "$id": "biomcp.drug_interactions/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1132,7 +1135,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_interactions/1",
+      "const": "biomcp.drug_interactions/2",
       "type": "string"
     },
     "sources": {

@@ -88,6 +88,36 @@
       ],
       "type": "string"
     },
+    "DrugDiseaseReference": {
+      "additionalProperties": false,
+      "description": "One native disease identifier and its own source label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact identifier spelling, without CURIE conversion."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Label attached to this identifier by the source."
+        },
+        "namespace": {
+          "$ref": "#/$defs/Text",
+          "description": "Source namespace spelling, such as EFO or MeSH."
+        }
+      },
+      "required": [
+        "namespace",
+        "id"
+      ],
+      "type": "object"
+    },
     "DrugGet": {
       "additionalProperties": false,
       "description": "Exact native ID retrieval with an explicitly selected source.",
@@ -344,6 +374,13 @@
           },
           "type": "array"
         },
+        "disease_references": {
+          "description": "Independently labeled native disease identifiers, without cross-source normalization.",
+          "items": {
+            "$ref": "#/$defs/DrugDiseaseReference"
+          },
+          "type": "array"
+        },
         "drug": {
           "$ref": "#/$defs/DrugIdentity",
           "description": "Source drug identity."
@@ -362,6 +399,24 @@
             }
           ],
           "description": "Population wording explicitly supplied separately."
+        },
+        "references": {
+          "description": "Source-native supporting references.",
+          "items": {
+            "$ref": "#/$defs/DrugNativeReference"
+          },
+          "type": "array"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugStage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated development stage, separate from authorization events."
         }
       },
       "required": [
@@ -387,6 +442,42 @@
       "required": [
         "identity",
         "indications"
+      ],
+      "type": "object"
+    },
+    "DrugNativeReference": {
+      "additionalProperties": false,
+      "description": "Typed source reference shared by mechanism and indication records.",
+      "properties": {
+        "ref_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference identifier, when supplied."
+        },
+        "ref_type": {
+          "$ref": "#/$defs/Text",
+          "description": "Native reference type."
+        },
+        "ref_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference link, when supplied."
+        }
+      },
+      "required": [
+        "ref_type"
       ],
       "type": "object"
     },
@@ -485,6 +576,25 @@
         "ddinter"
       ],
       "type": "string"
+    },
+    "DrugStage": {
+      "additionalProperties": false,
+      "description": "One source development-stage field and its unchanged value.",
+      "properties": {
+        "field": {
+          "description": "Exact native field name.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Exact source string, without an authorization interpretation.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "type": "object"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -1099,7 +1209,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_indications/1",
+  "$id": "biomcp.drug_indications/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1145,7 +1255,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_indications/1",
+      "const": "biomcp.drug_indications/2",
       "type": "string"
     },
     "sources": {

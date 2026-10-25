@@ -308,42 +308,110 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
 
 #[test]
 fn native_target_identity_does_not_require_an_invented_gene() {
-    use biodata::{DrugTargetRelation, DrugNativeTarget, DrugNativeReference};
+    use biodata::{DrugNativeReference, DrugNativeTarget, DrugTargetRelation};
     let value = json!({"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"native_target":{"source":"chembl","id":"CHEMBL999","label":"synthetic target complex","url":"https://example.org/target"},"relation":"native action","mechanism":"source mechanism wording","references":[{"ref_type":"native publication","ref_id":"synthetic-1","ref_url":"https://example.org/reference"}],"attribution":{"source":"chembl"}});
-    let parsed: DrugTargetRelation = serde_json::from_value(value.clone()).expect("native target without gene");
+    let parsed: DrugTargetRelation =
+        serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
     assert_eq!(parsed.drug().id.to_string(), "CHEMBL1");
     assert_eq!(parsed.relation().as_str(), "native action");
-    assert_eq!(parsed.mechanism().expect("native mechanism").as_str(), "source mechanism wording");
-    let native = DrugNativeTarget { source: "chembl".parse().expect("source"), id: "CHEMBL999".parse().expect("id"), label: Some("synthetic target complex".parse().expect("label")), url: Some("https://example.org/target".parse().expect("link")) };
+    assert_eq!(
+        parsed.mechanism().expect("native mechanism").as_str(),
+        "source mechanism wording"
+    );
+    let native = DrugNativeTarget {
+        source: "chembl".parse().expect("source"),
+        id: "CHEMBL999".parse().expect("id"),
+        label: Some("synthetic target complex".parse().expect("label")),
+        url: Some("https://example.org/target".parse().expect("link")),
+    };
     assert_eq!(parsed.native_target(), Some(&native));
-    let reference = DrugNativeReference { ref_type: "native publication".parse().expect("type"), ref_id: Some("synthetic-1".parse().expect("id")), ref_url: Some("https://example.org/reference".parse().expect("link")) };
+    let reference = DrugNativeReference {
+        ref_type: "native publication".parse().expect("type"),
+        ref_id: Some("synthetic-1".parse().expect("id")),
+        ref_url: Some("https://example.org/reference".parse().expect("link")),
+    };
     assert_eq!(parsed.references(), &[reference]);
-    let rebuilt = DrugTargetRelation::new(parsed.drug().clone(), None, Some(native), parsed.relation().clone(), parsed.mechanism().cloned(), parsed.references().into(), parsed.attribution().clone()).expect("checked target constructor");
+    let rebuilt = DrugTargetRelation::new(
+        parsed.drug().clone(),
+        None,
+        Some(native),
+        parsed.relation().clone(),
+        parsed.mechanism().cloned(),
+        parsed.references().into(),
+        parsed.attribution().clone(),
+    )
+    .expect("checked target constructor");
     assert_eq!(rebuilt, parsed);
-    assert!(DrugTargetRelation::new(parsed.drug().clone(), None, None, parsed.relation().clone(), None, Box::default(), parsed.attribution().clone()).is_err());
-    let gene = biodata::GeneRef::new("source gene".parse().expect("label"), None, None, None).expect("native gene");
-    let gene_only = DrugTargetRelation::new(parsed.drug().clone(), Some(gene.clone()), None, parsed.relation().clone(), None, Box::default(), parsed.attribution().clone()).expect("gene-only target");
+    assert!(
+        DrugTargetRelation::new(
+            parsed.drug().clone(),
+            None,
+            None,
+            parsed.relation().clone(),
+            None,
+            Box::default(),
+            parsed.attribution().clone()
+        )
+        .is_err()
+    );
+    let gene = biodata::GeneRef::new("source gene".parse().expect("label"), None, None, None)
+        .expect("native gene");
+    let gene_only = DrugTargetRelation::new(
+        parsed.drug().clone(),
+        Some(gene.clone()),
+        None,
+        parsed.relation().clone(),
+        None,
+        Box::default(),
+        parsed.attribution().clone(),
+    )
+    .expect("gene-only target");
     assert_eq!(gene_only.target(), Some(&gene));
     assert!(gene_only.native_target().is_none());
     let gene_json = serde_json::to_value(&gene_only).expect("gene-only JSON");
     assert_eq!(gene_json["target"], json!({"label":"source gene"}));
-    assert_eq!(serde_json::from_value::<DrugTargetRelation>(gene_json).expect("gene-only decode"), gene_only);
+    assert_eq!(
+        serde_json::from_value::<DrugTargetRelation>(gene_json).expect("gene-only decode"),
+        gene_only
+    );
     assert_eq!(serde_json::to_value(parsed).expect("target JSON"), value);
     let mut missing = value;
-    missing.as_object_mut().expect("target object").remove("native_target");
+    missing
+        .as_object_mut()
+        .expect("target object")
+        .remove("native_target");
     assert!(serde_json::from_value::<DrugTargetRelation>(missing).is_err());
 }
 
 #[test]
 fn native_indication_ids_keep_their_own_labels_stage_and_references() {
-    use biodata::{DrugIndicationClaim, DrugDiseaseReference, DrugStage};
+    use biodata::{DrugDiseaseReference, DrugIndicationClaim, DrugStage};
     let value = json!({"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"indication":"source indication wording","disease_references":[{"namespace":"EFO","id":"EFO:synthetic","label":"native EFO wording"},{"namespace":"MeSH","id":"Dsynthetic","label":"different native MeSH wording"}],"stage":{"field":"max_phase_for_ind","value":"3.0"},"references":[{"ref_type":"native trial","ref_id":"synthetic-trial","ref_url":"https://example.org/trial"}],"attribution":{"source":"chembl"}});
-    let parsed: DrugIndicationClaim = serde_json::from_value(value.clone()).expect("native indication");
-    assert_eq!(parsed.disease_references.first(), Some(&DrugDiseaseReference { namespace: "EFO".parse().expect("namespace"), id: "EFO:synthetic".parse().expect("id"), label: Some("native EFO wording".parse().expect("label")) }));
-    assert_eq!(parsed.stage, Some(DrugStage { field: "max_phase_for_ind".into(), value: "3.0".into() }));
-    assert_eq!(serde_json::to_value(parsed).expect("indication JSON"), value);
-    let stage: DrugStage = serde_json::from_value(json!({"field":" native_field ","value":" 3.0 \n"})).expect("unchanged stage strings");
+    let parsed: DrugIndicationClaim =
+        serde_json::from_value(value.clone()).expect("native indication");
+    assert_eq!(
+        parsed.disease_references.first(),
+        Some(&DrugDiseaseReference {
+            namespace: "EFO".parse().expect("namespace"),
+            id: "EFO:synthetic".parse().expect("id"),
+            label: Some("native EFO wording".parse().expect("label"))
+        })
+    );
+    assert_eq!(
+        parsed.stage,
+        Some(DrugStage {
+            field: "max_phase_for_ind".into(),
+            value: "3.0".into()
+        })
+    );
+    assert_eq!(
+        serde_json::to_value(parsed).expect("indication JSON"),
+        value
+    );
+    let stage: DrugStage =
+        serde_json::from_value(json!({"field":" native_field ","value":" 3.0 \n"}))
+            .expect("unchanged stage strings");
     assert_eq!(stage.field.as_ref(), " native_field ");
     assert_eq!(stage.value.as_ref(), " 3.0 \n");
 }
@@ -352,47 +420,112 @@ fn native_indication_ids_keep_their_own_labels_stage_and_references() {
 fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     use biodata::DrugInteractionClaim;
     let value = json!({"anchor":{"id":"DDInter1","source":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2","source":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter","record":"B-synthetic"},"additional_attributions":[{"source":"ddinter","record":"L-synthetic"}]});
-    let parsed: DrugInteractionClaim = serde_json::from_value(value.clone()).expect("both bundle origins");
+    let parsed: DrugInteractionClaim =
+        serde_json::from_value(value.clone()).expect("both bundle origins");
     assert_eq!(parsed.anchor().id.to_string(), "DDInter1");
     assert_eq!(parsed.partner().id.to_string(), "DDInter2");
     assert_eq!(parsed.level().as_str(), "native level");
-    assert_eq!(parsed.attribution().record.as_ref().expect("primary").as_str(), "B-synthetic");
-    assert_eq!(parsed.additional_attributions().first().expect("further").record.as_ref().expect("bundle").as_str(), "L-synthetic");
-    let rebuilt = DrugInteractionClaim::new(parsed.anchor().clone(), parsed.partner().clone(), parsed.level().clone(), parsed.attribution().clone(), parsed.additional_attributions().into()).expect("checked interaction constructor");
+    assert_eq!(
+        parsed
+            .attribution()
+            .record
+            .as_ref()
+            .expect("primary")
+            .as_str(),
+        "B-synthetic"
+    );
+    assert_eq!(
+        parsed
+            .additional_attributions()
+            .first()
+            .expect("further")
+            .record
+            .as_ref()
+            .expect("bundle")
+            .as_str(),
+        "L-synthetic"
+    );
+    let rebuilt = DrugInteractionClaim::new(
+        parsed.anchor().clone(),
+        parsed.partner().clone(),
+        parsed.level().clone(),
+        parsed.attribution().clone(),
+        parsed.additional_attributions().into(),
+    )
+    .expect("checked interaction constructor");
     assert_eq!(rebuilt, parsed);
-    assert!(DrugInteractionClaim::new(parsed.anchor().clone(), parsed.partner().clone(), parsed.level().clone(), parsed.attribution().clone(), vec![parsed.attribution().clone()].into()).is_err());
-    assert_eq!(serde_json::to_value(parsed).expect("interaction JSON"), value);
+    assert!(
+        DrugInteractionClaim::new(
+            parsed.anchor().clone(),
+            parsed.partner().clone(),
+            parsed.level().clone(),
+            parsed.attribution().clone(),
+            vec![parsed.attribution().clone()].into()
+        )
+        .is_err()
+    );
+    assert_eq!(
+        serde_json::to_value(parsed).expect("interaction JSON"),
+        value
+    );
     let mut duplicate = value.clone();
     duplicate["additional_attributions"] = json!([value["attribution"].clone()]);
     assert!(serde_json::from_value::<DrugInteractionClaim>(duplicate).is_err());
     let mut duplicate = value.clone();
-    duplicate["additional_attributions"] = json!([value["additional_attributions"][0].clone(),value["additional_attributions"][0].clone()]);
+    duplicate["additional_attributions"] = json!([
+        value["additional_attributions"][0].clone(),
+        value["additional_attributions"][0].clone()
+    ]);
     assert!(serde_json::from_value::<DrugInteractionClaim>(duplicate).is_err());
     let mut legacy = value;
-    legacy.as_object_mut().expect("interaction object").remove("additional_attributions");
-    let parsed: DrugInteractionClaim = serde_json::from_value(legacy.clone()).expect("primary origin alone");
-    assert_eq!(serde_json::to_value(parsed).expect("legacy interaction JSON"), legacy);
+    legacy
+        .as_object_mut()
+        .expect("interaction object")
+        .remove("additional_attributions");
+    let parsed: DrugInteractionClaim =
+        serde_json::from_value(legacy.clone()).expect("primary origin alone");
+    assert_eq!(
+        serde_json::to_value(parsed).expect("legacy interaction JSON"),
+        legacy
+    );
 }
 
 #[test]
 #[cfg(feature = "schema")]
 fn changed_native_record_responses_publish_version_two_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
-    use biomcp_types::{DrugTargets, DrugIndications, DrugInteractions, ResponseBody};
+    use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
     assert_eq!(DrugTargets::SCHEMA, "biomcp.drug_targets/2");
     assert_eq!(DrugIndications::SCHEMA, "biomcp.drug_indications/2");
     assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug_interactions/2");
-    let validator = jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value()).expect("target schema");
+    let validator =
+        jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
+            .expect("target schema");
     let base = json!({"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"relation":"source action","attribution":{"source":"chembl"}});
-    for selectors in [json!({}), json!({"target":null}), json!({"native_target":null}), json!({"target":null,"native_target":null})] {
+    for selectors in [
+        json!({}),
+        json!({"target":null}),
+        json!({"native_target":null}),
+        json!({"target":null,"native_target":null}),
+    ] {
         let mut invalid = base.clone();
-        invalid.as_object_mut().expect("record").extend(selectors.as_object().expect("selectors").clone());
+        invalid
+            .as_object_mut()
+            .expect("record")
+            .extend(selectors.as_object().expect("selectors").clone());
         assert!(!validator.is_valid(&invalid));
         assert!(serde_json::from_value::<DrugTargetRelation>(invalid).is_err());
     }
-    for selectors in [json!({"target":{"label":"source gene"}}), json!({"native_target":{"source":"chembl","id":"CHEMBL999"}}), json!({"target":{"label":"source gene"},"native_target":{"source":"chembl","id":"CHEMBL999"}})] {
+    for selectors in [
+        json!({"target":{"label":"source gene"}}),
+        json!({"native_target":{"source":"chembl","id":"CHEMBL999"}}),
+        json!({"target":{"label":"source gene"},"native_target":{"source":"chembl","id":"CHEMBL999"}}),
+    ] {
         let mut valid = base.clone();
-        valid.as_object_mut().expect("record").extend(selectors.as_object().expect("selectors").clone());
+        valid
+            .as_object_mut()
+            .expect("record")
+            .extend(selectors.as_object().expect("selectors").clone());
         assert!(validator.is_valid(&valid));
         assert!(serde_json::from_value::<DrugTargetRelation>(valid).is_ok());
     }
