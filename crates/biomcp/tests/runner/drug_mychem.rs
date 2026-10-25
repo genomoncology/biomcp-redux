@@ -390,7 +390,7 @@ fn walk_pages(
         {
             return Err("xref MCP parity".into());
         }
-        measure_links(page,&value)?;
+        measure_links(page, &value)?;
         if page == 13 && self::next(&value, "page")?.is_some() {
             return Err("xref walk advertised a page past its exact total".into());
         }
@@ -436,12 +436,25 @@ fn custom_page(env: &Environment, links: &[Value], date: &Value) -> Check {
     Ok(())
 }
 
-fn measure_links(page:usize,value:&Value)->Check {
-    let max_bytes=[3979,3925,3991,4061,4623,4581,4571,4632,4590,4566,4628,4586,4545,2667].get(page).copied().ok_or("xref page budget")?;
-    let full=serde_json::to_vec(value).map_err(|e|e.to_string())?.len();
-    let comparable=super::source_terms::size(value,"")?;
-    if comparable>max_bytes {return Err(format!("xref page {page} exceeds its measured output budget: {comparable}/{max_bytes}"));}
+fn measure_links(page: usize, value: &Value) -> Check {
+    let max_bytes = [
+        3979, 3925, 3991, 4061, 4623, 4581, 4571, 4632, 4590, 4566, 4628, 4586, 4545, 2667,
+    ]
+    .get(page)
+    .copied()
+    .ok_or("xref page budget")?;
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(value, "")?;
+    if comparable > max_bytes {
+        return Err(format!(
+            "xref page {page} exceeds its measured output budget: {comparable}/{max_bytes}"
+        ));
+    }
     use std::io::Write;
-    writeln!(std::io::stdout(),"drug xrefs page {page}: full {full}, comparable {comparable}").map_err(|e|e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "drug xrefs page {page}: full {full}, comparable {comparable}"
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
