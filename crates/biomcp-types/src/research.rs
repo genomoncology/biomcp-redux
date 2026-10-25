@@ -33,7 +33,7 @@ pub struct ResearchSearchMetadata<M> {
     /// Complete original CLI envelope.
     pub envelope: M,
     /// Native rows that lack an exact citable get target.
-    pub omitted_rows: usize,
+    pub omitted_rows: u32,
     /// Explains where unprojected rows remain available.
     pub note: String,
 }

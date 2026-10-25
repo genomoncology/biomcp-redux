@@ -13,7 +13,7 @@ pub(super) fn tools() -> Vec<Value> {
         }).collect()
 }
 #[derive(Clone)]
-pub(super) enum Projection { Cli, Search(String), Fetch(String) }
+pub(super) enum Projection { Cli, Search, Fetch(String) }
 pub(super) struct Call {
     pub(super) args: Vec<OsString>,
     pub(super) projection: Projection,
@@ -29,7 +29,7 @@ pub(super) fn parse(params: &Value) -> Option<Call> {
     let key = match name { "search" => "query", "fetch" => "id", _ => return None };
     let input = object.get(key)?.as_str()?;
     let (args, projection) = if name == "search" {
-        (search_args(input), Projection::Search(input.into()))
+        (search_args(input), Projection::Search)
     } else {
         let mut args = vec!["get".into()];
         args.extend(shlex::split(input).unwrap_or_else(|| vec![input.into()]));
@@ -50,7 +50,7 @@ pub(super) fn execute(call: &Call, globals: &crate::grammar::Globals, fetch: &Re
     if !matches!(outcome.status, crate::exit::Status::Success | crate::exit::Status::Absent) { return Ok(outcome); }
     outcome.value = match &call.projection {
         Projection::Cli => return Ok(outcome),
-        Projection::Search(_) => search(call, outcome.value)?,
+        Projection::Search => search(call, outcome.value)?,
         Projection::Fetch(id) => {
             let entity = call.args.get(1).and_then(|s| s.to_str()).unwrap_or_default();
             let hit = records::fetch(entity, id, &outcome.value);
@@ -65,7 +65,8 @@ fn search(call: &Call, envelope: Value) -> io::Result<Value> {
     let entity = call.args.get(1).and_then(|s| s.to_str()).unwrap_or_default();
     let rows = envelope.pointer("/result/items").and_then(Value::as_array);
     let results = rows.into_iter().flatten().filter_map(|row| records::search(entity, row, &envelope)).collect::<Vec<_>>();
-    let omitted_rows = rows.map_or(usize::from(!envelope.get("result").is_none_or(Value::is_null)), Vec::len).saturating_sub(results.len());
+    let native_rows = rows.or_else(|| envelope.pointer("/result/rows").and_then(Value::as_array));
+    let omitted_rows = native_rows.map_or(usize::from(!envelope.get("result").is_none_or(Value::is_null)), Vec::len).saturating_sub(results.len());
     serde_json::to_value(biomcp_types::ResearchSearch { results, metadata: biomcp_types::ResearchSearchMetadata {
-        envelope, omitted_rows, note: "Rows without an exact citable get target remain available through the biomcp tool.".into() } }).map_err(Into::into)
+        envelope, omitted_rows: u32::try_from(omitted_rows).unwrap_or(u32::MAX), note: "Rows without an exact citable get target remain available through the biomcp tool.".into() } }).map_err(Into::into)
 }

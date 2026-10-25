@@ -96,3 +96,18 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     budget::check(&value)?;
     Ok(value)
 }
+
+// Research compatibility keeps uncitable native summary rows in metadata.
+pub(super) fn research_aggregate() -> Check {
+    let stub = Stub::for_source("wonder.cdc.gov", "application/xml", |_| Ok(fixture::table("MMR", "D8.V10").into_bytes()))?;
+    let env = environment(&stub)?;
+    let args = vec!["search", "adverse-event", "MMR", "seriousness", "--source", "vaers"].into_iter().map(str::to_owned).collect::<Vec<_>>();
+    let cli = invoke(&env, args, 0)?;
+    let result = super::research::call(&env, "search", json!({"query":"adverse-event MMR seriousness --source vaers"}), &[])?;
+    if result.get("results") != Some(&json!([])) || result.pointer("/metadata/envelope") != Some(&cli)
+        || result.pointer("/metadata/omitted_rows") != Some(&json!(3)) {
+        return Err(format!("uncitable VAERS rows disappeared: {result}"));
+    }
+    if stub.finish()?.len() != 1 { return Err("research wrapper repeated VAERS source request".into()); }
+    Ok(())
+}

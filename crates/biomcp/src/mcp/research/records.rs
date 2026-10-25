@@ -6,7 +6,7 @@ fn text<'a>(value: &'a Value, paths: &[&str]) -> Option<&'a str> {
 }
 fn hit(args: Vec<String>, title: &str, url: &str) -> Option<ResearchHit> {
     if !url.starts_with("https://") && !url.starts_with("http://") { return None; }
-    let id = shlex::try_join(args.iter().map(String::as_str)).ok()?.into_owned();
+    let id = shlex::try_join(args.iter().map(String::as_str)).ok()?;
     Some(ResearchHit { id, title: Text::new(title).ok()?, url: Text::new(url).ok()? })
 }
 pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
@@ -46,7 +46,7 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/record/id"])?;
-    hit(next_args("variant", id, envelope)?, id, text(row, &["/record/url"])? )
+    hit(next_args("variant", id, envelope)?, id, &variant_url(row)? )
 }
 fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/id", "/header/id", "/concept/id", "/product/id"])?;
@@ -62,7 +62,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
             hit(vec![entity.into(), native_id.into()], text(row, &["/title"]).unwrap_or(native_id), text(row, &["/url"])? ) }
         "variant" => { let row = result.get("candidates")?.as_array()?.first()?;
             let native_id = text(row, &["/record/id"])?;
-            hit(vec![entity.into(), native_id.into()], native_id, text(row, &["/record/url"])? ) }
+            hit(vec![entity.into(), native_id.into()], native_id, &variant_url(row)? ) }
         "gene" => { let row = first?.pointer("/answer/gene")?; search(entity, row, envelope) }
         _ => {
             let row = result.get("header").unwrap_or(result);
@@ -72,4 +72,14 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
     }?;
     found.id = id.into();
     Some(found)
+}
+
+fn variant_url(row: &Value) -> Option<String> {
+    if let Some(url) = text(row, &["/record/url"]) { return Some(url.into()); }
+    if text(row, &["/source"]) != Some("myvariant") { return None; }
+    let id = text(row, &["/record/id"])?;
+    let encoded = id.bytes().map(|b| if b.is_ascii_alphanumeric() || b"-._~".contains(&b) {
+        char::from(b).to_string()
+    } else { format!("%{b:02X}") }).collect::<String>();
+    Some(format!("https://myvariant.info/v1/variant/{encoded}"))
 }

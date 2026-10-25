@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test("mcp/research-search-fetch-parity", || parity().map_err(Into::into))]
 }
-fn call(env: &Environment, name: &str, arguments: Value, globals: &[String]) -> Result<Value, String> {
+pub(super) fn call(env: &Environment, name: &str, arguments: Value, globals: &[String]) -> Result<Value, String> {
     let replies = super::mcp::exchange_with_globals(env, &[request(json!(1), "tools/call", json!({"name":name,"arguments":arguments}))], globals)?;
     let result = replies.first().and_then(|v| v.get("result")).ok_or("missing tool result")?;
     let value = result.get("structuredContent").ok_or("missing structured content")?;
@@ -20,32 +20,43 @@ fn parity() -> Result<(), String> {
     for (query, args, capture) in [
         ("AKT1 E17K", vec!["search", "article", "AKT1 E17K"], "article/search/synthetic-card-step"),
         ("trial --condition melanoma", vec!["search", "trial", "--condition", "melanoma"], "trial/condition"),
-        ("variant --gene EGFR --protein L858R --build GRCh37", vec!["search", "variant", "--gene", "EGFR", "--protein", "L858R", "--build", "GRCh37"], "variant/search/L858R"),
+        ("variant --query rs113488022 --source myvariant --build GRCh37", vec!["search", "variant", "--query", "rs113488022", "--source", "myvariant", "--build", "GRCh37"], "variant/search/raw"),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let globals = env.globals(Some(&super::launch::fixtures().join("replies").join(capture)), false);
+        let recording = env.root().join("research-replay");
+        super::response_cases::copy_capture(capture, &recording, |_, _| {}).map_err(|e|e.to_string())?;
+        if capture == "trial/condition" {
+            // Controlled projection of a retained native study into the search fixture.
+            let raw = super::trial_get::original("NCT02296125").map_err(|e| e.to_string())?;
+            super::response_cases::copy_capture(capture, &recording, |_, record| {
+                if let Some(first) = record.pointer_mut("/exchanges/0/body/value/studies/0/protocolSection") { *first = raw.clone(); }
+            }).map_err(|e|e.to_string())?;
+            super::response_cases::copy_capture("trial/get/NCT02296125", &recording, |_, _| {}).map_err(|e|e.to_string())?;
+        }
+        let globals = env.globals(Some(&recording), false);
         let args = args.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let cli = command(&env, &args, &globals, 0)?;
         let wrapped = call(&env, "search", json!({"query":query}), &globals)?;
-        if wrapped.get("metadata") != Some(&cli) {
+        if wrapped.pointer("/metadata/envelope") != Some(&cli) {
             return Err(format!("search metadata lost CLI fields: {wrapped}"));
         }
         let rows = cli.pointer("/result/items").or_else(|| cli.pointer("/result/candidates")).and_then(Value::as_array).ok_or("CLI rows missing")?;
         let hits = wrapped.get("results").and_then(Value::as_array).ok_or("search results missing")?;
         if rows.len() != hits.len() || hits.is_empty() { return Err("research dropped source rows".into()); }
-        let hit = hits.first().ok_or("first hit missing")?;
+        let hit = if capture == "variant/search/raw" { hits.get(1) } else { hits.first() }.ok_or("hit missing")?;
         let id = hit.get("id").and_then(Value::as_str).ok_or("hit id missing")?;
         if !id.starts_with(args.get(1).ok_or("entity missing")?) || hit.get("url").and_then(Value::as_str).is_none_or(str::is_empty) { return Err("uncitable result".into()); }
         // Search and get captures are retained separately; exact ids come from the wrapper.
         let get_capture = match args.get(1).map(String::as_str) {
             Some("article") => "article/search/synthetic-card-step",
-            Some("trial") => "trial/get/NCT04631731",
-            _ => "variant/search/L858R",
+            Some("trial") => "trial/get/NCT02296125",
+            _ => "variant/synthetic-components",
         };
-        if super::launch::fixtures().join("replies").join(get_capture).exists() {
-            let fetch_globals = env.globals(Some(&super::launch::fixtures().join("replies").join(get_capture)), false);
+        {
+            super::response_cases::copy_capture(get_capture, &recording, |_, _| {}).map_err(|e|e.to_string())?;
+            let fetch_globals = env.globals(Some(&recording), false);
             let mut get = vec!["get".to_owned()];
-            get.extend(id.split_whitespace().map(str::to_owned));
+            get.extend(shlex::split(id).ok_or("invalid argument-list id")?);
             let cli_get = command(&env, &get, &fetch_globals, 0)?;
             let fetched = call(&env, "fetch", json!({"id":id}), &fetch_globals)?;
             if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id)) { return Err("fetch differs from CLI".into()); }
@@ -57,6 +68,7 @@ fn parity() -> Result<(), String> {
             if fetched.get("text") != Some(&json!(text)) { return Err("fetch Markdown differs".into()); }
         }
     }
+    super::vaers::research_aggregate()?;
     invalid()
 }
 fn invalid() -> Result<(), String> {
