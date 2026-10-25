@@ -75,14 +75,13 @@ pub(super) fn relation(r: &Relation) -> Result<GtrTestRelation, RequestError> {
             gene: GeneRef::new(
                 Text::new(&r.gene_symbol).map_err(|_| bad())?,
                 None,
-                if r.object_id.is_empty() {
-                    None
-                } else {
-                    Some(r.object_id.parse().map_err(|_| bad())?)
-                },
+                r.object_id.parse().ok(),
                 None,
             )
             .map_err(|_| bad())?,
+            native_gene_or_snomed_ct_id: (!r.object_id.is_empty()
+                && r.object_id.parse::<biodata::NcbiGeneId>().is_err())
+            .then(|| r.object_id.clone()),
             native_medgen: medgen,
             mim_number: r.mim.clone(),
             object_name: r.object_name.clone(),

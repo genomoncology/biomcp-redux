@@ -5,7 +5,12 @@ use super::super::{
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
-pub(super) fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+pub(super) fn call(
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     invoke(env, command, exit)
