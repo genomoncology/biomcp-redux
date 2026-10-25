@@ -42,7 +42,15 @@
         "/status": "complete",
         "/result/total": 6,
         "/result/items/0/id": "DDInter1",
-        "/page/returned": 1
+        "/page/returned": 1,
+        "/result/items/0": {
+          "equals": {
+            "id": "DDInter1",
+            "source": "ddinter",
+            "name": "Synthetic Anchor One",
+            "identity_level": "unknown"
+          }
+        }
       },
       "max_bytes": 672,
       "max_tokens": 168
@@ -66,7 +74,15 @@
         "/status": "complete",
         "/result/header/id": "DDInter1",
         "/result/header/identity_level": "unknown",
-        "/result/available_sections/0": "interactions"
+        "/result/available_sections/0": "interactions",
+        "/result/header": {
+          "equals": {
+            "id": "DDInter1",
+            "source": "ddinter",
+            "name": "Synthetic Anchor One",
+            "identity_level": "unknown"
+          }
+        }
       },
       "max_bytes": 605,
       "max_tokens": 152
@@ -97,7 +113,31 @@
         "/result/interactions/data/total": 3,
         "/result/interactions/data/records/0/partner/id": "DDInter2",
         "/result/interactions/data/records/0/level": "Moderate",
-        "/page/returned": 1
+        "/page/returned": 1,
+        "/result/identity": {
+          "equals": {
+            "id": "DDInter1",
+            "source": "ddinter",
+            "name": "Synthetic Anchor One",
+            "identity_level": "unknown"
+          }
+        },
+        "/result/interactions/data/records/0/anchor": {
+          "equals": {
+            "id": "DDInter1",
+            "source": "ddinter",
+            "name": "Synthetic Anchor One",
+            "identity_level": "unknown"
+          }
+        },
+        "/result/interactions/data/records/0/partner": {
+          "equals": {
+            "id": "DDInter2",
+            "source": "ddinter",
+            "name": "Synthetic PartnerTwo",
+            "identity_level": "unknown"
+          }
+        }
       },
       "max_bytes": 1425,
       "max_tokens": 357
