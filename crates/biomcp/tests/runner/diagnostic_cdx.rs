@@ -12,6 +12,9 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-cdx/synthetic-ambiguous-link-parameters", || {
+            ambiguous_parameters().map_err(Into::into)
+        }),
         Trial::test("diagnostic-cdx/synthetic-entity-boundary", || {
             entities().map_err(Into::into)
         }),
@@ -498,6 +501,77 @@ fn entities() -> Check {
         return Err(format!(
             "unknown entity published partial document: {failed}"
         ));
+    }
+    Ok(())
+}
+
+fn ambiguous_parameters() -> Check {
+    for (original, changed, field) in [
+        (
+            "ApplNo=210496",
+            "ApplNo=210496&amp;varApplNo=125084",
+            "drug",
+        ),
+        (
+            "id=P200010S026",
+            "id=P200010S026&amp;ID=P150013S020",
+            "device",
+        ),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let replay = seed(&env)?;
+        for entry in fs::read_dir(replay.join("fda-cdx")).map_err(|e| e.to_string())? {
+            let path = entry.map_err(|e| e.to_string())?.path();
+            let mut value: Value =
+                serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
+            let cell = value
+                .pointer_mut("/exchanges/0/body/value")
+                .ok_or("missing body")?;
+            *cell = json!(
+                cell.as_str()
+                    .ok_or("non-text body")?
+                    .replacen(original, changed, 1)
+            );
+            fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
+        }
+        call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+        let value = call(
+            &env,
+            &replay,
+            &[
+                "search",
+                "diagnostic",
+                "--source",
+                "fda-cdx",
+                "--limit",
+                "1",
+            ],
+            0,
+        )?;
+        if value.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+            || !value
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_some_and(|items| {
+                    items.iter().any(|p| {
+                        p.get("field") == Some(&json!(field))
+                            && p.get("code") == Some(&json!("identity.conflict"))
+                    })
+                })
+            || value
+                .get("next")
+                .and_then(Value::as_array)
+                .is_some_and(|items| {
+                    items
+                        .iter()
+                        .any(|step| step.get("kind") == Some(&json!("pivot")))
+                })
+        {
+            return Err(format!(
+                "ambiguous {field} link picked an identity: {value}"
+            ));
+        }
     }
     Ok(())
 }
