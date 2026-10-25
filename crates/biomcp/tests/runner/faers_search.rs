@@ -115,17 +115,29 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     Ok(cli)
 }
 fn measure(value: &Value, args: &[String]) -> Check {
-    let full = serde_json::to_vec(value).map_err(|e|e.to_string())?.len();
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let mut comparable = value.clone();
     if let Some(rows) = comparable.get_mut("sources").and_then(Value::as_array_mut) {
         for row in rows {
             let row = row.as_object_mut().ok_or("source outcome")?;
-            for field in ["use","terms","terms_url"] { row.remove(field).ok_or("source terms")?; }
+            for field in ["use", "terms", "terms_url"] {
+                row.remove(field).ok_or("source terms")?;
+            }
         }
     }
-    let bytes = serde_json::to_vec(&comparable).map_err(|e|e.to_string())?.len();
-    use std::io::Write;
-    writeln!(std::io::stdout(),"FAERS synthetic full={full} comparable={bytes} args={args:?}").map_err(|e|e.to_string())?;
+    let bytes = serde_json::to_vec(&comparable)
+        .map_err(|e| e.to_string())?
+        .len();
+    // j12915 observed maxima; each full/comparable ceiling adds 15 percent.
+    let caps = if value.get("error").is_some() { (165,165) }
+        else if value.get("status") == Some(&json!("failed")) { (396,264) }
+        else if args.iter().any(|v|v=="restricted") { (2855,2723) }
+        else if args.iter().any(|v|v=="meddra") { (1889,1757) }
+        else if value.pointer("/query/limit") == Some(&json!(7)) { (2043,1911) }
+        else if value.pointer("/query/reaction").is_some() { (2392,2260) }
+        else if value.pointer("/query/received_from").is_some() { (1796,1663) }
+        else { (1791,1659) };
+    if full > caps.0 || bytes > caps.1 { return Err(format!("FAERS synthetic budget exceeded: {full}/{bytes} > {caps:?}")); }
     Ok(())
 }
 fn selectors(flags: &[&str], suffix: &str) -> Check {
@@ -225,6 +237,9 @@ fn navigation() -> Check {
         )
         .output()
         .map_err(|e| e.to_string())?;
+    let markdown_bytes = md.stdout.len();
+    use std::io::Write;
+    writeln!(std::io::stdout(),"FAERS synthetic navigation markdown={markdown_bytes}").map_err(|e|e.to_string())?;
     let text = String::from_utf8(md.stdout).map_err(|e| e.to_string())?;
     if !md.status.success()
         || !text.contains("**source\\_query:**")

@@ -226,6 +226,8 @@ Cards hold `source_url` and `report_url`. Source URL is the provider overview; r
 
 These are schematic design JSON, not executions, clinical zero counts or budget measurements. Angle-bracket strings mean exact native values. Numeric 0 illustrates an integer type only. Missing optional facts are omitted, not defaulted to zero/false. The existing envelope owns status/query/terms/source outcomes/Problems. Section pages share exact report identity/source/version/snapshot, native offset/total, capped records and typed next. Empty lists follow the existing omission rule; explicitly present empty source strings remain distinguishable from absent fields.
 
+Search echoes the exact literal provider expression as `source_query`. A reaction-filtered page names its analyzed-field matching mode as `reaction_match: "phrase_match"`. The publisher `last_updated` date is `source_updated`; the received record’s UTC retrieval date is `fetched`. An undated legacy recording omits `fetched`. These are separate dates. Page totals stay in the envelope and have unit `reports`.
+
 `ReportHeader`: published ID string, source, optional version, optional native serious code, optional MAUDE event type, optional first FDA receipt or device receipt date. There are no flattened drug/reaction lists or a selected causal-drug title. IDs 26940567/50952244 remain those strings with separate source; no FAERS: or MAUDE: wrapper.
 
 ```json
