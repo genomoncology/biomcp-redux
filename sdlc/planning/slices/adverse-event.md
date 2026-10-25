@@ -593,6 +593,12 @@ The adapter decoder enforces `MAX_XML` before its native DOM parse and cache adm
 The retained MMR symptom table has 4074 physical rows including the footer and 4073 pageable rows. Its native report-total message is 84,004 and its symptom footer is 269,356 / 320.65%. These remain separate source values, as do the independently returned seriousness and age totals.
 
 
+### Native influenza selection
+
+The published WONDER request form supplies the native influenza vaccine types in `VAERS_INFLUENZA`. The clinical reviewer checked their exact codes and labels against that form. `FLUX(SEASONAL)` retains the publisher's no-brand-name label; `FLUX(H1N1)` retains its unknown-manufacturer label. Those qualifications identify different native selections and cannot be dropped from a request. The implementation lists the registry when a caller asks for broad influenza results instead of combining its entries.
+
+The bounded capture `j13562` returned HTTP 200 aggregate tables for all three independent groupings of every registry entry. It sent 42 requests with no retries or fallbacks. The original XML, request receipts and per-table source metadata remain outside Git in Yellow archive `data/biomcp-redux/0183-vaers-influenza-native-capture/2290-vaers-influenza-native-capture.tar.gz`, SHA-256 `9b39062a8446db31523db7312ee7cbb0e350ac4ad8a5b642d5640c691f253b99`. Its 429 members include 428 verified content hashes. This source capture proves table availability; native product measurements are recorded separately from synthetic command costs.
+
 ### VAERS retained native command costs
 
 The independent retained proof at revision `037b321dc552391eafa002a4ebf9ddecf94c340f` checked 26 successful CLI/MCP pairs, two disabled-policy pairs and six external schema cases. It checked each table against its own original XML, including scope, native cells, source messages, applied notices and footer. Symptoms used representative first, second and terminal pages; the complete paging walk remains synthetic. The completion made no provider requests or new recorder deliveries. Local replay timings do not measure provider latency.
