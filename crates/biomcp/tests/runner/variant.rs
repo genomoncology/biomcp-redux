@@ -4,8 +4,12 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod labels;
+mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/printed-repeat-identity-round-trips", || {
+            roundtrip::check().map_err(Into::into)
+        }),
         Trial::test("variant/unpaired-native-labels-remain-context", || {
             labels::check().map_err(Into::into)
         }),
