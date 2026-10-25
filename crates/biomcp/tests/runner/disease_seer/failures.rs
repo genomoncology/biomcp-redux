@@ -230,7 +230,10 @@ fn wrong_site() -> Result<(), String> {
         let mut document: Value =
             serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?)
                 .map_err(|e| e.to_string())?;
-        let data = document["data"].as_object_mut().ok_or("missing data")?;
+        let data = document
+            .get_mut("data")
+            .and_then(Value::as_object_mut)
+            .ok_or("missing data")?;
         let old = data.keys().next().ok_or("missing series")?.clone();
         let mut parts = old.split('_').collect::<Vec<_>>();
         *parts.last_mut().ok_or("missing site")? = "999";

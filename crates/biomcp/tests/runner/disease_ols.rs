@@ -396,9 +396,7 @@ fn literal_zero() -> Result<(), String> {
         json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":4096}]),
     )?;
     let requests = stub.finish()?;
-    if requests.len() != 2
-        || !requests[0].1.contains("/search?")
-        || !requests[1].1.contains("/terms?obo_id=")
+    if !matches!(requests.as_slice(), [(_, search), (_, get)] if search.contains("/search?") && get.contains("/terms?obo_id="))
     {
         return Err(format!(
             "zero result triggered repair or hidden lookup: {requests:?}"

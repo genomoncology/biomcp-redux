@@ -128,7 +128,7 @@ fn unsupported() -> Result<(), String> {
 fn wrong() -> Result<(), String> {
     let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
         let mut row = association();
-        row["object_closure"] = json!(["MONDO:9999999"]);
+        *row.get_mut("object_closure").ok_or("missing closure")? = json!(["MONDO:9999999"]);
         Ok(json!({"limit":5,"offset":0,"total":1,"items":[row]}).to_string())
     })?;
     let env = setup(&stub)?;
