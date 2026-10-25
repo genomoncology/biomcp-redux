@@ -545,7 +545,10 @@ fn boundary_size(value: &serde_json::Value) -> Result<(), String> {
     use std::io::Write;
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    writeln!(std::io::stdout(), "ADVERSE_BOUNDARY_BYTES={full}/{comparable}")
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "ADVERSE_BOUNDARY_BYTES={full}/{comparable}"
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

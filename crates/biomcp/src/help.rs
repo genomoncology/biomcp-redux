@@ -183,7 +183,8 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["BioMCP: one card or page. help COMMAND lists options and examples.".into()];
+    let mut lines =
+        vec!["BioMCP: one card or page. help COMMAND lists options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
@@ -194,7 +195,11 @@ pub(crate) fn tree() -> String {
             }
         }
         if command.command.iter().any(|word| word == "adverse-event") {
-            for argument in command.arguments.iter().filter(|arg| arg.position.is_none()) {
+            for argument in command
+                .arguments
+                .iter()
+                .filter(|arg| arg.position.is_none())
+            {
                 line.push_str(&format!(" [{}", argument.name));
                 if !argument.choices.is_empty() {
                     line.push_str(&format!(" {}", argument.choices.join("|")));
