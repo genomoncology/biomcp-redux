@@ -3,8 +3,9 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+mod walks;
 pub(super) fn trials() -> Vec<Trial> {
-    [
+    let mut trials: Vec<_> = [
         "wrong-base",
         "wrong-supplement",
         "missing-base-cell",
@@ -22,7 +23,12 @@ pub(super) fn trials() -> Vec<Trial> {
             boundary(mode).map_err(Into::into)
         })
     })
-    .collect()
+    .collect();
+    trials.push(Trial::test(
+        "diagnostic-pma/synthetic-complete-walks",
+        || walks::run().map_err(Into::into),
+    ));
+    trials
 }
 fn native(mode: &str) -> Result<Value, String> {
     let row = json!({"pma_number":if mode == "wrong-base" {"P200010"} else {"P150013"},"supplement_number":if mode == "wrong-supplement" {"S021"} else {""},"trade_name":"Synthetic device","ao_statement":"Synthetic statement"});
