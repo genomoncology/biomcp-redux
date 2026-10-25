@@ -70,7 +70,7 @@ impl Cell {
             Self::Number(n) => *n,
             Self::Text(n) => n.parse().map_err(|_| BadReply)?,
         };
-        biodata::FiniteNumber::new(value).map_err(|_| BadReply)
+        biodata::FiniteNumber::try_from(value).map_err(|_| BadReply)
     }
     pub fn integer(&self) -> Result<u64, BadReply> {
         match self {
@@ -130,6 +130,9 @@ impl Reply for Document {
             }
             for row in &series.data_series {
                 for (field, value) in fields.iter().zip(row) {
+                    if *field == "year" && value.is_none() {
+                        return Err(BadReply);
+                    }
                     if let Some(value) = value {
                         if matches!(*field, "year" | "count") {
                             value.integer()?;

@@ -14,6 +14,28 @@ fn fetch() -> Fetch {
     .unwrap()
 }
 
+fn changed(change: impl FnOnce(&mut serde_json::Value)) -> (Fetch, tempfile::TempDir) {
+    let directory = tempfile::tempdir().unwrap();
+    let target = directory.path().join("seer");
+    std::fs::create_dir(&target).unwrap();
+    let name = "6034e658f1d299da7d80b7b51bc8f9751bd9ce674eaa5b4f328a617e4c81c671.json";
+    let source = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/replies/disease/seer-synthetic/seer")
+        .join(name);
+    let mut reply: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(source).unwrap()).unwrap();
+    change(&mut reply["exchanges"][0]["body"]["value"]);
+    std::fs::write(target.join(name), serde_json::to_vec(&reply).unwrap()).unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().into(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    (fetch, directory)
+}
+
 fn selected(statistic: Statistic) -> Selection {
     Selection {
         site: "55".parse().unwrap(),
@@ -62,5 +84,79 @@ fn annual_pages_keep_model_only_values_and_original_fetch_metadata() {
             .code
             .as_str(),
         "31"
+    );
+}
+
+#[test]
+fn malformed_wrapper_field_order_and_numbers_fail_the_source() {
+    for kind in ["object", "double", "broken", "order", "number", "year"] {
+        let (fetch, _directory) = changed(|value| {
+            let text = value.as_str().unwrap().to_owned();
+            let mut document: serde_json::Value = serde_json::from_str(&text).unwrap();
+            match kind {
+                "object" => {
+                    *value = document;
+                    return;
+                }
+                "double" => {
+                    *value = serde_json::to_string(&text).unwrap().into();
+                    return;
+                }
+                "broken" => {
+                    *value = "{".into();
+                    return;
+                }
+                "order" => document["info"]["data-fields"][0] = "wrong".into(),
+                "number" => document["data"]["5_3_1_1_55"]["data_series"][0][1] = "NaN".into(),
+                "year" => {
+                    document["data"]["5_3_1_1_55"]["data_series"][0][0] = serde_json::Value::Null
+                }
+                _ => unreachable!(),
+            }
+            *value = serde_json::to_string(&document).unwrap().into();
+        });
+        let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
+        let query = selected(Statistic::Survival {
+            interval: "5".parse().unwrap(),
+        });
+        assert!(
+            matches!(seer::statistics(&leg, &query, 5, 0),
+            Err(biomcp_fetch::RequestError::Source(e)) if e.source == biomcp_types::Source::Seer && e.reason == biomcp_types::Reason::BadReply),
+            "{kind}"
+        );
+    }
+}
+
+#[test]
+fn contradictory_returned_period_is_retained_as_a_problem() {
+    let (fetch, _directory) = changed(|value| {
+        let mut document: serde_json::Value =
+            serde_json::from_str(value.as_str().unwrap()).unwrap();
+        document["data"]["5_3_1_1_55"]["year_range"] = 9.into();
+        *value = serde_json::to_string(&document).unwrap().into();
+    });
+    let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
+    let query = selected(Statistic::Survival {
+        interval: "5".parse().unwrap(),
+    });
+    let page = seer::statistics(&leg, &query, 5, 0).unwrap();
+    assert_eq!(
+        page.rows[0]
+            .returned_selectors
+            .last()
+            .unwrap()
+            .code
+            .as_str(),
+        "9"
+    );
+    assert!(
+        page.problems
+            .iter()
+            .any(|p| p.field.as_ref() == "returned_selectors.year_range")
+    );
+    assert!(
+        page.problems
+            .iter()
+            .any(|p| p.field.as_ref() == "dataset_membership")
     );
 }
