@@ -10,12 +10,12 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn setup(body: Value, selector: &str) -> Result<(Environment, Stub), String> {
     let expected = format!("GET /drug/drugsfda.json?search={selector}&limit=1 HTTP/1.1");
-    let stub = Stub::for_source("api.fda.gov", "application/json", move |request| {
+    let stub = Stub::for_source_status("api.fda.gov", "application/json", move |request| {
         if request.lines().next() != Some(expected.as_str()) {
             return Err(format!("unexpected FDA request: {request}"));
         }
         Ok(body.to_string())
-    })?;
+    }, |_| 200)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
@@ -44,7 +44,7 @@ fn search() -> Check {
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
     let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
     if value != mcp || value.pointer("/result/items/0/id") != Some(&json!("NDA021335"))
-        || value.pointer("/result/items/0/identity_level") != Some(&json!("application"))
+        || value.pointer("/result/items/0/identity_level") != Some(&json!("fda_application"))
         || value.pointer("/result/total") != Some(&json!(2)) {
         return Err(format!("native application candidates changed: {value}"));
     }
