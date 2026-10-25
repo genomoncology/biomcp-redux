@@ -69,7 +69,8 @@ pub(super) struct Record {
 }
 impl Record {
     pub(super) fn mapped(self) -> biomcp_types::DiagnosticClearance {
-        biomcp_types::DiagnosticClearance { k_number:self.k_number,
+        biomcp_types::DiagnosticClearance {
+            k_number: self.k_number,
             device_name: self.device_name,
             applicant: self.applicant,
             decision_code: self.decision_code,

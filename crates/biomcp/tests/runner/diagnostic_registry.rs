@@ -96,7 +96,14 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     Ok(())
 }
 fn switches() -> Check {
-    for configured in ["gtr", "who-ivd", "fda-cdx", "fda-pma", "fda-510k", "noncommercial"] {
+    for configured in [
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "noncommercial",
+    ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"disable_sources":[configured]}))
             .map_err(|e| e.to_string())?;

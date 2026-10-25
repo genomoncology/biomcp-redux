@@ -162,7 +162,7 @@ pub use response::{
     GtrHeader, GtrNativeStatus,
 };
 
-pub use response::{DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory};
+pub use response::{DiagnosticClearance, DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory};
 
 /// Source-specific diagnostic page counting vocabulary.
 pub use response::DiagnosticCountUnit;

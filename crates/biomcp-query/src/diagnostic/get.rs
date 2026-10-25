@@ -13,7 +13,7 @@ pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
         return super::who::get(cx, q);
     }
     if q.source() == DiagnosticGetSource::Fda510k {
-        return super::clearance::get(cx,q);
+        return super::clearance::get(cx, q);
     }
     if q.source() == DiagnosticGetSource::FdaPma {
         return super::pma::get(cx, q);

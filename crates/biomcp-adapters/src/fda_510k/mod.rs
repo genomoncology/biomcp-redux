@@ -7,8 +7,14 @@ use std::{cell::Cell, time::Duration};
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Fda510k,
     base: "https://api.fda.gov/device/510k.json",
-    terms: Terms { name:"openFDA terms and license; third-party exceptions", url:"https://open.fda.gov/terms/", usage:Use::Open },
-    quota:&crate::quotas::OPENFDA, key:KeyUse::None, deadline:Duration::from_secs(15),
+    terms: Terms {
+        name: "openFDA terms and license; third-party exceptions",
+        url: "https://open.fda.gov/terms/",
+        usage: Use::Open,
+    },
+    quota: &crate::quotas::OPENFDA,
+    key: KeyUse::None,
+    deadline: Duration::from_secs(15),
 };
 /// Failed admission retains whether the returned identity conflicted.
 pub struct Failure {
@@ -18,24 +24,46 @@ pub struct Failure {
     pub identity_conflict: bool,
 }
 /// Retrieve only the exact source-native clearance; no harmonized fields enter the projection.
-pub fn get(leg:&Leg<'_>, q:&DiagnosticGet) -> Result<Option<DiagnosticClearance>, Failure> {
+pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearance>, Failure> {
     let selector = format!("k_number:\"{}\"", q.id());
-    let endpoint = SPEC.get("").fresh(Freshness::Days(1)).bytes(2*1024*1024).json_absence();
-    let conflict=Cell::new(false);
-    let reply = leg.json_checked_admission::<raw::Response>(&endpoint,
-        &[("search",Arg::Text(&selector)),("limit",Arg::Num(1)),("skip",Arg::Num(0))],
-        |reply| {
-            if let raw::Response::Page {meta,results} = reply {
-                let foreign = results.iter().any(|row| row.k_number.as_str()!=q.id().as_str());
-                conflict.set(foreign);
-                if foreign || meta.results.skip!=0 || meta.results.limit!=1 || meta.results.total!=1 {
-                    return Err(BadReply);
+    let endpoint = SPEC
+        .get("")
+        .fresh(Freshness::Days(1))
+        .bytes(2 * 1024 * 1024)
+        .json_absence();
+    let conflict = Cell::new(false);
+    let reply = leg
+        .json_checked_admission::<raw::Response>(
+            &endpoint,
+            &[
+                ("search", Arg::Text(&selector)),
+                ("limit", Arg::Num(1)),
+                ("skip", Arg::Num(0)),
+            ],
+            |reply| {
+                if let raw::Response::Page { meta, results } = reply {
+                    let foreign = results
+                        .iter()
+                        .any(|row| row.k_number.as_str() != q.id().as_str());
+                    conflict.set(foreign);
+                    if foreign
+                        || meta.results.skip != 0
+                        || meta.results.limit != 1
+                        || meta.results.total != 1
+                    {
+                        return Err(BadReply);
+                    }
                 }
-            }
-            Ok(())
-        }, |_|true).map_err(|error|Failure{error,identity_conflict:conflict.get()})?;
+                Ok(())
+            },
+            |_| true,
+        )
+        .map_err(|error| Failure {
+            error,
+            identity_conflict: conflict.get(),
+        })?;
     Ok(match reply {
-        raw::Response::Page{results,..} => results.into_iter().next().map(raw::Record::mapped),
-        raw::Response::Absent{..} => None,
+        raw::Response::Page { results, .. } => results.into_iter().next().map(raw::Record::mapped),
+        raw::Response::Absent { .. } => None,
     })
 }

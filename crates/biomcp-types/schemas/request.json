@@ -165,7 +165,8 @@
       "enum": [
         "gtr",
         "who-ivd",
-        "fda-pma"
+        "fda-pma",
+        "fda-510k"
       ],
       "type": "string"
     },

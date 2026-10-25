@@ -92,7 +92,9 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
             } => (device_ids, drug_applications),
         };
         for device in devices {
-            if !(device.as_str().starts_with('P') || device.as_str().starts_with('K')) || !seen.insert(device.as_str().to_owned()) {
+            if !(device.as_str().starts_with('P') || device.as_str().starts_with('K'))
+                || !seen.insert(device.as_str().to_owned())
+            {
                 continue;
             }
             let mut parts = device.as_str().split('/');
