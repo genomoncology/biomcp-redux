@@ -1,0 +1,17 @@
+# 0162 — Document the adverse event commands and close the adverse event accounting
+
+Status: OPEN.
+
+Milestone: 3
+
+Depends on: 0161
+
+## Outcome
+
+Generated help and the MCP tool description cover `search adverse-event` with FAERS and MAUDE and the four typed filters, and `get adverse-event` with its sources, sections, `--drug-index` and paging options, with examples taken from case run steps. Help states that `--reaction` and MAUDE text are phrase matches and that report counts are not incidence or causation. The 0.9 parity ledger has a row for every adverse event command, option and section in adverse-event.md's accounting, naming the 1.0 spelling, the owning slice or the retirement. Every adverse event case asserts a measured `max_bytes` from its CLI and MCP output under the existing headroom rule, and adverse-event.md's budget table replaces each unmeasured row with the measured size. The landing commit gives ROADMAP.md's adverse event block the checklist that the drug and disease blocks carry and ticks the boxes this work completes.
+
+- Why: the slice delivers docs, cases with ceilings and full 0.9 accounting, as `planning/slices.md` says.
+- Starts from: 0135 and 0145 as the pattern; adverse-event.md's command and option cases, measurement ownership table and complete legacy accounting; the generated help and MCP description code; ROADMAP.md's adverse event block.
+- Rules: the ledger's VAERS and CVX rows follow Ian's ruling on losing 0.9 vaccine search: accepted loss moves VAERS, CDC WONDER and CVX to the dropped line with the design's reason, and a blocked requirement keeps their roadmap boxes open with that reason. The vaccine docs wait for that ruling. FDA recalls and the ClinicalTrials.gov fallback move to the dropped line with the design's reasons, and the drug card's `top_adverse_events` and `faers_query` rows point to the drug ledger. A04, A15, A18, A21 and A22 stay recorded as unanswered. A measured size over its design allocation is fixed or raised to the PM before landing. The source name list and command tree help follow the slice rule for approved sources; entity help and MCP listing growth need a PM ruling. The token budget box ticks when every row in the design's measurement table has its measured 1.0 size and either a qualified 0.9 figure from 0098 or a stated reason that 0.9 could not be measured.
+- Proof: a help case asserts each adverse event command lists its sources, sections, options and two parsed examples; an MCP `tools/list` case asserts the adverse event tree within the existing description ceiling. A reviewer checks that every accounting row has a ledger row, every design case ID has a case file or an outside-repo case, and every case has a measured `max_bytes`. The landing commit ticks Biodata types and schema, Search, Get and sections, Outside-in cases, MCP parity, Docs and 0.9 accounting, and the openFDA FAERS and device reports source box, each only after its check passes. This ticket adds no filter or exact-ID get and makes no provider call; the adverse event filters and exact-ID gets keep their known-positive captures from one bounded keyless pm job each. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
+- Defers: full 1.0 against 0.9 parity, which 0098 measures after the adapters land with verified containment.
