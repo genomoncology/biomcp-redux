@@ -27,7 +27,8 @@
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
         "/sources/0/reason": "rate_limited"
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
@@ -53,7 +54,8 @@
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
         "/sources/0/reason": "unavailable"
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
@@ -79,7 +81,8 @@
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
         "/sources/0/reason": "deadline_exceeded"
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
@@ -105,7 +108,8 @@
         "/sources/0/use": "open",
         "/sources/0/terms": "openFDA terms and license; third-party exceptions",
         "/sources/0/reason": "bad_reply"
-      }
+      },
+      "is_error": true
     }
   ]
 }
