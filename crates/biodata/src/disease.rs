@@ -49,7 +49,7 @@ pub struct DiseaseAssociation {
 pub struct DiseaseRelation {
     /// Unchanged native cross-reference description when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub description: Option<Text>,
+    pub description: Option<Box<str>>,
     /// Native subject.
     pub subject: DiseaseEndpoint,
     /// Publisher predicate, without equivalence promotion.

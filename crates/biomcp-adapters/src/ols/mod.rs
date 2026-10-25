@@ -20,6 +20,6 @@ mod get;
 mod map;
 mod raw;
 mod search;
-pub use get::{LookupError, Record, get};
+pub use get::{Record, get};
 pub use map::components;
 pub use search::{SearchPage, search};

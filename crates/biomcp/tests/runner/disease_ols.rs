@@ -248,7 +248,7 @@ fn wrong() -> Result<(), String> {
         )?;
         if value.pointer("/status").unwrap_or(&Value::Null) != "failed"
             || value.get("result").is_some()
-            || value.pointer("/problems/0/field").unwrap_or(&Value::Null) != "returned_id"
+            || value.pointer("/problems/0/field").unwrap_or(&Value::Null) != "record"
         {
             return Err(format!("wrong record admitted: {value}"));
         }

@@ -187,7 +187,7 @@ fn disease_page_continuations_keep_every_native_selector() {
 
 #[test]
 fn native_alias_proof_keeps_unlabeled_endpoints_and_raw_description() {
-    let relation = json!({"subject":{"id":"DOID:3910"},"predicate":"oboInOwl:hasDbXref","object":{"id":"MONDO:0005061"},"description":"Native source text","attribution":{"source":"synthetic"}});
+    let relation = json!({"subject":{"id":"DOID:3910"},"predicate":"oboInOwl:hasDbXref","object":{"id":"MONDO:0005061"},"description":"  Native source text  ","attribution":{"source":"synthetic"}});
     assert_eq!(
         roundtrip::<biodata::DiseaseRelation>(relation.clone()).unwrap(),
         relation

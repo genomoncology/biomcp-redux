@@ -65,7 +65,7 @@ pub(super) struct Synonym {
 pub(super) struct Xref {
     pub database: Text,
     pub id: Text,
-    pub description: Option<Text>,
+    pub description: Option<Box<str>>,
 }
 impl Reply for Exact {
     fn check(&self) -> Result<(), BadReply> {
