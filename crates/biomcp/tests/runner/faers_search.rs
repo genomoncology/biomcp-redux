@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod examples;
 mod policy;
+mod status;
 pub(super) fn record_examples(directory: &std::path::Path) -> Check {
     examples::record(directory)
 }
@@ -44,6 +45,7 @@ pub(super) fn trials() -> Vec<Trial> {
             move || selectors(&flags, suffix).map_err(Into::into),
         ));
     }
+    cases.push(Trial::test("adverse-event-search/200-absence-is-rejected-before-cache", || status::run().map_err(Into::into)));
     cases.extend(policy::trials());
     cases
 }
