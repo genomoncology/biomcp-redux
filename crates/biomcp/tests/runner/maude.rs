@@ -55,6 +55,7 @@ pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value
     if cli != mcp {
         return Err(format!("MAUDE CLI/MCP differ: {cli} / {mcp}"));
     }
+    super::maude_budget::observe(&cli)?;
     Ok(cli)
 }
 fn search_card() -> Check {

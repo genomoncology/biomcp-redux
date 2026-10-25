@@ -46,6 +46,7 @@ mod markdown_sources;
 mod markdown_variant_sources;
 mod markdown_variant_trial;
 mod maude;
+mod maude_budget;
 mod maude_policy;
 mod maude_snapshot;
 mod mcp;
