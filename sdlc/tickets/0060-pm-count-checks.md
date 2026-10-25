@@ -29,4 +29,6 @@ The PM checks each count below on its date and records the result here. A count 
 - Next drug integration batch: structural failures from parallel source branches each growing one central response function past its length limit. Baseline 3 jobs across 3 tickets: EMA j12157, openFDA j12152, ChEMBL and Open Targets j12161. Target 0.
 - Next optional-field integration: compile jobs that failed because a struct initializer missed a new optional header field. Baseline 4 omissions across 3 jobs (j12147, j12176, j12180; cancelled j12184 excluded). Target 0. Reviewers now check the complete initializer inventory.
 - One week after 0150 lands: native proofs whose recordings or raw outputs were deleted after a successful comparison. Baseline 2 tickets (0141, 0130). Target 0.
+- 2026-11-01: exact-ID routes whose identity guard rejected a reply without recording a problem, and identity cases that do not assert that problem. Baseline 7 routes (MyChem, ChEMBL, Open Targets, CIViC, SPL, Drugs@FDA, Monarch) and 3 cases. Target 0 for each.
+- 2026-11-01: routes that checked a requested selector after the cache instead of before it, so a reply for another selector could be returned and cached. Baseline 1 (SEER site, High severity, fixed in 0144). Target 0.
 - Proof: each line gains its measured count, the command or source that showed it, and keep or reopen.
