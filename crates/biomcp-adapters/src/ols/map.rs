@@ -1,0 +1,60 @@
+use super::{Record, raw};
+use crate::Mapped;
+use biodata::{Attribution, Concept, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text};
+use biomcp_fetch::{InputError, RequestError};
+use biomcp_types::{ComponentLabel, ComponentTerms, DiseaseCard, DiseaseOntology, DiseaseSection, Problem, ProblemCode, Source};
+pub(super) fn attribution(id: &Curie, iri: &Text, ontology: DiseaseOntology) -> Attribution {
+    Attribution { source: Text::new(ontology.as_str()).unwrap_or_else(|_| iri.clone()), record: Text::new(id.as_str()).ok(), url: Some(iri.clone()), version: None, release: None, submitter: None, evaluated: None }
+}
+fn text(value: &str) -> Result<Text, RequestError> { Text::new(value).map_err(|_| InputError::Serialization.into()) }
+/// Reviewed component terms remain separate from transport service terms.
+pub fn components(ontology: DiseaseOntology) -> Result<Box<[ComponentLabel]>, RequestError> {
+    let component=crate::disease_sources::components::get(Source::Ols, ontology.as_str()).ok_or(InputError::Serialization)?;
+    Ok(vec![ComponentLabel { component: text(component.name)?, terms: ComponentTerms { usage: component.terms.usage, name: text(component.terms.name)?, url: text(component.terms.url)? } }].into())
+}
+pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Record, RequestError> {
+    let attribution=attribution(&term.obo_id, &term.iri, ontology);
+    let synonyms=synonyms(&term, &attribution);
+    let xrefs=xrefs(&term, &attribution);
+    let mut sections=Vec::new();
+    if !synonyms.value.is_empty() { sections.push(DiseaseSection::Synonyms); }
+    if !xrefs.value.is_empty() { sections.push(DiseaseSection::Xrefs); }
+    let consider=ids(&term.annotation.consider)?;
+    let replaced_by=term.term_replaced_by.as_ref().map(|values| ids(values)).transpose()?.flatten();
+    let definition=if term.description.is_empty() { None } else { Some(text(&term.description.iter().map(Text::as_str).collect::<Vec<_>>().join("\n\n"))?) };
+    Ok(Record { card: DiseaseCard { requested_id:term.obo_id.clone(), returned_id:term.obo_id.clone(), alias:None,
+        concept:Concept { id:Some(term.obo_id), label:term.label }, definition, obsolete:term.is_obsolete, consider, replaced_by, attribution, sections:sections.into(), components:components(ontology)? }, synonyms, xrefs })
+}
+fn ids(values: &[Text]) -> Result<Option<Box<[Curie]>>, RequestError> {
+    if values.is_empty() { return Ok(None); }
+    values.iter().map(|v| iri_id(v.as_str()).ok_or_else(|| InputError::Serialization.into())).collect::<Result<Vec<_>,_>>().map(|v| Some(v.into()))
+}
+fn iri_id(value: &str) -> Option<Curie> {
+    if let Ok(id)=value.parse() { return Some(id); }
+    let native=value.strip_prefix("http://purl.obolibrary.org/obo/")?;
+    let (prefix, local)=native.split_once('_')?;
+    format!("{prefix}:{local}").parse().ok()
+}
+fn problem(id: &Curie, field: &str) -> Problem {
+    Problem { source:Source::Ols, record:Text::new(id.as_str()).ok(), field:field.into(), code:ProblemCode::ValueUnknown }
+}
+fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSynonym>> {
+    let mut mapped=Mapped { value:Vec::new(), problems:Vec::new() };
+    for name in &term.synonyms {
+        let native=term.obo_synonym.as_deref().unwrap_or_default().iter().find(|v| &v.name==name);
+        let scope=native.and_then(|s| s.scope.as_ref()).and_then(|s| format!("oboInOwl:{}",s.as_str()).parse().ok());
+        if native.is_some_and(|s| s.scope.is_some()) && scope.is_none() { mapped.problems.push(problem(&term.obo_id,"synonym.scope")); }
+        mapped.value.push(DiseaseSynonym { value:name.clone(), scope, language:None, attribution:attribution.clone() });
+    }
+    mapped
+}
+fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
+    let mut mapped=Mapped { value:Vec::new(), problems:Vec::new() };
+    for native in term.obo_xref.as_deref().unwrap_or_default() {
+        let Ok(id)=format!("{}:{}",native.database,native.id).parse() else { mapped.problems.push(problem(&term.obo_id,"xref.id")); continue; };
+        let Ok(predicate)="oboInOwl:hasDbXref".parse() else { continue; };
+        mapped.value.push(DiseaseRelation { subject:DiseaseEndpoint { id:term.obo_id.clone(), label:Some(term.label.clone()) }, predicate,
+            object:DiseaseEndpoint { id, label:None }, attribution:attribution.clone(), description:native.description.clone() });
+    }
+    mapped
+}

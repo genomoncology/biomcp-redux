@@ -37,6 +37,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchDisease(_) => "biomcp.disease-search/1",
+        Request::GetDisease(_) => "biomcp.disease-get/1",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
         Request::VariantNormalize(_) => "biodata.variant-normalize/2",
@@ -59,6 +61,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "disease", "biomcp.disease-search/1"),
+    ("get", "disease", "biomcp.disease-get/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -475,6 +479,8 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
+        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value).map(Request::SearchDisease).map_err(|_| ()),
+        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value).map(Request::GetDisease).map_err(|_| ()) ,
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),

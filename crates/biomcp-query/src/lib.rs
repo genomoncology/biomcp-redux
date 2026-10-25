@@ -15,3 +15,5 @@ pub mod health;
 
 pub mod trial;
 pub mod variant;
+
+pub mod disease;

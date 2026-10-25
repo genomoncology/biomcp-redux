@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover one source-native disease candidate page.
+    SearchDisease(crate::DiseaseSearch),
+    /// Read an exact source disease concept or native statistic page.
+    GetDisease(crate::DiseaseGet),
     /// Read source-native variant assertions.
     VariantAssertions(crate::VariantAssertionsGet),
     /// Read source ancestry observations.

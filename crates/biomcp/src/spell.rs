@@ -59,6 +59,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchDisease(query) => serde_json::to_value(query),
+        Request::GetDisease(query) => serde_json::to_value(query),
         Request::VariantAssertions(query) => serde_json::to_value(query),
         Request::VariantPopulation(query) => serde_json::to_value(query),
         Request::VariantRecurrence(query) => serde_json::to_value(query),
@@ -117,17 +119,21 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::ArticleText(_)
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
-            Request::GetVariant(_)
+            Request::GetDisease(_)
+            | Request::GetVariant(_)
             | Request::GetTrial(_)
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
-            Request::SearchVariant(_)
+            Request::SearchDisease(_)
+            | Request::SearchVariant(_)
             | Request::SearchTrial(_)
             | Request::SearchGene(_)
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::VariantAssertions(_)) {
+        if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+            "disease"
+        } else if matches!(request, Request::VariantAssertions(_)) {
             "assertions"
         } else if matches!(request, Request::VariantPopulation(_)) {
             "population"

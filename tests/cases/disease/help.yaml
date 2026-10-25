@@ -15,7 +15,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/commands/0/command": "search disease"
+        "/result/commands/0/command": ["search", "disease"]
       }
     }
   ]

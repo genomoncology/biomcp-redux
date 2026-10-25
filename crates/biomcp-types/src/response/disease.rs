@@ -30,6 +30,9 @@ pub struct DiseaseCard {
     pub requested_id: Curie,
     /// Actual returned identifier.
     pub returned_id: Curie,
+    /// Native relation proving a source-accepted alternate identifier.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alias: Option<DiseaseRelation>,
     /// Native identity and complete primary label.
     pub concept: Concept,
     /// Complete source definition when supplied.
@@ -41,8 +44,8 @@ pub struct DiseaseCard {
     /// Publisher alternatives, never an automatic replacement.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub consider: Option<Box<[Curie]>>,
-    /// Publisher explicit replacement identifiers.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    /// Publisher explicit replacement identifiers; null preserves no native replacement.
+    #[serde(default)]
     pub replaced_by: Option<Box<[Curie]>>,
     /// Publisher record and version.
     pub attribution: Attribution,
@@ -52,7 +55,7 @@ pub struct DiseaseCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for DiseaseCard {
-    const SCHEMA: &'static str = "biomcp.disease_card/1";
+    const SCHEMA: &'static str = "biomcp.disease_card/2";
     type Query = DiseaseGet;
 }
 /// One publisher catalog site, independent of ontology identities.
@@ -113,14 +116,14 @@ page!(
     DiseaseXrefs,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease_xrefs/1",
+    "biomcp.disease_xrefs/2",
     "Native cross-reference predicates without equivalence promotion."
 );
 page!(
     DiseaseHierarchy,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease_hierarchy/1",
+    "biomcp.disease_hierarchy/2",
     "Native parent relations with both endpoints."
 );
 page!(

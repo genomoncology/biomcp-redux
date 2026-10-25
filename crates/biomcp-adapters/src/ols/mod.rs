@@ -15,3 +15,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+mod raw;
+mod map;
+mod search;
+mod get;
+pub use search::{SearchPage, search};
+pub use get::{Record, get};
+pub use map::components;
