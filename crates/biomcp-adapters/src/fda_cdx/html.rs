@@ -111,8 +111,7 @@ impl Table {
                     .map_err(|_| BadReply)?
                     .ok_or(BadReply)?;
                 self.link = Some(DiagnosticCellLink {
-                    href: href
-                        .unescape_value()
+                    href: quick_xml::escape::unescape(href.value.as_ref())
                         .map_err(|_| BadReply)?
                         .into_owned()
                         .into(),
