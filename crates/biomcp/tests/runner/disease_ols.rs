@@ -1,0 +1,92 @@
+//! Feature disease-ols: literal ontology discovery and exact source concepts.
+use super::{launch::Environment, network_stub::Stub};
+use libtest_mimic::Trial;
+use serde_json::{Value,json};
+use std::{fs,path::Path};
+mod native;
+pub(super) use native::run as native;
+pub(super) fn trials() -> Vec<Trial> {
+    vec![Trial::test("disease-ols/native-order-and-literal-selectors",|| search().map_err(Into::into)),
+        Trial::test("disease-ols/exact-identity-and-independent-sections",|| exact().map_err(Into::into)),
+        Trial::test("disease-ols/refuses-wrong-record-before-cache",|| wrong().map_err(Into::into)),
+        Trial::test("disease-ols/empty-is-not-provider-failure",|| failures().map_err(Into::into))]
+}
+fn setup(stub: &Stub) -> Result<Environment,String> {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let ca=env.root().join("ols-ca.pem"); fs::write(&ca,&stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca})).map_err(|e|e.to_string())?;
+    Ok(env)
+}
+fn invoke(env: &Environment,args: &[String],exit:i32) -> Result<Value,String> {
+    let output=env.command(env!("CARGO_BIN_EXE_biomcp"),args).output().map_err(|e|e.to_string())?;
+    if output.status.code()!=Some(exit) { return Err(format!("wrong exit {:?}: {}",output.status.code(),String::from_utf8_lossy(&output.stdout))); }
+    serde_json::from_slice(&output.stdout).map_err(|e|e.to_string())
+}
+fn args(words: &[&str]) -> Vec<String> { words.iter().map(|s|(*s).into()).collect() }
+fn record(env:&Environment,words:&[&str],directory:&Path) -> Result<Value,String> {
+    let mut command=args(words); command.extend(["--record".into(),directory.to_string_lossy().into()]); invoke(env,&command,0)
+}
+fn replay(directory:&Path,steps:Value) -> Result<Value,String> {
+    let file=tempfile::NamedTempFile::new().map_err(|e|e.to_string())?;
+    fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    super::run_case(file.path(),&super::schema::Registry::embedded()?)
+}
+fn search_reply(request:&str) -> Result<String,String> {
+    let offset=if request.contains("start=5") {5} else if request.contains("start=10") {10} else {0};
+    let ontology=if request.contains("ontology=doid") {"doid"} else if request.contains("ontology=ncit") {"ncit"} else {"mondo"};
+    let prefix=ontology.to_uppercase();
+    let rows=(offset..(offset+5).min(11)).map(|i| json!({"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,"iri":format!("http://example.org/{i}"),"is_obsolete":i==3})).collect::<Vec<_>>();
+    Ok(json!({"response":{"numFound":11,"start":offset,"docs":rows}}).to_string())
+}
+fn search() -> Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",search_reply)?;
+    let env=setup(&stub)?;
+    for (index,ontology) in ["mondo","doid","ncit"].iter().enumerate() {
+        let directory=env.root().join(format!("search-{index}"));
+        let mut words=vec!["search","disease","literal MF : cancer","--ontology",ontology];
+        record(&env,&words,&directory)?;
+        let result=replay(&directory,json!([{"run":words,"mcp":words,"expect":{"/query/text":"literal MF : cancer","/query/ontology":ontology,"/page/total":11,"/result/items/0/concept/id":format!("{}:0000001",ontology.to_uppercase()),"/next/5/kind":"page"},"max_bytes":8000}]))?;
+        if result["result"]["items"].as_array().is_none_or(|r|r.len()!=5) {return Err("native page changed".into());}
+        words.clear();
+    }
+    let requests=stub.finish()?;
+    if requests.len()!=3 || requests.iter().any(|(_,r)| !r.contains("q=literal+MF+%3A+cancer") || !r.contains("groupField=iri")) {return Err(format!("literal or ontology request changed: {requests:?}"));}
+    Ok(())
+}
+fn term(id:&str) -> Value {
+    json!({"obo_id":id,"label":"Synthetic obsolete cancer","ontology_name":"mondo","iri":"http://purl.obolibrary.org/obo/MONDO_0007607","description":["Complete synthetic definition."],"is_obsolete":true,"term_replaced_by":null,"annotation":{"consider":["http://purl.obolibrary.org/obo/MONDO_0800444","http://purl.obolibrary.org/obo/MONDO_0800445"]},"synonyms":["native one","native two"],"obo_synonym":[{"name":"native one","scope":"hasExactSynonym"}],"obo_xref":[{"database":"DOID","id":"3910","description":"native text without inferred equivalence"},{"database":"NCI","id":"C3512","description":null}]})
+}
+fn exact_reply(_: &str) -> Result<String,String> {Ok(json!({"_embedded":{"terms":[term("MONDO:0007607")]}}).to_string())}
+fn exact() -> Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",exact_reply)?;
+    let env=setup(&stub)?; let directory=env.root().join("exact");
+    let words=["get","disease","MONDO:0007607","--source","ols"];
+    record(&env,&words,&directory)?;
+    let mut steps=vec![json!({"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,"/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]}})];
+    for section in ["synonyms","xrefs"] {
+        let command=["get","disease","MONDO:0007607",section,"--source","ols","--section-limit","1"];
+        steps.push(json!({"run":command,"mcp":command,"expect":{"/page/total":2,"/page/returned":1,"/next/0/kind":"page"},"max_bytes":5000}));
+        let mut command=args(&command);command.extend(["--section-offset".into(),"1".into()]);
+        steps.push(json!({"run":command,"mcp":command,"expect":{"/page/offset":1,"/page/total":2,"/next":{"count":0}}}));
+    }
+    replay(&directory,Value::Array(steps))?;
+    if stub.finish()?.len()!=1 {return Err("exact section paging fetched again".into());} Ok(())
+}
+fn wrong_reply(_: &str) -> Result<String,String> {Ok(json!({"_embedded":{"terms":[term("MONDO:9999999")]}}).to_string())}
+fn wrong() -> Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",wrong_reply)?;
+    let env=setup(&stub)?;
+    for _ in 0..2 { let value=invoke(&env,&args(&["get","disease","MONDO:0007607","--source","ols"]),1)?;
+        if value["status"]!="failed" || value.get("result").is_some() || value["problems"][0]["field"]!="returned_id" {return Err(format!("wrong record admitted: {value}"));}}
+    if stub.finish()?.len()!=2 {return Err("wrong identity entered cache".into());} Ok(())
+}
+fn failures() -> Result<(),String> {
+    for (status,body) in [(200,"{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}"),(429,"{}"),(500,"{}"),(200,"broken JSON")] {
+        let stub=Stub::for_source_status("www.ebi.ac.uk","application/json",move |_|Ok(body.into()),move |_|status)?;
+        let env=setup(&stub)?;
+        let value=invoke(&env,&args(&["search","disease","empty"]),1)?;
+        let expected=if status==200 && body.starts_with('{') {"absent"} else {"failed"};
+        if value["status"]!=expected || value["sources"][0]["source"]!="ols" || value["sources"][0]["terms"].as_str().is_none() {return Err(format!("failed source became empty page: {value}"));}
+        stub.finish()?;
+    } Ok(())
+}

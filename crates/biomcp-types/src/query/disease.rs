@@ -103,7 +103,7 @@ struct GetFields {
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "DiseaseSection", extend("x-positional" = 1)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiseaseSection>,
     /// Native rows per section page.
     #[serde(default = "default_limit")]

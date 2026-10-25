@@ -109,7 +109,7 @@ page!(
     DiseaseSynonyms,
     DiseaseSynonym,
     DiseaseGet,
-    "biomcp.disease_synonyms/1",
+    "biomcp.disease_synonyms/2",
     "One publisher synonym page with scope and language."
 );
 page!(
@@ -130,14 +130,14 @@ page!(
     DiseaseGenes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease_genes/1",
+    "biomcp.disease_genes/2",
     "Native association rows, not a unique-gene count."
 );
 page!(
     DiseasePhenotypes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease_phenotypes/1",
+    "biomcp.disease_phenotypes/2",
     "Native phenotype association rows without diagnostic inference."
 );
 page!(
@@ -151,13 +151,13 @@ page!(
     DiseaseIncidence,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease_incidence/1",
+    "biomcp.disease_incidence/2",
     "Native incidence rows preserving requested and returned dimensions."
 );
 page!(
     DiseaseSurvival,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease_survival/1",
+    "biomcp.disease_survival/2",
     "Native annual survival rows with separate observed and modeled values."
 );
