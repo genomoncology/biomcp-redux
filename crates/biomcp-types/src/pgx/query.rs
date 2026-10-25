@@ -112,14 +112,14 @@ struct GetFields {
     /// One ClinPGx collection; clinical is the default only on annotations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     kind: Option<PgxAnnotationKind>,
-    /// Complete source rows per page; clinical defaults to three, other sections to five.
+    /// Rows per page: three clinical, five elsewhere.
     #[serde(default, deserialize_with = "explicit_section_limit")]
     #[cfg_attr(feature = "schema", schemars(with="u32",range(min = 1, max = 50),transform=conditional_limit))]
     section_limit: Option<u32>,
     /// Offset within the selected section.
     #[serde(default)]
     section_offset: u32,
-    /// Checked retained ClinPGx collection for provider-free continuation.
+    /// Retained collection for local continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     snapshot: Option<Text>,
 }
