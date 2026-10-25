@@ -106,6 +106,22 @@ fn retained_context() -> Result<(), String> {
     if allowed.get("output") != Some(&output) {
         return Err("permitted product output lost".into());
     }
+    let restricted = json!({"sources":[{"use":"restricted"}],"result":{"items":[
+        {"pmid":"17611497","pmcid":"PMC123","doi":"10.1000/example"},
+        {"ids":["CA123","rs123"]}, {"gene":"DPYD"}, {"pma_number":"P110027"}
+    ],"text":"source text must not persist"}});
+    let restricted = live::witness::context(&restricted, &[]);
+    if restricted
+        .get("result_ids")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        != Some(7)
+        || restricted
+            .to_string()
+            .contains("source text must not persist")
+    {
+        return Err("restricted article, variant or native gene/device identities were lost or text persisted".into());
+    }
     Ok(())
 }
 

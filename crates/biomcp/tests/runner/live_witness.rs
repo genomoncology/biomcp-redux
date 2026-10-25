@@ -115,12 +115,21 @@ fn identities(value: &Value, ids: &mut Vec<Value>, depth: usize) {
     match value {
         Value::Object(map) => {
             for (key, item) in map {
-                if (key == "id" || key.ends_with("_id") || key == "accession")
-                    && (item.is_string() || item.is_number())
-                    && item.to_string().len() <= 256
-                    && ids.len() < 64
+                if matches!(
+                    key.as_str(),
+                    "id" | "ids"
+                        | "accession"
+                        | "pmid"
+                        | "pmcid"
+                        | "doi"
+                        | "gene"
+                        | "symbol"
+                        | "pma_number"
+                        | "supplement_number"
+                ) || key.ends_with("_id")
+                    || key.ends_with("_ids")
                 {
-                    ids.push(json!({"field":key,"value":item}));
+                    identifier_values(key, item, ids);
                 }
                 identities(item, ids, depth + 1);
             }
@@ -131,5 +140,23 @@ fn identities(value: &Value, ids: &mut Vec<Value>, depth: usize) {
             }
         }
         _ => {}
+    }
+}
+
+fn identifier_values(key: &str, item: &Value, ids: &mut Vec<Value>) {
+    if ids.len() >= 64 {
+        return;
+    }
+    if (item.is_string() || item.is_number()) && item.to_string().len() <= 256 {
+        ids.push(json!({"field":key,"value":item}));
+    } else if let Some(values) = item.as_array() {
+        for value in values.iter().take(64) {
+            if (value.is_string() || value.is_number())
+                && ids.len() < 64
+                && value.to_string().len() <= 256
+            {
+                ids.push(json!({"field":key,"value":value}));
+            }
+        }
     }
 }
