@@ -26,7 +26,8 @@ class Reply:
     def read(self, limit): return self.body[:limit]
 
 
-def capture(recipe, replies, refusal=None, path='/drug/label.json'):
+def capture(recipe, replies, refusal=None, path='/drug/label.json',
+            source='openfda', host='api.fda.gov', repeat=False, method='GET'):
     with tempfile.TemporaryDirectory() as directory:
         recipe.OUT = Path(directory)
         (recipe.OUT / 'captures').mkdir()
@@ -35,9 +36,9 @@ def capture(recipe, replies, refusal=None, path='/drug/label.json'):
         recipe.CACHE, recipe.FAILED = {}, set()
         recipe.ALLOWED, recipe.CHEMBL = set(), set()
         recipe.CURRENT = {'slice': 'drug', 'index': 1}
-        recipe.CAPS = {('drug', 'openfda'): 0 if refusal == 'budget' else 16}
-        recipe.COUNTS = {('drug', 'openfda'): 0}
-        recipe.BASES = {'openfda': 'https://api.fda.gov'}
+        recipe.CAPS = {('drug', source): 0 if refusal == 'budget' else 16}
+        recipe.COUNTS = {('drug', source): 0}
+        recipe.BASES = {source: 'https://' + host}
         server = recipe.Server(('127.0.0.1', 0), recipe.Handler)
         recipe.PORT = server.server_port
         thread = threading.Thread(target=server.serve_forever)
@@ -46,13 +47,17 @@ def capture(recipe, replies, refusal=None, path='/drug/label.json'):
         try:
             with patch.object(recipe.OPENER, 'open') as upstream:
                 for number, reply in enumerate(replies):
-                    url = 'https://api.fda.gov' + path + '?n=' + str(number)
-                    if refusal != 'identity': recipe.declaration('GET', url, None)
+                    query = '?n=' + str(0 if repeat else number)
+                    url = 'https://' + host + path + query
+                    body = {} if method == 'POST' else None
+                    if refusal != 'identity': recipe.declaration(method, url, body)
                     if isinstance(reply, Exception): upstream.side_effect = reply
                     else: upstream.return_value = Reply(*reply)
                     try:
-                        with opener.open('http://127.0.0.1:' + str(recipe.PORT)
-                                         + '/openfda' + path + '?n=' + str(number)) as response:
+                        request = urllib.request.Request(
+                            'http://127.0.0.1:' + str(recipe.PORT) + '/' + source + path + query,
+                            data=b'{}' if method == 'POST' else None, method=method)
+                        with opener.open(request) as response:
                             response.read()
                     except urllib.error.HTTPError as error:
                         error.read()
@@ -65,6 +70,34 @@ def capture(recipe, replies, refusal=None, path='/drug/label.json'):
 
 
 class CaptureTests(unittest.TestCase):
+    def test_graphql_errors_stop_forwarding_and_cannot_be_reused(self):
+        for source, host, path in [
+            ('civic', 'civicdb.org', '/api/graphql'),
+            ('opentargets', 'api.platform.opentargets.org', '/api/v4/graphql'),
+        ]:
+            with self.subTest(source=source):
+                recipe = recorder()
+                rows, calls = capture(recipe, [
+                    (200, b'{"data":null,"errors":[{"message":"unavailable"}]}'),
+                    (200, b'{"data":{}}'),
+                ], source=source, host=host, path=path, repeat=True, method='POST')
+                self.assertEqual([r['outcome'] for r in rows],
+                                 ['provider_failure', 'local_refusal'])
+                self.assertFalse(recipe.comparison_eligible(0, rows))
+                self.assertFalse(recipe.CACHE)
+                self.assertEqual(calls, 1)
+
+    def test_exact_empty_reply_is_reused_without_another_provider_call(self):
+        recipe = recorder()
+        rows, calls = capture(recipe, [
+            (404, b'{"error":{"code":"NOT_FOUND","message":"No matches found!"}}'),
+            (500, b'{"error":"must not be forwarded"}'),
+        ], repeat=True)
+        self.assertEqual([r['outcome'] for r in rows], ['empty', 'empty'])
+        self.assertTrue(rows[1]['reused_retained_body'])
+        self.assertTrue(recipe.comparison_eligible(0, rows))
+        self.assertEqual(calls, 1)
+
     def test_declared_empty_allows_next_distinct_request(self):
         recipe = recorder()
         rows, calls = capture(recipe, [
