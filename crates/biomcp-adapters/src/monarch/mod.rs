@@ -16,8 +16,8 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 
-mod raw;
 mod map;
+mod raw;
 use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DiseaseAssociationItem, DiseaseGet, DiseaseSection};
@@ -31,44 +31,88 @@ pub struct Page {
     /// Original checked reply metadata.
     pub metadata: ReplyMetadata,
 }
-const ASSOCIATIONS: biomcp_fetch::Endpoint = SPEC.get("/v3/api/association").fresh(Freshness::Days(7));
+const ASSOCIATIONS: biomcp_fetch::Endpoint =
+    SPEC.get("/v3/api/association").fresh(Freshness::Days(7));
 /// Fetch exactly one selected native association page after component admission.
 pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestError> {
     crate::disease_sources::components::monarch(leg)?;
-    let id = query.id().as_str().parse::<Curie>().map_err(|_| InputError::Path)?;
+    let id = query
+        .id()
+        .as_str()
+        .parse::<Curie>()
+        .map_err(|_| InputError::Path)?;
     let genes = match query.section() {
         Some(DiseaseSection::Genes) => true,
         Some(DiseaseSection::Phenotypes) => false,
         _ => return Err(InputError::Path.into()),
     };
     let args = [
-        (if genes { "object" } else { "subject" }, Arg::Text(query.id().as_str())),
-        (if genes { "subject_category" } else { "object_category" }, Arg::Text(if genes { "biolink:Gene" } else { "biolink:PhenotypicFeature" })),
+        (
+            if genes { "object" } else { "subject" },
+            Arg::Text(query.id().as_str()),
+        ),
+        (
+            if genes {
+                "subject_category"
+            } else {
+                "object_category"
+            },
+            Arg::Text(if genes {
+                "biolink:Gene"
+            } else {
+                "biolink:PhenotypicFeature"
+            }),
+        ),
         ("limit", Arg::Num(query.section_limit().into())),
         ("offset", Arg::Num(query.section_offset().into())),
     ];
-    let (page, metadata) = leg.json_received_checked::<raw::Page>(&ASSOCIATIONS, &args, |page| {
-        if page.limit != query.section_limit() || page.offset != query.section_offset() {
-            return Err(BadReply);
-        }
-        // Native parent expansion may return a child endpoint; require its native closure proof.
-        if page.items.iter().any(|row| {
-            let (endpoint, closure) = if genes { (&row.object, &row.object_closure) } else { (&row.subject, &row.subject_closure) };
-            endpoint != &id && !closure.as_deref().unwrap_or_default().contains(&id)
-        }) { return Err(BadReply); }
-        Ok(())
-    })?;
-    let items = page.items.into_iter().map(|row| map::row(row, &id)).collect::<Result<_,_>>()?;
-    Ok(Page { items, total: page.total, metadata })
+    let (page, metadata) =
+        leg.json_received_checked::<raw::Page>(&ASSOCIATIONS, &args, |page| {
+            if page.limit != query.section_limit() || page.offset != query.section_offset() {
+                return Err(BadReply);
+            }
+            // Native parent expansion may return a child endpoint; require its native closure proof.
+            if page.items.iter().any(|row| {
+                let (endpoint, closure) = if genes {
+                    (&row.object, &row.object_closure)
+                } else {
+                    (&row.subject, &row.subject_closure)
+                };
+                endpoint != &id && !closure.as_deref().unwrap_or_default().contains(&id)
+            }) {
+                return Err(BadReply);
+            }
+            Ok(())
+        })?;
+    let items = page
+        .items
+        .into_iter()
+        .map(|row| map::row(row, &id))
+        .collect::<Result<_, _>>()?;
+    Ok(Page {
+        items,
+        total: page.total,
+        metadata,
+    })
 }
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
-    ["hpo", "orphanet"].into_iter().map(|name| {
-        let component = crate::disease_sources::components::get(Source::Monarch,name).ok_or(InputError::Serialization)?;
-        Ok(biomcp_types::ComponentLabel { component: biodata::Text::new(name).map_err(|_| InputError::Serialization)?, terms: biomcp_types::ComponentTerms {
-            usage: component.terms.usage,
-            name: biodata::Text::new(component.terms.name).map_err(|_| InputError::Serialization)?,
-            url: biodata::Text::new(component.terms.url).map_err(|_| InputError::Serialization)?,
-        }})
-    }).collect::<Result<Vec<_>,RequestError>>().map(Into::into)
+    ["hpo", "orphanet"]
+        .into_iter()
+        .map(|name| {
+            let component = crate::disease_sources::components::get(Source::Monarch, name)
+                .ok_or(InputError::Serialization)?;
+            Ok(biomcp_types::ComponentLabel {
+                component: biodata::Text::new(name).map_err(|_| InputError::Serialization)?,
+                terms: biomcp_types::ComponentTerms {
+                    usage: component.terms.usage,
+                    name: biodata::Text::new(component.terms.name)
+                        .map_err(|_| InputError::Serialization)?,
+                    url: biodata::Text::new(component.terms.url)
+                        .map_err(|_| InputError::Serialization)?,
+                },
+            })
+        })
+        .collect::<Result<Vec<_>, RequestError>>()
+        .map(Into::into)
 }

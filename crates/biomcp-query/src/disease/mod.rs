@@ -1,8 +1,8 @@
 //! Source-owned disease facts without identity choice or cross-provider fallback.
-/// MyDisease exact annotation outcomes.
-pub mod mydisease;
 /// Source-native Monarch association pages.
 pub mod monarch;
+/// MyDisease exact annotation outcomes.
+pub mod mydisease;
 /// OLS source-owned identity and discovery outcomes.
 pub mod ols;
 mod page;

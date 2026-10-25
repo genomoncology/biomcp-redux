@@ -109,11 +109,6 @@
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
       "type": "string"
     },
-    "FiniteNumber": {
-      "description": "A finite decimal that JSON can represent without losing its value to null.",
-      "format": "double",
-      "type": "number"
-    },
     "PartialDate": {
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
@@ -124,20 +119,21 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-association/2",
+  "$id": "biodata.disease-association/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A native source association without clinical interpretation.",
   "properties": {
     "aggregator_knowledge_source": {
-      "description": "Native aggregator knowledge sources; missing, null and lists remain distinct.",
-      "items": {
-        "$ref": "#/$defs/Curie"
-      },
-      "type": [
-        "array",
-        "null"
-      ]
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Curie"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native aggregator knowledge source, distinct from the providing collection."
     },
     "attribution": {
       "$ref": "#/$defs/Attribution",
@@ -149,46 +145,6 @@
         "$ref": "#/$defs/Concept"
       },
       "type": "array"
-    },
-    "has_count": {
-      "description": "Native annotation count, without a computed denominator.",
-      "format": "uint64",
-      "minimum": 0,
-      "type": [
-        "integer",
-        "null"
-      ]
-    },
-    "has_percentage": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/FiniteNumber"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Native percentage, never computed from another field."
-    },
-    "has_quotient": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/FiniteNumber"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Native quotient, never computed from another field."
-    },
-    "has_total": {
-      "description": "Native annotation total, without inferring an assayed denominator.",
-      "format": "uint64",
-      "minimum": 0,
-      "type": [
-        "integer",
-        "null"
-      ]
     },
     "negated": {
       "description": "Source negation; absent is not false.",

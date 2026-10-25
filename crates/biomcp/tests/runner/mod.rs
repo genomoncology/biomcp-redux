@@ -4,8 +4,8 @@ mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
-mod disease_mydisease;
 mod disease_monarch;
+mod disease_mydisease;
 mod disease_ols;
 mod disease_registry;
 mod disease_seer;
@@ -509,4 +509,6 @@ pub(super) fn seer_native(path: &Path) -> Result<(), String> {
     disease_seer::native(path)
 }
 
-pub(super) fn monarch_native(path: &Path) -> Result<(), String> { disease_monarch::native(path) }
+pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
+    disease_monarch::native(path)
+}
