@@ -173,9 +173,9 @@ pub(crate) fn tree() -> String {
     let mut lines = vec!["Run BioMCP commands. Queries return one card or page; use help COMMAND for options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
-        // Detailed options belong to help COMMAND; retain the gene facets
-        // required for discovering checked gene searches.
-        if command.command == ["search", "gene"] {
+        // Detailed options belong to help COMMAND; retain search facets
+        // required for discovering checked gene and disease searches.
+        if command.command == ["search", "gene"] || command.command == ["search", "disease"] {
             for argument in command.arguments {
                 line.push_str(&format!(" [{}]", argument.name));
             }
@@ -206,7 +206,13 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 
 fn section_words(schema: &Value) -> Vec<HelpWord> {
     let property = field(field(schema, "properties"), "section");
-    let section = resolve(property.get("items").unwrap_or(property), schema);
+    let section = property
+        .get("anyOf")
+        .and_then(Value::as_array)
+        .and_then(|variants| variants.iter().find(|v| v.get("$ref").is_some()))
+        .or_else(|| property.get("items"))
+        .unwrap_or(property);
+    let section = resolve(section, schema);
     field(section, "enum")
         .as_array()
         .into_iter()

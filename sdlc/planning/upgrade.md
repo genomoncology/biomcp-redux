@@ -21,6 +21,10 @@ The generated table below lists decided leaf commands and their dropped options 
 | `article recommendations` | Ported or renamed | — | [Section 5 preserves native positive and negative seed recommendations.](slices/article.md) |
 | `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | [The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice.](slices/article.md) |
 | `disease articles` | Ported or renamed | — | [Section 1 moves the capability to search article --disease.](slices/article.md) |
+| `search disease` | Ported or renamed | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | [Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired.](slices/disease.md) |
+| `get disease` | Ported or renamed | `--name` | [Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts.](slices/disease.md) |
+| `disease drugs` | Dropped by ruling | `--limit`, `--offset` | [Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated.](slices/disease.md) |
+| `search phenotype` | Dropped by ruling | `--limit`, `--offset` | [Drop symptom-to-disease ranking; selected disease phenotype facts remain explicit Monarch sections.](slices/disease.md) |
 | `search gene` | Ported or renamed | `--query`, `--region`, `--pathway`, `--go` | [Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters.](slices/gene.md) |
 | `get gene` | Ported or renamed | — | [Section 1 preserves the gene card; section values do not count as option slots.](slices/gene.md) |
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |

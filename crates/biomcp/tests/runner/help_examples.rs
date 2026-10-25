@@ -22,9 +22,13 @@ pub(super) fn check() -> Result<(), String> {
     for command in commands.iter().filter(|c| {
         c["command"].as_array().is_some_and(|words| {
             words.len() == 2
-                && words
-                    .iter()
-                    .any(|v| v == "article" || v == "gene" || v == "trial" || v == "variant")
+                && words.iter().any(|v| {
+                    v == "article"
+                        || v == "gene"
+                        || v == "trial"
+                        || v == "variant"
+                        || v == "disease"
+                })
         })
     }) {
         let examples = command["examples"]

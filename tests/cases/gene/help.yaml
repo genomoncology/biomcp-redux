@@ -12,13 +12,22 @@
         "/schema": "biomcp.help/2",
         "/result/commands/*/command": {
           "includes_all_of": [
-            ["get", "gene"],
-            ["search", "drug"],
-            ["get", "drug"]
+            [
+              "get",
+              "gene"
+            ],
+            [
+              "search",
+              "drug"
+            ],
+            [
+              "get",
+              "drug"
+            ]
           ]
         }
       },
-      "max_bytes": 49413
+      "max_bytes": 50926
     },
     {
       "run": [
