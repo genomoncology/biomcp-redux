@@ -378,6 +378,7 @@ fn markdown() -> Check {
     if !output.status.success() || !output.stderr.is_empty() {
         return Err("companion Markdown command failed".into());
     }
+    println!("DIAGNOSTIC_MARKDOWN_BYTES={}", output.stdout.len());
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     for expected in [
         "Synthetic tissue context",
