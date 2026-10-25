@@ -14,7 +14,7 @@ pub(super) fn next(
         .as_ref()
         .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
     match navigation(&result.body) {
-        Navigation::Pma => {
+        Navigation::BoundedPma => {
             append_network_steps(&mut steps, &result.sources);
             steps.truncate(5);
         }
@@ -35,7 +35,7 @@ enum Navigation<'a> {
     Selectable,
     Nested(&'a biomcp_types::PgxPageInfo),
     // PMA cards retain section-first order even when they contain a pivot.
-    Pma,
+    BoundedPma,
 }
 
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
@@ -50,7 +50,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
             }
         }
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
-            Navigation::Pma
+            Navigation::BoundedPma
         }
         Body::DiagnosticCompanion(_)
         | Body::DiagnosticPage(_)
