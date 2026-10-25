@@ -3,6 +3,7 @@ use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{DiagnosticCandidate, DiagnosticSearch};
 use std::collections::HashMap;
 /// Bounded WHO product headers and their distinct product total.
+#[derive(Debug)]
 pub struct Search {
     /// First matching native row per product, in source product order.
     pub items: Box<[DiagnosticCandidate]>,

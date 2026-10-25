@@ -8,7 +8,8 @@
       "description": "One explicit diagnostic discovery source.",
       "enum": [
         "gtr",
-        "fda-cdx"
+        "fda-cdx",
+        "who-ivd"
       ],
       "type": "string"
     },
@@ -128,6 +129,28 @@
       "maximum": 50,
       "minimum": 1,
       "type": "integer"
+    },
+    "manufacturer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal whole words in WHO's Manufacturer name cell."
+    },
+    "marker": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal whole words in WHO's Pathogen/Disease/Marker cell."
     },
     "offset": {
       "default": 0,

@@ -7,6 +7,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "product_identities",
         "test_identities",
         "native_relation_rows",
         "native_method_entries"

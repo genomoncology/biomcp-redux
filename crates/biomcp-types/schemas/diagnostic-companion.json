@@ -250,6 +250,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "product_identities",
         "test_identities",
         "native_relation_rows",
         "native_method_entries"
@@ -368,6 +369,28 @@
           "minimum": 1,
           "type": "integer"
         },
+        "manufacturer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole words in WHO's Manufacturer name cell."
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole words in WHO's Pathogen/Disease/Marker cell."
+        },
         "offset": {
           "default": 0,
           "description": "Zero-based native row offset.",
@@ -400,7 +423,8 @@
       "description": "One explicit diagnostic discovery source.",
       "enum": [
         "gtr",
-        "fda-cdx"
+        "fda-cdx",
+        "who-ivd"
       ],
       "type": "string"
     },
