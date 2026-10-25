@@ -60,7 +60,7 @@ fn stale() -> Result<(), String> {
         .execute("UPDATE reply SET fresh_until=0", [])
         .map_err(|e| e.to_string())?;
     let stale = invoke(&env, args.clone(), 0)?;
-    if stale["status"] != "partial"
+    if stale.get("status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
         || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
         || stale.get("result") != original.get("result")
