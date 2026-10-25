@@ -1,6 +1,6 @@
 //! Keep bounded diagnostic context only when a case drifts or fails.
-use super::launch::Environment;
-use super::live;
+use super as live;
+use super::super::launch::Environment;
 use biomcp_fetch::{Observation, Shape};
 use biomcp_types::Use;
 use serde_json::{Value, json};
@@ -35,7 +35,7 @@ pub(super) fn retain(results: &mut [Value]) {
     }
 }
 
-pub(super) fn invoke(
+pub(in crate::runner) fn invoke(
     environment: &Environment,
     args: &[String],
     replay: Option<&Path>,
@@ -57,7 +57,7 @@ pub(super) fn invoke(
     result
 }
 
-pub(super) fn context(output: &Value, observations: &[Observation]) -> Value {
+pub(in crate::runner) fn context(output: &Value, observations: &[Observation]) -> Value {
     // Open-only retention is conservative for mixed, restricted, unknown and
     // noncommercial terms. Never retain raw provider bodies or any headers.
     let permitted = observations.iter().all(|observation| {
