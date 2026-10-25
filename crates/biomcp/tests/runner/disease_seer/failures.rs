@@ -349,14 +349,21 @@ pub(super) fn stale_rejection() -> Result<(), String> {
     if stale.pointer("/status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
         || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
-        || stale.pointer("/problems/0/field") != Some(&json!("record"))
+        || !stale
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|problems| {
+                problems.contains(
+                    &json!({"source":"seer","record":"55","field":"record","code":"value.unknown"}),
+                )
+            })
         || stale.get("result") != original.get("result")
     {
         return Err(format!(
             "stale checked rows lost the rejected-reply problem: {stale}"
         ));
     }
-    if crate::runner::source_terms::size(&stale, "")? > 3000 {
+    if crate::runner::source_terms::size(&stale, "")? > 2784 {
         return Err("stale response exceeds bounded output".into());
     }
     if stub.finish()?.len() != 2 {
