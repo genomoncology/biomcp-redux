@@ -41,25 +41,37 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
                 ("skip", Arg::Num(0)),
             ],
             |reply| {
-                if let raw::Response::Page { meta, results } = reply {
-                    if meta.results.skip != 0 || meta.results.limit != 1 || meta.results.total != 1
-                    {
-                        return Err(BadReply);
-                    }
+                if let raw::Response::Page { meta, .. } = reply
+                    && (meta.results.skip != 0 || meta.results.limit != 1 || meta.results.total != 1) {
+                    return Err(BadReply);
                 }
                 Ok(())
             },
-            |reply| !matches!(reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str())),
+            |reply| identity(reply, q),
         )
         .map_err(|error| Failure {
             error,
             identity_conflict: false,
         })?;
-    if matches!(&reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str())) {
-        return Err(Failure { error:biomcp_fetch::SourceError {source:Source::Fda510k,reason:biomcp_types::Reason::BadReply,status:Some(200),retry_after:None}.into(),identity_conflict:true });
+    if !identity(&reply,q)
+    {
+        return Err(Failure {
+            error: biomcp_fetch::SourceError {
+                source: Source::Fda510k,
+                reason: biomcp_types::Reason::BadReply,
+                status: Some(200),
+                retry_after: None,
+            }
+            .into(),
+            identity_conflict: true,
+        });
     }
     Ok(match reply {
         raw::Response::Page { results, .. } => results.into_iter().next().map(raw::Record::mapped),
         raw::Response::Absent { .. } => None,
     })
+}
+
+fn identity(reply:&raw::Response,q:&DiagnosticGet)->bool {
+    !matches!(reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str()))
 }

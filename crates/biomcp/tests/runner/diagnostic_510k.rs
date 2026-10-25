@@ -3,8 +3,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials: Vec<_> =
-    ["card", "foreign", "absent", "disabled", "invalid"]
+    let mut trials: Vec<_> = ["card", "foreign", "absent", "disabled", "invalid"]
         .into_iter()
         .map(|mode| {
             Trial::test(format!("diagnostic-510k/synthetic-{mode}"), move || {
@@ -12,7 +11,10 @@ pub(super) fn trials() -> Vec<Trial> {
             })
         })
         .collect();
-    trials.push(Trial::test("diagnostic-510k/synthetic-companion-pivots", || companion().map_err(Into::into)));
+    trials.push(Trial::test(
+        "diagnostic-510k/synthetic-companion-pivots",
+        || companion().map_err(Into::into),
+    ));
     trials
 }
 fn run(mode: &'static str) -> Result<(), String> {
@@ -93,72 +95,109 @@ fn run(mode: &'static str) -> Result<(), String> {
     Ok(())
 }
 
-fn validate(mode:&str, v:&Value)->Result<(),String> {
-        if mode == "card" {
-            for (field, expected) in [
-                ("k_number", "K173492"),
-                ("decision_description", "Unknown"),
-                ("device_name", "Synthetic device"),
-                ("applicant", "Synthetic applicant"),
-                ("decision_code", "SESD"),
-                ("decision_date", "2017-12-22"),
-                ("date_received", "2017-11-13"),
-                ("product_code", "OYX"),
-            ] {
-                if v.pointer(&format!("/result/{field}")) != Some(&json!(expected)) {
-                    return Err(format!("lost native {field}: {v}"));
-                }
+fn validate(mode: &str, v: &Value) -> Result<(), String> {
+    if mode == "card" {
+        for (field, expected) in [
+            ("k_number", "K173492"),
+            ("decision_description", "Unknown"),
+            ("device_name", "Synthetic device"),
+            ("applicant", "Synthetic applicant"),
+            ("decision_code", "SESD"),
+            ("decision_date", "2017-12-22"),
+            ("date_received", "2017-11-13"),
+            ("product_code", "OYX"),
+        ] {
+            if v.pointer(&format!("/result/{field}")) != Some(&json!(expected)) {
+                return Err(format!("lost native {field}: {v}"));
             }
-            if v.pointer("/result/kind") != Some(&json!("clearance"))
-                || v.pointer("/result/openfda").is_some()
-            {
-                return Err(format!("clearance projection: {v}"));
-            }
-            let actions = v
-                .get("next")
-                .and_then(Value::as_array)
-                .ok_or("missing association action")?;
-            if !actions.iter().any(|a| {
-                a.get("args")
-                    == Some(&json!([
-                        "search",
-                        "diagnostic",
-                        "--source",
-                        "fda-cdx",
-                        "--device-id",
-                        "K173492"
-                    ]))
-            }) {
-                return Err(format!("missing exact device association: {v}"));
-            }
-        } else if v.get("result").is_some()
-            || mode == "absent" && v.get("status") != Some(&json!("absent"))
-            || mode == "foreign" && v.pointer("/problems/0/field") != Some(&json!("k_number"))
-        {
-            return Err(format!("identity or absence: {v}"));
         }
+        if v.pointer("/result/kind") != Some(&json!("clearance"))
+            || v.pointer("/result/openfda").is_some()
+        {
+            return Err(format!("clearance projection: {v}"));
+        }
+        let actions = v
+            .get("next")
+            .and_then(Value::as_array)
+            .ok_or("missing association action")?;
+        if !actions.iter().any(|a| {
+            a.get("args")
+                == Some(&json!([
+                    "search",
+                    "diagnostic",
+                    "--source",
+                    "fda-cdx",
+                    "--device-id",
+                    "K173492"
+                ]))
+        }) {
+            return Err(format!("missing exact device association: {v}"));
+        }
+    } else if v.get("result").is_some()
+        || mode == "absent" && v.get("status") != Some(&json!("absent"))
+        || mode == "foreign" && v.pointer("/problems/0/field") != Some(&json!("k_number"))
+    {
+        return Err(format!("identity or absence: {v}"));
+    }
     Ok(())
 }
 
-fn companion()->Result<(),String> {
-    let env=Environment::new().map_err(|e|e.to_string())?;
-    let replay=super::diagnostic_cdx::seed(&env)?;
-    for entry in std::fs::read_dir(replay.join("fda-cdx")).map_err(|e|e.to_string())? {
-        let path=entry.map_err(|e|e.to_string())?.path();
-        let mut receipt:Value=serde_json::from_slice(&std::fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-        let body=receipt.pointer_mut("/exchanges/0/body/value").ok_or("missing synthetic HTML")?;
-        let text=body.as_str().ok_or("non-text HTML")?.replace("P200010/S026","K173492").replace("P200010S026","K173492");
-        *body=json!(text);
-        std::fs::write(path,receipt.to_string()).map_err(|e|e.to_string())?;
+fn companion() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::diagnostic_cdx::seed(&env)?;
+    for entry in std::fs::read_dir(replay.join("fda-cdx")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let mut receipt: Value =
+            serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        let body = receipt
+            .pointer_mut("/exchanges/0/body/value")
+            .ok_or("missing synthetic HTML")?;
+        let text = body
+            .as_str()
+            .ok_or("non-text HTML")?
+            .replace("P200010/S026", "K173492")
+            .replace("P200010S026", "K173492");
+        *body = json!(text);
+        std::fs::write(path, receipt.to_string()).map_err(|e| e.to_string())?;
     }
-    let mut sync=env.globals(Some(&replay),false);
-    sync.extend(["sync".into(),"fda-cdx".into()]);
-    invoke(&env,sync,0)?;
-    let mut args=env.globals(Some(&replay),false);
-    args.extend(["search","diagnostic","--source","fda-cdx","--device-id","K173492"].into_iter().map(String::from));
-    let value=invoke(&env,args,0)?;
-    let steps=value.get("next").and_then(Value::as_array).ok_or("missing K pivot")?;
-    if value.pointer("/page/total")!=Some(&json!(1)) || steps.iter().filter(|step|step.get("args")==Some(&json!(["get","diagnostic","K173492","--source","fda-510k"]))).count()!=1 {
+    let mut sync = env.globals(Some(&replay), false);
+    sync.extend(["sync".into(), "fda-cdx".into()]);
+    invoke(&env, sync, 0)?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(
+        [
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-cdx",
+            "--device-id",
+            "K173492",
+        ]
+        .into_iter()
+        .map(String::from),
+    );
+    let value = invoke(&env, args, 0)?;
+    let steps = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("missing K pivot")?;
+    if value.pointer("/page/total") != Some(&json!(1))
+        || steps
+            .iter()
+            .filter(|step| {
+                step.get("args")
+                    == Some(&json!([
+                        "get",
+                        "diagnostic",
+                        "K173492",
+                        "--source",
+                        "fda-510k"
+                    ]))
+            })
+            .count()
+            != 1
+    {
         return Err(format!("exact K row or pivot lost: {value}"));
     }
     Ok(())
