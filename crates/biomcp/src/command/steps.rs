@@ -13,7 +13,17 @@ pub(super) fn next(
         .page
         .as_ref()
         .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
-    network_steps(&mut steps, &result.sources, has_more);
+    let candidates = matches!(
+        &result.body,
+        biomcp_types::QueryBody::DrugPage(_)
+            | biomcp_types::QueryBody::DiseasePage(_)
+            | biomcp_types::QueryBody::VariantPage(_)
+    ) || matches!(
+        &result.body,
+        biomcp_types::QueryBody::VariantCard(card)
+            if card.resolution == biomcp_types::VariantResolution::Candidates
+    );
+    network_steps(&mut steps, &result.sources, candidates.then_some(has_more));
     Ok(source_steps(fetch, steps))
 }
 
@@ -56,8 +66,13 @@ fn source_steps(
 pub(super) fn network_steps(
     steps: &mut Vec<biomcp_types::Step>,
     sources: &[biomcp_types::SourceOutcome],
-    has_more: bool,
+    candidate_page: Option<bool>,
 ) {
+    if candidate_page.is_none() {
+        append_network_steps(steps, sources);
+        steps.truncate(5);
+        return;
+    }
     // Some disambiguate actions are searches or relations, not candidate gets.
     let (mut candidates, mut extras): (Vec<_>, Vec<_>) =
         std::mem::take(steps).into_iter().partition(|step| {
@@ -71,7 +86,7 @@ pub(super) fn network_steps(
         return;
     }
     // A section may itself have page actions. Only the response page is protected.
-    if has_more
+    if candidate_page == Some(true)
         && let Some(index) = extras
             .iter()
             .position(|step| step.kind == biomcp_types::StepKind::Page)
