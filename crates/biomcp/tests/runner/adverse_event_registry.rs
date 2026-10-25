@@ -52,8 +52,8 @@ fn declaration(source: &str) -> Check {
         .and_then(|rows| rows.iter().find(|row| row["name"] == name))
         .ok_or("missing component")?;
     if component["disabled"] != false
-        || component["terms"]["usage"] != "restricted"
-        || component["terms"]["url"] != url
+        || component.pointer("/terms/use").and_then(Value::as_str) != Some("restricted")
+        || component.pointer("/terms/url").and_then(Value::as_str) != Some(url)
     {
         return Err(format!("wrong component: {component}"));
     }
