@@ -40,8 +40,8 @@ pub struct DiseaseSearch(SearchFields);
 struct SearchFields {
     /// Literal source search text; absent for the SEER site catalog.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    text: Option<Text>,
+    #[cfg_attr(feature = "schema", schemars(length(min=1),extend("x-positional" = 0)))]
+    text: Option<Box<str>>,
     /// One explicit source, default OLS.
     #[serde(default)]
     source: DiseaseSource,
@@ -66,7 +66,8 @@ impl TryFrom<SearchFields> for DiseaseSearch {
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&v.limit)
             || !matches!(v.source, DiseaseSource::Ols | DiseaseSource::Seer)
-            || (v.source == DiseaseSource::Ols && v.text.is_none())
+            || (v.source == DiseaseSource::Ols
+                && v.text.as_ref().is_none_or(|t| t.trim().is_empty()))
             || (v.source == DiseaseSource::Seer && (v.text.is_some() || v.ontology.is_some()))
         {
             return Err(QueryInvalid);
@@ -103,7 +104,7 @@ struct GetFields {
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiseaseSection>,
     /// Native rows per section page.
     #[serde(default = "default_limit")]
@@ -164,5 +165,113 @@ impl TryFrom<GetFields> for DiseaseGet {
             v.ontology.get_or_insert_with(DiseaseOntology::default);
         }
         Ok(Self(v))
+    }
+}
+
+impl DiseaseSearch {
+    /// Literal search text, absent for a native site catalog.
+    pub fn text(&self) -> Option<&str> {
+        self.0.text.as_deref()
+    }
+    /// Explicit service.
+    pub fn source(&self) -> DiseaseSource {
+        self.0.source
+    }
+    /// Selected OLS ontology, absent for other sources.
+    pub fn ontology(&self) -> Option<DiseaseOntology> {
+        self.0.ontology
+    }
+    /// Maximum source rows.
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
+    /// Native row offset.
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
+    /// Continue with every other selector unchanged.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
+    }
+}
+impl DiseaseGet {
+    /// Exact source identifier.
+    pub fn id(&self) -> &Text {
+        &self.0.id
+    }
+    /// Explicit service.
+    pub fn source(&self) -> DiseaseSource {
+        self.0.source
+    }
+    /// Selected OLS ontology.
+    pub fn ontology(&self) -> Option<DiseaseOntology> {
+        self.0.ontology
+    }
+    /// Selected source section.
+    pub fn section(&self) -> Option<DiseaseSection> {
+        self.0.section
+    }
+    /// Maximum section rows.
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit
+    }
+    /// Section row offset.
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
+    /// Continue the selected section while keeping its selectors.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
+    }
+    /// Select an available section from this exact card.
+    pub fn with_section(&self, section: DiseaseSection) -> Self {
+        let mut q = self.clone();
+        q.0.section = Some(section);
+        q.0.section_offset = 0;
+        q
+    }
+    /// Apply source-resolved demographics to a checked SEER query.
+    pub fn with_demographics(
+        &self,
+        sex: Text,
+        race: Text,
+        age_range: Text,
+    ) -> Result<Self, QueryInvalid> {
+        if self.source() != DiseaseSource::Seer {
+            return Err(QueryInvalid);
+        }
+        let mut fields = self.0.clone();
+        fields.sex = Some(sex);
+        fields.race = Some(race);
+        fields.age_range = Some(age_range);
+        fields.try_into()
+    }
+    /// Native sex selector.
+    pub fn sex(&self) -> Option<&Text> {
+        self.0.sex.as_ref()
+    }
+    /// Native race selector.
+    pub fn race(&self) -> Option<&Text> {
+        self.0.race.as_ref()
+    }
+    /// Native age range selector.
+    pub fn age_range(&self) -> Option<&Text> {
+        self.0.age_range.as_ref()
+    }
+    /// Native dataset selector.
+    pub fn dataset(&self) -> Option<&Text> {
+        self.0.dataset.as_ref()
+    }
+    /// Native period selector.
+    pub fn period(&self) -> Option<&Text> {
+        self.0.period.as_ref()
+    }
+    /// Native interval selector.
+    pub fn interval(&self) -> Option<&Text> {
+        self.0.interval.as_ref()
     }
 }

@@ -18,11 +18,6 @@
         "seer"
       ],
       "type": "string"
-    },
-    "Text": {
-      "description": "Nonempty text with surrounding Unicode whitespace removed.",
-      "minLength": 1,
-      "type": "string"
     }
   },
   "$id": "biomcp.disease-search/1",
@@ -56,15 +51,12 @@
       "description": "One explicit source, default OLS."
     },
     "text": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Text"
-        },
-        {
-          "type": "null"
-        }
-      ],
       "description": "Literal source search text; absent for the SEER site catalog.",
+      "minLength": 1,
+      "type": [
+        "string",
+        "null"
+      ],
       "x-positional": 0
     }
   },

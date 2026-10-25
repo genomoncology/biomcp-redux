@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod disease;
 mod steps;
 mod variant;
 
@@ -99,6 +100,9 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if disease::unsupported(action) {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if let Action::Run {
         request: Request::SearchTrial(q),
         ..
@@ -202,6 +206,9 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        return disease::encode(meta, request, body);
+    }
     match (request, body) {
         (Request::SearchDrug(query), QueryBody::DrugPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
