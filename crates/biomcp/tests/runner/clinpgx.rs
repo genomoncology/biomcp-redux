@@ -67,7 +67,12 @@ fn native(name: &str) -> Result<Value, String> {
 fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let cli = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&cli, &args, exit < 2)?;
-    let mcp = super::mcp::call_with_globals(env, &args, exit >= 2, &[])?;
+    let start = args
+        .iter()
+        .position(|s| matches!(s.as_str(), "get" | "search"))
+        .ok_or("command")?;
+    let (globals, command) = args.split_at(start);
+    let mcp = super::mcp::call_with_globals(env, command, exit >= 2, globals)?;
     if cli != mcp {
         return Err("CLI/MCP differs".into());
     }
@@ -185,6 +190,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     Ok(())
 }
 fn walk(env: &Environment, v: &Value) -> Check {
+    let empty = vec![];
     let next = v
         .get("next")
         .and_then(Value::as_array)
