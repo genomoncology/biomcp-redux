@@ -5,6 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod capture;
+mod errors;
 mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
@@ -25,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
         headings().map_err(Into::into)
     }));
     trials.extend(walk::trials());
+    trials.extend(errors::trials());
     trials.extend(capture::trials());
     trials
 }
