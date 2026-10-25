@@ -220,14 +220,15 @@ pub struct AdverseEventIdentifierRecords {
     pub total: u64,
 }
 macro_rules! identifiers {
-    ($($variant:ident, $field:ident);+ $(;)?) => {
+    ($($variant:ident, $field:ident, $wire:literal);+ $(;)?) => {
         /// Exactly one closed named identifier page in its original report snapshot.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(untagged, deny_unknown_fields)]
+        #[serde(tag = "section", deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub enum AdverseEventIdentifiers {
             $(
                 /// A single original identifier array.
+                #[serde(rename = $wire)]
                 $variant {
                     /// Exact report identity and version.
                     header: AdverseEventHeader,
@@ -242,7 +243,15 @@ macro_rules! identifiers {
         }
     };
 }
-identifiers! { Unii, unii; Rxcui, rxcui; ProductNdc, product_ndc; PackageNdc, package_ndc; SplId, spl_id; SplSetId, spl_set_id; ApplicationNumber, application_number; }
+identifiers! {
+    Unii, unii, "unii";
+    Rxcui, rxcui, "rxcui";
+    ProductNdc, product_ndc, "product-ndc";
+    PackageNdc, package_ndc, "package-ndc";
+    SplId, spl_id, "spl-id";
+    SplSetId, spl_set_id, "spl-set-id";
+    ApplicationNumber, application_number, "application-number";
+}
 impl ResponseBody for AdverseEventIdentifiers {
     const SCHEMA: &'static str = "biomcp.adverse_event_identifiers/1";
     type Query = AdverseEventGet;

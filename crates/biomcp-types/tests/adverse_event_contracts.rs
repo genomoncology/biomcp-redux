@@ -211,6 +211,7 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
         ("application-number", "application_number"),
     ] {
         let mut page = base.clone();
+        page["section"] = json!(name);
         page[field] =
             json!({"drug_index":18,"records":["001-02","001-02",""],"offset":0,"total":3});
         assert_eq!(roundtrip::<AdverseEventIdentifiers>(page.clone()), page);
