@@ -22,16 +22,18 @@ fn native() -> Value {
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
     if mode == "wrong-id" {
-        body["results"][0]["safetyreportid"] = json!("101");
+        *body
+            .pointer_mut("/results/0/safetyreportid")
+            .ok_or("report ID")? = json!("101");
     }
     if mode == "two-versions" {
-        let mut second = body["results"][0].clone();
-        second["safetyreportversion"] = json!("2");
-        body["results"]
-            .as_array_mut()
+        let mut second = body.pointer("/results/0").ok_or("first report")?.clone();
+        *second.get_mut("safetyreportversion").ok_or("version")? = json!("2");
+        body.get_mut("results")
+            .and_then(Value::as_array_mut)
             .ok_or("results")?
             .push(second);
-        body["meta"]["results"]["total"] = json!(2);
+        *body.pointer_mut("/meta/results/total").ok_or("total")? = json!(2);
     }
     if mode == "absent" {
         body = json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}});
@@ -173,11 +175,7 @@ fn identity(mode: &str) -> Check {
     {
         return Err(format!("identity admitted: {value}"));
     }
-    let expected = if mode == "bad-drug-index" {
-        1
-    } else {
-        2
-    };
+    let expected = if mode == "bad-drug-index" { 1 } else { 2 };
     if stub.finish()?.len() != expected {
         return Err("invalid identity entered cache".into());
     }
