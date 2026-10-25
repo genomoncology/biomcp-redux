@@ -46,6 +46,12 @@ def classify(source, url, status, body, *, truncated=False,
         return Outcome(Kind.MALFORMED)
     endpoint = urlsplit(url)
     error = value.get('error') if isinstance(value, dict) else None
+    graphql = (source, endpoint.scheme, endpoint.netloc, endpoint.path) in (
+        ('civic', 'https', 'civicdb.org', '/api/graphql'),
+        ('opentargets', 'https', 'api.platform.opentargets.org', '/api/v4/graphql'),
+    )
+    if graphql and isinstance(value, dict) and value.get('errors'):
+        return Outcome(Kind.PROVIDER_FAILURE)
     if (source == 'openfda' and endpoint.scheme == 'https'
             and endpoint.netloc == 'api.fda.gov'
             and endpoint.path in ('/drug/label.json', '/drug/event.json')

@@ -98,6 +98,17 @@ class CaptureTests(unittest.TestCase):
         self.assertTrue(recipe.comparison_eligible(0, rows))
         self.assertEqual(calls, 1)
 
+    def test_graphql_error_field_requires_the_exact_native_endpoint(self):
+        recipe = recorder()
+        for source, url, body in [
+            ('civic', 'https://civicdb.org/api/graphql', b'{"data":{},"errors":[]}'),
+            ('civic', 'https://civicdb.org/other', b'{"errors":["a normal field"]}'),
+            ('civic', 'https://other.invalid/api/graphql', b'{"errors":["a normal field"]}'),
+            ('other', 'https://civicdb.org/api/graphql', b'{"errors":["a normal field"]}'),
+        ]:
+            with self.subTest(source=source, url=url):
+                self.assertEqual(recipe.classify(source, url, 200, body).kind.value, 'success')
+
     def test_declared_empty_allows_next_distinct_request(self):
         recipe = recorder()
         rows, calls = capture(recipe, [
