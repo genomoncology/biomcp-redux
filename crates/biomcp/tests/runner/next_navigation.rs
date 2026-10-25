@@ -110,6 +110,14 @@ fn arguments(mode: &str) -> Vec<String> {
 }
 
 fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
+    if value.get("page")
+        != Some(&json!({"offset":0,"returned":5,"total":if terminal {5} else {10}}))
+    {
+        return Err(format!(
+            "candidate page metadata disagrees: {:?}",
+            value.get("page")
+        ));
+    }
     let next = value
         .get("next")
         .and_then(Value::as_array)
@@ -125,9 +133,13 @@ fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
             .get("args")
             .and_then(Value::as_array)
             .ok_or("candidate args")?;
+        let expected = if mode == "drug-search" {
+            json!(["get", "drug", id, "--source", "mychem"])
+        } else {
+            json!(["get", "variant", id, "--build", "GRCh37"])
+        };
         if row.get("kind") != Some(&json!("disambiguate"))
-            || args.first() != Some(&json!("get"))
-            || args.get(2) != Some(&json!(id))
+            || args != expected.as_array().ok_or("candidate expectation")?
         {
             return Err(format!("candidate {n} get lost or reordered: {next:?}"));
         }
