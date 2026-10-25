@@ -1,7 +1,7 @@
 //! Literal native drug discovery and exact selected source identities.
 mod civic;
-mod openfda_label;
 mod ema;
+mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
