@@ -49,14 +49,17 @@ impl Document {
             && (self.id == *id
                 || (id.to_string().starts_with("DOID:")
                     && mondo.is_some_and(|c| {
-                        c.xrefs.get("doid").is_some_and(|values| match values {
-                            OneOrMany::One(value) => {
-                                value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
-                            }
-                            OneOrMany::Many(values) => values
-                                .iter()
-                                .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
-                        })
+                        c.xrefs
+                            .as_ref()
+                            .and_then(|xrefs| xrefs.get("doid"))
+                            .is_some_and(|values| match values {
+                                OneOrMany::One(value) => {
+                                    value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
+                                }
+                                OneOrMany::Many(values) => values
+                                    .iter()
+                                    .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
+                            })
                     })))
     }
 }
@@ -68,12 +71,10 @@ pub(super) struct Component {
     pub label: Text,
     #[serde(alias = "def")]
     pub definition: Option<Text>,
-    #[serde(default, alias = "synonyms")]
-    pub synonym: BTreeMap<String, OneOrMany<Text>>,
-    #[serde(default)]
-    pub xrefs: BTreeMap<String, OneOrMany<Text>>,
-    #[serde(default)]
-    pub parents: Box<[Curie]>,
+    #[serde(alias = "synonyms")]
+    pub synonym: Option<BTreeMap<String, OneOrMany<Text>>>,
+    pub xrefs: Option<BTreeMap<String, OneOrMany<Text>>>,
+    pub parents: Option<Box<[Curie]>>,
     pub is_obsolete: Option<bool>,
     pub consider: Option<Box<[Curie]>>,
     pub replaced_by: Option<Box<[Curie]>>,

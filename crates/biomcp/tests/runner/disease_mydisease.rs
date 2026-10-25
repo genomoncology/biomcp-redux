@@ -46,10 +46,39 @@ fn invoke(env: &Environment, words: &[String], exit: i32) -> Result<Value, Strin
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
-fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
+fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
+    for step in steps.as_array_mut().ok_or("missing case steps")? {
+        let ceiling = ceiling(step)?;
+        insert(step, "max_bytes", json!(ceiling))?;
+        insert(step, "max_tokens", json!(ceiling.div_ceil(4)))?;
+    }
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-mydisease","story":"Selected source facts stay complete and independently paged","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::run_case(file.path(), &super::schema::Registry::embedded()?)
+}
+fn ceiling(step: &Value) -> Result<usize, String> {
+    // Ceil(max measured comparable bytes by command/page shape * 1.15), j12127/j12134.
+    let words = step
+        .get("run")
+        .and_then(Value::as_array)
+        .ok_or("missing command")?;
+    let section = words.get(3).and_then(Value::as_str);
+    let limit = words.windows(2).find_map(|w| {
+        let (key, value) = (w.first()?.as_str()?, w.get(1)?.as_str()?);
+        (key == "--section-limit").then_some(value)
+    });
+    Ok(match (section, limit) {
+        (Some("synonyms"), Some("2")) => 1237,
+        (Some("xrefs"), Some("2")) => 1374,
+        (Some("hierarchy"), Some("2")) => 1385,
+        (Some("synonyms"), Some("50")) => 2230,
+        (Some("xrefs"), Some("50")) => 5619,
+        (Some("hierarchy"), Some("50")) => 1796,
+        (Some("synonyms"), _) => 1889,
+        (Some("xrefs"), _) => 2200,
+        (Some("hierarchy"), _) => 1794,
+        _ => 2024,
+    })
 }
 fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
     let mut command = args(words);

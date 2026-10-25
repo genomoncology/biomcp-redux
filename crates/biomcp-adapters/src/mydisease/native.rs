@@ -55,14 +55,17 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
         definition: raw.definition,
         synonyms: values(raw.synonym),
         xrefs: values(raw.xrefs),
-        parents: raw.parents,
+        parents: raw.parents.unwrap_or_default(),
         obsolete: raw.is_obsolete,
         consider: raw.consider,
         replaced_by: raw.replaced_by,
     }
 }
-fn values(fields: std::collections::BTreeMap<String, crate::raw::OneOrMany<Text>>) -> Box<[Value]> {
+fn values(
+    fields: Option<std::collections::BTreeMap<String, crate::raw::OneOrMany<Text>>>,
+) -> Box<[Value]> {
     fields
+        .unwrap_or_default()
         .into_iter()
         .flat_map(|(field, values)| {
             values.values().into_iter().map(move |value| Value {
