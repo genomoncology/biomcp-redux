@@ -24,6 +24,7 @@ fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
 pub(super) fn replacement() -> Check {
     for fault in [
         "truncated-gzip",
+        "wrong-version-member",
         "malformed-relation",
         "second-file-failure",
     ] {
@@ -40,6 +41,11 @@ pub(super) fn replacement() -> Check {
             let path = entry.map_err(|e| e.to_string())?.path();
             if fault == "truncated-gzip" && path.extension().is_some_and(|v| v == "bin") {
                 fs::write(&path, [0x1f, 0x8b, 8]).map_err(|e| e.to_string())?;
+            } else if fault == "wrong-version-member"
+                && path.extension().is_some_and(|v| v == "bin")
+            {
+                fs::copy(fixtures().join("replies/diagnostic/gtr-wrong-version-member.bin"), &path)
+                    .map_err(|e| e.to_string())?;
             } else if path.extension().is_some_and(|v| v == "json") {
                 let mut value: Value =
                     serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
