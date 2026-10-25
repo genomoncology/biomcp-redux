@@ -28,6 +28,10 @@ fn published_ids_roundtrip_without_source_prefixes() {
         "openfda-label:741ff3e3-dc1a-45a6-84e5-2481b27131aa",
         "",
         "Gleevec tablets",
+        "1:foo",
+        "CHEBI:",
+        "CHEBI::1",
+        "CHEBI:/1",
         " CHEMBL941",
     ] {
         assert!(value.parse::<DrugId>().is_err(), "{value}");

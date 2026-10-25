@@ -539,12 +539,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
             .map(Request::SearchArticle)
             .map_err(|_| ()),
-        ("search", "drug") => serde_json::from_value::<biomcp_types::DrugSearch>(value)
-            .map(Request::SearchDrug)
-            .map_err(|_| ()),
-        ("get", "drug") => serde_json::from_value::<biomcp_types::DrugGet>(value)
-            .map(Request::GetDrug)
-            .map_err(|_| ()),
+        ("search" | "get", "drug") => drug_request(verb,value),
         ("get", "gene") => serde_json::from_value::<GeneGet>(value)
             .map(Request::GetGene)
             .map_err(|_| ()),
@@ -569,4 +564,9 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+fn drug_request(verb:&str,value:Value)->Result<Request,()> {
+    if verb=="search" { serde_json::from_value::<biomcp_types::DrugSearch>(value).map(Request::SearchDrug).map_err(|_|()) }
+    else { serde_json::from_value::<biomcp_types::DrugGet>(value).map(Request::GetDrug).map_err(|_|()) }
 }

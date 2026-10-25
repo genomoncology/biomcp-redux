@@ -110,8 +110,12 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<DrugCard>, B
         }
     }
     card.alternate_names = names.into();
-    let mut distinct=Vec::new();
-    for reference in refs { if !distinct.contains(&reference) { distinct.push(reference); } }
+    let mut distinct = Vec::new();
+    for reference in refs {
+        if !distinct.contains(&reference) {
+            distinct.push(reference);
+        }
+    }
     card.cross_references = distinct.into();
     card.parents = parents.into();
     Ok(crate::Mapped {

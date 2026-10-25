@@ -15,8 +15,8 @@ impl FromStr for DrugId {
                 .all(|b| b.is_ascii_alphanumeric() || b"-._/:".contains(&b))
             || value.split('/').any(str::is_empty)
             || value.split_once(':').is_some_and(|(namespace, id)| {
-                namespace.is_empty()
-                    || id.is_empty()
+                !namespace.bytes().next().is_some_and(|b|b.is_ascii_uppercase())
+                    || !id.bytes().next().is_some_and(|b|b.is_ascii_alphanumeric())
                     || id.contains(':')
                     || !namespace.bytes().all(|b| {
                         b.is_ascii_uppercase() || b.is_ascii_digit() || b"-._".contains(&b)

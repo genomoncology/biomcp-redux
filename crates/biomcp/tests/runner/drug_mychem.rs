@@ -51,8 +51,7 @@ fn check(n: usize) -> Check {
     ))
     .map_err(|e| e.to_string())?;
     let selected = plan.get(n).ok_or("plan index")?.clone();
-    let expected = selected["request"]
-        .as_str()
+    let expected = selected.get("request").and_then(Value::as_str)
         .ok_or("request")?
         .replace('+', "%20");
     let body = REPLIES.get(n).ok_or("fixture index")?.to_string();
@@ -90,11 +89,12 @@ fn check(n: usize) -> Check {
     }
     let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
-    println!(
+    use std::io::Write;
+    writeln!(std::io::stdout(),
         "drug native case {n}: full {bytes} bytes/{} tokens; comparable {comparable} bytes/{} tokens",
         bytes.div_ceil(4),
         comparable.div_ceil(4)
-    );
+    ).map_err(|e|e.to_string())?;
     Ok(())
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
@@ -153,9 +153,9 @@ fn verify(n: usize, value: &Value, selected: &Value) -> Check {
         let ids = value
             .pointer("/result/items")
             .and_then(Value::as_array)
-            .map(|items| items.iter().map(|i| i["id"].clone()).collect::<Vec<_>>())
+            .map(|items| items.iter().map(|i| i.get("id").cloned().unwrap_or(Value::Null)).collect::<Vec<_>>())
             .unwrap_or_default();
-        if json!(ids) != selected["ids"]
+        if Some(&json!(ids)) != selected.get("ids")
             || value.pointer("/page/total") != selected.get("total")
             || value.pointer("/query/source") != Some(&json!("mychem"))
         {
@@ -183,9 +183,9 @@ fn wrong_identity() -> Check {
         .map(str::to_owned)
         .to_vec();
     let value = invoke(&env, args.clone(), 4)?;
-    if value["status"] != "failed"
+    if value.get("status") != Some(&json!("failed"))
         || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
-        || value["result"] != Value::Null
+        || value.get("result").is_some_and(|v|!v.is_null())
     {
         return Err(format!("wrong identity admitted: {value}"));
     }
@@ -232,13 +232,12 @@ fn component_policy() -> Check {
     {
         return Err("component projection leaked or removed unrelated identities".into());
     }
-    let source = value["sources"]
-        .as_array()
-        .and_then(|v| v.iter().find(|s| s["source"] == "chembl"))
+    let source = value.get("sources").and_then(Value::as_array)
+        .and_then(|v| v.iter().find(|s| s.get("source") == Some(&json!("chembl"))))
         .ok_or("component outcome")?;
-    if source["state"] != "skipped"
-        || source["reason"] != "disabled"
-        || source["use"] != "attribution"
+    if source.get("state") != Some(&json!("skipped"))
+        || source.get("reason") != Some(&json!("disabled"))
+        || source.get("use") != Some(&json!("attribution"))
     {
         return Err("component policy outcome".into());
     }
