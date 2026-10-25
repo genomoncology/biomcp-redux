@@ -227,6 +227,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
     if matches!(&request, Request::SearchDrug(_) | Request::GetDrug(_)) {
         return drug::encode(meta, request, body);
     }
+    response_other(meta, request, body)
+}
+fn response_other(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())

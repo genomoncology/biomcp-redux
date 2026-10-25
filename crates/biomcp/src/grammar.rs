@@ -497,15 +497,9 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("search", "trial") => checked(value, Request::SearchTrial),
         ("trial", "document") => checked(value, Request::TrialDocument),
         ("article", "pdf") => checked(value, Request::ArticlePdf),
-        ("article", "citation-evidence") => {
-            checked(value, Request::ArticleEvidence)
-        }
-        ("article", "recommendations") => {
-            checked(value, Request::ArticleRecommend)
-        }
-        ("article", "supplement") => {
-            checked(value, Request::ArticleSupplement)
-        }
+        ("article", "citation-evidence") => checked(value, Request::ArticleEvidence),
+        ("article", "recommendations") => checked(value, Request::ArticleRecommend),
+        ("article", "supplement") => checked(value, Request::ArticleSupplement),
         ("article", "text") => checked(value, Request::ArticleText),
         ("article", "citations") => checked(value, Request::ArticleCitations),
         ("article", "references") => checked(value, Request::ArticleReferences),
@@ -552,6 +546,9 @@ fn drug_request(verb: &str, value: Value) -> Result<Request, ()> {
     }
 }
 
-fn checked<T: serde::de::DeserializeOwned>(value: Value, request: fn(T) -> Request) -> Result<Request, ()> {
+fn checked<T: serde::de::DeserializeOwned>(
+    value: Value,
+    request: fn(T) -> Request,
+) -> Result<Request, ()> {
     serde_json::from_value(value).map(request).map_err(|_| ())
 }

@@ -203,21 +203,21 @@ page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_genes/1",
+    "biomcp.diagnostic_genes/2",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_conditions/1",
+    "biomcp.diagnostic_conditions/2",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic_methods/1",
+    "biomcp.diagnostic_methods/2",
     "Independent native method entries without positional pairing."
 );
 page!(
