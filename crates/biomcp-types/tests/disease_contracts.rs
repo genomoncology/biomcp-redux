@@ -77,7 +77,7 @@ fn card_refuses_hidden_associations_statistics_and_related_entities() {
 
 #[test]
 fn association_keeps_parent_request_and_native_child_without_becoming_statement() {
-    let row = json!({"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"RET"},"object":{"id":"MONDO:0008234","label":"MEN2A"},"predicate":"biolink:gene_associated_with_condition","original_subject":"NCBIGene:5979","original_object":"Orphanet:247698","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":["MONDO:0019003"]});
+    let row = json!({"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"RET"},"object":{"id":"MONDO:0008234","label":"MEN2A"},"predicate":"biolink:gene_associated_with_condition","original_subject":"NCBIGene:5979","original_object":"Orphanet:247698","aggregator_knowledge_source":"infores:monarchinitiative","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":["MONDO:0019003"]});
     assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
     assert!(serde_json::from_value::<Statement>(row).is_err());
 }
