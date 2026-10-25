@@ -1,4 +1,4 @@
-//! Canonical OPENFDA_LABEL source declaration.
+//! Exact openFDA brand candidates and SPL revisions without clinical text selection.
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;

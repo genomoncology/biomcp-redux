@@ -217,7 +217,15 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         .collect();
     assert_eq!(
         keys,
-        ["id", "identity_level", "name", "source", "type", "url"]
+        [
+            "id",
+            "identity_level",
+            "name",
+            "source",
+            "type",
+            "url",
+            "version"
+        ]
     );
     let schema = serde_json::to_value(schemars::schema_for!(DrugCard)).expect("card schema");
     let text = serde_json::to_string(&schema).expect("schema JSON");
