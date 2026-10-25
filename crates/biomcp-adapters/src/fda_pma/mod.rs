@@ -15,12 +15,13 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
-mod raw;
 mod map;
-pub use map::{header, regulatory, fragments};
+mod raw;
+pub use crate::text_parts::escaped_bytes;
 use biodata::DeviceSubmission;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::DiagnosticGet;
+pub use map::{fragments, header, regulatory};
 /// Complete source application members or one exact selected supplement.
 pub struct Records {
     /// Native records in original order, without harmonized values.
@@ -34,23 +35,74 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
     if let Some(supplement) = query.supplement() {
         selector.push_str(&format!(" AND supplement_number:\"{supplement}\""));
     }
-    let endpoint = SPEC.get("").fresh(Freshness::Days(1)).bytes(10 * 1024 * 1024).json_absence();
+    let endpoint = SPEC
+        .get("")
+        .fresh(Freshness::Days(1))
+        .bytes(10 * 1024 * 1024)
+        .json_absence();
     let incomplete = std::cell::Cell::new(false);
-    let reply = leg.json_received_checked::<raw::Response>(&endpoint, &[("search",Arg::Text(&selector)),("limit",Arg::Num(100)),("skip",Arg::Num(0))], |reply| {
-        if let raw::Response::Page {meta,results} = reply {
-            if meta.results.total > 100 { incomplete.set(true); return Err(BadReply); }
-            if meta.results.skip != 0 || meta.results.limit != 100 || results.iter().any(|row| row.pma_number.as_str() != query.id().as_str() || row.supplement_number.as_ref().is_none_or(|cell| query.supplement().is_some_and(|s| s.as_str() != cell.as_str()))) {return Err(BadReply);}
-            let mut seen = std::collections::BTreeSet::new();
-            if results.iter().any(|row| !seen.insert(row.supplement_number.clone())) {return Err(BadReply);}
-        }
-        Ok(())
-    });
-    if incomplete.get() { return Ok(Records {rows:vec![],incomplete:true}); }
+    let reply = leg.json_received_checked::<raw::Response>(
+        &endpoint,
+        &[
+            ("search", Arg::Text(&selector)),
+            ("limit", Arg::Num(100)),
+            ("skip", Arg::Num(0)),
+        ],
+        |reply| {
+            if let raw::Response::Page { meta, results } = reply {
+                if meta.results.total > 100 {
+                    incomplete.set(true);
+                    return Err(BadReply);
+                }
+                if meta.results.skip != 0
+                    || meta.results.limit != 100
+                    || results.iter().any(|row| {
+                        row.pma_number.as_str() != query.id().as_str()
+                            || row.supplement_number.as_ref().is_none_or(|cell| {
+                                query
+                                    .supplement()
+                                    .is_some_and(|s| s.as_str() != cell.as_str())
+                            })
+                    })
+                {
+                    return Err(BadReply);
+                }
+                let mut seen = std::collections::BTreeSet::new();
+                if results
+                    .iter()
+                    .any(|row| !seen.insert(row.supplement_number.as_ref().map(|s| s.as_str())))
+                {
+                    return Err(BadReply);
+                }
+            }
+            Ok(())
+        },
+    );
+    if incomplete.get() {
+        return Ok(Records {
+            rows: vec![],
+            incomplete: true,
+        });
+    }
     let (reply, _) = reply?;
     Ok(match reply {
-        raw::Response::Page {meta,results} => Records {rows:results.into_iter().map(raw::Record::mapped).collect(),incomplete:meta.results.total > 100},
-        raw::Response::Absent {..} => Records {rows:vec![],incomplete:false},
+        raw::Response::Page { meta, results } => Records {
+            rows: results.into_iter().map(raw::Record::mapped).collect(),
+            incomplete: meta.results.total > 100,
+        },
+        raw::Response::Absent { .. } => Records {
+            rows: vec![],
+            incomplete: false,
+        },
     })
 }
 
-fn bad() -> RequestError { biomcp_fetch::SourceError {source:Source::FdaPma,reason:biomcp_types::Reason::BadReply,status:Some(200),retry_after:None}.into() }
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::FdaPma,
+        reason: biomcp_types::Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
+}
