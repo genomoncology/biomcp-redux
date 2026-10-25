@@ -92,7 +92,7 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
                 && let Ok(id) = application.id.as_str().parse()
                 && let Ok(get) = DrugGet::new(id, DrugSource::Drugsfda)
             {
-                super::next::push(out, StepKind::Disambiguate, Request::GetDrug(get), fresh);
+                super::next::push(out, StepKind::Pivot, Request::GetDrug(get), fresh);
             }
         }
     }
