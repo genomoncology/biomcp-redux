@@ -1,6 +1,7 @@
 # 0146 — Classify source capture outcomes in one shared helper
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 474ddd3c1633c8525372b2ea30e6c0ac1f97e23d
 
 Milestone: 3
 

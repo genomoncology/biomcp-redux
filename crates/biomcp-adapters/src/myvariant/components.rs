@@ -1,19 +1,9 @@
 //! Component terms have one home for queries, filters, labels and health.
 
+/// Shared independent component declaration.
+pub use crate::registry::Component;
 use biomcp_fetch::Terms;
 use biomcp_types::{Source, Use};
-/// One aggregator component with independent publisher terms.
-#[derive(Clone, Copy, Debug)]
-pub struct Component {
-    /// Aggregator that carries this component.
-    pub source: Source,
-    /// Explicit native source switch, when this component has one.
-    pub native_source: Option<Source>,
-    /// Native component name.
-    pub name: &'static str,
-    /// Component publisher's terms, independent of public API reachability.
-    pub terms: Terms,
-}
 /// CADD data retain their published noncommercial terms.
 pub const CADD: Component = Component {
     source: Source::MyVariant,
@@ -104,9 +94,7 @@ fn policy(
         || COMPONENTS
             .iter()
             .find(|c| c.name == name)
-            .and_then(|c| c.native_source)
-            .is_some_and(&source_disabled)
-        || terms(name).is_some_and(|terms| use_disabled(terms.usage))
+            .is_some_and(|c| c.policy(source_disabled, use_disabled))
 }
 /// Opaque source queries cannot be safely scoped when a component is switched off.
 pub fn restricted(fetch: &biomcp_fetch::Fetch) -> bool {

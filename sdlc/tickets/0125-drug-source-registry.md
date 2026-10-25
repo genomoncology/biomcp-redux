@@ -1,6 +1,7 @@
 # 0125 — Register the drug sources and components with use labels
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: db5aa87ce5af1a763e050f13afc0243dca011c22
 
 Milestone: 3
 

@@ -124,3 +124,26 @@ pub(crate) static HOTSPOTS: Quota =
 // Conservative policy within the documented 100 requests/minute quota.
 pub(crate) static GWAS: Quota =
     Quota::new(SourceKey::declare("gwas"), Rate::per_second(1), None, 1);
+
+// Conservative serial local policy; no published numeric quota was verified.
+pub(crate) static CHEMBL: Quota =
+    Quota::new(SourceKey::declare("chembl"), Rate::per_second(1), None, 1);
+
+// Conservative serial local policy; no published numeric quota was verified.
+pub(crate) static OPENTARGETS: Quota = Quota::new(
+    SourceKey::declare("opentargets"),
+    Rate::per_second(1),
+    None,
+    1,
+);
+
+// Conservative serial local policy; no published numeric quota was verified.
+pub(crate) static OPENFDA: Quota =
+    Quota::new(SourceKey::declare("openfda"), Rate::per_second(1), None, 1);
+
+// Conservative serial local policy; no published numeric quota was verified.
+pub(crate) static EMA: Quota = Quota::new(SourceKey::declare("ema"), Rate::per_second(1), None, 1);
+
+// Conservative serial local policy; no published numeric quota was verified.
+pub(crate) static DDINTER: Quota =
+    Quota::new(SourceKey::declare("ddinter"), Rate::per_second(1), None, 1);

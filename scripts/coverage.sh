@@ -25,7 +25,7 @@ complete="$profile_dir/coverage-complete"
 summary=$(mktemp)
 saved=$(mktemp -d)
 cleanup() {
-    # Library profiles never remain available to a later cases-only report.
+    # Excluded profiles never remain available to a later outside-in report.
     if [ -f "$saved/collecting-library" ]; then
         rm -f "$profile_dir"/*.profraw
         for profile in "$saved"/*.profraw; do
@@ -48,7 +48,7 @@ import subprocess
 names = subprocess.check_output([
     'git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--',
     'crates', 'tests', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml',
-    'scripts/coverage.sh',
+    'scripts/coverage.sh', 'scripts/contract_targets.py', 'sdlc/features.md',
 ]).split(b'\0')
 digest = hashlib.sha256()
 for name in sorted(set(names) - {b''}):
@@ -86,22 +86,34 @@ case "${1:-run}" in
             echo 'coverage: cases collection incomplete because its suite failed' >&2
             exit 1
         fi
+        # Keep the historical command-only figure on the same denominator.
+        report 'command cases only; historical comparison'
+        contracts=$(python3 scripts/contract_targets.py)
+        printf '%s\n' "$contracts" | while IFS="$(printf '\t')" read -r package target features owner; do
+            [ -n "$package" ] || continue
+            echo "coverage: counted public contract $package/$target; feature $owner; cargo features $features"
+            LLVM_PROFILE_FILE="$profile_dir/contracts-%m-%p.profraw" \
+                cargo test --locked -p "$package" --test "$target" --features "$features" || {
+                echo 'coverage: public contract collection incomplete because its suite failed' >&2
+                exit 1
+            }
+        done
         result=0
-        report 'outside-in cases' --fail-under-lines "$threshold" || result=$?
+        report 'command cases plus reviewed public contracts' --fail-under-lines "$threshold" || result=$?
         cases_counts=$counts
-        # Save only cases profiles outside the directory cargo-llvm-cov scans.
+        # Save only counted outside-in profiles outside the directory cargo-llvm-cov scans.
         for profile in "$profile_dir"/*.profraw; do
             [ ! -f "$profile" ] || mv "$profile" "$saved/"
         done
         touch "$saved/collecting-library"
         LLVM_PROFILE_FILE="$profile_dir/library-%m-%p.profraw"
         export LLVM_PROFILE_FILE
-        if ! cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked ||
+        if ! python3 scripts/contract_targets.py --library ||
            ! cargo test --locked -p biomcp --test ratchets; then
             echo 'coverage: library collection incomplete because its suite failed' >&2
             exit 1
         fi
-        report 'permitted library tests; excluded from floor'
+        report 'unlisted contracts and library tests; excluded from floor'
         library_counts=$counts
         # The union measures overlap only. It never supplies the floor check.
         for profile in "$saved"/*.profraw; do
@@ -119,7 +131,7 @@ case "${1:-run}" in
                 printf "coverage lines: outside only %d; library only %d; both %d; unobserved %d; incomplete collections 0\n", b[2]-u[2], a[2]-u[2], u[1]-a[2]-b[2]+u[2], u[2]
             }
         '
-        # Restore cases profiles even when their floor check failed.
+        # Restore counted profiles even when their floor check failed.
         if [ "$(inputs)" != "$collected_inputs" ]; then
             echo 'coverage: inputs changed during collection; run make coverage again' >&2
             exit 1
@@ -139,7 +151,7 @@ case "${1:-run}" in
         if [ "$1" = unreached ]; then
             cargo llvm-cov report --locked --ignore-filename-regex "$ignore" --show-missing-lines
         else
-            report 'outside-in cases' --fail-under-lines "$threshold"
+            report 'command cases plus reviewed public contracts' --fail-under-lines "$threshold"
         fi
         ;;
     *) echo 'usage: coverage.sh [run|report|unreached]' >&2; exit 2 ;;
