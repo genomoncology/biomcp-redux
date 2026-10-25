@@ -1,4 +1,4 @@
-# Diagnostic slice investigation and proposed design
+# Diagnostic slice design and implemented accounting
 
 This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`; the PM review revision merges current main `8f2a1a8329d7f9877b5df7aad0ec987440e67d1f` and applies the 2026-10-25 ticket rulings. It follows steps 1 to 4 of [the slice method](../slices.md). It proposes source-attributed diagnostic inventory and regulatory facts for cancer care. It changes no product code. Provider observations, public document findings and clinical rulings remain separate. No licensed curation answers enter this document.
 
@@ -193,26 +193,13 @@ One pure diagnostic `next` function spells existing typed actions. Source values
 | PMA regulatory section | Text continuation retains base/supplement, exact native field and offset. Any extra applicable sync/fresh steps remain within the ordinary five-step bound. |
 | Sync/missing/stale bundle | Existing sync and fresh semantics; failed replacement never suggests a successful new revision. Missing GTR/WHO/CDx bundle names its explicit sync. No read silently refreshes. |
 
-## Progressive disclosure, proposed defaults and provisional source ceilings
+## Progressive disclosure and measured product budgets
 
-Native capture supplies measured source projections; product CLI/MCP envelopes and released diagnostic 0.9 figures remain unmeasured. Default GTR candidate and gene/condition/method pages, FDA CDx relation pages and PMA supplement pages hold five rows. Exact get returns one selected identity card. WHO returns all source rows for one exact product and has no section/search expansion. PMA regulatory text defaults to one mechanical text fragment, reusing the existing label text splitter and escaped-byte payload bound. `--section-limit` bounds fragments and `--section-offset` counts fragments; neither counts characters or supplements. Its full envelope size must be measured on the retained statement before product acceptance.
+The implemented defaults are five GTR search headers or native section rows, five FDA companion rows and five PMA supplement headers. Exact get returns one source-owned identity card. WHO returns every row under one known Product ID. PMA regulatory output starts with one bounded mechanical text fragment. Section offsets count rows or fragments, never characters. Five-row pages never establish a complete assay scope or a clinical recommendation.
 
-The provisional ceilings below apply only to the declared source projection in the design. They are measured maximum plus 15 percent, rounded up, or an explicitly stated conservative derivation from that measured projection. They neither raise an existing case ceiling nor claim a measured product default. The adapter/command tickets will replay these existing captures to measure the full generated envelope and set executable product ceilings before acceptance. No new provider call is needed. If a projected header adds a field, remeasure it from these same retained bodies instead of silently keeping the old measurement label.
+The product budget table below replaces the investigation's provisional source projections. Complete envelopes include source terms, status and typed next actions. Native measurements retain their original source scope; synthetic fixtures prove mechanics separately. Byte ceilings use the owning runner's measured bytes plus fifteen percent, rounded up. The YAML runner subtracts only registry-validated `use`, `terms` and `terms_url` for comparable limits. Full compact bytes and stdout bytes, which add a final newline, are distinct. Approximate tokens are `ceil(bytes/4)`, not tokenizer counts.
 
-| Default view | Measured basis | Provisional source-only ceiling, bytes | Product and 0.9 status |
-| --- | --- | ---: | --- |
-| GTR single header | Largest measured declared 11-field header, 340 bytes | 391 | Product header may differ; full product and 0.9 unmeasured. |
-| GTR candidate page, five headers | Conservative upper derivation `5 × 340 + 6` bytes for the five-object array, not a measured five-row response | 1,962 | Derived planning allocation only; measure actual mixed page/envelope in command ticket. |
-| GTR identity card | Measured singleton whole-native projection, 1,583 bytes; retains more native context than the proposed card | 1,821 | Provisional example basis, not proof of broad-panel card cost; broad relations never enter card. |
-| GTR genes page, five rows | Measured broad-panel first-five projection, 1,168 bytes | 1,344 | Product and 0.9 unmeasured. |
-| GTR conditions page, five rows | Measured broad-panel first-five projection, 1,153 bytes | 1,326 | Product and 0.9 unmeasured. |
-| GTR methods page, five entries | No separate method projection was measured; singleton whole-native 1,583-byte projection is only a conservative example input | 1,821 provisional example allocation | Method maximum/envelope must be measured from retained inputs before its case is accepted. |
-| WHO exact card, every row of one product | Largest measured selected product group, 2,818 bytes for nine native rows | 3,241 | This is a harvested-product maximum, not a measured global maximum; product and 0.9 unmeasured. |
-| CDx relation page, five whole rows | Captured ten-row P200010 projection, 4,656 bytes, conservatively bounds any five-row subset of that same collection | 5,355 | Source basis preserves whole contexts; other harvested/group rows must pass before product acceptance. |
-| PMA base/supplement card, supplement page of five, regulatory text | Default regulatory text is one bounded fragment; no separate consumer projection measured. Largest retained complete native application reply was 125,967 bytes; it includes 62 rows and serves only as an evidence upper bound | 144,863 evidence upper bound; no approved agent-output allocation | Product-specific card, five-row headers and statement continuation must be measured from retained native replies in implementation. Do not ship the whole 62-row reply under this bound. |
-| Sync/help/schema/empty/failure | Existing shared contract plus approved new entity fields | Existing ceilings unchanged; newly generated views need actual measurements | Product diagnostic delta and 0.9 unmeasured. |
-
-Estimated tokens remain `ceil(compact UTF-8 bytes / 4)` with both full and comparable sizes shown whenever validated repeated terms fields are deducted. No terms fields were removed from the source measurements here. Full JSON envelope/terms cost is not silently subtracted. Historical 0136 established a containment method for drug/disease only; it did not run diagnostic commands. The later full parity ticket **0098** owns a separately bounded, verified-contained diagnostic 0.9 comparison after adapters land. No old executable runs in this design ticket. The measured facts and unmeasured product/legacy columns remain visibly separate.
+Released diagnostic 0.9 bytes, tokens, cold/warm timings, request counts and same-question factual completeness remain unmeasured. The old executable has not run under a verified diagnostic containment recipe. The earlier drug/disease containment does not supply a diagnostic baseline. Ticket 0098 owns that separate comparison. New FDA source routes also lack a corresponding old source-specific command. No source-only projection or local replay timing is a product or provider-speed measurement.
 
 ## Harvested clinical questions and accepted answers
 
@@ -414,7 +401,7 @@ Genes and conditions use the count unit `native_relation_rows`. Their `distinct_
 
 The bounded six-request capture j13187 retrieved the complete P150013 application with 36 rows and P200010 with 31 rows. Their explicit empty base supplement cells occur at native indices 24 and 10. Exact P150013/S020 and S021 each returned their own single unchanged application member. S020 has its native notice date; S021 omits that field. P000000 returned native HTTP 404 `NOT_FOUND` using the approved `limit=1` control. The product application request uses `limit=100`, so this receipt is not a native product replay for P000000. Synthetic exact 404 replay proves product absence handling. Unknown-supplement product absence is also synthetic-only. No capture receipt was relabeled to another query.
 
-The separate retained product job j13229 ran 29 CLI/MCP pairs against four local receipt deliveries with no provider calls. Native base and supplement selection, complete 35/30-header walks, each exact row’s statement reconstruction, emitted cross-source selectors and embedded schemas passed. A native CDx bundle was not mounted in this product job, so its PMA-to-CDx pivots were checked as exact selectors without claiming a native CDx execution. Bodies and raw outputs remain outside Git. K173492 returned one native 510(k) row in the bounded capture; this is a positive source fact for a separate source ticket. K and DEN identifiers still have no executable get here.
+The separate retained product job j13229 ran 29 CLI/MCP pairs against four local receipt deliveries with no provider calls. Native base and supplement selection, complete 35/30-header walks, each exact row’s statement reconstruction, emitted cross-source selectors and embedded schemas passed. A native CDx bundle was not mounted in this product job, so its PMA-to-CDx pivots were checked as exact selectors without claiming a native CDx execution. Bodies and raw outputs remain outside Git. K173492 returned one native 510(k) row in the bounded capture; this is a positive source fact for a separate source ticket. The later exact 510(k) implementation below supplies K gets; DEN identifiers remain source-only links.
 
 All sizes below include the product envelope. Comparable compact bytes remove the registry terms contribution only; stdout adds its final newline. Token ceilings use the existing conservative byte division. Each new ceiling is measured stdout plus 15 percent, rounded up.
 
@@ -455,3 +442,98 @@ The retained product run j13314 at `62fe0c837a0ef4a55dc45dbcb519aff9fcce8fc8` pa
 | Synthetic malformed JSON | 306 | 307 | 191 | 354 | 89 |
 
 Ceilings round complete stdout times 1.15 upward. The existing case runner independently validates publisher terms and subtracts only `use`, `terms` and `terms_url` for its historical comparable check. The full native envelopes remain separately measured above. No released 0.9 equivalent was measured, and these contained replay measurements say nothing about provider speed.
+
+## Shipped command and option ledger
+
+This closes the static legacy surface accounting above. The historical denominator includes leaf commands and long command options, excluding aliases, positional IDs, section words and global flags. A ported source selector does not retain the old `all` value. Deferred selectors remain recorded as undecided implementation; they are not silently counted as dropped.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search diagnostic` | Ported or renamed | `--source`, `--gene`, `--type`, `--limit`, `--offset` | `--disease`, `--full` | `--manufacturer` | Choose gtr or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO discovery and laboratory/manufacturer selectors remain deferred. |
+| `get diagnostic` | Ported or renamed | — | — | — | Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire. |
+| `gtr sync` | Ported or renamed | — | — | — | Use sync gtr; validate and atomically replace the complete two-file bundle. |
+| `who-ivd sync` | Ported or renamed | — | — | — | Use sync who-ivd; replace the full unfiltered export. |
+| `list diagnostic` | Ported or renamed | — | — | — | Use generated help diagnostic; examples come from executable cases. |
+<!-- /parity-accounting -->
+
+| Legacy or added surface | Shipped spelling or disposition | Case owner |
+| --- | --- | --- |
+| Search/default source and `all` | Explicit `--source gtr` or `--source fda-cdx`; automatic merge retires. WHO search remains deferred. | `diagnostic/gtr.yaml`, `diagnostic/fda-cdx.yaml`, `diagnostic_retirements.rs`. |
+| `-g`, `--gene` | `--gene SYMBOL` selects exact GTR gene_symbol; short alias retires. | `diagnostic/gtr.yaml`, fixed-guidance and literal-value controls. |
+| Added `--gene-id` | Exact positive NCBI Gene ID, exclusive with gene and condition. | GTR full native proof and diagnostic request contracts. |
+| `-d`, `--disease` | Retire phrase/synonym expansion; use exact GTR `--condition-id MedGen:CUI`. | GTR native condition pages and fixed guidance. |
+| `-t`, `--type` | Keep exact GTR Clinical/Research value; short alias retires. WHO type remains deferred. | `diagnostic/gtr.yaml`, diagnostic request contracts, retirements. |
+| `--manufacturer`, GTR laboratory selector | Deferred; native fields stay on their source cards. | Fixed no-I/O guidance; no selector positive claimed. |
+| `-l`, `--limit`, `--offset` | Keep bounded long options and revision-preserving search continuation; short alias retires. | GTR/CDx YAML, CDx pagination and full native walks. |
+| `--full`, positional `all` | Retire unbounded expansion; name one section and follow its next page. | Retirement cases and complete GTR/PMA walks. |
+| Exact get and implicit summary | Explicit source plus accession/version, WHO Product ID, PMA number or K number; default is the card. No source guessing. | GTR/WHO/PMA YAML and `diagnostic_510k.rs`. |
+| `genes`, `conditions`, `methods` | GTR-only native pages with `--section-limit`, `--section-offset`. | GTR YAML, native full walks and request contracts. |
+| `regulatory` | PMA-only selected base/supplement statement fragments; no name-derived FDA overlay. | PMA YAML, `diagnostic_pma/walks.rs`, native j13229. |
+| Added `supplements`, `--supplement` | Base-only supplement headers; exact supplement card/statement. Never infer latest supplement. | PMA YAML, metadata/walks and native j13229. |
+| WHO get | Entire known Product ID group; no sections, search, marker/type/manufacturer selector or inferred FDA identity. | WHO YAML and native j13094. |
+| Added FDA companion search | Exact `--device-id`, owned `--drug-application`, whole table-0 `--biomarker`; complete individual/group rows stay separate. No CDx card get. | CDx YAML/Rust and native j13117. |
+| Added exact K get | `get diagnostic K… --source fda-510k`; no sections or free-text search. DEN/H remain source facts without executable gets. | `diagnostic_510k.rs`, failure YAML and native j13314. |
+| Added `--bundle-revision` | Continuations retain immutable stored source data. Missing retained revision offers explicit restart/sync. | GTR/CDx pagination and bundle mechanics. |
+| `gtr sync`, `who-ivd sync`; added FDA sync | `sync gtr`, `sync who-ivd`, `sync fda-cdx`. Failed replacement preserves the usable old bundle. | Bundle mechanics and two executable sync examples per source. |
+| `list diagnostic`, `--help`, `-h` | Generated diagnostic help; source choices and sections derive from request schemas. | `diagnostic/help.yaml`, executable-example check and MCP discovery. |
+| Gene/disease `diagnostics` | Remain retired convenience sections. Use an explicit diagnostic request; no fanout. | Existing gene/disease retirement owners. |
+| `-j`, `--json`, extracted-section JSON workaround | Shared `--format json`; Markdown derives from the same envelope. | Fixed guidance, source Markdown cases and CLI/MCP parity. |
+| `--no-cache` | Shared `--fresh` for transport cache bypass. Stored bundle reads still never synchronize. | Retirements and stale-bundle cases. |
+| `--disable-sources` | Shared source/group union applies before request, cache or replay. | Registry admission, GTR/WHO policy and exact FDA controls. |
+| `BIOMCP_GTR_DIR`, `BIOMCP_WHO_IVD_DIR`, `OPENFDA_API_KEY` | Shared storage/key configuration replaces entity-specific directories; optional key does not gate public FDA access. | Isolated launch and registry controls. |
+| First-read download, stale auto-refresh | Dropped; explicit sync only, stale data remains marked stale. | Missing/stale and atomic-replacement cases. |
+
+Deferred: free-text PMA and 510(k) search, WHO discovery/marker/type/manufacturer selectors and GTR laboratory selection lack the approved native selector proof. Dropped: normalized-name FDA overlay, disease synonym expansion, generic source merge, read-triggered refresh and discovery-wide full expansion. Exact FDA identifiers do not restore those dropped behaviors. A listing is not authorization. A companion row is not a treatment recommendation.
+
+## Complete question and capture ownership
+
+Question IDs name reviewed questions, not twenty-four successful clinical answers. The implementations retain source facts without a clinical interpretation engine. The following map accounts for every design question and every original physical ledger row.
+
+| Design IDs | Product or evidence owner | Limit |
+| --- | --- | --- |
+| Q01, Q02 | F01 native companion table; j13117 complete relation output. | P190004 table context only; the cited decision's full qualification is not supplied by a new PMA call. |
+| Q03, Q04 | P200010/S010 native table relation; j13117. | Source row context does not establish a complete therapy indication. |
+| Q05, Q06 | P190026 and P110027/S012 native table relations; j13117. | Exact biomarker/cell scope stays unchanged; no alteration inference. |
+| Q07, Q08 | P230011 and P140025 native table collections; j13117. | Whole native rows, not new exact-submission captures. |
+| Q09, Q10 | P150013/S020 and S021 table rows plus native exact PMA j13229. | Scoring text remains in its own row; PMA statement belongs to that submission. |
+| Q11, Q12 | P210001/S001 and P230011 table rows; j13117. | No gene-level eligibility or universal panel companion claim. |
+| Q13 | P200010 table and native PMA application j13229. | Neither source becomes a clinical negative-result interpretation engine. |
+| Q14 | Full native GTR j13177: BRCA1/Gene672 selection and complete broad-panel gene/condition walks. | Membership, native row totals and distinct IDs remain different quantities. |
+| Q15, Q16 | GTR type/status/source fields; native j13177 and synthetic GTR cases. | Listing, current version and Clinical/Research do not establish authorization or present availability. |
+| Q17 | Original G02/G03 native bulk has current GTR000021517.11; no new website request. | The challenged web page remains unverified; bulk facts do not repair that access observation. |
+| Q18 | Synthetic GTR unknown selector zero and WHO absent product; native K080653 absence. | No empty BRCA1 result or general absence is claimed. P000000 product zero and unknown PMA supplement are synthetic. |
+| Q19, Q20, Q21, Q22 | Reviewed representation constraints above; native method/cell fields retained where supplied. | No guideline ingestion, universal method equivalence, extended-region inference or inheritance interpretation is implemented. |
+| Q23, Q24 | W01 full native WHO export and j13094 exact one/two/three/nine-row cards. | Caller supplies known Product ID; no discovery or WHO-to-FDA join. |
+| G01 | Original j12632 README in the investigation archive. | Source field semantics only; not a product command. |
+| G02, G03 | Original complete reports, independently retained again by j12938/j12940; slice j12984 and full product j13177. | Full sync and complete walks are postlanding data proof, separate from routine synthetic cases. |
+| W01 | Original j12632 export, repeated unchanged capture j13073 and native product j13094. | All 435 rows/125 products preserved; no source-row filtering. |
+| F01 | Original HTML, unchanged j13075 capture and j13117 product outputs. | Twenty native and nine synthetic pairs passed; later sync-help failure was repaired and checked separately. |
+| F02, F03, F04, F05, F06, F07, F08, F09, F10, F11, F12, F13 | Original twelve complete application responses in j12632. | Investigation inputs only unless explicitly reused by a named product proof. Native j13229 uses its separately approved unchanged P150013/P200010 captures. |
+| F14 | Original exact K080653 native404; native product j13314. | Source-local absence, not proof the ID is invalid elsewhere. |
+| F15 | Original P000000 native404 at limit1. | Product uses limit100; product absence is synthetic, not a relabeled native query receipt. |
+
+The later K173492 positive comes from the separately approved j13187 capture and j13314 product replay. Both companion directions execute in j13314. Native PMA j13229 checks emitted companion selectors without mounting the companion bundle; it does not independently prove their native execution. Bodies and raw CLI/MCP evidence remain outside Git.
+
+## Executable case inventory
+
+Every diagnostic YAML run carries its owning `max_bytes` and estimated-token ceiling. Native outside-repo cases retain measured full/comparable ceilings with their archived raw CLI and MCP outputs. These are separate inventories, not an assertion that an archived case runs in the routine suite.
+
+| Case file or target | Behavior owned |
+| --- | --- |
+| `tests/cases/diagnostic/gtr.yaml` | Synthetic sync, exact selectors, card, each section, zero and fresh replacement. |
+| `tests/cases/diagnostic/who.yaml`, `who-help.yaml` | Synthetic whole known-product card, multiplicity, absence, sync and generated help. |
+| `tests/cases/diagnostic/fda-cdx.yaml`, `help.yaml` | Synthetic whole cells, source-owned selectors, pagination, two sync examples and full generated diagnostic help. |
+| `tests/cases/diagnostic/pma.yaml`, `pma-failures.yaml` | Synthetic exact base/supplement, absent selection, bounded statement, supplements and transport failures. |
+| `tests/cases/diagnostic/510k-failures.yaml` | Synthetic429/500/deadline/malformed reply controls. |
+| `runner/diagnostic_gtr.rs`, `diagnostic_gtr/mechanics.rs`, `diagnostic_gtr/native_value.rs` | Missing bundle, atomic replacement, policy, conflicting identities, Markdown and opaque native Gene-ID values without false pivots. |
+| `runner/diagnostic_who.rs`, `diagnostic_who/mechanics.rs` | Missing/unsupported/policy, complete replacement, concurrent readers and Markdown. |
+| `runner/diagnostic_cdx.rs`, `diagnostic_cdx/pivots.rs` | All-header replacement matrix, concurrency, owned links, conflicting aliases, entity decoding, page/action preservation and Markdown. |
+| `runner/diagnostic_pma.rs`, `diagnostic_pma/walks.rs`, `diagnostic_pma/metadata.rs` | Request-bound identity/cache admission, complete collection, complete statement/header walks and absent/empty metadata. |
+| `runner/diagnostic_510k.rs` | Exact card, identity rejection/cache, source-local absence, disabled/invalid/error-body and companion pivots. |
+| `runner/diagnostic_registry.rs`, `diagnostic_registry/admission.rs` | Shared registry declaration, configuration union, policy and cache admission. |
+| `runner/diagnostic_retirements.rs`, `diagnostic_bundles.rs` | Fixed no-I/O migrations, literal boundaries and all three stale stored bundles. |
+| `biomcp-types/diagnostic_contracts` and generated schema contracts | No-I/O native IDs, tagged records, request combinations and schema compatibility. |
+| `article-help/executable-examples`, `mcp/discovers-artifact-command-tree`, `gene/help.yaml` | Case-derived examples, compact discovery and whole generated help. |
+
+The routine Rust cases test mechanism boundaries and reuse the corresponding source envelope budgets; they do not establish a native source maximum. Fixed usage replies use their authored error-envelope bound. Shared health/configuration contracts retain their shared bounds. No internal-only coverage or investigation projection is counted as successful product parity.
