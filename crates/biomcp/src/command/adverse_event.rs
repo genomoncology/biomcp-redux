@@ -7,6 +7,9 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)
         }
+        (Request::GetAdverseEvent(query), QueryBody::AdverseEventMaudeCard(body)) => meta.encode(query, body),
+        (Request::GetAdverseEvent(query), QueryBody::AdverseEventDevices(body)) => meta.encode(query, body),
+        (Request::GetAdverseEvent(query), QueryBody::AdverseEventNarrative(body)) => meta.encode(query, body),
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }
 }

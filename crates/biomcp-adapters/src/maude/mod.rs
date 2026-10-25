@@ -15,3 +15,14 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod raw;
+mod search;
+mod get;
+mod map;
+pub use search::{expression,search};
+pub use get::{Report,get};
+pub use map::{device,narrative};
+/// A source-native kept record after exact identity verification.
+pub use raw::Report as NativeReport;
+/// Native report header without inferred clinical labels.
+pub fn header(report: &NativeReport) -> biomcp_types::AdverseEventHeader { search::header(report) }

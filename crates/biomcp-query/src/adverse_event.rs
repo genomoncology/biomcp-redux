@@ -1,20 +1,19 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
 use crate::{Action, Ctx, Outcome, status};
-use biomcp_adapters::faers;
+use biomcp_adapters::{faers,maude};
 use biomcp_types::{
     AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source, Status,
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
-    if query.source() != biomcp_types::AdverseEventSource::Faers {
-        return unsupported();
-    }
+    let source = match query.source() { biomcp_types::AdverseEventSource::Faers => Source::Faers, biomcp_types::AdverseEventSource::Maude => Source::Maude };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&faers::SPEC, deadline).fresh(cx.fresh);
-    let selector = faers::expression(query);
-    let reply = faers::search(&leg, query);
+    let spec=if source==Source::Faers {&faers::SPEC} else {&maude::SPEC};
+    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
+    let selector = if source==Source::Faers {faers::expression(query)} else {maude::expression(query)};
+    let reply = if source==Source::Faers {faers::search(&leg, query)} else {maude::search(&leg, query)};
     let error = reply.as_ref().err().copied();
     let mut out = Outcome {
         status: Status::Failed,
@@ -30,7 +29,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             components: Box::default(),
         }),
         page: None,
-        sources: vec![status::source(Source::Faers, leg.finish(), error)],
+        sources: vec![status::source(source, leg.finish(), error)],
         problems: Vec::new(),
         next: Vec::new(),
         local: error.and_then(status::local),
@@ -39,7 +38,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         let returned = page.items.len() as u32;
         for row in &page.items {
             if let Ok(get) =
-                serde_json::from_value(serde_json::json!({"id":row.id,"source":"faers"}))
+                serde_json::from_value(serde_json::json!({"id":row.id,"source":query.source()}))
             {
                 out.next.push((
                     StepKind::Disambiguate,
