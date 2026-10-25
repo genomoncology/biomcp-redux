@@ -97,3 +97,9 @@ pub use drug::{
     DrugLabelReference, DrugLabelSection, DrugNativeReference, DrugNativeTarget, DrugProduct,
     DrugStage, DrugTargetRelation,
 };
+
+mod adverse_event;
+pub use adverse_event::{
+    FaersDrug, FaersIdentifiers, FaersPatient, FaersReaction, FaersReport, FaersReporter,
+    FaersSeriousness, MaudeDevice, MaudeNarrative, MaudeReport, ReportId, ReportIdInvalid,
+};
