@@ -94,7 +94,9 @@ fn disabled() -> Check {
 }
 fn wrong() -> Check {
     let mut wrong = application();
-    wrong["application_number"] = json!("NDA208573");
+    *wrong
+        .get_mut("application_number")
+        .ok_or("application number")? = json!("NDA208573");
     let mut first = true;
     let stub = Stub::for_source_status(
         "api.fda.gov",

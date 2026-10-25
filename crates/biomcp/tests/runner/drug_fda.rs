@@ -88,7 +88,8 @@ fn search() -> Check {
 }
 fn approvals() -> Check {
     let mut app = application();
-    app["submissions"]
+    app.get_mut("submissions")
+        .ok_or("submissions")?
         .as_array_mut()
         .ok_or("submissions")?
         .push(json!({

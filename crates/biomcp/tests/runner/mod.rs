@@ -331,13 +331,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
-    trials.extend(
-        variant_assertion_wire::trials()
-            .into_iter()
-            .chain(variant_assertions::trials())
-            .chain(variant_condition_relationship::trials())
-            .collect::<Vec<_>>(),
-    );
+    trials.extend(variant_assertion_wire::trials());
+    trials.extend(variant_assertions::trials());
+    trials.extend(variant_condition_relationship::trials());
     trials.extend(variant_population::trials());
     trials.extend(variant_population_release::trials());
     trials.extend(oncokb::trials());
