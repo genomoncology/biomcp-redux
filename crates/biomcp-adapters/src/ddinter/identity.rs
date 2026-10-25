@@ -3,7 +3,7 @@ use biodata::{DrugIdentity, DrugIdentityLevel, Text};
 use biomcp_types::{DrugHeader, DrugSource};
 use std::collections::BTreeSet;
 /// Literal source-name candidates in native partition and row order.
-pub fn candidates(mut rows: Vec<PartRow>, query: &str) -> Vec<DrugHeader> {
+pub(super) fn candidates(mut rows: Vec<PartRow>, query: &str) -> Vec<DrugHeader> {
     rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
     let query = query.to_lowercase();
     let mut seen = BTreeSet::new();

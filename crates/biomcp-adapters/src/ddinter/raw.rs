@@ -1,12 +1,12 @@
 use biodata::Text;
 use biomcp_fetch::{KeyKind, Keys, Row};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// One checked pair from the publisher's native CSV schema.
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(try_from = "Fields", into = "Fields")]
-pub struct NativeRow(Fields);
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
+#[serde(try_from = "Fields")]
+pub(super) struct NativeRow(Fields);
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Fields {
     #[serde(rename = "DDInterID_A")]
@@ -31,34 +31,29 @@ impl TryFrom<Fields> for NativeRow {
         Ok(Self(fields))
     }
 }
-impl From<NativeRow> for Fields {
-    fn from(row: NativeRow) -> Self {
-        row.0
-    }
-}
-pub(super) fn valid_id(id: &str) -> bool {
+fn valid_id(id: &str) -> bool {
     id.strip_prefix("DDInter")
         .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
 }
 impl NativeRow {
     /// Published identity at the first end of the native pair.
-    pub fn id_a(&self) -> &str {
+    pub(super) fn id_a(&self) -> &str {
         self.0.id_a.as_str()
     }
     /// Published identity at the second end of the native pair.
-    pub fn id_b(&self) -> &str {
+    pub(super) fn id_b(&self) -> &str {
         self.0.id_b.as_str()
     }
     /// Native display name for the first identity.
-    pub fn name_a(&self) -> &str {
+    pub(super) fn name_a(&self) -> &str {
         self.0.name_a.as_str()
     }
     /// Native display name for the second identity.
-    pub fn name_b(&self) -> &str {
+    pub(super) fn name_b(&self) -> &str {
         self.0.name_b.as_str()
     }
     /// Native interaction level, without interpretation.
-    pub fn level(&self) -> &str {
+    pub(super) fn level(&self) -> &str {
         self.0.level.as_str()
     }
 }

@@ -1,27 +1,27 @@
 use super::NativeRow;
 use std::collections::BTreeMap;
 /// An original native row's location in one published partition.
-#[derive(Clone, Debug)]
-pub struct Provenance {
+#[derive(Debug)]
+struct Provenance {
     /// Native partition code, independent of local file paths.
-    pub part: Box<str>,
+    part: Box<str>,
     /// One-based logical CSV row, including the header.
-    pub row: u64,
+    row: u64,
 }
 /// A checked row and its original location in the complete replacement set.
-pub type PartRow = biomcp_fetch::SetRow<NativeRow>;
+pub(super) type PartRow = biomcp_fetch::SetRow<NativeRow>;
 /// One native pair oriented to the selected source ID.
 #[derive(Debug)]
-pub struct Pair {
+pub(super) struct Pair {
     /// The first complete native pair row, without merged wording.
-    pub native: NativeRow,
+    native: NativeRow,
     /// Every original row location contributing this same source pair.
-    pub provenance: Vec<Provenance>,
+    provenance: Vec<Provenance>,
     reversed: bool,
 }
 impl Pair {
     /// Map the complete native pair with primary and distinct further source origins.
-    pub fn claim(
+    pub(super) fn claim(
         &self,
         content_revision: Option<&str>,
     ) -> Result<biodata::DrugInteractionClaim, biodata::Error> {
@@ -45,7 +45,7 @@ impl Pair {
         )
     }
     /// Exact native partner ID, without a name join.
-    pub fn partner_id(&self) -> &str {
+    fn partner_id(&self) -> &str {
         if self.reversed {
             self.native.id_a()
         } else {
@@ -53,7 +53,7 @@ impl Pair {
         }
     }
     /// Native partner display name from the retained row.
-    pub fn partner_name(&self) -> &str {
+    fn partner_name(&self) -> &str {
         if self.reversed {
             self.native.name_a()
         } else {
@@ -61,7 +61,7 @@ impl Pair {
         }
     }
     /// Native anchor name from the retained row.
-    pub fn anchor_name(&self) -> &str {
+    fn anchor_name(&self) -> &str {
         if self.reversed {
             self.native.name_b()
         } else {
@@ -70,7 +70,7 @@ impl Pair {
     }
 }
 /// Select exact source partners in partition/row order, retaining every duplicate origin.
-pub fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
+pub(super) fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
     rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
     let mut pairs = BTreeMap::<String, Pair>::new();
     let mut order = Vec::new();

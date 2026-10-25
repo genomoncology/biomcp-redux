@@ -1,7 +1,7 @@
 //! Complete multi-file publication through the ordinary checked-byte transport.
 use super::{Bundle, BundleInfo, Row, RowFormat, parse, store};
 use crate::{Fetch, Freshness, RequestError, SourceSpec};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::marker::PhantomData;
 
@@ -30,7 +30,7 @@ pub struct BundleSet<R: Row + 'static> {
     pub row: PhantomData<R>,
 }
 /// A checked source row with its original location in the replacement set.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct SetRow<R> {
     /// Native part identifier.
     pub part: Box<str>,
@@ -69,7 +69,11 @@ impl Fetch {
         let mut revision = Sha256::new();
         let mut bytes = 0_u64;
         for part in set.parts {
-            let endpoint = set.spec.get(part.path).bytes(super::MAX_BUNDLE_BYTES);
+            let endpoint = set
+                .spec
+                .get(part.path)
+                .bytes(super::MAX_BUNDLE_BYTES)
+                .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {
                 let parsed = parse::rows::<R>(body, set.format)
                     .map_err(|_| biomcp_types::Reason::BadReply)?;
