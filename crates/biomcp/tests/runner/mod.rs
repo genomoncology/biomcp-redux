@@ -314,14 +314,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
-    trials.extend(drug_registry::trials());
-    trials.extend(drug_civic::trials());
-    trials.extend(drug_ema::trials());
-    trials.extend(drug_ddinter::trials());
-    trials.extend(drug_mychem::trials());
-    trials.extend(drug_native::trials());
-    trials.extend(drug_native_identity::trials());
-    trials.extend(drug_label::trials());
+    trials.extend(drug_trials());
     trials.extend(disease_registry::trials());
     trials.extend(disease_ols::trials());
     trials.extend(disease_mydisease::trials());
@@ -507,4 +500,17 @@ pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
 }
 pub(super) fn seer_native(path: &Path) -> Result<(), String> {
     disease_seer::native(path)
+}
+
+fn drug_trials() -> Vec<Trial> {
+    let mut trials = Vec::new();
+    trials.extend(drug_registry::trials());
+    trials.extend(drug_civic::trials());
+    trials.extend(drug_ema::trials());
+    trials.extend(drug_ddinter::trials());
+    trials.extend(drug_mychem::trials());
+    trials.extend(drug_native::trials());
+    trials.extend(drug_native_identity::trials());
+    trials.extend(drug_label::trials());
+    trials
 }
