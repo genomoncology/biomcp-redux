@@ -4,10 +4,10 @@
   "url": "https://api.fda.gov/drug/event.json?search=%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29&limit=5&skip=0&sort=receivedate%3Adesc",
   "exchanges": [
     {
-      "fetched": 1792914846,
+      "fetched": 1792921798,
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 8,
+      "delay_ms": 9,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

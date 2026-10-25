@@ -25,7 +25,9 @@ pub(super) fn record(directory: &Path) -> Check {
     for (index, words) in [
         vec!["search", "adverse-event", "pembrolizumab"],
         vec![
-            "search", "adverse-event", "pembrolizumab",
+            "search",
+            "adverse-event",
+            "pembrolizumab",
             "--received-from",
             "2024-01-01",
             "--received-to",
