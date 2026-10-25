@@ -19,7 +19,10 @@ fn retained_native_drug_replies_record_and_replay() {
         mode: Mode::Record {
             dir: directory.path().join("recorded"),
         },
-        proxy: Some(format!("http://{}", stub.address).into()),
+        proxy: Some(biomcp_fetch::Secret::new(format!(
+            "http://{}",
+            stub.address
+        ))),
         network: Network::new(
             None,
             None,
