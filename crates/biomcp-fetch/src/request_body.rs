@@ -1,5 +1,5 @@
 //! Bounded source response reads shared by ordinary and counted JSON.
-use crate::{Leg, RequestError, request::Failure};
+use crate::{Leg, request::Failure};
 use biomcp_types::Reason;
 use std::io::Read;
 impl Leg<'_> {

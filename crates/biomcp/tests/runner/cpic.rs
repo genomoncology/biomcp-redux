@@ -94,38 +94,8 @@ fn scenario(name: &'static str) -> Check {
     if both(&replay_env, replay, 0)? != cold {
         return Err("recording lost native response".into());
     }
-    let output_rows = if name == "card" {
-        json!([cold.pointer("/result/identity").ok_or("identity")?])
-    } else if matches!(name, "diplotype" | "empty") {
-        cold.pointer("/result/diplotypes")
-            .ok_or("diplotypes")?
-            .clone()
-    } else {
-        cold.pointer("/result/items").ok_or("items")?.clone()
-    };
-    if output_rows != original {
-        return Err(format!("native context changed: {output_rows}"));
-    }
-    if let Some(page) = cold.pointer("/result/page")
-        && (page.get("total") != Some(&json!(total))
-            || page.get("total_kind") != Some(&json!("source")))
-    {
-        return Err("native count lost".into());
-    }
-    if name == "table" && cold.pointer("/result/representation") != Some(&json!("table")) {
-        return Err("table confused with view".into());
-    }
-    verify_next(name, &cold)?;
-    let mut md = args.clone();
-    md.extend(["--format".into(), "md".into()]);
-    let text = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &md)
-        .output()
-        .map_err(|e| e.to_string())?;
-    let text = String::from_utf8(text.stdout).map_err(|e| e.to_string())?;
-    if !text.contains("cpic") || !text.contains("biomcp") || text.trim_start().starts_with('{') {
-        return Err("Markdown omitted source or follow-up commands".into());
-    }
+    verify_body(name, &cold, &original, total)?;
+    markdown(&env, &args)?;
     for switch in ["cpic", "noncommercial"] {
         let mut blocked = vec![
             "--replay".into(),
@@ -241,6 +211,45 @@ fn failure(name: &'static str) -> Check {
     let count = stub.finish()?.len();
     if count == 0 {
         return Err("failure never reached synthetic source".into());
+    }
+    Ok(())
+}
+
+fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Check {
+    let output_rows = if name == "card" {
+        json!([cold.pointer("/result/identity").ok_or("identity")?])
+    } else if matches!(name, "diplotype" | "empty") {
+        cold.pointer("/result/diplotypes")
+            .ok_or("diplotypes")?
+            .clone()
+    } else {
+        cold.pointer("/result/items").ok_or("items")?.clone()
+    };
+    if output_rows != *original {
+        return Err(format!("native context changed: {output_rows}"));
+    }
+    if let Some(page) = cold.pointer("/result/page")
+        && (page.get("total") != Some(&json!(total))
+            || page.get("total_kind") != Some(&json!("source")))
+    {
+        return Err("native count lost".into());
+    }
+    if name == "table" && cold.pointer("/result/representation") != Some(&json!("table")) {
+        return Err("table confused with view".into());
+    }
+    verify_next(name, cold)?;
+    Ok(())
+}
+fn markdown(env: &Environment, args: &[String]) -> Check {
+    let mut md = args.to_vec();
+    md.extend(["--format".into(), "md".into()]);
+    let text = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &md)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let text = String::from_utf8(text.stdout).map_err(|e| e.to_string())?;
+    if !text.contains("cpic") || !text.contains("biomcp") || text.trim_start().starts_with('{') {
+        return Err("Markdown omitted source or follow-up commands".into());
     }
     Ok(())
 }
