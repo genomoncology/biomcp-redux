@@ -353,11 +353,13 @@ The FAERS search measurements below cover native report pages. The other kept la
 
 Full bytes contain the entire envelope. Comparable bytes remove only the validated FAERS `use`, `terms` and `terms_url` fields, exactly 115 bytes. Component terms remain counted. Each ceiling is the corresponding observed compact size plus 15 percent, rounded up. Estimated tokens are comparable UTF-8 bytes divided by four, rounded up. They are not actual tokenization. The generated search help measured 1637 compact bytes, with ceiling 1883. The two synthetic executable examples measured full/comparable 1441/1326 and 1596/1481 bytes, with ceilings 1658/1525 and 1836/1704. Synthetic examples prove command mechanics and no native positive.
 
+The same proof recorded one cold local CLI replay and three warm ordinary-cache CLI reads per query. The eight cold observations ranged from 18.648 to 23.496 milliseconds; the 24 warm observations ranged from 16.173 to 23.598 milliseconds. These are process observations under shared machine load. The raw per-query samples and cache provenance remain in the proof log and archive. They establish no provider speed or tail latency.
+
 The product proof retained real recorder files, raw CLI stdout/stderr, raw MCP JSON-RPC, exact arguments, source inputs, recipes and both attempt logs outside Git. Its first recipe attempt required redundant explicit default selectors in next commands and stopped after one local delivery. The corrected attempt used eight local deliveries; both attempts together made nine local deliveries and zero provider requests. Default-valued source and limit arguments are intentionally omitted by the shared checked speller. Gets select native reports without search filters; page actions preserve every search filter. The subsequent `Reply::check_status` correction rejects success-status error bodies and does not change these successful outputs.
 
 The independently verified Yellow archive is `data/biomcp-redux/0158-faers-search-product-proof/j12931-product-proof.tar.gz`, SHA-256 `05b3e8b712f8c44d797b7b87c12a9760ed9c07b6e5a7e3b54264bb47c9a6b9fa`, with 392 manifest files. It includes the original fresh-capture archive, whose SHA-256 is `1c32e5327782e02585eab936163b1db4d01d40552651a20c0062393f29e97443`. Raw replies that carry terminology stay outside Git.
 
-Legacy execution may retry, rename, auto-download bundles or fall back to trials. No verified containment exists for this assignment, so it has not run. Old fixtures are not new measurements. No product clinical-parity or timing claim is made.
+Legacy execution may retry, rename, auto-download bundles or fall back to trials. No verified containment exists for this assignment, so it has not run. Old fixtures are not new measurements. No legacy timing comparison or product clinical-parity claim is made.
 
 ## Complete legacy command and option accounting
 

@@ -53,7 +53,9 @@ pub fn expression(query: &AdverseEventSearch) -> String {
 }
 /// Read one checked native page; component policy applies before cache, replay or HTTP.
 pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, RequestError> {
-    if query.source() != AdverseEventSource::Faers { return Err(biomcp_fetch::InputError::Serialization.into()); }
+    if query.source() != AdverseEventSource::Faers {
+        return Err(biomcp_fetch::InputError::Serialization.into());
+    }
     let selector = expression(query);
     if query.reaction().is_some() {
         crate::adverse_event_sources::components::meddra(leg)?;

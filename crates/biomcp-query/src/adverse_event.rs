@@ -7,7 +7,9 @@ use biomcp_types::{
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
-    if query.source() != biomcp_types::AdverseEventSource::Faers { return unsupported(); }
+    if query.source() != biomcp_types::AdverseEventSource::Faers {
+        return unsupported();
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&faers::SPEC, deadline).fresh(cx.fresh);

@@ -54,7 +54,13 @@ impl Reply for Response {
         }
     }
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!((self,status),(Self::Page {..},200) | (Self::Absent {..},404)) { Ok(()) } else { Err(BadReply) }
+        if matches!(
+            (self, status),
+            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
+        ) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
-
 }
