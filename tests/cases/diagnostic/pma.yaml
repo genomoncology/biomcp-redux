@@ -61,6 +61,11 @@
         "/result/header/supplement_number": "S020",
         "/result/sections": [
           "regulatory"
+        ],
+        "/next/*/kind": [
+          "section",
+          "pivot",
+          "fresh"
         ]
       }
     },
@@ -113,7 +118,17 @@
         "/result/items": {
           "count": 5
         },
-        "/result/items/0/supplement_number": "S020"
+        "/result/items/0/supplement_number": "S020",
+        "/next/5/kind": "page",
+        "/next/*/kind": [
+          "disambiguate",
+          "disambiguate",
+          "disambiguate",
+          "disambiguate",
+          "disambiguate",
+          "page",
+          "fresh"
+        ]
       }
     },
     {
