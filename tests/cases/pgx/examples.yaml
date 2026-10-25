@@ -1,0 +1,58 @@
+{
+  "feature": "cpic-pgx",
+  "story": "Executable examples preserve entirely authored synthetic CPIC source rows.",
+  "live_check": "Synthetic rows, not a native clinical-positive claim.",
+  "replay": "pgx/cpic-synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic"
+      ],
+      "mcp": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/gene": "DPYD",
+        "/query/source": "cpic"
+      },
+      "max_bytes": 933,
+      "max_tokens": 233
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/gene": "DPYD",
+        "/query/source": "cpic"
+      },
+      "max_bytes": 651,
+      "max_tokens": 163
+    }
+  ]
+}

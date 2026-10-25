@@ -483,3 +483,5 @@ The separate product delegate replayed all 22 fixed 0166 captures through the ac
 | D05 | 1702 | 1541 | 426 | 1958 | 1773 | 18.863 | 18.482 | 15.446 |
 
 `help search pgx` measured 897 bytes with a 1032-byte ceiling. `help get pgx` measured 1763 bytes with a 2028-byte ceiling. The counts describe the implemented source contracts. They do not establish current clinical guidance beyond the captured tables or a CPIC dataset release. The exact native drug filter uses the recommendation table; its rows never acquire view-only names or guideline URLs.
+
+The durable native product proof is `data/biomcp-redux/0166-cpic-product-proof/j13010-product-proof.tar.gz` on Yellow, SHA-256 `a1a1e3e89b53cd526702b2cd999a961a7bd15967cc86df744e374dacab8d5966`. The separate source capture is `data/biomcp-redux/0166-cpic-native-capture/j12978-native-capture.tar.gz`, SHA-256 `13feccbd90e4365fa6d6f45780cc9408411267a640da665f0fb4f9d9c784106a`. Synthetic executable examples use entirely authored rows and actual local-recorder identities.

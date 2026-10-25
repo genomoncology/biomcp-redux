@@ -1,0 +1,1 @@
+These replies contain entirely authored synthetic CPIC rows. They were delivered by a local TLS fixture through the real recorder, so their request identities and retrieval timestamps describe local fixture delivery. They establish executable examples and source-shape behavior without supplying a native clinical-positive claim. Real captured CPIC data remains outside Git.
