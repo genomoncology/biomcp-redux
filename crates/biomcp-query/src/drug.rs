@@ -3,6 +3,7 @@ mod civic;
 mod ddinter;
 mod drugsfda;
 mod ema;
+mod next;
 mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;

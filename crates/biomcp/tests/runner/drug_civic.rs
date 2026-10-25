@@ -162,6 +162,9 @@ fn check(n: usize) -> Result<(), String> {
     Ok(())
 }
 fn verify(n: usize, value: &Value) -> Result<(), String> {
+    if (5..14).contains(&n) {
+        missing_native_build(value)?;
+    }
     let expected = match n {
         0..=4 | 14 => search_expected(n)?,
         5..=7 => drug_expected(n)?,
@@ -312,4 +315,38 @@ fn disabled(
     }
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{proxy}")}))
         .map_err(|e| e.to_string())
+}
+
+// Original requests did not select coordinates.referenceBuild. Never assign an assembly.
+fn missing_native_build(value: &Value) -> Result<(), String> {
+    for stream in ["evidence", "assertions"] {
+        if let Some(rows) = value
+            .pointer(&format!("/result/civic/data/{stream}/records"))
+            .and_then(Value::as_array)
+        {
+            for row in rows {
+                if !row
+                    .get("oncokb_missing")
+                    .and_then(Value::as_array)
+                    .is_some_and(|fields| fields.contains(&json!("build")))
+                {
+                    return Err("retained source claim lost its missing-build disclosure".into());
+                }
+            }
+        }
+    }
+    if value
+        .get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| {
+            steps.iter().any(|s| {
+                s.get("args")
+                    .and_then(Value::as_array)
+                    .is_some_and(|args| args.contains(&json!("oncokb")))
+            })
+        })
+    {
+        return Err("retained build-free claim gained an OncoKB command".into());
+    }
+    Ok(())
 }

@@ -1,6 +1,7 @@
 # 0133 — Offer typed next steps from drug responses to other entities
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9b112cfd6379e88abb2e8b3aeb0d22191671ae08
 
 Milestone: 3
 

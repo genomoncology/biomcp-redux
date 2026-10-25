@@ -143,6 +143,14 @@ impl VariantGet {
     pub fn tumor_type(&self) -> Option<&crate::Text> {
         self.0.tumor_type.as_ref()
     }
+    /// Supply explicit tumor context while checking the same public request rules.
+    pub fn with_tumor_type(
+        mut self,
+        tumor: crate::Text,
+    ) -> Result<Self, super::gene::QueryInvalid> {
+        self.0.tumor_type = Some(tumor);
+        self.0.try_into()
+    }
     /// Selected native CIViC profile.
     pub fn civic_profile(&self) -> Option<u64> {
         self.0.civic_profile
