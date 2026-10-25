@@ -261,6 +261,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked retained report snapshot for provider-free continuation."
+        },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",
@@ -556,11 +567,13 @@
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "enum": [
-        "value.unknown"
+        "value.unknown",
+        "identity.conflict"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " The field value was not recognized."
+        " The field value was not recognized.",
+        " A source repeats one exact identity with incompatible records."
       ]
     },
     "Reason": {

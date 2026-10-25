@@ -9,6 +9,10 @@ pub enum Request {
     SearchPgx(crate::PgxSearch),
     /// Read an explicit CPIC gene card or source section.
     GetPgx(crate::PgxGet),
+    /// Discover native diagnostic laboratory tests.
+    SearchDiagnostic(crate::DiagnosticSearch),
+    /// Read an exact source diagnostic record or relation page.
+    GetDiagnostic(crate::DiagnosticGet),
     /// Search source-native adverse event reports.
     SearchAdverseEvent(crate::AdverseEventSearch),
     /// Read one exact source report, without source probing.

@@ -50,6 +50,16 @@ pub enum DiagnosticCandidate {
     Resolved {
         /// Compact source header.
         header: GtrHeader,
+        /// Complete native relation that matched the source selector.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        matched: Option<biodata::GtrTestRelation>,
+    },
+    /// A native relation remains visible without a current card.
+    MissingCard {
+        /// Exact relation-owned test accession and version.
+        id: GtrTestId,
+        /// The original matched relation; no manufactured header.
+        matched: biodata::GtrTestRelation,
     },
     /// Several incompatible native rows with the same exact accession/version.
     Conflict {
@@ -149,6 +159,17 @@ biodata::wire_enum! {
     /// Regulatory text available in this source tier.
     DiagnosticRegulatoryField { #[doc = "Native ApprovalOrderStatement spelling."] ApprovalOrderStatement => "ao_statement" }
 }
+biodata::wire_enum! {
+    /// Meaning of the envelope's total for a source-owned diagnostic page.
+    DiagnosticCountUnit {
+        /// Distinct exact GTR accession and version identities.
+        TestIdentities => "test_identities",
+        /// Native relation rows, including repeated IDs and label-only rows.
+        NativeRelationRows => "native_relation_rows",
+        /// Independent source list entries, without positional pairing.
+        NativeMethodEntries => "native_method_entries"
+    }
+}
 macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
@@ -158,6 +179,12 @@ macro_rules! page {
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
             pub items: Box<[$row]>,
+            /// Exact meaning of the envelope total; supplied by the owning source command.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub count_unit: Option<DiagnosticCountUnit>,
+            /// Distinct complete native IDs across the selected relation collection.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub distinct_id_total: Option<u64>,
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
@@ -169,28 +196,28 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic_page/1",
+    "biomcp.diagnostic_page/2",
     "Source-ordered GTR candidates with explicit conflicts."
 );
 page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_genes/1",
+    "biomcp.diagnostic_genes/2",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_conditions/1",
+    "biomcp.diagnostic_conditions/2",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic_methods/1",
+    "biomcp.diagnostic_methods/2",
     "Independent native method entries without positional pairing."
 );
 page!(

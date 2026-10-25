@@ -1,6 +1,7 @@
 # 0159 — Get a FAERS report with its drugs, reactions and identifier pages
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 12d0dea349dc8c13f4aae3df192edafe9351294c
 
 Milestone: 3
 

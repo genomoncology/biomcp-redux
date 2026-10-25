@@ -1,6 +1,7 @@
 # 0160 — Search and get MAUDE device reports with devices and narrative
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 378e9e877b65d3a33a91b85094071ce7b2e1c14b
 
 Milestone: 3
 

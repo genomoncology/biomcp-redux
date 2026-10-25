@@ -65,7 +65,7 @@ fn fetch(
                     sources: vec![source.clone()],
                 };
                 let pool = if let Some(store) = store.as_mut() {
-                    Some(store.save_trial_snapshot(
+                    Some(store.save_source_snapshot(
                         &key(*id),
                         &snapshot.encode()?,
                         &snapshot.sources,
@@ -105,7 +105,7 @@ fn restore(
 ) -> Result<(), RequestError> {
     let id = q.input().first().copied().ok_or(CacheError::Database)?;
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let payload = store.trial_snapshot(q.pool().map_or("", |p| p.as_str()), &key(id), |s| {
+    let payload = store.source_snapshot(q.pool().map_or("", |p| p.as_str()), &key(id), |s| {
         cx.fetch.disabled(s)
     })?;
     let Some(payload) = payload else {

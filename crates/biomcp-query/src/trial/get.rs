@@ -72,7 +72,7 @@ fn fetch(
                     sources: vec![own_source],
                 };
                 let pool = if let Some(store) = store.as_mut() {
-                    Some(store.save_trial_snapshot(
+                    Some(store.save_source_snapshot(
                         &Snapshot::key(*id),
                         &snapshot.encode()?,
                         &snapshot.sources,
@@ -115,7 +115,7 @@ fn restore(
         return Ok(());
     }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let payload = store.trial_snapshot(
+    let payload = store.source_snapshot(
         query.pool().map_or("", |p| p.as_str()),
         &Snapshot::key(id),
         |s| cx.fetch.disabled(s),

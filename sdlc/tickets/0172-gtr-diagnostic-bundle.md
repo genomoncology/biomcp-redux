@@ -1,6 +1,7 @@
 # 0172 — Sync the GTR bundle and search and get GTR laboratory tests
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b3eb43a41a03de9aa611369b508d06e0298ac6fe
 
 Milestone: 4
 

@@ -121,11 +121,13 @@
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "enum": [
-        "value.unknown"
+        "value.unknown",
+        "identity.conflict"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " The field value was not recognized."
+        " The field value was not recognized.",
+        " A source repeats one exact identity with incompatible records."
       ]
     },
     "Reason": {
@@ -506,10 +508,19 @@
       "description": "Published bundle metadata after synchronization.",
       "properties": {
         "bytes": {
-          "description": "Unencoded source bytes.",
+          "description": "Imported source-file bytes before native file decoding.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
+        },
+        "duplicate_identities": {
+          "description": "Distinct repeated identities across the whole source version report.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "rows": {
           "description": "Imported rows.",
@@ -540,7 +551,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.sync/2",
+  "$id": "biomcp.sync/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -586,7 +597,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.sync/2",
+      "const": "biomcp.sync/3",
       "type": "string"
     },
     "sources": {

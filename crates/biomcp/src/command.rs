@@ -1,5 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod adverse_event;
+mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
@@ -109,16 +110,6 @@ fn dispatch_using(
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if matches!(action,Action::Run{request:Request::GetPgx(q),..} if q.source()!=biomcp_types::PgxSource::Cpic)
-    {
-        return Some(usage_envelope(ErrorEnvelope::arguments()));
-    }
-    if matches!(
-        action,
-        Action::Run {
-            request: Request::GetAdverseEvent(_),
-            ..
-        }
-    ) || matches!(action, Action::Run {request: Request::SearchAdverseEvent(q),..} if q.source() != biomcp_types::AdverseEventSource::Faers)
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
@@ -232,6 +223,9 @@ fn response(
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
         Request::SearchPgx(_) | Request::GetPgx(_) => pgx::encode(meta, request, body),
+        Request::SearchDiagnostic(_) | Request::GetDiagnostic(_) => {
+            diagnostic::encode(meta, request, body)
+        }
         Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
             adverse_event::encode(meta, request, body)
         }
@@ -413,19 +407,23 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = match bundle {
+        Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::Ema => biomcp_types::Source::Ema,
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
     };
     let result = match bundle {
+        Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
         Bundle::Ddinter => {
             biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
+                duplicate_identities: None,
                 rows: info.rows,
                 bytes: info.bytes,
             })
         }
         Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
+            duplicate_identities: None,
             rows: info.rows,
             bytes: info.bytes,
         }),
@@ -438,6 +436,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
                     Ok(biomcp_types::SyncResult {
+                        duplicate_identities: None,
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,
                     })

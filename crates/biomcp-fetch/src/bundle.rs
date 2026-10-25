@@ -1,5 +1,6 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
+mod native;
 mod parse;
 mod set;
 pub use set::{BundlePart, BundleSet, SetRow};
@@ -12,6 +13,10 @@ pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 pub trait Row: serde::de::DeserializeOwned {
     /// Return the row’s exact and word search keys.
     fn keys(&self) -> Keys;
+    /// Validate this row against its declared member of a complete source set.
+    fn check_part(&self, _part: &str) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
     /// Validate typed shared metadata against the complete decoded JSON row count.
     fn check_bundle(&self, _rows: usize) -> Result<(), crate::BadReply> {
         Ok(())
@@ -38,6 +43,13 @@ pub struct Bundle<R: Row + 'static> {
 pub enum RowFormat {
     /// Tab-separated cells with a named header.
     Tsv,
+    /// Strict quoted TSV preserving all cells, optionally gzip-encoded.
+    NativeTsv {
+        /// Decode the published gzip member before reading cells.
+        gzip: bool,
+        /// Maximum decoded bytes, bounded by the shared native TSV ceiling.
+        max_decoded_bytes: u64,
+    },
     /// JSON object with a declared row array and shared metadata object.
     Json {
         /// Object field holding the complete row array.
@@ -55,7 +67,7 @@ impl RowFormat {
     fn media(self) -> &'static str {
         match self {
             Self::Json { .. } => "application/json",
-            Self::Tsv => "text/tab-separated-values",
+            Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } => "text/csv",
         }
     }
@@ -89,6 +101,8 @@ pub enum KeyKind {
 pub enum Find<'a> {
     /// Case-insensitive complete key.
     Exact(KeyKind, &'a str),
+    /// Select several complete keys in one indexed snapshot.
+    AnyExact(KeyKind, &'a [&'a str]),
     /// Literal key prefix.
     Prefix(KeyKind, &'a str),
     /// Literal words combined with AND.

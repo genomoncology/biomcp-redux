@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "gtr",
+  "url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/test_condition_gene.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/plain",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "#accession_version\ttest_type\tobject\tGTR_identifier\tMIM_number\tobject_name\tgene_or_SNOMED_CT_ID\tgene_symbol\nGTR000006692.3\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000021517.11\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000511179.13\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000000004.1\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000000005.1\tResearch\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000000006.1\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000551465.2\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000999999.1\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000006692.3\tClinical\tcondition\tC2676676\t604370\tSynthetic condition\t\t-\nGTR000006692.3\tClinical\tgene\tC0000002\t\tBRCA1\t7157\tTP53\nGTR000511179.13\tClinical\tgene\tC0000003\t\tSynthetic symbol-only\t\tLABEL\n"
+      }
+    }
+  ]
+}

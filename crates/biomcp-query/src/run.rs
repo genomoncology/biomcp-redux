@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Complete GTR version and relation pair.
+    Gtr,
     /// The complete eight-file DDInter interaction set.
     Ddinter,
     /// EMA medicines, synchronized only by an explicit command.
@@ -59,8 +61,13 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchPgx(query) => crate::pgx::search(cx, query),
         Request::GetPgx(query) => crate::pgx::get(cx, query),
+        Request::SearchDiagnostic(q) => crate::diagnostic::search(cx, q),
+        Request::GetDiagnostic(q) => crate::diagnostic::get(cx, q),
         Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),
-        Request::GetAdverseEvent(_) => crate::adverse_event::unsupported(),
+        Request::GetAdverseEvent(q) if q.source() == biomcp_types::AdverseEventSource::Maude => {
+            crate::adverse_event_maude::get(cx, q)
+        }
+        Request::GetAdverseEvent(q) => crate::adverse_event::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
         Request::SearchDrug(query) => crate::drug::search(cx, query),

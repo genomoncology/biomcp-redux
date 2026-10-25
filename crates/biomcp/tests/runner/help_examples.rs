@@ -81,6 +81,8 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
                             || v == "drug"
                             || v == "ema"
                             || v == "ddinter"
+                            || v == "diagnostic"
+                            || v == "gtr"
                     }))
         })
     }) {

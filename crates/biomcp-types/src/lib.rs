@@ -161,3 +161,6 @@ pub use response::{
 };
 
 pub use response::{DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory};
+
+/// Source-specific diagnostic page counting vocabulary.
+pub use response::DiagnosticCountUnit;

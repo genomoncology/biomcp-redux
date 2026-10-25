@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 50926
+      "max_bytes": 59957
     },
     {
       "run": [
@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "The combined generated disease and drug help is checked against the retained accepted whole-tree ceiling. The independent source measurements preceded their merge; this case verifies the combined output without silently raising that ceiling. No comparable 0.9 generated-help JSON baseline exists. Existing entity-specific bounds remain unchanged."
+  "verified": "The combined FAERS, MAUDE and GTR generated help measured 52136 compact UTF-8 bytes in j13049 on cf9def4826ac03de1b0df945f978bc879ecb3e78. The whole-tree ceiling follows the standing measured-output plus fifteen percent rule. Existing entity-specific bounds remain unchanged."
 }
