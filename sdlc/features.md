@@ -25,7 +25,7 @@ schema-discovery: A caller retrieves versioned schemas and receives a fixed usag
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures. Cases: `crates/biomcp/tests/runner/corporate.rs`.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.
-source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests. Cases: `crates/biomcp/tests/runner/source_controls.rs`, `crates/biomcp/tests/runner/drug_registry.rs`.
+source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests. Cases: `crates/biomcp/tests/runner/source_controls.rs`, `crates/biomcp/tests/runner/drug_registry.rs`, `crates/biomcp/tests/runner/adverse_event_registry.rs`.
 live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`, `crates/biomcp/tests/runner/live_follow_proof.rs`.
 article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters. Cases: `tests/cases/article/litsense/*.yaml`, `tests/cases/article/pubtator/*.yaml`, `crates/biomcp/tests/runner/named_search.rs`.
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
@@ -90,3 +90,4 @@ drug-help: Discover source-scoped drug sections, selectors and explicit bundle s
 adverse-event-types: A public API caller validates source-specific report requests and preserves independent native arrays, code strings and bounded consumer schemas before adapters exist. Contracts: `biomcp-types/adverse_event_contracts` (features: `schema`).
 
 pgx-types: A public API caller preserves source-native PGx context and validates explicit source and section requests before adapters exist. Contracts: `biomcp-types/pgx_contracts` (features: `schema`).
+diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).

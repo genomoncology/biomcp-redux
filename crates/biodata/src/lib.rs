@@ -106,3 +106,5 @@ pub use adverse_event::{
 
 mod pgx;
 pub use pgx::*;
+mod diagnostic;
+pub use diagnostic::*;

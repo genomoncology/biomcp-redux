@@ -86,3 +86,10 @@ mod text_parts;
 
 mod received;
 pub use received::received_date;
+
+/// Adverse event publisher declarations and component admission.
+pub mod adverse_event_sources;
+/// FAERS publisher declaration.
+pub mod faers;
+/// MAUDE publisher declaration.
+pub mod maude;

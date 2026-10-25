@@ -1,0 +1,958 @@
+{
+  "$defs": {
+    "CompanionDiagnosticRelation": {
+      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "One complete native individual table row.",
+          "properties": {
+            "cells": {
+              "$ref": "#/$defs/CompanionIndividualCells",
+              "description": "Whole cells keyed by this table’s exact headers."
+            },
+            "device_ids": {
+              "description": "Device facts from this row’s own dedicated device cell only.",
+              "items": {
+                "$ref": "#/$defs/DiagnosticDeviceId"
+              },
+              "type": "array"
+            },
+            "drug_applications": {
+              "description": "Unambiguous typed applications owned by this row’s drug cell.",
+              "items": {
+                "$ref": "#/$defs/DiagnosticDrugApplication"
+              },
+              "type": "array"
+            },
+            "index": {
+              "description": "Zero-based physical data-row index in its table.",
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": {
+              "const": "individual",
+              "type": "string"
+            },
+            "snapshot": {
+              "description": "Immutable local snapshot revision, not a publisher row ID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "snapshot",
+            "index",
+            "cells",
+            "device_ids",
+            "drug_applications"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "One complete native group table row.",
+          "properties": {
+            "cells": {
+              "$ref": "#/$defs/CompanionGroupCells",
+              "description": "Whole cells keyed by this table’s exact headers."
+            },
+            "device_ids": {
+              "description": "Device facts from this row’s own dedicated device cell only.",
+              "items": {
+                "$ref": "#/$defs/DiagnosticDeviceId"
+              },
+              "type": "array"
+            },
+            "drug_applications": {
+              "description": "Unambiguous typed applications owned by this row’s drug cell.",
+              "items": {
+                "$ref": "#/$defs/DiagnosticDrugApplication"
+              },
+              "type": "array"
+            },
+            "index": {
+              "description": "Zero-based physical data-row index in its table.",
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "kind": {
+              "const": "group",
+              "type": "string"
+            },
+            "snapshot": {
+              "description": "Immutable local snapshot revision, not a publisher row ID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "snapshot",
+            "index",
+            "cells",
+            "device_ids",
+            "drug_applications"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "CompanionGroupCells": {
+      "additionalProperties": false,
+      "description": "Exact native CompanionGroupCells headers; any extra or changed header is refused.",
+      "properties": {
+        "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original drug_group cell."
+        },
+        "Diagnostic Name\n(Manufacturer)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original diagnostic cell."
+        },
+        "Indication(s) - Sample Type": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original indication cell."
+        },
+        "PMA (Approval Date)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original device cell."
+        }
+      },
+      "required": [
+        "Diagnostic Name\n(Manufacturer)",
+        "Indication(s) - Sample Type",
+        "PMA (Approval Date)",
+        "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA"
+      ],
+      "type": "object"
+    },
+    "CompanionIndividualCells": {
+      "additionalProperties": false,
+      "description": "Exact native CompanionIndividualCells headers; any extra or changed header is refused.",
+      "properties": {
+        "Biomarker(s)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original biomarker cell."
+        },
+        "Biomarker(s) (Details)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original details cell."
+        },
+        "Diagnostic Name (Manufacturer)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original diagnostic cell."
+        },
+        "Drug Trade Name (Generic) NDA / BLA": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original drug cell."
+        },
+        "Indication - Sample Type": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original indication cell."
+        },
+        "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)": {
+          "$ref": "#/$defs/DiagnosticCell",
+          "description": "Complete original device cell."
+        }
+      },
+      "required": [
+        "Diagnostic Name (Manufacturer)",
+        "Indication - Sample Type",
+        "Drug Trade Name (Generic) NDA / BLA",
+        "Biomarker(s)",
+        "Biomarker(s) (Details)",
+        "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)"
+      ],
+      "type": "object"
+    },
+    "DiagnosticCell": {
+      "additionalProperties": false,
+      "description": "Whole physical source-table cell and its own links.",
+      "properties": {
+        "links": {
+          "description": "Only links physically owned by this cell, in native order.",
+          "items": {
+            "$ref": "#/$defs/DiagnosticCellLink"
+          },
+          "type": "array"
+        },
+        "text": {
+          "description": "Original complete text, including empty strings and line breaks.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "links"
+      ],
+      "type": "object"
+    },
+    "DiagnosticCellLink": {
+      "additionalProperties": false,
+      "description": "Source link without a name-based identity inference.",
+      "properties": {
+        "href": {
+          "description": "Original source URL.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Native label when the capture supplies one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "href"
+      ],
+      "type": "object"
+    },
+    "DiagnosticCompanion": {
+      "additionalProperties": false,
+      "description": "Whole distinct physical companion-table rows with cell-owned identifiers.",
+      "properties": {
+        "items": {
+          "description": "Complete source-owned rows in native order; envelope totals count native rows.",
+          "items": {
+            "$ref": "#/$defs/CompanionDiagnosticRelation"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "DiagnosticDeviceId": {
+      "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
+      "type": "string"
+    },
+    "DiagnosticDrugApplication": {
+      "additionalProperties": false,
+      "description": "A typed drug application established by its own complete source cell and link.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/FdaDrugApplication",
+          "description": "Published NDA/BLA prefix and six digits."
+        },
+        "url": {
+          "description": "The same cell’s owned source URL.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url"
+      ],
+      "type": "object"
+    },
+    "DiagnosticSearch": {
+      "additionalProperties": false,
+      "description": "Checked selected-source diagnostic discovery; no identity resolution or I/O.",
+      "properties": {
+        "biomarker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact table-0 biomarker cell; unsupported in the group table."
+        },
+        "bundle_revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Immutable stored bundle revision retained by a continuation."
+        },
+        "condition_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact MedGen:CUI identifier only."
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticDeviceId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact PMA application or application/supplement identity."
+        },
+        "drug_application": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FdaDrugApplication"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Cell-owned typed NDA/BLA application."
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneSymbol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact source gene_symbol field, without alias expansion."
+        },
+        "gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact source GeneID, exclusive with gene symbol."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Maximum native rows on this page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Zero-based native row offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/DiagnosticSearchSource",
+          "description": "Required explicit GTR or FDA companion-table source."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GtrTestType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native test_type value."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
+    "DiagnosticSearchSource": {
+      "description": "One explicit diagnostic discovery source.",
+      "enum": [
+        "gtr",
+        "fda-cdx"
+      ],
+      "type": "string"
+    },
+    "FdaDrugApplication": {
+      "pattern": "^(NDA|BLA)[0-9]{6}$",
+      "type": "string"
+    },
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "GtrTestType": {
+      "description": "Native GTR relation test category, not an offering or authorization judgment.",
+      "enum": [
+        "Clinical",
+        "Research",
+        "Clinical microbial"
+      ],
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "hpa",
+        "uniprot",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.diagnostic_companion/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/DiagnosticSearch",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DiagnosticCompanion"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.diagnostic_companion/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

@@ -47,6 +47,8 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::mydisease::SPEC,
     &crate::monarch::SPEC,
     &crate::seer::SPEC,
+    &crate::faers::SPEC,
+    &crate::maude::SPEC,
 ];
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
@@ -54,6 +56,7 @@ pub fn components() -> impl Iterator<Item = &'static Component> {
         .iter()
         .chain(crate::drug_sources::components::COMPONENTS)
         .chain(crate::disease_sources::components::COMPONENTS)
+        .chain(crate::adverse_event_sources::components::COMPONENTS)
 }
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
@@ -103,6 +106,12 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Faers {
+        crate::adverse_event_sources::components::meddra(leg)?;
+    }
+    if spec.source == Source::Maude {
+        crate::adverse_event_sources::components::gmdn(leg)?;
+    }
     if spec.source == Source::Monarch {
         crate::disease_sources::components::monarch(leg)?;
     }
@@ -168,7 +177,9 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
         Source::Chembl => ("/status.json", vec![]),
-        Source::OpenfdaLabel | Source::Drugsfda => ("", vec![("limit", Arg::Num(1))]),
+        Source::OpenfdaLabel | Source::Drugsfda | Source::Faers | Source::Maude => {
+            ("", vec![("limit", Arg::Num(1))])
+        }
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
         Source::Ddinter => ("/terms/", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),

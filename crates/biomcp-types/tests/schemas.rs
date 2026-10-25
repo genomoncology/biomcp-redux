@@ -65,6 +65,7 @@ fn common_registry() -> Vec<Contract> {
         ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
         CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
         VrsId => ("vrs-id", "biodata.vrs-id/1"),
+        Contig => ("contig", "biodata.contig/1"),
 
     }
 }
@@ -141,8 +142,8 @@ fn registry() -> Vec<Contract> {
         HgncStatus => ("hgnc-status", "biodata.hgnc-status/2"),
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
-        Contig => ("contig", "biodata.contig/1"),
     };
+    contracts.extend(diagnostic_contracts());
     contracts.extend(common_registry());
     contracts.extend(disease::registry());
     contracts.extend(adverse_event_contracts());
@@ -225,6 +226,21 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug_approvals/3"),
         Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug_regulatory/2"),
         Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug_interactions/3"),
+    }
+}
+
+fn diagnostic_contracts() -> Vec<Contract> {
+    contracts! {
+        DiagnosticSearch => ("diagnostic-search", "biomcp.diagnostic-search/1"),
+        DiagnosticGet => ("diagnostic-get", "biomcp.diagnostic-get/1"),
+        Envelope<DiagnosticPage> => ("diagnostic-page", "biomcp.diagnostic_page/1"),
+        Envelope<DiagnosticCard> => ("diagnostic-card", "biomcp.diagnostic_card/1"),
+        Envelope<DiagnosticGenes> => ("diagnostic-genes", "biomcp.diagnostic_genes/1"),
+        Envelope<DiagnosticConditions> => ("diagnostic-conditions", "biomcp.diagnostic_conditions/1"),
+        Envelope<DiagnosticMethods> => ("diagnostic-methods", "biomcp.diagnostic_methods/1"),
+        Envelope<DiagnosticRegulatory> => ("diagnostic-regulatory", "biomcp.diagnostic_regulatory/1"),
+        Envelope<DiagnosticSupplements> => ("diagnostic-supplements", "biomcp.diagnostic_supplements/1"),
+        Envelope<DiagnosticCompanion> => ("diagnostic-companion", "biomcp.diagnostic_companion/1"),
     }
 }
 

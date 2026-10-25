@@ -150,3 +150,14 @@ pub use adverse_event::{
 
 mod pgx;
 pub use pgx::*;
+pub use query::{
+    DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
+};
+pub use response::{
+    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
+    DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
+    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSupplements, GtrCard,
+    GtrHeader, GtrNativeStatus,
+};
+
+pub use response::{DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory};

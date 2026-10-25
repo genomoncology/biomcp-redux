@@ -1,3 +1,4 @@
+mod adverse_event_registry;
 mod article_save;
 mod assertions;
 mod clinvar_key;
@@ -522,6 +523,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_failures::trials());
     trials.extend(drug_identity::trials());
     trials.extend(drug_registry::trials());
+    trials.extend(adverse_event_registry::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
     trials.extend(drug_next::trials());
