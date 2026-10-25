@@ -62,7 +62,7 @@ fn flag_message(flag: &str, verb: Option<&str>) -> Option<ErrorMessage> {
         "-d" | "--drug" | "--evidence" => ErrorMessage::PgxText,
         "--pgx-testing" | "--population" | "--lookup-key" => ErrorMessage::PgxSelector,
         "--full" => ErrorMessage::PgxSection,
-        "-l" if verb == Some("get") => ErrorMessage::PgxSectionLimit,
+        "-l" | "--limit" if verb == Some("get") => ErrorMessage::PgxSectionLimit,
         "-l" => ErrorMessage::DiseaseLimit,
         "--offset" if verb == Some("get") => ErrorMessage::PgxSectionOffset,
         "-j" | "--json" => ErrorMessage::DiseaseJson,
