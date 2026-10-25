@@ -1,4 +1,8 @@
 //! Temporary adapter-boundary scaffold until the accepted drug command foundation lands.
+#![expect(
+    clippy::disallowed_methods,
+    reason = "The existing TLS test peer owns its worker thread"
+)]
 #[expect(
     dead_code,
     reason = "This temporary scaffold shares the existing TLS test peer"
@@ -34,7 +38,7 @@ fn retained_native_drug_replies_record_and_replay() {
         ..Default::default()
     })
     .expect("valid development fixture");
-    exercise(&fetch);
+    exercise(&fetch).expect("valid development fixture");
     drop(fetch);
     let requests = stub.finish().expect("valid development fixture");
     assert_eq!(requests.len(), 13);
@@ -45,14 +49,16 @@ fn retained_native_drug_replies_record_and_replay() {
         ..Default::default()
     })
     .expect("valid development fixture");
-    exercise(&fetch);
+    exercise(&fetch).expect("valid development fixture");
 }
-fn exercise(fetch: &Fetch) {
-    search(fetch);
-    exact(fetch);
-    pages(fetch);
+type Error = Box<dyn std::error::Error>;
+fn exercise(fetch: &Fetch) -> Result<(), Error> {
+    search(fetch)?;
+    exact(fetch)?;
+    pages(fetch)?;
+    Ok(())
 }
-fn search(fetch: &Fetch) {
+fn search(fetch: &Fetch) -> Result<(), Error> {
     for (q, offset, total, id) in [
         ("imatinib", 0, 11, "27062"),
         ("trastuzumab", 0, 104, "2986"),
@@ -61,13 +67,7 @@ fn search(fetch: &Fetch) {
         ("trastuzumab", 1, 104, "2988"),
     ] {
         let leg = fetch.leg(&civic::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let page = civic::drug_search(
-            &leg,
-            &q.parse().expect("valid development fixture"),
-            1,
-            offset,
-        )
-        .expect("valid development fixture");
+        let page = civic::drug_search(&leg, &q.parse()?, 1, offset)?;
         assert_eq!(page.total, Some(total));
         assert_eq!(
             page.items
@@ -77,14 +77,14 @@ fn search(fetch: &Fetch) {
             id
         );
     }
+    Ok(())
 }
-fn exact(fetch: &Fetch) {
+fn exact(fetch: &Fetch) -> Result<(), Error> {
     for id in ["5", "84", "454"] {
         let query: DrugGet = serde_json::from_value(
             json!({"source":"civic","input":id,"section":["civic"],"section_limit":1}),
-        )
-        .expect("valid development fixture");
-        let value = get(fetch, &query);
+        )?;
+        let value = get(fetch, &query)?;
         assert_eq!(at(&value, "/identity/id"), id);
         if id == "5" {
             assert_eq!(
@@ -106,39 +106,33 @@ fn exact(fetch: &Fetch) {
             assert_eq!(at(row, "/therapy_interaction_type"), "SEQUENTIAL");
         }
     }
+    Ok(())
 }
-fn pages(fetch: &Fetch) {
-    let query: DrugGet = serde_json::from_value(json!({"source":"civic","input":"5","section":["civic"],"section_limit":1,"civic_profile":1,"civic_kind":"evidence"})).expect("valid development fixture");
-    let value = get(fetch, &query);
+fn pages(fetch: &Fetch) -> Result<(), Error> {
+    let query: DrugGet = serde_json::from_value(
+        json!({"source":"civic","input":"5","section":["civic"],"section_limit":1,"civic_profile":1,"civic_kind":"evidence"}),
+    )?;
+    let value = get(fetch, &query)?;
     assert_eq!(
         value.pointer("/civic/data/evidence/page/total"),
         Some(&json!(4))
     );
     let next: DrugGet =
-        serde_json::from_value(at(&value, "/civic/data/evidence/page/next").clone())
-            .expect("valid development fixture");
-    let value = get(fetch, &next);
+        serde_json::from_value(at(&value, "/civic/data/evidence/page/next").clone())?;
+    let value = get(fetch, &next)?;
     assert_eq!(
         value.pointer("/civic/data/evidence/records/0/claim/record/id"),
         Some(&json!("EID260"))
     );
-    let query = query
-        .with_civic_page(65, CivicClaimKind::Assertions, None)
-        .expect("valid development fixture");
-    let value = get(fetch, &query);
+    let query = query.with_civic_page(65, CivicClaimKind::Assertions, None)?;
+    let value = get(fetch, &query)?;
     assert_eq!(
         value.pointer("/civic/data/assertions/page/total"),
         Some(&json!(1))
     );
     assert!(value.pointer("/civic/data/assertions/page/next").is_none());
-    let query = query
-        .with_civic_page(
-            65,
-            CivicClaimKind::Assertions,
-            Some("MQ".parse().expect("valid development fixture")),
-        )
-        .expect("valid development fixture");
-    let value = get(fetch, &query);
+    let query = query.with_civic_page(65, CivicClaimKind::Assertions, Some("MQ".parse()?))?;
+    let value = get(fetch, &query)?;
     assert_eq!(
         value.pointer("/civic/data/assertions/page/returned"),
         Some(&json!(0))
@@ -147,16 +141,13 @@ fn pages(fetch: &Fetch) {
         value.pointer("/civic/data/assertions/page/total"),
         Some(&json!(1))
     );
+    Ok(())
 }
-fn get(fetch: &Fetch, query: &DrugGet) -> Value {
+fn get(fetch: &Fetch, query: &DrugGet) -> Result<Value, Error> {
     let leg = fetch.leg(&civic::SPEC, fetch.deadline(Duration::from_secs(20)));
-    serde_json::to_value(
-        civic::drug_civic(&leg, query)
-            .expect("valid development fixture")
-            .value,
-    )
-    .expect("valid development fixture")
+    Ok(serde_json::to_value(civic::drug_civic(&leg, query)?.value)?)
 }
+
 fn fixture(index: usize) -> Result<Value, String> {
     let body = match index {
         21 => include_str!("../../../tests/fixtures/drug/civic/021.body"),
