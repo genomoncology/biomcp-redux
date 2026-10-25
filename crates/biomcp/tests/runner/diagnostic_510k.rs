@@ -51,6 +51,7 @@ fn run(mode: &'static str) -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     let exit = match mode {
         "invalid" => 2,
+        "absent" => 1,
         "foreign" | "disabled" => 4,
         _ => 0,
     };

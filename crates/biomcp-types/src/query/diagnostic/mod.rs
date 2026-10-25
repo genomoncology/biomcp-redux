@@ -44,7 +44,7 @@ struct SearchFields {
     /// Exact native test_type value.
     #[serde(default, rename = "type", skip_serializing_if = "Option::is_none")]
     test_type: Option<biodata::GtrTestType>,
-    /// Exact PMA application or application/supplement identity.
+    /// Exact PMA application, application/supplement or native K identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     device_id: Option<DiagnosticDeviceId>,
     /// Cell-owned typed NDA/BLA application.
@@ -119,7 +119,7 @@ impl DiagnosticSearch {
     pub fn test_type(&self) -> Option<biodata::GtrTestType> {
         self.0.test_type
     }
-    /// Selected PMA base or supplement.
+    /// Selected PMA base, supplement or native K identity.
     pub fn device_id(&self) -> Option<&DiagnosticDeviceId> {
         self.0.device_id.as_ref()
     }
