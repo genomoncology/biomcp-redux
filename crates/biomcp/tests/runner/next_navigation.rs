@@ -29,10 +29,11 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
         })
         .collect();
     let body = json!({"total":total,"hits":rows}).to_string();
-    let stub = Stub::for_source(
+    let stub = Stub::for_source_status(
         if drug { "mychem.info" } else { "myvariant.info" },
         "application/json",
         move |_| Ok(body.clone()),
+        |_| 200,
     )?;
     let env = super::variant::source_environment(&stub)?;
     let args = arguments(mode);
