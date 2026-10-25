@@ -363,7 +363,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default; at most fifty whole native rows.",
+          "description": "Five results by default; at most fifty source rows or product headers.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -378,7 +378,7 @@
               "type": "null"
             }
           ],
-          "description": "Literal whole words in WHO's Manufacturer name cell."
+          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
         },
         "marker": {
           "anyOf": [
@@ -389,18 +389,18 @@
               "type": "null"
             }
           ],
-          "description": "Literal whole words in WHO's Pathogen/Disease/Marker cell."
+          "description": "Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell."
         },
         "offset": {
           "default": 0,
-          "description": "Zero-based native row offset.",
+          "description": "Zero-based source result offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment."
+          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
         },
         "type": {
           "anyOf": [

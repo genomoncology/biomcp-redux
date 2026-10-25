@@ -39,8 +39,8 @@
           "who-ivd"
         ]
       },
-      "max_bytes": 2667,
-      "max_tokens": 667
+      "max_bytes": 2654,
+      "max_tokens": 664
     },
     {
       "run": [
