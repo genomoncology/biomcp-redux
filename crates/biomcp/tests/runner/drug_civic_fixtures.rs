@@ -1,0 +1,80 @@
+//! Original CC0 replies from the recorded source proof, projected only for declared local requests.
+use serde_json::Value;
+fn fixture(index: usize) -> Result<Value, String> {
+    let body = match index {
+        21 => include_str!("../../../../tests/fixtures/drug/civic/021.body"),
+        22 => include_str!("../../../../tests/fixtures/drug/civic/022.body"),
+        23 => include_str!("../../../../tests/fixtures/drug/civic/023.body"),
+        24 => include_str!("../../../../tests/fixtures/drug/civic/024.body"),
+        25 => include_str!("../../../../tests/fixtures/drug/civic/025.body"),
+        26 => include_str!("../../../../tests/fixtures/drug/civic/026.body"),
+        27 => include_str!("../../../../tests/fixtures/drug/civic/027.body"),
+        28 => include_str!("../../../../tests/fixtures/drug/civic/028.body"),
+        29 => include_str!("../../../../tests/fixtures/drug/civic/029.body"),
+        30 => include_str!("../../../../tests/fixtures/drug/civic/030.body"),
+        31 => include_str!("../../../../tests/fixtures/drug/civic/031.body"),
+        _ => return Err("undeclared source fixture".into()),
+    };
+    serde_json::from_str(body).map_err(|e| e.to_string())
+}
+pub(super) fn reply(request: &str) -> Result<String, String> {
+    let (_, body) = request.split_once("\r\n\r\n").ok_or("missing POST body")?;
+    let body: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    let q = at(&body, "/query").as_str().ok_or("missing GraphQL")?;
+    let v = at(&body, "/variables");
+    let index = if let Some(text) = at(v, "/q").as_str() {
+        match (text, at(v, "/after").as_str()) {
+            ("imatinib", None) => 24,
+            ("trastuzumab", None) => 25,
+            ("ivosidenib", None) => 26,
+            ("fam-trastuzumab deruxtecan", None) => 27,
+            ("trastuzumab", Some("MQ")) => 28,
+            _ => return Err(format!("undeclared candidate request {body}")),
+        }
+    } else if q.contains("molecularProfileId:") {
+        match (
+            q.contains("molecularProfileId:65"),
+            at(v, "/after").as_str(),
+        ) {
+            (_, None) => 29,
+            (false, Some("MQ")) => 30,
+            (true, Some("MQ")) => 31,
+            _ => return Err(format!("undeclared claim request {body}")),
+        }
+    } else {
+        match at(v, "/id").as_u64() {
+            Some(5) => 21,
+            Some(84) => 22,
+            Some(454) => 23,
+            _ => return Err(format!("undeclared identity {body}")),
+        }
+    };
+    let mut value = fixture(index)?;
+    if at(v, "/id").is_number() {
+        if at(&value, "/data/therapy").is_null() {
+            let therapy = fixture(21)?
+                .pointer("/data/therapy")
+                .ok_or("retained therapy")?
+                .clone();
+            value
+                .get_mut("data")
+                .and_then(Value::as_object_mut)
+                .ok_or("data")?
+                .insert("therapy".into(), therapy);
+        }
+        for field in ["evidenceItems", "assertions"] {
+            if !q.contains(&format!("{field}(")) {
+                value
+                    .get_mut("data")
+                    .and_then(Value::as_object_mut)
+                    .ok_or("data")?
+                    .remove(field);
+            }
+        }
+    }
+    serde_json::to_string(&value).map_err(|e| e.to_string())
+}
+
+fn at<'a>(value: &'a Value, path: &str) -> &'a Value {
+    value.pointer(path).unwrap_or(&Value::Null)
+}
