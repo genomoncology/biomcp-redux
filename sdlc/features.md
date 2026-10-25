@@ -103,3 +103,5 @@ diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whol
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.
 diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `crates/biomcp/tests/runner/diagnostic_who/mechanics.rs`, `tests/cases/diagnostic/who.yaml`, `tests/cases/diagnostic/who-help.yaml`.
+
+diagnostic-pma: Read an exact native FDA base or supplement and page its own regulatory statement and supplement headers. Cases: `tests/cases/diagnostic/pma.yaml`.
