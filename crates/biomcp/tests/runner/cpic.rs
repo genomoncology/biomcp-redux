@@ -26,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "wrong-gene",
         "wrong-drug",
         "truncated-diplotype",
+        "truncated-card",
         "status",
         "count",
         "unknown-field",
@@ -184,6 +185,7 @@ fn failure(name: &'static str) -> Check {
     let (mut args, mut body) = rows::scenario(match name {
         "wrong-drug" => "table",
         "truncated-diplotype" => "diplotype",
+        "truncated-card" => "card",
         _ => "pairs",
     })?;
     if name == "wrong-gene" {
