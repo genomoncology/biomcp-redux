@@ -29,6 +29,7 @@ unreached:
 docs-check:
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
+	python3 scripts/test_coverage.py
 	python3 -m unittest release.test_installer
 .PHONY: release-artifacts
 release-artifacts:
