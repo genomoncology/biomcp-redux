@@ -29,22 +29,7 @@ fn check(fault: &'static str) -> Result<(), String> {
                 label()
             };
             if first {
-                match fault {
-                    "wrong-therapy" => value["data"]["therapy"]["id"] = json!(84),
-                    "missing-join" => {
-                        let therapies = value
-                            .pointer_mut("/data/evidenceItems/nodes/0/therapies")
-                            .and_then(Value::as_array_mut)
-                            .ok_or("claim therapies")?;
-                        for therapy in therapies {
-                            therapy.as_object_mut().ok_or("therapy")?.remove("id");
-                        }
-                    }
-                    _ => {
-                        value["results"][0]["openfda"]["spl_set_id"] =
-                            json!(["b118a40d-6b56-cee3-10f6-ded821a97018"])
-                    }
-                }
+                corrupt(&mut value, fault)?;
                 first = false;
             }
             Ok(value.to_string())
@@ -99,6 +84,25 @@ fn check(fault: &'static str) -> Result<(), String> {
         "synthetic {fault}: full={full} comparable={comparable}"
     )
     .map_err(|e| e.to_string())?;
+    Ok(())
+}
+fn corrupt(value: &mut Value, fault: &str) -> Result<(), String> {
+    match fault {
+        "wrong-therapy" => value["data"]["therapy"]["id"] = json!(84),
+        "missing-join" => {
+            let therapies = value
+                .pointer_mut("/data/evidenceItems/nodes/0/therapies")
+                .and_then(Value::as_array_mut)
+                .ok_or("claim therapies")?;
+            for therapy in therapies {
+                therapy.as_object_mut().ok_or("therapy")?.remove("id");
+            }
+        }
+        _ => {
+            value["results"][0]["openfda"]["spl_set_id"] =
+                json!(["b118a40d-6b56-cee3-10f6-ded821a97018"])
+        }
+    }
     Ok(())
 }
 fn label() -> Value {

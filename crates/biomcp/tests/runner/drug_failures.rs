@@ -160,7 +160,7 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
                 _ => 200,
             });
             exchange["body"] = json!({"kind":"text","value":"synthetic broken body"});
-            exchange["delay_ms"] = json!(if fault == "timeout" { 60000 } else { 0 });
+            exchange["delay_ms"] = json!(if fault == "timeout" { 180000 } else { 0 });
             value["exchanges"] = json!(vec![exchange.clone(); 5]);
             fs::write(target.join(file.file_name()), value.to_string())
                 .map_err(|e| e.to_string())?;
