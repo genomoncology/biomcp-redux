@@ -35,7 +35,7 @@
         "who-ivd"
       ],
       "max_bytes": 2739,
-      "max_tokens": 686,
+      "max_tokens": 685,
       "expect": {
         "/result/kind": "who_ivd_product",
         "/result/id": "0466-046-00",
@@ -95,7 +95,7 @@
         "who-ivd"
       ],
       "max_bytes": 356,
-      "max_tokens": 90,
+      "max_tokens": 89,
       "expect": {
         "/status": "absent"
       },

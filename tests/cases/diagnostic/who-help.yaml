@@ -13,8 +13,8 @@
         "sync",
         "who-ivd"
       ],
-      "max_bytes": 413,
-      "max_tokens": 104,
+      "max_bytes": 447,
+      "max_tokens": 112,
       "expect": {
         "/result/commands/0/command": [
           "sync",
@@ -44,8 +44,8 @@
         "get",
         "diagnostic"
       ],
-      "max_bytes": 1767,
-      "max_tokens": 442,
+      "max_bytes": 1694,
+      "max_tokens": 424,
       "expect": {
         "/result/commands/0/examples": {
           "includes": [
