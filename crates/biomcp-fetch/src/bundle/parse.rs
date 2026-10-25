@@ -73,10 +73,16 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>
             max_decoded_bytes,
         } => super::native::rows::<R>(body, gzip, max_decoded_bytes),
         RowFormat::Tsv => tsv::<R>(body),
-        RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines),
+        RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines, false),
+        RowFormat::NativeCsv { max_bytes } => {
+            if max_bytes == 0 || max_bytes > super::MAX_BUNDLE_BYTES || body.len() as u64 > max_bytes {
+                return Err(BadReply);
+            }
+            csv::<R>(body, 0, true)
+        }
     }
 }
-fn csv<R: Row>(body: &[u8], banner_lines: usize) -> Result<Vec<Parsed>, BadReply> {
+fn csv<R: Row>(body: &[u8], banner_lines: usize, native: bool) -> Result<Vec<Parsed>, BadReply> {
     let mut text = std::str::from_utf8(body).map_err(|_| BadReply)?;
     for _ in 0..banner_lines {
         text = text.split_once('\n').ok_or(BadReply)?.1;
@@ -102,7 +108,7 @@ fn csv<R: Row>(body: &[u8], banner_lines: usize) -> Result<Vec<Parsed>, BadReply
         let object: serde_json::Map<_, _> = names
             .iter()
             .zip(values)
-            .filter(|(_, v)| !v.is_empty())
+            .filter(|(_, v)| native || !v.is_empty())
             .map(|(k, v)| (k.clone(), serde_json::Value::String(v)))
             .collect();
         let value = serde_json::Value::Object(object);

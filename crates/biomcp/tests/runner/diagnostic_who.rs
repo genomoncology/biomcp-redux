@@ -1,4 +1,5 @@
 //! Feature diagnostic-who: exact cards consume a complete explicit stored export.
+mod mechanics;
 use super::{configuration::invoke, launch::{Environment, fixtures}};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,6 +10,8 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("diagnostic-who/missing-and-unsupported-never-fetch", || missing().map_err(Into::into)),
         Trial::test("diagnostic-who/policy-before-stored-data", || policy().map_err(Into::into)),
         Trial::test("diagnostic-who/failed-replacement-keeps-old-copy", || replacement().map_err(Into::into)),
+        Trial::test("diagnostic-who/two-readers-during-atomic-replacement", || mechanics::concurrent().map_err(Into::into)),
+        Trial::test("diagnostic-who/markdown-keeps-native-cells", || mechanics::markdown().map_err(Into::into)),
     ]
 }
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {

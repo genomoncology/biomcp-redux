@@ -62,13 +62,18 @@ pub enum RowFormat {
         /// Number of physical lines preceding the header.
         banner_lines: usize,
     },
+    /// Native CSV with required cells, including empty strings, and a source bound.
+    NativeCsv {
+        /// Maximum complete published body size.
+        max_bytes: u64,
+    },
 }
 impl RowFormat {
     fn media(self) -> &'static str {
         match self {
             Self::Json { .. } => "application/json",
             Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
-            Self::Csv { .. } => "text/csv",
+            Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
         }
     }
 }

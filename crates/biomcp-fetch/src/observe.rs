@@ -203,7 +203,8 @@ impl crate::Leg<'_> {
         let banner = match format {
             crate::RowFormat::Tsv
             | crate::RowFormat::NativeTsv { .. }
-            | crate::RowFormat::Json { .. } => 0,
+            | crate::RowFormat::Json { .. }
+            | crate::RowFormat::NativeCsv { .. } => 0,
             crate::RowFormat::Csv { banner_lines } => banner_lines,
         };
         let mut header = body;
@@ -215,7 +216,7 @@ impl crate::Leg<'_> {
             crate::RowFormat::Tsv | crate::RowFormat::NativeTsv { .. } => {
                 "text/tab-separated-values"
             }
-            crate::RowFormat::Csv { .. } => "text/csv",
+            crate::RowFormat::Csv { .. } | crate::RowFormat::NativeCsv { .. } => "text/csv",
         };
         self.observed(
             identity,

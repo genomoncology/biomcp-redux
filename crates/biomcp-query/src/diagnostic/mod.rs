@@ -1,6 +1,7 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
 mod get;
 mod next;
+mod who;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
@@ -21,9 +22,12 @@ fn empty(body: QueryBody) -> Outcome {
     }
 }
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
+    finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
+}
+fn finish_bundle(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>, source: Source, bundle: Bundle) {
     out.local = error.and_then(status::local);
     out.sources
-        .push(status::source(Source::Gtr, leg.finish(), error));
+        .push(status::source(source, leg.finish(), error));
     if error.is_some() {
         out.status = Status::Failed;
     } else if out.sources.iter().any(|s| s.state == SourceState::Stale)
@@ -35,11 +39,12 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
         .sources
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
+        && !out.next.iter().any(|(_, action)| action == &Action::Sync { bundle })
     {
         out.next.push((
             StepKind::Sync,
             Action::Sync {
-                bundle: Bundle::Gtr,
+                bundle,
             },
         ));
     }

@@ -1,4 +1,5 @@
-//! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
+//! Complete stored WHO export; product identities preserve every native CSV row.
+mod raw;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -15,3 +16,40 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+const SET: biomcp_fetch::BundleSet<raw::Native> = biomcp_fetch::BundleSet {
+    spec: &SPEC,
+    name: "who-ivd",
+    parts: &[biomcp_fetch::BundlePart {
+        name: "products",
+        path: "/vitro-diagnostics/prequalified/in-vitro-diagnostics/export?page&_format=csv",
+        format: None,
+    }],
+    format: biomcp_fetch::RowFormat::NativeCsv { max_bytes: 2 * 1024 * 1024 },
+    // Local expiry policy, not a WHO publication cadence. Reads never synchronize.
+    fresh: biomcp_fetch::Freshness::Days(1),
+    row: std::marker::PhantomData,
+};
+
+/// Validate every native row before publishing one complete replacement snapshot.
+pub fn sync(fetch: &biomcp_fetch::Fetch) -> Result<biomcp_types::SyncResult, biomcp_fetch::RequestError> {
+    fetch.sync_set(&SET).map(|info| biomcp_types::SyncResult {
+        rows: info.rows, bytes: info.bytes, duplicate_identities: None,
+    })
+}
+
+/// Read all source-ordered rows for one exact known product without provider I/O.
+pub fn get(
+    leg: &biomcp_fetch::Leg<'_>, query: &biomcp_types::DiagnosticGet,
+) -> Result<(Option<biodata::WhoIvdProduct>, biomcp_fetch::BundleInfo), biomcp_fetch::RequestError> {
+    let (rows, info) = leg.stored_set_rows(&SET, biomcp_fetch::Find::Exact(biomcp_fetch::KeyKind::Id, query.id().as_str()))?;
+    if query.bundle_revision().is_some_and(|v| Some(v.as_str()) != info.content_revision.as_deref()) {
+        return Err(biomcp_fetch::SourceError { source: Source::WhoIvd, reason: biomcp_types::Reason::Rejected, status: None, retry_after: None }.into());
+    }
+    let id = rows.first().map(|row| row.value.id.clone());
+    let product = id.map(|id| biodata::WhoIvdProduct {
+        id,
+        native_rows: rows.into_iter().map(|row| row.value.into()).collect(),
+    });
+    Ok((product, info))
+}
