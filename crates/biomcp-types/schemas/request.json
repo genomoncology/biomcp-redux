@@ -1021,7 +1021,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native report headers per page; default five.",
+          "description": "Native report headers or VAERS rows per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1029,7 +1029,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native report offset.",
+          "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1108,7 +1108,7 @@
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Literal drug text or MAUDE device generic-name phrase.",
+          "description": "Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.",
           "x-positional": 0
         }
       },

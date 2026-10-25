@@ -66,7 +66,7 @@ pub(super) fn run() -> Check {
         .position(|s| s == "--snapshot")
         .ok_or("snapshot selector")?;
     *absent.get_mut(position + 1).ok_or("snapshot value")? = "missing-snapshot".into();
-    let expired = both(&env, absent, 2)?;
+    let expired = both(&env, absent, 3)?;
     if expired.pointer("/error/code") != Some(&json!("pool.expired")) {
         return Err("missing snapshot did not expire".into());
     }
