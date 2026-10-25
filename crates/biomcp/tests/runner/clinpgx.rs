@@ -5,6 +5,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+const CLINICAL_PAGE_MAX_BYTES: usize = 5886;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![];
     for name in [
@@ -172,6 +173,9 @@ fn request_matches(name: &str, r: &str) -> Check {
     Ok(())
 }
 fn verify(name: &str, v: &Value, native: &Value) -> Check {
+    if name == "default" && super::source_terms::size(v, "")? > CLINICAL_PAGE_MAX_BYTES {
+        return Err("clinical default exceeds its reviewed output ceiling".into());
+    }
     if name == "annotation" {
         if v.pointer("/result/annotation") != native.get("data") {
             return Err("base fields changed".into());
