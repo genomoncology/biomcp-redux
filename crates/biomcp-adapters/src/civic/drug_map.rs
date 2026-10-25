@@ -1,0 +1,74 @@
+use super::{drug::Therapy, drug_raw as raw, variant::failure, variant_claims, variant_map};
+use biodata::{Text, VariantRef};
+use biomcp_fetch::RequestError;
+use biomcp_types::{DrugCivicClaim, DrugCivicProfile, DrugHeader, Problem, Reason};
+
+fn context(raw: raw::Profile) -> Result<(DrugCivicProfile, Option<VariantRef>), RequestError> {
+    let record = variant_map::record(raw.id, &raw.link)?;
+    let members = raw
+        .variants
+        .iter()
+        .map(variant_map::member)
+        .collect::<Result<Vec<_>, _>>()?;
+    let subject = if members.iter().any(|member| member.subject.is_none()) {
+        None
+    } else if raw.is_complex || members.len() != 1 {
+        VariantRef::profile(
+            record.id.clone(),
+            raw.name.clone(),
+            members.iter().filter_map(|m| m.subject.clone()).collect(),
+        )
+        .ok()
+    } else {
+        members.first().and_then(|m| m.subject.clone())
+    };
+    Ok((
+        DrugCivicProfile {
+            record,
+            label: raw.name,
+            compound: raw.is_complex,
+            members: members.into(),
+        },
+        subject,
+    ))
+}
+fn therapies(raw: &[super::variant_raw::Therapy]) -> Result<Box<[DrugHeader]>, RequestError> {
+    raw.iter()
+        .map(|row| {
+            let id = row.id.ok_or_else(|| failure(Reason::BadReply))?;
+            Therapy {
+                id,
+                name: row.name.clone(),
+                link: Text::new(&format!("/therapies/{id}"))
+                    .map_err(|_| failure(Reason::BadReply))?,
+            }
+            .header()
+        })
+        .collect()
+}
+pub(super) fn evidence(
+    raw: raw::Evidence,
+    problems: &mut Vec<Problem>,
+) -> Result<DrugCivicClaim, RequestError> {
+    let (profile, subject) = context(raw.molecular_profile)?;
+    let claim = variant_claims::evidence(&raw.claim, subject.as_ref(), problems)?;
+    Ok(DrugCivicClaim {
+        profile,
+        claim,
+        therapies: therapies(&raw.claim.therapies)?,
+        therapy_interaction_type: raw.therapy_interaction_type,
+    })
+}
+pub(super) fn assertion(
+    raw: raw::Assertion,
+    problems: &mut Vec<Problem>,
+) -> Result<DrugCivicClaim, RequestError> {
+    let (profile, subject) = context(raw.molecular_profile)?;
+    let claim = variant_claims::assertion(&raw.claim, subject.as_ref(), problems)?;
+    Ok(DrugCivicClaim {
+        profile,
+        claim,
+        therapies: therapies(&raw.claim.therapies)?,
+        therapy_interaction_type: raw.therapy_interaction_type,
+    })
+}
