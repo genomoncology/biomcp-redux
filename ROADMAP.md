@@ -319,9 +319,9 @@ The diagnostic slice preserves exact source identities, complete native rows and
 
 Sources:
 - [x] openFDA FAERS and device reports (optional key)
-- [x] VAERS through CDC WONDER (MMR and COVID-19 summaries)
+- [x] VAERS through CDC WONDER (MMR, COVID-19 and separate native influenza summaries)
 
-The FAERS, MAUDE and VAERS accounting records retained commands and explicit retirements. VAERS summaries come from CDC WONDER for MMR and COVID-19; influenza waits on a current WONDER code. Full same-question comparison with 0.9 remains a separate release requirement. Dropped: CVX identity lookup and sync (no proved WONDER mapping), FDA recalls (outside this entity), the duplicate drug helper and its ClinicalTrials.gov fallback (trial data cannot replace spontaneous reports). Drug-card enrichment remains accounted in the drug ledger.
+The FAERS, MAUDE and VAERS accounting records retained commands and explicit retirements. VAERS summaries come from CDC WONDER for MMR, COVID-19 and separate native influenza vaccine types. Broad influenza selectors list the available native codes without requesting a table. Full same-question comparison with 0.9 remains a separate release requirement. Dropped: CVX identity lookup and sync (no proved WONDER mapping), FDA recalls (outside this entity), the duplicate drug helper and its ClinicalTrials.gov fallback (trial data cannot replace spontaneous reports). Drug-card enrichment remains accounted in the drug ledger.
 
 ### Cell line
 - [ ] Slice complete

@@ -54,6 +54,8 @@ singleton! {
         AdverseSource => "choose --source faers or --source maude",
         VaersVaccine => "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
         VaersInfluenza => "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19.",
+        VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
+        VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One report may list several vaccines.",
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
         VaersGet => "VAERS has no individual report get; use search adverse-event MMR --source vaers",
         AdverseVersion => "multi-version get is unproven",
@@ -245,6 +247,12 @@ impl ErrorEnvelope {
 impl ErrorEnvelope {
     /// Report fixed migration guidance without accepting caller input.
     pub fn retired(message: ErrorMessage) -> Self {
+        let valid_values = (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
+            crate::VAERS_INFLUENZA
+                .iter()
+                .filter_map(|(code, label)| crate::Text::new(&format!("{code}: {label}")).ok())
+                .collect()
+        });
         Self {
             next: Vec::new(),
             schema: ErrorSchema::V1,
@@ -253,7 +261,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
-                valid_values: None,
+                valid_values,
                 count: None,
                 code: ErrorCode::Retired,
                 message,

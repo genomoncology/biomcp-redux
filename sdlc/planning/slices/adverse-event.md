@@ -67,7 +67,7 @@ D01 retained total 23,863 and ordered native keys 50952244, 50884084, 50884224, 
 |---|---|---|---|
 | openFDA FAERS | Keep explicit report search and exact report get; captured aggregation stays investigation-only. Independent drug and reaction arrays. [Overview](https://open.fda.gov/apis/drug/event/), [fields](https://open.fda.gov/apis/drug/event/searchable-fields/). | `open`, [openFDA terms](https://open.fda.gov/terms/), CC0 default with stated third-party exceptions; attribution visible. | Versions, optional UNII/RxCUI/NDC/SPL identities, dates, roles, multiplicity. |
 | openFDA MAUDE | Separate device report family with native key/event type. [Overview](https://open.fda.gov/apis/device/event/), [endpoint](https://open.fda.gov/apis/device/event/how-to-use-the-endpoint/). | `open`, same FDA terms and exceptions. | Full device list, product code/UDI availability, report multiplicity, narrative size. |
-| CDC WONDER VAERS | Ported for MMR and COVID-19 after the approved user-agent retry returned aggregate tables. The earlier HPV9 denials remain historical evidence. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Restricted statistical use under [CDC WONDER data use restrictions](https://wonder.cdc.gov/datause.html); the runtime registry enforces source and restricted-group controls. | Actual fields, totals/counting unit; no promised individual report get. |
+| CDC WONDER VAERS | Ported for MMR, COVID-19 and separately selected native influenza types after approved captures returned aggregate tables. The earlier HPV9 denials remain historical evidence. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Restricted statistical use under [CDC WONDER data use restrictions](https://wonder.cdc.gov/datause.html); the runtime registry enforces source and restricted-group controls. | Actual fields, totals/counting unit; no promised individual report get. |
 | CDC CVX/trade names | Dropped: no proved WONDER mapping. Previously considered vaccine identities. [Code sets](https://www.cdc.gov/iis/code-sets/index.html). No token-based name bridge or automatic search-time bundle sync. | Historical research terms: government tables with native notices retained; no runtime registry addition. CPT/AMA tables excluded. | Status/dates, native product-to-CVX/MVX relations, no proved WONDER join. |
 | ClinicalTrials.gov results | Drop automatic fallback after FAERS empty. Trial-owned explicit evidence remains separate. | Existing trial source terms. | No capture requested; trial denominators cannot replace spontaneous report counts. |
 | FDA recalls | Drop the legacy recall route from this entity; regulatory notices need separate question-driven ownership. | Existing FDA terms. | No capture requested; no claim of recall parity. |
@@ -436,7 +436,7 @@ This is source inspection at the pinned legacy revision. Dispositions apply the 
 | `--type faers` | Rename to explicit `--source faers`. | A01–A17. |
 | `--type device/devices/maude` | Rename to explicit `--source maude`. | A18–A20. |
 | `--type recall/recalls/enforcement`, `--classification` | Drop from adverse-event entity; recall ownership needs separate PM decision. | No recall capture or parity claim. |
-| `--source faers/vaers/all`, default all | FAERS default; MAUDE and VAERS explicit. Drop all and automatic vaccine detection. | VAERS supports MMR and COVID-19 summaries; influenza awaits a proved current code. |
+| `--source faers/vaers/all`, default all | FAERS default; MAUDE and VAERS explicit. Drop all and automatic vaccine detection. | VAERS supports MMR, COVID-19 and fourteen separately selected native influenza types. Broad influenza text lists the qualified codes before I/O. |
 | `--device` | Replace with positional literal MAUDE generic-name search; wildcard expansion is dropped. | D01–D04. |
 | `--manufacturer`, `--product-code` | Drop both filters; no raw query replacement or unproved identity filter. | Retirement controls; native fields remain in rows. |
 | Device serious any/death/injury | Drop device seriousness filter; keep native event_type on card/header. | D02 is evidence only; no unsupported CLI promise. |
@@ -503,7 +503,7 @@ This ledger records FAERS, MAUDE and the explicit VAERS summaries through CDC WO
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search adverse-event` | Ported or renamed | `--reaction`, `--serious`, `--date-from`, `--date-to`, `--type`, `--device`, `--limit`, `--offset`, `--source` | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | — | Use literal TEXT with FAERS by default or explicit MAUDE. Receipt dates replace date aliases; only report death and hospitalization flags remain. Device text is a phrase match. Recall routes retire outside this entity. VAERS and CDC WONDER provide explicit MMR and COVID-19 report summaries; CVX identity mapping remains dropped. |
+| `search adverse-event` | Ported or renamed | `--reaction`, `--serious`, `--date-from`, `--date-to`, `--type`, `--device`, `--limit`, `--offset`, `--source` | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | — | Use literal TEXT with FAERS by default or explicit MAUDE. Receipt dates replace date aliases; only report death and hospitalization flags remain. Device text is a phrase match. Recall routes retire outside this entity. VAERS and CDC WONDER provide explicit MMR, COVID-19 and separately selected native influenza report summaries; CVX identity mapping remains dropped. |
 | `get adverse-event` | Ported or renamed | — | — | — | Get one exact native report with explicit source and independent bounded sections. Historical versions remain unproved; guidance and unbounded all retire. |
 | `drug adverse-events` | Dropped by ruling | — | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset` | — | Use search adverse-event TEXT. The duplicate helper and its FAERS-to-ClinicalTrials.gov fallback retire; no trial result substitutes for reports. |
 <!-- /parity-accounting -->
@@ -557,13 +557,13 @@ The case audit distinguishes source registry health contracts from report comman
 
 ## VAERS summary contract
 
-The explicit VAERS search accepts only `MMR`, `COVID19`, or the display name `COVID-19 vaccine`, matched exactly without case. Influenza stays unavailable because the approved native code failed; no replacement code, name bridge or automatic source selection belongs to this contract. `seriousness` and `age` each select an independent native table. The default table contains reported symptoms. Rows retain native order and page locally through the retained snapshot. A missing or expired continuation returns restart guidance without contacting WONDER.
+The explicit VAERS search accepts `MMR`, `COVID19`, the display name `COVID-19 vaccine`, or one qualified native influenza code, matched exactly without case. The published influenza code and label registry lives in `VAERS_INFLUENZA`. A broad `influenza`, `flu` or `FLU` selector fails before I/O and lists its native codes and labels. Each code selects its own tables; there is no aggregate influenza selector, vaccine alias bridge or automatic source selection. One report may list several vaccines, so counts from separate vaccine tables must not be summed. `seriousness` and `age` each select an independent native table. The default table contains reported symptoms. Rows retain native order and page locally through the retained snapshot. A missing or expired continuation returns restart guidance without contacting WONDER.
 
 CDC WONDER declares `restricted` use under [CDC WONDER data use restrictions](https://wonder.cdc.gov/datause.html). Statistical use only and no re-identification apply. The source stays enabled by default; disabling the source or restricted group applies before network, reply cache, replay or retained snapshots. The registry owns its compatibility user agent; other sources keep the transport default. Its quota belongs to shared transport.
 
 Each native row keeps its label, Events Reported and Percent cells as original attribute maps. The native measure codes and labels accompany each table. The source message report total remains separate from the native footer, which can count multiple symptom occurrences per report and exceed the message total. No row sum, denominator sharing, inferred row code or suppressed-cell reconstruction occurs. Each table preserves dataset vintage, applied response footnotes and evaluated caveats, and page messages. The dataset's unselected documentation catalog does not become applicable response notices.
 
-The clinical reviewer approved this interpretation notice from the [CDC WONDER VAERS guide](https://wonder.cdc.gov/vaers.html) and [VAERS data guide](https://vaers.hhs.gov/data/dataguide.html): Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. A report may mention several symptoms. Each table retains its own source total and percentages. Reported symptoms and reports classified as serious preserve source meaning; no diagnoses or unique people are inferred.
+The clinical reviewer approved this interpretation notice from the [CDC WONDER VAERS guide](https://wonder.cdc.gov/vaers.html) and [VAERS data guide](https://vaers.hhs.gov/data/dataguide.html): Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. A report may mention several symptoms and several vaccines. Each table retains its own source total and percentages. Reported symptoms and reports classified as serious preserve source meaning; no diagnoses or unique people are inferred.
 
 ### VAERS synthetic command costs
 
@@ -593,6 +593,12 @@ The adapter decoder enforces `MAX_XML` before its native DOM parse and cache adm
 The retained MMR symptom table has 4074 physical rows including the footer and 4073 pageable rows. Its native report-total message is 84,004 and its symptom footer is 269,356 / 320.65%. These remain separate source values, as do the independently returned seriousness and age totals.
 
 
+### Native influenza selection
+
+The published WONDER request form supplies the native influenza vaccine types in `VAERS_INFLUENZA`. The clinical reviewer checked their exact codes and labels against that form. `FLUX(SEASONAL)` retains the publisher's no-brand-name label; `FLUX(H1N1)` retains its unknown-manufacturer label. Those qualifications identify different native selections and cannot be dropped from a request. The implementation lists the registry when a caller asks for broad influenza results instead of combining its entries.
+
+The bounded capture `j13562` returned HTTP 200 aggregate tables for all three independent groupings of every registry entry. It sent 42 requests with no retries or fallbacks. The original XML, request receipts and per-table source metadata remain outside Git in Yellow archive `data/biomcp-redux/0183-vaers-influenza-native-capture/2290-vaers-influenza-native-capture.tar.gz`, SHA-256 `9b39062a8446db31523db7312ee7cbb0e350ac4ad8a5b642d5640c691f253b99`. Its 429 members include 428 verified content hashes. This source capture proves table availability; native product measurements are recorded separately from synthetic command costs.
+
 ### VAERS retained native command costs
 
 The independent retained proof at revision `037b321dc552391eafa002a4ebf9ddecf94c340f` checked 26 successful CLI/MCP pairs, two disabled-policy pairs and six external schema cases. It checked each table against its own original XML, including scope, native cells, source messages, applied notices and footer. Symptoms used representative first, second and terminal pages; the complete paging walk remains synthetic. The completion made no provider requests or new recorder deliveries. Local replay timings do not measure provider latency.
@@ -616,3 +622,28 @@ The independent retained proof at revision `037b321dc552391eafa002a4ebf9ddecf94c
 The approved default remains five rows. Each native external ceiling is its own measured compact actual plus fifteen percent, rounded up. These external bounds remain separate from the synthetic case ceilings above and from existing help, discovery and source-enum caps. Full bytes describe compact envelopes. Comparable bytes remove only the validated registry use, terms and terms URL fields, a 112-byte difference. Raw CLI stdout adds one newline byte; MCP frames include protocol wrapping. Explicit limits remain visible in the query, and a one-row seriousness page adds continuation metadata. Preserved native notices dominate response size: reducing the symptom page from five rows to one saves only 294 bytes for MMR and 320 bytes for COVID19.
 
 The verified archive is `data/biomcp-redux/0182-vaers-product-proof/2291-vaers-offline-product-proof-037b321d.tar.gz` on Yellow, SHA-256 `f7b0e6d4a9661c8a80738d40d6908cdceb50f6e39e210eed84f008571cd2cd78`, with 287 exact members and 286 verified content hashes. Its measurements and raw CLI/MCP outputs remain outside Git.
+
+
+### Native influenza command costs
+
+The retained product replay `j13591` at revision `a0fa49078211027c880e45a4e239b008036d59be` recorded each of the 42 captured tables once through localhost, with zero provider requests or retries. It checked all 42 default CLI/MCP pairs and eight representative continuation pairs against the original native fields. The external Rust case runner validated all 50 envelopes across 42 cases with the current source-terms comparison. Disabled-policy and broad-selector checks preserved refusal before I/O.
+
+The default remains five rows under the existing ruling. The section maxima below summarize the fourteen observed default commands per section; they do not bound unseen native values. Seriousness returned its two complete native rows. Each external case owns its measured full and comparable compact ceiling, calculated as its own actual plus fifteen percent, rounded up. These bounds do not raise any synthetic, help or discovery ceiling.
+
+| Native influenza response | Full/comparable compact bytes | Full/comparable ceilings |
+| --- | ---: | ---: |
+| Default symptoms, observed maximum | 8067 / 7955 | 9278 / 9149 |
+| Default seriousness, observed maximum | 8071 / 7959 | 9282 / 9153 |
+| Default age, observed maximum | 8045 / 7933 | 9252 / 9123 |
+| FLU(H1N1)-symptoms-second | 8087 / 7975 | 9301 / 9172 |
+| FLU(H1N1)-symptoms-terminal | 7621 / 7509 | 8765 / 8636 |
+| FLU(H1N1)-age-second | 7979 / 7867 | 9176 / 9048 |
+| FLU(H1N1)-age-terminal | 7630 / 7518 | 8775 / 8646 |
+| FLUX(H1N1)-symptoms-second | 8095 / 7983 | 9310 / 9181 |
+| FLUX(H1N1)-symptoms-terminal | 7759 / 7647 | 8923 / 8795 |
+| FLUX(H1N1)-age-second | 7984 / 7872 | 9182 / 9053 |
+| FLUX(H1N1)-age-terminal | 7638 / 7526 | 8784 / 8655 |
+
+Comparable sizes remove only the validated registry `use`, `terms` and `terms_url` fields. CLI stdout adds one newline byte; MCP frame measurements include protocol wrapping. All native notices, independent source totals, exact labels and qualified selectors remain present. Representative second and terminal pages cover two native selections; the complete walk remains covered by synthetic cases. No three-row or one-row native comparison ran for influenza. Local replay timings do not measure provider latency.
+
+The archive on Yellow is `data/biomcp-redux/0183-vaers-influenza-product-proof/j13591-native-proof.tar.gz`, SHA-256 `6546dea01779d51757a46cb1461f9f04bb20aec38ab048eea4de2319cd85f8aa`. Its 648 members include 647 verified content hashes. The original per-case measurements, external caps and raw CLI/MCP outputs remain in that archive.
