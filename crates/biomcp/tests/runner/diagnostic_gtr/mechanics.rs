@@ -44,8 +44,11 @@ pub(super) fn replacement() -> Check {
             } else if fault == "wrong-version-member"
                 && path.extension().is_some_and(|v| v == "bin")
             {
-                fs::copy(fixtures().join("replies/diagnostic/gtr-wrong-version-member.bin"), &path)
-                    .map_err(|e| e.to_string())?;
+                fs::copy(
+                    fixtures().join("replies/diagnostic/gtr-wrong-version-member.bin"),
+                    &path,
+                )
+                .map_err(|e| e.to_string())?;
             } else if path.extension().is_some_and(|v| v == "json") {
                 let mut value: Value =
                     serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
@@ -70,7 +73,12 @@ pub(super) fn replacement() -> Check {
                 }
             }
         }
-        call(&env, &replay, &["sync", "gtr"], 4)?;
+        let failed = call(&env, &replay, &["sync", "gtr"], 4)?;
+        if fault == "wrong-version-member"
+            && failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        {
+            return Err(format!("wrong native member was not rejected: {failed}"));
+        }
         if call(&env, &replay, &args, 0)? != before {
             return Err(format!("{fault} replaced usable data"));
         }

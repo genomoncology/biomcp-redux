@@ -13,6 +13,10 @@ pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 pub trait Row: serde::de::DeserializeOwned {
     /// Return the row’s exact and word search keys.
     fn keys(&self) -> Keys;
+    /// Validate this row against its declared member of a complete source set.
+    fn check_part(&self, _part: &str) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
     /// Validate typed shared metadata against the complete decoded JSON row count.
     fn check_bundle(&self, _rows: usize) -> Result<(), crate::BadReply> {
         Ok(())

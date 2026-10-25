@@ -31,6 +31,16 @@ pub(super) enum Object {
     Condition,
 }
 impl Row for Native {
+    fn check_part(&self, part: &str) -> Result<(), biomcp_fetch::BadReply> {
+        if matches!(
+            (self, part),
+            (Self::Version(_), "versions") | (Self::Relation(_), "relations")
+        ) {
+            Ok(())
+        } else {
+            Err(biomcp_fetch::BadReply)
+        }
+    }
     fn check_bundle(&self, _rows: usize) -> Result<(), biomcp_fetch::BadReply> {
         match self {
             Self::Version(v) => super::map::card(v)

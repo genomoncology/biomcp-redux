@@ -78,8 +78,8 @@ impl Fetch {
                 .bytes(super::MAX_BUNDLE_BYTES)
                 .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {
-                let parsed =
-                    parse::rows::<R>(body, format).map_err(|_| biomcp_types::Reason::BadReply)?;
+                let parsed = parse::part_rows::<R>(body, format, part.name)
+                    .map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
                 }
@@ -95,7 +95,7 @@ impl Fetch {
             revision.update(part.path.as_bytes());
             revision.update((body.len() as u64).to_be_bytes());
             revision.update(&body);
-            let rows = parse::rows::<R>(&body, format)
+            let rows = parse::part_rows::<R>(&body, format, part.name)
                 .map_err(|_| leg.failure(biomcp_types::Reason::BadReply, Some(200)))?;
             append_part(&mut complete, part, rows)?;
         }
