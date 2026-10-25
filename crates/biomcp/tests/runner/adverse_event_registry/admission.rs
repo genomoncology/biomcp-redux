@@ -9,7 +9,6 @@ use biomcp_fetch::{
     Certificates, Fetch, FetchConfig, Freshness, Mode, Network, RequestError, Secret, SourceSpec,
 };
 use biomcp_types::{Reason, Source};
-use std::time::Duration;
 #[derive(serde::Deserialize)]
 struct Synthetic {
     present: bool,
@@ -41,7 +40,7 @@ fn get(
     path: &'static str,
     component: bool,
 ) -> Result<Synthetic, RequestError> {
-    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(3)));
+    let leg = fetch.leg(spec, fetch.deadline(spec.deadline));
     if component {
         if spec.source == Source::Faers {
             components::meddra(&leg)?;
