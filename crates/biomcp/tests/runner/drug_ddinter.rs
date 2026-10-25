@@ -204,8 +204,9 @@ fn interaction_page(env: &Environment, replay: &Path, args: &[String]) -> Result
     .map_err(|e| e.to_string())?;
     let offset = args
         .windows(2)
-        .find(|pair| pair[0] == "--section-offset")
-        .map_or("0", |pair| pair[1].as_str());
+        .find(|pair| pair.first().is_some_and(|flag| flag == "--section-offset"))
+        .and_then(|pair| pair.get(1))
+        .map_or("0", String::as_str);
     let (measured_full, measured_comparable): (usize, usize) =
         if args.iter().any(|arg| arg == "--section-limit") {
             (5546, 5443)
