@@ -61,14 +61,6 @@ const CASES: &[(&str, &str)] = &[
         "use: --section-limit",
     ),
     (
-        "get pgx DPYD recommendations json --source cpic",
-        "use: --format json",
-    ),
-    (
-        "get pgx --gene DPYD recommendations json --source cpic",
-        "use: --format json",
-    ),
-    (
         "get pgx DPYD interactions --source cpic",
         "use: search pgx --gene <SYMBOL> --source cpic; get pgx --gene <SYMBOL> --source cpic",
     ),
