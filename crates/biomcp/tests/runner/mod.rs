@@ -10,6 +10,7 @@ mod disease_ols;
 mod disease_registry;
 mod disease_seer;
 mod drug_civic;
+mod drug_next;
 mod drug_civic_fixtures;
 mod drug_ddinter;
 mod drug_ema;
@@ -517,6 +518,7 @@ fn drug_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(drug_registry::trials());
     trials.extend(drug_civic::trials());
+    trials.extend(drug_next::trials());
     trials.extend(drug_ema::trials());
     trials.extend(drug_ddinter::trials());
     trials.extend(drug_fda::trials());
