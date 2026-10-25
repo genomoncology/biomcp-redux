@@ -50,7 +50,9 @@ fn args(words: &[&str]) -> Vec<String> {
 fn record(env: &Environment, words: &[&str], directory: &Path) -> Result<Value, String> {
     let mut command = args(words);
     command.extend(["--record".into(), directory.to_string_lossy().into()]);
-    invoke(env, &command, 0)
+    let result=invoke(env,&command,0)?;
+    eprintln!("disease measurement {:?}: {} JSON bytes",words,serde_json::to_vec(&result).map_err(|e|e.to_string())?.len());
+    Ok(result)
 }
 fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;

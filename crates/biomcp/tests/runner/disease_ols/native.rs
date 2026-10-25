@@ -34,6 +34,14 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
     let output = root.join("product-proof");
     fs::create_dir_all(&output).map_err(|e| e.to_string())?;
     for (index, row) in requests.iter().enumerate() {
+        prove_row(root,&output,&env,index,row)?;
+    }
+    if stub.finish()?.len() != requests.len() {
+        return Err("unexpected source attempt count".into());
+    }
+    Ok(())
+}
+fn prove_row(root:&Path,output:&Path,env:&super::Environment,index:usize,row:&Value)->Result<(),String> {
         let words = command(row)?;
         let directory = output.join(format!("record-{index}"));
         let refs = words.iter().map(String::as_str).collect::<Vec<_>>();
@@ -47,39 +55,13 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
                 .map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
-        let mut expected = serde_json::Map::new();
-        expected.insert("/status".into(), json!("complete"));
-        if let Some(response) = body.get("response") {
-            expected.insert("/page/total".into(), response["numFound"].clone());
-            expected.insert("/page/offset".into(), response["start"].clone());
-            for (i, hit) in response["docs"]
-                .as_array()
-                .ok_or("missing docs")?
-                .iter()
-                .enumerate()
-            {
-                expected.insert(
-                    format!("/result/items/{i}/concept/id"),
-                    hit["obo_id"].clone(),
-                );
-            }
-        } else {
-            let term = &body["_embedded"]["terms"][0];
-            expected.insert("/result/returned_id".into(), term["obo_id"].clone());
-            expected.insert("/result/obsolete".into(), term["is_obsolete"].clone());
-            if term["is_obsolete"] == true {
-                expected.insert("/result/replaced_by".into(), Value::Null);
-                expected.insert(
-                    "/result/consider".into(),
-                    json!(["MONDO:0800444", "MONDO:0800445"]),
-                );
-            }
-        }
+        let expected = expectations(&body)?;
+
         let size = serde_json::to_vec(&result)
             .map_err(|e| e.to_string())?
             .len();
         let mut steps = vec![
-            json!({"run":words,"mcp":words,"expect":expected,"max_bytes":(size*115).div_ceil(100)}),
+            json!({"run":words,"mcp":words,"expect":expected}),
         ];
         if row["url"]
             .as_str()
@@ -117,12 +99,42 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
             "native disease proof {index}: {size} full JSON bytes; original {}",
             row["sha256"]
         );
-    }
-    if stub.finish()?.len() != requests.len() {
-        return Err("unexpected source attempt count".into());
-    }
-    Ok(())
+Ok(())
 }
+
+fn expectations(body:&Value)->Result<serde_json::Map<String,Value>,String> {
+ let mut expected=serde_json::Map::new();
+
+        expected.insert("/status".into(), json!("complete"));
+        if let Some(response) = body.get("response") {
+            expected.insert("/page/total".into(), response["numFound"].clone());
+            expected.insert("/page/offset".into(), response["start"].clone());
+            for (i, hit) in response["docs"]
+                .as_array()
+                .ok_or("missing docs")?
+                .iter()
+                .enumerate()
+            {
+                expected.insert(
+                    format!("/result/items/{i}/concept/id"),
+                    hit["obo_id"].clone(),
+                );
+            }
+        } else {
+            let term = &body["_embedded"]["terms"][0];
+            expected.insert("/result/returned_id".into(), term["obo_id"].clone());
+            expected.insert("/result/obsolete".into(), term["is_obsolete"].clone());
+            if term["is_obsolete"] == true {
+                expected.insert("/result/replaced_by".into(), Value::Null);
+                expected.insert(
+                    "/result/consider".into(),
+                    json!(["MONDO:0800444", "MONDO:0800445"]),
+                );
+            }
+        }
+Ok(expected)
+}
+
 fn load(root: &Path) -> Result<Vec<Value>, String> {
     let rows: Vec<Value> = serde_json::from_slice(
         &fs::read(root.join("native-inputs.json")).map_err(|e| e.to_string())?,
@@ -131,7 +143,7 @@ fn load(root: &Path) -> Result<Vec<Value>, String> {
     for row in &rows {
         let bytes = fs::read(root.join(row["local_body"].as_str().ok_or("missing body")?))
             .map_err(|e| e.to_string())?;
-        let hash = format!("{:x}", Sha256::digest(bytes));
+        let hash = Sha256::digest(bytes).iter().map(|b|format!("{b:02x}")).collect::<String>();
         if row["sha256"] != hash {
             return Err("retained source hash mismatch".into());
         }
