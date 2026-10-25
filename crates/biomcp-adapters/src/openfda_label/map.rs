@@ -26,6 +26,7 @@ impl Record {
         Ok(DrugHeader {
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
+            version: Some(self.version.clone()),
             name: self
                 .openfda
                 .brand_name

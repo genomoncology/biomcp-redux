@@ -305,3 +305,22 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
         assert!(serde_json::from_value::<DrugGet>(query).is_err());
     }
 }
+
+#[test]
+fn label_candidate_versions_are_native_optional_identity_metadata() {
+    let mut value = json!({"id":"211ef2da-2868-4a77-8055-1cb2cd78e24b", "source":"openfda-label", "name":"Synthetic brand", "identity_level":"spl_set"});
+    let unversioned: biomcp_types::DrugHeader =
+        serde_json::from_value(value.clone()).expect("unversioned");
+    assert!(
+        serde_json::to_value(unversioned)
+            .expect("JSON")
+            .get("version")
+            .is_none()
+    );
+    value["version"] = json!("41");
+    let versioned: biomcp_types::DrugHeader =
+        serde_json::from_value(value.clone()).expect("versioned");
+    assert_eq!(serde_json::to_value(versioned).expect("JSON"), value);
+    value["text"] = json!("not an identity field");
+    assert!(serde_json::from_value::<biomcp_types::DrugHeader>(value).is_err());
+}
