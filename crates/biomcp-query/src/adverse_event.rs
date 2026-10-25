@@ -1,5 +1,5 @@
+//! One explicit adverse-event source; no inference, drug choice or source probing.
 mod get;
-/// One explicit adverse-event source; no inference, drug choice or source probing.
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::faers;
 use biomcp_types::{
