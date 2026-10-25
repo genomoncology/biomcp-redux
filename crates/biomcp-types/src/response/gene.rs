@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native candidate page.
+    DrugPage(crate::DrugPage),
+    /// Exact source identity, absent on failed retrieval.
+    DrugCard(Option<crate::DrugCard>),
     /// Source-native variant assertions.
     VariantAssertions(crate::VariantAssertions),
     /// Independent provider normalization results.

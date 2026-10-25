@@ -15,7 +15,8 @@ pub struct DrugHeader {
     /// The single source responsible for this header.
     pub source: DrugSource,
     /// Original source display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
     /// Level established only by the endpoint or record type.
     pub identity_level: DrugIdentityLevel,
     /// Native record type.

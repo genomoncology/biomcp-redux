@@ -220,3 +220,22 @@ impl DrugSource {
         }
     }
 }
+
+impl DrugSearch {
+    /// Literal source query, without rewriting.
+    pub fn query(&self) -> &Text { &self.0.query }
+    /// Single selected native source.
+    pub fn source(&self) -> DrugSource { self.0.source }
+    /// Native page bound.
+    pub fn limit(&self) -> u32 { self.0.limit }
+    /// Native page offset.
+    pub fn offset(&self) -> u32 { self.0.offset }
+    /// Continue that exact literal source query.
+    pub fn with_offset(&self, offset: u32) -> Self {
+        let mut fields = self.0.clone(); fields.offset = offset; Self(fields)
+    }
+}
+impl DrugGet {
+    /// Explicit requested disclosures.
+    pub fn sections(&self) -> &[DrugSection] { &self.0.section }
+}
