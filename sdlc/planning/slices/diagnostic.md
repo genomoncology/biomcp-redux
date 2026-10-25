@@ -207,6 +207,10 @@ These are retained product measurements, not source projections. Full and compar
 
 | Product view and measured scope | Full / comparable compact bytes | Full stdout ceiling | Approximate full tokens | 0.9 comparison |
 | --- | ---: | ---: | ---: | --- |
+| GTR default-five candidate page, largest observed native slice page | 4017 / 3867 | 4621 | 1005 | Not run: 0098; slice has eight versions and 122 relations. |
+| GTR default-five genes, retained native slice panel | 2014 / 1864 | 2318 | 504 | Not run: 0098; slice panel has ten selected gene rows. |
+| GTR default-five conditions, retained native slice panel | 1594 / 1444 | 1835 | 399 | Not run: 0098; slice panel has ten selected condition rows. |
+| GTR default-five methods, retained native slice singleton | 1251 / 1101 | 1440 | 313 | Not run: 0098; five of six method entries. |
 | GTR full sync, both complete reports | 330 / 180 | 381 | 83 | Not run: verified diagnostic containment and same-question comparator belong to 0098. |
 | GTR Gene 672 candidate page, largest of complete 433 walk, limit 50 | 37115 / 36965 | 42684 | 9279 | Not run: 0098. |
 | GTR condition candidate page, largest of complete 127 walk, limit 50 | 35564 / 35414 | 40900 | 8891 | Not run: 0098. |
@@ -225,6 +229,8 @@ These are retained product measurements, not source projections. Full and compar
 | PMA largest retained one-fragment regulatory page | 3258 / 3156 | 3748 | 815 | Old name overlay is not an exact-submission comparator; 0098 deferred. |
 | Native K173492 clearance card | 758 / 643 | 873 | 190 | No old exact source-specific clearance command. |
 | Native K080653 source-local absence | 281 / 166 | 325 | 71 | No old exact source-specific clearance command. |
+
+The earlier GTR slice proof j12984 passed 35 CLI/MCP pairs using unchanged native rows selected from the retained reports: eight versions and 122 relations, including only ten panel gene and ten panel condition rows. Its default-five values above prove those slice requests, not full-report default continuation overhead or a full-source maximum. Exact BRCA1 and Gene672 default slice pages measured 3920/3770 and 3921/3771 full/comparable compact bytes; the displayed 4017-byte maximum is the Clinical type page. The method continuation measured 654/504 compact bytes for its final one entry. The archive is `data/biomcp-redux/0172-gtr-native-slice-proof/j12984-native-slice-proof.tar.gz`, SHA-256 `3b28057461bf299cc1a9ab2c731b78eca8b6823288f2ff53ce5226eec1232d7f`. All raw measurements were checked against the archived CLI output without product execution.
 
 GTR j13177 completed every CLI walk; CLI/MCP parity was sampled at first, second and terminal pages. Its largest intermediate pages were not individually MCP calls. WHO j13094 checked nineteen CLI/MCP pairs. FDA j13117 checked twenty native plus nine synthetic pairs before an obsolete help check failed; the help defect was fixed separately. Only two unfiltered FDA pages were measured, so the table does not claim a global five-row maximum. FDA comparable values above were recalculated from retained output using the current runner's validated three-field deduction; the original proof's recorded comparable values retained `use` and were thirteen bytes larger. PMA native comparables retain that proof's declared terms deduction; its complete envelope sizes and ceilings remain unchanged.
 
@@ -569,7 +575,7 @@ The routine Rust cases test mechanism boundaries and reuse the corresponding sou
 
 ### Final generated help and discovery budgets
 
-The local help preflight j13380 measured search diagnostic at 2026 compact/2027 stdout bytes and get diagnostic at 2223 compact/2224 stdout bytes. The PM approved get-help growth to 2557 compact/2558 stdout because the canonical described enum now makes its five sections visible. Search retains its existing 2200-byte ceiling. Sync help measured 373 stdout bytes for GTR and389 for WHO and FDA CDx; each exposes exactly two case-derived examples. Their new help-case ceilings use measured stdout plus fifteen percent.
+The local help preflight j13380 measured search diagnostic at 2026 compact/2027 stdout bytes and get diagnostic at 2223 compact/2224 stdout bytes. The PM approved get-help growth to 2557 compact/2558 stdout because the canonical described enum now makes its five sections visible. Search retains its existing 2200-byte ceiling. Sync help measured 373 stdout bytes for GTR and 389 for WHO and FDA CDx; each exposes exactly two case-derived examples. Their new help-case ceilings use measured stdout plus fifteen percent.
 
 Whole help measured 56826 stdout bytes and retains its existing 63341 ceiling. MCP discovery measured 1920 bytes and retains its 1923 ceiling. It adds schema-derived diagnostic source choices and sections while preserving every PGx paging flag. The compact intro is shorter and individual credential-help leaves are omitted from discovery; full generated help still contains those leaves. No public command, source selector or section was removed to fit discovery. The shared executable-example check executes every published example against its owning synthetic recording.
 

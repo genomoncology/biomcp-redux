@@ -320,14 +320,7 @@ fn discovery() -> Check {
     discovery_description(text)
 }
 
-fn discovery_description(text: &str) -> Check {
-    writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
-        .map_err(|e| e.to_string())?;
-    // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 1923 {
-        return Err("command description exceeds budget".into());
-    }
-    for word in [
+const DISCOVERY_WORDS: &[&str] = &[
         "protein",
         "civic",
         "clingen",
@@ -398,7 +391,17 @@ fn discovery_description(text: &str) -> Check {
         "cosmic",
         "gwas",
         "hotspots",
-    ] {
+
+];
+
+fn discovery_description(text: &str) -> Check {
+    writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
+        .map_err(|e| e.to_string())?;
+    // Keep discovery compact; detailed options live in generated command help.
+    if text.len() > 1923 {
+        return Err("command description exceeds budget".into());
+    }
+    for word in DISCOVERY_WORDS {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));
         }

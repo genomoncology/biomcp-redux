@@ -223,12 +223,21 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.error/1", "", "usage") => 196,
         ("biomcp.sync/3", "", "complete") => 348,
         ("biomcp.sync/3", "", "failed") => 337,
-        _ => return Err(format!("unmeasured diagnostic envelope: {schema}/{kind}/{status}")),
+        _ => {
+            return Err(format!(
+                "unmeasured diagnostic envelope: {schema}/{kind}/{status}"
+            ));
+        }
     };
-    writeln!(std::io::stdout(), "diagnostic {schema}/{kind}/{status}: {bytes}")
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "diagnostic {schema}/{kind}/{status}: {bytes}"
+    )
+    .map_err(|e| e.to_string())?;
     if bytes > (baseline * 115).div_ceil(100) {
-        return Err(format!("diagnostic output exceeds measured envelope ceiling: {bytes}"));
+        return Err(format!(
+            "diagnostic output exceeds measured envelope ceiling: {bytes}"
+        ));
     }
     Ok(())
 }
