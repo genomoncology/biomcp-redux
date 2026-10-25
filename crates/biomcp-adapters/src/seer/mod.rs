@@ -4,9 +4,11 @@ use biomcp_types::{Source, Use};
 use std::time::Duration;
 mod map;
 mod raw;
+mod selectors;
 use biodata::{DiseaseStatistic, Text};
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::DiseaseSite;
+pub use selectors::{Selector, SelectorError};
 /// A selected native statistic, with its own applicable selector.
 #[derive(Debug)]
 pub enum Statistic {

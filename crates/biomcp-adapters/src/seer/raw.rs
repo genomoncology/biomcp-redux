@@ -138,7 +138,9 @@ impl Reply for Document {
                         return Err(BadReply);
                     }
                     if let Some(value) = value {
-                        if matches!(*field, "year" | "count") {
+                        if *field == "year" {
+                            u32::try_from(value.integer()?).map_err(|_| BadReply)?;
+                        } else if *field == "count" {
                             value.integer()?;
                         } else {
                             value.number()?;

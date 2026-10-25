@@ -174,3 +174,20 @@ fn incidence_preserves_stage_order_and_native_counts_without_aggregating() {
     assert_eq!(terminal.total, 2);
     assert!(terminal.rows.is_empty());
 }
+
+#[test]
+fn only_published_all_group_demographics_default_without_io() {
+    use seer::Selector;
+    for selector in [Selector::Sex, Selector::Race, Selector::AgeRange] {
+        assert_eq!(selector.resolve(None).unwrap().as_str(), "1");
+    }
+    for selector in [Selector::Dataset, Selector::Period, Selector::Interval] {
+        let error = selector.resolve(None).unwrap_err();
+        assert_eq!(error.selector, selector);
+        assert!(error.to_string().contains(selector.flag()));
+        for code in selector.valid_codes() {
+            assert!(selector.resolve(Some(&code.parse().unwrap())).is_ok());
+        }
+        assert!(selector.resolve(Some(&"99999".parse().unwrap())).is_err());
+    }
+}
