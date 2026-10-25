@@ -34,58 +34,10 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
         }
         "view" | "missing-second-gene" | "table" => {
             args.push("recommendations".into());
-            let mut row = json!({"lookupkey":{"DPYD":"n/a","TPMT":"Synthetic other gene"},"implications":{"DPYD":"Synthetic context","TPMT":"Independent synthetic context"},"phenotypes":{"DPYD":"Uncertain synthetic result","TPMT":"Synthetic label"},"activityscore":{},"drugrecommendation":"Synthetic source text without clinical advice.","classification":"Synthetic classification","population":"Synthetic population","comments":"Keep this synthetic qualification."});
-            // Q16 authored partial-key control: no unavailable second gene becomes normal.
-            if name == "missing-second-gene" {
-                for field in ["lookupkey", "implications", "phenotypes"] {
-                    row.get_mut(field)
-                        .and_then(Value::as_object_mut)
-                        .ok_or("joint key")?
-                        .remove("TPMT");
-                }
-            }
-            if matches!(name, "view" | "missing-second-gene") {
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("recommendationid".into(), json!(1));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("drugname".into(), json!("Synthetic drug"));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("guidelinename".into(), json!("Synthetic guideline"));
-                row.as_object_mut().ok_or("synthetic object")?.insert(
-                    "guidelineurl".into(),
-                    json!("https://example.org/synthetic"),
-                );
-            } else {
+            if name == "table" {
                 args.extend(["--drug-id".into(), "RxNorm:10324".into()]);
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("id".into(), json!(1));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("drugid".into(), json!("RxNorm:10324"));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("guidelineid".into(), json!(2));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("allelestatus".into(), json!({"DPYD":"Synthetic status"}));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("version".into(), json!(3));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("dosinginformation".into(), json!(false));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("alternatedrugavailable".into(), json!(true));
-                row.as_object_mut()
-                    .ok_or("synthetic object")?
-                    .insert("otherprescribingguidance".into(), json!(false));
             }
-            json!([row])
+            json!([recommendation(name)?])
         }
         "guidelines" | "guidelines-many" => {
             args.push("guidelines".into());
@@ -116,4 +68,58 @@ fn guideline_rows(name: &str) -> Value {
         .map(|symbol| json!({"symbol":symbol,"url":format!("https://example.org/gene/{symbol}")}))
         .collect::<Vec<_>>();
     json!([{"guideline_name":"Synthetic guideline","guideline_url":"https://example.org/synthetic","drugs":["Synthetic A","Synthetic B"],"genes":genes}])
+}
+
+fn recommendation(name: &str) -> Result<Value, String> {
+    let mut row = json!({"lookupkey":{"DPYD":"n/a","TPMT":"Synthetic other gene"},"implications":{"DPYD":"Synthetic context","TPMT":"Independent synthetic context"},"phenotypes":{"DPYD":"Uncertain synthetic result","TPMT":"Synthetic label"},"activityscore":{},"drugrecommendation":"Synthetic source text without clinical advice.","classification":"Synthetic classification","population":"Synthetic population","comments":"Keep this synthetic qualification."});
+    // Q16 authored partial-key control: no unavailable second gene becomes normal.
+    if name == "missing-second-gene" {
+        for field in ["lookupkey", "implications", "phenotypes"] {
+            row.get_mut(field)
+                .and_then(Value::as_object_mut)
+                .ok_or("joint key")?
+                .remove("TPMT");
+        }
+    }
+    if matches!(name, "view" | "missing-second-gene") {
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("recommendationid".into(), json!(1));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("drugname".into(), json!("Synthetic drug"));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("guidelinename".into(), json!("Synthetic guideline"));
+        row.as_object_mut().ok_or("synthetic object")?.insert(
+            "guidelineurl".into(),
+            json!("https://example.org/synthetic"),
+        );
+    } else {
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("id".into(), json!(1));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("drugid".into(), json!("RxNorm:10324"));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("guidelineid".into(), json!(2));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("allelestatus".into(), json!({"DPYD":"Synthetic status"}));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("version".into(), json!(3));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("dosinginformation".into(), json!(false));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("alternatedrugavailable".into(), json!(true));
+        row.as_object_mut()
+            .ok_or("synthetic object")?
+            .insert("otherprescribingguidance".into(), json!(false));
+    }
+    Ok(row)
 }

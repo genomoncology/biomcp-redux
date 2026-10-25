@@ -8,6 +8,7 @@ struct Words<'a> {
     section: Option<&'a str>,
     drug_id: bool,
     annotation_id: bool,
+    gene: bool,
     shared: Option<ErrorMessage>,
 }
 pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
@@ -33,6 +34,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         let pgx = matches!(words.positional.as_slice(), ["search" | "get", "pgx", ..]);
         if pgx && let Some(message) = flag_message(flag, words.positional.first().copied()) {
             return Some(message);
+        }
+        if pgx && flag == "--gene" {
+            words.gene = true;
         }
         if pgx && flag == "--annotation-id" {
             words.annotation_id = true;
@@ -74,13 +78,19 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
     if words.shared.is_some() {
         return words.shared;
     }
-    let section = words.section.or_else(|| rest.first().copied());
-    if rest.len() > 1 {
-        return Some(ErrorMessage::PgxSection);
-    }
     if verb == "search" && !rest.is_empty() {
         return Some(ErrorMessage::PgxGene);
     }
+    if rest.len() > 1 && (words.gene || rest.len() > 2) {
+        return Some(ErrorMessage::PgxSection);
+    }
+    let section = words.section.or_else(|| {
+        if rest.len() == 2 {
+            rest.get(1).copied()
+        } else {
+            rest.first().copied()
+        }
+    });
     match section {
         Some("interactions") => return Some(ErrorMessage::PgxInteractions),
         Some("frequencies") => return Some(ErrorMessage::PgxFrequencies),
@@ -94,6 +104,9 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
             return Some(ErrorMessage::PgxGet);
         }
         _ => (),
+    }
+    if !words.gene && !words.annotation_id && !rest.is_empty() {
+        return Some(ErrorMessage::PgxGet);
     }
     if words.drug_id && (verb != "get" || section != Some("recommendations")) {
         return Some(ErrorMessage::PgxSelector);

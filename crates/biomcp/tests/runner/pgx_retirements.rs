@@ -45,7 +45,7 @@ fn check(words: &str, message: &str) -> Result<(), String> {
         "error":{"code":"usage.retired","message":message}}))
     .map_err(|e| e.to_string())?
     .len();
-    println!("PGx retirement {words}: {measured}");
+
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > measured * 115 / 100 {
         return Err("guidance exceeds size ceiling".into());
     }
@@ -55,6 +55,18 @@ fn check(words: &str, message: &str) -> Result<(), String> {
     Ok(())
 }
 const CASES: &[(&str, &str)] = &[
+    (
+        "get pgx DPYD interactions --source cpic",
+        "use: search pgx --gene <SYMBOL> --source cpic; get pgx --gene <SYMBOL> --source cpic",
+    ),
+    (
+        "get pgx DPYD frequencies --source cpic",
+        "frequency pages are deferred because no harvested question needs them",
+    ),
+    (
+        "get pgx DPYD all --source cpic",
+        "name one PGx section per request",
+    ),
     (
         "search pgx DPYD --source cpic",
         "use: search pgx --gene <SYMBOL> --source cpic",
@@ -192,6 +204,20 @@ fn boundaries() -> Result<(), String> {
         if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err(format!("literal selector became retirement: {value}"));
         }
+    }
+    Ok(())
+}
+
+pub(super) fn bounded(
+    name: &str,
+    value: &serde_json::Value,
+    baseline: usize,
+) -> Result<(), String> {
+    use std::io::Write;
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    writeln!(std::io::stdout(), "{name}: {bytes}").map_err(|e| e.to_string())?;
+    if baseline != 0 && bytes > (baseline * 115).div_ceil(100) {
+        return Err(format!("{name}: output exceeds measured ceiling"));
     }
     Ok(())
 }

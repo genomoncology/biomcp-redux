@@ -267,10 +267,7 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    println!(
-        "CPIC {name}: {}",
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
-    );
+    super::pgx_retirements::bounded(&format!("CPIC {name}"), &value, 0)?;
     let mut replay = args.clone();
     *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
     let replay_env = Environment::new().map_err(|e| e.to_string())?;
@@ -325,10 +322,7 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     if name == "missing-second-gene" && cold.pointer("/result/items/0/lookupkey/TPMT").is_some() {
         return Err("Q16 missing second gene acquired a result".into());
     }
-    println!(
-        "CPIC {name}: {}",
-        serde_json::to_vec(cold).map_err(|e| e.to_string())?.len()
-    );
+    super::pgx_retirements::bounded(&format!("CPIC {name}"), cold, 0)?;
     verify_next(name, cold)?;
     Ok(())
 }
@@ -414,10 +408,7 @@ fn timeout() -> Check {
     {
         return Err(format!("timeout became success: {value}"));
     }
-    println!(
-        "CPIC timeout: {}",
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
-    );
+    super::pgx_retirements::bounded(&format!("CPIC timeout"), &value, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
     }

@@ -88,10 +88,7 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    println!(
-        "ClinPGx {name}: {}",
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
-    );
+    super::super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &value, 0)?;
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();
     let fresh = Environment::new().map_err(|e| e.to_string())?;
     let replay = both(&fresh, command, 4)?;
@@ -160,10 +157,7 @@ fn timeout() -> Check {
     {
         return Err("timeout became negative fact".into());
     }
-    println!(
-        "ClinPGx timeout: {}",
-        serde_json::to_vec(&v).map_err(|e| e.to_string())?.len()
-    );
+    super::super::pgx_retirements::bounded(&format!("ClinPGx timeout"), &v, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached provider".into());
     }
