@@ -126,11 +126,27 @@ impl Reply for Molecules {
 }
 impl Reply for Mechanisms {
     fn check(&self) -> Result<(), BadReply> {
-        Ok(())
+        if self
+            .mechanisms
+            .iter()
+            .all(|r| r.mec_id > 0 && !r.mechanism_of_action.is_empty())
+        {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }
 impl Reply for Indications {
     fn check(&self) -> Result<(), BadReply> {
-        Ok(())
+        if self.drug_indications.iter().all(|r| {
+            r.drugind_id > 0
+                && (r.efo_term.as_ref().is_some_and(|t| !t.is_empty())
+                    || r.mesh_heading.as_ref().is_some_and(|t| !t.is_empty()))
+        }) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }

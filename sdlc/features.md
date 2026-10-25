@@ -64,4 +64,4 @@ variant-help: Variant help gives executable examples and explicit migration step
 
 drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
 
-drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization. Cases: `tests/cases/drug/native-sources.yaml`.
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization. Cases: `tests/cases/drug/native-sources.yaml`, `tests/cases/drug/native-sections.yaml`.

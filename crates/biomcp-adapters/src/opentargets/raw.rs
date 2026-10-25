@@ -3,22 +3,14 @@ use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 /// GraphQL response with source errors kept distinct from empty data.
 #[derive(Debug, Deserialize)]
-pub struct Response<T> {
+pub(super) struct Response<T> {
     /// Source result data.
     pub data: T,
-    errors: Option<Vec<GraphError>>,
-}
-#[derive(Debug, Deserialize)]
-struct GraphError {
-    message: String,
+    errors: Option<Vec<serde::de::IgnoredAny>>,
 }
 impl<T: for<'de> Deserialize<'de>> Reply for Response<T> {
     fn check(&self) -> Result<(), BadReply> {
-        if self
-            .errors
-            .as_ref()
-            .is_some_and(|e| !e.is_empty() || e.iter().any(|v| !v.message.is_empty()))
-        {
+        if self.errors.as_ref().is_some_and(|e| !e.is_empty()) {
             Err(BadReply)
         } else {
             Ok(())
@@ -27,7 +19,7 @@ impl<T: for<'de> Deserialize<'de>> Reply for Response<T> {
 }
 /// Source candidate collection.
 #[derive(Debug, Deserialize)]
-pub struct SearchData {
+pub(super) struct SearchData {
     /// Native candidate page.
     pub search: Search,
 }
@@ -51,7 +43,7 @@ pub struct Hit {
 }
 /// Exact-ID response.
 #[derive(Debug, Deserialize)]
-pub struct DrugData {
+pub(super) struct DrugData {
     /// Missing source record remains absent.
     pub drug: Option<Drug>,
 }

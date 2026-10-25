@@ -28,6 +28,52 @@
         "/result/header/id": "CHEMBL941",
         "/result/header/source": "chembl"
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL1201585",
+        "--source",
+        "chembl"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "CHEMBL1201585",
+        "--source",
+        "chembl"
+      ],
+      "max_bytes": 4096,
+      "max_tokens": 1024,
+      "expect": {
+        "/schema": "biomcp.drug_card/1",
+        "/result/header/id": "CHEMBL1201585",
+        "/result/header/source": "chembl"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL3989989",
+        "--source",
+        "chembl"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "CHEMBL3989989",
+        "--source",
+        "chembl"
+      ],
+      "max_bytes": 4096,
+      "max_tokens": 1024,
+      "expect": {
+        "/schema": "biomcp.drug_card/1",
+        "/result/header/id": "CHEMBL3989989",
+        "/result/header/source": "chembl"
+      }
     }
   ]
 }
