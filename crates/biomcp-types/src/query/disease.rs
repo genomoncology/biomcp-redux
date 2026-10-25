@@ -66,7 +66,8 @@ impl TryFrom<SearchFields> for DiseaseSearch {
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&v.limit)
             || !matches!(v.source, DiseaseSource::Ols | DiseaseSource::Seer)
-            || (v.source == DiseaseSource::Ols && v.text.as_ref().is_none_or(|t|t.trim().is_empty()))
+            || (v.source == DiseaseSource::Ols
+                && v.text.as_ref().is_none_or(|t| t.trim().is_empty()))
             || (v.source == DiseaseSource::Seer && (v.text.is_some() || v.ontology.is_some()))
         {
             return Err(QueryInvalid);

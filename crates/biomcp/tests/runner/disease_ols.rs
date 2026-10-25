@@ -128,7 +128,7 @@ fn search() -> Result<(), String> {
     if requests.len() != 3
         || requests
             .iter()
-            .any(|(_, r)| !r.contains("q=++literal+MF+%3A+cancer++") || !r.contains("groupField=iri"))
+            .any(|(_, r)| !r.contains("q=%20%20literal%20MF%20%3A%20cancer%20%20") || !r.contains("groupField=iri"))
     {
         return Err(format!("literal or ontology request changed: {requests:?}"));
     }
@@ -161,7 +161,11 @@ fn exact() -> Result<(), String> {
             "--section-limit",
             "1",
         ];
-        steps.push(json!({"run":command,"mcp":command,"expect":{"/page/total":2,"/page/returned":1,"/next/0/kind":"page"},"max_bytes":5000}));
+        let mut expect=json!({"/page/total":2,"/page/returned":1,"/next/0/kind":"page"});
+        let fields=expect.as_object_mut().ok_or("missing expectations")?;
+        if section=="synonyms" {fields.insert("/result/items/0/scope".into(),json!("oboInOwl:hasExactSynonym"));}
+        else {fields.insert("/result/items/0/object".into(),json!({"equals":{"id":"DOID:3910"}}));fields.insert("/result/items/0/description".into(),json!("native text without inferred equivalence"));}
+        steps.push(json!({"run":command,"mcp":command,"expect":expect,"max_bytes":5000}));
         let mut command = args(&command);
         command.extend(["--section-offset".into(), "1".into()]);
         steps.push(json!({"run":command,"mcp":command,"expect":{"/page/offset":1,"/page/total":2}}));
@@ -244,7 +248,7 @@ fn timeout()->Result<(),String> {
         *value.pointer_mut("/exchanges/0/delay_ms").ok_or("missing exchange delay")?=json!(20000);
         fs::write(file.path(),serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     }
-    replay(&directory,json!([{"run":words,"mcp":words,"exit":4,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline"}}]))?;Ok(())
+    replay(&directory,json!([{"run":words,"mcp":words,"exit":4,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"}}]))?;Ok(())
 }
 fn disabled()->Result<(),String> {
     let stub=Stub::for_source("www.ebi.ac.uk","application/json",exact_reply)?;

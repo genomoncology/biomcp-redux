@@ -9,9 +9,11 @@ pub(super) fn next(
         .iter()
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
-    if matches!(result.body,biomcp_types::QueryBody::DiseasePage(_)) {
-        append_network_steps(&mut steps,&result.sources);
-    } else { network_steps(&mut steps, &result.sources); }
+    if matches!(result.body, biomcp_types::QueryBody::DiseasePage(_)) {
+        append_network_steps(&mut steps, &result.sources);
+    } else {
+        network_steps(&mut steps, &result.sources);
+    }
     Ok(source_steps(fetch, steps))
 }
 
@@ -55,10 +57,13 @@ pub(super) fn network_steps(
     steps: &mut Vec<biomcp_types::Step>,
     sources: &[biomcp_types::SourceOutcome],
 ) {
-    append_network_steps(steps,sources);
+    append_network_steps(steps, sources);
     steps.truncate(5);
 }
-fn append_network_steps(steps:&mut Vec<biomcp_types::Step>,sources:&[biomcp_types::SourceOutcome]) {
+fn append_network_steps(
+    steps: &mut Vec<biomcp_types::Step>,
+    sources: &[biomcp_types::SourceOutcome],
+) {
     for (reason, setting) in [
         (biomcp_types::Reason::Tls, "ca_bundle"),
         (biomcp_types::Reason::Proxy, "proxy"),
