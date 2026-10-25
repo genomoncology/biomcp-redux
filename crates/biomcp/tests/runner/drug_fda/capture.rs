@@ -405,9 +405,13 @@ fn retention() -> Check {
     for fail in [false, true] {
         let root = tempfile::tempdir().map_err(|e| e.to_string())?;
         let mut application = super::application();
-        application["products"][0]["product_number"] = json!("001");
+        let product = application
+            .pointer_mut("/products/0")
+            .and_then(Value::as_object_mut)
+            .ok_or("missing synthetic product")?;
+        product.insert("product_number".into(), json!("001"));
         if fail {
-            application["products"][0]["reference_standard"] = Value::Null;
+            product.insert("reference_standard".into(), Value::Null);
         }
         let raw =
             json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application]})
