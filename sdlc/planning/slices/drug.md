@@ -317,7 +317,7 @@ The default MyChem search page is measured through the actual CLI and MCP agains
 | --- | ---: | ---: | --- |
 | Default MyChem search page | 3,364 full; 2,613 comparable | 841 full; 654 comparable | Actual CLI and MCP default imatinib page from the captured native reply. Individually measured default trastuzumab, fam-trastuzumab deruxtecan and axicabtagene ciloleucel pages have their own case ceilings. This establishes no 0.9 comparison. |
 | ChEMBL candidate-page allocation | 4,096 | 1,024 | Exploratory ChEMBL identity projection only; not a measured MyChem default or final product ceiling. |
-| Exact identity card | 3,072 | 768 | Candidate identity projection measured; exact selection and final card metadata still need implementation |
+| MyChem exact identity card | 2,398 full; 1,436 comparable | 600 full; 359 comparable | Actual selected imatinib card preserves all native aliases, identity/version/retrieval metadata and an explicit xrefs action. Its separate source link pages preserve native component record context and all source-stated relations. |
 | Approvals or regulatory page | 6,144 | 1,536 | Native source rows captured; full-envelope projection unmeasured |
 | Boxed warning | 6,144 | 1,536 | Native complete arrays measured above; metadata overhead still needs implementation measurement |
 | Dosing, indications or full warnings page | 8,192 | 2,048 | Native arrays exceed a page; mechanical text continuation preserves every byte/character without choosing clinical sentences |

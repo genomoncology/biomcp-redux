@@ -94,7 +94,7 @@ fn check(n: usize) -> Check {
     }
     let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
-    let bound = [3005, 2348, 1724, 1853, 1262, 1169, 0, 1720, 516]
+    let bound = [3005, 2348, 1724, 1853, 1262, 1169, 1652, 958, 516]
         .get(n)
         .copied()
         .ok_or("budget index")?;
@@ -311,13 +311,18 @@ fn xrefs_walk() -> Check {
         .ok_or("card retrieval date")?
         .clone();
     let links = walk_pages(&env, next, &date)?;
-    if links.len() != 112
+    if links.len() != 135
         || !links.iter().any(|r| {
             r.pointer("/identity/id") == Some(&json!("CHEMBL941"))
                 && r.pointer("/attribution/source") == Some(&json!("chembl"))
         })
     {
         return Err("xref walk lost native links".into());
+    }
+    let applications=links.iter().filter(|r|r.get("relation")==Some(&json!("ndc.applicationnumber"))).collect::<Vec<_>>();
+    if applications.len()!=32 {return Err("native NDC product/application contexts were merged".into());}
+    for product in ["82009-087_8d48cd1c-474c-49f9-8e70-aa7525bb1087","82009-086_8d48cd1c-474c-49f9-8e70-aa7525bb1087"] {
+        if !applications.iter().any(|r|r.pointer("/identity/id")==Some(&json!("ANDA212773")) && r.pointer("/attribution/record")==Some(&json!(product))) {return Err("an application lost its source product record".into());}
     }
     for (n, row) in links.iter().enumerate() {
         if links.iter().take(n).any(|r| r == row) {
@@ -350,12 +355,12 @@ fn walk_pages(
     date: &Value,
 ) -> Result<Vec<Value>, String> {
     let mut links = Vec::new();
-    for page in 0..12 {
+    for page in 0..14 {
         let value = invoke(env, next.clone(), 0)?;
         super::schema::Registry::embedded()?.validate(&value, &next, true)?;
         if value.pointer("/result/identity/id") != Some(&json!("KTUFNOKKBVMGRW-UHFFFAOYSA-N"))
             || value.pointer("/result/xrefs/data/retrieved") != Some(date)
-            || value.pointer("/result/xrefs/data/total") != Some(&json!(112))
+            || value.pointer("/result/xrefs/data/total") != Some(&json!(135))
         {
             return Err("xref identity, native link total or retrieval date changed".into());
         }
@@ -367,7 +372,7 @@ fn walk_pages(
             return Err("xref default page exceeded limit".into());
         }
         links.extend(rows.iter().cloned());
-        if (page == 0 || page == 11) && super::mcp::call_with_globals(env, &next, false, &[])? != value {
+        if (page == 0 || page == 13) && super::mcp::call_with_globals(env, &next, false, &[])? != value {
             return Err("xref MCP parity".into());
         }
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
@@ -378,7 +383,7 @@ fn walk_pages(
             "drug xrefs page {page}: full {full}, comparable {comparable}"
         )
         .map_err(|e| e.to_string())?;
-        if page == 11 && self::next(&value, "page")?.is_some() {
+        if page == 13 && self::next(&value, "page")?.is_some() {
             return Err("xref walk advertised a page past its exact total".into());
         }
         match self::next(&value, "page")? {

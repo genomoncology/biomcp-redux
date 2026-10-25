@@ -139,6 +139,7 @@ fn strings(values: &crate::raw::OneOrMany<String>) -> Vec<&str> {
 fn reference(
     record: &str,
     component: &str,
+    c: &Component,
     relation: &str,
     target: &str,
     name: Option<&str>,
@@ -167,7 +168,7 @@ fn reference(
         relation: text(relation)?,
         attribution: Attribution {
             source: text(component)?,
-            record: Some(text(record)?),
+            record: native_record(component,c).map(text).transpose()?,
             version: None,
             release: None,
             submitter: None,
@@ -241,7 +242,7 @@ fn references_for(
                 | "ndc.productndc" => name(c),
                 _ => None,
             };
-            refs.push(reference(id, component, relation, target, native_name)?);
+            refs.push(reference(id, component, c, relation, target, native_name)?);
         }
     }
     for (relation, values) in [
@@ -249,7 +250,7 @@ fn references_for(
         ("openfda.application_number", &c.application_number),
     ] {
         for target in values.as_ref().map(strings).unwrap_or_default() {
-            refs.push(reference(id, component, relation, target, None)?);
+            refs.push(reference(id, component, c, relation, target, None)?);
         }
     }
     Ok(refs)
@@ -272,7 +273,7 @@ fn parents_for(
             ),
         ] {
             if let Some(target) = target {
-                parents.push(reference(id, component, relation, target, None)?);
+                parents.push(reference(id, component, c, relation, target, None)?);
             }
         }
     }
@@ -319,7 +320,7 @@ fn native_xrefs(
     for (namespace, ids) in c.xrefs.as_ref().into_iter().flatten() {
         let relation = format!("{component}.xrefs.{namespace}");
         for id in strings(ids) {
-            match reference(record, component, &relation, id, None) {
+            match reference(record, component, c, &relation, id, None) {
                 Ok(row) => rows.push(row),
                 Err(_) => problems.push(biomcp_types::Problem {
                     source: biomcp_types::Source::Mychem,
@@ -331,4 +332,15 @@ fn native_xrefs(
         }
     }
     rows
+}
+
+fn native_record<'a>(component:&str,c:&'a Component)->Option<&'a str> {
+    match component {
+        "drugbank"|"drugcentral"=>c.id.as_deref(),
+        "chembl"=>c.molecule_chembl_id.as_deref(),
+        "gtopdb"=>c.ligand_id.as_deref(),
+        "unii"=>c.unii.as_deref(),
+        "ndc"=>c.product_id.as_deref().or(c.productndc.as_deref()),
+        _=>None,
+    }
 }
