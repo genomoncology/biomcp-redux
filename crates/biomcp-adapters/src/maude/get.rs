@@ -5,7 +5,7 @@ use biomcp_types::{AdverseEventGet, AdverseEventSection};
 #[derive(Debug)]
 pub struct Report {
     /// Kept native source fields, without administrative contacts.
-    pub record: raw::Report,
+    pub record: biodata::MaudeReport,
     /// Original retrieval metadata.
     pub metadata: ReplyMetadata,
 }
@@ -32,10 +32,10 @@ pub fn get(leg: &Leg<'_>, query: &AdverseEventGet) -> Result<Option<Report>, Req
         },
     )?;
     Ok(match reply {
-        raw::Response::Page { results, .. } => results
-            .into_iter()
-            .next()
-            .map(|record| Report { record, metadata }),
+        raw::Response::Page { results, .. } => results.into_iter().next().map(|record| Report {
+            record: super::map::report(record),
+            metadata,
+        }),
         raw::Response::Absent { .. } => None,
     })
 }

@@ -4,7 +4,7 @@ use crate::{status, store::Store};
 use biomcp_fetch::{CacheError, Deadline, RequestError, SourceError};
 use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
-type Saved = (maude::NativeReport, Vec<SourceOutcome>);
+type Saved = (biodata::MaudeReport, Vec<SourceOutcome>);
 fn key(query: &AdverseEventGet) -> Vec<u8> {
     Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }
@@ -13,7 +13,7 @@ pub(super) fn load(
     query: &AdverseEventGet,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Option<(maude::NativeReport, Text)>, RequestError> {
+) -> Result<Option<(biodata::MaudeReport, Text)>, RequestError> {
     let leg = cx.fetch.leg(&maude::SPEC, deadline).fresh(cx.fresh);
     let denied = if cx.fetch.disabled(Source::Maude) {
         Some(

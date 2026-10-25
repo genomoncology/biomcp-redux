@@ -6,10 +6,10 @@ use biomcp_types::{
 const NARRATIVE_PAGE_BYTES: usize = 32 * 1024;
 pub(super) fn project(
     query: &AdverseEventGet,
-    report: maude::NativeReport,
+    report: biodata::MaudeReport,
     snapshot: Text,
 ) -> Result<(QueryBody, u64, u32), ()> {
-    let header = maude::header(&report);
+    let header = header(&report);
     let row = report;
     let offset = query.section_offset() as usize;
     let limit = query.section_limit() as usize;
@@ -23,7 +23,7 @@ pub(super) fn project(
                 .enumerate()
                 .skip(offset)
                 .take(limit)
-                .map(|(i, r)| maude::device(i as u32, r))
+                .map(|(i, r)| rows::device(i as u32, r))
                 .collect();
             let returned = records.len() as u32;
             (
@@ -54,7 +54,7 @@ pub(super) fn project(
                 .enumerate()
                 .skip(offset)
                 .take(limit)
-                .map(|(i, r)| maude::narrative(i as u32, r));
+                .map(|(i, r)| rows::narrative(i as u32, r));
             let records = narrative_page(candidates)?;
             let returned = records.len() as u32;
             (
@@ -83,7 +83,7 @@ pub(super) fn project(
 
 fn card(
     query: &AdverseEventGet,
-    row: maude::NativeReport,
+    row: biodata::MaudeReport,
     header: biomcp_types::AdverseEventHeader,
     snapshot: Text,
 ) -> Result<AdverseEventMaudeCard, ()> {
@@ -130,4 +130,15 @@ fn narrative_page(
         records.push(row);
     }
     Ok(records.into())
+}
+
+fn header(row: &biodata::MaudeReport) -> biomcp_types::AdverseEventHeader {
+    biomcp_types::AdverseEventHeader {
+        id: row.mdr_report_key.clone(),
+        source: biomcp_types::AdverseEventSource::Maude,
+        version: None,
+        serious: None,
+        event_type: row.event_type.clone(),
+        first_received: row.date_received.clone(),
+    }
 }

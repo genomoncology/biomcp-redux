@@ -6,6 +6,7 @@ use biomcp_types::{
     AdverseEventGet, AdverseEventSection, QueryBody, Request, Source, Status, StepKind,
 };
 mod projection;
+mod rows;
 mod snapshot;
 /// Read exactly one numeric MAUDE key and project only its requested section.
 pub fn get(cx: &Ctx<'_>, query: &AdverseEventGet) -> Outcome {
