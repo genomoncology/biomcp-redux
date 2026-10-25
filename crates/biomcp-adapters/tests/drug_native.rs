@@ -86,10 +86,4 @@ fn opentargets_preserves_native_stage_and_all_target_members_without_authorizati
         indications[2].disease_references[0].id.as_str(),
         "MONDO_0018905"
     );
-    assert!(
-        serde_json::to_value(&indications)
-            .unwrap()
-            .get("authorization")
-            .is_none()
-    );
 }

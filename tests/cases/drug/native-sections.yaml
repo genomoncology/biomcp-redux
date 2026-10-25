@@ -34,7 +34,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL941",
         "/result/identity/source": "chembl",
         "/result/targets/state": "empty"
@@ -68,7 +68,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL941",
         "/result/identity/source": "chembl"
       }
@@ -101,7 +101,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL1201585",
         "/result/identity/source": "chembl"
       }
@@ -134,7 +134,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL1201585",
         "/result/identity/source": "chembl"
       }
@@ -167,7 +167,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL3989989",
         "/result/identity/source": "chembl"
       }
@@ -200,7 +200,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL3989989",
         "/result/identity/source": "chembl"
       }
@@ -233,7 +233,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL941",
         "/result/identity/source": "opentargets"
       }
@@ -266,7 +266,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL941",
         "/result/identity/source": "opentargets"
       }
@@ -299,7 +299,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL1201585",
         "/result/identity/source": "opentargets"
       }
@@ -332,7 +332,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL1201585",
         "/result/identity/source": "opentargets"
       }
@@ -365,7 +365,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_targets/1",
+        "/schema": "biomcp.drug_targets/2",
         "/result/identity/id": "CHEMBL3989989",
         "/result/identity/source": "opentargets"
       }
@@ -398,7 +398,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL3989989",
         "/result/identity/source": "opentargets"
       }
@@ -431,7 +431,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL941",
         "/result/indications/data/offset": 1
       }
@@ -464,7 +464,7 @@
       "max_bytes": 6144,
       "max_tokens": 1536,
       "expect": {
-        "/schema": "biomcp.drug_indications/1",
+        "/schema": "biomcp.drug_indications/2",
         "/result/identity/id": "CHEMBL941",
         "/result/indications/data/offset": 1
       }
