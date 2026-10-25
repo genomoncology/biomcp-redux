@@ -1,4 +1,4 @@
-use crate::{ClinPgxAccession, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, Pmid, Text};
+use crate::{ClinPgxAccession, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, Pmid, Curie};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// Source-native PgxGeneIdentity fields; no clinical interpretation.
@@ -29,7 +29,7 @@ pub struct PgxPair {
     /// Native `pairid`; literal source value.
     pub pairid: i64,
     /// Native `drugid`; literal source value.
-    pub drugid: Text,
+    pub drugid: Curie,
     /// Native `drugname`; literal source value.
     pub drugname: Box<str>,
     /// Native `genesymbol`; literal source value.
@@ -91,7 +91,7 @@ pub struct PgxDrugRecommendation {
     /// Native `guidelineid`; literal source value.
     pub guidelineid: i64,
     /// Native `drugid`; literal source value.
-    pub drugid: Text,
+    pub drugid: Curie,
     /// Native `implications`; literal source value.
     pub implications: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `drugrecommendation`; literal source value.

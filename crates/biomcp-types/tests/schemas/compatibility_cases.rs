@@ -270,6 +270,12 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
     assert!(super::compatibility::check(&pattern,&changed).is_err());
     let mut changed=pattern.clone();changed["patternProperties"]["X"]=json!({"type":"string"});
     assert!(super::compatibility::check(&pattern,&changed).is_err());
+    let impossible=json!({"$id":"biodata.example/1","type":"array","items":{"not":{}}});
+    assert!(super::compatibility::check(&impossible,&impossible).is_ok());
+    for negation in [json!({"not":{"type":"string"}}),json!({"not":{},"type":"string"})] {
+        let mut changed=impossible.clone();changed["items"]=negation;
+        assert!(super::compatibility::check(&impossible,&changed).is_err());
+    }
     let loose=json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
     for changed in [json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),json!({"$id":"biodata.example/1","type":"object","propertyNames":{"type":"string","pattern":"X"}})] {
         assert!(super::compatibility::check(&loose,&changed).is_err());

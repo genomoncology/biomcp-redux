@@ -101,6 +101,14 @@ fn visit(
         shapes.entry(path.into()).or_default().impossible = !boolean;
         return Ok(());
     }
+    if let Some(negated) = node.get("not") {
+        let object = node.as_object().ok_or("invalid negation")?;
+        if negated.as_object().is_none_or(|value| !value.is_empty())
+            || object.keys().any(|key| !["not", "title", "description"].contains(&key.as_str()))
+        { return Err("unsupported negation".into()); }
+        shapes.entry(path.into()).or_default().impossible = true;
+        return Ok(());
+    }
     let object = node
         .as_object()
         .ok_or_else(|| format!("unsupported schema at {path}"))?;
