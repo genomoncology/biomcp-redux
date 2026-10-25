@@ -24,7 +24,7 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
             if drug {
                 json!({"_id":format!("CHEMBL{n}")})
             } else {
-                json!({"_id":format!("chr7:g.14045313{n}A>G"),"dbsnp":{"rsid":"rs113488022"}})
+                json!({"_id":format!("chr7:g.14045313{n}A>G"),"chrom":"7","hg19":{"start":140453130+n,"end":140453130+n},"dbsnp":{"rsid":"rs113488022"}})
             }
         })
         .collect();
@@ -58,7 +58,7 @@ fn arguments(mode: &str) -> Vec<String> {
     match mode {
         "drug-search" => vec!["search", "drug", "synthetic", "--source", "mychem", "--limit", "5"],
         "variant-search" => vec!["search", "variant", "--query", "rs113488022", "--source", "myvariant", "--build", "GRCh37", "--limit", "5"],
-        _ => vec!["get", "variant", "rs113488022", "--build", "GRCh37", "--limit", "5"],
+        _ => vec!["get", "variant", "rs113488022", "oncokb", "--build", "GRCh37", "--limit", "5"],
     }.into_iter().map(str::to_owned).collect()
 }
 
