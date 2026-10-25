@@ -111,9 +111,28 @@ fn native(root: &Path, n: usize) -> Check {
     verify(&original, &value, key)?;
     let mut peak = super::measure(&value)?;
     if key == "application_number" {
-        selected_product(&env, &replay, &original)?;
+        let selected = selected_product(&env, &replay, &original)?;
         peak = walk(&env, replay, value, &original)?;
+        peak = (peak.0.max(selected.0), peak.1.max(selected.1));
     }
+    let measured = [
+        (2443, 2332),
+        (2595, 2484),
+        (2409, 2298),
+        (2889, 2778),
+        (2078, 1967),
+        (1820, 1709),
+        (1628, 1517),
+        (1755, 1644),
+        (2279, 2168),
+        (2608, 2497),
+        (2590, 2479),
+        (834, 723),
+        (879, 768),
+        (393, 282),
+        (856, 745),
+    ];
+    super::budget(peak, *measured.get(n).ok_or("native budget")?)?;
     use std::io::Write;
     writeln!(
         std::io::stdout(),
@@ -276,7 +295,11 @@ fn walk(
     }
     Ok(peak)
 }
-fn selected_product(env: &super::Environment, base: &[String], raw: &Value) -> Check {
+fn selected_product(
+    env: &super::Environment,
+    base: &[String],
+    raw: &Value,
+) -> Result<(usize, usize), String> {
     let mut args = base.to_vec();
     args.extend(["--product-number".into(), "001".into()]);
     let value = both(env, args, 0)?;
@@ -299,7 +322,7 @@ fn selected_product(env: &super::Environment, base: &[String], raw: &Value) -> C
                 .into(),
         );
     }
-    Ok(())
+    super::measure(&value)
 }
 fn submission(native: &Value, row: &Value) -> Check {
     for key in [

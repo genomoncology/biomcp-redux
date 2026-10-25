@@ -48,6 +48,7 @@ fn args() -> Vec<String> {
     .to_vec()
 }
 fn rejected(value: &Value) -> Check {
+    super::budget(super::measure(value)?, (311, 200))?;
     if value.get("status") != Some(&json!("failed"))
         || value.get("result").is_some()
         || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
@@ -71,6 +72,7 @@ fn absence() -> Check {
         404,
     )?;
     let value = both(&env, args(), 1)?;
+    super::budget(super::measure(&value)?, (308, 197))?;
     if value.get("status") != Some(&json!("absent"))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
     {
@@ -86,6 +88,7 @@ fn disabled() -> Check {
     let mut request = vec!["--disable-sources".into(), "drugsfda".into()];
     request.extend(args());
     let value = both(&env, request, 4)?;
+    super::budget(super::measure(&value)?, (311, 200))?;
     if value.pointer("/sources/0/reason") != Some(&json!("disabled")) || !stub.finish()?.is_empty()
     {
         return Err("disabled FDA source opened a connection".into());
@@ -118,6 +121,7 @@ fn wrong() -> Check {
     let env = super::environment(&stub)?;
     rejected(&invoke(&env, args(), 4)?)?;
     let value = both(&env, args(), 0)?;
+    super::budget(super::measure(&value)?, (1095, 984))?;
     if value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
         || stub.finish()?.len() != 2
     {

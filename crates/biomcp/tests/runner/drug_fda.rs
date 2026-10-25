@@ -82,6 +82,7 @@ fn search() -> Check {
     .map(str::to_owned)
     .to_vec();
     let value = both(&env, args, 0)?;
+    budget(measure(&value)?, (923, 812))?;
     if value.pointer("/result/items/0/identity/id") != Some(&json!("NDA021335"))
         || value.pointer("/result/items/0/identity/identity_level")
             != Some(&json!("fda_application"))
@@ -126,6 +127,7 @@ fn approvals() -> Check {
     .map(str::to_owned)
     .to_vec();
     let value = both(&env, args, 0)?;
+    budget(measure(&value)?, (1299, 1188))?;
     if value.pointer("/result/products/0/product_number") != Some(&json!("002"))
         || value.pointer("/result/approvals/data/total") != Some(&json!(2))
         || value.pointer("/result/approvals/data/records/0/submission_number") != Some(&json!("1"))
@@ -150,6 +152,7 @@ fn approvals() -> Check {
         return Err("history continuation lost selected product".into());
     }
     let second = both(&env, args, 0)?;
+    budget(measure(&second)?, (1271, 1160))?;
     if second.pointer("/result/approvals/data/records/0/submission_number") != Some(&json!("2"))
         || second.pointer("/result/approvals/data/records/0/application_docs/0/date")
             != Some(&json!("2003-01-01"))
@@ -193,6 +196,18 @@ fn measure(value: &Value) -> Result<(usize, usize), String> {
     let comparable = super::source_terms::size(value, "")?;
     Ok((full, comparable))
 }
+fn budget(actual: (usize, usize), measured: (usize, usize)) -> Check {
+    let bound = (
+        (measured.0 * 115).div_ceil(100),
+        (measured.1 * 115).div_ceil(100),
+    );
+    if actual.0 > bound.0 || actual.1 > bound.1 {
+        return Err(format!(
+            "FDA output exceeds measured full/comparable bound: {actual:?}/{bound:?}"
+        ));
+    }
+    Ok(())
+}
 fn exact_setup() -> Result<(Environment, Stub), String> {
     setup(
         json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application()]}),
@@ -214,6 +229,7 @@ fn missing_product() -> Check {
     .map(str::to_owned)
     .to_vec();
     let value = both(&env, args, 0)?;
+    budget(measure(&value)?, (519, 408))?;
     if value.pointer("/result/approvals/state") != Some(&json!("unavailable"))
         || value.pointer("/result/products") != Some(&json!([]))
         || value.get("page").is_some()
@@ -237,6 +253,7 @@ fn card() -> Check {
             .to_vec(),
         0,
     )?;
+    budget(measure(&value)?, (531, 420))?;
     if value.pointer("/result/header/id") != Some(&json!("NDA021335"))
         || value.pointer("/result/approvals").is_some()
         || value.pointer("/result/submissions").is_some()
@@ -292,6 +309,7 @@ fn navigation() -> Check {
         0,
     )?;
     let (full, comparable) = measure(&value)?;
+    budget((full, comparable), (3503, 3392))?;
     use std::io::Write;
     writeln!(
         std::io::stdout(),
