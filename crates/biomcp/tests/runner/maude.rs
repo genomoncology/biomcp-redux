@@ -288,7 +288,7 @@ fn absence() -> Check {
             "--source",
             "maude",
         ],
-        0,
+        1,
     )?;
     if value.get("status") != Some(&json!("absent"))
         || value.pointer("/result/items") != Some(&json!([]))
