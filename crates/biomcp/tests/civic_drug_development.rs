@@ -48,6 +48,11 @@ fn retained_native_drug_replies_record_and_replay() {
     exercise(&fetch);
 }
 fn exercise(fetch: &Fetch) {
+    search(fetch);
+    exact(fetch);
+    pages(fetch);
+}
+fn search(fetch: &Fetch) {
     for (q, offset, total, id) in [
         ("imatinib", 0, 11, "27062"),
         ("trastuzumab", 0, 104, "2986"),
@@ -72,6 +77,8 @@ fn exercise(fetch: &Fetch) {
             id
         );
     }
+}
+fn exact(fetch: &Fetch) {
     for id in ["5", "84", "454"] {
         let query: DrugGet = serde_json::from_value(
             json!({"source":"civic","input":id,"section":["civic"],"section_limit":1}),
@@ -93,12 +100,14 @@ fn exercise(fetch: &Fetch) {
                 Some(&json!("65"))
             );
         } else if id == "84" {
-            let row = &at(&value, "/civic/data/evidence/records/0");
-            assert_eq!(at(&row, "/therapies/0/id"), "52");
-            assert_eq!(at(&row, "/therapies/1/id"), "84");
-            assert_eq!(at(&row, "/therapy_interaction_type"), "SEQUENTIAL");
+            let row = at(&value, "/civic/data/evidence/records/0");
+            assert_eq!(at(row, "/therapies/0/id"), "52");
+            assert_eq!(at(row, "/therapies/1/id"), "84");
+            assert_eq!(at(row, "/therapy_interaction_type"), "SEQUENTIAL");
         }
     }
+}
+fn pages(fetch: &Fetch) {
     let query: DrugGet = serde_json::from_value(json!({"source":"civic","input":"5","section":["civic"],"section_limit":1,"civic_profile":1,"civic_kind":"evidence"})).expect("valid development fixture");
     let value = get(fetch, &query);
     assert_eq!(
@@ -169,9 +178,9 @@ fn reply(request: &str) -> Result<String, String> {
     let (_, body) = request.split_once("\r\n\r\n").ok_or("missing POST body")?;
     let body: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
     let q = at(&body, "/query").as_str().ok_or("missing GraphQL")?;
-    let v = &at(&body, "/variables");
-    let index = if let Some(text) = at(&v, "/q").as_str() {
-        match (text, at(&v, "/after").as_str()) {
+    let v = at(&body, "/variables");
+    let index = if let Some(text) = at(v, "/q").as_str() {
+        match (text, at(v, "/after").as_str()) {
             ("imatinib", None) => 24,
             ("trastuzumab", None) => 25,
             ("ivosidenib", None) => 26,
@@ -182,7 +191,7 @@ fn reply(request: &str) -> Result<String, String> {
     } else if q.contains("molecularProfileId:") {
         match (
             q.contains("molecularProfileId:65"),
-            at(&v, "/after").as_str(),
+            at(v, "/after").as_str(),
         ) {
             (_, None) => 29,
             (false, Some("MQ")) => 30,
@@ -190,7 +199,7 @@ fn reply(request: &str) -> Result<String, String> {
             _ => return Err(format!("undeclared claim request {body}")),
         }
     } else {
-        match at(&v, "/id").as_u64() {
+        match at(v, "/id").as_u64() {
             Some(5) => 21,
             Some(84) => 22,
             Some(454) => 23,
@@ -198,7 +207,7 @@ fn reply(request: &str) -> Result<String, String> {
         }
     };
     let mut value = fixture(index)?;
-    if at(&v, "/id").is_number() {
+    if at(v, "/id").is_number() {
         if at(&value, "/data/therapy").is_null() {
             let therapy = fixture(21)?
                 .pointer("/data/therapy")
