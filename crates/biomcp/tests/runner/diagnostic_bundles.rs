@@ -101,10 +101,16 @@ fn stale(source: &str) -> Result<(), String> {
 
 fn bounded(source: &str, value: &Value) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    let baseline: usize = match source { "gtr" => 1559, "who-ivd" => 2576, _ => 1997 };
-    writeln!(std::io::stdout(), "{source} stale: {bytes}").map_err(|e|e.to_string())?;
+    let baseline: usize = match source {
+        "gtr" => 1559,
+        "who-ivd" => 2576,
+        _ => 1997,
+    };
+    writeln!(std::io::stdout(), "{source} stale: {bytes}").map_err(|e| e.to_string())?;
     if bytes > (baseline * 115).div_ceil(100) {
-        return Err(format!("{source} stale output exceeds its measured ceiling"));
+        return Err(format!(
+            "{source} stale output exceeds its measured ceiling"
+        ));
     }
     Ok(())
 }

@@ -126,8 +126,12 @@ fn boundary(mode: &'static str) -> Check {
 fn identity_problem(mode: &str, value: &Value) -> Check {
     let baseline: usize = if mode == "wrong-base" { 405 } else { 432 };
     if value.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
-        || serde_json::to_vec(value).map_err(|e|e.to_string())?.len() > (baseline * 115).div_ceil(100) {
-        return Err(format!("identity problem missing or exceeds measured ceiling: {value}"));
+        || serde_json::to_vec(value).map_err(|e| e.to_string())?.len()
+            > (baseline * 115).div_ceil(100)
+    {
+        return Err(format!(
+            "identity problem missing or exceeds measured ceiling: {value}"
+        ));
     }
     Ok(())
 }
