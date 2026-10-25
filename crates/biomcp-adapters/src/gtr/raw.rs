@@ -26,8 +26,17 @@ pub(super) struct Relation {
 }
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub(super) enum Object { Gene, Condition }
+pub(super) enum Object {
+    Gene,
+    Condition,
+}
 impl Row for Native {
+    fn check_bundle(&self, _rows: usize) -> Result<(), biomcp_fetch::BadReply> {
+        match self {
+            Self::Version(v) => super::map::card(v).map(|_| ()).map_err(|_| biomcp_fetch::BadReply),
+            Self::Relation(v) => super::map::relation(v).map(|_| ()).map_err(|_| biomcp_fetch::BadReply),
+        }
+    }
     fn keys(&self) -> Keys {
         let mut exact = vec![(KeyKind::Id, self.id().to_string().into())];
         match self {
@@ -43,11 +52,17 @@ impl Row for Native {
                 }
             }
         }
-        Keys { exact, words: Vec::new() }
+        Keys {
+            exact,
+            words: Vec::new(),
+        }
     }
 }
 impl Native {
     pub(super) fn id(&self) -> &GtrTestId {
-        match self { Self::Version(v) => &v.test_accession_ver, Self::Relation(v) => &v.id }
+        match self {
+            Self::Version(v) => &v.test_accession_ver,
+            Self::Relation(v) => &v.id,
+        }
     }
 }

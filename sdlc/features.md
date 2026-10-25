@@ -92,4 +92,4 @@ adverse-event-types: A public API caller validates source-specific report reques
 pgx-types: A public API caller preserves source-native PGx context and validates explicit source and section requests before adapters exist. Contracts: `biomcp-types/pgx_contracts` (features: `schema`).
 diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
 
-diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference. Cases: `crates/biomcp/tests/runner/diagnostic_gtr.rs`.
+diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference. Cases: `crates/biomcp/tests/runner/diagnostic_gtr.rs`, `tests/cases/diagnostic/gtr.yaml`.

@@ -4,9 +4,10 @@ use libtest_mimic::Trial;
 use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("diagnostic-gtr/read-does-not-synchronize", || {
-        missing().map_err(Into::into)
-    })]
+    vec![Trial::test(
+        "diagnostic-gtr/read-does-not-synchronize",
+        || missing().map_err(Into::into),
+    )]
 }
 fn missing() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -22,7 +23,9 @@ fn missing() -> Result<(), String> {
         if value.pointer("/sources/0/reason") != Some(&json!("syncing"))
             || value.pointer("/next/0/args") != Some(&json!(["sync", "gtr"]))
         {
-            return Err(format!("read did not request explicit synchronization: {value}"));
+            return Err(format!(
+                "read did not request explicit synchronization: {value}"
+            ));
         }
     }
     Ok(())

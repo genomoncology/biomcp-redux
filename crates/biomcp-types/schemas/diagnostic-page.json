@@ -1,5 +1,34 @@
 {
   "$defs": {
+    "Concept": {
+      "additionalProperties": false,
+      "description": "One source concept with its optional ontology identifier.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-stated concept identifier."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Original concept label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
     "DiagnosticCandidate": {
       "description": "A conflict is visible once without a selected name or card.",
       "oneOf": [
@@ -14,11 +43,46 @@
             "identity_status": {
               "const": "resolved",
               "type": "string"
+            },
+            "matched": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/GtrTestRelation"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Complete native relation that matched the source selector."
             }
           },
           "required": [
             "identity_status",
             "header"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A native relation remains visible without a current card.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/GtrTestId",
+              "description": "Exact relation-owned test accession and version."
+            },
+            "identity_status": {
+              "const": "missing_card",
+              "type": "string"
+            },
+            "matched": {
+              "$ref": "#/$defs/GtrTestRelation",
+              "description": "The original matched relation; no manufactured header."
+            }
+          },
+          "required": [
+            "identity_status",
+            "id",
+            "matched"
           ],
           "type": "object"
         },
@@ -241,13 +305,133 @@
       ],
       "type": "string"
     },
+    "EnsemblGeneId": {
+      "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
+      "type": "string"
+    },
     "FdaDrugApplication": {
       "pattern": "^(NDA|BLA)[0-9]{6}$",
       "type": "string"
     },
+    "GeneRef": {
+      "additionalProperties": false,
+      "description": "A source-stated gene reference; its label never implies an identifier.",
+      "properties": {
+        "ensembl_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnsemblGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hgnc_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/Text"
+        },
+        "ncbi_gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
     "GeneSymbol": {
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
+    },
+    "GtrConditionRelation": {
+      "additionalProperties": false,
+      "description": "Native condition membership; SNOMED cells never become GeneID.",
+      "properties": {
+        "condition": {
+          "$ref": "#/$defs/Concept",
+          "description": "Shared MedGen concept with source label."
+        },
+        "mim_number": {
+          "description": "Native MIM cell, including empty.",
+          "type": "string"
+        },
+        "snomed_ct_id": {
+          "description": "Native SNOMED CT cell, including empty; never a gene ID.",
+          "type": "string"
+        },
+        "test_id": {
+          "$ref": "#/$defs/GtrTestId",
+          "description": "Complete owning test accession/version."
+        },
+        "test_type": {
+          "$ref": "#/$defs/GtrTestType",
+          "description": "Native source test type."
+        }
+      },
+      "required": [
+        "test_id",
+        "test_type",
+        "condition",
+        "mim_number",
+        "snomed_ct_id"
+      ],
+      "type": "object"
+    },
+    "GtrGeneRelation": {
+      "additionalProperties": false,
+      "description": "Native gene relation; its numeric ID comes only from the gene row.",
+      "properties": {
+        "gene": {
+          "$ref": "#/$defs/GeneRef",
+          "description": "Shared source-given GeneID and gene_symbol; absent GeneID stays absent."
+        },
+        "mim_number": {
+          "description": "Native MIM cell, including empty.",
+          "type": "string"
+        },
+        "native_medgen": {
+          "$ref": "#/$defs/Curie",
+          "description": "Independent native MedGen identity from GTR_identifier."
+        },
+        "object_name": {
+          "description": "Full source object_name without interpretation.",
+          "type": "string"
+        },
+        "test_id": {
+          "$ref": "#/$defs/GtrTestId",
+          "description": "Complete owning test accession/version."
+        },
+        "test_type": {
+          "$ref": "#/$defs/GtrTestType",
+          "description": "Native source test type."
+        }
+      },
+      "required": [
+        "test_id",
+        "test_type",
+        "gene",
+        "native_medgen",
+        "mim_number",
+        "object_name"
+      ],
+      "type": "object"
     },
     "GtrHeader": {
       "additionalProperties": false,
@@ -284,9 +468,108 @@
       ],
       "type": "object"
     },
+    "GtrMethod": {
+      "additionalProperties": false,
+      "description": "One entry from one independent native method list.",
+      "properties": {
+        "index": {
+          "description": "Zero-based native list position.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "list": {
+          "$ref": "#/$defs/GtrMethodList",
+          "description": "Independent source list; lists are never positionally paired."
+        },
+        "test_id": {
+          "$ref": "#/$defs/GtrTestId",
+          "description": "Complete owning test accession/version."
+        },
+        "value": {
+          "description": "Complete unmodified source entry.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "test_id",
+        "list",
+        "index",
+        "value"
+      ],
+      "type": "object"
+    },
+    "GtrMethodList": {
+      "description": "Independent native GTR method lists.",
+      "enum": [
+        "method_categories",
+        "methods",
+        "platforms"
+      ],
+      "type": "string"
+    },
     "GtrTestId": {
       "pattern": "^GTR[0-9]{9}\\.[1-9][0-9]*$",
       "type": "string"
+    },
+    "GtrTestRelation": {
+      "description": "Source-owned native membership or one independent method-list entry.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Native gene relation row.",
+          "properties": {
+            "kind": {
+              "const": "gene",
+              "type": "string"
+            },
+            "relation": {
+              "$ref": "#/$defs/GtrGeneRelation"
+            }
+          },
+          "required": [
+            "kind",
+            "relation"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Native condition relation row.",
+          "properties": {
+            "kind": {
+              "const": "condition",
+              "type": "string"
+            },
+            "relation": {
+              "$ref": "#/$defs/GtrConditionRelation"
+            }
+          },
+          "required": [
+            "kind",
+            "relation"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "One independent method-list entry.",
+          "properties": {
+            "kind": {
+              "const": "method",
+              "type": "string"
+            },
+            "relation": {
+              "$ref": "#/$defs/GtrMethod"
+            }
+          },
+          "required": [
+            "kind",
+            "relation"
+          ],
+          "type": "object"
+        }
+      ]
     },
     "GtrTestType": {
       "description": "Native GTR relation test category, not an offering or authorization judgment.",
@@ -295,6 +578,10 @@
         "Research",
         "Clinical microbial"
       ],
+      "type": "string"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
     "NcbiGeneId": {
@@ -800,7 +1087,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic_page/1",
+  "$id": "biomcp.diagnostic_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -846,7 +1133,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic_page/1",
+      "const": "biomcp.diagnostic_page/2",
       "type": "string"
     },
     "sources": {

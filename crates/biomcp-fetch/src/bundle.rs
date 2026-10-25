@@ -1,7 +1,7 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
-mod parse;
 mod native;
+mod parse;
 mod set;
 pub use set::{BundlePart, BundleSet, SetRow};
 pub(crate) mod store;

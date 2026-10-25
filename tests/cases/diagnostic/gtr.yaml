@@ -1,0 +1,258 @@
+{
+  "feature": "diagnostic-gtr",
+  "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists.",
+  "replay": "diagnostic/gtr-synthetic",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "mcp": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/schema": "biomcp.sync/3",
+        "/result/rows": 19,
+        "/result/duplicate_identities": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "BRCA1"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "BRCA1"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/schema": "biomcp.diagnostic_page/2",
+        "/page/total": 8,
+        "/page/returned": 5,
+        "/result/items/0/header/id": "GTR000006692.3",
+        "/result/items/0/matched/kind": "gene",
+        "/result/items/0/matched/relation/gene/ncbi_gene_id": "672"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene-id",
+        "672",
+        "--offset",
+        "5"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene-id",
+        "672",
+        "--offset",
+        "5"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 8,
+        "/result/items/1/identity_status": "conflict",
+        "/result/items/2/identity_status": "missing_card"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "BRCA1",
+        "--type",
+        "Research"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "BRCA1",
+        "--type",
+        "Research"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/header/id": "GTR000000005.1"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--condition-id",
+        "MedGen:C2676676"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--condition-id",
+        "MedGen:C2676676"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/matched/kind": "condition"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/result/kind": "gtr_test",
+        "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
+        "/result/clia_number": ""
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "genes"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "genes"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 2,
+        "/result/items/1/gene/ncbi_gene_id": "7157"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "conditions"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "conditions"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/snomed_ct_id": ""
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "methods",
+        "--section-limit",
+        "2"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000006692.3",
+        "--source",
+        "gtr",
+        "methods",
+        "--section-limit",
+        "2"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/page/total": 4,
+        "/result/items/0/list": "method_categories",
+        "/result/items/1/index": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "NOTLISTED"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "NOTLISTED"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": []
+      }
+    }
+  ]
+}

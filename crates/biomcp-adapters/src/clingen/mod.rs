@@ -41,7 +41,7 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
     let validity = fetch.sync(&VALIDITY)?;
     let dosage = fetch.sync(&DOSAGE)?;
     Ok(SyncResult {
-                duplicate_identities: None,
+        duplicate_identities: None,
         rows: validity.rows + dosage.rows,
         bytes: validity.bytes + dosage.bytes,
     })

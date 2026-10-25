@@ -2,42 +2,91 @@ use super::{empty, finish, next, unsupported};
 use crate::{Ctx, Outcome};
 use biodata::GtrTestRelation;
 use biomcp_adapters::gtr;
-use biomcp_types::{DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource, DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, Status, StepKind};
+use biomcp_types::{
+    DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
+    DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, Status, StepKind,
+};
 use std::collections::BTreeSet;
 pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticCard(None));
-    if q.source() != DiagnosticGetSource::Gtr { return unsupported(if q.source() == DiagnosticGetSource::WhoIvd { Source::WhoIvd } else { Source::FdaPma }, out); }
+    if q.source() != DiagnosticGetSource::Gtr {
+        return unsupported(
+            if q.source() == DiagnosticGetSource::WhoIvd {
+                Source::WhoIvd
+            } else {
+                Source::FdaPma
+            },
+            out,
+        );
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gtr::SPEC, deadline);
     let result = gtr::get(&leg, q);
     let error = result.as_ref().err().copied();
     if let Ok(record) = result {
-        let query = record.info.content_revision.as_deref().and_then(|v| v.parse().ok()).map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
-        if let Some(problem) = record.conflict { out.problems.push(problem); }
-        else { selected(&mut out, &query, record, cx.fresh); }
+        let query = record
+            .info
+            .content_revision
+            .as_deref()
+            .and_then(|v| v.parse().ok())
+            .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
+        if let Some(problem) = record.conflict {
+            out.problems.push(problem);
+        } else {
+            selected(&mut out, &query, record, cx.fresh);
+        }
     }
     finish(&mut out, &leg, error);
     command.finish(deadline.remaining());
     out
 }
 fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bool) {
-    out.status = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() { Status::Complete } else { Status::Absent };
+    out.status = if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
+        Status::Complete
+    } else {
+        Status::Absent
+    };
     match q.section() {
         None => {
-            if let Some(card) = &record.card { for &section in &card.sections {
-                if let Ok(query) = q.with_section(section) { next::push(out, StepKind::Section, Request::GetDiagnostic(query), fresh); }
-            } }
-            out.body = QueryBody::DiagnosticCard(record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))));
+            if let Some(card) = &record.card {
+                for &section in &card.sections {
+                    if let Ok(query) = q.with_section(section) {
+                        next::push(out, StepKind::Section, Request::GetDiagnostic(query), fresh);
+                    }
+                }
+            }
+            out.body = QueryBody::DiagnosticCard(
+                record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
+            );
         }
         Some(DiagnosticSection::Genes) => {
-            let rows: Vec<_> = record.relations.into_iter().filter_map(|r| if let GtrTestRelation::Gene(v) = r { Some(v) } else { None }).collect();
+            let rows: Vec<_> = record
+                .relations
+                .into_iter()
+                .filter_map(|r| {
+                    if let GtrTestRelation::Gene(v) = r {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
             let total = rows.len();
-            let items: Box<[_]> = rows.into_iter().skip(q.section_offset() as usize).take(q.section_limit() as usize).collect();
+            let items: Box<[_]> = rows
+                .into_iter()
+                .skip(q.section_offset() as usize)
+                .take(q.section_limit() as usize)
+                .collect();
             let mut seen = BTreeSet::new();
-            for id in items.iter().filter_map(|r| r.gene.ncbi_gene_id()).filter(|id| seen.insert(*id)) {
+            for id in items
+                .iter()
+                .filter_map(|r| r.gene.ncbi_gene_id())
+                .filter(|id| seen.insert(id.to_string()))
+            {
                 if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
-                    && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into()) {
+                    && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
+                {
                     next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
                 }
             }
@@ -45,15 +94,34 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
             out.body = QueryBody::DiagnosticGenes(DiagnosticGenes { items });
         }
         Some(DiagnosticSection::Conditions) => {
-            let rows: Vec<_> = record.relations.into_iter().filter_map(|r| if let GtrTestRelation::Condition(v) = r { Some(v) } else { None }).collect();
+            let rows: Vec<_> = record
+                .relations
+                .into_iter()
+                .filter_map(|r| {
+                    if let GtrTestRelation::Condition(v) = r {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
             let total = rows.len();
-            let items = rows.into_iter().skip(q.section_offset() as usize).take(q.section_limit() as usize).collect::<Box<[_]>>();
+            let items = rows
+                .into_iter()
+                .skip(q.section_offset() as usize)
+                .take(q.section_limit() as usize)
+                .collect::<Box<[_]>>();
             page(out, q, items.len(), total, fresh);
             out.body = QueryBody::DiagnosticConditions(DiagnosticConditions { items });
         }
         Some(DiagnosticSection::Methods) => {
             let total = record.methods.len();
-            let items = record.methods.into_iter().skip(q.section_offset() as usize).take(q.section_limit() as usize).collect::<Box<[_]>>();
+            let items = record
+                .methods
+                .into_iter()
+                .skip(q.section_offset() as usize)
+                .take(q.section_limit() as usize)
+                .collect::<Box<[_]>>();
             page(out, q, items.len(), total, fresh);
             out.body = QueryBody::DiagnosticMethods(DiagnosticMethods { items });
         }
@@ -61,8 +129,19 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
     }
 }
 fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fresh: bool) {
-    out.page = Some(PageInfo { offset: q.section_offset(), returned: returned as u32, total: total as u64, pool: None, truncated: None });
+    out.page = Some(PageInfo {
+        offset: q.section_offset(),
+        returned: returned as u32,
+        total: total as u64,
+        pool: None,
+        truncated: None,
+    });
     if (q.section_offset() as usize) + returned < total {
-        next::push(out, StepKind::Page, Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned as u32)), fresh);
+        next::push(
+            out,
+            StepKind::Page,
+            Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned as u32)),
+            fresh,
+        );
     }
 }

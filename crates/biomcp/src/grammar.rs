@@ -180,10 +180,11 @@ fn help_command() -> Command {
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for &(verb, entity, _) in QUERIES
-        .iter()
-        .chain(&[("sync", "ema", ""), ("sync", "ddinter", ""), ("sync", "gtr", "")])
-    {
+    for &(verb, entity, _) in QUERIES.iter().chain(&[
+        ("sync", "ema", ""),
+        ("sync", "ddinter", ""),
+        ("sync", "gtr", ""),
+    ]) {
         let command = verbs
             .remove(verb)
             .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
@@ -485,8 +486,12 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticSearch>(value).map(Request::SearchDiagnostic).map_err(|_| ()),
-        ("get", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticGet>(value).map(Request::GetDiagnostic).map_err(|_| ()),
+        ("search", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticSearch>(value)
+            .map(Request::SearchDiagnostic)
+            .map_err(|_| ()),
+        ("get", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticGet>(value)
+            .map(Request::GetDiagnostic)
+            .map_err(|_| ()),
         ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
             .map(Request::SearchDisease)
             .map_err(|_| ()),

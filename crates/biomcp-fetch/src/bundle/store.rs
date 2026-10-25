@@ -171,7 +171,13 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
     let (query, a, b, k) = match find {
         Find::AnyExact(k, values) => (
             "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key IN(SELECT value FROM json_each(?2))) ORDER BY n",
-            serde_json::to_string(&values.iter().map(|v| v.to_ascii_lowercase()).collect::<Vec<_>>()).map_err(|_| CacheError::Database)?,
+            serde_json::to_string(
+                &values
+                    .iter()
+                    .map(|v| v.to_ascii_lowercase())
+                    .collect::<Vec<_>>(),
+            )
+            .map_err(|_| CacheError::Database)?,
             None,
             kind(k),
         ),

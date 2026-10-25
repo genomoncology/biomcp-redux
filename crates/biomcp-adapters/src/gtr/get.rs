@@ -21,12 +21,37 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError>
     super::revision(query.bundle_revision(), &info)?;
     let mut versions = Vec::new();
     let mut relations = Vec::new();
-    for row in rows { match row.value {
-        Native::Version(v) => versions.push(v),
-        Native::Relation(r) => relations.push(map::relation(&r)?),
-    } }
-    let conflict = if versions.len() > 1 { Some(super::conflict(&query.id().as_str().parse().map_err(|_| bad())?)) } else { None };
-    let card = if conflict.is_none() { versions.first().map(|v| map::card(v)).transpose()? } else { None };
-    let methods = if conflict.is_none() { versions.first().map(|v| map::methods(v)).unwrap_or_default() } else { Vec::new() };
-    Ok(Record { card, conflict, relations, methods, info })
+    for row in rows {
+        match row.value {
+            Native::Version(v) => versions.push(v),
+            Native::Relation(r) => relations.push(map::relation(&r)?),
+        }
+    }
+    let conflict = if versions.len() > 1 {
+        Some(super::conflict(
+            &query.id().as_str().parse().map_err(|_| bad())?,
+        ))
+    } else {
+        None
+    };
+    let card = if conflict.is_none() {
+        versions.first().map(|v| map::card(v)).transpose()?
+    } else {
+        None
+    };
+    let methods = if conflict.is_none() {
+        versions
+            .first()
+            .map(|v| map::methods(v))
+            .unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    Ok(Record {
+        card,
+        conflict,
+        relations,
+        methods,
+        info,
+    })
 }

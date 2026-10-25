@@ -78,8 +78,8 @@ impl Fetch {
                 .bytes(super::MAX_BUNDLE_BYTES)
                 .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {
-                let parsed = parse::rows::<R>(body, format)
-                    .map_err(|_| biomcp_types::Reason::BadReply)?;
+                let parsed =
+                    parse::rows::<R>(body, format).map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
                 }
