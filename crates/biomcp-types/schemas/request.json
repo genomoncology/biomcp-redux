@@ -187,7 +187,14 @@
         "regulatory",
         "supplements"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        "GTR native gene rows; five per page.",
+        "GTR native condition rows; five per page.",
+        "GTR native method entries; five per page.",
+        "Selected PMA submission statement; one fragment per page.",
+        "PMA base application supplement headers; five per page."
+      ]
     },
     "DiseaseOntology": {
       "description": "One explicit OLS ontology.",
