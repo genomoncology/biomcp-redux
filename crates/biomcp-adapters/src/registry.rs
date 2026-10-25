@@ -168,7 +168,14 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
         Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
-        Source::Monarch => ("/v3/api/association", vec![("object", Arg::Text("MONDO:0018875")), ("subject_category", Arg::Text("biolink:Gene")), ("limit", Arg::Num(1))]),
+        Source::Monarch => (
+            "/v3/api/association",
+            vec![
+                ("object", Arg::Text("MONDO:0018875")),
+                ("subject_category", Arg::Text("biolink:Gene")),
+                ("limit", Arg::Num(1)),
+            ],
+        ),
         Source::Seer => ("/get_var_formats.php", vec![]),
         Source::Chembl => ("/status.json", vec![]),
         Source::OpenfdaLabel | Source::Drugsfda => ("", vec![("limit", Arg::Num(1))]),

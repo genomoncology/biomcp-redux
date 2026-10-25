@@ -6,6 +6,7 @@ type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("disease-registry/publisher-declarations", || declarations().map_err(Into::into)),
+        Trial::test("disease-registry/disabled-health-union", || disabled_health().map_err(Into::into)),
         Trial::test("disease-registry/component-policy", || components().map_err(Into::into)),
         Trial::test("disease-registry/enabled-health-native-probes", || enabled_health().map_err(Into::into)),
         Trial::test("disease-registry/disabled-before-cache-and-replay", || admission::run().map_err(Into::into)),
@@ -100,3 +101,29 @@ fn enabled_health() -> Check {
     Ok(())
 }
 mod admission;
+
+fn disabled_health() -> Check {
+    use biomcp_adapters::registry;
+    use serde_json::json;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
+    let replay = env.root().join("empty-replay");
+    std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
+    env.config(&json!({"disable_sources":["ols","mydisease"], "proxy":format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)})).map_err(|e| e.to_string())?;
+    let disabled = registry::SOURCES.iter().filter(|s| !matches!(s.source, biomcp_types::Source::Ols | biomcp_types::Source::MyDisease)).map(|s| s.source.to_string()).collect::<Vec<_>>().join(",");
+    for replay_mode in [false, true] {
+        let mut args = vec!["health".into(), "--disable-sources".into(), disabled.clone()];
+        if replay_mode { args.extend(["--replay".into(), replay.to_string_lossy().into()]); }
+        let health = invoke(&env, args, 0)?;
+        let rows = health.pointer("/result/sources").and_then(Value::as_array).ok_or("missing health")?;
+        for row in rows {
+            if row["state"] != "skipped" || row["reason"] != "disabled" || row["disabled"] != true || row["terms"].as_str().is_none_or(str::is_empty) { return Err(format!("disabled source executed: {row}")); }
+            if let Some(components) = row["components"].as_array() {
+                if components.iter().any(|c| c["disabled"] != true) { return Err(format!("provider left component enabled: {row}")); }
+            }
+        }
+    }
+    if listener.accept().is_ok() { return Err("disabled health opened a connection".into()); }
+    Ok(())
+}

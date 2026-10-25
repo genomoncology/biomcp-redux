@@ -152,7 +152,9 @@ pub(crate) static DDINTER: Quota =
 pub(crate) static OLS: Quota = Quota::new(SourceKey::declare("ols"), Rate::per_second(1), None, 1);
 
 // Conservative serial local policy; no published numeric provider quota verified.
-pub(crate) static MONARCH: Quota = Quota::new(SourceKey::declare("monarch"), Rate::per_second(1), None, 1);
+pub(crate) static MONARCH: Quota =
+    Quota::new(SourceKey::declare("monarch"), Rate::per_second(1), None, 1);
 
 // Conservative serial local policy; no published numeric provider quota verified.
-pub(crate) static SEER: Quota = Quota::new(SourceKey::declare("seer"), Rate::per_second(1), None, 1);
+pub(crate) static SEER: Quota =
+    Quota::new(SourceKey::declare("seer"), Rate::per_second(1), None, 1);

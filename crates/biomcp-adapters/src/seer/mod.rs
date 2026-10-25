@@ -6,7 +6,11 @@ use std::time::Duration;
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Seer,
     base: "https://seer.cancer.gov/statistics-network/explorer/source/content_writers",
-    terms: Terms { name: "SEER/NCI Using This Website", url: "https://seer.cancer.gov/about/using-website.html", usage: Use::Open },
+    terms: Terms {
+        name: "SEER/NCI Using This Website",
+        url: "https://seer.cancer.gov/about/using-website.html",
+        usage: Use::Open,
+    },
     quota: &crate::quotas::SEER,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),

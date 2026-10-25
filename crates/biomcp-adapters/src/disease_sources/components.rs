@@ -32,8 +32,18 @@ const OMIM: Terms = Terms {
     url: "https://omim.org/help/agreement",
     usage: Use::Restricted,
 };
-const fn component(source: Source, native_source: Source, name: &'static str, terms: Terms) -> Component {
-    Component { source, native_source: Some(native_source), name, terms }
+const fn component(
+    source: Source,
+    native_source: Source,
+    name: &'static str,
+    terms: Terms,
+) -> Component {
+    Component {
+        source,
+        native_source: Some(native_source),
+        name,
+        terms,
+    }
 }
 /// Each carried component shares its publisher declaration across services.
 /// OMIM applies only to a distinct licensed payload, never cited identifiers.
@@ -51,32 +61,56 @@ pub const COMPONENTS: &[Component] = &[
 ];
 /// Find the reviewed component declaration for this service.
 pub fn get(source: Source, name: &str) -> Option<&'static Component> {
-    COMPONENTS.iter().find(|c| c.source == source && c.name == name)
+    COMPONENTS
+        .iter()
+        .find(|c| c.source == source && c.name == name)
 }
 fn disabled(source: Source) -> RequestError {
-    SourceError { source, reason: Reason::Disabled, status: None, retry_after: None }.into()
+    SourceError {
+        source,
+        reason: Reason::Disabled,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
 /// Admit exactly the requested OLS ontology; a disabled default has no fallback.
 pub fn ontology(leg: &Leg<'_>, ontology: DiseaseOntology) -> Result<DiseaseOntology, RequestError> {
     if get(Source::Ols, ontology.as_str()).is_none_or(|c| c.disabled_on_leg(leg)) {
         Err(disabled(Source::Ols))
-    } else { Ok(ontology) }
+    } else {
+        Ok(ontology)
+    }
 }
 /// Omit disabled and unreviewed MyDisease projections before request identity exists.
 /// Identity fields alone cannot admit a request with no allowed content projection.
 pub fn allowed_fields(leg: &Leg<'_>, fields: &str) -> Result<String, RequestError> {
-    let selected = fields.split(',').filter(|field| {
-        let name = field.split('.').next().unwrap_or(field);
-        get(Source::MyDisease, name).is_some_and(|c| !c.disabled_on_leg(leg))
-    }).collect::<Vec<_>>();
-    if selected.is_empty() { return Err(disabled(Source::MyDisease)); }
-    Ok(fields.split(',').filter(|f| matches!(*f, "_id" | "_score") || selected.contains(f)).collect::<Vec<_>>().join(","))
+    let selected = fields
+        .split(',')
+        .filter(|field| {
+            let name = field.split('.').next().unwrap_or(field);
+            get(Source::MyDisease, name).is_some_and(|c| !c.disabled_on_leg(leg))
+        })
+        .collect::<Vec<_>>();
+    if selected.is_empty() {
+        return Err(disabled(Source::MyDisease));
+    }
+    Ok(fields
+        .split(',')
+        .filter(|f| matches!(*f, "_id" | "_score") || selected.contains(f))
+        .collect::<Vec<_>>()
+        .join(","))
 }
 /// Mixed Monarch sections have no verified upstream filter: skip before any I/O.
 /// The reviewed HPO grant includes cited OMIM/Orphanet provenance; OMIM payload
 /// restrictions alone therefore never remove these annotations.
 pub fn monarch(leg: &Leg<'_>) -> Result<(), RequestError> {
-    if ["hpo", "orphanet"].iter().any(|name| get(Source::Monarch, name).is_none_or(|c| c.disabled_on_leg(leg))) {
+    if ["hpo", "orphanet"]
+        .iter()
+        .any(|name| get(Source::Monarch, name).is_none_or(|c| c.disabled_on_leg(leg)))
+    {
         Err(disabled(Source::Monarch))
-    } else { Ok(()) }
+    } else {
+        Ok(())
+    }
 }

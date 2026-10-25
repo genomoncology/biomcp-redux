@@ -6,7 +6,11 @@ use std::time::Duration;
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Ols,
     base: "https://www.ebi.ac.uk/ols4",
-    terms: Terms { name: "EMBL-EBI Terms of Use; ontology-specific rights", url: "https://www.ebi.ac.uk/about/terms-of-use/", usage: Use::Attribution },
+    terms: Terms {
+        name: "EMBL-EBI Terms of Use; ontology-specific rights",
+        url: "https://www.ebi.ac.uk/about/terms-of-use/",
+        usage: Use::Attribution,
+    },
     quota: &crate::quotas::OLS,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),

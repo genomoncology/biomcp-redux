@@ -6,7 +6,11 @@ use std::time::Duration;
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::MyDisease,
     base: "https://mydisease.info/v1",
-    terms: Terms { name: "MyDisease source-specific terms", url: "https://docs.mydisease.info/en/latest/doc/data.html", usage: Use::Attribution },
+    terms: Terms {
+        name: "MyDisease source-specific terms",
+        url: "https://docs.mydisease.info/en/latest/doc/data.html",
+        usage: Use::Attribution,
+    },
     quota: &crate::quotas::BIOTHINGS,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
