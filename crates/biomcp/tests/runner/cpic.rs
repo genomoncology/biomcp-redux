@@ -15,7 +15,6 @@ pub(super) fn trials() -> Vec<Trial> {
         "table",
         "guidelines",
         "diplotype",
-        "diplotype-page",
         "empty",
     ] {
         out.push(Trial::test(
@@ -26,6 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
     for name in [
         "wrong-gene",
         "wrong-drug",
+        "truncated-diplotype",
         "status",
         "count",
         "unknown-field",
@@ -66,10 +66,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn scenario(name: &'static str) -> Check {
     let (args, body) = rows::scenario(name)?;
     let returned = body.as_array().ok_or("native array")?.len();
-    let total = if matches!(
-        name,
-        "pairs" | "view" | "table" | "guidelines" | "diplotype-page"
-    ) {
+    let total = if matches!(name, "pairs" | "view" | "table" | "guidelines") {
         2
     } else {
         returned
@@ -184,10 +181,10 @@ fn verify_next(name: &str, value: &Value) -> Check {
     Ok(())
 }
 fn failure(name: &'static str) -> Check {
-    let (mut args, mut body) = rows::scenario(if name == "wrong-drug" {
-        "table"
-    } else {
-        "pairs"
+    let (mut args, mut body) = rows::scenario(match name {
+        "wrong-drug" => "table",
+        "truncated-diplotype" => "diplotype",
+        _ => "pairs",
     })?;
     if name == "wrong-gene" {
         *body.pointer_mut("/0/genesymbol").ok_or("synthetic field")? = json!("TPMT");
@@ -258,7 +255,7 @@ fn failure(name: &'static str) -> Check {
 fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Check {
     let output_rows = if name == "card" {
         json!([cold.pointer("/result/identity").ok_or("identity")?])
-    } else if matches!(name, "diplotype" | "diplotype-page" | "empty") {
+    } else if matches!(name, "diplotype" | "empty") {
         cold.pointer("/result/diplotypes")
             .ok_or("diplotypes")?
             .clone()
@@ -313,14 +310,9 @@ fn follow_page(env: &Environment, value: &Value, total: usize) -> Result<usize, 
         })
         .collect::<Result<Vec<_>, _>>()?;
     let page = both(env, args, 0)?;
-    let pointer = if page.pointer("/result/diplotypes").is_some() {
-        "/page"
-    } else {
-        "/result/page"
-    };
-    if page.pointer(&format!("{pointer}/offset")) != Some(&json!(1))
-        || page.pointer(&format!("{pointer}/returned")) != Some(&json!(1))
-        || page.pointer(&format!("{pointer}/total")) != Some(&json!(2))
+    if page.pointer("/result/page/offset") != Some(&json!(1))
+        || page.pointer("/result/page/returned") != Some(&json!(1))
+        || page.pointer("/result/page/total") != Some(&json!(2))
     {
         return Err("next page lost its native count/offset".into());
     }
