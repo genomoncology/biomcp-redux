@@ -2,6 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// Invalid ClinPGx object accession.
+    ClinPgxAccession,
     /// A source-native diagnostic identifier failed its grammar.
     DiagnosticIdInvalid,
     /// A published native drug identifier was invalid.
@@ -157,6 +159,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::ClinPgxAccession => "id.clinpgx.invalid",
             Self::DiagnosticIdInvalid => "diagnostic.id.invalid",
             Self::DrugIdInvalid => "drug.id.invalid",
             Self::DrugIdentityLevelUnknown => "drug.identity_level.unknown",

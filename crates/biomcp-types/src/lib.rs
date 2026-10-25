@@ -147,6 +147,9 @@ pub use adverse_event::{
     AdverseEventReaction, AdverseEventReactions, AdverseEventRecords, AdverseEventSearch,
     AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
 };
+
+mod pgx;
+pub use pgx::*;
 pub use query::{
     DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
 };
