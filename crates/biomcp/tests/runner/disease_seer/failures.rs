@@ -231,25 +231,35 @@ pub(super) fn disabled() -> Result<(), String> {
 }
 
 fn wrong_site() -> Result<(), String> {
-    let stub = Stub::for_source("seer.cancer.gov", "application/json", |request| {
-        let body = super::wire(request)?;
-        let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
-        let mut document: Value =
-            serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?)
-                .map_err(|e| e.to_string())?;
-        let data = document
-            .get_mut("data")
-            .and_then(Value::as_object_mut)
-            .ok_or("missing data")?;
-        let old = data.keys().next().ok_or("missing series")?.clone();
-        let mut parts = old.split('_').collect::<Vec<_>>();
-        *parts.last_mut().ok_or("missing site")? = "999";
-        let new = parts.join("_");
-        let row = data.remove(&old).ok_or("missing original series")?;
-        data.insert(new, row);
-        encoded = json!(document.to_string());
-        Ok(encoded.to_string())
-    })?;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let calls = AtomicUsize::new(0);
+    let stub = Stub::for_source_status(
+        "seer.cancer.gov",
+        "application/json",
+        move |request| {
+            let body = super::wire(request)?;
+            if calls.fetch_add(1, Ordering::SeqCst) >= 2 {
+                return Ok(body);
+            }
+            let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+            let mut document: Value =
+                serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?)
+                    .map_err(|e| e.to_string())?;
+            let data = document
+                .get_mut("data")
+                .and_then(Value::as_object_mut)
+                .ok_or("missing data")?;
+            let old = data.keys().next().ok_or("missing series")?.clone();
+            let mut parts = old.split('_').collect::<Vec<_>>();
+            *parts.last_mut().ok_or("missing site")? = "999";
+            let new = parts.join("_");
+            let row = data.remove(&old).ok_or("missing original series")?;
+            data.insert(new, row);
+            encoded = json!(document.to_string());
+            Ok(encoded.to_string())
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let words = [
         "get",
@@ -266,14 +276,21 @@ fn wrong_site() -> Result<(), String> {
     for _ in 0..2 {
         let value = invoke(&env, &args(&words), 4)?;
         if value.pointer("/status") != Some(&json!("failed"))
+            || value.pointer("/sources/0/state") != Some(&json!("failed"))
+            || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || value.pointer("/problems/0/field") != Some(&json!("record"))
-            || value.pointer("/result/items/0").is_some()
+            || value.get("result").is_some()
         {
             return Err(format!("wrong SEER site admitted: {value}"));
         }
     }
-    if stub.finish()?.len() != 2 {
-        return Err("wrong SEER site entered cache".into());
+    let repaired = invoke(&env, &args(&words), 0)?;
+    let cached = invoke(&env, &args(&words), 0)?;
+    if repaired.get("result").is_none() || cached.get("result") != repaired.get("result") {
+        return Err("corrected SEER reply did not return and cache its native rows".into());
+    }
+    if stub.finish()?.len() != 3 {
+        return Err("wrong SEER site was cached or corrected reply was not cached".into());
     }
     Ok(())
 }
