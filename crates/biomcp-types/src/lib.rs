@@ -118,3 +118,8 @@ pub use response::{
     AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
     VariantAssertions,
 };
+
+mod drug;
+pub use drug::{DrugGet, DrugSearch, DrugSource, DrugSection, DrugHeader, DrugCard, DrugPage, DrugLabel, DrugLabelText, DrugTargets, DrugIndications, DrugCivic, DrugApprovals, DrugRegulatory, DrugInteractions, DrugRecords};
+
+pub use query::QueryInvalid;

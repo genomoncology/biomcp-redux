@@ -143,6 +143,7 @@ fn registry() -> Vec<Contract> {
     contracts.extend(common_registry());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
+    contracts.extend(drug_contracts());
     contracts
 }
 fn variant_contracts() -> Vec<Contract> {
@@ -161,6 +162,37 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/5"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
         Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/4"),
+    }
+}
+
+fn drug_contracts() -> Vec<Contract> {
+    contracts! {
+        DrugId => ("drug-id", "biodata.drug-id/1"),
+        DrugIdentityLevel => ("drug-identity-level", "biodata.drug-identity-level/1"),
+        DrugIdentity => ("drug-identity", "biodata.drug-identity/1"),
+        DrugIdentityRelation => ("drug-identity-relation", "biodata.drug-identity-relation/1"),
+        DrugProduct => ("drug-product", "biodata.drug-product/1"),
+        DrugLabelReference => ("drug-label-reference", "biodata.drug-label-reference/1"),
+        DrugLabelSection => ("drug-label-section", "biodata.drug-label-section/1"),
+        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/1"),
+        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/1"),
+        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/1"),
+        AuthorizationDate => ("authorization-date", "biodata.authorization-date/1"),
+        AuthorizationEvent => ("authorization-event", "biodata.authorization-event/1"),
+        DrugSearch => ("drug-search", "biomcp.drug-search/1"),
+        DrugGet => ("drug-get", "biomcp.drug-get/1"),
+        DrugSource => ("drug-source", "biomcp.drug-source/1"),
+        DrugSection => ("drug-section", "biomcp.drug-section/1"),
+        DrugHeader => ("drug-header", "biomcp.drug-header/1"),
+        Envelope<DrugPage> => ("drug-page", "biomcp.drug_page/1"),
+        Envelope<DrugCard> => ("drug-card", "biomcp.drug_card/1"),
+        Envelope<DrugLabel> => ("drug-label", "biomcp.drug_label/1"),
+        Envelope<DrugTargets> => ("drug-targets", "biomcp.drug_targets/1"),
+        Envelope<DrugIndications> => ("drug-indications", "biomcp.drug_indications/1"),
+        Envelope<DrugCivic> => ("drug-civic", "biomcp.drug_civic/1"),
+        Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug_approvals/1"),
+        Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug_regulatory/1"),
+        Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug_interactions/1"),
     }
 }
 

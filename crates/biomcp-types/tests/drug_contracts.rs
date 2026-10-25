@@ -30,3 +30,93 @@ fn search_defaults_and_required_get_source_are_explicit() {
     assert!(serde_json::from_value::<DrugGet>(json!({"input":"CHEMBL941"})).is_err());
     assert!(serde_json::from_value::<DrugGet>(json!({"input":"chembl:CHEMBL941", "source":"chembl"})).is_err());
 }
+
+#[test]
+fn selected_source_checks_its_native_identifier_grammar() {
+    use biomcp_types::DrugSource;
+    for (source, id) in [("mychem", "KTUFNOKKBVMGRW-UHFFFAOYSA-N"), ("chembl", "CHEMBL941"), ("opentargets", "CHEMBL941"), ("ema", "EMEA/H/C/000406"), ("drugsfda", "NDA021335"), ("openfda-label", "741ff3e3-dc1a-45a6-84e5-2481b27131aa"), ("ddinter", "DDInter1744"), ("civic", "5")] {
+        let selected: DrugSource = source.parse().expect("source");
+        let id: DrugId = id.parse().expect("published ID");
+        assert!(selected.accepts(&id));
+        let request = DrugGet::new(id, selected).expect("native request");
+        let json = serde_json::to_value(&request).expect("request JSON");
+        assert_eq!(serde_json::from_value::<DrugGet>(json).expect("request decode"), request);
+    }
+    for (source, id) in [("chembl", "Gleevec"), ("ema", "CHEMBL941"), ("drugsfda", "NDA1"), ("ddinter", "1744"), ("civic", "0"), ("openfda-label", "not-a-uuid")] {
+        assert!(serde_json::from_value::<DrugGet>(json!({"source":source,"input":id})).is_err());
+    }
+}
+
+#[test]
+fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
+    use biomcp_types::{DrugSection, DrugSource};
+    for name in ["ingredient", "salt", "clinical_formulation", "branded_product", "spl_set", "spl_version", "ndc_package", "fda_application", "fda_product", "ema_authorization", "ema_application", "orphan_designation", "unknown"] {
+        let value: DrugIdentityLevel = name.parse().expect("identity level");
+        assert_eq!(value.to_string(), name);
+        assert_eq!(serde_json::from_value::<DrugIdentityLevel>(json!(name)).expect("JSON level"), value);
+    }
+    for name in ["targets", "indications", "civic", "label", "approvals", "regulatory", "interactions"] {
+        let value: DrugSection = name.parse().expect("section");
+        assert_eq!(value.to_string(), name);
+        assert_eq!(serde_json::from_value::<DrugSection>(json!(name)).expect("JSON section"), value);
+    }
+    for name in ["mychem", "chembl", "opentargets", "civic", "openfda-label", "drugsfda", "ema", "ddinter"] {
+        let value: DrugSource = name.parse().expect("source");
+        assert_eq!(value.to_string(), name);
+        assert_eq!(serde_json::from_value::<DrugSource>(json!(name)).expect("JSON source"), value);
+    }
+    for name in ["all", "shortage", "safety", "cell_lines", "unknown"] {
+        assert!(name.parse::<DrugSection>().is_err());
+    }
+    assert!("who".parse::<DrugSource>().is_err());
+}
+
+#[test]
+fn native_text_and_regulator_date_roles_roundtrip_without_interpretation() {
+    use biodata::{AuthorizationEvent, DrugLabelSection};
+    let event = json!({"record":"EMEA/H/C/000406","jurisdiction":"native jurisdiction","status":"source status","dates":[{"role":"original authorization", "date":"2001-11-07"},{"role":"other date", "date":"2001-11-06"}],"attribution":{"source":"ema","record":"EMEA/H/C/000406"}});
+    let decoded: AuthorizationEvent = serde_json::from_value(event.clone()).expect("event");
+    assert_eq!(serde_json::to_value(decoded).expect("event JSON"), event);
+    let label = json!({"label":{"id":"741ff3e3-dc1a-45a6-84e5-2481b27131aa","attribution":{"source":"openfda-label"}},"heading":"drug_interactions","text":"  original text\nsecond line  "});
+    let decoded: DrugLabelSection = serde_json::from_value(label.clone()).expect("label");
+    assert_eq!(serde_json::to_value(decoded).expect("label JSON"), label);
+}
+
+#[test]
+fn section_options_use_existing_continuation_names_and_reject_card_paging() {
+    let query = json!({"source":"openfda-label","input":"741ff3e3-dc1a-45a6-84e5-2481b27131aa", "section":["label"], "label_section":"drug_interactions", "section_offset":10, "section_limit":20});
+    let parsed: DrugGet = serde_json::from_value(query.clone()).expect("label continuation");
+    assert_eq!(serde_json::to_value(parsed).expect("query JSON"), query);
+    for extra in [json!({"section_limit":0,"section":["targets"]}),json!({"section_limit":51,"section":["targets"]}), json!({"section_offset":0}),json!({"label_section":"drug_interactions"}),json!({"section":["label"]}),json!({"product_number":"001"}),json!({"text_offset":1})] {
+        let mut value = json!({"source":"chembl", "input":"CHEMBL941"});
+        value.as_object_mut().expect("query object").extend(extra.as_object().expect("extra object").clone());
+        assert!(serde_json::from_value::<DrugGet>(value).is_err());
+    }
+    for limit in [0,51] {
+        assert!(serde_json::from_value::<DrugSearch>(json!({"query":"Gleevec", "limit":limit})).is_err());
+    }
+}
+
+#[test]
+#[cfg(feature = "schema")]
+fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
+    use biomcp_types::{DrugCard, DrugHeader};
+    let header = json!({"id":"CHEMBL941", "source":"chembl", "name":"native name", "identity_level":"unknown"});
+    let decoded: DrugHeader = serde_json::from_value(header.clone()).expect("header");
+    assert_eq!(serde_json::to_value(decoded).expect("header JSON"), header);
+    for extra in ["approval", "approval_date", "authorization_events", "label_text", "interactions", "targets"] {
+        let mut value = header.clone();
+        value[extra] = json!([]);
+        assert!(serde_json::from_value::<DrugHeader>(value).is_err());
+        let value = json!({"header":header, extra:[]});
+        assert!(serde_json::from_value::<DrugCard>(value).is_err());
+    }
+    let schema = serde_json::to_value(schemars::schema_for!(DrugHeader)).expect("header schema");
+    let keys: Vec<_> = schema["properties"].as_object().expect("header properties").keys().map(String::as_str).collect();
+    assert_eq!(keys, ["id", "identity_level", "name", "source", "type", "url"]);
+    let schema = serde_json::to_value(schemars::schema_for!(DrugCard)).expect("card schema");
+    let text = serde_json::to_string(&schema).expect("schema JSON");
+    for forbidden in ["AuthorizationEvent", "DrugLabelSection", "DrugInteractionClaim", "DrugTargetRelation"] {
+        assert!(!text.contains(forbidden), "{forbidden}");
+    }
+}

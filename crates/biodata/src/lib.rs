@@ -83,3 +83,6 @@ pub use variant::PredictorScore;
 
 mod license;
 pub use license::License;
+
+mod drug;
+pub use drug::{AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, DrugProduct, DrugLabelReference, DrugLabelSection, DrugTargetRelation, DrugIndicationClaim, DrugInteractionClaim};

@@ -1,0 +1,174 @@
+use biodata::{DrugId, Text};
+use serde::{Deserialize, Serialize};
+use crate::QueryInvalid;
+biodata::canonical_enum! {
+    /// One explicitly selected drug source; omitted search source means MyChem alone.
+    DrugSource, SourceUnknown {
+        /// MyChem candidate identity.
+        Mychem => "mychem",
+        /// ChEMBL native records.
+        Chembl => "chembl",
+        /// Open Targets native drug records.
+        Opentargets => "opentargets",
+        /// CIViC therapy records.
+        Civic => "civic",
+        /// openFDA SPL label records.
+        OpenfdaLabel => "openfda-label",
+        /// Drugs@FDA native application records.
+        Drugsfda => "drugsfda",
+        /// EMA native medicines records.
+        Ema => "ema",
+        /// DDInter native bundle records.
+        Ddinter => "ddinter",
+    }
+}
+biodata::canonical_enum! {
+    /// Explicit drug disclosures; identity cards never expand into these sections.
+    DrugSection, SourceUnknown {
+        /// Native target and mechanism relations.
+        Targets => "targets",
+        /// Native indication wording.
+        Indications => "indications",
+        /// Native CIViC therapy evidence and profile context.
+        Civic => "civic",
+        /// One exact native label heading.
+        Label => "label",
+        /// Native application and product history rows.
+        Approvals => "approvals",
+        /// Source-scoped regulator events.
+        Regulatory => "regulatory",
+        /// Native DDInter partner rows and levels.
+        Interactions => "interactions",
+    }
+}
+fn default_source() -> DrugSource { DrugSource::Mychem }
+fn default_limit() -> u32 { 10 }
+/// Literal single-source candidate discovery, without an implicit identity selection.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "SearchFields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
+pub struct DrugSearch(SearchFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct SearchFields {
+    /// Literal source name selector, unchanged by the consumer.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    query: Text,
+    /// Exactly one source; default MyChem never fans out.
+    #[serde(default = "default_source")]
+    source: DrugSource,
+    /// Native candidate rows per page.
+    #[serde(default = "default_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    limit: u32,
+    /// Native rows to skip.
+    #[serde(default)]
+    offset: u32,
+}
+impl TryFrom<SearchFields> for DrugSearch {
+    type Error = QueryInvalid;
+    fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
+        if !(1..=50).contains(&fields.limit) { return Err(QueryInvalid); }
+        Ok(Self(fields))
+    }
+}
+impl DrugSearch {
+    /// Construct one literal source search with checked page bounds.
+    pub fn new(query: Text, source: DrugSource, limit: u32, offset: u32) -> Result<Self, QueryInvalid> {
+        SearchFields { query, source, limit, offset }.try_into()
+    }
+    /// Source-native selector.
+    pub fn query(&self) -> &Text { &self.0.query }
+    /// The sole source selected for this request.
+    pub fn source(&self) -> DrugSource { self.0.source }
+    /// Native candidate page length.
+    pub fn limit(&self) -> u32 { self.0.limit }
+    /// Native candidate offset.
+    pub fn offset(&self) -> u32 { self.0.offset }
+}
+/// Exact native ID retrieval with an explicitly selected source.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "GetFields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
+pub struct DrugGet(GetFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct GetFields {
+    /// Published source-native identifier, never SOURCE:ID or a selected name.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    input: DrugId,
+    /// Required source; there is no default exact-ID resolver.
+    source: DrugSource,
+    /// Explicit named disclosures; empty means identity only.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Box<[DrugSection]>,
+    /// Named section page size, refused on an identity-only card.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    section_limit: Option<u32>,
+    /// Named section continuation, refused on an identity-only card.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    section_offset: Option<u32>,
+    /// Exact native label heading, required only for the label section.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    label_section: Option<Text>,
+    /// Explicit native application product number, only for approvals.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    product_number: Option<Text>,
+}
+impl TryFrom<GetFields> for DrugGet {
+    type Error = QueryInvalid;
+    fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
+        if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n))
+            || fields.section.is_empty() && (fields.section_limit.is_some() || fields.section_offset.is_some())
+            || fields.section.contains(&DrugSection::Label) != fields.label_section.is_some()
+            || fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals)
+            || !fields.source.accepts(&fields.input)
+        { return Err(QueryInvalid); }
+        Ok(Self(fields))
+    }
+}
+impl DrugGet {
+    /// Select one exact native identity, with no sections requested.
+    pub fn new(input: DrugId, source: DrugSource) -> Result<Self, QueryInvalid> {
+        GetFields { input, source, section: Box::default(), section_limit: None, section_offset: None, label_section: None, product_number: None }.try_into()
+    }
+    /// Unchanged published identifier.
+    pub fn input(&self) -> &DrugId { &self.0.input }
+    /// Required selected source.
+    pub fn source(&self) -> DrugSource { self.0.source }
+    /// Explicit named sections in caller order.
+    pub fn sections(&self) -> &[DrugSection] { &self.0.section }
+    /// Explicit page bound; command handlers apply their existing default when absent.
+    pub fn section_limit(&self) -> Option<u32> { self.0.section_limit }
+    /// Explicit section continuation offset.
+    pub fn section_offset(&self) -> Option<u32> { self.0.section_offset }
+    /// Exact native label heading.
+    pub fn label_section(&self) -> Option<&Text> { self.0.label_section.as_ref() }
+    /// Explicit native product number.
+    pub fn product_number(&self) -> Option<&Text> { self.0.product_number.as_ref() }
+}
+impl DrugSource {
+    /// Check only published ID grammar for this endpoint, without inferring identity level or joining records.
+    pub fn accepts(self, id: &DrugId) -> bool {
+        let id = id.to_string();
+        let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
+        match self {
+            Self::Mychem => true,
+            Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
+            Self::Civic => digits(&id) && id.parse::<u32>().is_ok_and(|n| n > 0 && n <= i32::MAX as u32),
+            Self::Ddinter => id.strip_prefix("DDInter").is_some_and(digits),
+            Self::Drugsfda => ["NDA", "ANDA", "BLA"].iter().any(|p| id.strip_prefix(p).is_some_and(|s| s.len() == 6 && digits(s))),
+            Self::Ema => id.strip_prefix("EMEA/H/C/").is_some_and(|s| s.len() == 6 && digits(s)),
+            Self::OpenfdaLabel => {
+                let pieces: Vec<_> = id.split('-').collect();
+                pieces.iter().map(|s| s.len()).eq([8, 4, 4, 4, 12]) && pieces.iter().all(|s| s.bytes().all(|b| b.is_ascii_hexdigit()))
+            }
+        }
+    }
+}
