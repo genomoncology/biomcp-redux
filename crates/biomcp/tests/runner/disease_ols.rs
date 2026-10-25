@@ -8,6 +8,7 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-ols/literal-zero-never-repairs-to-exact-get", || literal_zero().map_err(Into::into)),
         Trial::test("disease-ols/max-page-keeps-all-candidate-actions", || {
             maximum().map_err(Into::into)
         }),
@@ -357,6 +358,33 @@ fn maximum() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("invalid page limit reached source".into());
+    }
+    Ok(())
+}
+
+fn literal_zero() -> Result<(), String> {
+    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
+        if request.starts_with("GET /ols4/api/search?") {
+            Ok(json!({"response":{"numFound":0,"start":0,"docs":[]}}).to_string())
+        } else {
+            exact_reply(request)
+        }
+    })?;
+    let env = setup(&stub)?;
+    let directory = env.root().join("literal-zero");
+    let mut words = args(&["search", "disease", "MONDO:0007607"]);
+    words.extend(["--record".into(), directory.to_string_lossy().into()]);
+    let value = invoke(&env, &words, 1)?;
+    if value.pointer("/query/text") != Some(&json!("MONDO:0007607")) {
+        return Err("literal input changed".into());
+    }
+    let exact_dir = env.root().join("explicit-exact");
+    record(&env, &["get", "disease", "MONDO:0007607", "--source", "ols"], &exact_dir)?;
+    replay(&directory, json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":4096}]))?;
+    replay(&exact_dir, json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":4096}]))?;
+    let requests = stub.finish()?;
+    if requests.len() != 2 || !requests[0].1.contains("/search?") || !requests[1].1.contains("/terms/") {
+        return Err(format!("zero result triggered repair or hidden lookup: {requests:?}"));
     }
     Ok(())
 }

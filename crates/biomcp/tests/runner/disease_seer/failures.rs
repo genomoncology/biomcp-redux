@@ -118,6 +118,7 @@ pub(super) fn run() -> Result<(), String> {
             json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"seer","/sources/0/state":"failed","/sources/0/reason":reason,"/sources/0/terms":"SEER/NCI Using This Website"},"max_bytes":match status {429=>197,500=>196,_=>194}}]),
         )?;
     }
+    wrong_site()?;
     timeout()?;
     malformed_statistics()?;
     Ok(())
@@ -218,6 +219,37 @@ pub(super) fn disabled() -> Result<(), String> {
     }
     if stub.finish()?.len() != 1 {
         return Err("disabled source requested again".into());
+    }
+    Ok(())
+}
+
+fn wrong_site() -> Result<(), String> {
+    let stub = Stub::for_source("seer.cancer.gov", "application/json", |request| {
+        let body = super::wire(request)?;
+        let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+        let mut document: Value = serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?).map_err(|e| e.to_string())?;
+        let data = document["data"].as_object_mut().ok_or("missing data")?;
+        let old = data.keys().next().ok_or("missing series")?.clone();
+        let mut parts = old.split('_').collect::<Vec<_>>();
+        *parts.last_mut().ok_or("missing site")? = "999";
+        let new = parts.join("_");
+        let row = data.remove(&old).ok_or("missing original series")?;
+        data.insert(new, row);
+        encoded = json!(document.to_string());
+        Ok(encoded.to_string())
+    })?;
+    let env = setup(&stub)?;
+    let words = ["get","disease","55","survival","--source","seer","--dataset","4","--interval","5"];
+    for _ in 0..2 {
+        let value = invoke(&env, &args(&words), 4)?;
+        if value.pointer("/status") != Some(&json!("failed"))
+            || value.pointer("/problems/0/field") != Some(&json!("record"))
+            || value.pointer("/result/items/0").is_some() {
+            return Err(format!("wrong SEER site admitted: {value}"));
+        }
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("wrong SEER site entered cache".into());
     }
     Ok(())
 }

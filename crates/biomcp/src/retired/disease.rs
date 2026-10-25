@@ -2,28 +2,28 @@
 use biomcp_types::ErrorMessage;
 use std::ffi::OsString;
 const FLAGS: &[(&str, ErrorMessage)] = &[
-    ("-q", ErrorMessage::DiseaseMigration0),
-    ("--query", ErrorMessage::DiseaseMigration0),
-    ("--inheritance", ErrorMessage::DiseaseMigration1),
-    ("--phenotype", ErrorMessage::DiseaseMigration2),
-    ("--onset", ErrorMessage::DiseaseMigration3),
-    ("--no-fallback", ErrorMessage::DiseaseMigration4),
+    ("-q", ErrorMessage::DiseaseText),
+    ("--query", ErrorMessage::DiseaseText),
+    ("--inheritance", ErrorMessage::DiseaseInheritance),
+    ("--phenotype", ErrorMessage::DiseasePhenotypeFilter),
+    ("--onset", ErrorMessage::DiseaseOnset),
+    ("--no-fallback", ErrorMessage::DiseaseNoFallback),
     ("-l", ErrorMessage::DiseaseLimit),
     ("-j", ErrorMessage::DiseaseJson),
     ("--json", ErrorMessage::DiseaseJson),
     ("--no-cache", ErrorMessage::DiseaseFresh),
 ];
 const SECTIONS: &[(&str, ErrorMessage)] = &[
-    ("pathways", ErrorMessage::DiseaseMigration9),
-    ("diagnostics", ErrorMessage::DiseaseMigration10),
-    ("variants", ErrorMessage::DiseaseMigration11),
-    ("models", ErrorMessage::DiseaseMigration12),
-    ("prevalence", ErrorMessage::DiseaseMigration13),
-    ("funding", ErrorMessage::DiseaseMigration14),
-    ("civic", ErrorMessage::DiseaseMigration15),
-    ("disgenet", ErrorMessage::DiseaseMigration16),
-    ("all", ErrorMessage::DiseaseMigration17),
-    ("clinical_features", ErrorMessage::DiseaseMigration18),
+    ("pathways", ErrorMessage::DiseasePathways),
+    ("diagnostics", ErrorMessage::DiseaseDiagnostics),
+    ("variants", ErrorMessage::DiseaseVariants),
+    ("models", ErrorMessage::DiseaseModels),
+    ("prevalence", ErrorMessage::DiseasePrevalence),
+    ("funding", ErrorMessage::DiseaseFunding),
+    ("civic", ErrorMessage::DiseaseCivic),
+    ("disgenet", ErrorMessage::DiseaseDisgenet),
+    ("all", ErrorMessage::DiseaseAll),
+    ("clinical_features", ErrorMessage::DiseaseClinicalFeatures),
 ];
 pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
@@ -48,7 +48,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             return Some(found);
         }
         if disease && flag == "--name" {
-            option = Some(ErrorMessage::DiseaseMigration19);
+            option = Some(ErrorMessage::DiseaseName);
         }
         if flag == "--name" || super::takes_value(flag, &positional).unwrap_or(false) {
             let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
@@ -60,23 +60,23 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         }
     }
     match positional.as_slice() {
-        ["list", "disease", ..] => Some(ErrorMessage::DiseaseMigration24),
-        ["search", "phenotype", ..] => Some(ErrorMessage::DiseaseMigration23),
-        ["disease", "drugs", ..] => Some(ErrorMessage::DiseaseMigration22),
-        ["search", "disease", ..] if matches!(source, Some("mondo" | "doid" | "mesh")) => Some(ErrorMessage::DiseaseMigration8),
+        ["list", "disease", ..] => Some(ErrorMessage::DiseaseHelp),
+        ["search", "phenotype", ..] => Some(ErrorMessage::DiseaseRanking),
+        ["disease", "drugs", ..] => Some(ErrorMessage::DiseaseDrugs),
+        ["search", "disease", ..] if matches!(source, Some("mondo" | "doid" | "mesh")) => Some(ErrorMessage::DiseaseOntologySelector),
         ["get", "disease", id, rest @ ..] => {
             let section = section.or_else(|| (!literal).then(|| rest.first().copied()).flatten());
             if section == Some("genes") && source == Some("opentargets") {
-                return Some(ErrorMessage::DiseaseMigration21);
+                return Some(ErrorMessage::DiseaseOpenTargets);
             }
             if section == Some("survival") && source != Some("seer") {
-                return Some(ErrorMessage::DiseaseMigration20);
+                return Some(ErrorMessage::DiseaseSite);
             }
             if let Some(retired) = section.and_then(|s| super::find(SECTIONS, s)) {
                 return Some(retired);
             }
             if !id.contains(':') && source != Some("seer") {
-                return Some(ErrorMessage::DiseaseMigration19);
+                return Some(ErrorMessage::DiseaseName);
             }
             option
         }

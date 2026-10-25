@@ -4,6 +4,7 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-monarch/wrong-endpoint-without-closure-never-enters-cache", || wrong().map_err(Into::into)),
         Trial::test(
             "disease-monarch/disabled-before-network-cache-and-replay",
             || disabled().map_err(Into::into),
@@ -117,6 +118,30 @@ fn unsupported() -> Result<(), String> {
         if value.get("sources").is_some() {
             return Err("unsupported section reached source".into());
         }
+    }
+    Ok(())
+}
+
+fn wrong() -> Result<(), String> {
+    let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
+        let mut row = association();
+        row["object_closure"] = json!(["MONDO:9999999"]);
+        Ok(json!({"limit":5,"offset":0,"total":1,"items":[row]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    for _ in 0..2 {
+        let value = invoke(&env, WORDS, 4)?;
+        if value.pointer("/status") != Some(&json!("failed"))
+            || value.pointer("/problems/0/field") != Some(&json!("record"))
+            || value.pointer("/result/items/0").is_some() {
+            return Err(format!("wrong Monarch identity admitted: {value}"));
+        }
+        if super::super::source_terms::size(&value, "")? > 4096 {
+            return Err("wrong identity exceeds measured budget".into());
+        }
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("wrong Monarch identity entered cache".into());
     }
     Ok(())
 }
