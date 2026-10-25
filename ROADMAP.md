@@ -303,7 +303,7 @@ The output budget uses complete measured CLI/MCP envelopes and states why no con
 
 Sources:
 - [x] openFDA FAERS and device reports (optional key)
-- [ ] VAERS
+- [ ] VAERS through CDC WONDER (MMR, COVID-19, influenza summaries)
 - [ ] CVX (bundle)
 
 The FAERS and MAUDE accounting records retained commands, explicit retirements and the unresolved vaccine source slot. VAERS, CDC WONDER and CVX wording remain pending Ian under their separate owner. Full same-question comparison with 0.9 remains a separate release requirement. Dropped: FDA recalls (outside this entity), the duplicate drug helper and its ClinicalTrials.gov fallback (trial data cannot replace spontaneous reports). Drug-card enrichment remains accounted in the drug ledger.
