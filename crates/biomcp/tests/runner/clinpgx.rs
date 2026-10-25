@@ -9,6 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![];
     for name in [
         "clinical",
+        "default",
         "wide",
         "guideline",
         "label",
@@ -57,6 +58,9 @@ fn args(name: &str) -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec();
+    if name == "default" {
+        args.truncate(args.len().saturating_sub(2));
+    }
     if name == "wide" {
         args = args
             .into_iter()
@@ -72,7 +76,7 @@ fn native(name: &str) -> Result<Value, String> {
     let data = match name {
         "annotation" => rows::detail(1)?,
         "clinical" => json!([rows::clinical(1, "DPYD"), rows::clinical(2, "DPYD")]),
-        "wide" => Value::Array((1..=6).map(|id| rows::clinical(id, "DPYD")).collect()),
+        "wide" | "default" => Value::Array((1..=6).map(|id| rows::clinical(id, "DPYD")).collect()),
         "empty" => json!([]),
         _ => rows::references(),
     };
@@ -185,7 +189,11 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     if rows
         != &expected
             .iter()
-            .take(if name == "wide" { 5 } else { 1 })
+            .take(match name {
+                "wide" => 5,
+                "default" => 3,
+                _ => 1,
+            })
             .cloned()
             .collect::<Vec<_>>()
         || v.pointer("/result/page/total") != Some(&json!(expected.len()))
@@ -195,7 +203,7 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     }
     let empty = vec![];
     let next = v.get("next").and_then(Value::as_array).unwrap_or(&empty);
-    if name == "clinical"
+    if matches!(name, "clinical" | "default")
         && next.first().and_then(|v| v.get("kind")) != Some(&json!("disambiguate"))
     {
         return Err("clinical candidate not first".into());
@@ -243,8 +251,16 @@ fn walk(env: &Environment, v: &Value) -> Check {
         return Err("retained collection bypassed source admission".into());
     }
     let second = both(env, next, 0)?;
+    let returned = v
+        .pointer("/result/page/returned")
+        .and_then(Value::as_u64)
+        .ok_or("returned")?;
+    let total = v
+        .pointer("/result/page/total")
+        .and_then(Value::as_u64)
+        .ok_or("total")?;
     if second.pointer("/result/page/offset") != v.pointer("/result/page/returned")
-        || second.pointer("/result/page/returned") != Some(&json!(1))
+        || second.pointer("/result/page/returned") != Some(&json!(returned.min(total - returned)))
         || second.pointer("/result/items/0") == v.pointer("/result/items/0")
     {
         return Err("local page skipped or repeated row".into());
