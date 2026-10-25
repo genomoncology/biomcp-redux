@@ -1,6 +1,7 @@
 # 0127 — Search and get drugs through ChEMBL and Open Targets with targets and indications
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 480e6a51b0abd167078cee51cc7845bcbb21ffa4
 
 Milestone: 3
 
